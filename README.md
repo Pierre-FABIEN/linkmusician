@@ -3,6 +3,16 @@
 Socle SvelteKit (Svelte 5) : commerce, blog, espace d'administration et
 authentification, sur PostgreSQL via Prisma.
 
+## Projet LinkMusician
+
+Ce socle sert de base à **LinkMusician**, une plateforme de la musique
+avec une progression de type RPG. Points d'entrée :
+
+- [docs/conception/](./docs/conception/README.md) : vision, règles, architecture
+- [docs/plan/](./docs/plan/README.md) : lots de travail et état d'avancement
+- [docs/decisions/](./docs/decisions/README.md) : registre des décisions
+- [CLAUDE.md](./CLAUDE.md) : consignes de travail avec Claude Code
+
 ## Démarrer
 
 ```bash
