@@ -76,17 +76,17 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 
 ### Phase 0 — Assainir le boilerplate → [phase-0.md](./phase-0.md)
 
-| Lot    | Intitulé                                               | Dépend de    | Statut | PR                                                                                   |
-| ------ | ------------------------------------------------------ | ------------ | ------ | ------------------------------------------------------------------------------------ |
-| P0-01  | Environnement local et état de référence               | —            | ⏸      | En attente de la base (Docker WSL), voir [état de référence](./etat-de-reference.md) |
-| P0-01b | Rapatrier la réparation du socle (faite en amont)      | P0-01        | ⬜     |                                                                                      |
-| P0-02  | Trancher les décisions de lancement                    | —            | ⬜     |                                                                                      |
-| P0-03  | Retirer les codes promo                                | P0-01b       | ⬜     |                                                                                      |
-| P0-04  | Retirer le commerce et ses satellites                  | P0-03        | ⬜     |                                                                                      |
-| P0-05  | Retirer le catalogue produits                          | P0-04        | ⬜     |                                                                                      |
-| P0-06  | Nettoyage transverse (navigation, pages, seed, deps)   | P0-05        | ⬜     |                                                                                      |
-| P0-07  | Nouvelle base de migrations, PostGIS, rôle MODERATOR   | P0-06, P0-02 | ⬜     |                                                                                      |
-| P0-08  | Coquille de l'application et identité visuelle de base | P0-06        | ⬜     |                                                                                      |
+| Lot    | Intitulé                                               | Dépend de            | Statut | PR                                                                                                            |
+| ------ | ------------------------------------------------------ | -------------------- | ------ | ------------------------------------------------------------------------------------------------------------- |
+| P0-01  | Environnement local et état de référence               | —                    | ⏸      | Tout est vert sauf e2e : en attente de la base (Docker WSL), voir [état de référence](./etat-de-reference.md) |
+| P0-01b | Rapatrier la réparation du socle (faite en amont)      | P0-01                | ✅     | Synchro `fe82121`, historique relié (`d24aed5`)                                                               |
+| P0-02  | Trancher les décisions de lancement                    | —                    | ⬜     |                                                                                                               |
+| P0-03  | Retirer les codes promo                                | P0-01b, e2e de P0-01 | ⬜     |                                                                                                               |
+| P0-04  | Retirer le commerce et ses satellites                  | P0-03                | ⬜     |                                                                                                               |
+| P0-05  | Retirer le catalogue produits                          | P0-04                | ⬜     |                                                                                                               |
+| P0-06  | Nettoyage transverse (navigation, pages, seed, deps)   | P0-05                | ⬜     |                                                                                                               |
+| P0-07  | Nouvelle base de migrations, PostGIS, rôle MODERATOR   | P0-06, P0-02         | ⬜     |                                                                                                               |
+| P0-08  | Coquille de l'application et identité visuelle de base | P0-06                | ⬜     |                                                                                                               |
 
 ### Phase 1 — Identité musicale et moteur de progression → [phase-1.md](./phase-1.md)
 

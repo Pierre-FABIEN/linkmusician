@@ -1,5 +1,26 @@
 # État de référence du boilerplate (lot P0-01)
 
+## Situation actuelle (03/11/2026, après synchro amont) ✅
+
+Les quatre causes décrites plus bas ont été corrigées **en amont**, dans
+`Boilerplate-Ecommerce` (PR `fix/sveltekit3-migration`). Le correctif a
+été rapatrié ici avec les mises à jour Dependabot fusionnées ensuite
+(`fe82121`). L'historique est désormais relié au boilerplate (merge
+`d24aed5`) : une prochaine synchro se fera par `git fetch boilerplate &&
+git merge boilerplate/main`.
+
+| Vérification                 | Résultat                                  |
+| ---------------------------- | ----------------------------------------- |
+| `npm run check`              | ✅ 0 erreur, 0 avertissement              |
+| `npm run lint`               | ✅ 0 erreur (12 avertissements existants) |
+| `npm run test:unit -- --run` | ✅ 94 passés, 2 ignorés                   |
+| `npx vite build`             | ✅ (adapter Vercel)                       |
+| `npm run test:e2e`           | ⏸ toujours non mesuré (pas de base)       |
+
+Le reste de ce document est l'**historique** du diagnostic initial.
+
+---
+
 Mesuré le 03/11/2026 sur le commit `7cd1137` (commit initial), après un
 `npm ci` propre (Node 24.13, npm 11.11), avec un `.env` et un `.env.test`
 locaux à secrets factices. Il sert de point de comparaison pour tous les
