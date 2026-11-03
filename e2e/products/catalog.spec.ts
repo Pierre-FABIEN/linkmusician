@@ -1,0 +1,58 @@
+import { test, expect } from '../support/fixtures';
+import { waitForPath } from '../support/flows';
+import { expectNoA11yViolations } from '../support/a11y';
+import {
+	createCatalogProduct,
+	deleteCatalogProduct,
+	getProductBySlug,
+	getStoreFeatureFlags
+} from '../support/db';
+
+/**
+ * Vitrine publique Prisma : liste, fiche, 404. Pas de formulaires admin.
+ */
+test.describe('Catalogue — vitrine', () => {
+	test('liste, fiche et slug inconnu', async ({ page }) => {
+		const created = await createCatalogProduct();
+		const { product, category } = created;
+
+		try {
+			await test.step('1. La liste affiche le nom Prisma', async () => {
+				await page.goto('/products');
+				await waitForPath(page, '/products');
+				await expect(page.getByRole('heading', { name: 'Offres' })).toBeVisible();
+				await expect(page.getByRole('heading', { name: product.name })).toBeVisible();
+				// La sidebar de filtres est dupliquée (desktop + tiroir mobile) : deux libellés
+				// portent le même texte, d'où `.first()`.
+				await expect(page.getByText(category.name, { exact: true }).first()).toBeVisible();
+				await expectNoA11yViolations(page);
+			});
+
+			await test.step('2. La fiche s’ouvre par slug', async () => {
+				await page.goto(`/products/${product.slug}`);
+				await waitForPath(page, `/products/${product.slug}`);
+				await expect(page.getByRole('heading', { name: product.name })).toBeVisible();
+				// Prix affiché TTC (Arrêté du 3 déc. 1987), `Product.price` reste HT en base.
+				const { vatRate } = await getStoreFeatureFlags();
+				const priceTTC = product.price * (1 + (vatRate ?? 0.055));
+				await expect(page.getByText(`${priceTTC.toFixed(2)} €`)).toBeVisible();
+				expect(await getProductBySlug(product.slug)).not.toBeNull();
+				await expectNoA11yViolations(page);
+			});
+
+			await test.step('3. Un slug inconnu renvoie 404', async () => {
+				const response = await page.goto('/products/e2e-slug-inconnu-absent');
+				expect(response?.status()).toBe(404);
+			});
+
+			await test.step('4. Pas d’UI d’édition admin sur la vitrine', async () => {
+				await page.goto('/products');
+				const html = await page.content();
+				expect(html).not.toContain('/admin/products');
+				expect(html).not.toContain('passwordHash');
+			});
+		} finally {
+			await deleteCatalogProduct(product.id);
+		}
+	});
+});

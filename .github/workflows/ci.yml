@@ -1,0 +1,163 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-and-check:
+    runs-on: ubuntu-latest
+    env:
+      # `svelte-check` importe des modules `$app/env/private` et
+      # `$app/env/public` (voir src/lib/auth/index.ts,
+      # src/routes/api/address-search, src/routes/admin/blog/post/**).
+      # Les variables sont déclarées dans src/env.ts et les valeurs factices
+      # suffisent aux étapes de build/test de CI ; elles ne sont jamais
+      # utilisées en production.
+      BETTER_AUTH_SECRET: ci-better-auth-secret-jamais-utilise-en-prod
+      GOOGLE_CLIENT_ID: ci-google-client-id
+      GOOGLE_CLIENT_SECRET: ci-google-client-secret
+      SECRET_ADDRESS_SEARCH_MODE: e2e
+      PUBLIC_TINYMCE_API_KEY: ci
+      STRIPE_SECRET_KEY: sk_test_ci
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.22.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (prettier)
+        run: npm run lint:prettier
+
+      - name: Lint (eslint)
+        # Bloquant sur les erreurs (svelte/require-each-key,
+        # svelte/prefer-svelte-reactivity, svelte/prefer-writable-derived :
+        # bugs de réactivité potentiels). Le reste de la dette ESLint
+        # pré-existante (no-explicit-any, no-at-html-tags...) est en 'warn'
+        # dans eslint.config.js — visible ici mais ne bloque pas ce step.
+        run: npm run lint:eslint
+
+      - name: Type-check (svelte-check)
+        run: npm run check
+
+      - name: Build (vite build)
+        # Un build qui plante n'était jusqu'ici découvert que sur Vercel, après
+        # le merge — svelte-check ne valide pas tout ce que Vite/Rollup peuvent
+        # rejeter (imports de modules serveur en client, adapter Vercel, etc.).
+        # Mêmes env vars factices que les steps précédents, suffisantes car
+        # `sentrySvelteKit({ autoUploadSourceMaps: false })` ne requiert aucun
+        # token Sentry au build (voir commentaire dans vite.config.ts).
+        run: npm run build
+
+      - name: Lint (knip)
+        # Non-bloquant : les dépendances inutilisées ont été triées (voir
+        # RESTE_A_FAIRE.md §2.4), reste 2 fichiers candidats à vérifier
+        # individuellement avant suppression — pas de quoi bloquer le build.
+        run: npm run lint:knip
+        continue-on-error: true
+
+      - name: Unit tests
+        # `--coverage` : chiffre de référence (voir RESTE_A_FAIRE.md), pas
+        # de seuil configuré (`vite.config.ts`) donc ce step reste bloquant
+        # uniquement sur des tests rouges, jamais sur la couverture elle-même.
+        run: npm run test:unit:coverage
+
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: e2e
+          POSTGRES_PASSWORD: e2e
+          POSTGRES_DB: e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      # Base Postgres jetable du job (pas Neon) : aucun secret de dépôt requis.
+      DATABASE_URL: postgresql://e2e:e2e@localhost:5432/e2e
+      DIRECT_URL: postgresql://e2e:e2e@localhost:5432/e2e
+      # Secret de test dédié à cette base éphémère, jamais utilisé en dehors de la CI.
+      BETTER_AUTH_SECRET: ci-e2e-better-auth-secret-jamais-utilise-en-prod
+      PUBLIC_ENV: test
+      CRON_SECRET: e2e-cron-secret
+      ACCOUNTING_EXPORT_EMAIL: e2e-comptabilite@example.test
+      DISPUTE_ALERT_EMAIL: e2e-litiges@example.test
+      # Puits SMTP local démarré par `e2e/support/global-setup.ts` : aucun email ne sort réellement.
+      SMTP_HOST: 127.0.0.1
+      SMTP_PORT: 2525
+      SMTP_HTTP_PORT: 2526
+      SMTP_USER: e2e
+      SMTP_PASS: e2e
+      # Valeurs factices : les intégrations externes (Google, Sendcloud,
+      # Cloudinary...) détectent ces placeholders et s'exécutent en mode mock
+      # (voir `.env.test.example`). Les specs réellement live vivent sous
+      # `e2e/live/` et sont exclues ci-dessous.
+      GOOGLE_CLIENT_ID: e2e-google-client-id
+      GOOGLE_CLIENT_SECRET: e2e-google-client-secret
+      # Stripe n'a pas de mode mock (contrairement aux autres intégrations
+      # ci-dessus) : `fraud-detection.spec.ts`/`saved-payments.spec.ts` font
+      # de vrais appels API. Secret optionnel : tant qu'il n'est pas configuré
+      # (Settings → Secrets and variables → Actions → STRIPE_TEST_SECRET_KEY),
+      # ces deux specs échouent avec un placeholder invalide, le reste du job
+      # n'est pas affecté.
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY || 'sk_test_e2e' }}
+      STRIPE_WEBHOOK_SECRET: whsec_e2e
+      VITE_STRIPE_PUBLISHABLE_KEY: pk_test_e2e
+      SENDCLOUD_BASE_URL: https://panel.sendcloud.sc
+      SENDCLOUD_PUBLIC_KEY: e2e
+      SENDCLOUD_SECRET_KEY: e2e
+      SENDCLOUD_INTEGRATION_ID: '0'
+      SENDCLOUD_SENDER_ADDRESS_ID: e2e
+      SENDCLOUD_WEBHOOK_SECRET: e2e-sendcloud-webhook-secret
+      VITE_SHOP_FROM_COUNTRY: FR
+      VITE_SHOP_FROM_POSTAL: '31000'
+      CLOUDINARY_CLOUD_NAME: e2e
+      CLOUDINARY_API_KEY: e2e
+      CLOUDINARY_API_SECRET: e2e
+      PUBLIC_TINYMCE_API_KEY: e2e
+      SECRET_ADDRESS_SEARCH_MODE: e2e
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.22.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests (hors specs live)
+        # `e2e/live/**` appelle de vrais services externes (Brevo, Cloudinary,
+        # Sendcloud) et exige de vrais identifiants — hors périmètre CI.
+        # Bloquant depuis le 12/10/2026 : stabilité confirmée sur plusieurs
+        # mesures propres (suite commerce/ 33/33 sans retry, voir
+        # RESTE_A_FAIRE.md §A.3.1) — seule une vraie régression doit faire
+        # échouer ce step désormais.
+        run: >-
+          npx playwright test
+          e2e/admin e2e/auth e2e/blog e2e/commerce e2e/contact
+          e2e/gift-cards e2e/products e2e/promo
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

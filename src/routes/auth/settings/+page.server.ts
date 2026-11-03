@@ -1,0 +1,205 @@
+// -----------------------------------------------------------------------------
+// Paramètres du compte : adresse email, mot de passe, double authentification.
+//
+// Trois actions, trois précautions :
+//   - changer d'adresse n'écrit rien tout de suite ; l'adresse n'est remplacée
+//     qu'après validation du code envoyé à la nouvelle ;
+//   - changer de mot de passe exige le mot de passe courant et révoque les
+//     autres sessions (`auth.api.changePassword`), la session en cours étant
+//     conservée ;
+//   - activer la 2FA renvoie vers sa configuration, qui délivre le code de secours.
+// -----------------------------------------------------------------------------
+
+import {
+	createEmailVerificationRequest,
+	sendVerificationEmail,
+	sendVerificationEmailBucket,
+	setEmailVerificationRequestCookie
+} from '#lib/server/emailVerification';
+import { fail, redirect } from '@sveltejs/kit';
+import { APIError } from 'better-auth/api';
+import { auth } from '#lib/auth';
+import { applyAuthCookies } from '#lib/auth/cookies';
+import { checkEmailAvailability } from '#lib/prisma/email/email';
+import { ExpiringTokenBucket } from '#lib/server/rate-limit';
+import { message, setError, superValidate } from 'sveltekit-superforms';
+import { emailSchema, passwordSchema } from '#lib/schema/auth/settingsSchemas';
+import { zod } from 'sveltekit-superforms/adapters';
+
+import type { Actions, RequestEvent } from './$types';
+import { isMfaEnabledSchema } from '#lib/schema/users/MfaEnabledSchema';
+import {
+	getMarketingEmailsOptIn,
+	getUserMFA,
+	updateMarketingEmailsOptIn,
+	updateUserMFA
+} from '#lib/prisma/user/user';
+import { getStoreFeatureFlags } from '#lib/server/storeSettings';
+import { getSessionDeviceContext } from '#lib/server/deviceContext';
+import { notifyPasswordChanged } from '#lib/server/passwordChangedAlert';
+
+const passwordUpdateBucket = new ExpiringTokenBucket<string>(5, 60 * 30, 'settings-password');
+
+export const load = async (event: RequestEvent) => {
+	if (event.locals.session === null || event.locals.user === null) {
+		return redirect(302, '/auth/login');
+	}
+
+	if (!event.locals.user.emailVerified) {
+		return redirect(302, '/auth/verify-email');
+	}
+
+	// Initialiser les formulaires Superform
+	const passwordForm = await superValidate(event, zod(passwordSchema));
+	const emailForm = await superValidate(event, zod(emailSchema));
+	const isMfaEnabledForm = await superValidate(
+		{ isMfaEnabled: event.locals.user.isMfaEnabled }, // Passer la valeur actuelle
+		zod(isMfaEnabledSchema)
+	);
+
+	const { wishlistEnabled, savedPaymentsEnabled, returnsEnabled, referralEnabled } =
+		await getStoreFeatureFlags();
+	const marketingEmailsOptIn = await getMarketingEmailsOptIn(event.locals.user.id);
+
+	return {
+		// Plus de code de récupération persistant ici : Better Auth ne permet
+		// plus de le relire une fois chiffré (voir /auth/recovery-code, affiché
+		// une seule fois juste après la configuration).
+		recoveryCode: null,
+		user: event.locals.user,
+		passwordForm,
+		emailForm,
+		isMfaEnabledForm,
+		wishlistEnabled,
+		savedPaymentsEnabled,
+		returnsEnabled,
+		referralEnabled,
+		marketingEmailsOptIn
+	};
+};
+
+export const actions: Actions = {
+	password: async (event: RequestEvent) => {
+		// Le formulaire est validé d'abord : les messages d'erreur doivent passer
+		// par `message(form, ...)` pour que superforms les expose côté client.
+		const form = await superValidate(event, zod(passwordSchema));
+
+		if (event.locals.session === null || event.locals.user === null) {
+			return message(form, 'Not authenticated', { status: 401 });
+		}
+		if (!(await passwordUpdateBucket.check(event.locals.session.id, 1))) {
+			return message(form, 'Too many requests', { status: 429 });
+		}
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		const { password, new_password } = form.data;
+
+		await passwordUpdateBucket.reset(event.locals.session.id);
+
+		let authHeaders: Headers | undefined;
+		try {
+			const result = await auth.api.changePassword({
+				body: { currentPassword: password, newPassword: new_password, revokeOtherSessions: true },
+				headers: event.request.headers,
+				returnHeaders: true
+			});
+			authHeaders = result.headers;
+		} catch (error) {
+			if (error instanceof APIError) {
+				if (error.body?.code === 'INVALID_PASSWORD') {
+					return message(form, 'Incorrect password', { status: 400 });
+				}
+				// Robustesse (longueur/HaveIBeenPwned) refusée par Better Auth.
+				setError(
+					form,
+					'new_password',
+					'Ce mot de passe est trop courant ou a fuité, choisissez-en un autre.'
+				);
+				return fail(400, { form });
+			}
+			throw error;
+		}
+		applyAuthCookies(event, authHeaders);
+
+		// Jamais bloquant pour la réponse : un échec d'envoi ne doit pas empêcher
+		// la confirmation du changement de mot de passe (voir `notifyPasswordChanged`).
+		void notifyPasswordChanged(event.locals.user.email, getSessionDeviceContext(event.request));
+
+		return message(form, 'Password modified successfully');
+	},
+
+	email: async (event: RequestEvent) => {
+		const form = await superValidate(event, zod(emailSchema));
+
+		if (event.locals.session === null || event.locals.user === null) {
+			return message(form, 'Not authenticated', { status: 401 });
+		}
+		if (!(await sendVerificationEmailBucket.check(event.locals.user.id, 1))) {
+			return message(form, 'Too many requests', { status: 429 });
+		}
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		const { email } = form.data;
+
+		const emailAvailable = await checkEmailAvailability(email);
+		if (!emailAvailable) {
+			return message(form, 'This email is already used', { status: 400 });
+		}
+
+		const verificationRequest = await createEmailVerificationRequest(event.locals.user.id, email);
+		try {
+			await sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+		} catch (error) {
+			console.error("Échec de l'envoi du code de vérification :", error);
+		}
+		setEmailVerificationRequestCookie(event, verificationRequest);
+
+		redirect(302, '/auth/verify-email');
+	},
+
+	isMfaEnabled: async (event: RequestEvent) => {
+		const form = await superValidate(event, zod(isMfaEnabledSchema));
+
+		if (event.locals.user === null) {
+			return message(form, 'Not authenticated', { status: 401 });
+		}
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+		// Récupérer l'état actuel
+		const currentStatus = await getUserMFA(event.locals.user.id);
+		if (currentStatus === null) {
+			return message(form, 'Not authenticated', { status: 401 });
+		}
+
+		// Inverser la propriété isMfaEnabled
+		const newMfaStatus = !currentStatus.isMfaEnabled;
+
+		// Mettre à jour la base de données
+		await updateUserMFA(event.locals.user.id, {
+			isMfaEnabled: newMfaStatus
+		});
+
+		return message(form, {
+			text: 'Authentication modifiée',
+			newStatus: newMfaStatus
+		});
+	},
+
+	marketingEmailsOptIn: async (event: RequestEvent) => {
+		if (event.locals.user === null) {
+			return fail(401);
+		}
+		const current = await getMarketingEmailsOptIn(event.locals.user.id);
+		const next = !current;
+		await updateMarketingEmailsOptIn(event.locals.user.id, next);
+		return { marketingEmailsOptIn: next };
+	}
+};

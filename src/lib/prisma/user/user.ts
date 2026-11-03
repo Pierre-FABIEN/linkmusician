@@ -1,0 +1,244 @@
+// -----------------------------------------------------------------------------
+// Accès Prisma au modèle `User`.
+//
+// Ce fichier est partagé : il sert à l'authentification (identifiants, email
+// vérifié, TOTP, code de récupération, OAuth) ET à l'administration commerce
+// (listes, rôles, suppression). En retirant le module d'authentification, seules
+// les fonctions marquées AUTH-PLUGIN disparaissent.
+//
+// Les secrets 2FA (`totpKey`, `recoveryCode`) sont chiffrés ici même : ils ne
+// transitent jamais en clair dans la base.
+// -----------------------------------------------------------------------------
+
+import { normalizeListParams, type ListParams } from '#lib/prisma/pagination';
+import { anonymizeUser } from './anonymizeUser';
+import { isValidId } from '#lib/server/ids';
+
+const USER_SORTABLE = ['email', 'username', 'role', 'createdAt'] as const;
+import { prisma } from '#lib/server';
+import type { Role } from '@prisma/client';
+
+// 1. On ajoute createdAt dans la sélection, car on retourne déjà un ensemble de champs utilisateur
+export const getUserByEmailPrisma = async (email: string) => {
+	return await prisma.user.findUnique({
+		where: { email },
+		select: {
+			id: true,
+			email: true,
+			username: true,
+			emailVerified: true,
+			googleId: true,
+			name: true,
+			picture: true,
+			isMfaEnabled: true,
+			role: true,
+			createdAt: true
+		}
+	});
+};
+
+export const updateUserEmail = async (userId: string, email: string) => {
+	return await prisma.user.update({
+		where: { id: userId },
+		data: {
+			email,
+			emailVerified: true // Marque l'email comme vérifié
+		}
+	});
+};
+
+export const verifyUserEmail = async (userId: string, email: string) => {
+	return await prisma.user.updateMany({
+		where: {
+			id: userId,
+			email
+		},
+		data: {
+			emailVerified: true
+		}
+	});
+};
+
+export async function updateUserEmailAndSetEmailAsVerified(
+	userId: string,
+	email: string
+): Promise<void> {
+	if (!isValidId(userId)) {
+		throw new Error('Invalid user ID format');
+	}
+	await updateUserEmail(userId, email);
+}
+
+/** Vérifie l'email du compte, seulement si `email` correspond encore à l'adresse en attente. */
+export async function setUserAsEmailVerifiedIfEmailMatches(
+	userId: string,
+	email: string
+): Promise<boolean> {
+	if (!isValidId(userId)) {
+		throw new Error('Invalid user ID format');
+	}
+	const result = await verifyUserEmail(userId, email);
+	return result.count > 0;
+}
+
+/** Champs d'un utilisateur exposables au back-office, sans secret. */
+const adminUserSelect = {
+	id: true,
+	email: true,
+	username: true,
+	name: true,
+	picture: true,
+	role: true,
+	emailVerified: true,
+	isMfaEnabled: true,
+	googleId: true,
+	createdAt: true,
+	updatedAt: true
+} as const;
+
+/**
+ * Liste paginée pour `/admin/users` : recherche sur email/pseudo/nom, tri sur
+ * email/pseudo/rôle/date de création. `userColumns` (`admin/users/+page.svelte`)
+ * n'affiche que nom/email/rôle — la jointure `orders`/`address` qu'avait cette
+ * requête était donc entièrement inutilisée ici (nécessaire seulement sur la
+ * fiche `/admin/users/[id]`) et n'est plus chargée.
+ */
+export const getAllUsers = async (params: ListParams = {}) => {
+	const { page, perPage, skip, search, sort, dir } = normalizeListParams(params, {
+		perPage: 20,
+		defaultSort: 'createdAt',
+		sortable: USER_SORTABLE
+	});
+
+	const where = search
+		? {
+				OR: [
+					{ email: { contains: search, mode: 'insensitive' as const } },
+					{ username: { contains: search, mode: 'insensitive' as const } },
+					{ name: { contains: search, mode: 'insensitive' as const } }
+				]
+			}
+		: undefined;
+
+	try {
+		const [items, total] = await Promise.all([
+			prisma.user.findMany({
+				where,
+				select: {
+					...adminUserSelect,
+					addresses: true
+				},
+				orderBy: { [sort]: dir },
+				skip,
+				take: perPage
+			}),
+			prisma.user.count({ where })
+		]);
+
+		return { items, total, page, perPage, search, sort, dir };
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.error('Error fetching users:', error);
+			throw new Error('Could not fetch users');
+		} else {
+			console.error('Unknown error fetching users:', error);
+			throw new Error('An unknown error occurred');
+		}
+	}
+};
+
+/**
+ * Anonymise le compte plutôt que de le supprimer physiquement — voir
+ * `#lib/prisma/user/anonymizeUser.ts` pour le détail et pourquoi (l'ancienne
+ * implémentation supprimait purement et simplement les commandes de
+ * l'utilisateur, perdant l'historique comptable que `Order.user`
+ * (`onDelete: Restrict`) est censé protéger). Nom de fonction et signature
+ * conservés : `/admin/users?/deleteUser` n'a rien à changer.
+ */
+export async function deleteUser(userId: string) {
+	try {
+		await anonymizeUser(userId);
+		return { success: true };
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			throw new Error('Error deleting user: ' + error.message);
+		} else {
+			throw new Error('An unknown error occurred during user deletion.');
+		}
+	}
+}
+
+export const updateUserRole = async (id: string, role: Role) => {
+	try {
+		const updatedUser = await prisma.user.update({
+			where: { id },
+			data: { role }
+		});
+		// console.log('User role updated:', updatedUser);
+		return updatedUser;
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.error('Error updating user role:', error);
+			throw error;
+		} else {
+			console.error('Unknown error updating user role:', error);
+			throw new Error('An unknown error occurred during role update.');
+		}
+	}
+};
+
+export async function getUsersById(userId: string) {
+	return await prisma.user.findUnique({
+		where: { id: userId },
+		select: adminUserSelect
+	});
+}
+
+export async function getUserMFA(userId: string) {
+	return await prisma.user.findUnique({
+		where: { id: userId },
+		select: { isMfaEnabled: true }
+	});
+}
+
+export async function updateUserMFA(userId: string, data: { isMfaEnabled: boolean }) {
+	return await prisma.user.update({
+		where: { id: userId },
+		data: { isMfaEnabled: data.isMfaEnabled }
+	});
+}
+
+export async function getMarketingEmailsOptIn(userId: string) {
+	const user = await prisma.user.findUnique({
+		where: { id: userId },
+		select: { marketingEmailsOptIn: true }
+	});
+	return user?.marketingEmailsOptIn ?? false;
+}
+
+export async function updateMarketingEmailsOptIn(userId: string, optIn: boolean) {
+	return await prisma.user.update({
+		where: { id: userId },
+		data: { marketingEmailsOptIn: optIn }
+	});
+}
+
+export async function latestUsers() {
+	const users = await prisma.user.findMany({
+		orderBy: { createdAt: 'desc' },
+		take: 5,
+		select: {
+			id: true,
+			email: true,
+			username: true,
+			createdAt: true,
+			name: true,
+			role: true
+		}
+	});
+
+	return users.map((user) => ({
+		...user,
+		createdAt: user.createdAt.toISOString()
+	}));
+}
