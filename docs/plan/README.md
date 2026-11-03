@@ -88,21 +88,22 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 
 ### Phase 1 — Identité musicale et moteur de progression → [phase-1.md](./phase-1.md)
 
-| Lot   | Intitulé                                        | Dépend de                    | Statut | PR  |
-| ----- | ----------------------------------------------- | ---------------------------- | ------ | --- |
-| P1-01 | Noyau de progression pur (`progression/core`)   | — _(parallélisable avec P0)_ | ⬜     |     |
-| P1-02 | Maquettes : onboarding, profil, tableau de bord | P0-02                        | ⬜     |     |
-| P1-03 | Acteur et personne, âge minimum à l'inscription | P0-04                        | ⬜     |     |
-| P1-04 | Référentiels instruments et genres              | P0-04                        | ⬜     |     |
-| P1-05 | Localisation floutée                            | P1-03                        | ⬜     |     |
-| P1-06 | Compétences : instruments, genres, influences   | P1-03, P1-04                 | ⬜     |     |
-| P1-07 | Registre XP, outbox, projecteur, succès         | P1-01, P1-03                 | ⬜     |     |
-| P1-08 | Médias : upload direct, traitement, modération  | P1-03                        | ⬜     |     |
-| P1-09 | Confiance TL0/TL1 et quotas                     | P1-07                        | ⬜     |     |
-| P1-10 | Onboarding                                      | P1-02, P1-05, P1-06, P1-07   | ⬜     |     |
-| P1-11 | Profil public et tableau de bord de progression | P1-08, P1-10                 | ⬜     |     |
-| P1-12 | Signalements, modération minimale, RGPD étendu  | P1-08                        | ⬜     |     |
-| P1-13 | Instrumentation des indicateurs produit         | P1-10                        | ⬜     |     |
+| Lot    | Intitulé                                            | Dépend de                    | Statut | PR  |
+| ------ | --------------------------------------------------- | ---------------------------- | ------ | --- |
+| P1-01  | Noyau de progression pur (`progression/core`)       | — _(parallélisable avec P0)_ | ⬜     |     |
+| P1-02  | Maquettes : onboarding, profil, tableau de bord     | P0-02                        | ⬜     |     |
+| P1-03a | Inscription : personne, âge minimum, rôle MODERATOR | P0-03                        | 🟡     |     |
+| P1-03b | Choix des métiers (« Qui es-tu ? »)                 | P1-03a                       | ⬜     |     |
+| P1-04  | Référentiels instruments et genres                  | P0-04                        | ⬜     |     |
+| P1-05  | Localisation floutée                                | P1-03a                       | ⬜     |     |
+| P1-06  | Compétences : instruments, genres, influences       | P1-03a, P1-04                | ⬜     |     |
+| P1-07  | Registre XP, outbox, projecteur, succès             | P1-01, P1-03a                | ⬜     |     |
+| P1-08  | Médias : upload direct, traitement, modération      | P1-03a                       | ⬜     |     |
+| P1-09  | Confiance TL0/TL1 et quotas                         | P1-07                        | ⬜     |     |
+| P1-10  | Onboarding                                          | P1-02, P1-05, P1-06, P1-07   | ⬜     |     |
+| P1-11  | Profil public et tableau de bord de progression     | P1-08, P1-10                 | ⬜     |     |
+| P1-12  | Signalements, modération minimale, RGPD étendu      | P1-08                        | ⬜     |     |
+| P1-13  | Instrumentation des indicateurs produit             | P1-10                        | ⬜     |     |
 
 ### Phase 2 — Découverte, annonces, messagerie, collaborations → [phase-2-3.md](./phase-2-3.md)
 

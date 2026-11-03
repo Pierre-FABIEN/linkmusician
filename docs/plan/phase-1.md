@@ -56,23 +56,50 @@ peuvent démarrer pendant la phase 0.
   libellés de l'échelle de niveau d'instrument sont fixés (décision
   D11).
 
-## P1-03 — Acteur et personne, âge minimum
+## P1-03a — Inscription : personne, âge minimum, rôle MODERATOR
 
-- **Référence** : [conception/04 §1-2](../conception/04-modele-donnees.md)
-  (`Actor`, `Person`, `PersonTrack`).
+- **Décisions** : D5, D14, D16.
 - **Tâches** :
-  - Migration.
-  - Date de naissance ajoutée au formulaire d'inscription (email et
-    Google : écran de complétion après OAuth). Refus sous 16 ans.
-  - Création atomique `User` → `Actor` → `Person` (hook Better Auth
-    `after` sur la création de l'utilisateur, ou première visite de
-    `(app)`).
-  - Génération et validation du `handle` (unique, slug, liste de mots
-    réservés).
-- **Fin** : tout utilisateur connecté a exactement un `Actor` et une
-  `Person`. Un e2e couvre l'inscription d'un mineur (refusée) et celle
-  d'un majeur (acteur créé). Un unitaire couvre la génération de
-  `handle` (collisions, mots réservés).
+  - Ouvrir la section `LINKMUSICIAN` en fin de `schema.prisma` :
+    `Actor`, `Person`, `PersonTrack` (enum `TrackKind`). Ajouter
+    `MODERATOR` à l'enum `Role` (une ligne marquée). Une migration.
+  - Règles pures et testées dans `src/lib/server/actors/` : calcul de
+    l'âge (16 ans minimum, 29 février compris), génération et validation
+    du `handle` (slug, longueur, mots réservés, collisions).
+  - Formulaire d'inscription : champs date de naissance et acceptation
+    des CGU (schéma Zod du boilerplate étendu, avec marqueur). Refus sous
+    16 ans **avant** la création du compte. Création de `Actor` et
+    `Person` juste après `signUpEmail`.
+  - Compte sans `Person` (Google, comptes existants, comptes créés par
+    les tests du boilerplate) : la garde est posée **uniquement** à
+    l'entrée de la zone LinkMusician `(app)`, qui redirige vers l'écran de
+    complétion `/bienvenue` (date de naissance, et handle si absent). Les
+    pages du boilerplate restent accessibles, donc sa suite e2e ne casse
+    pas.
+  - Mettre à jour le spec e2e d'inscription du boilerplate
+    (`e2e/auth/journey.spec.ts`) pour le nouveau champ, avec un marqueur.
+- **Fin** :
+  - inscription d'un majeur : `User`, `Actor` et `Person` créés ;
+    inscription d'un mineur : refusée, aucun compte créé ;
+  - compte Google sans `Person` : redirigé vers `/bienvenue` en entrant
+    dans `(app)`, puis admis après complétion ;
+  - tests unitaires (âge, handle), test d'intégration (création
+    atomique), e2e d'inscription au vert.
+
+## P1-03b — Choix des métiers (« Qui es-tu ? »)
+
+- **Décisions** : D15.
+- **Tâches** : écran affiché après la vérification de l'email (ou après
+  `/bienvenue`) : un ou plusieurs métiers parmi musicien,
+  producteur·rice, ingé son, manager, booker / programmateur·rice,
+  organisateur·rice, professionnel·le de label, éditeur·rice,
+  communication musicale. Un métier principal. Les métiers autres que
+  musicien affichent « bientôt » et créent un profil de base. Les
+  métiers restent modifiables dans les réglages. Proposer ensuite
+  « créer ou rejoindre une structure » (bientôt, sauf groupe en phase 3).
+- **Fin** : au moins un métier enregistré pour toute personne qui a
+  terminé l'écran. Un e2e choisit deux métiers et vérifie le métier
+  principal.
 
 ## P1-04 — Référentiels instruments et genres
 
