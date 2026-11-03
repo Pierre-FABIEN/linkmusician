@@ -69,20 +69,22 @@ signalements et modération admin, export et suppression RGPD.
 Chaque phase est livrable et utilisable seule. Les critères
 d'acceptation sont vérifiables par un test automatisé ou une mesure.
 
-### Phase 0 — Assainir le boilerplate _(≈1 semaine)_
+### Phase 0 — Préparer le socle _(≈1 semaine)_
 
-- **Décisions** : liste des modules retirés (D6), nom et handle du
-  produit, zone de lancement (D4).
-- **Travail** : retirer commerce, produits, promo, cartes cadeaux,
-  retours, Sendcloud et factures selon `docs/*/retrait.md`. Supprimer
-  les crons associés de `vercel.json`. Faire une migration de nettoyage.
-  Activer PostGIS sur Neon. Ajouter le rôle `MODERATOR`.
+- **Décisions** : D6 (on garde tous les modules, la boutique est mise en
+  veille), D10 (on garde l'historique de migrations), nom et handle du
+  produit (D9), zone de lancement (D4).
+- **Travail** : interrupteur `SHOP_ENABLED` et garde des routes de
+  boutique, base Neon dédiée avec PostGIS, rôle `MODERATOR`, coquille
+  `(app)`, procédure de synchro avec le boilerplate.
 - **Dépendances** : aucune.
-- **Acceptation** : `npm run check`, `lint`, `test:unit` et e2e (auth,
-  admin, contact) sont au vert. Aucune référence restante à
-  `Order`, `Product` ou `Stripe` hors `stripe.ts` (dormant). `knip` ne
-  signale pas de nouveau fichier mort.
-- **Tests** : la suite e2e existante d'auth et d'admin, sans régression.
+- **Acceptation** : `check`, `lint`, `test:unit` et toute la suite e2e du
+  boilerplate (boutique activée en e2e) au vert. Boutique coupée :
+  `/products` renvoie une 404 et aucun lien de boutique n'est visible.
+  Les modifications des fichiers du boilerplate sont toutes marquées
+  `LINKMUSICIAN:`.
+- **Tests** : suite e2e existante sans régression, plus
+  `e2e/linkmusician/shop-off.spec.ts`.
 
 ### Phase 1 — Identité musicale et moteur de progression _(≈3-4 semaines)_
 

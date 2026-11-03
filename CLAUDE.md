@@ -1,8 +1,10 @@
 # LinkMusician — consignes pour Claude Code
 
 Plateforme sociale et professionnelle de la musique, avec une progression
-de type RPG. Le projet est bâti sur un boilerplate SvelteKit e-commerce,
-en cours d'assainissement.
+de type RPG. Le projet est bâti sur le boilerplate SvelteKit e-commerce
+`Boilerplate-Ecommerce` (remote git `boilerplate`, historique relié). Ses
+modules sont **conservés** : la boutique est mise en veille, pas
+supprimée (décision D6).
 
 ## Où trouver quoi
 
@@ -26,6 +28,17 @@ en cours d'assainissement.
 - Une règle métier qui change met à jour `docs/conception/` dans la même
   PR. Une décision prise est consignée dans `docs/decisions/`.
 - Documentation et messages de commit en **français**.
+
+## Cohabitation avec le boilerplate
+
+- Le code LinkMusician vit dans ses propres fichiers (dossiers de domaine,
+  groupe de routes `(app)`, section `LINKMUSICIAN` en fin de
+  `schema.prisma`).
+- Une modification d'un fichier du boilerplate est **minimale** et marquée
+  d'un commentaire `LINKMUSICIAN:`. On ne supprime aucun module du
+  boilerplate.
+- Une amélioration générique se propose plutôt en amont, puis se
+  rapatrie avec `git fetch boilerplate && git merge boilerplate/main`.
 
 ## Invariants à ne jamais violer
 

@@ -74,19 +74,17 @@ traîner.
 
 Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ découpé
 
-### Phase 0 — Assainir le boilerplate → [phase-0.md](./phase-0.md)
+### Phase 0 — Préparer le socle pour LinkMusician → [phase-0.md](./phase-0.md)
 
-| Lot    | Intitulé                                               | Dépend de            | Statut | PR                                                                                                            |
-| ------ | ------------------------------------------------------ | -------------------- | ------ | ------------------------------------------------------------------------------------------------------------- |
-| P0-01  | Environnement local et état de référence               | —                    | ⏸      | Tout est vert sauf e2e : en attente de la base (Docker WSL), voir [état de référence](./etat-de-reference.md) |
-| P0-01b | Rapatrier la réparation du socle (faite en amont)      | P0-01                | ✅     | Synchro `fe82121`, historique relié (`d24aed5`)                                                               |
-| P0-02  | Trancher les décisions de lancement                    | —                    | ⬜     |                                                                                                               |
-| P0-03  | Retirer les codes promo                                | P0-01b, e2e de P0-01 | ⬜     |                                                                                                               |
-| P0-04  | Retirer le commerce et ses satellites                  | P0-03                | ⬜     |                                                                                                               |
-| P0-05  | Retirer le catalogue produits                          | P0-04                | ⬜     |                                                                                                               |
-| P0-06  | Nettoyage transverse (navigation, pages, seed, deps)   | P0-05                | ⬜     |                                                                                                               |
-| P0-07  | Nouvelle base de migrations, PostGIS, rôle MODERATOR   | P0-06, P0-02         | ⬜     |                                                                                                               |
-| P0-08  | Coquille de l'application et identité visuelle de base | P0-06                | ⬜     |                                                                                                               |
+| Lot    | Intitulé                                                   | Dépend de         | Statut | PR                                                                                                      |
+| ------ | ---------------------------------------------------------- | ----------------- | ------ | ------------------------------------------------------------------------------------------------------- |
+| P0-01  | Environnement local et état de référence                   | —                 | ⏸      | Tout est vert sauf e2e : en attente d'une base dédiée, voir [état de référence](./etat-de-reference.md) |
+| P0-01b | Rapatrier la réparation du socle (faite en amont)          | —                 | ✅     | Synchro `fe82121`, historique relié (`d24aed5`)                                                         |
+| P0-02  | Trancher les décisions de lancement                        | —                 | 🟡     | D6 et D10 tranchées le 03/11                                                                            |
+| P0-03  | Mettre la boutique en veille (interrupteur `SHOP_ENABLED`) | P0-01             | ⬜     |                                                                                                         |
+| P0-04  | Base dédiée, PostGIS, rôle MODERATOR                       | P0-01             | ⬜     |                                                                                                         |
+| P0-05  | Coquille de l'application et identité visuelle de base     | P0-03, P0-02 (D9) | ⬜     |                                                                                                         |
+| P0-06  | Documentation et synchro amont outillée                    | P0-05             | ⬜     |                                                                                                         |
 
 ### Phase 1 — Identité musicale et moteur de progression → [phase-1.md](./phase-1.md)
 
@@ -94,8 +92,8 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 | ----- | ----------------------------------------------- | ---------------------------- | ------ | --- |
 | P1-01 | Noyau de progression pur (`progression/core`)   | — _(parallélisable avec P0)_ | ⬜     |     |
 | P1-02 | Maquettes : onboarding, profil, tableau de bord | P0-02                        | ⬜     |     |
-| P1-03 | Acteur et personne, âge minimum à l'inscription | P0-07                        | ⬜     |     |
-| P1-04 | Référentiels instruments et genres              | P0-07                        | ⬜     |     |
+| P1-03 | Acteur et personne, âge minimum à l'inscription | P0-04                        | ⬜     |     |
+| P1-04 | Référentiels instruments et genres              | P0-04                        | ⬜     |     |
 | P1-05 | Localisation floutée                            | P1-03                        | ⬜     |     |
 | P1-06 | Compétences : instruments, genres, influences   | P1-03, P1-04                 | ⬜     |     |
 | P1-07 | Registre XP, outbox, projecteur, succès         | P1-01, P1-03                 | ⬜     |     |
