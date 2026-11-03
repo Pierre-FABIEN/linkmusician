@@ -2,15 +2,22 @@
 	// Raison sociale saisie depuis `/admin/identite` (`#lib/server/companyIdentity.ts`)
 	// — nom de marque en dur tant qu'elle n'est pas renseignée, pour ne rien
 	// changer avant que l'entreprise n'ait complété son identité.
+	// LINKMUSICIAN: le lien CGV disparaît quand la boutique est en veille.
+	import { PUBLIC_SHOP_ENABLED } from '$app/env/public';
+	import { withoutShopLinks } from '#lib/shop/gate';
+
 	let { companyName = null }: { companyName?: string | null } = $props();
 
-	const legalLinks = [
-		{ href: '/mentions-legales', label: 'Mentions légales' },
-		{ href: '/cgv', label: 'CGV' },
-		{ href: '/cgu', label: 'CGU' },
-		{ href: '/confidentialite', label: 'Confidentialité' },
-		{ href: '/contact', label: 'Contact' }
-	];
+	const legalLinks = withoutShopLinks(
+		[
+			{ href: '/mentions-legales', label: 'Mentions légales' },
+			{ href: '/cgv', label: 'CGV' },
+			{ href: '/cgu', label: 'CGU' },
+			{ href: '/confidentialite', label: 'Confidentialité' },
+			{ href: '/contact', label: 'Contact' }
+		],
+		PUBLIC_SHOP_ENABLED
+	);
 
 	const year = new Date().getFullYear();
 </script>

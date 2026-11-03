@@ -1,4 +1,6 @@
 import { defineEnvVars } from '@sveltejs/kit/env';
+// LINKMUSICIAN: interrupteur global de la boutique, voir src/lib/shop/gate.ts.
+import { parseShopEnabled } from './lib/shop/gate.ts';
 
 export const variables = defineEnvVars({
 	BETTER_AUTH_SECRET: { static: true },
@@ -13,5 +15,7 @@ export const variables = defineEnvVars({
 	// valeur, même vide) : `undefined` reste un résultat valide.
 	SENTRY_DSN: { schema: (value: string | undefined) => value },
 	PUBLIC_SENTRY_DSN: { public: true, schema: (value: string | undefined) => value },
-	STRIPE_SECRET_KEY: {}
+	STRIPE_SECRET_KEY: {},
+	// LINKMUSICIAN: absente = `false`, la boutique est en veille (`src/hooks.ts`).
+	PUBLIC_SHOP_ENABLED: { public: true, schema: parseShopEnabled }
 });

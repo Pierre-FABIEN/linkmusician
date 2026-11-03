@@ -1,6 +1,9 @@
 import type { RequestHandler } from './$types';
 import { sitemapConfig } from '#lib/sitemap.config';
 import { prisma } from '#lib/server';
+// LINKMUSICIAN: boutique en veille, voir src/lib/shop/gate.ts.
+import { PUBLIC_SHOP_ENABLED } from '$app/env/public';
+import { isShopHref } from '#lib/shop/gate';
 
 // Importer toutes les pages Svelte automatiquement
 const pages = import.meta.glob('../**/+page.svelte', { eager: true });
@@ -155,8 +158,14 @@ ${blogPosts
 
 // Handler GET pour servir le sitemap
 export const GET: RequestHandler = async () => {
-	const paths = extractPaths();
-	const [blogPosts, products] = await Promise.all([getBlogPosts(), getProducts()]);
+	// LINKMUSICIAN: ni pages ni fiches de boutique quand elle est en veille.
+	const paths = PUBLIC_SHOP_ENABLED
+		? extractPaths()
+		: extractPaths().filter(({ path }) => !isShopHref(path));
+	const [blogPosts, products] = await Promise.all([
+		getBlogPosts(),
+		PUBLIC_SHOP_ENABLED ? getProducts() : Promise.resolve([])
+	]);
 	const body = generateSitemap(paths, blogPosts, products);
 	return new Response(body, {
 		headers: {

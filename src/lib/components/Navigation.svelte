@@ -7,16 +7,23 @@
 	import { Button, buttonVariants } from '#shadcn/button';
 	import { Menu } from 'lucide-svelte';
 	import { mode } from 'mode-watcher';
+	// LINKMUSICIAN: boutique en veille → liens filtrés, menu compte à la place du panier.
+	import AccountMenu from '#lib/components/linkmusician/AccountMenu.svelte';
+	import { PUBLIC_SHOP_ENABLED } from '$app/env/public';
+	import { withoutShopLinks } from '#lib/shop/gate';
 
 	/* ── Data  ────────────────────────────────────────────────────────────── */
 	let { data } = $props();
 
-	const links = [
-		{ href: '/', label: 'Accueil' },
-		{ href: '/products', label: 'Offres' }, // PRODUCT-PLUGIN
-		{ href: '/blog', label: 'Blog' }, // BLOG-PLUGIN
-		{ href: '/contact', label: 'Contact' } // CONTACT-PLUGIN
-	];
+	const links = withoutShopLinks(
+		[
+			{ href: '/', label: 'Accueil' },
+			{ href: '/products', label: 'Offres' }, // PRODUCT-PLUGIN
+			{ href: '/blog', label: 'Blog' }, // BLOG-PLUGIN
+			{ href: '/contact', label: 'Contact' } // CONTACT-PLUGIN
+		],
+		PUBLIC_SHOP_ENABLED // LINKMUSICIAN:
+	);
 
 	/* ── State ────────────────────────────────────────────────────────────── */
 	let drawerOpen = $state(false); // bound to Drawer.Root
@@ -92,8 +99,13 @@
 				<Options />
 			</div>
 			<div>
-				<Cart {data} />
-				<!-- COMMERCE-PLUGIN -->
+				<!-- LINKMUSICIAN: menu compte seul quand la boutique est en veille. -->
+				{#if PUBLIC_SHOP_ENABLED}
+					<Cart {data} />
+					<!-- COMMERCE-PLUGIN -->
+				{:else}
+					<AccountMenu user={data.user ?? null} />
+				{/if}
 			</div>
 		</div>
 	</nav>

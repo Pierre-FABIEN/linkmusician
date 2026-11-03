@@ -69,7 +69,22 @@ jusqu'à `fe82121`, et l'historique a été relié (`d24aed5`). Détail dans
   avec une ligne de justification.
 - **Pas de code.**
 
-## P0-03 — Mettre la boutique en veille
+## P0-03 — Mettre la boutique en veille ✅
+
+> **Réalisé le 03/11/2026.** Variable `PUBLIC_SHOP_ENABLED` (absente =
+> `false`). Garde par le hook universel `reroute` dans un nouveau fichier
+> `src/hooks.ts` : `hooks.server.ts` n'est pas modifié. Logique pure et
+> testée dans `src/lib/shop/gate.ts`. Points de modification du
+> boilerplate : `env.ts`, `Navigation.svelte`, `Footer.svelte`, le menu
+> admin et `sitemap.xml`, tous marqués `LINKMUSICIAN:`. Le spec e2e
+> `shop-off` est remplacé par des tests unitaires et une vérification
+> dans le navigateur (l'interrupteur ne se bascule pas par test). **À
+> adapter** quand LinkMusician vendra ses propres services : l'interrupteur
+> deviendra alors un découpage plus fin.
+>
+> Constats à proposer au boilerplate : toute 404 est journalisée comme
+> `UnhandledError`, et le corps des pages n'est rendu que côté client
+> (`{#if $isClient}` dans le layout racine), ce qui pénalise le SEO.
 
 - **Objectif** : la boutique disparaît de l'expérience LinkMusician, mais
   reste réactivable par un seul interrupteur et reste couverte par les

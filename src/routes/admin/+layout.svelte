@@ -3,6 +3,9 @@
 	import * as Sidebar from '#shadcn/sidebar/index.js';
 	import SmoothScrollBar from '#lib/components/smoothScrollBar/SmoothScrollBar.svelte';
 	import SEO from '#lib/components/SEO.svelte';
+	// LINKMUSICIAN: entrées de boutique masquées (pas bloquées) quand elle est en veille.
+	import { PUBLIC_SHOP_ENABLED } from '$app/env/public';
+	import { withoutShopLinks } from '#lib/shop/gate';
 
 	let { data, children } = $props();
 
@@ -13,32 +16,35 @@
 	const navMain = $derived([
 		{
 			title: 'Dashboard',
-			items: [
-				{ title: 'Accueil', url: '/admin' },
-				{ title: 'ventes', url: '/admin/sales' }, // COMMERCE-PLUGIN
-				{ title: 'utilisateurs', url: '/admin/users' },
-				{ title: 'produits', url: '/admin/products' }, // PRODUCT-PLUGIN
-				{ title: 'avis', url: '/admin/products/reviews' }, // PRODUCT-PLUGIN
-				...(data.productQnaEnabled
-					? [{ title: 'questions produits', url: '/admin/products/questions' }] // PRODUCT-PLUGIN
-					: []),
-				{ title: 'blog', url: '/admin/blog' }, // BLOG-PLUGIN
-				{ title: 'promo', url: '/admin/promo' }, // PROMO-PLUGIN
-				...(data.giftCardsEnabled ? [{ title: 'cartes cadeaux', url: '/admin/gift-cards' }] : []),
-				...(data.returnsEnabled
-					? [{ title: 'retours', url: '/admin/returns' }] // COMMERCE-PLUGIN
-					: []),
-				...(data.fraudDetectionEnabled
-					? [{ title: 'fraude', url: '/admin/fraud' }] // COMMERCE-PLUGIN
-					: []),
-				{ title: 'contacts', url: '/admin/contacts' }, // CONTACT-PLUGIN
-				{ title: 'métriques', url: '/admin/metrics' },
-				{ title: 'exports', url: '/admin/exports' },
-				{ title: 'identité de l’entreprise', url: '/admin/identite' },
-				{ title: 'taux de TVA', url: '/admin/tva' },
-				{ title: 'délai de livraison', url: '/admin/livraison' },
-				{ title: 'modules', url: '/admin/settings' }
-			]
+			items: withoutShopLinks(
+				[
+					{ title: 'Accueil', url: '/admin' },
+					{ title: 'ventes', url: '/admin/sales' }, // COMMERCE-PLUGIN
+					{ title: 'utilisateurs', url: '/admin/users' },
+					{ title: 'produits', url: '/admin/products' }, // PRODUCT-PLUGIN
+					{ title: 'avis', url: '/admin/products/reviews' }, // PRODUCT-PLUGIN
+					...(data.productQnaEnabled
+						? [{ title: 'questions produits', url: '/admin/products/questions' }] // PRODUCT-PLUGIN
+						: []),
+					{ title: 'blog', url: '/admin/blog' }, // BLOG-PLUGIN
+					{ title: 'promo', url: '/admin/promo' }, // PROMO-PLUGIN
+					...(data.giftCardsEnabled ? [{ title: 'cartes cadeaux', url: '/admin/gift-cards' }] : []),
+					...(data.returnsEnabled
+						? [{ title: 'retours', url: '/admin/returns' }] // COMMERCE-PLUGIN
+						: []),
+					...(data.fraudDetectionEnabled
+						? [{ title: 'fraude', url: '/admin/fraud' }] // COMMERCE-PLUGIN
+						: []),
+					{ title: 'contacts', url: '/admin/contacts' }, // CONTACT-PLUGIN
+					{ title: 'métriques', url: '/admin/metrics' },
+					{ title: 'exports', url: '/admin/exports' },
+					{ title: 'identité de l’entreprise', url: '/admin/identite' },
+					{ title: 'taux de TVA', url: '/admin/tva' },
+					{ title: 'délai de livraison', url: '/admin/livraison' },
+					{ title: 'modules', url: '/admin/settings' }
+				],
+				PUBLIC_SHOP_ENABLED
+			)
 		}
 	]);
 </script>
