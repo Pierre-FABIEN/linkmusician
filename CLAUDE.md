@@ -39,6 +39,13 @@ supprimée (décision D6).
   boilerplate.
 - Une amélioration générique se propose plutôt en amont, puis se
   rapatrie avec `git fetch boilerplate && git merge boilerplate/main`.
+- **Relire chaque migration générée** (`prisma migrate dev`) : Prisma
+  propose de supprimer ou recréer des index du boilerplate créés en SQL
+  brut et absents de `schema.prisma` (`transactions_*`,
+  `blog_posts_published_createdAt_idx`). Ces lignes doivent être retirées
+  à la main avant d'appliquer la migration.
+- `prisma format` réaligne parfois des lignes du boilerplate : remettre
+  ces lignes à l'identique pour limiter les conflits.
 
 ## Invariants à ne jamais violer
 

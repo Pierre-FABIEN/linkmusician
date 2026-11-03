@@ -21,6 +21,8 @@
 import { prisma } from '#lib/server';
 import { stripe } from '#lib/server/stripe';
 import { invalidateUserSessions } from '#lib/auth/session';
+// LINKMUSICIAN: anonymisation de la personne (Actor/Person/PersonTrack).
+import { personAnonymizationOps } from '#lib/prisma/actors/person';
 
 export async function anonymizeUser(userId: string): Promise<void> {
 	const savedPaymentMethods = await prisma.savedPaymentMethod.findMany({
@@ -39,7 +41,10 @@ export async function anonymizeUser(userId: string): Promise<void> {
 		}
 	}
 
+	const linkmusicianOps = await personAnonymizationOps(userId); // LINKMUSICIAN:
+
 	await prisma.$transaction([
+		...linkmusicianOps, // LINKMUSICIAN:
 		prisma.user.update({
 			where: { id: userId },
 			data: {

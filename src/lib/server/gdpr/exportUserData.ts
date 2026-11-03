@@ -7,6 +7,8 @@
  * un sens pour le titulaire des données lui-même.
  */
 import { prisma } from '#lib/server';
+// LINKMUSICIAN: données de la personne (Actor/Person/PersonTrack).
+import { exportPersonData } from '#lib/prisma/actors/person';
 
 export async function buildUserDataExport(userId: string) {
 	const [
@@ -79,9 +81,12 @@ export async function buildUserDataExport(userId: string) {
 		})
 	]);
 
+	const linkmusician = await exportPersonData(userId); // LINKMUSICIAN:
+
 	return {
 		export_genere_le: new Date().toISOString(),
 		profil: user,
+		linkmusician, // LINKMUSICIAN:
 		adresses: addresses,
 		commandes: orders.map((order) => ({
 			id: order.id,

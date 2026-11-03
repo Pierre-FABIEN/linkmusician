@@ -28,6 +28,10 @@ const invalidateUserSessions = vi.fn().mockResolvedValue(undefined);
 
 const transactionCalls: unknown[] = [];
 
+// LINKMUSICIAN: l'anonymisation de la personne a son propre module, neutralisé
+// ici pour que ce test ne vérifie que le périmètre du boilerplate.
+vi.mock('#lib/prisma/actors/person', () => ({ personAnonymizationOps: async () => [] }));
+
 vi.mock('#lib/server', () => ({
 	prisma: {
 		user: { update: userUpdate },

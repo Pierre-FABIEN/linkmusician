@@ -111,14 +111,26 @@ export async function sessionCookie(page: Page) {
 	return cookies.find((cookie) => cookie.name === SESSION_COOKIE && cookie.value !== '') ?? null;
 }
 
-/** Remplit les trois champs de l'inscription sans soumettre. */
+/** Remplit les champs de l'inscription sans soumettre. */
 export async function fillSignupForm(
 	page: Page,
-	values: { username: string; email: string; password: string }
+	values: {
+		username: string;
+		email: string;
+		password: string;
+		// LINKMUSICIAN: champs ajoutés (D5, D16), valeurs par défaut valides pour
+		// que les appels existants du boilerplate restent inchangés.
+		birthDate?: string;
+		acceptTerms?: boolean;
+	}
 ) {
 	await fillStable(page.locator('input[name="username"]'), values.username);
 	await fillStable(page.locator('input[name="email"]'), values.email);
 	await fillStable(page.locator('input[name="password"]'), values.password);
+	// LINKMUSICIAN ▼
+	await fillStable(page.locator('input[name="birthDate"]'), values.birthDate ?? '1990-05-15');
+	await page.locator('input[name="acceptTerms"]').setChecked(values.acceptTerms ?? true);
+	// LINKMUSICIAN ▲
 }
 
 /** Soumet le formulaire de connexion depuis la page dédiée. */

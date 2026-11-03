@@ -96,6 +96,57 @@
 				</Form.Field>
 			</div>
 
+			<!-- LINKMUSICIAN ▼ date de naissance (16 ans minimum) et CGU, décisions D5 et D16. -->
+			<div class="mb-4">
+				<Form.Field name="birthDate" form={signupForm}>
+					<Form.Control>
+						{#snippet children({ props })}
+							<Form.Label>Date de naissance</Form.Label>
+							<Input
+								{...props}
+								name="birthDate"
+								type="date"
+								autocomplete="bday"
+								bind:value={$signupData.birthDate}
+								required
+							/>
+						{/snippet}
+					</Form.Control>
+					<Form.Description>Jamais affichée, elle sert seulement à vérifier l'âge.</Form.Description
+					>
+					<Form.FieldErrors />
+				</Form.Field>
+			</div>
+
+			<div class="mb-4">
+				<Form.Field name="acceptTerms" form={signupForm}>
+					<Form.Control>
+						{#snippet children({ props })}
+							<div class="flex items-start gap-2">
+								<input
+									{...props}
+									type="checkbox"
+									name="acceptTerms"
+									class="mt-1 size-4"
+									bind:checked={$signupData.acceptTerms}
+								/>
+								<Form.Label class="block font-normal leading-snug">
+									J'accepte les <a href="/cgu" target="_blank" class="underline"
+										>conditions d'utilisation</a
+									>
+									et la
+									<a href="/confidentialite" target="_blank" class="underline"
+										>politique de confidentialité</a
+									>.
+								</Form.Label>
+							</div>
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+				</Form.Field>
+			</div>
+			<!-- LINKMUSICIAN ▲ -->
+
 			<div class="mt-6">
 				<Button type="submit">S'inscrire</Button>
 			</div>

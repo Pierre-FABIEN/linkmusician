@@ -56,7 +56,20 @@ peuvent démarrer pendant la phase 0.
   libellés de l'échelle de niveau d'instrument sont fixés (décision
   D11).
 
-## P1-03a — Inscription : personne, âge minimum, rôle MODERATOR
+## P1-03a — Inscription : personne, âge minimum, rôle MODERATOR ✅
+
+> **Réalisé le 03/11/2026.** Règles pures dans `src/lib/actors/` (âge et
+> handle, 34 tests), accès aux données dans `src/lib/prisma/actors/person.ts`,
+> écran `/bienvenue`, garde `src/routes/(app)/+layout.server.ts`, page
+> provisoire `/espace`. Vérifié dans le navigateur : mineur refusé et CGU
+> obligatoires (aucun compte créé), adulte avec `Actor` et `Person`
+> créés, compte sans personne → `/bienvenue` (identifiant réservé ou pris
+> refusé) → `/espace`. **Reste à faire** : convertir ce parcours en spec
+> e2e (`e2e/linkmusician/inscription.spec.ts`) et relancer la suite e2e du
+> boilerplate (l'assistant `fillSignupForm` a été adapté). Avec Google, la
+> date de naissance n'est demandée qu'à l'entrée dans `(app)` ; la
+> redirection systématique après connexion viendra avec la coquille
+> (P0-05).
 
 - **Décisions** : D5, D14, D16.
 - **Tâches** :

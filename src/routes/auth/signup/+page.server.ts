@@ -32,6 +32,8 @@ import { auth } from '#lib/auth';
 import { applyAuthCookies } from '#lib/auth/cookies';
 import { getSessionDeviceContext } from '#lib/server/deviceContext';
 import { recordLoginEvent } from '#lib/prisma/loginEvent/loginEvent';
+// LINKMUSICIAN: création de la personne à l'inscription (D14, D16).
+import { createPersonForUser } from '#lib/prisma/actors/person';
 
 import type { PageServerLoad, Actions } from './$types';
 
@@ -140,6 +142,21 @@ export const actions: Actions = {
 		const user = response.user;
 		applyAuthCookies(event, authHeaders);
 		log('✅  User created', { id: user.id, email: user.email });
+
+		// LINKMUSICIAN ▼ personne LinkMusician (Actor + Person), âge déjà vérifié
+		// par le schéma. Un échec ne bloque pas l'inscription : l'écran
+		// `/bienvenue` la recréera à l'entrée dans l'espace LinkMusician.
+		try {
+			await createPersonForUser({
+				userId: user.id,
+				displayName: username,
+				handleSource: username,
+				birthDate: form.data.birthDate
+			});
+		} catch (err) {
+			console.error('[signup] création de la personne LinkMusician impossible', err);
+		}
+		// LINKMUSICIAN ▲
 
 		// `city`/`country` (géolocalisation Vercel) ne viennent pas de Better
 		// Auth — posés nous-mêmes sur la session qu'il vient de créer, même

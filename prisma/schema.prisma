@@ -12,6 +12,8 @@ generator client {
 enum Role {
   ADMIN
   CLIENT
+  /// LINKMUSICIAN: traite les signalements et la file de modération, sans les droits d'administration.
+  MODERATOR
 }
 
 enum OrderStatus {
@@ -136,6 +138,9 @@ model User {
   authSessions     AuthSession[]
   authAccounts     AuthAccount[]
   twoFactors       TwoFactor[]
+
+  /// LINKMUSICIAN: personne associée au compte (voir la section LINKMUSICIAN en fin de fichier).
+  person Person?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1355,4 +1360,79 @@ model ReturnRequest {
   @@index([userId])
   @@index([status])
   @@map("return_requests")
+}
+
+// ═══ LINKMUSICIAN ═════════════════════════════════════════════════════════════
+// Modèles propres à LinkMusician, regroupés ici pour que les synchros avec le
+// boilerplate (`git merge boilerplate/main`) ne touchent jamais cette section.
+// Conception : docs/conception/04-modele-donnees.md.
+
+/// Nature d'un acteur : une personne ou une structure (groupe, studio, label…).
+enum ActorKind {
+  PERSON
+  ORGANIZATION
+}
+
+/// Métiers (« pistes ») d'une personne. Plusieurs par personne (décision D14).
+/// Au lancement, seul MUSICIAN a un profil complet (décision D15).
+enum TrackKind {
+  MUSICIAN
+  PRODUCER
+  SOUND_ENGINEER
+  MANAGER
+  BOOKER
+  PROMOTER
+  LABEL_PRO
+  PUBLISHER
+  MUSIC_COMMS
+}
+
+/// Supertype de tout profil (personne ou structure) : la progression, les
+/// médias, la localisation et les collaborations pointent tous sur `Actor`.
+model Actor {
+  id          String    @id @default(cuid())
+  kind        ActorKind
+  /// Identifiant public (`@handle`), unique, en minuscules : voir `src/lib/server/actors/handle.ts`.
+  handle      String    @unique
+  displayName String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  /// Anonymisation RGPD : l'acteur reste pour l'historique de ses contreparties.
+  deletedAt   DateTime?
+
+  person Person?
+
+  @@map("actors")
+}
+
+/// Une personne = un compte (`User`). Créée à l'inscription, ou à l'écran
+/// `/bienvenue` pour les comptes qui n'en ont pas encore (Google, comptes
+/// existants).
+model Person {
+  actorId         String    @id
+  actor           Actor     @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Jamais affichée : sert uniquement au contrôle d'âge (16 ans minimum, D5).
+  /// `null` après anonymisation.
+  birthDate       DateTime? @db.Date
+  /// Acceptation des CGU (preuve de consentement).
+  termsAcceptedAt DateTime
+  createdAt       DateTime  @default(now())
+
+  tracks PersonTrack[]
+
+  @@map("persons")
+}
+
+/// Métier d'une personne. Un seul métier principal par personne.
+model PersonTrack {
+  personId  String
+  person    Person    @relation(fields: [personId], references: [actorId], onDelete: Cascade)
+  track     TrackKind
+  isPrimary Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  @@id([personId, track])
+  @@map("person_tracks")
 }

@@ -37,6 +37,11 @@
 			<DropdownMenu.Separator />
 			<DropdownMenu.Item>
 				{#snippet child({ props })}
+					<a href="/espace" {...props}>Mon espace</a>
+				{/snippet}
+			</DropdownMenu.Item>
+			<DropdownMenu.Item>
+				{#snippet child({ props })}
 					<a href="/auth/settings" {...props}>Mes paramètres</a>
 				{/snippet}
 			</DropdownMenu.Item>
@@ -59,5 +64,13 @@
 	<!-- Même action que le panier (`/auth?/signout`) : formulaire POST, pour la protection CSRF. -->
 	<form bind:this={signOutForm} method="POST" action="/auth?/signout" use:enhance hidden></form>
 {:else}
-	<a href="/auth/login" class={buttonVariants({ size: 'sm' })}>Se connecter</a>
+	<!-- Icône seule : la barre de navigation est dimensionnée pour l'icône panier. -->
+	<a
+		href="/auth/login"
+		class={buttonVariants({ variant: 'ghost', size: 'icon' })}
+		aria-label="Se connecter"
+		title="Se connecter"
+	>
+		<CircleUser class="size-7" />
+	</a>
 {/if}
