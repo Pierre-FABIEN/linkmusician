@@ -1,7 +1,8 @@
 import { test, expect } from '../support/fixtures';
 import { signUpAndVerify } from '../support/admin';
 import { db, requireUser } from '../support/db';
-import { waitForAppReady, waitForPath } from '../support/flows';
+import { waitForAppReady } from '../support/flows';
+import { skipOnboarding } from '../support/linkmusician';
 
 /**
  * P1-06b — « Mon profil » : bio, statut pro déclaré, recherche, matériel,
@@ -15,11 +16,7 @@ test.describe('LinkMusician — profil complet', () => {
 		await signUpAndVerify(page, account);
 
 		await test.step('1. Métier musicien', async () => {
-			await page.goto('/qui-es-tu');
-			await waitForAppReady(page);
-			await page.getByLabel('Musicien·ne').check();
-			await page.getByRole('button', { name: 'Continuer' }).click();
-			await waitForPath(page, '/structure');
+			await skipOnboarding(page, account.email);
 		});
 
 		await test.step('2. Un lien Spotify qui n’en est pas un est refusé', async () => {

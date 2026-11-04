@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+	checkGenresInput,
+	checkInstrumentsInput,
 	checkMusicalProfile,
 	isProfileComplete,
 	MAX_INFLUENCE_LENGTH,
@@ -115,5 +117,24 @@ describe('isProfileComplete', () => {
 		['bio absente', { bio: null }]
 	])('refuse un profil %s', (_, patch) => {
 		expect(isProfileComplete({ ...complete, ...patch })).toBe(false);
+	});
+});
+
+describe('validations partielles (onboarding)', () => {
+	it('valide les instruments seuls', () => {
+		expect(checkInstrumentsInput([{ instrumentId: 'basse', level: 4 }])).toMatchObject({
+			ok: true,
+			primaryInstrumentId: 'basse'
+		});
+		expect(checkInstrumentsInput([])).toEqual({ ok: false, problems: ['instruments_empty'] });
+	});
+
+	it('valide les genres seuls', () => {
+		expect(checkGenresInput(['funk'], 'Vulfpeck')).toEqual({
+			ok: true,
+			genreIds: ['funk'],
+			influences: ['Vulfpeck']
+		});
+		expect(checkGenresInput([])).toEqual({ ok: false, problems: ['genres_empty'] });
 	});
 });

@@ -4,7 +4,12 @@
  * `influences` (hors anonymisation).
  */
 import { prisma } from '#lib/server';
-import { checkMusicalProfile, type MusicalProfile } from '#lib/skills/profile';
+import {
+	checkGenresInput,
+	checkInstrumentsInput,
+	checkMusicalProfile,
+	type MusicalProfile
+} from '#lib/skills/profile';
 import type { InstrumentLevel } from '#lib/skills/levels';
 
 export async function getMusicalProfile(person: { actorId: string }) {
@@ -87,4 +92,59 @@ export async function saveMusicalProfile(person: { actorId: string }, input: Mus
 		})
 	]);
 	return profile;
+}
+
+/** Remplace les seuls instruments (onboarding). Mêmes garanties que `saveMusicalProfile`. */
+export async function saveInstruments(
+	person: { actorId: string },
+	input: {
+		instruments: { instrumentId: string; level: number }[];
+		primaryInstrumentId?: string | null;
+	}
+) {
+	const checked = checkInstrumentsInput(input.instruments, input.primaryInstrumentId);
+	if (!checked.ok) throw new Error(`Instruments invalides (${checked.problems.join(', ')})`);
+	const ids = checked.instruments.map((i) => i.instrumentId);
+	if (
+		(await prisma.instrument.count({ where: { id: { in: ids }, active: true } })) !== ids.length
+	) {
+		throw new UnknownReferenceError('instruments');
+	}
+	await prisma.$transaction([
+		prisma.personInstrument.deleteMany({ where: { personId: person.actorId } }),
+		prisma.personInstrument.createMany({
+			data: checked.instruments.map((i) => ({
+				personId: person.actorId,
+				instrumentId: i.instrumentId,
+				declaredLevel: i.level,
+				isPrimary: i.instrumentId === checked.primaryInstrumentId
+			}))
+		})
+	]);
+}
+
+/** Remplace les seuls genres et influences (onboarding). */
+export async function saveGenres(
+	person: { actorId: string },
+	input: { genreIds: string[]; influences?: string }
+) {
+	const checked = checkGenresInput(input.genreIds, input.influences ?? '');
+	if (!checked.ok) throw new Error(`Genres invalides (${checked.problems.join(', ')})`);
+	if (
+		(await prisma.genre.count({ where: { id: { in: checked.genreIds }, active: true } })) !==
+		checked.genreIds.length
+	) {
+		throw new UnknownReferenceError('genreIds');
+	}
+	const actorId = person.actorId;
+	await prisma.$transaction([
+		prisma.actorGenre.deleteMany({ where: { actorId } }),
+		prisma.actorGenre.createMany({
+			data: checked.genreIds.map((genreId) => ({ actorId, genreId }))
+		}),
+		prisma.influence.deleteMany({ where: { actorId } }),
+		prisma.influence.createMany({
+			data: checked.influences.map((label, sortOrder) => ({ actorId, label, sortOrder }))
+		})
+	]);
 }

@@ -1,0 +1,74 @@
+<script lang="ts">
+	// LINKMUSICIAN: onboarding, étape « Genres » (P1-10).
+	import { untrack } from 'svelte';
+	import { enhance } from '$app/forms';
+	import * as Card from '#shadcn/card';
+	import { Button } from '#shadcn/button';
+	import { MAX_GENRES, MAX_INFLUENCES } from '#lib/skills/profile';
+	import SEO from '#lib/components/SEO.svelte';
+
+	let { data, form } = $props();
+	let selected = $state<string[]>(untrack(() => form?.genreIds ?? data.current));
+	const full = $derived(selected.length >= MAX_GENRES);
+</script>
+
+<SEO title="Tes genres" noindex nofollow />
+
+<Card.Root class="shadow-xl">
+	<Card.Content>
+		<form method="POST" use:enhance class="space-y-5">
+			<div>
+				<h1 class="text-2xl font-black">Tes genres</h1>
+				<p class="text-sm text-muted-foreground">
+					1 à {MAX_GENRES} : un genre large (« Rock ») ou précis (« Punk »). ({selected.length}/{MAX_GENRES})
+				</p>
+			</div>
+			<div class="max-h-[50vh] space-y-3 overflow-y-auto pr-1">
+				{#each data.genres as genre (genre.id)}
+					<fieldset>
+						<legend class="sr-only">{genre.name}</legend>
+						<div class="flex flex-wrap gap-2">
+							{#each [genre, ...genre.children] as g, i (g.id)}
+								{@const on = selected.includes(g.id)}
+								<label
+									class="cursor-pointer rounded-full border px-3 py-1.5 text-sm transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-fuchsia-400 {on
+										? 'border-transparent bg-foreground text-background'
+										: full
+											? 'opacity-40'
+											: 'hover:border-fuchsia-400'} {i === 0 ? 'font-semibold' : ''}"
+								>
+									<input
+										type="checkbox"
+										name="genreIds"
+										value={g.id}
+										class="sr-only"
+										bind:group={selected}
+										disabled={full && !on}
+									/>
+									{g.name}
+								</label>
+							{/each}
+						</div>
+					</fieldset>
+				{/each}
+			</div>
+			<div class="space-y-1">
+				<label for="influences" class="block text-sm font-medium"
+					>Influences (facultatif, une par ligne, {MAX_INFLUENCES} au plus)</label
+				>
+				<textarea
+					id="influences"
+					name="influences"
+					rows="3"
+					class="w-full rounded-md border bg-background p-2 text-sm"
+					placeholder="Vulfpeck&#10;Erykah Badu">{form?.influences ?? data.influences}</textarea
+				>
+			</div>
+			{#if form?.error}<p class="text-sm text-destructive" role="alert">{form.error}</p>{/if}
+			<div class="flex justify-between">
+				<Button variant="ghost" href="/demarrer/instruments">Retour</Button>
+				<Button type="submit" disabled={selected.length === 0}>Continuer</Button>
+			</div>
+		</form>
+	</Card.Content>
+</Card.Root>

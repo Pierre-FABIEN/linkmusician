@@ -1,7 +1,8 @@
 import { test, expect } from '../support/fixtures';
 import { signUpAndVerify } from '../support/admin';
 import { db, requireUser } from '../support/db';
-import { waitForAppReady, waitForPath } from '../support/flows';
+import { waitForAppReady } from '../support/flows';
+import { skipOnboarding } from '../support/linkmusician';
 
 /**
  * P1-08a — Médias : un compte neuf (confiance 0) ajoute un lien, qui attend
@@ -13,11 +14,7 @@ test.describe('LinkMusician — médias', () => {
 
 	test('publication d’un lien externe', async ({ page, account }) => {
 		await signUpAndVerify(page, account);
-		await page.goto('/qui-es-tu');
-		await waitForAppReady(page);
-		await page.getByLabel('Musicien·ne').check();
-		await page.getByRole('button', { name: 'Continuer' }).click();
-		await waitForPath(page, '/structure');
+		await skipOnboarding(page, account.email);
 
 		const user = await requireUser(account.email);
 		const person = await db.person.findUniqueOrThrow({ where: { userId: user.id } });

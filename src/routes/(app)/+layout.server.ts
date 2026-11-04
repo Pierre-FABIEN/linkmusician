@@ -22,6 +22,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	if (!person) redirect(302, '/bienvenue');
 	if (person.tracks.length === 0) redirect(302, '/qui-es-tu');
 	if (await currentSuspension(person.actorId)) redirect(302, '/suspendu');
+	// Onboarding (P1-10) : tant qu'il n'est pas terminé, on y reprend.
+	if (!person.onboardedAt) redirect(302, '/demarrer');
 
 	return {
 		person: {

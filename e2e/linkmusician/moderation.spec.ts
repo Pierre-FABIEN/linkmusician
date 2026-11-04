@@ -2,22 +2,14 @@ import { test, expect } from '../support/fixtures';
 import { makeAccount } from '../support/account';
 import { signUpAndVerify } from '../support/admin';
 import { db, deleteUser, requireUser } from '../support/db';
-import { waitForAppReady, waitForPath } from '../support/flows';
-import type { Page } from '@playwright/test';
+import { waitForAppReady } from '../support/flows';
+import { skipOnboarding } from '../support/linkmusician';
 
 /**
  * P1-12 — Signalement → décision du modérateur. Un compte neuf publie un lien
  * (en attente) ; un modérateur le valide ; le même modérateur, comme membre,
  * le signale ; puis, comme modérateur, retire le média.
  */
-async function becomeMusician(page: Page) {
-	await page.goto('/qui-es-tu');
-	await waitForAppReady(page);
-	await page.getByLabel('Musicien·ne').check();
-	await page.getByRole('button', { name: 'Continuer' }).click();
-	await waitForPath(page, '/structure');
-}
-
 test.describe('LinkMusician — modération', () => {
 	test.setTimeout(8 * 60_000);
 
@@ -27,7 +19,7 @@ test.describe('LinkMusician — modération', () => {
 		const mod = await modContext.newPage();
 		try {
 			await signUpAndVerify(page, account);
-			await becomeMusician(page);
+			await skipOnboarding(page, account.email);
 			const author = await db.person.findUniqueOrThrow({
 				where: { userId: (await requireUser(account.email)).id }
 			});
@@ -44,7 +36,7 @@ test.describe('LinkMusician — modération', () => {
 
 			await test.step('2. Le modérateur valide le média', async () => {
 				await signUpAndVerify(mod, moderatorAccount);
-				await becomeMusician(mod);
+				await skipOnboarding(mod, moderatorAccount.email);
 				await db.user.update({
 					where: { email: moderatorAccount.email },
 					data: { role: 'MODERATOR' }
@@ -94,9 +86,16 @@ test.describe('LinkMusician — modération', () => {
 						}
 					)
 					.toBe('REJECTED');
-				expect((await db.report.findFirstOrThrow({ where: { targetId: media.id } })).status).toBe(
-					'ACTIONED'
-				);
+				// Le signalement est fermé après la suppression du fichier : on attend.
+				await expect
+					.poll(
+						async () =>
+							(await db.report.findFirstOrThrow({ where: { targetId: media.id } })).status,
+						{
+							timeout: 30_000
+						}
+					)
+					.toBe('ACTIONED');
 				const response = await page.goto(`/medias/${media.id}`);
 				expect(response?.status()).toBe(404);
 			});

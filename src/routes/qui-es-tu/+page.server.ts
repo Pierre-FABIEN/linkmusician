@@ -15,18 +15,20 @@ import { requirePerson, tracksFormFor } from '#server/actors/tracksForm';
 import type { Actions, PageServerLoad } from './$types';
 
 const APP_HOME = '/espace';
-const NEXT_STEP = '/structure';
+/** Étape suivante : la suite de l'onboarding (P1-10). */
+const NEXT_STEP = '/demarrer';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const person = await requirePerson(locals);
-	if (person.tracks.length > 0) redirect(302, APP_HOME);
-	return { form: await tracksFormFor([]) };
+	// Onboarding terminé : les métiers se modifient dans les réglages.
+	if (person.onboardedAt) redirect(302, APP_HOME);
+	return { form: await tracksFormFor(person.tracks) };
 };
 
 export const actions: Actions = {
 	default: async ({ request, locals }) => {
 		const person = await requirePerson(locals);
-		if (person.tracks.length > 0) redirect(303, APP_HOME);
+		if (person.onboardedAt) redirect(303, APP_HOME);
 
 		const form = await superValidate(request, zod(tracksSchema));
 		if (!form.valid) return fail(400, { form });

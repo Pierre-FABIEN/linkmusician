@@ -128,3 +128,43 @@ export function isProfileComplete(profile: {
 		(profile.bio ?? '').trim().length > 0
 	);
 }
+
+/**
+ * Validation des seuls instruments (onboarding, écran dédié). Mêmes règles
+ * que `checkMusicalProfile`.
+ */
+export function checkInstrumentsInput(
+	instruments: MusicalProfileInput['instruments'],
+	primaryInstrumentId?: string | null
+):
+	| { ok: true; instruments: PlayedInstrument[]; primaryInstrumentId: string }
+	| { ok: false; problems: MusicalProfileProblem[] } {
+	const result = checkMusicalProfile({
+		instruments,
+		primaryInstrumentId,
+		genreIds: ['_'],
+		influences: ''
+	});
+	if (!result.ok) return result;
+	return {
+		ok: true,
+		instruments: result.profile.instruments,
+		primaryInstrumentId: result.profile.primaryInstrumentId
+	};
+}
+
+/** Validation des seuls genres et influences (onboarding, écran dédié). */
+export function checkGenresInput(
+	genreIds: readonly string[],
+	influences = ''
+):
+	| { ok: true; genreIds: string[]; influences: string[] }
+	| { ok: false; problems: MusicalProfileProblem[] } {
+	const result = checkMusicalProfile({
+		instruments: [{ instrumentId: '_', level: 1 }],
+		genreIds,
+		influences
+	});
+	if (!result.ok) return result;
+	return { ok: true, genreIds: result.profile.genreIds, influences: result.profile.influences };
+}

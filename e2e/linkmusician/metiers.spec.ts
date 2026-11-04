@@ -44,7 +44,7 @@ test.describe('LinkMusician — métiers', () => {
 			await page.getByLabel('Booker / programmateur·rice').check();
 			await page.locator('input[type="radio"][name="primary"][value="BOOKER"]').check();
 			await page.getByRole('button', { name: 'Continuer' }).click();
-			await waitForPath(page, '/structure');
+			await waitForPath(page, '/demarrer/instruments');
 
 			expect(await tracksOf(account.email)).toEqual([
 				{ track: 'BOOKER', isPrimary: true },
@@ -52,7 +52,9 @@ test.describe('LinkMusician — métiers', () => {
 			]);
 		});
 
-		await test.step("4. L'écran de choix n'est plus proposé", async () => {
+		await test.step("4. L'onboarding fini, l'écran de choix n'est plus proposé", async () => {
+			const user = await requireUser(account.email);
+			await db.person.update({ where: { userId: user.id }, data: { onboardedAt: new Date() } });
 			await page.goto('/qui-es-tu');
 			await waitForPath(page, '/espace');
 		});

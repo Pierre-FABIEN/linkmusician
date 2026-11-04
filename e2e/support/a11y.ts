@@ -21,7 +21,9 @@ export async function expectNoA11yViolations(page: Page, exclude: string[] = [])
 
 	const summary = results.violations.map(
 		(violation) =>
-			`[${violation.impact}] ${violation.id} — ${violation.help} (${violation.nodes.length} nœud(s))`
+			`[${violation.impact}] ${violation.id} — ${violation.help} (${violation.nodes.length} nœud(s))` +
+			// LINKMUSICIAN: sélecteurs des éléments fautifs, pour savoir quoi corriger.
+			` : ${violation.nodes.map((n) => n.target.join(' ')).join(' | ')}`
 	);
 
 	expect(summary, summary.join('\n')).toEqual([]);

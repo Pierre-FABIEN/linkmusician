@@ -1,7 +1,8 @@
 import { test, expect } from '../support/fixtures';
 import { signUpAndVerify } from '../support/admin';
 import { db, requireUser } from '../support/db';
-import { waitForAppReady, waitForPath } from '../support/flows';
+import { waitForAppReady } from '../support/flows';
+import { skipOnboarding } from '../support/linkmusician';
 
 /**
  * P1-06 — « Mon profil musical » : deux instruments avec niveau déclaré et
@@ -20,11 +21,7 @@ test.describe('LinkMusician — profil musical', () => {
 		await signUpAndVerify(page, account);
 
 		await test.step('1. Métier musicien', async () => {
-			await page.goto('/qui-es-tu');
-			await waitForAppReady(page);
-			await page.getByLabel('Musicien·ne').check();
-			await page.getByRole('button', { name: 'Continuer' }).click();
-			await waitForPath(page, '/structure');
+			await skipOnboarding(page, account.email);
 		});
 
 		await test.step('2. Sans genre, le profil est refusé', async () => {

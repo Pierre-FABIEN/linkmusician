@@ -1442,6 +1442,11 @@ model Person {
   tracks      PersonTrack[]
   instruments PersonInstrument[]
 
+  /// Fin de l'onboarding (P1-10). Seul repère stocké : l'étape courante se
+  /// déduit du profil (métiers, instruments, genres, ville), mais « juste
+  /// explorer » ne laisse aucune trace dans le profil.
+  onboardedAt    DateTime?
+
   /// Profil complet (D17, D18). Tout est déclaré, rien n'est vérifié.
   proStatus      ProStatus?
   lookingFor     LookingFor[]
