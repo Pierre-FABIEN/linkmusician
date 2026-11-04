@@ -1,6 +1,6 @@
 <script lang="ts">
 	// LINKMUSICIAN: page publique d'un média, voir +page.server.ts.
-	import MediaEmbed from '#lib/components/linkmusician/MediaEmbed.svelte';
+	import MediaPlayer from '#lib/components/linkmusician/MediaPlayer.svelte';
 	import SEO from '#lib/components/SEO.svelte';
 
 	let { data } = $props();
@@ -17,6 +17,6 @@
 				? ` · ${m.instrument}`
 				: ''}
 		</p>
-		{#if m.externalUrl}<MediaEmbed url={m.externalUrl} title={m.title} />{/if}
+		<MediaPlayer media={m} />
 	</article>
 </div>

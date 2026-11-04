@@ -12,7 +12,9 @@ export const load: PageServerLoad = async ({ params }) => {
 	return {
 		media: {
 			title: media.title,
+			kind: media.kind,
 			externalUrl: media.externalUrl,
+			fileUrl: media.fileUrl,
 			isDemo: media.isDemo,
 			instrument: media.instrument?.name ?? null,
 			actor: media.actor

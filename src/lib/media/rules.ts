@@ -16,11 +16,13 @@ export const MEDIA_LIMITS = {
 	IMAGE: { maxDurationSec: null, maxBytes: 10 * 1024 * 1024 }
 } as const;
 
-export type UploadCheck = { ok: true } | { ok: false; reason: 'too_long' | 'too_big' };
+export type UploadCheck =
+	{ ok: true } | { ok: false; reason: 'too_long' | 'too_big' | 'unreadable' };
 
 export const UPLOAD_MESSAGES: Record<Exclude<UploadCheck, { ok: true }>['reason'], string> = {
 	too_long: 'Ce fichier est trop long (audio : 10 min, vidéo : 3 min au plus).',
-	too_big: 'Ce fichier est trop lourd (photo : 10 Mo, audio : 100 Mo, vidéo : 200 Mo au plus).'
+	too_big: 'Ce fichier est trop lourd (photo : 10 Mo, audio : 100 Mo, vidéo : 200 Mo au plus).',
+	unreadable: 'Impossible de lire la durée de ce fichier : essaie un autre format.'
 };
 
 /** Vérifie un fichier envoyé, d'après ce que rapporte Cloudinary. */
@@ -30,8 +32,12 @@ export function checkUpload(
 ): UploadCheck {
 	const limits = MEDIA_LIMITS[kind];
 	if (asset.bytes > limits.maxBytes) return { ok: false, reason: 'too_big' };
-	if (limits.maxDurationSec !== null && (asset.durationSec ?? 0) > limits.maxDurationSec) {
-		return { ok: false, reason: 'too_long' };
+	if (limits.maxDurationSec !== null) {
+		// Une durée illisible est refusée : sinon la limite ne serait pas contrôlée.
+		if (asset.durationSec === null || asset.durationSec === undefined) {
+			return { ok: false, reason: 'unreadable' };
+		}
+		if (asset.durationSec > limits.maxDurationSec) return { ok: false, reason: 'too_long' };
 	}
 	return { ok: true };
 }

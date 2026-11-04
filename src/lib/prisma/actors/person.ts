@@ -179,7 +179,7 @@ export async function personAnonymizationOps(
 		prisma.influence.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.profileLink.deleteMany({ where: { personId: person.actorId } }),
 		prisma.actorLocation.deleteMany({ where: { actorId: person.actorId } }),
-		// Fichiers Cloudinary : à supprimer aussi quand l'envoi existera (P1-08b).
+		// Les fichiers Cloudinary sont supprimés après la transaction (`anonymizeUser`).
 		prisma.media.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.person.update({
 			where: { userId },
@@ -203,3 +203,13 @@ export async function personAnonymizationOps(
 		})
 	];
 }
+
+/**
+ * Fichiers Cloudinary de la personne, à supprimer **après** la transaction
+ * d'anonymisation (un appel réseau n'a rien à faire dans la transaction, et
+ * son échec ne doit pas bloquer l'effacement du compte).
+ */
+export {
+	mediaAssetsOfUser as personMediaAssets,
+	destroyMediaAssets
+} from '#lib/server/media/service';

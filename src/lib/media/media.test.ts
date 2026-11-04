@@ -68,7 +68,9 @@ describe('règles des médias', () => {
 		['VIDEO', 150e6, 181, { ok: false, reason: 'too_long' }],
 		['VIDEO', 210 * 1024 * 1024, 60, { ok: false, reason: 'too_big' }],
 		['IMAGE', 5e6, null, { ok: true }],
-		['IMAGE', 11 * 1024 * 1024, null, { ok: false, reason: 'too_big' }]
+		['IMAGE', 11 * 1024 * 1024, null, { ok: false, reason: 'too_big' }],
+		['AUDIO', 1e6, null, { ok: false, reason: 'unreadable' }],
+		['VIDEO', 1e6, null, { ok: false, reason: 'unreadable' }]
 	] as const)('%s, %i octets, %s s', (kind, bytes, durationSec, expected) => {
 		expect(checkUpload(kind, { bytes, durationSec })).toEqual(expected);
 	});

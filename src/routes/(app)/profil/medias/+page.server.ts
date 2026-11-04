@@ -1,6 +1,6 @@
 /**
- * LINKMUSICIAN: « Mes médias » (P1-08a) : liens YouTube, SoundCloud, Bandcamp.
- * L'envoi de fichiers arrive avec P1-08b.
+ * LINKMUSICIAN: « Mes médias » (P1-08) : liens YouTube, SoundCloud, Bandcamp,
+ * et envoi de fichiers (composant `MediaUpload`, routes `/api/media/*`).
  */
 import { fail } from '@sveltejs/kit';
 import { requirePerson } from '#server/actors/tracksForm';
@@ -31,6 +31,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			status: m.status,
 			title: m.title,
 			externalUrl: m.externalUrl,
+			fileUrl: m.fileUrl,
 			isDemo: m.isDemo,
 			instrument: m.instrument?.name ?? null
 		})),

@@ -30,7 +30,11 @@ const transactionCalls: unknown[] = [];
 
 // LINKMUSICIAN: l'anonymisation de la personne a son propre module, neutralisé
 // ici pour que ce test ne vérifie que le périmètre du boilerplate.
-vi.mock('#lib/prisma/actors/person', () => ({ personAnonymizationOps: async () => [] }));
+vi.mock('#lib/prisma/actors/person', () => ({
+	personAnonymizationOps: async () => [],
+	personMediaAssets: async () => [],
+	destroyMediaAssets: async () => {}
+}));
 
 vi.mock('#lib/server', () => ({
 	prisma: {

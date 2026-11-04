@@ -1,6 +1,6 @@
 # Médias
 
-Module LinkMusician (lot P1-08, découpé en P1-08a et P1-08b).
+Module LinkMusician (lots P1-08a et P1-08b).
 
 ## Ce qui existe (P1-08a)
 
@@ -21,14 +21,30 @@ Module LinkMusician (lot P1-08, découpé en P1-08a et P1-08b).
   semaine). Case « C'est une démo de moi » à l'ajout.
 - **RGPD** : export de la liste ; anonymisation = suppression des médias.
 
-## À venir (P1-08b)
+## Envoi de fichiers (P1-08b)
 
-Envoi de fichiers (audio ≤ 10 min, vidéo ≤ 3 min et ≤ 200 Mo, photo
-≤ 10 Mo) en upload direct signé vers Cloudinary (dossier de l'acteur),
-webhook de traitement (signature vérifiée), lecteurs audio et vidéo,
-suppression des fichiers Cloudinary à l'anonymisation. En local, Cloudinary
-ne joint pas `localhost` : finaliser l'envoi par une vérification côté
-serveur, et tester le webhook par des requêtes signées simulées.
+1. `POST /api/media/sign` : type et taille déclarés, quota de confiance,
+   création du média `UPLOADING`, paramètres signés (dossier
+   `linkmusician/actors/<acteur>`, identifiant fixé, formats autorisés,
+   `notification_url` si le site est en https).
+2. Le navigateur envoie le fichier **directement** à Cloudinary
+   (`MediaUpload.svelte`, barre de progression) : notre serveur ne reçoit
+   jamais le fichier.
+3. `POST /api/media/confirm` (navigateur) et `POST /api/media/webhook`
+   (Cloudinary, signature `X-Cld-Signature` vérifiée) appellent le même
+   `finalizeUpload`, idempotent : relecture du fichier chez Cloudinary
+   (**avec `media_metadata`**, sans quoi la durée n'est pas renvoyée),
+   contrôle taille et durée (durée illisible = refus), puis publication,
+   attente de modération, ou refus avec suppression du fichier.
+
+Limites : photo 10 Mo (JPEG, PNG, WebP, AVIF) ; audio 10 min et 100 Mo (MP3,
+WAV, M4A, AAC, OGG, FLAC) ; vidéo 3 min et 200 Mo (MP4, MOV, WebM).
+
+Suppression d'un média = suppression du fichier Cloudinary. Anonymisation :
+fichiers supprimés après la transaction (`anonymizeUser`, best-effort).
+
+**Production** : le webhook n'est déclaré que si `APP_URL` (ou `VERCEL_URL`)
+donne une adresse https. En local, la confirmation du navigateur suffit.
 
 ## Code
 

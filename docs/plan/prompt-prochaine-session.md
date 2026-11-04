@@ -80,11 +80,11 @@ fusionnées dans `main`.
 - Colonne `tier` de `actor_progress` non renseignée → P1-11.
 - Profils complets avant P1-07 : +150 XP au prochain enregistrement.
 
-## Prochain lot proposé : P1-08 (médias)
+## Prochain lot proposé
 
-P1-09 (confiance et quotas) est fait : utiliser `checkStockQuota(actorId, 'mediaItems', n)`.
-Clés Cloudinary présentes dans `.env`. Le webhook Cloudinary ne joint pas `localhost` :
-le tester par des requêtes signées simulées.
+P1-08 (médias) et P1-09 (confiance) sont faits. Suite : P1-12 (modération : les médias
+des comptes TL0 attendent une validation), P1-02 et P1-10 (onboarding), P1-11 (profil
+public). Voir le tableau §5.
 
 ## Questions à poser au bon moment
 

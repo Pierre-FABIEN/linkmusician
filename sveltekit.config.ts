@@ -44,8 +44,12 @@ const config: Config = {
 				'self',
 				'https://api.stripe.com',
 				'https://tiles.basemaps.cartocdn.com',
-				'https://*.ingest.sentry.io'
+				'https://*.ingest.sentry.io',
+				// LINKMUSICIAN: envoi direct des médias (P1-08b)
+				'https://api.cloudinary.com'
 			],
+			// LINKMUSICIAN: lecture des médias audio et vidéo (P1-08b)
+			'media-src': ['self', 'https://res.cloudinary.com'],
 			'frame-src': [
 				'https://js.stripe.com',
 				'https://hooks.stripe.com',

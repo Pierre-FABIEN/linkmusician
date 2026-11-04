@@ -1757,6 +1757,10 @@ model Media {
   provider         MediaProvider
   /// public_id Cloudinary (fichiers envoyés).
   providerId       String?
+  /// Adresse de diffusion du fichier (https, renvoyée par Cloudinary).
+  fileUrl          String?
+  /// Format du fichier (mp3, mp4, jpg…), relu chez Cloudinary.
+  format           String?
   /// Lien d'origine (YouTube, SoundCloud, Bandcamp), normalisé en https.
   externalUrl      String?
   title            String

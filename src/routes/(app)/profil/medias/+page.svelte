@@ -4,7 +4,8 @@
 	import { toast } from 'svelte-sonner';
 	import { Button } from '#shadcn/button';
 	import { Badge } from '#shadcn/badge';
-	import MediaEmbed from '#lib/components/linkmusician/MediaEmbed.svelte';
+	import MediaPlayer from '#lib/components/linkmusician/MediaPlayer.svelte';
+	import MediaUpload from '#lib/components/linkmusician/MediaUpload.svelte';
 	import { MEDIA_STATUS_LABELS, MAX_TITLE_LENGTH } from '#lib/media/rules';
 	import SEO from '#lib/components/SEO.svelte';
 
@@ -26,14 +27,16 @@
 			<a href="/profil" class="text-sm text-muted-foreground underline">← Mon profil</a>
 			<h1 class="mt-2 text-2xl font-bold">Mes médias</h1>
 			<p class="text-sm text-muted-foreground">
-				Fais entendre ce que tu joues. Pour l'instant : des liens YouTube, SoundCloud ou Bandcamp ;
-				l'envoi de fichiers arrive bientôt.
+				Fais entendre ce que tu joues : envoie un fichier, ou ajoute un lien YouTube, SoundCloud ou
+				Bandcamp.
 				<span class="block"
 					>{data.quota.used} / {data.quota.limit} médias (la limite augmente avec ta
 					<a href="/reglages" class="underline">confiance</a>).</span
 				>
 			</p>
 		</div>
+
+		<MediaUpload instruments={data.instruments} disabled={full} />
 
 		<form method="POST" action="?/addLink" use:enhance class="space-y-3 rounded-lg border p-4">
 			<h2 class="font-semibold">Ajouter un lien</h2>
@@ -107,7 +110,7 @@
 							</span>
 						</div>
 						{#if m.instrument}<p class="text-xs text-muted-foreground">{m.instrument}</p>{/if}
-						{#if m.externalUrl}<MediaEmbed url={m.externalUrl} title={m.title} />{/if}
+						<MediaPlayer media={m} />
 						<div class="flex justify-between text-sm">
 							{#if m.status === 'PUBLISHED'}
 								<a href="/medias/{m.id}" class="underline">Lien public</a>

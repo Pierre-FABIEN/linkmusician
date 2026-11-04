@@ -22,7 +22,11 @@ import { prisma } from '#lib/server';
 import { stripe } from '#lib/server/stripe';
 import { invalidateUserSessions } from '#lib/auth/session';
 // LINKMUSICIAN: anonymisation de la personne (Actor/Person/PersonTrack).
-import { personAnonymizationOps } from '#lib/prisma/actors/person';
+import {
+	destroyMediaAssets,
+	personAnonymizationOps,
+	personMediaAssets
+} from '#lib/prisma/actors/person';
 
 export async function anonymizeUser(userId: string): Promise<void> {
 	const savedPaymentMethods = await prisma.savedPaymentMethod.findMany({
@@ -42,6 +46,7 @@ export async function anonymizeUser(userId: string): Promise<void> {
 	}
 
 	const linkmusicianOps = await personAnonymizationOps(userId); // LINKMUSICIAN:
+	const linkmusicianFiles = await personMediaAssets(userId); // LINKMUSICIAN:
 
 	await prisma.$transaction([
 		...linkmusicianOps, // LINKMUSICIAN:
@@ -75,4 +80,7 @@ export async function anonymizeUser(userId: string): Promise<void> {
 	// Même mécanisme que la déconnexion/le changement de mot de passe — pas
 	// de logique de révocation dupliquée ici.
 	await invalidateUserSessions(userId);
+
+	// LINKMUSICIAN: fichiers des médias, après l'effacement (best-effort).
+	await destroyMediaAssets(linkmusicianFiles);
 }
