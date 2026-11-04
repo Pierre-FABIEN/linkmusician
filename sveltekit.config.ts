@@ -46,7 +46,13 @@ const config: Config = {
 				'https://tiles.basemaps.cartocdn.com',
 				'https://*.ingest.sentry.io'
 			],
-			'frame-src': ['https://js.stripe.com', 'https://hooks.stripe.com'],
+			'frame-src': [
+				'https://js.stripe.com',
+				'https://hooks.stripe.com',
+				// LINKMUSICIAN: lecteurs des médias externes (P1-08)
+				'https://www.youtube-nocookie.com',
+				'https://w.soundcloud.com'
+			],
 			'frame-ancestors': ['none'],
 			'worker-src': ['self', 'blob:'],
 			'report-uri': ['/api/csp-report']

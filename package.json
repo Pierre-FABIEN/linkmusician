@@ -62,6 +62,7 @@
 		"seed:referentiels": "node prisma/seed-referentials.js",
 		"progression:rebuild": "tsx scripts/progression-rebuild.ts",
 		"db:nettoyer-migration": "node scripts/nettoyer-migration.mjs",
+		"db:nouvelle-migration": "node scripts/nouvelle-migration.mjs",
 		"db:deploy:e2e": "E2E=1 node scripts/prisma-direct.mjs migrate deploy",
 		"seed:perf": "node prisma/seed-perf.js",
 		"seed:perf:clean": "node prisma/seed-perf.js --clean",

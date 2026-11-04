@@ -109,6 +109,18 @@ export async function exportPersonData(userId: string) {
 	const details = await getProfileDetails(person);
 	const location = await getActorLocation(person.actorId);
 	const progress = await getProgress(person.actorId, prisma);
+	const media = await prisma.media.findMany({
+		where: { actorId: person.actorId },
+		orderBy: { createdAt: 'asc' },
+		select: {
+			title: true,
+			kind: true,
+			status: true,
+			externalUrl: true,
+			providerId: true,
+			createdAt: true
+		}
+	});
 	return {
 		identifiant_public: person.actor.handle,
 		nom_affiche: person.actor.displayName,
@@ -131,6 +143,14 @@ export async function exportPersonData(userId: string) {
 		liens: details.links.map((l) => ({ type: l.kind, url: l.url })),
 		// Seule la commune est stockée (jamais d'adresse ni de point précis).
 		commune: location ? `${location.communeName} (${location.departmentCode})` : null,
+		medias: media.map((m) => ({
+			titre: m.title,
+			type: m.kind,
+			statut: m.status,
+			lien: m.externalUrl,
+			fichier: m.providerId,
+			ajoute_le: m.createdAt
+		})),
 		progression: {
 			palier_de_confiance: person.actor.trustLevel,
 			xp: progress.xp,
@@ -159,6 +179,8 @@ export async function personAnonymizationOps(
 		prisma.influence.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.profileLink.deleteMany({ where: { personId: person.actorId } }),
 		prisma.actorLocation.deleteMany({ where: { actorId: person.actorId } }),
+		// Fichiers Cloudinary : à supprimer aussi quand l'envoi existera (P1-08b).
+		prisma.media.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.person.update({
 			where: { userId },
 			data: {

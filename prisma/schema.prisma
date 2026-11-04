@@ -1413,6 +1413,7 @@ model Actor {
   genres     ActorGenre[]
   influences Influence[]
   location   ActorLocation?
+  media          Media[]
   xpTransactions XpTransaction[]
   progress       ActorProgress[]
   achievements   ActorAchievement[]
@@ -1494,6 +1495,7 @@ model Instrument {
   updatedAt DateTime         @updatedAt
 
   players PersonInstrument[]
+  media   Media[]
 
   @@index([family, sortOrder])
   @@map("instruments")
@@ -1717,4 +1719,59 @@ model ActorAchievement {
 
   @@id([actorId, achievementId])
   @@map("actor_achievements")
+}
+
+// ─── MÉDIAS (P1-08) ─────────────────────────────────────────────────────────
+// Règles pures : `src/lib/media/`. Un média n'est visible publiquement que
+// `PUBLISHED`. Fichiers chez Cloudinary (dossier de l'acteur), liens externes
+// affichés par lecteur intégré construit côté serveur (jamais le HTML oEmbed).
+
+enum MediaKind {
+  AUDIO
+  VIDEO
+  IMAGE
+  EXTERNAL_LINK
+}
+
+enum MediaStatus {
+  UPLOADING
+  PROCESSING
+  PENDING_REVIEW
+  PUBLISHED
+  REJECTED
+}
+
+enum MediaProvider {
+  CLOUDINARY
+  YOUTUBE
+  SOUNDCLOUD
+  BANDCAMP
+}
+
+model Media {
+  id               String         @id @default(cuid())
+  actorId          String
+  actor            Actor          @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  kind             MediaKind
+  status           MediaStatus
+  provider         MediaProvider
+  /// public_id Cloudinary (fichiers envoyés).
+  providerId       String?
+  /// Lien d'origine (YouTube, SoundCloud, Bandcamp), normalisé en https.
+  externalUrl      String?
+  title            String
+  /// La personne présente ce média comme une démo d'elle (rapporte de l'XP).
+  isDemo           Boolean        @default(false)
+  durationSec      Int?
+  bytes            Int?
+  instrumentId     String?
+  instrument       Instrument?    @relation(fields: [instrumentId], references: [id], onDelete: SetNull)
+  rejectionReason  String?
+  publishedAt      DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([actorId, status])
+  @@index([status, createdAt])
+  @@map("media")
 }

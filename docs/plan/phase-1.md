@@ -198,6 +198,12 @@ peuvent démarrer pendant la phase 0.
 
 ## P1-08 — Médias : upload direct, traitement, modération
 
+> **Découpé le 04/11/2026.** **P1-08a** ✅ : modèle `Media`, liens externes,
+> page « Mes médias », publication et XP, quota, page publique (404 si non
+> publié), e2e « publie un lien externe ». **P1-08b** : envoi de fichiers
+> (`api/media/sign`, webhook, lecteurs, CSP médias, suppression Cloudinary
+> à l'anonymisation).
+
 - **Tâches** :
   - `api/media/sign` : vérifie le quota de confiance, le type et la
     taille, et renvoie une signature Cloudinary limitée au dossier de
