@@ -1,7 +1,10 @@
 <script lang="ts">
 	import SmoothScrollBarStore from '#lib/store/SmoothScrollBarStore';
 	import gsap from 'gsap';
-	import ScrollTrigger from 'gsap/dist/ScrollTrigger';
+	// LINKMUSICIAN: import ESM. Le bundle UMD `gsap/dist/ScrollTrigger`, une fois
+	// pré-bundlé par Vite, n'expose pas `scrollerProxy` : l'$effect levait une erreur
+	// sur chaque page, et l'admin (composant imbriqué) tombait en 500.
+	import { ScrollTrigger } from 'gsap/ScrollTrigger';
 	import Scrollbar from 'smooth-scrollbar';
 	import type { ScrollStatus } from 'smooth-scrollbar/interfaces/scrollbar';
 
