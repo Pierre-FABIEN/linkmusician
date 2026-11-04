@@ -8,6 +8,8 @@ import { trustSummaryFor } from '#lib/server/progression/trust';
 import {
 	computeTrustLevel,
 	nextTrustRequirements,
+	QUOTA_LABELS,
+	TRUST_NAMES,
 	TRUST_PERMISSIONS
 } from '#lib/server/progression/core/trust';
 import type { PageServerLoad } from './$types';
@@ -18,11 +20,16 @@ export const load: PageServerLoad = async ({ locals }) => {
 	// Le palier affiché est recalculé à la volée : il ne dépend pas du passage
 	// de la tâche nocturne (l'ancienneté a pu faire passer un palier).
 	const level = summary ? computeTrustLevel(summary) : 0;
+	const next = summary ? nextTrustRequirements(summary) : { next: 1 as const, requirements: [] };
+	// Libellés transmis par le serveur : une page ne peut pas importer
+	// `src/lib/server/**` côté navigateur.
 	return {
+		names: TRUST_NAMES,
+		quotaLabels: QUOTA_LABELS,
 		trust: {
 			level,
 			permissions: TRUST_PERMISSIONS[level],
-			...(summary ? nextTrustRequirements(summary) : { next: 1 as const, requirements: [] })
+			...next
 		}
 	};
 };

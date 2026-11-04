@@ -1,6 +1,5 @@
 <script lang="ts">
 	// LINKMUSICIAN: réglages, voir +page.server.ts.
-	import { TRUST_NAMES, QUOTA_LABELS } from '#lib/server/progression/core/trust';
 	import SEO from '#lib/components/SEO.svelte';
 
 	let { data } = $props();
@@ -19,7 +18,7 @@
 		<section class="space-y-3" aria-labelledby="trust-title">
 			<h2 id="trust-title" class="text-lg font-semibold">Ton palier de confiance</h2>
 			<p class="text-2xl font-bold">
-				{TRUST_NAMES[t.level]}
+				{data.names[t.level]}
 				<span class="text-base font-normal text-muted-foreground">(niveau {t.level})</span>
 			</p>
 			<p class="text-sm text-muted-foreground">
@@ -29,7 +28,7 @@
 
 			{#if t.next !== null}
 				<div class="rounded-lg border p-3">
-					<h3 class="mb-2 text-sm font-semibold">Pour passer {TRUST_NAMES[t.next]}</h3>
+					<h3 class="mb-2 text-sm font-semibold">Pour passer {data.names[t.next]}</h3>
 					<ul class="space-y-1 text-sm">
 						{#each t.requirements as r (r.label)}
 							<li class={r.met ? 'text-muted-foreground' : ''}>
@@ -51,15 +50,15 @@
 			<table class="w-full text-sm">
 				<tbody>
 					<tr class="border-b">
-						<td class="py-2">{QUOTA_LABELS.dailyFirstMessages}</td>
+						<td class="py-2">{data.quotaLabels.dailyFirstMessages}</td>
 						<td class="py-2 text-right font-medium">{t.permissions.dailyFirstMessages}</td>
 					</tr>
 					<tr class="border-b">
-						<td class="py-2">{QUOTA_LABELS.activeOpportunities}</td>
+						<td class="py-2">{data.quotaLabels.activeOpportunities}</td>
 						<td class="py-2 text-right font-medium">{t.permissions.activeOpportunities}</td>
 					</tr>
 					<tr class="border-b">
-						<td class="py-2">{QUOTA_LABELS.mediaItems}</td>
+						<td class="py-2">{data.quotaLabels.mediaItems}</td>
 						<td class="py-2 text-right font-medium">{t.permissions.mediaItems}</td>
 					</tr>
 					<tr class="border-b">
