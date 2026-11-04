@@ -1261,6 +1261,9 @@ export async function deleteUser(email: string) {
 
 	await resilient(() => db.transaction.deleteMany({ where: { userId: user.id } }));
 	await resilient(() => db.order.deleteMany({ where: { userId: user.id } }));
+	// LINKMUSICIAN: l'acteur porte la personne (et non l'inverse) : sans cette
+	// ligne, la cascade depuis `User` le laisserait orphelin, handle compris.
+	await resilient(() => db.actor.deleteMany({ where: { person: { userId: user.id } } }));
 	await resilient(() => db.user.delete({ where: { id: user.id } }));
 }
 

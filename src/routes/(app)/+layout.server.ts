@@ -2,7 +2,8 @@
  * LINKMUSICIAN: garde de l'espace LinkMusician.
  *
  * Toute page du groupe `(app)` exige un compte connecté, vérifié, **et** une
- * personne LinkMusician. Sinon, redirection vers `/bienvenue`. La garde est
+ * personne LinkMusician (sinon `/bienvenue`) ayant au moins un métier (sinon
+ * `/qui-es-tu`, P1-03b). La garde est
  * posée ici, et non dans `hooks.server.ts`, pour que les pages du
  * boilerplate (et sa suite e2e, qui crée des comptes sans personne) restent
  * accessibles telles quelles.
@@ -18,6 +19,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 
 	const person = await getPersonByUserId(user.id);
 	if (!person) redirect(302, '/bienvenue');
+	if (person.tracks.length === 0) redirect(302, '/qui-es-tu');
 
 	return {
 		person: {

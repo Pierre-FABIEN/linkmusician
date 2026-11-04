@@ -14,8 +14,8 @@ import { suggestHandle } from '#lib/actors/handle';
 import { createPersonForUser, hasPerson, isHandleTaken } from '#lib/prisma/actors/person';
 import type { Actions, PageServerLoad } from './$types';
 
-/** Accueil de l'espace LinkMusician `(app)`. */
-const APP_HOME = '/espace';
+/** Étape suivante : le choix des métiers (elle renvoie vers `/espace` s'ils sont déjà choisis). */
+const APP_HOME = '/qui-es-tu';
 
 function requireVerifiedUser(locals: App.Locals) {
 	const user = locals.user;

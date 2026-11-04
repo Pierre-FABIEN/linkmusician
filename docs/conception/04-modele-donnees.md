@@ -34,7 +34,7 @@ plusieurs organisations (son groupe, son studio).
 
 enum ActorKind { PERSON ORGANIZATION }
 enum OrgKind { BAND STUDIO LABEL PROMOTER MANAGEMENT PUBLISHER MEDIA }
-enum TrackKind { MUSICIAN PRODUCER ENGINEER MANAGER BOOKER } // pistes d'une personne
+enum TrackKind { MUSICIAN PRODUCER SOUND_ENGINEER MANAGER BOOKER PROMOTER LABEL_PRO PUBLISHER MUSIC_COMMS } // pistes d'une personne (D15)
 enum OrgRole { OWNER ADMIN MEMBER }
 enum MembershipStatus { INVITED REQUESTED ACTIVE LEFT REMOVED }
 
@@ -64,10 +64,10 @@ model Person {                                  // Phase 1
   availability Json?                            // créneaux hebdo grossiers (soirs, week-ends…)
 }
 
-model PersonTrack {                             // Phase 1 (MUSICIAN), 4+ (autres)
+model PersonTrack {                             // Phase 1 : tous enregistrables, MUSICIAN seul complet (D15)
   personId String
   track    TrackKind
-  isPrimary Boolean @default(false)
+  isPrimary Boolean @default(false)             // exactement un par personne, garanti par setPersonTracks
   @@id([personId, track])
 }
 
@@ -350,3 +350,11 @@ model Sanction { id String @id @default(cuid()); actorId String; kind String /* 
 - **Anonymisation** : `Actor.deletedAt` et des champs vidés. Les
   `CollaborationParticipant`, `Attestation` et `XpTransaction` de la
   contrepartie restent valides.
+- **Métier principal unique** : chaque personne qui a passé l'écran
+  « Qui es-tu ? » a au moins un `PersonTrack`, dont exactement un
+  `isPrimary`. Il n'y a pas d'index unique partiel : Prisma 5 ne sait
+  pas le décrire, et la `migrate dev` suivante le supprimerait (même
+  piège que les index `transactions_*`). La règle est donc tenue par
+  `setPersonTracks` (`src/lib/prisma/actors/tracks.ts`), seul point
+  d'écriture, en transaction sérialisable. Libellés et règles pures :
+  `src/lib/actors/tracks.ts`.

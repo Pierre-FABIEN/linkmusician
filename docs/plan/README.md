@@ -81,29 +81,29 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 | P0-01  | Environnement local et état de référence                   | —                 | ⏸      | Tout est vert sauf e2e : en attente d'une base dédiée, voir [état de référence](./etat-de-reference.md) |
 | P0-01b | Rapatrier la réparation du socle (faite en amont)          | —                 | ✅     | Synchro `fe82121`, historique relié (`d24aed5`)                                                         |
 | P0-02  | Trancher les décisions de lancement                        | —                 | 🟡     | D6 et D10 tranchées le 03/11                                                                            |
-| P0-03  | Mettre la boutique en veille (interrupteur `SHOP_ENABLED`) | P0-01             | ⬜     |                                                                                                         |
+| P0-03  | Mettre la boutique en veille (interrupteur `SHOP_ENABLED`) | P0-01             | ✅     | Boutique en veille (`f430e13`), sur `main` le 04/11                                                     |
 | P0-04  | Base dédiée, PostGIS, rôle MODERATOR                       | P0-01             | ⬜     |                                                                                                         |
 | P0-05  | Coquille de l'application et identité visuelle de base     | P0-03, P0-02 (D9) | ⬜     |                                                                                                         |
 | P0-06  | Documentation et synchro amont outillée                    | P0-05             | ⬜     |                                                                                                         |
 
 ### Phase 1 — Identité musicale et moteur de progression → [phase-1.md](./phase-1.md)
 
-| Lot    | Intitulé                                            | Dépend de                    | Statut | PR                                                                                    |
-| ------ | --------------------------------------------------- | ---------------------------- | ------ | ------------------------------------------------------------------------------------- |
-| P1-01  | Noyau de progression pur (`progression/core`)       | — _(parallélisable avec P0)_ | ⬜     |                                                                                       |
-| P1-02  | Maquettes : onboarding, profil, tableau de bord     | P0-02                        | ⬜     |                                                                                       |
-| P1-03a | Inscription : personne, âge minimum, rôle MODERATOR | P0-03                        | ✅     | Parcours vérifié dans le navigateur ; spec e2e dédié à écrire, suite e2e non relancée |
-| P1-03b | Choix des métiers (« Qui es-tu ? »)                 | P1-03a                       | ⬜     |                                                                                       |
-| P1-04  | Référentiels instruments et genres                  | P0-04                        | ⬜     |                                                                                       |
-| P1-05  | Localisation floutée                                | P1-03a                       | ⬜     |                                                                                       |
-| P1-06  | Compétences : instruments, genres, influences       | P1-03a, P1-04                | ⬜     |                                                                                       |
-| P1-07  | Registre XP, outbox, projecteur, succès             | P1-01, P1-03a                | ⬜     |                                                                                       |
-| P1-08  | Médias : upload direct, traitement, modération      | P1-03a                       | ⬜     |                                                                                       |
-| P1-09  | Confiance TL0/TL1 et quotas                         | P1-07                        | ⬜     |                                                                                       |
-| P1-10  | Onboarding                                          | P1-02, P1-05, P1-06, P1-07   | ⬜     |                                                                                       |
-| P1-11  | Profil public et tableau de bord de progression     | P1-08, P1-10                 | ⬜     |                                                                                       |
-| P1-12  | Signalements, modération minimale, RGPD étendu      | P1-08                        | ⬜     |                                                                                       |
-| P1-13  | Instrumentation des indicateurs produit             | P1-10                        | ⬜     |                                                                                       |
+| Lot    | Intitulé                                            | Dépend de                    | Statut | PR                                                                                                    |
+| ------ | --------------------------------------------------- | ---------------------------- | ------ | ----------------------------------------------------------------------------------------------------- |
+| P1-01  | Noyau de progression pur (`progression/core`)       | — _(parallélisable avec P0)_ | ⬜     |                                                                                                       |
+| P1-02  | Maquettes : onboarding, profil, tableau de bord     | P0-02                        | ⬜     |                                                                                                       |
+| P1-03a | Inscription : personne, âge minimum, rôle MODERATOR | P0-03                        | ✅     | Parcours vérifié dans le navigateur ; spec e2e dédié à écrire, suite e2e non relancée                 |
+| P1-03b | Choix des métiers (« Qui es-tu ? »)                 | P1-03a                       | ✅     | Parcours vérifié dans le navigateur ; spec `e2e/linkmusician/metiers.spec.ts` écrit, pas encore lancé |
+| P1-04  | Référentiels instruments et genres                  | P0-04                        | ⬜     |                                                                                                       |
+| P1-05  | Localisation floutée                                | P1-03a                       | ⬜     |                                                                                                       |
+| P1-06  | Compétences : instruments, genres, influences       | P1-03a, P1-04                | ⬜     |                                                                                                       |
+| P1-07  | Registre XP, outbox, projecteur, succès             | P1-01, P1-03a                | ⬜     |                                                                                                       |
+| P1-08  | Médias : upload direct, traitement, modération      | P1-03a                       | ⬜     |                                                                                                       |
+| P1-09  | Confiance TL0/TL1 et quotas                         | P1-07                        | ⬜     |                                                                                                       |
+| P1-10  | Onboarding                                          | P1-02, P1-05, P1-06, P1-07   | ⬜     |                                                                                                       |
+| P1-11  | Profil public et tableau de bord de progression     | P1-08, P1-10                 | ⬜     |                                                                                                       |
+| P1-12  | Signalements, modération minimale, RGPD étendu      | P1-08                        | ⬜     |                                                                                                       |
+| P1-13  | Instrumentation des indicateurs produit             | P1-10                        | ⬜     |                                                                                                       |
 
 ### Phase 2 — Découverte, annonces, messagerie, collaborations → [phase-2-3.md](./phase-2-3.md)
 
