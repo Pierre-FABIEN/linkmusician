@@ -156,6 +156,20 @@ peuvent démarrer pendant la phase 0.
 - **Fin** : un e2e édite le profil musical. Un unitaire couvre la
   détection de « profil complété ».
 
+## P1-06b — Profil complet : statut pro, recherche, matériel, mobilité, liens
+
+- **Décisions** : D17, D18.
+- **Tâches** : champs de `Person` et table `ProfileLink` (modèle de
+  données §2). Formulaires dans « Mon profil » : statut pro (3 choix,
+  affiché « déclaré »), « ce que je recherche » (choix multiples),
+  matériel et année de début de pratique, rayon de déplacement par
+  tranches (10, 25, 50, 100 km), liens externes (https, domaine contrôlé
+  selon le type, jamais intégrés sans clic). Libellés dans un référentiel
+  pur et testé, comme les métiers.
+- **RGPD** : export et anonymisation couvrent les nouveaux champs.
+- **Fin** : unitaires (référentiels, validation des liens), un e2e édite
+  ces champs. Le seuil « profil complété » n'en dépend pas (D18).
+
 ## P1-07 — Registre XP, outbox, projecteur, succès
 
 - **Référence** : [conception/03 §2.4](../conception/03-architecture.md#24-moteur-de-progression),

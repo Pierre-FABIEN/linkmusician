@@ -62,6 +62,24 @@ model Person {                                  // Phase 1
   instruments PersonInstrument[]
   memberships Membership[]
   availability Json?                            // créneaux hebdo grossiers (soirs, week-ends…)
+  proStatus    ProStatus?                       // D17, déclaré
+  lookingFor   LookingFor[]                     // D18 : « ce que je recherche »
+  equipment    Equipment[]                      // D18 : sono, local de répète, véhicule…
+  practiceSince Int?                            // D18 : année de début (affichée en années de pratique)
+  travelRadiusKm Int?                           // D18 : 10, 25, 50, 100 (tranches, jamais une adresse)
+  links        ProfileLink[]                    // D18
+}
+
+enum ProStatus { AMATEUR SEMI_PRO PROFESSIONAL }  // D17
+enum LookingFor { BAND REPLACEMENTS JAMS STUDIO_SESSIONS LESSONS_GIVE LESSONS_TAKE COLLABORATION }
+enum Equipment { PA_SYSTEM REHEARSAL_SPACE VEHICLE HOME_STUDIO }
+enum LinkKind { SPOTIFY YOUTUBE BANDCAMP SOUNDCLOUD INSTAGRAM WEBSITE }
+
+model ProfileLink {                             // D18, Phase 1
+  personId String
+  kind     LinkKind
+  url      String                               // https uniquement, domaine contrôlé selon `kind`
+  @@id([personId, kind])
 }
 
 model PersonTrack {                             // Phase 1 : tous enregistrables, MUSICIAN seul complet (D15)
