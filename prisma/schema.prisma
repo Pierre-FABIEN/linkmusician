@@ -1401,7 +1401,9 @@ model Actor {
   /// Anonymisation RGPD : l'acteur reste pour l'historique de ses contreparties.
   deletedAt   DateTime?
 
-  person Person?
+  person     Person?
+  genres     ActorGenre[]
+  influences Influence[]
 
   @@map("actors")
 }
@@ -1421,7 +1423,8 @@ model Person {
   termsAcceptedAt DateTime
   createdAt       DateTime  @default(now())
 
-  tracks PersonTrack[]
+  tracks      PersonTrack[]
+  instruments PersonInstrument[]
 
   @@map("persons")
 }
@@ -1468,6 +1471,8 @@ model Instrument {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
+  players PersonInstrument[]
+
   @@index([family, sortOrder])
   @@map("instruments")
 }
@@ -1481,6 +1486,7 @@ model Genre {
   parentId  String?
   parent    Genre?   @relation("GenreTree", fields: [parentId], references: [id], onDelete: Restrict)
   children  Genre[]  @relation("GenreTree")
+  actors    ActorGenre[]
   sortOrder Int
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -1488,4 +1494,48 @@ model Genre {
 
   @@index([parentId, sortOrder])
   @@map("genres")
+}
+
+// ─── COMPÉTENCES : profil musical (P1-06) ───────────────────────────────────
+
+/// Instrument joué par une personne, avec son niveau déclaré (D11, 1 à 5).
+/// De 1 à 5 instruments, dont exactement un principal : règle tenue par
+/// `saveMusicalProfile` (`src/lib/prisma/skills/musicalProfile.ts`).
+model PersonInstrument {
+  personId      String
+  person        Person     @relation(fields: [personId], references: [actorId], onDelete: Cascade)
+  instrumentId  String
+  instrument    Instrument @relation(fields: [instrumentId], references: [id], onDelete: Restrict)
+  declaredLevel Int
+  isPrimary     Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+
+  @@id([personId, instrumentId])
+  @@index([instrumentId])
+  @@map("person_instruments")
+}
+
+/// Genre pratiqué par un acteur (personne aujourd'hui, groupe plus tard).
+model ActorGenre {
+  actorId   String
+  actor     Actor    @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  genreId   String
+  genre     Genre    @relation(fields: [genreId], references: [id], onDelete: Restrict)
+  createdAt DateTime @default(now())
+
+  @@id([actorId, genreId])
+  @@index([genreId])
+  @@map("actor_genres")
+}
+
+/// Influence déclarée en texte libre (artiste, album, courant), texte brut.
+model Influence {
+  id        String @id @default(cuid())
+  actorId   String
+  actor     Actor  @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  label     String
+  sortOrder Int
+
+  @@index([actorId, sortOrder])
+  @@map("influences")
 }

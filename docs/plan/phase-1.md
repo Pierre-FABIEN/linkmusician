@@ -176,6 +176,9 @@ peuvent démarrer pendant la phase 0.
   [conception/04](../conception/04-modele-donnees.md) (`DomainEvent`,
   `XpTransaction`, `ActorProgress`, succès).
 - **Tâches** :
+  - Reporté de P1-06 : émettre `profile.updated` à chaque
+    `saveMusicalProfile`, et `profile.completed` la première fois que
+    `isProfileComplete` (`src/lib/skills/profile.ts`) devient vrai.
   - `progression/events.ts` : `emit(tx, event)` écrit le `DomainEvent`
     dans la transaction de l'appelant.
   - `progression/processor.ts` : charge le contexte, appelle `core`, et

@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { startSmtpSink } from './smtp-sink';
 import { db } from './db';
 import { E2E_EMAIL_PREFIX } from './account';
+import { seedReferentials } from '../../prisma/seed-referentials.js'; // LINKMUSICIAN:
 
 /**
  * Préparation globale de la suite end-to-end :
@@ -91,6 +92,10 @@ export default async function globalSetup() {
 			stdio: 'pipe'
 		});
 	});
+
+	// LINKMUSICIAN: référentiels instruments et genres (rejouable), requis par
+	// les specs du profil musical.
+	await withRetry(() => seedReferentials(db));
 
 	// Neon met la base en veille après inactivité : la première connexion peut
 	// échouer le temps que le calcul redémarre.

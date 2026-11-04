@@ -24,6 +24,9 @@
 					class={t.isPrimary ? 'font-semibold text-foreground' : ''}>{TRACKS[t.track].label}</span
 				>{/each}
 		</p>
-		<a href="/reglages/metiers" class="text-sm underline">Modifier mes métiers</a>
+		<div class="flex justify-center gap-4 text-sm">
+			<a href="/profil/musical" class="underline">Mon profil musical</a>
+			<a href="/reglages/metiers" class="underline">Modifier mes métiers</a>
+		</div>
 	</div>
 </div>

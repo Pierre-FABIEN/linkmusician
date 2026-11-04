@@ -28,6 +28,18 @@ supprimée. `npm run seed` (et donc `npm run reset`) l'appelle aussi.
 
 `/admin/referentiels` : lecture seule, entrées désactivées barrées.
 
+## Profil musical (P1-06)
+
+Page `/profil/musical` (« Mon profil musical ») : 1 à 5 instruments avec un
+niveau déclaré (D11, `src/lib/skills/levels.ts`) et exactement un instrument
+principal, 1 à 5 genres, jusqu'à 10 influences en texte brut (une par ligne).
+Règles pures dans `src/lib/skills/profile.ts`, dont `isProfileComplete`
+(≥1 instrument, ≥1 genre, zone, bio), qui servira à émettre
+`profile.completed` avec le registre d'événements (P1-07). Écriture :
+`saveMusicalProfile` (`src/lib/prisma/skills/musicalProfile.ts`), seul point
+d'écriture, qui refuse un instrument ou un genre désactivé. Export et
+anonymisation RGPD couverts (`src/lib/prisma/actors/person.ts`).
+
 ## Code
 
 - `src/lib/skills/` : familles, contrôle d'intégrité (pur, testé).

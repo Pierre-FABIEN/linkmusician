@@ -117,17 +117,16 @@ model Membership {                              // Phase 3
 model Instrument { id String @id; slug String @unique; name String; family String } // référentiel (voix incluse)
 model Genre      { id String @id; slug String @unique; name String; parentId String? } // arborescence
 
-model PersonInstrument {                        // Phase 1
+model PersonInstrument {                        // Phase 1 (P1-06)
   personId     String
   instrumentId String
-  declaredLevel Int                             // 1..5, échelle à descripteurs observables
-  yearsPlaying Int?
-  isPrimary    Boolean @default(false)
-  @@id([personId, instrumentId])
+  declaredLevel Int                             // 1..5, échelle à descripteurs observables (D11)
+  isPrimary    Boolean @default(false)          // exactement un, garanti par saveMusicalProfile
+  @@id([personId, instrumentId])                // 1 à 5 par personne ; ancienneté : Person.practiceSince (D18)
 }
 
 model ActorGenre { actorId String; genreId String; @@id([actorId, genreId]) }   // Phase 1
-model Influence  { id String @id @default(cuid()); actorId String; label String; externalUrl String? } // texte libre
+model Influence  { id String @id @default(cuid()); actorId String; label String; sortOrder Int } // texte brut, 10 au plus
 
 model Endorsement {                             // Phase 2
   id            String @id @default(cuid())

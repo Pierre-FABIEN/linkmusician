@@ -17,7 +17,12 @@ async function seedInstruments(prisma) {
 	for (const [family, entries] of Object.entries(instrumentsByFamily)) {
 		for (const [index, [slug, name]] of entries.entries()) {
 			slugs.push(slug);
-			const data = { name, family, sortOrder: index, active: true };
+			const data = {
+				name,
+				family: /** @type {import('@prisma/client').InstrumentFamily} */ (family),
+				sortOrder: index,
+				active: true
+			};
 			await prisma.instrument.upsert({ where: { slug }, create: { slug, ...data }, update: data });
 		}
 	}

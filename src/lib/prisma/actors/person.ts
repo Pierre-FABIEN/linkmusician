@@ -10,6 +10,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { civilDateToUtc } from '#lib/actors/age';
 import { suggestHandle } from '#lib/actors/handle';
+import { getMusicalProfile } from '#lib/prisma/skills/musicalProfile';
 
 export type NewPersonInput = {
 	userId: string;
@@ -101,12 +102,20 @@ export async function createPersonForUser(input: NewPersonInput) {
 export async function exportPersonData(userId: string) {
 	const person = await getPersonByUserId(userId);
 	if (!person) return null;
+	const musical = await getMusicalProfile(person);
 	return {
 		identifiant_public: person.actor.handle,
 		nom_affiche: person.actor.displayName,
 		date_de_naissance: person.birthDate?.toISOString().slice(0, 10) ?? null,
 		cgu_acceptees_le: person.termsAcceptedAt,
 		metiers: person.tracks.map((t) => ({ metier: t.track, principal: t.isPrimary })),
+		instruments: musical.instruments.map((i) => ({
+			instrument: i.name,
+			niveau_declare: i.level,
+			principal: i.isPrimary
+		})),
+		genres: musical.genres.map((g) => g.name),
+		influences: musical.influences,
 		cree_le: person.createdAt
 	};
 }
@@ -124,6 +133,9 @@ export async function personAnonymizationOps(
 	return [
 		prisma.person.update({ where: { userId }, data: { birthDate: null } }),
 		prisma.personTrack.deleteMany({ where: { personId: person.actorId } }),
+		prisma.personInstrument.deleteMany({ where: { personId: person.actorId } }),
+		prisma.actorGenre.deleteMany({ where: { actorId: person.actorId } }),
+		prisma.influence.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.actor.update({
 			where: { id: person.actorId },
 			data: {
