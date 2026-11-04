@@ -1396,6 +1396,8 @@ model Actor {
   /// Identifiant public (`@handle`), unique, en minuscules : voir `src/lib/server/actors/handle.ts`.
   handle      String    @unique
   displayName String
+  /// Présentation libre, texte brut (D18), 600 caractères au plus.
+  bio         String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   /// Anonymisation RGPD : l'acteur reste pour l'historique de ses contreparties.
@@ -1425,6 +1427,16 @@ model Person {
 
   tracks      PersonTrack[]
   instruments PersonInstrument[]
+
+  /// Profil complet (D17, D18). Tout est déclaré, rien n'est vérifié.
+  proStatus      ProStatus?
+  lookingFor     LookingFor[]
+  equipment      Equipment[]
+  /// Année de début de pratique, affichée en années de pratique.
+  practiceSince  Int?
+  /// Rayon de déplacement accepté, par tranches (10, 25, 50, 100 km).
+  travelRadiusKm Int?
+  links          ProfileLink[]
 
   @@map("persons")
 }
@@ -1538,4 +1550,55 @@ model Influence {
 
   @@index([actorId, sortOrder])
   @@map("influences")
+}
+
+// ─── PROFIL COMPLET (P1-06b, D17, D18) ─────────────────────────────────────
+// Libellés et règles : `src/lib/actors/profile.ts`.
+
+/// Statut professionnel déclaré (D17).
+enum ProStatus {
+  AMATEUR
+  SEMI_PRO
+  PROFESSIONAL
+}
+
+/// « Ce que je recherche » (D18).
+enum LookingFor {
+  BAND
+  REPLACEMENTS
+  JAMS
+  STUDIO_SESSIONS
+  LESSONS_GIVE
+  LESSONS_TAKE
+  COLLABORATION
+}
+
+/// Matériel à disposition (D18).
+enum Equipment {
+  PA_SYSTEM
+  REHEARSAL_SPACE
+  VEHICLE
+  HOME_STUDIO
+}
+
+/// Type de lien externe (D18). Domaine contrôlé selon le type.
+enum LinkKind {
+  SPOTIFY
+  YOUTUBE
+  BANDCAMP
+  SOUNDCLOUD
+  INSTAGRAM
+  WEBSITE
+}
+
+/// Lien externe d'une personne, un par type, https uniquement.
+model ProfileLink {
+  personId  String
+  person    Person   @relation(fields: [personId], references: [actorId], onDelete: Cascade)
+  kind      LinkKind
+  url       String
+  createdAt DateTime @default(now())
+
+  @@id([personId, kind])
+  @@map("profile_links")
 }

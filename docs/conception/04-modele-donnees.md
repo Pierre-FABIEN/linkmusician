@@ -44,7 +44,7 @@ model Actor {                                   // Phase 1
   handle     String    @unique                  // @nom public, URL de profil
   displayName String
   avatarUrl  String?
-  bio        String?
+  bio        String?                           // texte brut, 600 caractères (P1-06b)
   trustLevel Int       @default(0)              // §7 de 02-progression
   createdAt  DateTime  @default(now())
   deletedAt  DateTime?                          // anonymisation RGPD

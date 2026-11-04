@@ -25,6 +25,7 @@
 				>{/each}
 		</p>
 		<div class="flex justify-center gap-4 text-sm">
+			<a href="/profil" class="underline">Mon profil</a>
 			<a href="/profil/musical" class="underline">Mon profil musical</a>
 			<a href="/reglages/metiers" class="underline">Modifier mes métiers</a>
 		</div>

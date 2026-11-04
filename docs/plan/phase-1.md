@@ -159,7 +159,8 @@ peuvent démarrer pendant la phase 0.
 ## P1-06b — Profil complet : statut pro, recherche, matériel, mobilité, liens
 
 - **Décisions** : D17, D18.
-- **Tâches** : champs de `Person` et table `ProfileLink` (modèle de
+- **Tâches** : bio (`Actor.bio`, texte brut, 600 caractères, nécessaire au
+  « profil complété »), champs de `Person` et table `ProfileLink` (modèle de
   données §2). Formulaires dans « Mon profil » : statut pro (3 choix,
   affiché « déclaré »), « ce que je recherche » (choix multiples),
   matériel et année de début de pratique, rayon de déplacement par
