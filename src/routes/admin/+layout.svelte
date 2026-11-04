@@ -36,6 +36,7 @@
 						? [{ title: 'fraude', url: '/admin/fraud' }] // COMMERCE-PLUGIN
 						: []),
 					{ title: 'contacts', url: '/admin/contacts' }, // CONTACT-PLUGIN
+					{ title: 'référentiels', url: '/admin/referentiels' }, // LINKMUSICIAN: instruments et genres
 					{ title: 'métriques', url: '/admin/metrics' },
 					{ title: 'exports', url: '/admin/exports' },
 					{ title: 'identité de l’entreprise', url: '/admin/identite' },

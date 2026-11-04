@@ -4,6 +4,7 @@ import { randomBytes } from 'crypto';
 import { symmetricEncrypt } from 'better-auth/crypto';
 import dotenv from 'dotenv';
 import { blog } from './seed-data/blog.js'; // BLOG-PLUGIN
+import { seedReferentials } from './seed-referentials.js'; // LINKMUSICIAN:
 
 dotenv.config();
 
@@ -1039,6 +1040,8 @@ async function main() {
 		]
 	});
 	console.log('3 messages de contact créés.');
+
+	await seedReferentials(prisma); // LINKMUSICIAN: instruments et genres (rejouable)
 
 	console.log('\nComptes de démonstration (mot de passe : ' + DEMO_PASSWORD + ')');
 	console.log(`  ${ADMIN_EMAIL}          ADMIN`);

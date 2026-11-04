@@ -1437,3 +1437,55 @@ model PersonTrack {
   @@id([personId, track])
   @@map("person_tracks")
 }
+
+// ─── COMPÉTENCES : référentiels (P1-04) ─────────────────────────────────────
+//
+// Chargés par `npm run seed:referentiels` depuis `prisma/seed-data/` (rejouable,
+// clé = `slug`). Une entrée retirée de la liste est désactivée (`active`),
+// jamais supprimée : des profils peuvent y faire référence.
+
+/// Famille d'instruments. Libellés dans `src/lib/skills/instruments.ts`.
+enum InstrumentFamily {
+  VOICE
+  PLUCKED_STRINGS
+  BOWED_STRINGS
+  KEYBOARDS
+  DRUMS_PERCUSSION
+  BRASS
+  WOODWINDS
+  ELECTRONIC
+  WORLD
+}
+
+/// Instrument (voix incluse).
+model Instrument {
+  id        String           @id @default(cuid())
+  slug      String           @unique
+  name      String
+  family    InstrumentFamily
+  sortOrder Int
+  active    Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([family, sortOrder])
+  @@map("instruments")
+}
+
+/// Genre musical, sur deux niveaux (D12) : un genre parent (Rock) et ses
+/// sous-genres (Punk). Un sous-genre n'a jamais d'enfant.
+model Genre {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  parentId  String?
+  parent    Genre?   @relation("GenreTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children  Genre[]  @relation("GenreTree")
+  sortOrder Int
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([parentId, sortOrder])
+  @@map("genres")
+}
