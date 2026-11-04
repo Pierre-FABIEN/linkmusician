@@ -16,6 +16,7 @@ dix livrables, plus une revue critique du concept.
 | 8   | Parcours utilisateur (onboarding)                            | [05-mvp-roadmap.md §1](./05-mvp-roadmap.md#1-onboarding)                   |
 | 9   | Stratégie MVP                                                | [05-mvp-roadmap.md §2](./05-mvp-roadmap.md#2-stratégie-mvp)                |
 | 10  | Roadmap par phases (décisions, dépendances, critères, tests) | [05-mvp-roadmap.md §3](./05-mvp-roadmap.md#3-roadmap)                      |
+| 11  | Métiers au-delà du musicien (fiches par métier)              | [06-metiers.md](./06-metiers.md)                                           |
 
 ## Les six positions structurantes
 
