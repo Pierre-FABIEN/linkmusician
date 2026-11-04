@@ -29,6 +29,8 @@ export type ProofStatus = (typeof PROOF_STATUSES)[number];
 
 export const domainEventSchema = z.discriminatedUnion('type', [
 	z.object({ ...base, type: z.literal('profile.completed'), actorId: id }),
+	/** Modification du profil : tracée, ne rapporte rien. */
+	z.object({ ...base, type: z.literal('profile.updated'), actorId: id }),
 	z.object({
 		...base,
 		type: z.literal('media.published'),

@@ -358,6 +358,10 @@ model Sanction { id String @id @default(cuid()); actorId String; kind String /* 
   en back-office. Partout ailleurs, on passe par `Actor`.
 - **`Membership.startedAt` / `endedAt`** : un concert d'octobre crédite
   les membres actifs en octobre, pas le bassiste arrivé en décembre.
+- **Registre protégé par la base** : un déclencheur refuse tout `UPDATE`
+  ou `DELETE` sur `xp_transactions` (migration
+  `linkmusician_progression`). `ActorProgress` porte aussi une ligne
+  `ACCOUNT` (niveau de compte, somme des pistes).
 - **`ActorProgress` est jetable** : un test d'intégration vérifie que la
   somme de `XpTransaction` est égale à `ActorProgress.xp` pour chaque
   paire (acteur, piste).

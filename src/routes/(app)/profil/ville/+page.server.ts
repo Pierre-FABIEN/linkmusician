@@ -7,6 +7,9 @@ import { fail } from '@sveltejs/kit';
 import { getCommune } from '#lib/server/geo/communes';
 import { clearActorLocation, getActorLocation, setActorLocation } from '#lib/server/geo/queries';
 import { requirePerson } from '#server/actors/tracksForm';
+import { onProfileChanged } from '#lib/server/progression/profile';
+import { progressMessage } from '#lib/progression/messages';
+
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -28,11 +31,13 @@ export const actions: Actions = {
 		}
 		if (!commune) return fail(400, { error: 'Choisis une commune dans la liste.' });
 		await setActorLocation(person.actorId, commune);
-		return { saved: commune.nom };
+		const progress = await onProfileChanged(person.actorId);
+		return { saved: progressMessage(`Ta ville est enregistrée : ${commune.nom}.`, progress) };
 	},
 	clear: async ({ locals }) => {
 		const person = await requirePerson(locals);
 		await clearActorLocation(person.actorId);
+		await onProfileChanged(person.actorId);
 		return { cleared: true };
 	}
 };

@@ -15,6 +15,9 @@ import {
 	UnknownReferenceError
 } from '#lib/prisma/skills/musicalProfile';
 import { requirePerson } from '#server/actors/tracksForm';
+import { onProfileChanged } from '#lib/server/progression/profile';
+import { progressMessage } from '#lib/progression/messages';
+
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -60,6 +63,7 @@ export const actions: Actions = {
 		}
 		form.data.primaryInstrumentId = checked.profile.primaryInstrumentId;
 		form.data.influences = checked.profile.influences.join('\n');
-		return message(form, 'Ton profil musical est enregistré.');
+		const progress = await onProfileChanged(person.actorId);
+		return message(form, progressMessage('Ton profil musical est enregistré.', progress));
 	}
 };

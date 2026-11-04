@@ -13,6 +13,7 @@ import { suggestHandle } from '#lib/actors/handle';
 import { getMusicalProfile } from '#lib/prisma/skills/musicalProfile';
 import { getProfileDetails } from '#lib/prisma/actors/profile';
 import { getActorLocation } from '#lib/server/geo/queries';
+import { getProgress } from '#lib/server/progression/read';
 
 export type NewPersonInput = {
 	userId: string;
@@ -107,6 +108,7 @@ export async function exportPersonData(userId: string) {
 	const musical = await getMusicalProfile(person);
 	const details = await getProfileDetails(person);
 	const location = await getActorLocation(person.actorId);
+	const progress = await getProgress(person.actorId, prisma);
 	return {
 		identifiant_public: person.actor.handle,
 		nom_affiche: person.actor.displayName,
@@ -129,6 +131,11 @@ export async function exportPersonData(userId: string) {
 		liens: details.links.map((l) => ({ type: l.kind, url: l.url })),
 		// Seule la commune est stockée (jamais d'adresse ni de point précis).
 		commune: location ? `${location.communeName} (${location.departmentCode})` : null,
+		progression: {
+			xp: progress.xp,
+			niveau: progress.level,
+			succes: progress.achievements.map((a) => ({ succes: a.name, debloque_le: a.unlockedAt }))
+		},
 		cree_le: person.createdAt
 	};
 }

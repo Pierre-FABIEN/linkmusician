@@ -53,7 +53,7 @@
 	}
 
 	$effect(() => {
-		if (form?.saved) toast.success(`Ta ville est enregistrée : ${form.saved}.`);
+		if (form?.saved) toast.success(form.saved);
 		if (form?.cleared) toast.success('Ta ville est retirée.');
 		if (form?.error) toast.error(form.error);
 	});

@@ -1407,6 +1407,9 @@ model Actor {
   genres     ActorGenre[]
   influences Influence[]
   location   ActorLocation?
+  xpTransactions XpTransaction[]
+  progress       ActorProgress[]
+  achievements   ActorAchievement[]
 
   @@map("actors")
 }
@@ -1624,4 +1627,88 @@ model ActorLocation {
 
   @@index([point], type: Gist)
   @@map("actor_locations")
+}
+
+// ─── PROGRESSION (P1-07) ────────────────────────────────────────────────────
+//
+// Voir conception 03 §2.4. Le client n'écrit jamais ici : les services émettent
+// des événements, le processeur applique les règles pures
+// (`src/lib/server/progression/core`) et inscrit les gains.
+
+/// Événement de domaine (outbox), en ajout seul. `processedAt` : traité par
+/// le moteur de progression.
+model DomainEvent {
+  id          String          @id @default(cuid())
+  type        String
+  payload     Json
+  /// Acteurs concernés (recherche des faits passés : collaborations…).
+  actorIds    String[]
+  occurredAt  DateTime        @default(now())
+  processedAt DateTime?
+  createdAt   DateTime        @default(now())
+  xp          XpTransaction[]
+
+  @@index([processedAt])
+  @@index([type, occurredAt])
+  @@map("domain_events")
+}
+
+/// Registre de l'XP, en AJOUT SEUL : jamais d'UPDATE ni de DELETE. Une
+/// correction est une transaction négative liée (`reversesId`).
+model XpTransaction {
+  id            String          @id @default(cuid())
+  actorId       String
+  /// Suppression en cascade : seulement quand l'acteur lui-même est supprimé
+  /// (jeux de test). Un compte anonymisé garde son acteur et son registre.
+  actor         Actor           @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  /// "MUSICIAN" | "BAND" | … (piste de métier).
+  track         String
+  /// Négatif pour une annulation.
+  amount        Int
+  sourceEventId String
+  sourceEvent   DomainEvent     @relation(fields: [sourceEventId], references: [id], onDelete: Restrict)
+  ruleId        String
+  ruleVersion   Int
+  multiplier    Decimal         @db.Decimal(4, 3)
+  /// Lisible par la personne : « Collaboration confirmée ×0,5 ».
+  reason        String
+  reversesId    String?         @unique
+  reverses      XpTransaction?  @relation("XpReversal", fields: [reversesId], references: [id], onDelete: Cascade)
+  reversedBy    XpTransaction?  @relation("XpReversal")
+  createdAt     DateTime        @default(now())
+
+  /// Idempotence : un même événement ne crédite jamais deux fois.
+  @@unique([sourceEventId, ruleId, actorId, track])
+  @@index([actorId, createdAt])
+  @@index([actorId, ruleId, createdAt])
+  @@map("xp_transactions")
+}
+
+/// Projection de l'XP par acteur et par piste, RECONSTRUCTIBLE à tout moment
+/// depuis le registre (`npm run progression:rebuild`). La piste "ACCOUNT"
+/// porte le niveau de compte (somme des pistes d'une personne).
+model ActorProgress {
+  actorId   String
+  actor     Actor    @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  track     String
+  xp        Int
+  level     Int
+  /// Palier nommé de la piste (renseigné avec le tableau de bord, P1-11).
+  tier      String?
+  updatedAt DateTime @updatedAt
+
+  @@id([actorId, track])
+  @@map("actor_progress")
+}
+
+/// Succès débloqué. Définitions dans `progression/core/achievements.ts`.
+model ActorAchievement {
+  actorId       String
+  actor         Actor    @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  achievementId String
+  sourceEventId String
+  unlockedAt    DateTime @default(now())
+
+  @@id([actorId, achievementId])
+  @@map("actor_achievements")
 }
