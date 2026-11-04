@@ -70,11 +70,14 @@ via WSLg). Les délais d'action sont bornés à 20 s : un geste qui n'aboutit pa
 
 Prérequis :
 
-- `.env.test` à la racine (voir `.env.test.example`). Il pointe sur le schéma
-  PostgreSQL `e2e`, distinct du schéma de développement ;
+- `.env.test` à la racine (voir `.env.test.example`). Il ne contient pas
+  d'URL de base : `playwright.config.ts` reprend `DATABASE_URL` et
+  `DIRECT_URL` de `.env`, telles que Neon les fournit, et y ajoute
+  `schema=e2e` (ou `E2E_DB_SCHEMA`), distinct du schéma de développement.
+  Une URL définie dans `.env.test` avec son propre `schema=` reste
+  prioritaire, et une URL qui viserait `schema=public` arrête la suite ;
 - `npx playwright install chromium` une première fois ;
-- la base Neon accessible. Les URL contenant `&` **doivent** rester entre
-  guillemets dans `.env.test`.
+- la base Neon accessible.
 
 Playwright démarre son propre Vite sur le **port 2001**, avec `.env.test`
 (schéma `e2e`, SMTP local). `npm run dev` reste sur le **2000** et n'est pas
@@ -529,7 +532,7 @@ d'étiquette).
 
 `e2e/support/` contient tout ce qui n'est pas le scénario lui-même.
 
-- **`db.ts`** — client Prisma branché explicitement sur l'URL de `.env.test`, et
+- **`db.ts`** — client Prisma branché explicitement sur l'URL e2e (schéma `e2e`), et
   lectures d'état (`requireUser`, `countSessions`, `getRecoveryCode`,
   `getTotpKey`). Les secrets chiffrés sont déchiffrés ici : le module applicatif
   `src/lib/lucia/encryption.ts` dépend de `$app/env/private` et n'est pas
@@ -642,5 +645,5 @@ relation `Order → User` est en `Restrict`.
 | `Can't reach database server`                                                                    | Neon en veille ou IPv6 capricieux sous WSL. Les lectures rejouent déjà ; relancer.                                                                                                                |
 | Le test attend un code d'email indéfiniment                                                      | La boîte SMTP n'a pas démarré, ou `SMTP_HOST` de `.env.test` pointe vers Brevo au lieu de `127.0.0.1`. Les clés live vont dans `SMTP_LIVE_*`.                                                     |
 | « Too many requests » inattendu                                                                  | Une tentative invalide a été ajoutée sans marge. Voir le tableau des limiteurs.                                                                                                                   |
-| Les données de dev sont modifiées                                                                | `DATABASE_URL` de `.env.test` ne contient pas `schema=e2e`, ou les guillemets manquent autour de l'URL.                                                                                           |
+| Les données de dev sont modifiées                                                                | Une URL de base copiée dans `.env.test` sans `schema=` (elle est alors traitée comme celle de `.env`, avec `schema=e2e`) ou sans guillemets autour des `&`.                                       |
 | `strict mode violation` sur un message                                                           | Message présent en toast et sous le champ : utiliser `expectMessage()`.                                                                                                                           |

@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import dns from 'node:dns';
 import dotenv from 'dotenv';
+import fs from 'node:fs'; // LINKMUSICIAN:
 
 // Neon ne publie que des AAAA en premier, et l'IPv6 de WSL2 vers AWS coupe par
 // intermittence : la base devenait injoignable au milieu d'un run. On privilégie
@@ -10,6 +11,29 @@ dns.setDefaultResultOrder('ipv4first');
 // `.env.test` prime sur `.env` : la suite travaille sur le schéma PostgreSQL
 // `e2e` et sur le puits SMTP local, jamais sur les données de développement.
 dotenv.config({ path: '.env.test', override: true });
+
+// LINKMUSICIAN ▼ base e2e déduite de `.env`, pour n'avoir qu'un endroit où
+// coller les URL fournies par Neon. Si `.env.test` ne définit pas
+// `DATABASE_URL`/`DIRECT_URL`, on reprend celles de `.env` en ajoutant
+// `schema=e2e` (ou `E2E_DB_SCHEMA`). Une URL qui porte déjà un `schema=` est
+// laissée telle quelle : `.env.test` peut toujours viser une autre base.
+{
+	const devEnv = fs.existsSync('.env') ? dotenv.parse(fs.readFileSync('.env')) : {};
+	const e2eSchema = process.env.E2E_DB_SCHEMA ?? 'e2e';
+	for (const key of ['DATABASE_URL', 'DIRECT_URL'] as const) {
+		const raw = process.env[key] ?? devEnv[key];
+		if (!raw) continue;
+		const url = new URL(raw);
+		if (!url.searchParams.has('schema')) url.searchParams.set('schema', e2eSchema);
+		if (url.searchParams.get('schema') === 'public') {
+			throw new Error(
+				`${key} des e2e vise le schéma public : les données de dev seraient effacées.`
+			);
+		}
+		process.env[key] = url.toString();
+	}
+}
+// LINKMUSICIAN ▲
 
 // Port distinct de `npm run dev` (2000) : les e2e ne tuent plus le serveur
 // de développement. La suite garde `.env.test` (schéma `e2e`, SMTP local).
