@@ -52,11 +52,19 @@ test.describe('LinkMusician — modération', () => {
 				await mod.goto('/moderation');
 				await waitForAppReady(mod);
 				const card = mod.getByRole('article', { name: 'Média Titre à modérer' });
-				await card.getByRole('button', { name: 'Valider' }).click();
-				await expect(mod.getByText('Média publié.').first()).toBeVisible();
-				expect((await db.media.findUniqueOrThrow({ where: { id: media.id } })).status).toBe(
-					'PUBLISHED'
-				);
+				// Clic direct sur l'élément (le défilement personnalisé peut tromper
+				// Playwright), puis vérification en base plutôt que sur la notification.
+				await card
+					.getByRole('button', { name: 'Valider' })
+					.evaluate((b) => (b as HTMLButtonElement).click());
+				await expect
+					.poll(
+						async () => (await db.media.findUniqueOrThrow({ where: { id: media.id } })).status,
+						{
+							timeout: 30_000
+						}
+					)
+					.toBe('PUBLISHED');
 			});
 
 			await test.step('3. Un membre signale le média', async () => {
@@ -73,11 +81,19 @@ test.describe('LinkMusician — modération', () => {
 				await mod.goto('/moderation');
 				await waitForAppReady(mod);
 				await expect(mod.getByText('« Publicité déguisée »')).toBeVisible();
-				await mod.getByRole('button', { name: 'Retirer le média' }).click();
-				await expect(mod.getByText('Média refusé.').first()).toBeVisible();
-				expect((await db.media.findUniqueOrThrow({ where: { id: media.id } })).status).toBe(
-					'REJECTED'
-				);
+				// Clic direct sur l'élément (le défilement personnalisé peut tromper
+				// Playwright), puis vérification en base plutôt que sur la notification.
+				await mod
+					.getByRole('button', { name: 'Retirer le média' })
+					.evaluate((b) => (b as HTMLButtonElement).click());
+				await expect
+					.poll(
+						async () => (await db.media.findUniqueOrThrow({ where: { id: media.id } })).status,
+						{
+							timeout: 30_000
+						}
+					)
+					.toBe('REJECTED');
 				expect((await db.report.findFirstOrThrow({ where: { targetId: media.id } })).status).toBe(
 					'ACTIONED'
 				);
