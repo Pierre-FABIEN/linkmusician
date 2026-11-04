@@ -6,11 +6,11 @@ et **où on en est**.
 
 ## 1. Le découpage : phase → lot → tâche
 
-| Niveau    | Taille                                                       | Exemple                                    | Où il vit                                       |
-| --------- | ------------------------------------------------------------ | ------------------------------------------ | ----------------------------------------------- |
-| **Phase** | 2 à 6 semaines, un incrément produit utilisable              | Phase 1 : identité musicale et progression | Ce fichier et `phase-N.md`                      |
-| **Lot**   | 1 à 4 jours, **une branche, une PR, une session de travail** | P1-05 : localisation floutée               | `phase-N.md` (fiche du lot)                     |
-| **Tâche** | Moins d'une demi-journée                                     | Écrire la migration PostGIS                | Liste de tâches dans la PR ou la session Claude |
+| Niveau    | Taille                                                      | Exemple                                    | Où il vit                                       |
+| --------- | ----------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------- |
+| **Phase** | 2 à 6 semaines, un incrément produit utilisable             | Phase 1 : identité musicale et progression | Ce fichier et `phase-N.md`                      |
+| **Lot**   | 1 à 4 jours, **une session de travail, commité sur `main`** | P1-05 : localisation floutée               | `phase-N.md` (fiche du lot)                     |
+| **Tâche** | Moins d'une demi-journée                                    | Écrire la migration PostGIS                | Liste de tâches dans la PR ou la session Claude |
 
 Règle d'or : **un lot laisse toujours le projet dans un état vert**
 (`check`, `lint`, tests unitaires et e2e concernés). On ne commence pas un
@@ -35,11 +35,11 @@ la phase suivante.
 ```
 1. Choisir   → premier lot ⬜ du tableau §5 dont les dépendances sont ✅
 2. Cadrer    → relire sa fiche, trancher les décisions qu'il référence (docs/decisions)
-3. Brancher  → git switch -c lot/P1-05-localisation
+3. Préparer  → se placer sur main, à jour (pas de branche de lot)
 4. Réaliser  → tâches, tests au fil de l'eau
 5. Vérifier  → critères de fin de la fiche + « Définition de terminé » (§4)
-6. Livrer    → PR « [P1-05] Localisation floutée », fusion dans main
-7. Tracer    → statut ✅ et lien de la PR dans le tableau §5, doc mise à jour
+6. Livrer    → commits sur main, messages suffixés « (P1-05) », puis push
+7. Tracer    → statut ✅ et commit dans le tableau §5, doc mise à jour
 ```
 
 ### Travailler avec Claude Code
@@ -51,8 +51,7 @@ Une session = un lot. Pour démarrer :
 Claude lit [CLAUDE.md](../../CLAUDE.md), la fiche du lot et les sections
 de conception qu'elle référence, propose les tâches, puis réalise.
 En fin de session, il met à jour le tableau §5. Si un lot déborde, on le
-**coupe** en deux lots (P1-05a, P1-05b) plutôt que de laisser une branche
-traîner.
+**coupe** en deux lots (P1-05a, P1-05b) plutôt que de le prolonger.
 
 ## 4. Définition de terminé (pour tout lot)
 

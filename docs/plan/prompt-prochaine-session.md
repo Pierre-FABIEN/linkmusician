@@ -11,7 +11,7 @@
 
 ## À lire avant toute action
 
-1. `CLAUDE.md` : méthode (un lot = une branche), cohabitation avec le boilerplate
+1. `CLAUDE.md` : méthode (un lot par session, commité sur `main`), cohabitation avec le boilerplate
    (marqueurs `LINKMUSICIAN:`), invariants.
 2. `docs/plan/README.md` §5 (tableau de suivi) et la fiche du prochain lot dans
    `docs/plan/phase-1.md`.
@@ -32,10 +32,10 @@ Profil complété = +150 XP, une fois.
 
 ## État git
 
-`main` contient tout (avance rapide sur `lot/P1-07-registre-xp`, `8b3077e`).
-Vérifier qu'il est poussé (`git status -sb` : pas de « ahead »). Le terminal de Claude
-n'a pas d'identifiants GitHub : l'utilisateur pousse depuis VS Code. Prochain lot :
-brancher depuis `main`.
+**On travaille directement sur `main`** (pas de branche de lot, pas de PR) : `main`
+est toujours à jour. Le terminal de Claude n'a pas d'identifiants GitHub :
+l'utilisateur pousse `main` depuis VS Code. Les anciennes branches `lot/*` sont toutes
+fusionnées dans `main`.
 
 ## Environnement
 

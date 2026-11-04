@@ -21,12 +21,15 @@ supprimée (décision D6).
   lot dans `docs/plan/phase-N.md` et les sections de conception qu'elle
   cite. Vérifier que ses dépendances sont ✅ et que les décisions
   qu'elle référence ne sont plus « Proposée ».
-- Branche `lot/<ID>-<slug>`, une PR par lot, titre `[<ID>] Intitulé`.
+- **On travaille directement sur `main`**, toujours à jour : pas de branche
+  de lot ni de PR (décision de l'utilisateur, 04/11/2026). Un commit par
+  étape cohérente, préfixé par l'ID du lot dans le message
+  (`feat(geo): … (P1-05)`). L'utilisateur pousse `main` depuis VS Code.
 - Fin de lot : appliquer la « Définition de terminé »
   (`docs/plan/README.md` §4), puis mettre à jour le tableau §5.
 - Un lot qui déborde est découpé (`P1-05a`, `P1-05b`), pas prolongé.
-- Une règle métier qui change met à jour `docs/conception/` dans la même
-  PR. Une décision prise est consignée dans `docs/decisions/`.
+- Une règle métier qui change met à jour `docs/conception/` dans le même
+  commit. Une décision prise est consignée dans `docs/decisions/`.
 - Documentation et messages de commit en **français**.
 
 ## Cohabitation avec le boilerplate
