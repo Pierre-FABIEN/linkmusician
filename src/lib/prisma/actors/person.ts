@@ -12,6 +12,7 @@ import { civilDateToUtc } from '#lib/actors/age';
 import { suggestHandle } from '#lib/actors/handle';
 import { getMusicalProfile } from '#lib/prisma/skills/musicalProfile';
 import { getProfileDetails } from '#lib/prisma/actors/profile';
+import { getActorLocation } from '#lib/server/geo/queries';
 
 export type NewPersonInput = {
 	userId: string;
@@ -105,6 +106,7 @@ export async function exportPersonData(userId: string) {
 	if (!person) return null;
 	const musical = await getMusicalProfile(person);
 	const details = await getProfileDetails(person);
+	const location = await getActorLocation(person.actorId);
 	return {
 		identifiant_public: person.actor.handle,
 		nom_affiche: person.actor.displayName,
@@ -125,6 +127,8 @@ export async function exportPersonData(userId: string) {
 		joue_depuis: details.practiceSince,
 		rayon_de_deplacement_km: details.travelRadiusKm,
 		liens: details.links.map((l) => ({ type: l.kind, url: l.url })),
+		// Seule la commune est stockée (jamais d'adresse ni de point précis).
+		commune: location ? `${location.communeName} (${location.departmentCode})` : null,
 		cree_le: person.createdAt
 	};
 }
@@ -146,6 +150,7 @@ export async function personAnonymizationOps(
 		prisma.actorGenre.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.influence.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.profileLink.deleteMany({ where: { personId: person.actorId } }),
+		prisma.actorLocation.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.person.update({
 			where: { userId },
 			data: {

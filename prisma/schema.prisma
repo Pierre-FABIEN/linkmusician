@@ -1406,6 +1406,7 @@ model Actor {
   person     Person?
   genres     ActorGenre[]
   influences Influence[]
+  location   ActorLocation?
 
   @@map("actors")
 }
@@ -1601,4 +1602,26 @@ model ProfileLink {
 
   @@id([personId, kind])
   @@map("profile_links")
+}
+
+// ─── LOCALISATION FLOUTÉE (P1-05) ───────────────────────────────────────────
+//
+// Invariant : aucune localisation précise. On ne stocke que le centre de la
+// commune, aligné sur une grille d'environ 2 km (`src/lib/geo/fuzz.ts`). Seul
+// `src/lib/server/geo/queries.ts` lit ou écrit `point` (SQL brut, PostGIS).
+
+/// Commune d'un acteur et son point flouté.
+model ActorLocation {
+  actorId        String                                @id
+  actor          Actor                                 @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  /// Code INSEE de la commune.
+  communeCode    String
+  communeName    String
+  departmentCode String
+  /// Centre de la commune aligné sur une grille de ~2 km (jamais une position précise).
+  point          Unsupported("geography(Point,4326)")
+  updatedAt      DateTime                              @updatedAt
+
+  @@index([point], type: Gist)
+  @@map("actor_locations")
 }

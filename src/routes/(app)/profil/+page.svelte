@@ -49,7 +49,8 @@
 			<h1 class="mt-2 text-2xl font-bold">Mon profil</h1>
 			<p class="text-sm text-muted-foreground">
 				Tout est déclaratif et facultatif. Instruments, genres et influences :
-				<a href="/profil/musical" class="underline">Mon profil musical</a>.
+				<a href="/profil/musical" class="underline">Mon profil musical</a>. Ta commune :
+				<a href="/profil/ville" class="underline">Ma ville</a>.
 			</p>
 		</div>
 
