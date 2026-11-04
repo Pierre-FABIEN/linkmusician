@@ -17,7 +17,7 @@ avec une progression de type RPG. Points d'entrée :
 
 ```bash
 npm install
-cp .env.example .env          # renseigner DATABASE_URL, DIRECT_URL, BETTER_AUTH_SECRET…
+cp .env.example .env          # renseigner DATABASE_URL, BETTER_AUTH_SECRET…
 npm run db:deploy             # applique les migrations
 npm run seed                  # jeu de données de démonstration
 npm run dev

@@ -13,8 +13,8 @@ dns.setDefaultResultOrder('ipv4first');
 dotenv.config({ path: '.env.test', override: true });
 
 // LINKMUSICIAN ▼ base e2e déduite de `.env`, pour n'avoir qu'un endroit où
-// coller les URL fournies par Neon. Si `.env.test` ne définit pas
-// `DATABASE_URL`/`DIRECT_URL`, on reprend celles de `.env` en ajoutant
+// coller l'URL fournie par Neon. Si `.env.test` ne définit pas
+// `DATABASE_URL` (ni `DIRECT_URL`, plus utilisée), on reprend celles de `.env` en ajoutant
 // `schema=e2e` (ou `E2E_DB_SCHEMA`). Une URL qui porte déjà un `schema=` est
 // laissée telle quelle : `.env.test` peut toujours viser une autre base.
 {

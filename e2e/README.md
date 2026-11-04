@@ -71,8 +71,8 @@ via WSLg). Les délais d'action sont bornés à 20 s : un geste qui n'aboutit pa
 Prérequis :
 
 - `.env.test` à la racine (voir `.env.test.example`). Il ne contient pas
-  d'URL de base : `playwright.config.ts` reprend `DATABASE_URL` et
-  `DIRECT_URL` de `.env`, telles que Neon les fournit, et y ajoute
+  d'URL de base : `playwright.config.ts` reprend `DATABASE_URL` de
+  `.env`, telle que Neon la fournit, et y ajoute
   `schema=e2e` (ou `E2E_DB_SCHEMA`), distinct du schéma de développement.
   Une URL définie dans `.env.test` avec son propre `schema=` reste
   prioritaire, et une URL qui viserait `schema=public` arrête la suite ;
