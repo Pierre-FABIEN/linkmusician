@@ -364,7 +364,10 @@ model Sanction { id String @id @default(cuid()); actorId String; kind String /* 
   paire (acteur, piste).
 - **Index géographiques** : Prisma ne génère pas d'index GiST sur un
   type `Unsupported`. On les ajoute dans le SQL de migration, à la main
-  (`CREATE EXTENSION postgis;` puis `CREATE INDEX … USING GIST (zone)`).
+  (`CREATE INDEX … USING GIST (zone)`). PostGIS est installé une fois,
+  dans `public` (migration `linkmusician_postgis`) : depuis le schéma
+  `e2e`, types et fonctions se qualifient (`public.geography`,
+  `public.ST_DWithin`), sinon ils sont introuvables.
 - **Anonymisation** : `Actor.deletedAt` et des champs vidés. Les
   `CollaborationParticipant`, `Attestation` et `XpTransaction` de la
   contrepartie restent valides.

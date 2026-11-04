@@ -72,7 +72,9 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16
+        # LINKMUSICIAN: image PostGIS (même Postgres 16), requise par la migration
+        # `linkmusician_postgis` (P0-04).
+        image: postgis/postgis:16-3.4
         env:
           POSTGRES_USER: e2e
           POSTGRES_PASSWORD: e2e

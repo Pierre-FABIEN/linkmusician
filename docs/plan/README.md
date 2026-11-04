@@ -76,15 +76,15 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 
 ### Phase 0 — Préparer le socle pour LinkMusician → [phase-0.md](./phase-0.md)
 
-| Lot    | Intitulé                                                   | Dépend de         | Statut | PR                                                                                                      |
-| ------ | ---------------------------------------------------------- | ----------------- | ------ | ------------------------------------------------------------------------------------------------------- |
-| P0-01  | Environnement local et état de référence                   | —                 | ⏸      | Tout est vert sauf e2e : en attente d'une base dédiée, voir [état de référence](./etat-de-reference.md) |
-| P0-01b | Rapatrier la réparation du socle (faite en amont)          | —                 | ✅     | Synchro `fe82121`, historique relié (`d24aed5`)                                                         |
-| P0-02  | Trancher les décisions de lancement                        | —                 | 🟡     | D6 et D10 tranchées le 03/11                                                                            |
-| P0-03  | Mettre la boutique en veille (interrupteur `SHOP_ENABLED`) | P0-01             | ✅     | Boutique en veille (`f430e13`), sur `main` le 04/11                                                     |
-| P0-04  | Base dédiée, PostGIS, rôle MODERATOR                       | P0-01             | ⬜     |                                                                                                         |
-| P0-05  | Coquille de l'application et identité visuelle de base     | P0-03, P0-02 (D9) | ⬜     |                                                                                                         |
-| P0-06  | Documentation et synchro amont outillée                    | P0-05             | ⬜     |                                                                                                         |
+| Lot    | Intitulé                                                   | Dépend de         | Statut | PR                                                                                                               |
+| ------ | ---------------------------------------------------------- | ----------------- | ------ | ---------------------------------------------------------------------------------------------------------------- |
+| P0-01  | Environnement local et état de référence                   | —                 | ⏸      | Tout est vert sauf e2e : en attente d'une base dédiée, voir [état de référence](./etat-de-reference.md)          |
+| P0-01b | Rapatrier la réparation du socle (faite en amont)          | —                 | ✅     | Synchro `fe82121`, historique relié (`d24aed5`)                                                                  |
+| P0-02  | Trancher les décisions de lancement                        | —                 | 🟡     | D6 et D10 tranchées le 03/11                                                                                     |
+| P0-03  | Mettre la boutique en veille (interrupteur `SHOP_ENABLED`) | P0-01             | ✅     | Boutique en veille (`f430e13`), sur `main` le 04/11                                                              |
+| P0-04  | Base dédiée, PostGIS, rôle MODERATOR                       | P0-01             | ✅     | PostGIS 3.6 en dev et en e2e, CI sur `postgis/postgis:16-3.4`, gardes `requireModerator`. Suite e2e non relancée |
+| P0-05  | Coquille de l'application et identité visuelle de base     | P0-03, P0-02 (D9) | ⬜     |                                                                                                                  |
+| P0-06  | Documentation et synchro amont outillée                    | P0-05             | ⬜     |                                                                                                                  |
 
 ### Phase 1 — Identité musicale et moteur de progression → [phase-1.md](./phase-1.md)
 
