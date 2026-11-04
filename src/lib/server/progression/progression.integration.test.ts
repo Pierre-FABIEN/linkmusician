@@ -209,7 +209,7 @@ describe.skipIf(!enabled)('moteur de progression (schéma e2e)', () => {
 		await db.actor.update({ where: { id: actorId }, data: { bio: 'Bassiste.' } });
 		const before = await onProfileChanged(actorId, db);
 		expect(before.xp).toBe(0); // pas encore de ville
-		await db.$executeRaw`INSERT INTO "actor_locations" ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
+		await db.$executeRaw`INSERT INTO "e2e"."actor_locations" ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
 			VALUES (${actorId}, '31555', 'Toulouse', '31', public.ST_SetSRID(public.ST_MakePoint(1.43, 43.6), 4326)::public.geography, now())`;
 		const done = await onProfileChanged(actorId, db);
 		expect(done).toMatchObject({ xp: 150, achievements: ['profile-complete'] });

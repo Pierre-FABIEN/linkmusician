@@ -45,8 +45,11 @@ supprimée (décision D6).
 - **Relire chaque migration générée** (`prisma migrate dev`) : Prisma
   propose de supprimer ou recréer des index du boilerplate créés en SQL
   brut et absents de `schema.prisma` (`transactions_*`,
-  `blog_posts_published_createdAt_idx`). Ces lignes doivent être retirées
-  à la main avant d'appliquer la migration.
+  `blog_posts_published_createdAt_idx`). Les retirer avant d'appliquer la
+  migration : `prisma migrate dev --create-only`, puis
+  `npm run db:nettoyer-migration`, puis relire.
+- **SQL brut** : nommer le schéma (`qualifiedTable`, `src/lib/server/db-schema.ts`).
+  À travers le pooler Neon, `?schema=e2e` ne s'applique pas au SQL brut.
 - `prisma format` réaligne parfois des lignes du boilerplate : remettre
   ces lignes à l'identique pour limiter les conflits.
 

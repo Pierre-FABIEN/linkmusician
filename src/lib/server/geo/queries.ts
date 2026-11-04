@@ -3,13 +3,26 @@
  * (SQL brut). Types et fonctions sont qualifiés `public.` : PostGIS est
  * installé dans `public`, et ces requêtes tournent aussi dans le schéma `e2e`.
  *
- * Chaque fonction accepte un client Prisma en dernier paramètre (le client de
- * l'application par défaut), pour les tests d'intégration.
+ * Chaque fonction accepte une cible (client et schéma) en dernier paramètre,
+ * pour les tests d'intégration.
  */
 import type { PrismaClient } from '@prisma/client';
-import { fuzzedPointOf, type Commune } from '#lib/geo/fuzz';
+import { fuzzedPointOf, type Commune } from '../../geo/fuzz';
+import { qualifiedTable, schemaOf } from '../db-schema';
 
 export type GeoDb = Pick<PrismaClient, '$executeRaw' | '$queryRaw'>;
+
+/**
+ * Cible des requêtes : client Prisma (celui de l'application par défaut) et
+ * schéma (celui de `DATABASE_URL` par défaut, voir `db-schema.ts` : le SQL
+ * brut doit nommer son schéma).
+ */
+export type GeoTarget = { db?: GeoDb; schema?: string };
+
+async function resolve(target: GeoTarget = {}) {
+	const client = target.db ?? (await appDb());
+	return { client, table: qualifiedTable('actor_locations', target.schema ?? schemaOf()) };
+}
 
 async function appDb(): Promise<GeoDb> {
 	return (await import('#lib/server')).prisma;
@@ -20,11 +33,11 @@ async function appDb(): Promise<GeoDb> {
  * partir du seul centre de la commune (`fuzzedPointOf`) : jamais une position
  * fournie par le navigateur.
  */
-export async function setActorLocation(actorId: string, commune: Commune, db?: GeoDb) {
-	const client = db ?? (await appDb());
+export async function setActorLocation(actorId: string, commune: Commune, target?: GeoTarget) {
+	const { client, table } = await resolve(target);
 	const { lat, lng } = fuzzedPointOf(commune);
 	await client.$executeRaw`
-		INSERT INTO "actor_locations" ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
+		INSERT INTO ${table} ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
 		VALUES (${actorId}, ${commune.code}, ${commune.nom}, ${commune.codeDepartement},
 			public.ST_SetSRID(public.ST_MakePoint(${lng}, ${lat}), 4326)::public.geography, now())
 		ON CONFLICT ("actorId") DO UPDATE SET
@@ -35,9 +48,9 @@ export async function setActorLocation(actorId: string, commune: Commune, db?: G
 			"updatedAt" = now()`;
 }
 
-export async function clearActorLocation(actorId: string, db?: GeoDb) {
-	const client = db ?? (await appDb());
-	await client.$executeRaw`DELETE FROM "actor_locations" WHERE "actorId" = ${actorId}`;
+export async function clearActorLocation(actorId: string, target?: GeoTarget) {
+	const { client, table } = await resolve(target);
+	await client.$executeRaw`DELETE FROM ${table} WHERE "actorId" = ${actorId}`;
 }
 
 export type ActorLocationView = {
@@ -49,12 +62,12 @@ export type ActorLocationView = {
 /** Commune d'un acteur (jamais le point). */
 export async function getActorLocation(
 	actorId: string,
-	db?: GeoDb
+	target?: GeoTarget
 ): Promise<ActorLocationView | null> {
-	const client = db ?? (await appDb());
+	const { client, table } = await resolve(target);
 	const rows = await client.$queryRaw<ActorLocationView[]>`
 		SELECT "communeCode", "communeName", "departmentCode"
-		FROM "actor_locations" WHERE "actorId" = ${actorId}`;
+		FROM ${table} WHERE "actorId" = ${actorId}`;
 	return rows[0] ?? null;
 }
 
@@ -66,14 +79,14 @@ export async function getActorLocation(
 export async function findActorsNear(
 	actorId: string,
 	radiusKm: number,
-	db?: GeoDb
+	target?: GeoTarget
 ): Promise<{ actorId: string; communeName: string; meters: number }[]> {
-	const client = db ?? (await appDb());
+	const { client, table } = await resolve(target);
 	const rows = await client.$queryRaw<{ actorId: string; communeName: string; meters: number }[]>`
 		SELECT other."actorId", other."communeName",
 			public.ST_Distance(me."point", other."point")::float8 AS meters
-		FROM "actor_locations" me
-		JOIN "actor_locations" other
+		FROM ${table} me
+		JOIN ${table} other
 			ON other."actorId" <> me."actorId"
 			AND public.ST_DWithin(me."point", other."point", ${radiusKm * 1000})
 		WHERE me."actorId" = ${actorId}

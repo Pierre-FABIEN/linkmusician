@@ -61,6 +61,7 @@
 		"seed": "node prisma/seed.js",
 		"seed:referentiels": "node prisma/seed-referentials.js",
 		"progression:rebuild": "tsx scripts/progression-rebuild.ts",
+		"db:nettoyer-migration": "node scripts/nettoyer-migration.mjs",
 		"seed:perf": "node prisma/seed-perf.js",
 		"seed:perf:clean": "node prisma/seed-perf.js --clean",
 		"seed:webhook-fixtures": "node prisma/seed-webhook-fixtures.js",

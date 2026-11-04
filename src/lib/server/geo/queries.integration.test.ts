@@ -30,7 +30,7 @@ describe.skipIf(!enabled)('localisation PostGIS (schéma e2e)', () => {
 				data: { kind: 'PERSON', handle: PREFIX + commune.code, displayName: commune.nom }
 			});
 			ids[commune.nom] = actor.id;
-			await setActorLocation(actor.id, commune, db);
+			await setActorLocation(actor.id, commune, { db, schema: 'e2e' });
 		}
 	}, 60_000);
 
@@ -40,7 +40,7 @@ describe.skipIf(!enabled)('localisation PostGIS (schéma e2e)', () => {
 	});
 
 	const near = async (km: number) =>
-		(await findActorsNear(ids.Toulouse, km, db)).map((r) => r.communeName);
+		(await findActorsNear(ids.Toulouse, km, { db, schema: 'e2e' })).map((r) => r.communeName);
 
 	it('trouve les acteurs dans le rayon, du plus proche au plus lointain', async () => {
 		expect(await near(10)).toEqual(['Blagnac']);
@@ -50,14 +50,14 @@ describe.skipIf(!enabled)('localisation PostGIS (schéma e2e)', () => {
 	});
 
 	it('ne renvoie que la commune, et met à jour sans doublon', async () => {
-		expect(await getActorLocation(ids.Muret, db)).toEqual({
+		expect(await getActorLocation(ids.Muret, { db, schema: 'e2e' })).toEqual({
 			communeCode: '31395',
 			communeName: 'Muret',
 			departmentCode: '31'
 		});
-		await setActorLocation(ids.Muret, E2E_COMMUNES[1], db); // Muret déménage à Blagnac
-		expect((await getActorLocation(ids.Muret, db))?.communeName).toBe('Blagnac');
-		await clearActorLocation(ids.Muret, db);
-		expect(await getActorLocation(ids.Muret, db)).toBeNull();
+		await setActorLocation(ids.Muret, E2E_COMMUNES[1], { db, schema: 'e2e' }); // Muret déménage à Blagnac
+		expect((await getActorLocation(ids.Muret, { db, schema: 'e2e' }))?.communeName).toBe('Blagnac');
+		await clearActorLocation(ids.Muret, { db, schema: 'e2e' });
+		expect(await getActorLocation(ids.Muret, { db, schema: 'e2e' })).toBeNull();
 	});
 });
