@@ -68,6 +68,15 @@ export default ts.config(
 		// Aucun des deux n'est commité (voir .gitignore) mais tous deux
 		// peuvent exister localement/en CI et contiennent du JS bundlé/généré
 		// qui produit des milliers de faux positifs s'il est linté.
-		ignores: ['build/', '.svelte-kit/', 'dist/', 'static/tinymce/', '.vercel/', 'coverage/']
+		ignores: [
+			'build/',
+			'.svelte-kit/',
+			'.svelte-kit-vitest/', // LINKMUSICIAN: dossiers générés séparés (sveltekit.config.ts)
+			'.svelte-kit-e2e/',
+			'dist/',
+			'static/tinymce/',
+			'.vercel/',
+			'coverage/'
+		]
 	}
 );

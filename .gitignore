@@ -8,6 +8,8 @@ coverage
 .output
 .vercel
 /.svelte-kit
+/.svelte-kit-vitest
+/.svelte-kit-e2e
 /build
 .vite_cache
 

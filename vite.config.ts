@@ -19,6 +19,15 @@ export default defineConfig({
 		sveltekit(svelteKitConfig)
 	],
 
+	// LINKMUSICIAN: cache de pré-bundle séparé pour Vitest et le Vite des e2e
+	// (voir `KIT_OUT_DIR` dans sveltekit.config.ts), sinon une instance
+	// invalide le cache de l'autre (« Outdated Optimize Dep », serveur bloqué).
+	cacheDir: process.env.VITEST
+		? 'node_modules/.vite-vitest'
+		: process.env.E2E_SERVER
+			? 'node_modules/.vite-e2e'
+			: undefined,
+
 	optimizeDeps: {
 		exclude: ['@node-rs/argon2', '@node-rs/bcrypt']
 	},

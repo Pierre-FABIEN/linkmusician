@@ -100,6 +100,7 @@ export default defineConfig({
 		env: {
 			...(process.env as Record<string, string>),
 			NODE_ENV: 'development',
+			E2E_SERVER: '1', // LINKMUSICIAN: dossiers générés et cache séparés (sveltekit.config.ts)
 			NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --dns-result-order=ipv4first`.trim()
 		}
 	}
