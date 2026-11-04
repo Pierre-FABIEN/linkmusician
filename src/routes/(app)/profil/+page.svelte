@@ -53,6 +53,8 @@
 			</p>
 		</div>
 
+		<!-- Liens en `type="text"` : un champ `url` refuserait « lea.bandcamp.com »
+		     (sans https://) avant même l'envoi, alors que `checkLink` le complète. -->
 		<form method="POST" use:enhance class="space-y-10">
 			<section class="space-y-2">
 				<label for="bio" class="block text-lg font-semibold">Présentation</label>
@@ -165,8 +167,10 @@
 						>
 						<input
 							id="link-{kind}"
-							type="url"
+							type="text"
 							inputmode="url"
+							autocomplete="url"
+							spellcheck="false"
 							placeholder={LINK_INFO[kind].example}
 							class="w-full rounded-md border bg-background p-2 text-sm"
 							bind:value={$form.links[kind]}
