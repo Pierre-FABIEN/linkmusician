@@ -11,6 +11,7 @@
 // -----------------------------------------------------------------------------
 
 import { fail, redirect } from '@sveltejs/kit';
+import { afterAuthPath } from '#lib/linkmusician/home'; // LINKMUSICIAN:
 import {
 	createEmailVerificationRequest,
 	deleteEmailVerificationRequestCookie,
@@ -173,7 +174,7 @@ async function verifyCode(event: RequestEvent) {
 	}
 
 	log('Email verified → redirect to dashboard');
-	return redirect(303, '/auth/');
+	return redirect(303, afterAuthPath('/auth/')); // LINKMUSICIAN: l'espace, boutique en veille
 }
 
 async function resendEmail(event: RequestEvent) {
