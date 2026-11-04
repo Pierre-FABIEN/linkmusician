@@ -132,6 +132,7 @@ export async function exportPersonData(userId: string) {
 		// Seule la commune est stockée (jamais d'adresse ni de point précis).
 		commune: location ? `${location.communeName} (${location.departmentCode})` : null,
 		progression: {
+			palier_de_confiance: person.actor.trustLevel,
 			xp: progress.xp,
 			niveau: progress.level,
 			succes: progress.achievements.map((a) => ({ succes: a.name, debloque_le: a.unlockedAt }))
@@ -174,6 +175,7 @@ export async function personAnonymizationOps(
 				handle: `supprime-${person.actorId}`,
 				displayName: 'Compte supprimé',
 				bio: null,
+				trustLevel: 0,
 				deletedAt: new Date()
 			}
 		})

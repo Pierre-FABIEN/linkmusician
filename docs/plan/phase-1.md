@@ -213,6 +213,8 @@ peuvent démarrer pendant la phase 0.
   - CSP mise à jour pour les domaines médias.
 - **Limites v1** : audio ≤ 10 min, vidéo ≤ 3 min et ≤ 200 Mo.
 - **Émet** : `media.published`.
+- **Reporté de P1-09** : test d'intégration montrant qu'un TL0 est bloqué
+  au-delà de son quota de médias (`checkStockQuota`, `src/lib/server/trust/quotas.ts`).
 - **Fin** : un e2e publie un lien externe. Un test d'intégration couvre
   le webhook (signature valide et invalide). Un média non `PUBLISHED`
   renvoie une 404 publiquement.

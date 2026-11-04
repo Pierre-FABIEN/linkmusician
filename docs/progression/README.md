@@ -38,10 +38,24 @@ Les autres événements (démos, conversations, groupes, collaborations,
 endossements, étapes) sont prêts côté règles et seront émis par leurs
 lots (médias, annonces, groupes…).
 
+## Confiance (P1-09)
+
+- Palier stocké sur l'acteur (`actors.trustLevel`), calculé par
+  `core/trust.ts` à partir d'un résumé d'état (`trust.ts`) : ancienneté,
+  email vérifié, profil complété, échanges réciproques, collaborations avec
+  des membres de confiance, contreparties distinctes. **Jamais l'XP.**
+- Recalculé après chaque événement traité (processeur) et chaque nuit
+  (`/api/jobs/trust`, cron Vercel à 3 h 30) : l'ancienneté seule fait passer
+  un palier. Rétrogradable. Changement tracé (`progress.trust_changed`).
+- Les règles d'XP lisent la confiance des contreparties **avant** l'événement.
+- Quotas (`src/lib/server/trust/quotas.ts`) : journaliers par limiteur
+  `rate-limit.ts` (`quota-<nom>-tl<palier>`), de stock par comptage
+  (`checkStockQuota`). Table dans `TRUST_PERMISSIONS`.
+- `/reglages` : palier, conditions du suivant, limites.
+- Sanctions et taux de signalement à 0 jusqu'à la modération (P1-12).
+
 ## Provisoire
 
-- **Confiance** : 0 pour tous (`PROVISIONAL_TRUST`, `context.ts`) jusqu'à
-  son calcul (P1-09). Elle ne pèse que sur les collaborations.
 - **Paliers** : colonne `tier` non renseignée avant le tableau de bord
   (P1-11).
 - Les profils déjà complets avant P1-07 recevront `profile.completed` à
@@ -54,4 +68,5 @@ lots (médias, annonces, groupes…).
   `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/progression`
   — double traitement, ajout seul, 200 événements aléatoires (registre =
   projection = registre en mémoire), reconstruction identique, profil
-  complété une seule fois.
+  complété une seule fois, confiance (passage TL1, multiplicateur réel,
+  rétrogradation).

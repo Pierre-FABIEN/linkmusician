@@ -56,7 +56,11 @@ fusionnées dans `main`.
 
 ## Pièges connus
 
-- **Migrations** : retirer à la main les lignes `DROP INDEX transactions_*` et la
+- **SQL brut et schéma** : à travers le pooler Neon, `?schema=e2e` ne s'applique pas au
+  SQL brut (il tourne dans `public`). Toujours qualifier : `qualifiedTable`
+  (`src/lib/server/db-schema.ts`).
+- **Migrations** : `npm run db:nettoyer-migration` après `migrate dev --create-only`, puis
+  relire ; à défaut, retirer à la main les lignes `DROP INDEX transactions_*` et la
   recréation de `blog_posts_published_createdAt_idx`. Types PostGIS qualifiés
   `public.` (le schéma `e2e` ne voit pas `public`). Renommer une migration générée si
   son horodatage précède une migration écrite à la main.
@@ -71,14 +75,12 @@ fusionnées dans `main`.
 
 ## Provisoire à reprendre
 
-- Confiance = 0 pour tous (`PROVISIONAL_TRUST`, `src/lib/server/progression/context.ts`)
-  → P1-09.
 - Colonne `tier` de `actor_progress` non renseignée → P1-11.
 - Profils complets avant P1-07 : +150 XP au prochain enregistrement.
 
-## Prochain lot proposé : P1-09 (confiance et quotas), puis P1-08 (médias)
+## Prochain lot proposé : P1-08 (médias)
 
-P1-09 avant P1-08 : les envois de médias s'appuient sur les quotas de confiance.
+P1-09 (confiance et quotas) est fait : utiliser `checkStockQuota(actorId, 'mediaItems', n)`.
 Clés Cloudinary présentes dans `.env`. Le webhook Cloudinary ne joint pas `localhost` :
 le tester par des requêtes signées simulées.
 

@@ -7,23 +7,26 @@
  * d'écriture) : le résultat ne dépend pas de l'ordre de traitement.
  */
 import type { DomainEvent } from './core/events';
-import type { TrustLevel } from './core/trust';
+import { isTrustLevel, type TrustLevel } from './core/trust';
 import type { RuleContext } from './core/types';
 import { actorIdsOf, type Tx } from './events';
-
-/**
- * Confiance provisoire, en attendant son calcul (lot P1-09) : 0 pour tous.
- * Elle ne pèse que sur les collaborations (×0,1), qui n'existent pas encore.
- */
-export const PROVISIONAL_TRUST: TrustLevel = 0;
 
 export async function loadRuleContext(
 	tx: Tx,
 	event: DomainEvent,
-	createdAt: Date,
-	trustOf: (actorId: string) => TrustLevel = () => PROVISIONAL_TRUST
+	createdAt: Date
 ): Promise<RuleContext> {
 	const actors = actorIdsOf(event);
+	// Confiance des acteurs concernés, telle qu'enregistrée avant cet événement.
+	const trustRows = await tx.actor.findMany({
+		where: { id: { in: actors } },
+		select: { id: true, trustLevel: true }
+	});
+	const trust = new Map(trustRows.map((a) => [a.id, a.trustLevel]));
+	const trustOf = (actorId: string): TrustLevel => {
+		const level = trust.get(actorId);
+		return isTrustLevel(level) ? level : 0;
+	};
 	const isPrior = (e: { id: string; occurredAt: Date; createdAt: Date }) =>
 		e.id !== event.id &&
 		(e.occurredAt < event.occurredAt ||
