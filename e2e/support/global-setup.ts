@@ -3,6 +3,7 @@ import { startSmtpSink } from './smtp-sink';
 import { db } from './db';
 import { E2E_EMAIL_PREFIX } from './account';
 import { seedReferentials } from '../../prisma/seed-referentials.js'; // LINKMUSICIAN:
+import { directUrlOf } from '../../scripts/neon-url.mjs'; // LINKMUSICIAN:
 
 /**
  * Préparation globale de la suite end-to-end :
@@ -77,7 +78,7 @@ export default async function globalSetup() {
 	const awaitWarmUp = warmUpJobRoutes();
 
 	// Réveille le compute Neon via le pooler (DATABASE_URL) avant migrate,
-	// qui parle au host direct (DIRECT_URL) et échoue à froid.
+	// qui parle au host direct (déduit de DATABASE_URL) et échoue à froid.
 	await withRetry(() => db.$queryRawUnsafe('SELECT 1'));
 
 	const nodeOptions = `${process.env.NODE_OPTIONS ?? ''} --dns-result-order=ipv4first`.trim();
@@ -86,8 +87,9 @@ export default async function globalSetup() {
 			env: {
 				...process.env,
 				NODE_OPTIONS: nodeOptions,
-				DATABASE_URL: process.env.DATABASE_URL,
-				DIRECT_URL: process.env.DIRECT_URL
+				// LINKMUSICIAN: migrations par connexion directe, jamais par le pooler
+				// Neon (il transmet le schéma d'une connexion à l'autre).
+				DATABASE_URL: directUrlOf(process.env.DATABASE_URL ?? '')
 			},
 			stdio: 'pipe'
 		});

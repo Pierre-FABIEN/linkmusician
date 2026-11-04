@@ -1,9 +1,11 @@
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  // LINKMUSICIAN: une seule URL, celle que donne Neon (pooler). Depuis Prisma
-  // 5.10, `prisma migrate` passe aussi par le pooler Neon : `directUrl` n'est
-  // plus nécessaire (vérifié le 04/11/2026 avec `migrate deploy`).
+  // LINKMUSICIAN: une seule URL dans `.env`, celle du pooler Neon. Les
+  // migrations, elles, ne passent JAMAIS par le pooler (il transmet le schéma
+  // d'une connexion à l'autre) : `npm run db:migrate` / `db:deploy` /
+  // `db:status` / `reset` passent par `scripts/prisma-direct.mjs`, qui en
+  // déduit l'URL directe. Ne pas lancer `npx prisma migrate …` directement.
 }
 
 generator client {

@@ -40,8 +40,10 @@ fusionnées dans `main`.
 ## Environnement
 
 - Base Neon `ep-hidden-meadow-…` : **une seule ligne `DATABASE_URL`** dans `.env` (pooler),
-  plus de `DIRECT_URL`. Les e2e en dérivent le schéma `e2e`. `prisma migrate` échoue
-  souvent au premier essai (`P1002`) : relancer.
+  plus de `DIRECT_URL`. Les e2e en dérivent le schéma `e2e`. **Migrations uniquement par
+  `npm run db:migrate | db:deploy | db:deploy:e2e | db:status`** (connexion directe déduite,
+  `scripts/prisma-direct.mjs`) : par le pooler, une migration s'est appliquée au mauvais
+  schéma, et les `P1002` venaient de là.
 - `npm run dev` de l'utilisateur : port 2000, ne pas l'arrêter. Il doit être **relancé
   après chaque `prisma generate`** (sinon le client Prisma est périmé). Claude teste sur
   son propre serveur, isolé : `E2E_SERVER=1 npx vite dev --port 2002 --strictPort`
@@ -59,8 +61,8 @@ fusionnées dans `main`.
 - **SQL brut et schéma** : à travers le pooler Neon, `?schema=e2e` ne s'applique pas au
   SQL brut (il tourne dans `public`). Toujours qualifier : `qualifiedTable`
   (`src/lib/server/db-schema.ts`).
-- **Migrations** : `npm run db:nettoyer-migration` après `migrate dev --create-only`, puis
-  relire ; à défaut, retirer à la main les lignes `DROP INDEX transactions_*` et la
+- **Migrations** : `npm run db:migrate -- --create-only --name <nom>`, puis
+  `npm run db:nettoyer-migration`, relire, `db:deploy` et `db:deploy:e2e` ; à défaut, retirer à la main les lignes `DROP INDEX transactions_*` et la
   recréation de `blog_posts_published_createdAt_idx`. Types PostGIS qualifiés
   `public.` (le schéma `e2e` ne voit pas `public`). Renommer une migration générée si
   son horodatage précède une migration écrite à la main.

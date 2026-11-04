@@ -92,7 +92,7 @@ après que Vercel en ait fourni une.
       [section dédiée ci-dessus](#cr%C3%A9er-et-partager-les-variables-en-%C3%A9quipe-dashboard-vs-cli)),
       bien scopées par environnement (Production vs Preview/Development —
       clés Stripe/test vs live en particulier).
-- [ ] `npx prisma migrate deploy` contre la branche `production` Neon.
+- [ ] `npm run db:deploy` contre la branche `production` Neon (LINKMUSICIAN : connexion directe déduite de `DATABASE_URL`).
 - [ ] Si le domaine custom (Phase 0) est prêt : le brancher dans Vercel →
       Project Settings → Domains, puis **mettre à jour** `APP_URL`, le
       redirect URI Google, et les webhooks Stripe/Sendcloud pour pointer
@@ -116,7 +116,7 @@ Preview Deployments doivent aussi fonctionner).
 | Variable                                                 | Obligatoire             | Fournisseur | Rôle                                                                                                                                            |
 | -------------------------------------------------------- | ----------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | `DATABASE_URL`                                           | oui                     | Neon        | connexion runtime, via le pooler (`-pooler`)                                                                                                    |
-| `DIRECT_URL`                                             | non (LinkMusician)      | Neon        | LINKMUSICIAN: plus lue, `prisma migrate` passe par le pooler (voir `prisma/schema.prisma`)                                                      |
+| `DIRECT_URL`                                             | non (LinkMusician)      | Neon        | LINKMUSICIAN: plus lue ; migrations par `npm run db:deploy` (URL directe déduite, `scripts/prisma-direct.mjs`)                                  |
 | `BETTER_AUTH_SECRET`                                     | oui                     | —           | signature des cookies de session + chiffrement des secrets 2FA (Better Auth, voir [docs/auth](../auth/README.md))                               |
 | `PUBLIC_ENV`                                             | oui                     | —           | `production` en prod                                                                                                                            |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`              | oui (si Google actif)   | Google      | OAuth — l'URI de redirection à autoriser dans Google Cloud Console est `<domaine>/api/auth/callback/google` (Better Auth, pas une route maison) |
