@@ -1,0 +1,36 @@
+# Défauts et améliorations à remonter au boilerplate
+
+LinkMusician est bâti sur `Boilerplate-Ecommerce` (remote `boilerplate`).
+Les défauts génériques trouvés ici sont corrigés localement, au plus
+petit et avec un marqueur `LINKMUSICIAN:`. Ils sont à reporter en amont,
+puis à rapatrier par `git fetch boilerplate && git merge boilerplate/main`
+(la correction locale s'efface alors au profit de celle d'amont).
+
+État au 04/11/2026.
+
+## Défauts corrigés ici (correction prête à reporter)
+
+| #   | Défaut                                                                                                                                                                                                                                                                                                                                                   | Correction locale                                                                                                                                     | Commit    |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 1   | **Un email non envoyé arrête le serveur.** `verify-email/+page.server.ts` appelle deux fois `sendVerificationEmail` sans `await` : un refus SMTP (ex. Brevo `525 Unauthorized IP`) devient un rejet non géré et Node s'arrête.                                                                                                                           | `.catch` au chargement de la page ; `await` + message d'échec sur « renvoyer le code » (au lieu d'annoncer un email parti).                           | `076f9ac` |
+| 2   | **L'admin affiche une page 500.** `SmoothScrollBar.svelte` importe `gsap/dist/ScrollTrigger` (UMD) : une fois pré-bundlé par Vite, `scrollerProxy` n'existe pas. L'erreur apparaît sur chaque page ; l'admin, qui imbrique un second composant, tombe en 500.                                                                                            | `import { ScrollTrigger } from 'gsap/ScrollTrigger'` (ESM).                                                                                           | `c9786e9` |
+| 3   | **Vitest et les e2e polluent le serveur de dev.** Ils partagent `.svelte-kit/generated` et le cache Vite avec `npm run dev`. Vitest (mode `test`, donc `.env.test`) et le Vite des e2e y réécrivent leurs variables : le serveur de dev reprend alors les valeurs de test (interrupteurs, clés factices), et « Outdated Optimize Dep » bloque les pages. | `outDir` SvelteKit et `cacheDir` Vite propres à chaque usage (`VITEST`, `E2E_SERVER` posé par `playwright.config.ts`).                                | `d5f213a` |
+| 4   | **Le formulaire de connexion se vide après un refus.** L'action `login` renvoie ses refus (« Invalid password ») en succès porteur d'un message ; avec le `resetForm` par défaut de superforms, l'email saisi est effacé.                                                                                                                                | Corrigé seulement sur l'accueil LinkMusician (`resetForm: false`). En amont : renvoyer `fail(400, …)` ou passer `resetForm: false` sur `/auth/login`. | `a9b3f56` |
+
+## Améliorations génériques faites ici
+
+| #   | Sujet                                                                                                                                                                                                  | Commit    |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
+| 5   | **Interrupteur de boutique** `PUBLIC_SHOP_ENABLED` (absent = `false`) : `reroute` vers une 404, liens filtrés, admin allégé. Utile à tout projet qui garde le module commerce en veille.               | `f430e13` |
+| 6   | **Une seule URL Neon.** Avec Prisma ≥ 5.10, `prisma migrate` passe par le pooler : `directUrl` / `DIRECT_URL` deviennent inutiles. Revers observé : `P1002` (délai dépassé) fréquent au premier essai. | `fb1ade1` |
+| 7   | **URL de la base e2e déduites de `.env`** (`schema=e2e` ajouté par `playwright.config.ts`), avec refus d'un schéma `public`.                                                                           | `dcb2e46` |
+
+## Défauts signalés, non corrigés ici
+
+| #   | Défaut                                                                                                                                                                                                                                                                                  |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 8   | **Index absents du schéma.** Les index `transactions_*` et `blog_posts_published_createdAt_idx`, créés en SQL brut, ne sont pas déclarés dans `schema.prisma` : chaque `prisma migrate dev` propose de les supprimer ou de les recréer. Les déclarer (`@@index`) supprimerait le piège. |
+| 9   | Toute 404 est journalisée comme `UnhandledError`.                                                                                                                                                                                                                                       |
+| 10  | Le corps des pages n'est rendu que côté client (`{#if $isClient}`) : rien d'indexable sans JavaScript.                                                                                                                                                                                  |
+| 11  | `sitemap.config` pointe encore sur madeindiamonds.com.                                                                                                                                                                                                                                  |
+| 12  | **Démarrage du serveur de dev :** `reroute` (`src/hooks.ts`) a semblé ignoré après un redémarrage, jusqu'à ce que le fichier soit rechargé. Probablement une conséquence du n° 3 ; à recontrôler une fois celui-ci corrigé.                                                             |
