@@ -77,7 +77,11 @@ export const load = async (event) => {
 		verificationRequest = await createEmailVerificationRequest(freshUser.id, freshUser.email);
 		log('New verification request created', verificationRequest);
 
-		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+		// LINKMUSICIAN: envoi non attendu (la page s'affiche sans lui), mais son
+		// échec doit être rattrapé : un rejet non géré arrête tout le serveur Node.
+		sendVerificationEmail(verificationRequest.email, verificationRequest.code).catch((err) =>
+			console.error('[verify-email] envoi du code impossible :', err)
+		);
 		setEmailVerificationRequestCookie(event, verificationRequest);
 	}
 
@@ -216,8 +220,17 @@ async function resendEmail(event: RequestEvent) {
 		log('Verification request regenerated');
 	}
 
-	sendVerificationEmail(verificationRequest.email, verificationRequest.code);
 	setEmailVerificationRequestCookie(event, verificationRequest);
+	// LINKMUSICIAN: envoi attendu, pour ne pas annoncer un email qui n'est pas
+	// parti, ni laisser un rejet non géré arrêter le serveur.
+	try {
+		await sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+	} catch (err) {
+		console.error('[verify-email] renvoi du code impossible :', err);
+		return fail(502, {
+			resend: { message: 'The email could not be sent. Please try again later.' }
+		});
+	}
 	log('Email resent to', verificationRequest.email);
 
 	return {
