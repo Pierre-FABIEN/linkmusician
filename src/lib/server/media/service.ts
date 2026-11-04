@@ -211,9 +211,23 @@ export async function listOwnMedia(actorId: string) {
 /** Média visible publiquement : uniquement `PUBLISHED`, sinon `null`. */
 export async function getPublishedMedia(mediaId: string) {
 	return prisma.media.findFirst({
-		where: { id: mediaId, status: 'PUBLISHED', actor: { deletedAt: null } },
+		where: {
+			id: mediaId,
+			status: 'PUBLISHED',
+			actor: {
+				deletedAt: null,
+				// Compte suspendu : ses médias disparaissent pendant la suspension.
+				sanctions: {
+					none: {
+						kind: 'SUSPENSION',
+						liftedAt: null,
+						OR: [{ until: null }, { until: { gt: new Date() } }]
+					}
+				}
+			}
+		},
 		include: {
-			actor: { select: { handle: true, displayName: true } },
+			actor: { select: { id: true, handle: true, displayName: true } },
 			instrument: { select: { name: true } }
 		}
 	});

@@ -1414,6 +1414,9 @@ model Actor {
   influences Influence[]
   location   ActorLocation?
   media          Media[]
+  reportsFiled    Report[]   @relation("ReportReporter")
+  reportsReceived Report[]   @relation("ReportTargetActor")
+  sanctions       Sanction[]
   xpTransactions XpTransaction[]
   progress       ActorProgress[]
   achievements   ActorAchievement[]
@@ -1778,4 +1781,75 @@ model Media {
   @@index([actorId, status])
   @@index([status, createdAt])
   @@map("media")
+}
+
+// ─── MODÉRATION (P1-12) ─────────────────────────────────────────────────────
+// File `/moderation` (modérateurs et administrateurs). Règles : `src/lib/moderation/`.
+
+enum ReportTarget {
+  ACTOR
+  MEDIA
+}
+
+enum ReportReason {
+  SPAM
+  INAPPROPRIATE
+  HARASSMENT
+  IMPERSONATION
+  NOT_MINE
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  ACTIONED
+  DISMISSED
+}
+
+/// Signalement d'un profil ou d'un média. Un seul par signaleur et par cible.
+model Report {
+  id              String       @id @default(cuid())
+  reporterActorId String
+  reporter        Actor        @relation("ReportReporter", fields: [reporterActorId], references: [id], onDelete: Cascade)
+  targetType      ReportTarget
+  targetId        String
+  /// Acteur visé (le propriétaire du média, ou le profil lui-même).
+  targetActorId   String
+  targetActor     Actor        @relation("ReportTargetActor", fields: [targetActorId], references: [id], onDelete: Cascade)
+  reason          ReportReason
+  /// Texte libre du signaleur, texte brut.
+  details         String?
+  status          ReportStatus @default(OPEN)
+  handledByUserId String?
+  handledAt       DateTime?
+  decisionNote    String?
+  createdAt       DateTime     @default(now())
+
+  @@unique([reporterActorId, targetType, targetId])
+  @@index([status, createdAt])
+  @@index([targetActorId, status])
+  @@map("reports")
+}
+
+enum SanctionKind {
+  WARNING
+  SUSPENSION
+}
+
+/// Sanction de modération. Active tant que `until` n'est pas passé et
+/// qu'elle n'est pas levée ; une sanction active fait retomber la confiance.
+model Sanction {
+  id              String       @id @default(cuid())
+  actorId         String
+  actor           Actor        @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  kind            SanctionKind
+  reason          String
+  until           DateTime?
+  reportId        String?
+  createdByUserId String
+  liftedAt        DateTime?
+  createdAt       DateTime     @default(now())
+
+  @@index([actorId, kind])
+  @@map("sanctions")
 }

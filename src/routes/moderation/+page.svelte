@@ -1,0 +1,153 @@
+<script lang="ts">
+	// LINKMUSICIAN: file de modération, voir +page.server.ts.
+	import { enhance } from '$app/forms';
+	import { toast } from 'svelte-sonner';
+	import MediaPlayer from '#lib/components/linkmusician/MediaPlayer.svelte';
+	import { REPORT_REASON_LABELS, type ReportReasonValue } from '#lib/moderation/rules';
+	import SEO from '#lib/components/SEO.svelte';
+
+	let { data, form } = $props();
+
+	$effect(() => {
+		if (form?.message) toast.success(form.message);
+		if (form?.error) toast.error(form.error);
+	});
+
+	const date = (d: Date | string) =>
+		new Date(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+</script>
+
+<SEO title="Modération" noindex nofollow />
+
+<div class="min-h-screen w-screen px-4 py-24">
+	<div class="mx-auto max-w-3xl space-y-10">
+		<h1 class="text-2xl font-bold">Modération</h1>
+
+		<section class="space-y-4" aria-labelledby="pending-title">
+			<h2 id="pending-title" class="text-lg font-semibold">
+				Médias en attente ({data.pendingMedia.length})
+			</h2>
+			{#if data.pendingMedia.length === 0}<p class="text-sm text-muted-foreground">
+					Rien en attente.
+				</p>{/if}
+			{#each data.pendingMedia as m (m.id)}
+				<article class="space-y-3 rounded-lg border p-4" aria-label="Média {m.title}">
+					<div class="flex flex-wrap justify-between gap-2 text-sm">
+						<span class="font-medium">{m.title}{m.isDemo ? ' · démo' : ''}</span>
+						<span class="text-muted-foreground">@{m.actor.handle} · {date(m.createdAt)}</span>
+					</div>
+					<MediaPlayer media={m} />
+					<div class="flex flex-wrap items-end gap-3">
+						<form method="POST" action="?/approve" use:enhance>
+							<input type="hidden" name="mediaId" value={m.id} />
+							<button
+								type="submit"
+								class="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
+								>Valider</button
+							>
+						</form>
+						<form
+							method="POST"
+							action="?/reject"
+							use:enhance
+							class="flex flex-wrap items-end gap-2"
+						>
+							<input type="hidden" name="mediaId" value={m.id} />
+							<label class="text-sm">
+								<span class="sr-only">Motif du refus</span>
+								<input
+									name="reason"
+									placeholder="Motif du refus"
+									class="rounded-md border bg-background p-1.5 text-sm"
+								/>
+							</label>
+							<button type="submit" class="rounded-md border px-3 py-1.5 text-sm text-destructive"
+								>Refuser</button
+							>
+						</form>
+					</div>
+				</article>
+			{/each}
+		</section>
+
+		<section class="space-y-4" aria-labelledby="reports-title">
+			<h2 id="reports-title" class="text-lg font-semibold">
+				Signalements ouverts ({data.openReports.length})
+			</h2>
+			{#if data.openReports.length === 0}<p class="text-sm text-muted-foreground">
+					Aucun signalement.
+				</p>{/if}
+			{#each data.openReports as r (r.id)}
+				<article
+					class="space-y-3 rounded-lg border p-4"
+					aria-label="Signalement {REPORT_REASON_LABELS[r.reason as ReportReasonValue]}"
+				>
+					<div class="flex flex-wrap justify-between gap-2 text-sm">
+						<span class="font-medium">
+							{REPORT_REASON_LABELS[r.reason as ReportReasonValue]} —
+							{r.targetType === 'MEDIA' ? 'média' : 'profil'} de @{r.targetActor.handle}
+						</span>
+						<span class="text-muted-foreground">par @{r.reporter} · {date(r.createdAt)}</span>
+					</div>
+					{#if r.details}<p class="whitespace-pre-line text-sm">« {r.details} »</p>{/if}
+					{#if r.media}<MediaPlayer media={r.media} />{/if}
+
+					<div class="flex flex-wrap items-end gap-3 text-sm">
+						<form method="POST" action="?/dismiss" use:enhance>
+							<input type="hidden" name="reportId" value={r.id} />
+							<button type="submit" class="rounded-md border px-3 py-1.5">Classer sans suite</button
+							>
+						</form>
+						{#if r.media}
+							<form method="POST" action="?/reject" use:enhance>
+								<input type="hidden" name="mediaId" value={r.media.id} />
+								<input
+									type="hidden"
+									name="reason"
+									value={REPORT_REASON_LABELS[r.reason as ReportReasonValue]}
+								/>
+								<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
+									>Retirer le média</button
+								>
+							</form>
+						{/if}
+					</div>
+					<form
+						method="POST"
+						action="?/sanction"
+						use:enhance
+						class="flex flex-wrap items-end gap-2 text-sm"
+					>
+						<input type="hidden" name="reportId" value={r.id} />
+						<input type="hidden" name="actorId" value={r.targetActor.id} />
+						<label>
+							<span class="sr-only">Sanction</span>
+							<select name="kind" class="rounded-md border bg-background p-1.5">
+								<option value="WARNING">Avertir (30 jours)</option>
+								<option value="SUSPENSION">Suspendre</option>
+							</select>
+						</label>
+						<label>
+							<span class="sr-only">Durée de suspension</span>
+							<select name="days" class="rounded-md border bg-background p-1.5">
+								<option value="7">7 jours</option>
+								<option value="30">30 jours</option>
+								<option value="">Jusqu'à levée</option>
+							</select>
+						</label>
+						<label>
+							<span class="sr-only">Motif de la sanction</span>
+							<input
+								name="reason"
+								required
+								placeholder="Motif de la sanction"
+								class="rounded-md border bg-background p-1.5"
+							/>
+						</label>
+						<button type="submit" class="rounded-md border px-3 py-1.5">Sanctionner</button>
+					</form>
+				</article>
+			{/each}
+		</section>
+	</div>
+</div>

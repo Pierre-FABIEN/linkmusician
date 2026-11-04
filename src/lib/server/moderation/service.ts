@@ -1,0 +1,272 @@
+/**
+ * Modération (P1-12) : signalements, file d'attente, décisions. Chaque décision
+ * est tracée dans le journal d'audit du boilerplate (`AdminAuditLog`) et fait
+ * recalculer la confiance de la personne visée.
+ */
+import { prisma } from '#lib/server';
+import { logAdminAction } from '#lib/server/audit-log';
+import { RefillingTokenBucket } from '#lib/server/rate-limit';
+import { recomputeTrust } from '#lib/server/progression/trust';
+import { publishMedia } from '#lib/server/media/service';
+import { destroyAsset } from '#lib/server/media/cloudinary';
+import type { UploadKind } from '#lib/media/upload';
+import {
+	activeSuspension,
+	addDays,
+	DAILY_REPORTS,
+	normalizeDetails,
+	REPORT_REASONS,
+	WARNING_DAYS,
+	type ReportReasonValue
+} from '#lib/moderation/rules';
+
+export class ModerationError extends Error {}
+
+const reportBucket = new RefillingTokenBucket<string>(
+	DAILY_REPORTS,
+	Math.ceil(86400 / DAILY_REPORTS),
+	'reports'
+);
+
+/* -------------------------------------------------------------------------- */
+/*  Signalements                                                              */
+/* -------------------------------------------------------------------------- */
+
+export async function fileReport(
+	reporterActorId: string,
+	input: { targetType: 'ACTOR' | 'MEDIA'; targetId: string; reason: string; details?: string }
+) {
+	if (!(REPORT_REASONS as readonly string[]).includes(input.reason)) {
+		throw new ModerationError('Choisis un motif.');
+	}
+	let targetActorId: string | null = null;
+	if (input.targetType === 'MEDIA') {
+		const media = await prisma.media.findUnique({
+			where: { id: input.targetId },
+			select: { actorId: true }
+		});
+		targetActorId = media?.actorId ?? null;
+	} else {
+		const actor = await prisma.actor.findFirst({
+			where: { id: input.targetId, deletedAt: null },
+			select: { id: true }
+		});
+		targetActorId = actor?.id ?? null;
+	}
+	if (!targetActorId) throw new ModerationError('Contenu introuvable.');
+	if (targetActorId === reporterActorId)
+		throw new ModerationError('Tu ne peux pas te signaler toi-même.');
+
+	const existing = await prisma.report.findUnique({
+		where: {
+			reporterActorId_targetType_targetId: {
+				reporterActorId,
+				targetType: input.targetType,
+				targetId: input.targetId
+			}
+		}
+	});
+	if (existing) return { alreadyReported: true };
+	if (!(await reportBucket.consume(reporterActorId, 1))) {
+		throw new ModerationError('Trop de signalements aujourd’hui. Réessaie demain.');
+	}
+	await prisma.report.create({
+		data: {
+			reporterActorId,
+			targetType: input.targetType,
+			targetId: input.targetId,
+			targetActorId,
+			reason: input.reason as ReportReasonValue,
+			details: normalizeDetails(input.details ?? '') || null
+		}
+	});
+	return { alreadyReported: false };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  File d'attente                                                            */
+/* -------------------------------------------------------------------------- */
+
+export async function moderationQueue() {
+	const [pendingMedia, openReports] = await Promise.all([
+		prisma.media.findMany({
+			where: { status: 'PENDING_REVIEW' },
+			orderBy: { createdAt: 'asc' },
+			take: 50,
+			include: { actor: { select: { handle: true, displayName: true } } }
+		}),
+		prisma.report.findMany({
+			where: { status: 'OPEN' },
+			orderBy: { createdAt: 'asc' },
+			take: 50,
+			include: {
+				reporter: { select: { handle: true } },
+				targetActor: { select: { id: true, handle: true, displayName: true } }
+			}
+		})
+	]);
+	const mediaIds = openReports.filter((r) => r.targetType === 'MEDIA').map((r) => r.targetId);
+	const reportedMedia = await prisma.media.findMany({ where: { id: { in: mediaIds } } });
+	const byId = new Map(reportedMedia.map((m) => [m.id, m]));
+	return {
+		pendingMedia,
+		openReports: openReports.map((r) => ({
+			...r,
+			media: r.targetType === 'MEDIA' ? (byId.get(r.targetId) ?? null) : null
+		}))
+	};
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Décisions                                                                 */
+/* -------------------------------------------------------------------------- */
+
+type Moderator = { userId: string };
+
+async function refreshTrust(actorId: string) {
+	await prisma.$transaction((tx) => recomputeTrust(tx, [actorId]));
+}
+
+async function closeReports(
+	where: { targetType: 'ACTOR' | 'MEDIA'; targetId: string },
+	by: Moderator,
+	note: string,
+	status: 'ACTIONED' | 'DISMISSED'
+) {
+	await prisma.report.updateMany({
+		where: { ...where, status: 'OPEN' },
+		data: { status, handledByUserId: by.userId, handledAt: new Date(), decisionNote: note }
+	});
+}
+
+export async function approveMedia(mediaId: string, by: Moderator) {
+	const media = await prisma.media.findUnique({ where: { id: mediaId } });
+	if (!media || media.status !== 'PENDING_REVIEW')
+		throw new ModerationError('Ce média n’est plus en attente.');
+	const progress = await publishMedia(mediaId);
+	await logAdminAction({
+		actorId: by.userId,
+		action: 'moderation.media.approve',
+		targetType: 'Media',
+		targetId: mediaId
+	});
+	return progress;
+}
+
+/** Refuse ou retire un média (fichier supprimé), et clôt ses signalements. */
+export async function rejectMedia(mediaId: string, reason: string, by: Moderator) {
+	const media = await prisma.media.findUnique({ where: { id: mediaId } });
+	if (!media) throw new ModerationError('Média introuvable.');
+	await prisma.media.update({
+		where: { id: mediaId },
+		data: { status: 'REJECTED', rejectionReason: reason || 'Refusé par la modération.' }
+	});
+	if (media.provider === 'CLOUDINARY' && media.providerId)
+		await destroyAsset(media.providerId, media.kind as UploadKind);
+	await closeReports(
+		{ targetType: 'MEDIA', targetId: mediaId },
+		by,
+		`Média retiré : ${reason}`,
+		'ACTIONED'
+	);
+	await logAdminAction({
+		actorId: by.userId,
+		action: 'moderation.media.reject',
+		targetType: 'Media',
+		targetId: mediaId,
+		metadata: { reason }
+	});
+	await refreshTrust(media.actorId);
+}
+
+export async function dismissReport(reportId: string, note: string, by: Moderator) {
+	const { count } = await prisma.report.updateMany({
+		where: { id: reportId, status: 'OPEN' },
+		data: {
+			status: 'DISMISSED',
+			handledByUserId: by.userId,
+			handledAt: new Date(),
+			decisionNote: note || null
+		}
+	});
+	if (count === 0) throw new ModerationError('Ce signalement est déjà traité.');
+	await logAdminAction({
+		actorId: by.userId,
+		action: 'moderation.report.dismiss',
+		targetType: 'Report',
+		targetId: reportId
+	});
+}
+
+/** Avertit ou suspend un acteur ; clôt le signalement d'origine s'il y en a un. */
+export async function sanction(
+	actorId: string,
+	input: {
+		kind: 'WARNING' | 'SUSPENSION';
+		reason: string;
+		days: number | null;
+		reportId?: string | null;
+	},
+	by: Moderator
+) {
+	if (!input.reason.trim()) throw new ModerationError('Indique le motif de la sanction.');
+	const now = new Date();
+	const until =
+		input.kind === 'WARNING'
+			? addDays(now, WARNING_DAYS)
+			: input.days
+				? addDays(now, input.days)
+				: null;
+	const created = await prisma.sanction.create({
+		data: {
+			actorId,
+			kind: input.kind,
+			reason: input.reason.trim(),
+			until,
+			reportId: input.reportId || null,
+			createdByUserId: by.userId
+		}
+	});
+	if (input.reportId) {
+		await prisma.report.updateMany({
+			where: { id: input.reportId, status: 'OPEN' },
+			data: {
+				status: 'ACTIONED',
+				handledByUserId: by.userId,
+				handledAt: now,
+				decisionNote: `${input.kind} : ${input.reason}`
+			}
+		});
+	}
+	await logAdminAction({
+		actorId: by.userId,
+		action: `moderation.sanction.${input.kind.toLowerCase()}`,
+		targetType: 'Actor',
+		targetId: actorId,
+		metadata: { reason: input.reason, until }
+	});
+	await refreshTrust(actorId);
+	return created;
+}
+
+export async function liftSanction(sanctionId: string, by: Moderator) {
+	const s = await prisma.sanction.update({
+		where: { id: sanctionId },
+		data: { liftedAt: new Date() }
+	});
+	await logAdminAction({
+		actorId: by.userId,
+		action: 'moderation.sanction.lift',
+		targetType: 'Sanction',
+		targetId: sanctionId
+	});
+	await refreshTrust(s.actorId);
+}
+
+/** Suspension en vigueur d'un acteur, ou `null`. */
+export async function currentSuspension(actorId: string) {
+	const sanctions = await prisma.sanction.findMany({
+		where: { actorId, kind: 'SUSPENSION', liftedAt: null }
+	});
+	return activeSuspension(sanctions);
+}

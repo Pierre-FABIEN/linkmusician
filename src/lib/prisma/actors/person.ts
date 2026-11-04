@@ -109,6 +109,23 @@ export async function exportPersonData(userId: string) {
 	const details = await getProfileDetails(person);
 	const location = await getActorLocation(person.actorId);
 	const progress = await getProgress(person.actorId, prisma);
+	const [ledger, reportsFiled, sanctions] = await Promise.all([
+		prisma.xpTransaction.findMany({
+			where: { actorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { amount: true, track: true, reason: true, createdAt: true }
+		}),
+		prisma.report.findMany({
+			where: { reporterActorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { targetType: true, reason: true, details: true, status: true, createdAt: true }
+		}),
+		prisma.sanction.findMany({
+			where: { actorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { kind: true, reason: true, until: true, liftedAt: true, createdAt: true }
+		})
+	]);
 	const media = await prisma.media.findMany({
 		where: { actorId: person.actorId },
 		orderBy: { createdAt: 'asc' },
@@ -155,8 +172,28 @@ export async function exportPersonData(userId: string) {
 			palier_de_confiance: person.actor.trustLevel,
 			xp: progress.xp,
 			niveau: progress.level,
-			succes: progress.achievements.map((a) => ({ succes: a.name, debloque_le: a.unlockedAt }))
+			succes: progress.achievements.map((a) => ({ succes: a.name, debloque_le: a.unlockedAt })),
+			registre_xp: ledger.map((l) => ({
+				xp: l.amount,
+				piste: l.track,
+				motif: l.reason,
+				le: l.createdAt
+			}))
 		},
+		signalements_faits: reportsFiled.map((r) => ({
+			cible: r.targetType,
+			motif: r.reason,
+			precisions: r.details,
+			statut: r.status,
+			le: r.createdAt
+		})),
+		sanctions_recues: sanctions.map((s) => ({
+			type: s.kind,
+			motif: s.reason,
+			jusqu_au: s.until,
+			levee_le: s.liftedAt,
+			le: s.createdAt
+		})),
 		cree_le: person.createdAt
 	};
 }
@@ -181,6 +218,12 @@ export async function personAnonymizationOps(
 		prisma.actorLocation.deleteMany({ where: { actorId: person.actorId } }),
 		// Les fichiers Cloudinary sont supprimés après la transaction (`anonymizeUser`).
 		prisma.media.deleteMany({ where: { actorId: person.actorId } }),
+		// Signalements faits : gardés pour l'historique de modération, sans le
+		// texte libre, qui peut contenir des données personnelles.
+		prisma.report.updateMany({
+			where: { reporterActorId: person.actorId },
+			data: { details: null }
+		}),
 		prisma.person.update({
 			where: { userId },
 			data: {

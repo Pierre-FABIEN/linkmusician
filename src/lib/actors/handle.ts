@@ -42,6 +42,7 @@ export const RESERVED_HANDLES: ReadonlySet<string> = new Set([
 	'messages',
 	'moderateur',
 	'moderation',
+	'suspendu',
 	'moderator',
 	'null',
 	'parcours',

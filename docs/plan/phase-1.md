@@ -259,6 +259,9 @@ peuvent démarrer pendant la phase 0.
 
 ## P1-12 — Signalements, modération minimale, RGPD étendu
 
+> **Réalisé le 04/11/2026**, avec un écart : la file est à `/moderation`, car `/admin`
+> est réservé aux administrateurs par le hook du boilerplate.
+
 - **Tâches** : bouton « Signaler » sur les profils et les médias.
   `Report`. File `/admin/moderation` (accessible aux modérateurs) avec
   les actions valider ou rejeter un média, avertir, suspendre. `Sanction`

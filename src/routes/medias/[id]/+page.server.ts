@@ -2,11 +2,13 @@
  * LINKMUSICIAN: page publique d'un média (P1-08). Seul un média `PUBLISHED`
  * existe publiquement : sinon 404, sans dire s'il existe.
  */
-import { error } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
 import { getPublishedMedia } from '#lib/server/media/service';
-import type { PageServerLoad } from './$types';
+import { getPersonByUserId } from '#lib/prisma/actors/person';
+import { fileReport, ModerationError } from '#lib/server/moderation/service';
+import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, locals }) => {
 	const media = await getPublishedMedia(params.id);
 	if (!media) error(404, 'Média introuvable');
 	return {
@@ -18,6 +20,36 @@ export const load: PageServerLoad = async ({ params }) => {
 			isDemo: media.isDemo,
 			instrument: media.instrument?.name ?? null,
 			actor: media.actor
-		}
+		},
+		canReport: Boolean(locals.user)
 	};
+};
+
+export const actions: Actions = {
+	/** Signaler le média ou le profil de son auteur (personne connectée). */
+	report: async ({ params, request, locals }) => {
+		if (!locals.user) return fail(401, { error: 'Connecte-toi pour signaler.' });
+		const reporter = await getPersonByUserId(locals.user.id);
+		if (!reporter) return fail(403, { error: 'Complète ton profil pour signaler.' });
+		const media = await getPublishedMedia(params.id);
+		if (!media) error(404, 'Média introuvable');
+		const data = await request.formData();
+		const target = data.get('target') === 'ACTOR' ? 'ACTOR' : 'MEDIA';
+		try {
+			const result = await fileReport(reporter.actorId, {
+				targetType: target,
+				targetId: target === 'ACTOR' ? media.actorId : media.id,
+				reason: String(data.get('reason') ?? ''),
+				details: String(data.get('details') ?? '')
+			});
+			return {
+				reported: result.alreadyReported
+					? 'Tu as déjà signalé ce contenu : il est en cours d’examen.'
+					: 'Merci, ton signalement est transmis à la modération.'
+			};
+		} catch (err) {
+			if (err instanceof ModerationError) return fail(400, { error: err.message });
+			throw err;
+		}
+	}
 };

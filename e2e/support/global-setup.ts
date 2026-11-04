@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { chromium } from '@playwright/test'; // LINKMUSICIAN:
 import { startSmtpSink } from './smtp-sink';
 import { db } from './db';
 import { E2E_EMAIL_PREFIX } from './account';
@@ -72,10 +73,42 @@ function warmUpJobRoutes() {
 	};
 }
 
+/**
+ * LINKMUSICIAN: préchauffage des pages dans un vrai navigateur. Le premier
+ * chargement d'une page par un serveur Vite neuf compile le layout racine et
+ * tout le JavaScript client : plus de 60 s, d'où des échecs systématiques du
+ * premier test (rattrapés par la reprise). On paie ce coût ici, une fois.
+ */
+function warmUpPages() {
+	const port = Number(process.env.E2E_PORT ?? 2001);
+	const startedAt = Date.now();
+	const done = (async () => {
+		const browser = await chromium.launch();
+		try {
+			const page = await browser.newPage();
+			for (const path of ['/auth/signup', '/auth/login']) {
+				await page.goto(`http://localhost:${port}${path}`, {
+					timeout: 180_000,
+					waitUntil: 'networkidle'
+				});
+			}
+		} catch {
+			// Comme pour les routes de jobs : un échec ne bloque jamais la suite.
+		} finally {
+			await browser.close();
+		}
+	})();
+	return async () => {
+		await done;
+		console.log(`[e2e] pages préchauffées en ${Math.round((Date.now() - startedAt) / 1000)} s.`);
+	};
+}
+
 export default async function globalSetup() {
 	// Lancé avant les migrations pour que la compilation Vite se recouvre avec
 	// elles ; attendu juste avant de rendre la main aux tests.
 	const awaitWarmUp = warmUpJobRoutes();
+	const awaitPages = warmUpPages(); // LINKMUSICIAN:
 
 	// Réveille le compute Neon via le pooler (DATABASE_URL) avant migrate,
 	// qui parle au host direct (déduit de DATABASE_URL) et échoue à froid.
@@ -143,6 +176,7 @@ export default async function globalSetup() {
 	);
 
 	await awaitWarmUp();
+	await awaitPages(); // LINKMUSICIAN:
 
 	return async () => {
 		await sink.close();

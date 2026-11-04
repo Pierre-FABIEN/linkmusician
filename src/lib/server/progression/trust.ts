@@ -8,13 +8,8 @@
  */
 import { computeTrustLevel, isTrustLevel, type TrustLevel, type TrustSummary } from './core/trust';
 import { DAY_MS } from './core/types';
+import { isSanctionActive, reportRate } from '../../moderation/rules';
 import { recordDerived, type Tx } from './events';
-
-/**
- * Sanctions et signalements arrivent avec la modération (P1-12) : d'ici là,
- * aucune sanction et un taux de signalement nul.
- */
-const NO_MODERATION_YET = { activeSanctions: 0, reportRate: 0 };
 
 /** Résumé d'état d'une personne, ou `null` si l'acteur n'est pas une personne. */
 export async function trustSummaryFor(
@@ -28,7 +23,14 @@ export async function trustSummaryFor(
 	});
 	if (!person) return null;
 
-	const [profileCompleted, conversations, collaborations] = await Promise.all([
+	const [
+		profileCompleted,
+		conversations,
+		collaborations,
+		sanctions,
+		actionedReports,
+		publishedMedia
+	] = await Promise.all([
 		tx.domainEvent.count({ where: { type: 'profile.completed', actorIds: { has: actorId } } }),
 		tx.domainEvent.count({
 			where: { type: 'conversation.reciprocated', actorIds: { has: actorId } }
@@ -36,7 +38,20 @@ export async function trustSummaryFor(
 		tx.domainEvent.findMany({
 			where: { type: 'collaboration.completed', actorIds: { has: actorId } },
 			select: { actorIds: true }
-		})
+		}),
+		// Modération (P1-12) : sanctions en vigueur et signalements retenus sur 90 jours.
+		tx.sanction.findMany({
+			where: { actorId, liftedAt: null },
+			select: { kind: true, until: true, liftedAt: true }
+		}),
+		tx.report.count({
+			where: {
+				targetActorId: actorId,
+				status: 'ACTIONED',
+				handledAt: { gte: new Date(now.getTime() - 90 * DAY_MS) }
+			}
+		}),
+		tx.media.count({ where: { actorId, status: 'PUBLISHED' } })
 	]);
 	const counterpartsPerCollab = collaborations.map((c) =>
 		c.actorIds.filter((id) => id !== actorId)
@@ -60,7 +75,8 @@ export async function trustSummaryFor(
 			ids.some((id) => trusted.has(id))
 		).length,
 		distinctCounterparts: counterparts.length,
-		...NO_MODERATION_YET
+		activeSanctions: sanctions.filter((x) => isSanctionActive(x, now)).length,
+		reportRate: reportRate(actionedReports, publishedMedia)
 	};
 }
 

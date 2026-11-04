@@ -10,6 +10,7 @@
  */
 import { redirect } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
+import { currentSuspension } from '#lib/server/moderation/service';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
@@ -20,6 +21,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	const person = await getPersonByUserId(user.id);
 	if (!person) redirect(302, '/bienvenue');
 	if (person.tracks.length === 0) redirect(302, '/qui-es-tu');
+	if (await currentSuspension(person.actorId)) redirect(302, '/suspendu');
 
 	return {
 		person: {
