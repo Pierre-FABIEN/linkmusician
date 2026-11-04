@@ -60,6 +60,27 @@ export default ts.config(
 			}
 		}
 	},
+	// LINKMUSICIAN ▼ le noyau de progression est pur (CLAUDE.md, invariants) :
+	// ni base, ni SvelteKit, ni variables d'environnement.
+	{
+		files: ['src/lib/server/progression/core/**'],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							// Expression régulière : dans un `group`, `#` ouvrirait un commentaire.
+							regex: '^(@prisma/client|\\$app/|\\$env/|#lib/server($|/)|#server/)',
+							message:
+								'progression/core est pur : aucun import de Prisma, de SvelteKit ou des variables d’environnement.'
+						}
+					]
+				}
+			]
+		}
+	},
+	// LINKMUSICIAN ▲
 	{
 		// static/tinymce est une librairie vendorisée/minifiée : la lint génère
 		// des milliers de faux positifs sans rapport avec le code applicatif.

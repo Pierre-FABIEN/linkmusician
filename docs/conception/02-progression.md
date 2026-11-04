@@ -49,13 +49,13 @@ jamais l'historique, elle s'applique aux nouveaux événements.
 
 | Événement                                                       | XP                         | Limite                             |
 | --------------------------------------------------------------- | -------------------------- | ---------------------------------- |
-| Profil complété (≥1 instrument, ≥1 genre, zone, bio)            | 50                         | une fois                           |
-| Première démo publiée (validée par la modération)               | 30                         | une fois                           |
-| Démo supplémentaire                                             | 10                         | 3 par semaine                      |
-| Conversation réciproque issue d'une annonce (l'autre a répondu) | 5                          | 5 par jour                         |
-| Adhésion à un groupe acceptée                                   | 100                        | rendements décroissants par groupe |
-| Collaboration terminée, confirmée des deux côtés                | 150 × multiplicateurs (§6) | —                                  |
-| Endossement reçu d'un collaborateur                             | 20                         | 1 par endosseur et par compétence  |
+| Profil complété (≥1 instrument, ≥1 genre, zone, bio)            | 150                        | une fois                           |
+| Première démo publiée (validée par la modération)               | 100                        | une fois                           |
+| Démo supplémentaire                                             | 30                         | 3 par semaine                      |
+| Conversation réciproque issue d'une annonce (l'autre a répondu) | 30                         | 5 par jour                         |
+| Adhésion à un groupe acceptée                                   | 200                        | rendements décroissants par groupe |
+| Collaboration terminée, confirmée des deux côtés                | 400 × multiplicateurs (§6) | —                                  |
+| Endossement reçu d'un collaborateur                             | 40                         | 1 par endosseur et par compétence  |
 | Participer à une étape de groupe (comme membre présent)         | 25 % de l'XP du groupe     | —                                  |
 
 **Groupe**, avec les étapes du brief et leur niveau de preuve (§4) :
@@ -96,6 +96,22 @@ d'activité typique sur `progression/core` :
 
 Si une modification du barème fait sortir un persona de sa cible, le
 test échoue. C'est le garde-fou contre l'inflation de points.
+
+**Calibrage du 04/11/2026 (barème version 1).** La première version du
+barème ne tenait pas ses propres cibles : le Curieux restait niveau 1
+(90 XP) et le Musicien actif niveau 4. Les valeurs personne ont été
+relevées (tableau ci-dessus) et le poids d'une contrepartie TL0 abaissé à
+0,1, pour que le Farmeur reste sous le Curieux. Résultats :
+
+| Persona        | XP sur 3 mois | Niveau | Cible     |
+| -------------- | ------------- | ------ | --------- |
+| Curieux        | 310           | 3      | 3-4       |
+| Musicien actif | 1 565         | 6      | 6-8       |
+| Farmeur        | 290           | 2      | ≤ Curieux |
+
+Les valeurs des étapes de groupe sont inchangées. Le barème vit dans
+`src/lib/server/progression/core/bareme.ts`, et les personas dans
+`personas.test.ts`.
 
 ## 3. Niveau de compte
 
@@ -198,7 +214,7 @@ signature).
 | Abus                               | Contre-mesure                                                                                                                                                                                                                                              |
 | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Spam de demandes de contact        | 0 XP pour un contact. Quota de premiers messages à des inconnus selon la confiance (TL0 : 10 par jour). Les refus et blocages reçus font baisser la confiance                                                                                              |
-| Collaborations fictives entre amis | Multiplicateurs : **rendements décroissants par contrepartie** (1 / 0,5 / 0,25 / 0 pour la k-ième collaboration avec la même personne sur 12 mois) × **poids de confiance de la contrepartie** (TL0 : 0,25 · TL1 : 0,5 · TL2+ : 1)                         |
+| Collaborations fictives entre amis | Multiplicateurs : **rendements décroissants par contrepartie** (1 / 0,5 / 0,25 / 0 pour la k-ième collaboration avec la même personne sur 12 mois) × **poids de confiance de la contrepartie** (TL0 : 0,1 · TL1 : 0,5 · TL2+ : 1)                          |
 | Cliques de comptes                 | Job nocturne : détection des composantes denses du graphe de collaborations sans aucun lien extérieur, puis mise en revue manuelle. Empreinte d'appareil et d'IP à l'inscription (le boilerplate a déjà un module anti-fraude et une détection d'appareil) |
 | Faux concerts ou fausses sorties   | Corroboration par un tiers hors groupe, vérification par l'organisation ou une API, contestation possible et reprise d'XP                                                                                                                                  |
 | Faux endossements                  | Endosser exige une collaboration **confirmée** entre les deux personnes. Un seul endossement par compétence et par paire                                                                                                                                   |
