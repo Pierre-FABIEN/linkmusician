@@ -209,3 +209,34 @@ règles, quand la latence le justifiera.
 | Localisation  | Point flouté uniquement, distances arrondies, zone masquable                                                                                                                                                                      |
 | Modération    | Signalement sur tout contenu et tout profil, file admin, sanctions graduées (avertissement, rétrogradation de confiance, suspension), journal d'audit                                                                             |
 | RGPD          | Registre des traitements à étendre. Export JSON de tous les domaines. Suppression = anonymisation (les collaborations restent pour la contrepartie, avec « Compte supprimé »). Consentement des notifications par email           |
+
+### 2.6 Mobile d'abord, PWA, puis app des stores (D24)
+
+La plupart des musicien·nes utiliseront LinkMusician **sur leur
+téléphone** (en répète, en sortant d'un concert, en jam). L'app est donc
+conçue **mobile d'abord**, installable comme une app (PWA), et pourra
+devenir une app des stores **sans second code**.
+
+| Étape                      | Quand                     | Comment                                                                                                                                   |
+| -------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Responsive, mobile d'abord | Depuis P0-07              | Barre d'onglets en bas sur téléphone, onglets en haut sur ordinateur ; zones sûres (`env(safe-area-inset-*)`) ; zones tactiles ≥ 44 px    |
+| PWA installable            | Depuis P0-07              | Manifeste (raccourcis « Mon parcours » et « Jammer ce soir »), icônes `any` et `maskable`, service worker prudent (`src/service-worker/`) |
+| Notifications push         | Avec P2-09                | Web Push (installé sur l'écran d'accueil pour iOS 16.4+), préférences par type, ton d'encouragement                                       |
+| App des stores             | Après l'ouverture (P3-10) | La PWA emballée (Capacitor pour iOS et Android, ou TWA pour Android seul). Même code, même serveur ; on n'écrit pas d'app native séparée  |
+
+**Règles de conception** (valables pour chaque nouvel écran) :
+
+- concevoir l'écran à 390 px de large d'abord, puis l'élargir ;
+- aucune action uniquement au survol : tout se fait au doigt ;
+- zones tactiles de 44 px au moins ; formulaires avec le bon clavier
+  (`type`, `inputmode`, `autocomplete`) ;
+- rien ne déborde en largeur : vérifié par `e2e/linkmusician/mobile.spec.ts`
+  (ajouter chaque nouvelle page à sa liste) ;
+- le service worker ne met **jamais** en cache les données personnelles,
+  l'authentification ou l'API : seulement les icônes et les fichiers
+  versionnés de l'app, plus une page « hors ligne ».
+
+**Service worker** : enregistré en production seulement
+(`#lib/linkmusician/pwa`), car en dev `hooks.client.ts` retire les
+workers d'autres projets qui partagent `localhost:2000`. Son comportement
+réel (installation, hors ligne) se vérifie donc après un déploiement.

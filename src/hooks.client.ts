@@ -2,6 +2,7 @@ import { dev } from '$app/env';
 import { PUBLIC_SENTRY_DSN } from '$app/env/public';
 import * as Sentry from '@sentry/sveltekit';
 import { isValidSentryDsn } from '#lib/sentryDsn';
+import { registerServiceWorker } from '#lib/linkmusician/pwa'; // LINKMUSICIAN:
 
 /**
  * Suivi d'erreurs/traces côté navigateur (plan gratuit Sentry). Sans
@@ -51,3 +52,6 @@ async function dropStaleServiceWorkers() {
 }
 
 void dropStaleServiceWorkers();
+
+// LINKMUSICIAN: PWA (P0-07, D24) : service worker en production seulement.
+registerServiceWorker(dev);

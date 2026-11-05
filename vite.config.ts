@@ -76,7 +76,24 @@ export default defineConfig({
 		strictPort: true,
 		watch: {
 			usePolling: true,
-			interval: 1000
+			interval: 1000,
+			// LINKMUSICIAN: la scrutation relisait chaque seconde les sorties de
+			// build et de test (`.vercel/` seul : 8 600 fichiers) et saturait le
+			// processeur, jusqu'à affamer le serveur e2e (constaté le 05/11/2026).
+			// On ne surveille que les sources, et jamais le dossier généré d'un
+			// autre serveur (dev, e2e, vitest).
+			ignored: [
+				'**/.vercel/**',
+				'**/test-results/**',
+				'**/playwright-report/**',
+				'**/e2e-videos/**',
+				'**/static/tinymce/**',
+				'**/coverage/**',
+				...['.svelte-kit', '.svelte-kit-e2e', '.svelte-kit-vitest']
+					.filter((dir) => dir !== svelteKitConfig.outDir)
+					.map((dir) => `**/${dir}/**`),
+				`**/${svelteKitConfig.outDir}/output/**`
+			]
 		},
 		// Autorise le tunnel `localtunnel` (`npx localtunnel --port 2000`) pour
 		// recevoir un vrai webhook entrant (Sendcloud, etc.) en dev — Vite

@@ -195,3 +195,28 @@ jusqu'à `fe82121`, et l'historique a été relié (`d24aed5`). Détail dans
     existant (fichier séparé, appelé à la fin de `prisma/seed.js`).
 - **Fin** : une synchro de test (`git merge boilerplate/main` sans
   changement amont) se déroule en suivant la procédure.
+
+## P0-07 — Mobile d'abord et PWA installable
+
+> **Ajouté et réalisé le 05/11/2026** (demande : une PWA, puis une app
+> mobile). Décision D24, conception 03 §2.6.
+
+- **Tâches réalisées** :
+  - espace : barre d'onglets en bas sur téléphone (hors du conteneur de
+    défilement, `portal`), bande du haut avec logo et menu du compte ;
+    la barre flottante du boilerplate est masquée dans l'espace ;
+  - en-têtes du tableau de bord et du profil public empilés sur
+    téléphone ; bandeau cookies au-dessus de la barre d'onglets ;
+  - `viewport-fit=cover` et zones sûres ; balises d'app installée (iOS) ;
+  - manifeste complet (raccourcis, icônes `any` et `maskable`), icônes et
+    favicons LinkMusician ;
+  - service worker (`src/service-worker/`, format SvelteKit 3) : icônes
+    pré-chargées, fichiers versionnés mis en cache au fil des visites,
+    page hors ligne, jamais de données ; enregistré en production
+    seulement ;
+  - **correctif** : la surveillance par scrutation de Vite relisait les
+    sorties de build et de test (`.vercel/`…) et saturait le processeur,
+    ce qui affamait le serveur e2e (préchauffage de 180 s à 8 s).
+- **Fin** : `e2e/linkmusician/mobile.spec.ts` (390 px) : barre d'onglets,
+  navigation au doigt, aucun débordement sur 8 pages. Le comportement du
+  service worker se vérifie après le premier déploiement.

@@ -16,6 +16,8 @@
 		"playwright.config.ts",
 		"vite-plugin-drop-stale-pwa.ts"
 	],
+	// LINKMUSICIAN: le service worker a son propre tsconfig (SvelteKit 3, P0-07).
+	"exclude": ["src/service-worker"],
 	"compilerOptions": {
 		"allowJs": true,
 		"checkJs": true,

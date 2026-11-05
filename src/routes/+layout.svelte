@@ -19,6 +19,7 @@
 		setDomLoaded
 	} from '#lib/store/initialLoaderStore';
 	import { afterNavigate } from '$app/navigation';
+	import { page } from '$app/state'; // LINKMUSICIAN: barre de l'espace (P0-07)
 
 	import { resetCart, setCart, setVatRate } from '#lib/store/Data/cartStore';
 	import { setCartSyncAuthenticated, startSync } from '#lib/store/Data/cartSync';
@@ -193,7 +194,8 @@
 
 <svelte:head>
 	<link rel="icon" href="/favicon.ico" />
-	<meta name="viewport" content="width=device-width" />
+	<!-- LINKMUSICIAN: plein écran mobile et zones sûres (P0-07). -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 	<link rel="manifest" href="/pwa/manifest.webmanifest" />
 	<!-- LINKMUSICIAN: couleur du produit (D9), voir #lib/linkmusician/brand. -->
 	<meta name="theme-color" content="#7c3aed" />
@@ -211,7 +213,10 @@
 			Aller au contenu
 		</a>
 		<ModeWatcher />
-		<Navigation {data} />
+		<!-- LINKMUSICIAN: l'espace `(app)` a sa propre navigation (P0-07). -->
+		{#if !page.route.id?.startsWith('/(app)')}
+			<Navigation {data} />
+		{/if}
 		<div class="ccc relative m-0 h-screen w-screen max-w-none overflow-hidden p-0">
 			<div class="absolute top-0 left-0 z-[1] h-screen w-screen overflow-hidden">
 				<SmoothScrollBar>

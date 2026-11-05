@@ -25,6 +25,11 @@ const config: Config = {
 		maxDuration: 30
 	}),
 
+	// LINKMUSICIAN: service worker enregistré à la main, en production seulement
+	// (`#lib/linkmusician/pwa`) : en dev, `hooks.client.ts` retire les workers
+	// d'autres projets partageant localhost, un enregistrement auto bouclerait.
+	serviceWorker: { register: false },
+
 	// Static source review was used to build this policy. Smoke-test Stripe,
 	// TinyMCE, TOTP setup and the Sendcloud service-point map after deployment.
 	csp: {

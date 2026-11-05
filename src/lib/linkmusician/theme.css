@@ -19,3 +19,13 @@
 	--lm-accent: oklch(0.833 0.145 321.434); /* fuchsia-300 */
 	--lm-gradient: linear-gradient(90deg, oklch(0.702 0.183 293.541), oklch(0.74 0.238 322.16));
 }
+
+/*
+ * Hauteur de la barre d'onglets mobile (P0-07) : les éléments flottants du
+ * bas (bandeau cookies, notifications) se placent au-dessus.
+ */
+@media (max-width: 767px) {
+	body.lm-has-tabbar {
+		--lm-bottom-offset: calc(3.5rem + env(safe-area-inset-bottom));
+	}
+}

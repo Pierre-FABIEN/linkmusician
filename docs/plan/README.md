@@ -117,6 +117,7 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 | P0-05b | Coquille de l'espace (navigation, pages « bientôt », thème sombre) | P0-05a            | ✅     | Layout `(app)` : navigation (Mon parcours, Découvrir, Annonces, Messages, Profil), pages « bientôt », couleurs LinkMusician en clair et en sombre (le thème suit l'appareil). E2E et axe au vert dans les deux thèmes |
 | P0-05c | Accueil public (présentation, « Créer un compte »)                 | P0-05a            | ✅     | Accueil `/accueil` (servi à `/` en mode LinkMusician) : accroche, « Créer un compte », modes carrière et jam, trois étapes, connexion. Sans liste d'attente (D23). Bandeau cookies sans « panier » en veille          |
 | P0-06  | Documentation et synchro amont outillée                            | P0-05             | ⬜     |                                                                                                                                                                                                                       |
+| P0-07  | Mobile d'abord et PWA installable                                  | P0-05             | ✅     | Barre d'onglets mobile, en-têtes empilés, manifeste et icônes LinkMusician, service worker prudent (production), D24 ; correctif de la surveillance Vite (cause des lenteurs e2e). E2E mobile 390 px au vert          |
 
 ### Phase 1 — Identité musicale et moteur de progression → [phase-1.md](./phase-1.md)
 

@@ -38,9 +38,10 @@
 	}
 </script>
 
+<!-- LINKMUSICIAN: au-dessus de la barre d'onglets mobile de l'espace (P0-07). -->
 {#if visible}
 	<div
-		class="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-xl flex-col gap-3 rounded-lg border bg-background p-4 shadow-lg sm:flex-row sm:items-center sm:justify-between"
+		class="fixed inset-x-4 bottom-[calc(1rem+var(--lm-bottom-offset,0px))] z-50 mx-auto flex max-w-xl flex-col gap-3 rounded-lg border bg-background p-4 shadow-lg sm:flex-row sm:items-center sm:justify-between"
 	>
 		<p class="text-sm text-muted-foreground">
 			Ce site utilise uniquement des cookies de session nécessaires à son fonctionnement (connexion{PUBLIC_SHOP_ENABLED

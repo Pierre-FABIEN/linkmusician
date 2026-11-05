@@ -1,23 +1,53 @@
 {
+	"id": "/",
 	"name": "LinkMusician",
 	"short_name": "LinkMusician",
 	"description": "Trouve avec qui jouer. Avance comme dans un jeu.",
+	"lang": "fr",
+	"dir": "ltr",
+	"start_url": "/?source=pwa",
+	"scope": "/",
+	"display": "standalone",
+	"orientation": "portrait",
+	"background_color": "#0a0a0a",
+	"theme_color": "#7c3aed",
+	"categories": ["music", "social", "lifestyle"],
 	"icons": [
 		{
-			"src": "./favicon/icon-192x192.png",
+			"src": "/pwa/favicon/icon-192x192.png",
 			"sizes": "192x192",
 			"type": "image/png",
-			"purpose": "any maskable"
+			"purpose": "any"
 		},
 		{
-			"src": "./favicon/icon-512x512.png",
+			"src": "/pwa/favicon/icon-512x512.png",
 			"sizes": "512x512",
 			"type": "image/png",
-			"purpose": "any maskable"
+			"purpose": "any"
+		},
+		{
+			"src": "/pwa/favicon/maskable-192x192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "maskable"
+		},
+		{
+			"src": "/pwa/favicon/maskable-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
 		}
 	],
-	"start_url": "/",
-	"display": "standalone",
-	"background_color": "#ffffff",
-	"theme_color": "#7c3aed"
+	"shortcuts": [
+		{
+			"name": "Mon parcours",
+			"url": "/espace?source=pwa",
+			"icons": [{ "src": "/pwa/favicon/icon-192x192.png", "sizes": "192x192" }]
+		},
+		{
+			"name": "Jammer ce soir",
+			"url": "/decouvrir?source=pwa",
+			"icons": [{ "src": "/pwa/favicon/icon-192x192.png", "sizes": "192x192" }]
+		}
+	]
 }

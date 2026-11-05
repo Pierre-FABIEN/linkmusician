@@ -35,7 +35,7 @@
 		<Card.Root class="overflow-hidden pt-0">
 			<div class="h-24 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500"></div>
 			<Card.Content class="-mt-10 space-y-5">
-				<div class="flex flex-wrap items-end gap-4">
+				<div class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
 					<Avatar.Root class="size-20 border-4 border-background shadow-lg">
 						<Avatar.Fallback class="bg-violet-100 text-2xl font-bold text-violet-800"
 							>{initialsOf(data.person.displayName)}</Avatar.Fallback

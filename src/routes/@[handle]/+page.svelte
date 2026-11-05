@@ -147,7 +147,7 @@
 						class="h-32 bg-violet-900 bg-[radial-gradient(circle_at_20%_30%,var(--color-fuchsia-400),transparent_50%),radial-gradient(circle_at_80%_60%,var(--color-violet-600),transparent_55%)]"
 					></div>
 					<Card.Content class="-mt-12 space-y-4">
-						<div class="flex flex-wrap items-end gap-4">
+						<div class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
 							<Avatar.Root class="size-24 border-4 border-background shadow-xl">
 								<Avatar.Fallback class="bg-violet-100 text-3xl font-bold text-violet-800"
 									>{initialsOf(p.displayName)}</Avatar.Fallback
