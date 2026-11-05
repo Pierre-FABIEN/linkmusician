@@ -115,9 +115,9 @@
 						progress={o.progress}
 					/>{/each}
 				<Button
-					href="/espace"
+					href="/jouer"
 					class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white"
-					>Aller à mon espace</Button
+					>C'est parti !</Button
 				>
 			</Card.Content>
 		</Card.Root>

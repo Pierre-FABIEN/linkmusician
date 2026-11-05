@@ -5,9 +5,16 @@ Jouer pour le plaisir et rencontrer, sans projet ni engagement.
 
 ## Écrans
 
-- **`/jouer`** : accueil de l'espace, le « menu du jeu » : Mode carrière
-  (tableau de bord) ou Mode jam. Le dernier choix est retenu
-  (`Person.preferredMode`, « Reprendre »).
+- **`/jouer`** : première page après la connexion et l'onboarding, le
+  « menu du jeu » : Mode carrière (tableau de bord) ou Mode jam, chaque
+  carte disant comment on y avance. Le dernier choix est retenu
+  (`Person.preferredMode`, « Reprendre »). La première fois, une
+  **présentation en 3 étapes** (`/jouer/carriere`, `/jouer/jam`).
+- **Navigation par mode** : en jam, quatre onglets (Jam, Découvrir,
+  Messages, Profil) ; pastille « changer de mode » en haut de l'écran.
+- **« Ta prochaine étape »** (`src/lib/jam/guide.ts`) : ville → se mettre
+  dispo (ou repérer une jam, pour les mineur·es) → écrire à quelqu'un →
+  confirmer la jam (points) → passer en mode carrière.
 - **`/jam`** : « Je suis dispo », les dispos autour de soi, les jams
   ouvertes (annonces de type jam), « Lancer une jam ».
 

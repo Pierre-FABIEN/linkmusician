@@ -68,10 +68,11 @@ test.describe('LinkMusician — onboarding', () => {
 			await page.getByRole('button', { name: 'Voir qui est près de moi' }).click();
 		});
 
-		await test.step('6. Premier résultat, puis tableau de bord', async () => {
+		await test.step('6. Premier résultat, puis le menu du jeu', async () => {
 			await visit('/demarrer/resultat');
-			await page.getByRole('link', { name: 'Aller à mon espace' }).click();
-			await waitForPath(page, '/espace');
+			await page.getByRole('link', { name: 'C’est parti !'.replace('’', "'") }).click();
+			// Le menu du jeu est le point d'entrée de l'espace (P2-12b).
+			await waitForPath(page, '/jouer');
 		});
 
 		expect(screens).toHaveLength(6);

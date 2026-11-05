@@ -213,8 +213,9 @@
 			Aller au contenu
 		</a>
 		<ModeWatcher />
-		<!-- LINKMUSICIAN: l'espace `(app)` a sa propre navigation (P0-07). -->
-		{#if !page.route.id?.startsWith('/(app)')}
+		<!-- LINKMUSICIAN: l'espace `(app)`, et les pages publiques vues par un
+		     membre, ont leur propre navigation (P0-07, P2-12b). -->
+		{#if !page.route.id?.startsWith('/(app)') && !page.data.memberShell}
 			<Navigation {data} />
 		{/if}
 		<div class="ccc relative m-0 h-screen w-screen max-w-none overflow-hidden p-0">

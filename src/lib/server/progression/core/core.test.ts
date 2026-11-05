@@ -6,7 +6,7 @@ import { parseDomainEvent } from './events';
 import { gainsFor } from './engine';
 import { MemoryLedger } from './memory';
 import { bandTier, musicianTier, type MusicianSummary } from './tiers';
-import { nextObjectives, type QuestState } from './quests';
+import { nextObjectives, questProgress, type QuestState } from './quests';
 import { milestoneDelta } from './rules/milestoneAttested';
 import { BAREME } from './bareme';
 import type { RuleContext } from './types';
@@ -524,5 +524,26 @@ describe('quêtes (§8)', () => {
 			corroboratedGigs: 3
 		};
 		expect(nextObjectives(all)).toEqual([]);
+	});
+});
+
+describe('avancement des objectifs (P2-12b)', () => {
+	it('compte les objectifs déjà atteints', () => {
+		const state = {
+			profileComplete: false,
+			reciprocalConversations: 0,
+			bands: 0,
+			collaborations: 0,
+			distinctCollaborators: 0,
+			corroboratedGigs: 0,
+			verifiedReleases: 0,
+			distinctEndorsers: 0,
+			hasInstrument: true,
+			hasGenre: true,
+			hasZone: false,
+			hasBio: false,
+			demos: 0
+		} satisfies QuestState;
+		expect(questProgress(state)).toEqual({ done: 2, total: 10 });
 	});
 });

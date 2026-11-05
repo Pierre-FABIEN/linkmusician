@@ -21,3 +21,14 @@ describe('modes de jeu (P2-12)', () => {
 		expect(isPlayMode('BATTLE')).toBe(false);
 	});
 });
+
+describe('présentation des modes (P2-12b)', () => {
+	it('la première fois : la présentation ; ensuite : le mode', async () => {
+		const { destinationFor, modeFromSlug } = await import('./modes');
+		expect(destinationFor('JAM', [])).toBe('/jouer/jam');
+		expect(destinationFor('JAM', ['JAM'])).toBe('/jam');
+		expect(destinationFor('CAREER', ['JAM'])).toBe('/jouer/carriere');
+		expect(modeFromSlug('carriere')).toBe('CAREER');
+		expect(modeFromSlug('inconnu')).toBeNull();
+	});
+});

@@ -243,6 +243,27 @@ COMPLETED` (ou `CANCELLED`) ; pas d'état « en cours », et une
 - **Fin** : e2e « je choisis un mode, il est retenu à la visite
   suivante ».
 
+### P2-12b — Menu du jeu et navigation par mode
+
+> **Ajouté et réalisé le 05/11/2026** (demande : « une navigation simple et
+> super intelligente, étape par étape »).
+
+- `/jouer` est **la première page** après la connexion, la fin de
+  l'onboarding et « Qui es-tu ? » : choix du mode, chaque carte dit comment
+  on y avance.
+- **Présentation en 3 étapes** la première fois qu'on choisit un mode
+  (`/jouer/carriere`, `/jouer/jam`), « Passer » possible ; ensuite, accès
+  direct (`Person.modeIntrosSeen`).
+- **Onglets selon le mode** (carrière : parcours, découvrir, annonces,
+  messages, profil ; jam : jam, découvrir, messages, profil) et pastille
+  « changer de mode » en haut (`AppShell`).
+- **« Ta prochaine étape »** : une seule action à la fois, « Étape X sur
+  N » (carrière : objectifs du jeu ; jam : ville → dispo → écrire → jam
+  confirmée → passer en carrière).
+- La navigation de l'espace reste sur le **profil public** et les
+  **médias** quand on est connecté.
+- E2E `modes.spec.ts`.
+
 ### P2-13 — Mode jam : « Je suis dispo »
 
 > **Réalisé le 05/11/2026.** Règles des mineur·es tranchées (D5, D26) :

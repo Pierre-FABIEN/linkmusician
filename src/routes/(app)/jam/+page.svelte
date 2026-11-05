@@ -3,6 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
+	import NextStep from '#lib/components/linkmusician/NextStep.svelte';
 	import { AVAILABILITY_SLOTS, MAX_NOTE, SLOT_LABELS } from '#lib/jam/availability';
 	import { Badge } from '#shadcn/badge';
 	import { Guitar, MapPin, Plus, Radio, Users } from 'lucide-svelte';
@@ -48,7 +49,13 @@
 			</a>
 		</header>
 
-		<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="dispo-title">
+		<NextStep {...data.nextStep} tone="jam" />
+
+		<section
+			id="dispo"
+			class="scroll-mt-24 space-y-3 rounded-2xl border bg-card p-4"
+			aria-labelledby="dispo-title"
+		>
 			<h2 id="dispo-title" class="flex items-center gap-2 text-lg font-semibold">
 				<Radio class="size-5 text-primary" aria-hidden="true" /> Je suis dispo
 			</h2>
@@ -105,7 +112,7 @@
 		</section>
 
 		{#if data.commune}
-			<section class="space-y-3" aria-labelledby="available-title">
+			<section id="dispos" class="scroll-mt-24 space-y-3" aria-labelledby="available-title">
 				<h2 id="available-title" class="text-lg font-semibold">Dispos autour de toi</h2>
 				{#if data.available.length === 0}
 					<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
@@ -140,7 +147,7 @@
 			</section>
 		{/if}
 
-		<section class="space-y-3" aria-labelledby="jams-title">
+		<section id="jams" class="scroll-mt-24 space-y-3" aria-labelledby="jams-title">
 			<h2 id="jams-title" class="text-lg font-semibold">Jams ouvertes autour de toi</h2>
 			{#if !data.commune}
 				<p class="rounded-2xl border bg-card p-6 text-center">

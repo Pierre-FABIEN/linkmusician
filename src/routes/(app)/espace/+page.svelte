@@ -14,6 +14,7 @@
 	import AchievementBadge from '#lib/components/linkmusician/progress/AchievementBadge.svelte';
 	import { TRACKS } from '#lib/actors/tracks';
 	import { initialsOf } from '#lib/actors/display';
+	import NextStep from '#lib/components/linkmusician/NextStep.svelte';
 
 	let { data } = $props();
 	const d = $derived(data.dashboard);
@@ -31,6 +32,20 @@
 
 <div class="min-h-screen w-screen px-4 pt-6 pb-24">
 	<div class="mx-auto max-w-5xl space-y-6">
+		{#if d.objectives[0]}
+			{@const o = d.objectives[0]}
+			<NextStep
+				index={Math.min(d.questProgress.done + 1, d.questProgress.total)}
+				total={d.questProgress.total}
+				title={o.label}
+				text={o.xp
+					? `Une étape réelle de ta carrière : environ ${o.xp} XP à la clé.`
+					: 'Une étape réelle de ta carrière, à franchir avec d’autres.'}
+				href={o.href ?? '/annonces'}
+				cta={o.href ? 'J’y vais' : 'Bientôt disponible'}
+			/>
+		{/if}
+
 		<!-- En-tête : identité et progression -->
 		<Card.Root class="overflow-hidden pt-0">
 			<div class="h-24 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500"></div>

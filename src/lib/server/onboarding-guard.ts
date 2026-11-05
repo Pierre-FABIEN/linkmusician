@@ -14,5 +14,5 @@ export function guardStep(
 	id: OnboardingStepId,
 	data: { state: OnboardingState; step: Exclude<OnboardingStepId, 'resultat'> | null }
 ) {
-	if (!canVisit(id, data.state)) redirect(302, data.step ? stepPath(data.step) : '/espace');
+	if (!canVisit(id, data.state)) redirect(302, data.step ? stepPath(data.step) : '/jouer');
 }

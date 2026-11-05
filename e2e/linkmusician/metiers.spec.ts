@@ -56,7 +56,7 @@ test.describe('LinkMusician — métiers', () => {
 			const user = await requireUser(account.email);
 			await db.person.update({ where: { userId: user.id }, data: { onboardedAt: new Date() } });
 			await page.goto('/qui-es-tu');
-			await waitForPath(page, '/espace');
+			await waitForPath(page, '/jouer');
 		});
 
 		await test.step('5. Réglages : le principal passe à Musicien·ne', async () => {

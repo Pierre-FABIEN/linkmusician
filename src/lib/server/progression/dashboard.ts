@@ -4,7 +4,7 @@
  * ici, côté serveur ; la page ne fait qu'afficher.
  */
 import { prisma } from '#lib/server';
-import { nextObjectives, type QuestState } from './core/quests';
+import { nextObjectives, questProgress, type QuestState } from './core/quests';
 import type { MusicianSummary } from './core/tiers';
 import {
 	computeTrustLevel,
@@ -44,7 +44,8 @@ export async function getDashboard(actorId: string) {
 		getXpHistory(actorId, prisma),
 		trustSummaryFor(prisma, actorId)
 	]);
-	const objectives = nextObjectives(await questStateFor(actorId, tier.summary));
+	const questState = await questStateFor(actorId, tier.summary);
+	const objectives = nextObjectives(questState);
 	// Confiance recalculée à la volée, comme dans `/reglages`.
 	const trustLevel = trustSummary ? computeTrustLevel(trustSummary) : 0;
 	const nextTrust = trustSummary
@@ -57,6 +58,8 @@ export async function getDashboard(actorId: string) {
 		xpForNextLevel: progress.xpForNextLevel,
 		tier: tier.tier,
 		objectives,
+		/** Avancement global (« Étape X sur N », P2-12b). */
+		questProgress: questProgress(questState),
 		trust: {
 			name: TRUST_NAMES[trustLevel],
 			dailyFirstMessages: TRUST_PERMISSIONS[trustLevel].dailyFirstMessages,

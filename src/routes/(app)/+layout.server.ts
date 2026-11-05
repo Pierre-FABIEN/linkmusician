@@ -45,6 +45,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 			tracks: person.tracks.map((t) => ({ track: t.track, isPrimary: t.isPrimary }))
 		},
 		celebrations,
-		unread
+		unread,
+		// Mode de jeu (P2-12b) : il choisit les onglets.
+		preferredMode: person.preferredMode
 	};
 };

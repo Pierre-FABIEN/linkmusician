@@ -14,7 +14,8 @@ import { setPersonTracks } from '#lib/prisma/actors/tracks';
 import { requirePerson, tracksFormFor } from '#server/actors/tracksForm';
 import type { Actions, PageServerLoad } from './$types';
 
-const APP_HOME = '/espace';
+// LINKMUSICIAN: le menu du jeu est le point d'entrée de l'espace (P2-12b).
+const APP_HOME = '/jouer';
 /** Étape suivante : la suite de l'onboarding (P1-10). */
 const NEXT_STEP = '/demarrer';
 

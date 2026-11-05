@@ -1465,6 +1465,8 @@ model Person {
   celebrationsSeenAt DateTime?
   /// Dernier mode de jeu choisi à l'accueil (P2-12, D21).
   preferredMode      PlayMode?
+  /// Modes dont la présentation pas à pas a été vue (P2-12b).
+  modeIntrosSeen     PlayMode[]       @default([])
 
   /// Profil complet (D17, D18). Tout est déclaré, rien n'est vérifié.
   proStatus      ProStatus?

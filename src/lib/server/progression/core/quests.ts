@@ -103,3 +103,11 @@ export function nextObjectives(state: QuestState, limit = 3): Objective[] {
 			return progress ? { ...objective, progress } : objective;
 		});
 }
+
+/** Avancement sur l'ensemble des objectifs système : « Étape X sur N » (P2-12b). */
+export function questProgress(state: QuestState): { done: number; total: number } {
+	return {
+		done: CANDIDATES.filter((c) => c.done(state)).length,
+		total: CANDIDATES.length
+	};
+}

@@ -131,7 +131,7 @@
 <SEO title="{p.displayName} (@{p.handle})" {description} {url} noindex={!p.indexable} />
 <StructuredData type={structured.type} data={structured.data} />
 
-<div class="min-h-screen w-screen px-4 py-24">
+<div class="min-h-screen w-screen px-4 {data.memberShell ? 'pt-6 pb-24' : 'py-24'}">
 	<div class="mx-auto max-w-5xl space-y-6">
 		{#if data.isOwner}
 			<p class="rounded-lg border bg-muted/40 p-3 text-sm">

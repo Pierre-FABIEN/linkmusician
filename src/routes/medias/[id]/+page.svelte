@@ -17,7 +17,7 @@
 
 <SEO title={m.title} />
 
-<div class="min-h-screen w-screen px-4 py-24">
+<div class="min-h-screen w-screen px-4 {data.memberShell ? 'pt-6 pb-24' : 'py-24'}">
 	<article class="mx-auto max-w-2xl space-y-4">
 		<h1 class="text-2xl font-bold">{m.title}</h1>
 		<p class="text-sm text-muted-foreground">

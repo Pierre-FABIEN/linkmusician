@@ -5,5 +5,5 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ parent }) => {
 	const { step } = await parent();
-	redirect(302, step ? stepPath(step) : '/espace');
+	redirect(302, step ? stepPath(step) : '/jouer');
 };
