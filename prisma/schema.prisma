@@ -1408,6 +1408,9 @@ model Actor {
   updatedAt   DateTime  @updatedAt
   /// Anonymisation RGPD : l'acteur reste pour l'historique de ses contreparties.
   deletedAt   DateTime?
+  /// Profil public masqué par la personne (`/reglages`, D19) : `/@handle`
+  /// renvoie une 404 et le profil sort du sitemap.
+  hidden      Boolean   @default(false)
 
   person     Person?
   genres     ActorGenre[]
@@ -1709,7 +1712,8 @@ model ActorProgress {
   track     String
   xp        Int
   level     Int
-  /// Palier nommé de la piste (renseigné avec le tableau de bord, P1-11).
+  /// Palier nommé de la piste. Pas encore projeté : il se calcule à la lecture
+  /// depuis les événements (`getMusicianTier`, P1-11).
   tier      String?
   updatedAt DateTime @updatedAt
 

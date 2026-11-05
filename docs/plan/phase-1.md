@@ -249,6 +249,11 @@ peuvent démarrer pendant la phase 0.
 
 ## P1-11 — Profil public et tableau de bord de progression
 
+> **Réalisé le 05/11/2026.** D1 tranchée (niveau en pastille publique, XP
+> et registre privés), D19 prise (masquage `Actor.hidden`, 404 si masqué,
+> anonymisé ou suspendu, indexation des seuls majeurs). Palier calculé à
+> la lecture depuis les événements. Voir [docs/profil-public](../profil-public/README.md).
+
 - **Tâches** : route `@[handle]` avec SEO, données structurées
   `Person`/`MusicGroup` et respect de `hidden`. Tableau de bord `(app)`
   avec niveau, barre d'XP, palier, 3 quêtes, historique des gains

@@ -1,5 +1,8 @@
 <script lang="ts">
-	/** LINKMUSICIAN: prochain objectif atteignable (quête système, P1-02). */
+	/**
+	 * LINKMUSICIAN: prochain objectif atteignable (quête système, P1-02).
+	 * `href` nul : l'écran qui permet d'avancer n'existe pas encore (« bientôt »).
+	 */
 	import { ArrowRight, Target } from 'lucide-svelte';
 
 	let {
@@ -7,13 +10,20 @@
 		href,
 		xp,
 		progress
-	}: { label: string; href: string; xp?: number; progress?: { current: number; target: number } } =
-		$props();
+	}: {
+		label: string;
+		href: string | null;
+		xp?: number;
+		progress?: { current: number; target: number };
+	} = $props();
 </script>
 
-<a
-	{href}
-	class="group flex items-center gap-3 rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:border-fuchsia-400 hover:shadow-md"
+<svelte:element
+	this={href ? 'a' : 'div'}
+	href={href ?? undefined}
+	class="group flex items-center gap-3 rounded-xl border bg-card p-4 transition {href
+		? 'hover:-translate-y-0.5 hover:border-fuchsia-400 hover:shadow-md'
+		: 'opacity-80'}"
 >
 	<span
 		class="grid size-10 shrink-0 place-items-center rounded-lg bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-950 dark:text-fuchsia-300"
@@ -38,8 +48,14 @@
 			>
 		{/if}
 	</span>
-	<ArrowRight
-		class="size-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5"
-		aria-hidden="true"
-	/>
-</a>
+	{#if href}
+		<ArrowRight
+			class="size-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5"
+			aria-hidden="true"
+		/>
+	{:else}
+		<span class="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+			>Bientôt</span
+		>
+	{/if}
+</svelte:element>

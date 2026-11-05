@@ -10,6 +10,7 @@ import { prisma } from '#lib/server';
 import { emitAndProcess } from '#lib/server/progression/processor';
 import { summarize, type ProgressSummary } from '#lib/server/progression/profile';
 import { checkStockQuota } from '#lib/server/trust/quotas';
+import { publicActorWhere } from '#lib/server/actors/visibility';
 import { parseExternalMedia, EXTERNAL_MESSAGES } from '#lib/media/external';
 import { normalizeTitle, publishedEventKind, QUOTA_STATUSES, readyStatus } from '#lib/media/rules';
 import { fetchExternalTitle } from './oembed';
@@ -214,17 +215,8 @@ export async function getPublishedMedia(mediaId: string) {
 		where: {
 			id: mediaId,
 			status: 'PUBLISHED',
-			actor: {
-				deletedAt: null,
-				// Compte suspendu : ses médias disparaissent pendant la suspension.
-				sanctions: {
-					none: {
-						kind: 'SUSPENSION',
-						liftedAt: null,
-						OR: [{ until: null }, { until: { gt: new Date() } }]
-					}
-				}
-			}
+			// Acteur anonymisé, suspendu ou masqué (D19) : ses médias disparaissent.
+			actor: publicActorWhere()
 		},
 		include: {
 			actor: { select: { id: true, handle: true, displayName: true } },

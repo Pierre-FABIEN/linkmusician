@@ -141,6 +141,7 @@ export async function exportPersonData(userId: string) {
 	return {
 		identifiant_public: person.actor.handle,
 		nom_affiche: person.actor.displayName,
+		profil_public_masque: person.actor.hidden,
 		date_de_naissance: person.birthDate?.toISOString().slice(0, 10) ?? null,
 		cgu_acceptees_le: person.termsAcceptedAt,
 		metiers: person.tracks.map((t) => ({ metier: t.track, principal: t.isPrimary })),
@@ -241,6 +242,7 @@ export async function personAnonymizationOps(
 				displayName: 'Compte supprimé',
 				bio: null,
 				trustLevel: 0,
+				hidden: true,
 				deletedAt: new Date()
 			}
 		})

@@ -48,6 +48,7 @@ model Actor {                                   // Phase 1
   trustLevel Int       @default(0)              // §7 de 02-progression
   createdAt  DateTime  @default(now())
   deletedAt  DateTime?                          // anonymisation RGPD
+  hidden     Boolean   @default(false)          // profil public masqué (D19) : /@handle en 404
   person       Person?
   organization Organization?
 }

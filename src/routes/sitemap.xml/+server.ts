@@ -4,6 +4,8 @@ import { prisma } from '#lib/server';
 // LINKMUSICIAN: boutique en veille, voir src/lib/shop/gate.ts.
 import { PUBLIC_SHOP_ENABLED } from '$app/env/public';
 import { isShopHref } from '#lib/shop/gate';
+// LINKMUSICIAN: profils publics indexables (P1-11, D19).
+import { indexableProfiles } from '#lib/server/actors/publicProfile';
 
 // Importer toutes les pages Svelte automatiquement
 const pages = import.meta.glob('../**/+page.svelte', { eager: true });
@@ -115,7 +117,9 @@ const escapeXml = (str: string): string => {
 const generateSitemap = (
 	paths: Array<{ path: string; priority: string; changefreq: string }>,
 	blogPosts: Array<{ slug: string; updatedAt: Date }>,
-	products: Array<{ slug: string; updatedAt: Date }>
+	products: Array<{ slug: string; updatedAt: Date }>,
+	// LINKMUSICIAN: profils publics `/@handle`.
+	profiles: Array<{ handle: string; updatedAt: Date }> = []
 ) => {
 	// Pas de `lastmod` sur les pages statiques : il valait `new Date()`, donc
 	// chaque page se déclarait modifiée à l'instant, à chaque requête du
@@ -153,6 +157,16 @@ ${blogPosts
     </url>`
 	)
 	.join('\n')}
+${profiles
+	.map(
+		(profile) => `    <url>
+        <loc>${escapeXml(sitemapConfig.site + '/@' + profile.handle)}</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+        <lastmod>${escapeXml(profile.updatedAt.toISOString())}</lastmod>
+    </url>`
+	)
+	.join('\n')}
 </urlset>`;
 };
 
@@ -162,11 +176,15 @@ export const GET: RequestHandler = async () => {
 	const paths = PUBLIC_SHOP_ENABLED
 		? extractPaths()
 		: extractPaths().filter(({ path }) => !isShopHref(path));
-	const [blogPosts, products] = await Promise.all([
+	const [blogPosts, products, profiles] = await Promise.all([
 		getBlogPosts(),
-		PUBLIC_SHOP_ENABLED ? getProducts() : Promise.resolve([])
+		PUBLIC_SHOP_ENABLED ? getProducts() : Promise.resolve([]),
+		indexableProfiles().catch((error) => {
+			console.error('Erreur lors de la récupération des profils:', error);
+			return [];
+		})
 	]);
-	const body = generateSitemap(paths, blogPosts, products);
+	const body = generateSitemap(paths, blogPosts, products, profiles);
 	return new Response(body, {
 		headers: {
 			'Content-Type': 'application/xml',

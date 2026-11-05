@@ -55,6 +55,14 @@ npm run test:e2e:ui       # mode interactif Playwright
 npm run test:e2e:report   # dernier rapport HTML
 ```
 
+> LINKMUSICIAN : **arrêter `npm run dev` (port 2000) avant de lancer la
+> suite.** Constaté le 05/11/2026 : le serveur de dev mobilisait 120 à
+> 190 % du processeur en continu, et le serveur e2e (port 2001), affamé,
+> ne servait plus le JavaScript des pages à temps (`page.goto` en
+> délai dépassé sur `/auth/signup`, préchauffage à plus de 3 minutes).
+> Tous les specs échouaient dès l'inscription ; une fois le serveur de dev
+> arrêté, ils repassent.
+
 Le parcours étant un test unique de deux à trois minutes, les rapporteurs
 standard n'écriraient rien avant la fin. `e2e/support/step-reporter.ts` annonce
 donc chaque étape en direct :

@@ -1,6 +1,14 @@
 <script lang="ts">
 	interface StructuredDataProps {
-		type: 'Organization' | 'WebSite' | 'Article' | 'Product' | 'BreadcrumbList';
+		// LINKMUSICIAN: 'Person' et 'MusicGroup' pour le profil public `/@handle` (P1-11).
+		type:
+			| 'Organization'
+			| 'WebSite'
+			| 'Article'
+			| 'Product'
+			| 'BreadcrumbList'
+			| 'Person'
+			| 'MusicGroup';
 		data: Record<string, unknown>;
 	}
 
