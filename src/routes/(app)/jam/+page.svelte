@@ -42,7 +42,7 @@
 				des rencontres musicales.
 			</p>
 			<a
-				href="/annonces/nouvelle?type=JAM"
+				href="/jams/nouvelle"
 				class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-white px-4 font-bold text-pink-700"
 			>
 				<Plus class="size-4" aria-hidden="true" /> Lancer une jam
@@ -148,7 +148,7 @@
 		{/if}
 
 		<section id="jams" class="scroll-mt-24 space-y-3" aria-labelledby="jams-title">
-			<h2 id="jams-title" class="text-lg font-semibold">Jams ouvertes autour de toi</h2>
+			<h2 id="jams-title" class="text-lg font-semibold">Jams à venir autour de toi</h2>
 			{#if !data.commune}
 				<p class="rounded-2xl border bg-card p-6 text-center">
 					Indique ta ville pour voir les jams près de chez toi.
@@ -156,33 +156,31 @@
 				</p>
 			{:else if data.jams.length === 0}
 				<p class="rounded-2xl border bg-card p-6 text-center text-sm text-muted-foreground">
-					Pas encore de jam ouverte près de toi. Lance la première !
+					Pas encore de jam prévue près de toi. Publie la première !
 				</p>
 			{:else}
-				<ul class="space-y-3" aria-label="Jams ouvertes">
+				<ul class="space-y-3" aria-label="Jams à venir">
 					{#each data.jams as j (j.id)}
 						<li>
 							<a
-								href="/annonces/{j.id}"
+								href="/jams/{j.id}"
 								class="block space-y-1 rounded-2xl border bg-card p-4 transition hover:border-primary hover:shadow-md"
 							>
 								<span class="flex flex-wrap items-center gap-2">
 									<span class="text-lg font-bold">{j.title}</span>
-									{#if j.startsAt}<Badge variant="outline">{day.format(new Date(j.startsAt))}</Badge
-										>{/if}
+									<Badge variant="outline">{day.format(new Date(j.startsAt))}</Badge>
 								</span>
 								<span class="flex flex-wrap gap-x-3 text-sm text-muted-foreground">
 									<span class="inline-flex items-center gap-1"
-										><MapPin class="size-3.5" aria-hidden="true" />{j.distance}{j.commune
-											? ` · ${j.commune}`
-											: ''}</span
+										><MapPin class="size-3.5" aria-hidden="true" />{j.venue.name} · {j.venue
+											.communeName}</span
 									>
 									<span class="inline-flex items-center gap-1"
-										><Users class="size-3.5" aria-hidden="true" />{j.slots} place{j.slots > 1
-											? 's'
-											: ''}</span
+										><Users class="size-3.5" aria-hidden="true" />{j.coming} vien{j.coming > 1
+											? 'nent'
+											: 't'}</span
 									>
-									<span>par {j.issuer}</span>
+									{#if j.imComing}<span class="font-semibold text-primary">Tu viens</span>{/if}
 								</span>
 							</a>
 						</li>

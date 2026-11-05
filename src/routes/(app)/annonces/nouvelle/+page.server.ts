@@ -12,6 +12,8 @@ import { OPPORTUNITY_KINDS, opportunitySchema } from '#lib/opportunities/rules';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
+	// Une jam se publie dans un lieu de l'annuaire (P2-14b).
+	if (url.searchParams.get('type') === 'JAM') redirect(303, '/jams/nouvelle');
 	const person = (await getPersonByUserId(locals.user!.id))!;
 	const [location, instruments, genres] = await Promise.all([
 		getActorLocation(person.actorId),
@@ -35,7 +37,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			url.searchParams.get('type') ?? ''
 		)
 			? url.searchParams.get('type')!
-			: 'JAM'
+			: 'RECRUIT_MEMBER'
 	};
 };
 
@@ -50,6 +52,7 @@ export const actions: Actions = {
 				error: parsed.error.issues[0]?.message ?? 'Vérifie le formulaire.'
 			});
 		}
+		if (parsed.data.kind === 'JAM') redirect(303, '/jams/nouvelle');
 		let id: string;
 		try {
 			({ id } = await createOpportunity(person.actorId, parsed.data));

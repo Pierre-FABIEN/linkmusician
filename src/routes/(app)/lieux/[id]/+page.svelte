@@ -7,6 +7,14 @@
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
 
 	let { data, form } = $props();
+	const day = new Intl.DateTimeFormat('fr-FR', {
+		weekday: 'short',
+		day: 'numeric',
+		month: 'short',
+		hour: '2-digit',
+		minute: '2-digit',
+		timeZone: 'Europe/Paris'
+	});
 
 	$effect(() => {
 		if (data.added) toast.success('Lieu ajouté à l’annuaire. Merci !');
@@ -32,10 +40,27 @@
 
 		<section class="space-y-2 rounded-2xl border bg-card p-4" aria-labelledby="jams-title">
 			<h2 id="jams-title" class="text-lg font-semibold">Jams à venir</h2>
-			<p class="text-sm text-muted-foreground">
-				Bientôt, les jams publiées dans ce lieu apparaîtront ici : tu pourras dire « Je viens »,
-				même sans connaître personne.
-			</p>
+			{#if data.jams.length === 0}
+				<p class="text-sm text-muted-foreground">Pas de jam prévue ici pour l’instant.</p>
+			{:else}
+				<ul class="space-y-2">
+					{#each data.jams as j (j.id)}
+						<li>
+							<a href="/jams/{j.id}" class="block rounded-xl border p-3 hover:border-primary">
+								<span class="block font-semibold">{j.title}</span>
+								<span class="text-sm text-muted-foreground"
+									>{day.format(new Date(j.startsAt))} · {j.coming} vien{j.coming > 1
+										? 'nent'
+										: 't'}</span
+								>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+			<a href="/jams/nouvelle?lieu={data.venue.id}" class="inline-block font-semibold underline"
+				>Publier une jam ici</a
+			>
 		</section>
 
 		{#if !data.venue.claimed}

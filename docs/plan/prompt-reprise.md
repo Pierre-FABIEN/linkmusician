@@ -2,7 +2,7 @@
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
 > Tenu à jour à la fin de chaque session (dernière mise à jour : 05/11/2026,
-> après P2-14a). Il évite de relire toute la conception : ne lire que ce
+> après P2-14b). Il évite de relire toute la conception : ne lire que ce
 > qu'il cite.
 
 ---
@@ -19,8 +19,7 @@ seulement :
 
 ## Où on en est
 
-- Phases 0 et 1 terminées ; phase 2 : P2-01 à P2-06, P2-11, P2-12,
-  P2-12b, P2-13, P2-14a ✅.
+- Phases 0 et 1 terminées ; phase 2 : P2-01 à P2-06, P2-11 à P2-14b ✅.
 - Objectif (D28) : lancement public à Toulouse début mars 2027, tous les
   acteurs de la scène locale, UX soignée. Environ 3 lots par semaine.
 - Décision D27 : venir à une jam ne rapporte rien. « J'y étais » ouvre
@@ -32,19 +31,16 @@ seulement :
   (`createVenue`, `searchVenues`, `venuesNear`, `getVenue`), pages
   `/lieux`, `/lieux/nouveau`, `/lieux/[id]`, `CommunePicker.svelte`,
   signalement `VENUE` et `removeVenue` en modération, export RGPD.
-- La suite e2e complète n'a pas été relancée depuis P2-14a (seuls lieux,
-  dispo, modes et modération) : la lancer en premier, en arrière-plan.
+- P2-14b livré : `Opportunity` JAM avec `venueId`, `endsAt` ; `JamSpot`,
+  `JamAttendance` ; `#lib/jam/publicJam`, `#server/jam/publicJams`, pages
+  `/jams/nouvelle`, `/jams/[id]`.
+- Specs e2e du boilerplate en échec sous SvelteKit 3 (remontée n° 18) :
+  ne lancer que `e2e/linkmusician` pour valider un lot.
 
-## Prochain lot : P2-14b — jams publiques
+## Prochain lot : P2-14c — formation du lead et matériel sur place
 
-Fiche dans phase-2-3.md. En bref : une jam = annonce `JAM` enrichie
-(`Opportunity`, `src/lib/server/opportunities/service.ts`) avec **lieu de
-l'annuaire obligatoire** (`venueId`), début et fin (heure de Paris,
-`parisToUtc` dans `#lib/jam/availability`), style, places souhaitées par
-instrument ; l'auteur est l'hôte ; « Je viens » sans acceptation,
-retirable ; « Trouve-moi une jam » ; mineur·es : jams finissant avant
-22 h seulement ; jams à venir sur la fiche du lieu ; RGPD. Puis P2-15
-(« J'y étais » et appréciations), P2-16 (carnet), P2-07 à P2-10.
+Fiche dans phase-2-3.md. Puis P2-15 (« J'y étais », grille de photos,
+appréciations), P2-16, P2-17, P2-18, P2-07 à P2-10.
 
 ## Rappels pratiques (déjà appris, ne pas redécouvrir)
 
@@ -68,5 +64,5 @@ retirable ; « Trouve-moi une jam » ; mineur·es : jams finissant avant
   `docs/jam/README.md`, et **mettre à jour ce prompt** (section « Où on
   en est » et « Prochain lot »).
 
-Commence par P2-14b.
+Commence par P2-14c.
 ```

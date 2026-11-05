@@ -3,12 +3,15 @@
 import { error, fail } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { getVenue } from '#lib/server/venues/service';
+import { upcomingJamsAt } from '#lib/server/jam/publicJams';
 import { ModerationError, fileReport } from '#lib/server/moderation/service';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params, url }) => {
+export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const venue = await getVenue(params.id);
 	if (!venue) error(404, 'Lieu introuvable');
+	const person = (await getPersonByUserId(locals.user!.id))!;
+	const jams = await upcomingJamsAt(venue.id, person.actorId);
 	return {
 		venue: {
 			id: venue.id,
@@ -18,6 +21,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 			departmentCode: venue.departmentCode,
 			claimed: venue.claimedByActorId !== null
 		},
+		jams,
 		added: url.searchParams.has('ajoute')
 	};
 };

@@ -120,7 +120,8 @@ export async function exportPersonData(userId: string) {
 		applications,
 		collaborations,
 		availability,
-		venuesAdded
+		venuesAdded,
+		jamsComing
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -209,6 +210,12 @@ export async function exportPersonData(userId: string) {
 			where: { createdById: person.actorId },
 			orderBy: { createdAt: 'asc' },
 			select: { name: true, kind: true, communeName: true, createdAt: true }
+		}),
+		// Jams publiques (P2-14b) : « Je viens ».
+		prisma.jamAttendance.findMany({
+			where: { actorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { createdAt: true, opportunity: { select: { title: true, startsAt: true } } }
 		})
 	]);
 	const media = await prisma.media.findMany({
@@ -290,6 +297,11 @@ export async function exportPersonData(userId: string) {
 			le: o.createdAt
 		})),
 		disponibilite: availability,
+		jams_je_viens: jamsComing.map((a) => ({
+			jam: a.opportunity.title,
+			debut: a.opportunity.startsAt,
+			le: a.createdAt
+		})),
 		lieux_ajoutes: venuesAdded.map((v) => ({
 			nom: v.name,
 			type: v.kind,
@@ -342,6 +354,8 @@ export async function personAnonymizationOps(
 		// Annuaire des lieux (P2-14a) : les lieux ajoutés restent (ce sont des
 		// lieux publics, utiles aux autres) ; ils restent liés à l'acteur
 		// anonymisé, qui ne dit plus rien de la personne.
+		// Jams publiques (P2-14b) : « Je viens » supprimés avec le compte.
+		prisma.jamAttendance.deleteMany({ where: { actorId: person.actorId } }),
 		// Annonces (P2-02) : supprimées avec le compte.
 		prisma.opportunity.deleteMany({ where: { issuerActorId: person.actorId } }),
 		// Candidatures (P2-03) : supprimées avec le compte.

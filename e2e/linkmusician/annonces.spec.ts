@@ -13,7 +13,7 @@ import {
 
 /**
  * P2-02 — Annonces : on voit les annonces actives autour de soi (pas les
- * échues), on publie une jam (sans XP), le quota de confiance limite un TL0
+ * échues), on publie une annonce (sans XP), le quota de confiance limite un TL0
  * à une annonce active, on clôture, on signale.
  */
 test.describe('LinkMusician — annonces', () => {
@@ -51,17 +51,17 @@ test.describe('LinkMusician — annonces', () => {
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
 			});
 
-			await test.step('2. Je publie une jam : aucune XP', async () => {
+			await test.step('2. Je publie une annonce : aucune XP', async () => {
 				await page.getByRole('link', { name: 'Publier une annonce' }).click();
 				await waitForAppReady(page);
-				await page.getByLabel('Titre').fill('Jam soul dimanche');
+				await page.getByLabel('Titre').fill('Groupe soul cherche basse');
 				await page
 					.getByLabel('Description')
-					.fill('Jam soul détendue dimanche après-midi, apporte ton instrument !');
+					.fill('Groupe soul cherche un·e bassiste pour répéter le dimanche.');
 				await page.getByRole('button', { name: 'Publier' }).click();
 				await expect(page).toHaveURL(/\/annonces\/c.*publiee=1/);
 				await expect(
-					page.getByRole('heading', { level: 1, name: 'Jam soul dimanche' })
+					page.getByRole('heading', { level: 1, name: 'Groupe soul cherche basse' })
 				).toBeVisible();
 				expect(await db.xpTransaction.count({ where: { actorId: me.actorId } })).toBe(0);
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
@@ -83,7 +83,7 @@ test.describe('LinkMusician — annonces', () => {
 				await waitForAppReady(page);
 				await page
 					.getByRole('list', { name: 'Mes annonces' })
-					.getByRole('link', { name: /Jam soul dimanche/ })
+					.getByRole('link', { name: /Groupe soul cherche basse/ })
 					.click();
 				await page.getByRole('button', { name: 'Clôturer l’annonce'.replace('’', "'") }).click();
 				await expect(page.getByText('Clôturée', { exact: true })).toBeVisible();

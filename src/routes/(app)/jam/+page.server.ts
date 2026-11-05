@@ -3,7 +3,6 @@
 import { fail } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { getActorLocation } from '#lib/server/geo/queries';
-import { listNearby } from '#lib/server/opportunities/service';
 import {
 	AvailabilityError,
 	canBeAvailable,
@@ -16,6 +15,7 @@ import { AVAILABILITY_SLOTS, type AvailabilitySlotValue } from '#lib/jam/availab
 import { prisma } from '#lib/server';
 import { jamNextStep } from '#lib/jam/guide';
 import { venuesNear } from '#lib/server/venues/service';
+import { upcomingJamsNear } from '#lib/server/jam/publicJams';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -29,7 +29,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		myAvailability(person.actorId),
 		canBeAvailable(person.actorId),
 		location ? listAvailableNearby(person.actorId) : Promise.resolve([]),
-		location ? listNearby(person.actorId, { kind: 'JAM' }) : Promise.resolve([])
+		location ? upcomingJamsNear(person.actorId) : Promise.resolve([])
 	]);
 	// Guide « Ta prochaine étape » (P2-12b).
 	const [conversations, playedTogether, venuesAdded, nearbyVenues] = await Promise.all([

@@ -72,3 +72,24 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
 - **Points** : ajouter un lieu ne rapporte rien. Une jam n'est plus une
   collaboration : seules les appréciations après la jam rapporteront
   (P2-15).
+
+## Jams publiques (P2-14b)
+
+- **Données** : une jam est une `Opportunity` `JAM` avec `venueId`
+  (obligatoire à la création), `startsAt`, `endsAt` (heure de Paris
+  convertie en UTC) ; `JamSpot` (places souhaitées par instrument) ;
+  `JamAttendance` (« Je viens », sans acceptation, retirable, sans XP).
+- **Règles** : `#lib/jam/publicJam` (créneau, fin après minuit le
+  lendemain, 8 h au plus, 60 jours à l'avance au plus, couvre-feu
+  `endsBeforeCurfew` des mineur·es à 22 h) ; service
+  `#server/jam/publicJams` (`createJam`, `upcomingJamsNear` dans les
+  lieux à 50 km, `upcomingJamsAt`, `getJam`, `comeToJam`,
+  `notComingToJam`).
+- **Mineur·es (D5)** : ne voient, ne rejoignent et ne publient que des
+  jams finies le jour même avant 22 h.
+- **Écrans** : `/jams/nouvelle` (lieu de l'annuaire, jour, début, fin,
+  style, places), `/jams/[id]` (« Je viens »), jams à venir sur `/jam` et
+  sur la fiche du lieu (« Publier une jam ici »). Les annonces ne
+  proposent plus le type Jam (`/annonces/nouvelle?type=JAM` redirige).
+- **RGPD** : « Je viens » dans l'export (`jams_je_viens`), supprimés à
+  l'anonymisation.

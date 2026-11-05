@@ -40,7 +40,7 @@ export const NAV_BY_MODE: Readonly<Record<PlayModeValue, readonly AppNavItem[]>>
 	],
 	JAM: [
 		// L'annuaire des lieux (P2-14a) se rattache à l'onglet Jam.
-		{ href: '/jam', label: 'Jam', icon: Guitar, soon: false, match: ['/lieux'] },
+		{ href: '/jam', label: 'Jam', icon: Guitar, soon: false, match: ['/lieux', '/jams'] },
 		discover,
 		messages,
 		profile
@@ -64,7 +64,7 @@ export function modeFor(
 	pathname: string,
 	preferred: PlayModeValue | null | undefined
 ): PlayModeValue {
-	if (/^\/(jam|lieux)(\/|$)/.test(pathname)) return 'JAM';
+	if (/^\/(jams?|lieux)(\/|$)/.test(pathname)) return 'JAM';
 	if (pathname === '/espace' || pathname.startsWith('/espace/')) return 'CAREER';
 	return preferred ?? 'CAREER';
 }

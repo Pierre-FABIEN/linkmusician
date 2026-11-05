@@ -1436,6 +1436,7 @@ model Actor {
   availability           Availability?
   venuesCreated          Venue[]                @relation("VenueCreator")
   venuesClaimed          Venue[]                @relation("VenueClaimer")
+  jamAttendances         JamAttendance[]
 
   @@map("actors")
 }
@@ -1528,6 +1529,7 @@ model Instrument {
   players PersonInstrument[]
   media   Media[]
   opportunities Opportunity[]
+  jamSpots      JamSpot[]
 
   @@index([family, sortOrder])
   @@map("instruments")
@@ -2030,17 +2032,25 @@ model Opportunity {
   /// Rayon de diffusion autour de la commune de l'auteur (km).
   radiusKm      Int               @default(25)
   slots         Int               @default(1)
-  /// Date de la jam ou de la session, facultative.
+  /// Date de la jam ou de la session, facultative. Jam publique (P2-14b) :
+  /// début exact (heure de Paris convertie en UTC).
   startsAt      DateTime?
+  /// Jam publique (P2-14b) : fin, et lieu de l'annuaire (obligatoire, D26).
+  endsAt        DateTime?
+  venueId       String?
+  venue         Venue?            @relation(fields: [venueId], references: [id], onDelete: SetNull)
   expiresAt     DateTime
   closedAt      DateTime?
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 
   applications Application[]
+  jamSpots     JamSpot[]
+  attendances  JamAttendance[]
 
   @@index([status, expiresAt])
   @@index([issuerActorId, status])
+  @@index([venueId, startsAt])
   @@map("opportunities")
 }
 
@@ -2206,9 +2216,38 @@ model Venue {
   /// Retiré par la modération.
   removedAt        DateTime?
   createdAt        DateTime  @default(now())
+  jams             Opportunity[]
 
   @@unique([communeCode, nameKey])
   @@index([departmentCode])
   @@index([createdById])
   @@map("venues")
+}
+
+// ─── JAMS PUBLIQUES (P2-14b) ────────────────────────────────────────────────
+
+/// Places souhaitées par instrument pour une jam (« il manque une batterie »).
+model JamSpot {
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  instrumentId  String
+  instrument    Instrument  @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+  count         Int         @default(1)
+
+  @@id([opportunityId, instrumentId])
+  @@map("jam_spots")
+}
+
+/// « Je viens » à une jam : sans acceptation, retirable, sans XP (D27).
+/// « J'y étais » s'y ajoutera (P2-15).
+model JamAttendance {
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  actorId       String
+  actor         Actor       @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+
+  @@id([opportunityId, actorId])
+  @@index([actorId])
+  @@map("jam_attendances")
 }
