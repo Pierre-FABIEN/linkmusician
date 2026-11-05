@@ -106,10 +106,10 @@ test.describe('LinkMusician — messagerie', () => {
 				).toBe(0);
 			});
 
-			await test.step('5. Léa voit la réponse et peut écrire à nouveau', async () => {
-				await page.reload();
-				await waitForAppReady(page);
-				await expect(page.getByText('Carrément, jeudi soir ?')).toBeVisible();
+			await test.step('5. Léa voit la réponse sans recharger (polling léger)', async () => {
+				// La page de Léa est restée ouverte : le rafraîchissement léger (15 s)
+				// détecte le neuf et recharge le fil.
+				await expect(page.getByText('Carrément, jeudi soir ?')).toBeVisible({ timeout: 25_000 });
 				await expect(page.getByRole('button', { name: 'Envoyer' })).toBeVisible();
 			});
 		} finally {

@@ -195,12 +195,19 @@ export async function openConversation(actorId: string, conversationId: string) 
 		prisma.message.count({ where: { conversationId, senderActorId: actorId } }),
 		isBlockedBetween(actorId, other.actorId)
 	]);
-	await prisma.conversationParticipant.update({
-		where: { conversationId_actorId: { conversationId, actorId } },
-		data: { lastReadAt: new Date() }
-	});
+	// Marqué comme lu seulement s'il y a du neuf de l'autre : pas d'écriture
+	// inutile à chaque rafraîchissement.
+	const newest = messages.find((m) => m.senderActorId !== actorId);
+	if (newest && (!me.lastReadAt || newest.createdAt > me.lastReadAt)) {
+		await prisma.conversationParticipant.update({
+			where: { conversationId_actorId: { conversationId, actorId } },
+			data: { lastReadAt: new Date() }
+		});
+	}
 	return {
 		id: conversationId,
+		/** Repère pour le rafraîchissement léger (`hasNewSince`). */
+		latestAt: messages[0]?.createdAt.toISOString() ?? null,
 		other: {
 			handle: otherActor.deletedAt || blocked ? null : otherActor.handle,
 			displayName: otherActor.displayName
@@ -292,4 +299,25 @@ async function unreadByConversation(actorId: string) {
 export async function unreadTotal(actorId: string): Promise<number> {
 	const byConversation = await unreadByConversation(actorId);
 	return [...byConversation.values()].reduce((sum, n) => sum + n, 0);
+}
+
+/**
+ * Rafraîchissement léger (polling, D8) : y a-t-il un message plus récent que
+ * `since` ? Une seule lecture, aucune écriture. `null` si la personne ne fait
+ * pas partie de la conversation.
+ */
+export async function hasNewSince(
+	actorId: string,
+	conversationId: string,
+	since: Date | null
+): Promise<boolean | null> {
+	const rows = await prisma.$queryRaw<{ member: boolean; fresh: boolean }[]>`
+		SELECT
+			EXISTS (SELECT 1 FROM ${qualifiedTable('conversation_participants')}
+				WHERE "conversationId" = ${conversationId} AND "actorId" = ${actorId}) AS member,
+			EXISTS (SELECT 1 FROM ${qualifiedTable('messages')}
+				WHERE "conversationId" = ${conversationId}
+				AND "createdAt" > ${since ?? new Date(0)}) AS fresh`;
+	const row = rows[0];
+	return row?.member ? row.fresh : null;
 }

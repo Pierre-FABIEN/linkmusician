@@ -18,10 +18,17 @@
 		if (form?.error) toast.error(form.error);
 	});
 
-	/** Polling (D8) : toutes les 15 s, seulement quand l'onglet est visible. */
+	/**
+	 * Polling léger (D8) : toutes les 15 s, onglet visible seulement, on
+	 * demande s'il y a du neuf (une lecture, aucune écriture) ; le fil n'est
+	 * rechargé que si c'est le cas.
+	 */
 	onMount(() => {
-		const timer = setInterval(() => {
-			if (document.visibilityState === 'visible') void invalidate('app:conversation');
+		const timer = setInterval(async () => {
+			if (document.visibilityState !== 'visible') return;
+			const since = c.latestAt ? `?apres=${encodeURIComponent(c.latestAt)}` : '';
+			const res = await fetch(`/api/conversations/${c.id}/nouveaux${since}`).catch(() => null);
+			if (res?.ok && (await res.json()).fresh) void invalidate('app:conversation');
 		}, 15_000);
 		return () => clearInterval(timer);
 	});
