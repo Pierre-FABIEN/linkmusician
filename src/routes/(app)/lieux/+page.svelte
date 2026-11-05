@@ -68,6 +68,27 @@
 			<Plus class="size-4" aria-hidden="true" /> Ajouter un lieu
 		</a>
 
+		{#if data.toConfirm.length > 0}
+			<section class="space-y-3" aria-labelledby="confirm-title">
+				<h2 id="confirm-title" class="text-lg font-semibold">À confirmer près de toi</h2>
+				<p class="text-sm text-muted-foreground">
+					Des membres ont proposé ces lieux. Tu les connais ? Confirme-les pour qu’ils accueillent
+					des jams.
+				</p>
+				{@render venueList(data.toConfirm, '')}
+			</section>
+		{/if}
+
+		{#if data.mine.length > 0}
+			<section class="space-y-3" aria-labelledby="mine-title">
+				<h2 id="mine-title" class="text-lg font-semibold">Tes lieux en attente</h2>
+				<p class="text-sm text-muted-foreground">
+					Visibles de toi seul·e jusqu’à la confirmation d’un autre membre ou de la modération.
+				</p>
+				{@render venueList(data.mine, '')}
+			</section>
+		{/if}
+
 		{#if data.results}
 			<section class="space-y-3" aria-labelledby="results-title">
 				<h2 id="results-title" class="text-lg font-semibold">Résultats pour « {data.q} »</h2>

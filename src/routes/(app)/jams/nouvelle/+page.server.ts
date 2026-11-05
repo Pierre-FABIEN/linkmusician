@@ -16,7 +16,10 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const chosenId = url.searchParams.get('lieu');
 	const [venues, chosen, instruments, genres] = await Promise.all([
 		location ? venuesNear(person.actorId, { limit: 50 }) : Promise.resolve([]),
-		chosenId ? getVenue(chosenId) : Promise.resolve(null),
+		// Un lieu en attente de validation n'accueille pas de jam (P2-14c, D26).
+		chosenId
+			? getVenue(chosenId, person.actorId).then((v) => (v?.validated ? v : null))
+			: Promise.resolve(null),
 		listInstrumentsByFamily(),
 		listGenreTree()
 	]);

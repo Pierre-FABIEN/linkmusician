@@ -107,7 +107,7 @@ export async function fileReport(
 /* -------------------------------------------------------------------------- */
 
 export async function moderationQueue() {
-	const [pendingMedia, openReports] = await Promise.all([
+	const [pendingMedia, openReports, pendingVenues] = await Promise.all([
 		prisma.media.findMany({
 			where: { status: 'PENDING_REVIEW' },
 			orderBy: { createdAt: 'asc' },
@@ -121,6 +121,20 @@ export async function moderationQueue() {
 			include: {
 				reporter: { select: { handle: true } },
 				targetActor: { select: { id: true, handle: true, displayName: true } }
+			}
+		}),
+		// Lieux ajoutés par un compte TL0, en attente (P2-14c, D26).
+		prisma.venue.findMany({
+			where: { validatedAt: null, removedAt: null },
+			orderBy: { createdAt: 'asc' },
+			take: 50,
+			select: {
+				id: true,
+				name: true,
+				kind: true,
+				communeName: true,
+				createdAt: true,
+				createdBy: { select: { handle: true } }
 			}
 		})
 	]);
@@ -145,6 +159,7 @@ export async function moderationQueue() {
 	const opportunityById = new Map(reportedOpportunities.map((o) => [o.id, o]));
 	return {
 		pendingMedia,
+		pendingVenues,
 		openReports: openReports.map((r) => ({
 			...r,
 			media: r.targetType === 'MEDIA' ? (byId.get(r.targetId) ?? null) : null,
@@ -334,6 +349,21 @@ export async function removeOpportunity(opportunityId: string, reason: string, b
 		metadata: { reason }
 	});
 	await refreshTrust(opportunity.issuerActorId);
+}
+
+/** Valide un lieu en attente (P2-14c, D26) : visible de tous, il accueille des jams. */
+export async function validateVenue(venueId: string, by: Moderator) {
+	const { count } = await prisma.venue.updateMany({
+		where: { id: venueId, validatedAt: null, removedAt: null },
+		data: { validatedAt: new Date() }
+	});
+	if (count === 0) throw new ModerationError('Lieu introuvable ou déjà validé.');
+	await logAdminAction({
+		actorId: by.userId,
+		action: 'moderation.venue.validate',
+		targetType: 'Venue',
+		targetId: venueId
+	});
 }
 
 /** Retire un lieu de l'annuaire (P2-14a) et clôt ses signalements. */

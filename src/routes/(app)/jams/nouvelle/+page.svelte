@@ -57,6 +57,9 @@
 						{/each}
 					</select>
 					<a href="/lieux/nouveau" class="text-sm font-normal underline">Le lieu n’y est pas ?</a>
+					<span class="block text-sm font-normal text-muted-foreground"
+						>Le matériel du lieu est repris : tu pourras l’ajuster sur la fiche de la jam.</span
+					>
 				</label>
 				<label class="block space-y-1 font-medium">
 					Titre

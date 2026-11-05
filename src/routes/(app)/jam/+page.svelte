@@ -49,6 +49,29 @@
 			</a>
 		</header>
 
+		{#if data.invites.length > 0}
+			<section
+				class="space-y-3 rounded-2xl border-2 border-primary bg-card p-4"
+				aria-labelledby="invites-title"
+			>
+				<h2 id="invites-title" class="text-lg font-semibold">
+					On t’invite à jouer ({data.invites.length})
+				</h2>
+				<ul class="space-y-2">
+					{#each data.invites as j (j.id)}
+						<li>
+							<a href="/jams/{j.id}" class="block rounded-xl border p-3 hover:border-primary">
+								<span class="block font-semibold">{j.title}</span>
+								<span class="text-sm text-muted-foreground"
+									>{day.format(new Date(j.startsAt))} · {j.venue.name} · Répondre</span
+								>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+
 		<NextStep {...data.nextStep} tone="jam" />
 
 		<section

@@ -3,21 +3,35 @@
 // professionnel de l'annuaire (D26).
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { getActorLocation } from '#lib/server/geo/queries';
-import { searchVenues, venuesNear } from '#lib/server/venues/service';
+import {
+	VALIDATING_TRUST_LEVEL,
+	myPendingVenues,
+	searchVenues,
+	venuesNear
+} from '#lib/server/venues/service';
+import { getTrustLevel } from '#lib/server/trust/quotas';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const person = (await getPersonByUserId(locals.user!.id))!;
 	const q = (url.searchParams.get('q') ?? '').trim().slice(0, 80);
 	const location = await getActorLocation(person.actorId);
-	const [nearby, results] = await Promise.all([
+	const canConfirm = (await getTrustLevel(person.actorId)) >= VALIDATING_TRUST_LEVEL;
+	const [nearby, results, mine, toConfirm] = await Promise.all([
 		location ? venuesNear(person.actorId) : Promise.resolve([]),
-		q ? searchVenues(q) : Promise.resolve(null)
+		q ? searchVenues(q) : Promise.resolve(null),
+		// Validation des lieux (P2-14c, D26).
+		myPendingVenues(person.actorId),
+		location && canConfirm
+			? venuesNear(person.actorId, { pending: true, limit: 10 })
+			: Promise.resolve([])
 	]);
 	return {
 		q,
 		commune: location?.communeName ?? null,
 		nearby,
-		results
+		results,
+		mine,
+		toConfirm
 	};
 };

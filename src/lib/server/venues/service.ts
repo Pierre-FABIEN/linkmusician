@@ -5,6 +5,11 @@
  * Un lieu n'a jamais d'adresse précise : on garde sa commune et le centre de
  * celle-ci aligné sur la grille (`fuzzedPointOf`), relu côté serveur à partir
  * du seul code INSEE envoyé par le navigateur.
+ *
+ * Validation (P2-14c, D26) : un lieu ajouté par un compte TL0 reste en
+ * attente, visible de son seul auteur (et des membres TL1, pour le
+ * confirmer) et sans jam, jusqu'à la confirmation d'un second membre TL1 ou
+ * d'un modérateur (`validateVenue`, modération).
  */
 import { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
@@ -13,7 +18,12 @@ import { RefillingTokenBucket } from '#lib/server/rate-limit';
 import { getCommune } from '#lib/server/geo/communes';
 import { fuzzedPointOf } from '#lib/geo/fuzz';
 import { distanceBand } from '#lib/geo/distance';
+import { getTrustLevel } from '#lib/server/trust/quotas';
 import { VENUE_KIND_LABELS, venueNameKey, type VenueForm } from '#lib/venues/rules';
+import type { BacklineItem } from '#lib/jam/lineup';
+
+/** Palier de confiance qui valide un lieu, à l'ajout ou en le confirmant. */
+export const VALIDATING_TRUST_LEVEL = 1;
 
 export class VenueError extends Error {
 	constructor(
@@ -40,7 +50,8 @@ const venueSelect = {
 	kind: true,
 	communeName: true,
 	departmentCode: true,
-	claimedByActorId: true
+	claimedByActorId: true,
+	backline: true
 } satisfies Prisma.VenueSelect;
 
 export type VenueCard = Prisma.VenueGetPayload<{ select: typeof venueSelect }> & {
@@ -59,10 +70,28 @@ export async function createVenue(actorId: string, form: VenueForm) {
 	const nameKey = venueNameKey(form.name);
 	const existing = await prisma.venue.findUnique({
 		where: { communeCode_nameKey: { communeCode: commune.code, nameKey } },
-		select: { id: true, removedAt: true }
+		select: { id: true, removedAt: true, validatedAt: true, createdById: true }
 	});
 	if (existing) {
 		if (existing.removedAt) throw new VenueError('Ce lieu a été retiré de l’annuaire.');
+		if (!existing.validatedAt && existing.createdById === actorId) {
+			throw new VenueError(
+				'Tu as déjà proposé ce lieu : il attend une confirmation.',
+				409,
+				existing.id
+			);
+		}
+		if (!existing.validatedAt) {
+			// Seul un membre TL1 peut ouvrir la fiche pour la confirmer.
+			const canConfirm = (await getTrustLevel(actorId)) >= VALIDATING_TRUST_LEVEL;
+			throw new VenueError(
+				canConfirm
+					? 'Un autre membre vient de proposer ce lieu : tu peux le confirmer.'
+					: 'Un autre membre vient de proposer ce lieu : il attend une confirmation.',
+				409,
+				canConfirm ? existing.id : null
+			);
+		}
 		throw new VenueError('Ce lieu est déjà dans l’annuaire.', 409, existing.id);
 	}
 	if (!(await venueBucket.consume(actorId, 1))) {
@@ -72,6 +101,7 @@ export async function createVenue(actorId: string, form: VenueForm) {
 		);
 	}
 	const { lat, lng } = fuzzedPointOf(commune);
+	const trusted = (await getTrustLevel(actorId)) >= VALIDATING_TRUST_LEVEL;
 	try {
 		return await prisma.venue.create({
 			data: {
@@ -83,9 +113,10 @@ export async function createVenue(actorId: string, form: VenueForm) {
 				departmentCode: commune.codeDepartement,
 				lat,
 				lng,
-				createdById: actorId
+				createdById: actorId,
+				validatedAt: trusted ? new Date() : null
 			},
-			select: { id: true }
+			select: { id: true, validatedAt: true }
 		});
 	} catch (err) {
 		// Ajout simultané du même lieu.
@@ -100,13 +131,70 @@ export async function createVenue(actorId: string, form: VenueForm) {
 	}
 }
 
-/** Lieu visible (non retiré), ou `null`. */
-export async function getVenue(id: string) {
+/**
+ * Lieu non retiré, vu par une personne, ou `null`. Un lieu en attente de
+ * validation n'est vu que de son auteur et des membres qui peuvent le
+ * confirmer. Seul un lieu validé (`validated`) accueille des jams.
+ */
+export async function getVenue(id: string, viewerId: string) {
 	const venue = await prisma.venue.findFirst({
 		where: { id, removedAt: null },
-		select: { ...venueSelect, communeCode: true, createdAt: true }
+		select: {
+			...venueSelect,
+			communeCode: true,
+			createdAt: true,
+			createdById: true,
+			validatedAt: true
+		}
 	});
-	return venue ? card(venue) : null;
+	if (!venue) return null;
+	const validated = venue.validatedAt !== null;
+	const isCreator = venue.createdById === viewerId;
+	const trusted = (await getTrustLevel(viewerId)) >= VALIDATING_TRUST_LEVEL;
+	const canConfirm = !validated && !isCreator && trusted;
+	if (!validated && !isCreator && !canConfirm) return null;
+	// Matériel : le lieu qui a revendiqué sa fiche ; sinon son auteur ou un
+	// membre TL1 (comme on corrige une fiche collaborative).
+	const canEditBackline = venue.claimedByActorId
+		? venue.claimedByActorId === viewerId
+		: isCreator || trusted;
+	return { ...card(venue), validated, isCreator, canConfirm, canEditBackline };
+}
+
+/**
+ * Un second membre (TL1) confirme un lieu en attente : il devient visible de
+ * tous et peut accueillir des jams. Sans XP.
+ */
+export async function confirmVenue(id: string, actorId: string) {
+	const venue = await getVenue(id, actorId);
+	if (!venue) throw new VenueError('Lieu introuvable.', 404);
+	if (venue.validated) return;
+	if (!venue.canConfirm) {
+		throw new VenueError('Un autre membre doit confirmer ce lieu.', 403);
+	}
+	await prisma.venue.updateMany({
+		where: { id, validatedAt: null },
+		data: { validatedAt: new Date(), confirmedById: actorId }
+	});
+}
+
+/** Lieux en attente ajoutés par la personne. */
+export async function myPendingVenues(actorId: string): Promise<VenueCard[]> {
+	const venues = await prisma.venue.findMany({
+		where: { createdById: actorId, removedAt: null, validatedAt: null },
+		orderBy: { createdAt: 'desc' },
+		take: 20,
+		select: venueSelect
+	});
+	return venues.map(card);
+}
+
+/** Matériel sur place d'un lieu (P2-14c), voir `canEditBackline`. */
+export async function setVenueBackline(id: string, actorId: string, backline: BacklineItem[]) {
+	const venue = await getVenue(id, actorId);
+	if (!venue) throw new VenueError('Lieu introuvable.', 404);
+	if (!venue.canEditBackline) throw new VenueError('Tu ne peux pas encore modifier ce lieu.', 403);
+	await prisma.venue.update({ where: { id }, data: { backline } });
 }
 
 /** Recherche par nom (et commune, facultative). */
@@ -119,6 +207,7 @@ export async function searchVenues(
 	const venues = await prisma.venue.findMany({
 		where: {
 			removedAt: null,
+			validatedAt: { not: null },
 			nameKey: { contains: key },
 			...(communeCode ? { communeCode } : {})
 		},
@@ -135,7 +224,16 @@ export async function searchVenues(
  */
 export async function venuesNear(
 	actorId: string,
-	{ radiusKm = 50, limit = 30 }: { radiusKm?: number; limit?: number } = {}
+	{
+		radiusKm = 50,
+		limit = 30,
+		pending = false
+	}: {
+		radiusKm?: number;
+		limit?: number;
+		/** Lieux en attente d'un·e autre membre, à confirmer (TL1, P2-14c). */
+		pending?: boolean;
+	} = {}
 ): Promise<VenueCard[]> {
 	const locations = qualifiedTable('actor_locations');
 	const venues = qualifiedTable('venues');
@@ -147,6 +245,11 @@ export async function venuesNear(
 			)::float8 AS meters
 		FROM ${locations} me
 		JOIN ${venues} v ON v."removedAt" IS NULL
+			AND ${
+				pending
+					? Prisma.sql`v."validatedAt" IS NULL AND v."createdById" <> ${actorId}`
+					: Prisma.sql`v."validatedAt" IS NOT NULL`
+			}
 			AND public.ST_DWithin(
 				me."point",
 				public.ST_SetSRID(public.ST_MakePoint(v."lng", v."lat"), 4326)::public.geography,

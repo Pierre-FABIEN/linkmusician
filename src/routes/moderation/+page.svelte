@@ -70,6 +70,52 @@
 			{/each}
 		</section>
 
+		<section class="space-y-4" aria-labelledby="venues-title">
+			<h2 id="venues-title" class="text-lg font-semibold">
+				Lieux à valider ({data.pendingVenues.length})
+			</h2>
+			{#if data.pendingVenues.length === 0}<p class="text-sm text-muted-foreground">
+					Rien en attente.
+				</p>{/if}
+			{#each data.pendingVenues as v (v.id)}
+				<article
+					class="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-sm"
+					aria-label="Lieu {v.name}"
+				>
+					<div>
+						<a href="/lieux/{v.id}" class="font-medium underline">{v.name}</a>
+						<p class="text-muted-foreground">
+							{v.kind} · {v.communeName} · @{v.by} · {date(v.createdAt)}
+						</p>
+					</div>
+					<div class="flex flex-wrap items-end gap-2">
+						<form method="POST" action="?/validateVenue" use:enhance>
+							<input type="hidden" name="venueId" value={v.id} />
+							<button
+								type="submit"
+								class="rounded-md bg-primary px-3 py-1.5 text-primary-foreground">Valider</button
+							>
+						</form>
+						<form method="POST" action="?/removeVenue" use:enhance class="flex items-end gap-2">
+							<input type="hidden" name="venueId" value={v.id} />
+							<label>
+								<span class="sr-only">Motif du retrait</span>
+								<input
+									name="reason"
+									required
+									placeholder="Motif du retrait"
+									class="rounded-md border bg-background p-1.5"
+								/>
+							</label>
+							<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
+								>Retirer</button
+							>
+						</form>
+					</div>
+				</article>
+			{/each}
+		</section>
+
 		<section class="space-y-4" aria-labelledby="reports-title">
 			<h2 id="reports-title" class="text-lg font-semibold">
 				Signalements ouverts ({data.openReports.length})

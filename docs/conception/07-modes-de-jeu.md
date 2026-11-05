@@ -354,14 +354,20 @@ anime la scène ouverte d'un bar (D27). Les situations courantes :
    **places souhaitées** (« il manque une batterie et une voix »). Une
    jam a toujours lieu dans un **lieu public ou professionnel** : bar,
    café-concert, salle, scène ouverte, MJC, local de répétition, studio.
-   **Jamais chez un particulier** (D26).
+   **Jamais chez un particulier** (D26). Un lieu ajouté par un compte
+   récent (TL0) reste invisible et n'accueille aucune jam tant qu'un
+   second membre (TL1) ne l'a pas confirmé ou qu'un modérateur ne l'a
+   pas validé (P2-14c).
    - Chaque jam a un **lead** (l'hôte, ou le ou la musicien·ne qu'il
      désigne). Le lead **compose sa formation** : il invite des
-     musicien·nes avec qui il a des affinités sur des places réservées ;
-     les autres places restent ouvertes à tous.
+     musicien·nes avec qui il a des affinités sur des places réservées
+     (l'invitation tient la place jusqu'à la réponse) ; les autres places
+     restent ouvertes à tous, et « Je viens » ne prend jamais une place
+     réservée.
    - La jam indique le **matériel sur place** (batterie, amplis, clavier,
-     sono, micros) : chacun sait s'il doit apporter son instrument, son
-     ampli ou seulement ses cymbales.
+     sono, micros, câbles), repris de la fiche du lieu et ajustable pour
+     la jam : chacun sait s'il doit apporter son instrument, son ampli ou
+     seulement ses baguettes.
    - Les lieux pourront recevoir des **suggestions de leads** parmi les
      musicien·nes « prêt·es à animer », triées par réputation
      (appréciations, jams animées), jamais par l'XP (P5-04).

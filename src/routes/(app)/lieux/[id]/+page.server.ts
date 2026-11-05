@@ -1,17 +1,22 @@
-// LINKMUSICIAN: fiche d'un lieu de l'annuaire (P2-14a). Ses jams à venir
-// s'y afficheront avec les jams publiques (P2-14b).
+// LINKMUSICIAN: fiche d'un lieu de l'annuaire (P2-14a) et ses jams à venir
+// (P2-14b). Validation par un second membre et matériel sur place (P2-14c).
 import { error, fail } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
-import { getVenue } from '#lib/server/venues/service';
+import { VenueError, confirmVenue, getVenue, setVenueBackline } from '#lib/server/venues/service';
 import { upcomingJamsAt } from '#lib/server/jam/publicJams';
 import { ModerationError, fileReport } from '#lib/server/moderation/service';
+import { BACKLINE_ITEMS, BACKLINE_LABELS, backlineSchema } from '#lib/jam/lineup';
 import type { Actions, PageServerLoad } from './$types';
 
+async function me(locals: App.Locals) {
+	return (await getPersonByUserId(locals.user!.id))!;
+}
+
 export const load: PageServerLoad = async ({ locals, params, url }) => {
-	const venue = await getVenue(params.id);
+	const person = await me(locals);
+	const venue = await getVenue(params.id, person.actorId);
 	if (!venue) error(404, 'Lieu introuvable');
-	const person = (await getPersonByUserId(locals.user!.id))!;
-	const jams = await upcomingJamsAt(venue.id, person.actorId);
+	const jams = venue.validated ? await upcomingJamsAt(venue.id, person.actorId) : [];
 	return {
 		venue: {
 			id: venue.id,
@@ -19,17 +24,48 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 			kindLabel: venue.kindLabel,
 			communeName: venue.communeName,
 			departmentCode: venue.departmentCode,
-			claimed: venue.claimedByActorId !== null
+			claimed: venue.claimedByActorId !== null,
+			validated: venue.validated,
+			isCreator: venue.isCreator,
+			canConfirm: venue.canConfirm,
+			canEditBackline: venue.canEditBackline,
+			backline: venue.backline
 		},
+		backlineOptions: BACKLINE_ITEMS.map((value) => ({ value, label: BACKLINE_LABELS[value] })),
 		jams,
 		added: url.searchParams.has('ajoute')
 	};
 };
 
+function venueFail(err: unknown) {
+	if (err instanceof VenueError) return fail(err.status, { error: err.message });
+	throw err;
+}
+
 export const actions: Actions = {
+	/** Un second membre confirme un lieu en attente (P2-14c, D26). */
+	confirm: async ({ locals, params }) => {
+		try {
+			await confirmVenue(params.id, (await me(locals)).actorId);
+			return { message: 'Merci ! Le lieu est confirmé : il peut accueillir des jams.' };
+		} catch (err) {
+			return venueFail(err);
+		}
+	},
+	/** Matériel sur place (P2-14c). */
+	backline: async ({ locals, params, request }) => {
+		const parsed = backlineSchema.safeParse((await request.formData()).getAll('backline'));
+		if (!parsed.success) return fail(400, { error: 'Matériel inconnu.' });
+		try {
+			await setVenueBackline(params.id, (await me(locals)).actorId, parsed.data);
+			return { message: 'Matériel enregistré.' };
+		} catch (err) {
+			return venueFail(err);
+		}
+	},
 	report: async ({ locals, params, request }) => {
-		const person = (await getPersonByUserId(locals.user!.id))!;
-		if (!(await getVenue(params.id))) error(404, 'Lieu introuvable');
+		const person = await me(locals);
+		if (!(await getVenue(params.id, person.actorId))) error(404, 'Lieu introuvable');
 		const data = await request.formData();
 		try {
 			const result = await fileReport(person.actorId, {

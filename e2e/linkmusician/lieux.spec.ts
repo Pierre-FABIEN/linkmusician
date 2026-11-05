@@ -8,6 +8,8 @@ import { createMusician, deleteMusicians, setCity, skipOnboarding } from '../sup
 /**
  * P2-14a — Annuaire des lieux : voir les lieux autour de soi, ajouter un
  * lieu (commune seulement, jamais d'adresse), doublon refusé, recherche.
+ * P2-14c — Validation (D26) : le lieu d'un compte TL0 reste en attente,
+ * invisible des autres, jusqu'à la confirmation d'un second membre TL1.
  */
 test.describe('LinkMusician — annuaire des lieux', () => {
 	test.setTimeout(5 * 60_000);
@@ -24,7 +26,8 @@ test.describe('LinkMusician — annuaire des lieux', () => {
 				communeCode: string,
 				communeName: string,
 				lat: number,
-				lng: number
+				lng: number,
+				validated = true
 			) =>
 				db.venue.create({
 					data: {
@@ -36,11 +39,21 @@ test.describe('LinkMusician — annuaire des lieux', () => {
 						departmentCode: communeCode.slice(0, 2),
 						lat,
 						lng,
-						createdById: other.actorId
+						createdById: other.actorId,
+						validatedAt: validated ? new Date() : null
 					}
 				});
 			await venue('E2E Le Préau', blagnac.code, blagnac.nom, blagnac.lat, blagnac.lng);
 			await venue('E2E La Cigale', '75056', 'Paris', 48.8589, 2.347);
+			// Proposé par un compte récent : en attente de confirmation.
+			const mimi = await venue(
+				'E2E Chez Mimi',
+				blagnac.code,
+				blagnac.nom,
+				blagnac.lat,
+				blagnac.lng,
+				false
+			);
 
 			await signUpAndVerify(page, account);
 			await skipOnboarding(page, account.email);
@@ -60,6 +73,11 @@ test.describe('LinkMusician — annuaire des lieux', () => {
 				await expect(page.getByRole('heading', { name: 'Lieux de jam' })).toBeVisible();
 				await expect(page.getByText('E2E Le Préau')).toBeVisible();
 				await expect(page.getByText('E2E La Cigale')).toHaveCount(0);
+				// Lieu en attente : invisible d'un compte TL0 comme moi.
+				await expect(page.getByText('E2E Chez Mimi')).toHaveCount(0);
+				expect((await page.goto(`/lieux/${mimi.id}`))?.status()).toBe(404);
+				await page.goto('/lieux');
+				await waitForAppReady(page);
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
 			});
 
@@ -73,12 +91,19 @@ test.describe('LinkMusician — annuaire des lieux', () => {
 				await page.getByRole('button', { name: 'Ajouter à l’annuaire' }).click();
 				await expect(page.getByRole('heading', { name: 'Le Bar des Amis' })).toBeVisible();
 				await expect(page.getByText('Bar · Toulouse (31)')).toBeVisible();
+				// Compte TL0 : le lieu attend une confirmation (D26).
+				await expect(
+					page.getByRole('heading', { name: 'En attente de confirmation' })
+				).toBeVisible();
+				await expect(page.getByRole('link', { name: 'Publier une jam ici' })).toHaveCount(0);
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
 				const saved = await db.venue.findFirstOrThrow({ where: { createdById: myActorId! } });
 				expect(saved).toMatchObject({
 					name: 'Le Bar des Amis',
 					nameKey: 'bar des amis',
 					kind: 'BAR',
-					communeCode: '31555'
+					communeCode: '31555',
+					validatedAt: null
 				});
 			});
 
@@ -88,17 +113,40 @@ test.describe('LinkMusician — annuaire des lieux', () => {
 				await page.getByLabel('Nom du lieu').fill('bar des amis');
 				await page.getByLabel('Type de lieu').selectOption('BAR');
 				await page.getByRole('button', { name: 'Ajouter à l’annuaire' }).click();
-				await expect(page.getByText('Ce lieu est déjà dans l’annuaire.')).toBeVisible();
+				await expect(
+					page.getByText('Tu as déjà proposé ce lieu : il attend une confirmation.')
+				).toBeVisible();
 				await page.getByRole('link', { name: 'Voir ce lieu' }).click();
 				await expect(page.getByRole('heading', { name: 'Le Bar des Amis' })).toBeVisible();
 				expect(await db.venue.count({ where: { createdById: myActorId! } })).toBe(1);
 			});
 
-			await test.step('4. Je le retrouve en cherchant', async () => {
+			await test.step('4. En attente, il n’est pas dans la recherche, mais dans mes lieux', async () => {
 				await page.goto('/lieux?q=amis');
 				await waitForAppReady(page);
 				const results = page.getByRole('region', { name: 'Résultats pour « amis »' });
-				await expect(results.getByRole('link', { name: /Le Bar des Amis/ })).toBeVisible();
+				await expect(results.getByRole('link', { name: /Le Bar des Amis/ })).toHaveCount(0);
+				const mine = page.getByRole('region', { name: 'Tes lieux en attente' });
+				await expect(mine.getByRole('link', { name: /Le Bar des Amis/ })).toBeVisible();
+			});
+
+			await test.step('5. Devenu·e TL1, je confirme le lieu proposé par une autre', async () => {
+				await db.actor.update({ where: { id: myActorId! }, data: { trustLevel: 1 } });
+				await page.goto('/lieux');
+				await waitForAppReady(page);
+				const toConfirm = page.getByRole('region', { name: 'À confirmer près de toi' });
+				await toConfirm.getByRole('link', { name: /E2E Chez Mimi/ }).click();
+				await expect(page.getByRole('heading', { name: 'E2E Chez Mimi' })).toBeVisible();
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+				await page.getByRole('button', { name: 'Je confirme ce lieu' }).click();
+				await expect(page.getByRole('link', { name: 'Publier une jam ici' })).toBeVisible();
+				const confirmed = await db.venue.findUniqueOrThrow({ where: { id: mimi.id } });
+				expect(confirmed.confirmedById).toBe(myActorId);
+				expect(confirmed.validatedAt).not.toBeNull();
+				await page.goto('/lieux?q=mimi');
+				await waitForAppReady(page);
+				const results = page.getByRole('region', { name: 'Résultats pour « mimi »' });
+				await expect(results.getByRole('link', { name: /E2E Chez Mimi/ })).toBeVisible();
 			});
 		} finally {
 			await db.venue.deleteMany({

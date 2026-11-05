@@ -93,3 +93,50 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   proposent plus le type Jam (`/annonces/nouvelle?type=JAM` redirige).
 - **RGPD** : « Je viens » dans l'export (`jams_je_viens`), supprimés à
   l'anonymisation.
+
+## Formation du lead et matériel sur place (P2-14c)
+
+- **Lead** : `Opportunity.leadActorId`, désigné par l'hôte sur la fiche
+  de la jam (vide : l'hôte est le lead, `leadOf`). L'hôte et le lead
+  composent la formation et ajustent le matériel.
+- **Places réservées** : `JamInvite` (une par jam et par personne,
+  instrument parmi les places souhaitées, statut `INVITED`, `ACCEPTED`
+  ou `DECLINED`). Une invitation **en attente ou acceptée tient la
+  place** ; refusée ou retirée, elle la libère. L'invité·e la voit sur
+  `/jam` (« On t’invite à jouer ») et répond sur la fiche. Acceptée,
+  elle compte dans « viennent » et apparaît dans « La formation ». Un·e
+  membre de la formation qui ne vient plus libère sa place.
+- **« Je viens » avec un instrument** (`JamAttendance.instrumentId`,
+  facultatif, l'instrument principal par défaut) : il ne prend qu'une
+  place **ouverte**, jamais une place réservée. Un instrument complet
+  n'empêche pas de venir (`spotBoard`, testé).
+- **Invitations** : par identifiant, avec en suggestion le réseau du lead
+  (conversations acceptées, partenaires de collaboration). Jamais un
+  profil masqué, suspendu ou bloqué ; un·e mineur·e seulement à une jam
+  finie avant 22 h.
+- **Matériel** : enum `BacklineItem` (batterie, ampli basse, ampli
+  guitare, clavier, sono et micros, câbles). `Venue.backline` est
+  modifiable par le lieu qui a revendiqué sa fiche, sinon par son auteur
+  ou un membre TL1. `Opportunity.backline` en est une copie à la
+  création, ajustable par l'hôte ou le lead. La fiche dit à chacun·e
+  quoi apporter selon son instrument (`whatToBring`, `packingSentence` :
+  « Apporte ta basse et tes câbles. Sur place : l’ampli basse. »).
+- **Validation des lieux (D26)** : un lieu ajouté par un compte TL0
+  reste **en attente** (`Venue.validatedAt` nul) : absent de la
+  recherche, des listes et des jams, visible de son seul auteur
+  (« Tes lieux en attente ») et des membres TL1, qui peuvent le
+  confirmer (`confirmedById`, liste « À confirmer près de toi »). Un
+  modérateur peut aussi le valider (`/moderation`, « Lieux à valider »,
+  journal d'audit). Un lieu ajouté par un membre TL1 est validé tout de
+  suite. Les lieux antérieurs ont été validés par la migration.
+- **Points** : rien de tout cela ne rapporte d'XP (D27).
+- **RGPD** : invitations reçues (`jams_invitations`), jams dont on est
+  lead (`jams_lead`), lieux confirmés (`lieux_confirmes`) et instrument
+  de « Je viens » dans l'export. À l'anonymisation, les invitations
+  sont supprimées et le lead retiré (l'hôte reprend la main) ; les
+  lieux confirmés restent, liés à l'acteur anonymisé.
+- **Code** : `#lib/jam/lineup` (pur, testé), `#server/jam/publicJams`
+  (`inviteToJam`, `respondToJamInvite`, `cancelJamInvite`, `setJamLead`,
+  `setJamBackline`, `myJamInvites`), `#server/venues/service`
+  (`confirmVenue`, `setVenueBackline`, `myPendingVenues`),
+  `validateVenue` (modération). E2E : `jams.spec.ts`, `lieux.spec.ts`.

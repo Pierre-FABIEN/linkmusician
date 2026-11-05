@@ -1437,6 +1437,9 @@ model Actor {
   venuesCreated          Venue[]                @relation("VenueCreator")
   venuesClaimed          Venue[]                @relation("VenueClaimer")
   jamAttendances         JamAttendance[]
+  venuesConfirmed        Venue[]                @relation("VenueConfirmer")
+  jamsLed                Opportunity[]          @relation("JamLead")
+  jamInvites             JamInvite[]
 
   @@map("actors")
 }
@@ -1530,6 +1533,8 @@ model Instrument {
   media   Media[]
   opportunities Opportunity[]
   jamSpots      JamSpot[]
+  jamAttendances JamAttendance[]
+  jamInvites     JamInvite[]
 
   @@index([family, sortOrder])
   @@map("instruments")
@@ -2039,6 +2044,11 @@ model Opportunity {
   endsAt        DateTime?
   venueId       String?
   venue         Venue?            @relation(fields: [venueId], references: [id], onDelete: SetNull)
+  /// Jam (P2-14c) : lead désigné par l'hôte (null = l'hôte), et matériel sur
+  /// place (copié du lieu à la création, modifiable).
+  leadActorId   String?
+  lead          Actor?            @relation("JamLead", fields: [leadActorId], references: [id], onDelete: SetNull)
+  backline      BacklineItem[]    @default([])
   expiresAt     DateTime
   closedAt      DateTime?
   createdAt     DateTime          @default(now())
@@ -2047,6 +2057,7 @@ model Opportunity {
   applications Application[]
   jamSpots     JamSpot[]
   attendances  JamAttendance[]
+  jamInvites   JamInvite[]
 
   @@index([status, expiresAt])
   @@index([issuerActorId, status])
@@ -2215,12 +2226,22 @@ model Venue {
   claimedBy        Actor?    @relation("VenueClaimer", fields: [claimedByActorId], references: [id], onDelete: SetNull)
   /// Retiré par la modération.
   removedAt        DateTime?
+  /// Validation (P2-14c, D26) : immédiate si l'auteur a la confiance TL1,
+  /// sinon à la confirmation d'un second membre ou d'un modérateur. Avant,
+  /// le lieu n'est visible que de son auteur et n'accueille aucune jam.
+  validatedAt      DateTime?
+  /// Second membre qui a confirmé le lieu (null : auteur TL1 ou modérateur).
+  confirmedById    String?
+  confirmedBy      Actor?    @relation("VenueConfirmer", fields: [confirmedById], references: [id], onDelete: SetNull)
+  /// Matériel sur place (P2-14c).
+  backline         BacklineItem[] @default([])
   createdAt        DateTime  @default(now())
   jams             Opportunity[]
 
   @@unique([communeCode, nameKey])
   @@index([departmentCode])
   @@index([createdById])
+  @@index([validatedAt])
   @@map("venues")
 }
 
@@ -2245,9 +2266,48 @@ model JamAttendance {
   opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
   actorId       String
   actor         Actor       @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  /// Instrument joué (P2-14c), facultatif : prend une place ouverte.
+  instrumentId  String?
+  instrument    Instrument? @relation(fields: [instrumentId], references: [id], onDelete: SetNull)
   createdAt     DateTime    @default(now())
 
   @@id([opportunityId, actorId])
   @@index([actorId])
   @@map("jam_attendances")
+}
+
+// ─── FORMATION ET MATÉRIEL (P2-14c) ─────────────────────────────────────────
+
+/// Matériel qu'un lieu met à disposition (libellés : `#lib/jam/lineup`).
+enum BacklineItem {
+  DRUMS
+  BASS_AMP
+  GUITAR_AMP
+  KEYBOARD
+  PA_MICS
+  CABLES
+}
+
+enum JamInviteStatus {
+  INVITED
+  ACCEPTED
+  DECLINED
+}
+
+/// Place réservée par le lead : en attente ou acceptée, elle n'est pas
+/// ouverte à « Je viens ». Sans XP (D27).
+model JamInvite {
+  opportunityId String
+  opportunity   Opportunity     @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  actorId       String
+  actor         Actor           @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  instrumentId  String
+  instrument    Instrument      @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+  status        JamInviteStatus @default(INVITED)
+  createdAt     DateTime        @default(now())
+  respondedAt   DateTime?
+
+  @@id([opportunityId, actorId])
+  @@index([actorId, status])
+  @@map("jam_invites")
 }

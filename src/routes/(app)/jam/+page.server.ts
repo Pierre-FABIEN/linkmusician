@@ -15,7 +15,7 @@ import { AVAILABILITY_SLOTS, type AvailabilitySlotValue } from '#lib/jam/availab
 import { prisma } from '#lib/server';
 import { jamNextStep } from '#lib/jam/guide';
 import { venuesNear } from '#lib/server/venues/service';
-import { upcomingJamsNear } from '#lib/server/jam/publicJams';
+import { myJamInvites, upcomingJamsNear } from '#lib/server/jam/publicJams';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -25,11 +25,13 @@ async function me(locals: App.Locals) {
 export const load: PageServerLoad = async ({ locals }) => {
 	const person = await me(locals);
 	const location = await getActorLocation(person.actorId);
-	const [mine, canBeDispo, available, jams] = await Promise.all([
+	const [mine, canBeDispo, available, jams, invites] = await Promise.all([
 		myAvailability(person.actorId),
 		canBeAvailable(person.actorId),
 		location ? listAvailableNearby(person.actorId) : Promise.resolve([]),
-		location ? upcomingJamsNear(person.actorId) : Promise.resolve([])
+		location ? upcomingJamsNear(person.actorId) : Promise.resolve([]),
+		// Invitations du lead en attente de réponse (P2-14c).
+		myJamInvites(person.actorId)
 	]);
 	// Guide « Ta prochaine étape » (P2-12b).
 	const [conversations, playedTogether, venuesAdded, nearbyVenues] = await Promise.all([
@@ -63,6 +65,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		canBeDispo,
 		available,
 		jams,
+		invites,
 		venues: nearbyVenues,
 		nextStep
 	};

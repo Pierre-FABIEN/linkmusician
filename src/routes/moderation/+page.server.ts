@@ -13,8 +13,10 @@ import {
 	rejectMedia,
 	sanction,
 	removeOpportunity,
-	removeVenue
+	removeVenue,
+	validateVenue
 } from '#lib/server/moderation/service';
+import { VENUE_KIND_LABELS } from '#lib/venues/rules';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
@@ -35,6 +37,14 @@ export const load: PageServerLoad = async () => {
 		isDemo: m.isDemo
 	});
 	return {
+		pendingVenues: queue.pendingVenues.map((v) => ({
+			id: v.id,
+			name: v.name,
+			kind: VENUE_KIND_LABELS[v.kind],
+			communeName: v.communeName,
+			createdAt: v.createdAt,
+			by: v.createdBy.handle
+		})),
 		pendingMedia: queue.pendingMedia.map((m) => ({
 			...mediaView(m),
 			actor: m.actor,
@@ -81,6 +91,11 @@ export const actions: Actions = {
 			(by) => removeOpportunity(field(data, 'opportunityId'), field(data, 'reason'), by),
 			'Annonce retirée.'
 		);
+	},
+	/** Valider un lieu ajouté par un compte récent (P2-14c, D26). */
+	validateVenue: async ({ request, locals }) => {
+		const data = await request.formData();
+		return run(locals, (by) => validateVenue(field(data, 'venueId'), by), 'Lieu validé.');
 	},
 	/** Retirer un lieu signalé (P2-14a). */
 	removeVenue: async ({ request, locals }) => {

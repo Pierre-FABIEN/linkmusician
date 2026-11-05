@@ -121,7 +121,10 @@ export async function exportPersonData(userId: string) {
 		collaborations,
 		availability,
 		venuesAdded,
-		jamsComing
+		jamsComing,
+		jamInvites,
+		venuesConfirmed,
+		jamsLed
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -215,7 +218,35 @@ export async function exportPersonData(userId: string) {
 		prisma.jamAttendance.findMany({
 			where: { actorId: person.actorId },
 			orderBy: { createdAt: 'asc' },
-			select: { createdAt: true, opportunity: { select: { title: true, startsAt: true } } }
+			select: {
+				createdAt: true,
+				instrument: { select: { name: true } },
+				opportunity: { select: { title: true, startsAt: true } }
+			}
+		}),
+		// Formation des jams (P2-14c) : invitations reçues.
+		prisma.jamInvite.findMany({
+			where: { actorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: {
+				status: true,
+				createdAt: true,
+				respondedAt: true,
+				instrument: { select: { name: true } },
+				opportunity: { select: { title: true, startsAt: true } }
+			}
+		}),
+		// Validation des lieux (P2-14c) : lieux confirmés par la personne.
+		prisma.venue.findMany({
+			where: { confirmedById: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { name: true, communeName: true, validatedAt: true }
+		}),
+		// Jams dont la personne est lead (P2-14c).
+		prisma.opportunity.findMany({
+			where: { leadActorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { title: true, startsAt: true }
 		})
 	]);
 	const media = await prisma.media.findMany({
@@ -300,7 +331,22 @@ export async function exportPersonData(userId: string) {
 		jams_je_viens: jamsComing.map((a) => ({
 			jam: a.opportunity.title,
 			debut: a.opportunity.startsAt,
+			instrument: a.instrument?.name ?? null,
 			le: a.createdAt
+		})),
+		jams_invitations: jamInvites.map((i) => ({
+			jam: i.opportunity.title,
+			debut: i.opportunity.startsAt,
+			instrument: i.instrument.name,
+			statut: i.status,
+			le: i.createdAt,
+			reponse_le: i.respondedAt
+		})),
+		jams_lead: jamsLed.map((o) => ({ jam: o.title, debut: o.startsAt })),
+		lieux_confirmes: venuesConfirmed.map((v) => ({
+			nom: v.name,
+			commune: v.communeName,
+			le: v.validatedAt
 		})),
 		lieux_ajoutes: venuesAdded.map((v) => ({
 			nom: v.name,
@@ -356,6 +402,13 @@ export async function personAnonymizationOps(
 		// anonymisé, qui ne dit plus rien de la personne.
 		// Jams publiques (P2-14b) : « Je viens » supprimés avec le compte.
 		prisma.jamAttendance.deleteMany({ where: { actorId: person.actorId } }),
+		// Formation (P2-14c) : invitations reçues supprimées, lead retiré (l'hôte
+		// reprend la main). Les lieux confirmés restent, comme les lieux ajoutés.
+		prisma.jamInvite.deleteMany({ where: { actorId: person.actorId } }),
+		prisma.opportunity.updateMany({
+			where: { leadActorId: person.actorId },
+			data: { leadActorId: null }
+		}),
 		// Annonces (P2-02) : supprimées avec le compte.
 		prisma.opportunity.deleteMany({ where: { issuerActorId: person.actorId } }),
 		// Candidatures (P2-03) : supprimées avec le compte.

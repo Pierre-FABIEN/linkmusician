@@ -1,6 +1,7 @@
 import { test, expect } from '../support/fixtures';
+import { makeAccount } from '../support/account';
 import { signUpAndVerify } from '../support/admin';
-import { db, requireUser } from '../support/db';
+import { db, deleteUser, requireUser } from '../support/db';
 import { waitForAppReady } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
 import { createMusician, deleteMusicians, setCity, skipOnboarding } from '../support/linkmusician';
@@ -8,6 +9,7 @@ import { createMusician, deleteMusicians, setCity, skipOnboarding } from '../sup
 /**
  * P2-14b — Jams publiques : voir une jam dans un lieu autour de soi, dire
  * « Je viens » (sans XP), publier sa propre jam dans un lieu de l'annuaire.
+ * P2-14c — Formation du lead (places réservées) et matériel sur place.
  */
 test.describe('LinkMusician — jams publiques', () => {
 	test.setTimeout(5 * 60_000);
@@ -29,7 +31,8 @@ test.describe('LinkMusician — jams publiques', () => {
 					departmentCode: blagnac.dep,
 					lat: blagnac.lat,
 					lng: blagnac.lng,
-					createdById: host.actorId
+					createdById: host.actorId,
+					validatedAt: new Date()
 				}
 			});
 			const startsAt = new Date(Date.now() + 26 * 3600 * 1000);
@@ -64,7 +67,7 @@ test.describe('LinkMusician — jams publiques', () => {
 				const list = page.getByRole('list', { name: 'Jams à venir' });
 				await list.getByRole('link', { name: /E2E Bœuf du Préau/ }).click();
 				await expect(page.getByRole('heading', { name: 'E2E Bœuf du Préau' })).toBeVisible();
-				await expect(page.getByText('Batterie × 1')).toBeVisible();
+				await expect(page.getByText('1 place ouverte')).toBeVisible();
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
 			});
 
@@ -111,6 +114,142 @@ test.describe('LinkMusician — jams publiques', () => {
 				where: { issuerActorId: { in: [host.actorId, ...(myActorId ? [myActorId] : [])] } }
 			});
 			await db.venue.deleteMany({ where: { createdById: host.actorId } });
+			await deleteMusicians([host]);
+		}
+	});
+	test('le lead invite une batteuse, elle accepte ; la fiche dit quoi apporter', async ({
+		page,
+		account,
+		browser
+	}) => {
+		const host = await createMusician({ name: 'Hôte', commune: blagnac });
+		const drummerAccount = makeAccount();
+		const drummerContext = await browser.newContext();
+		const drummerPage = await drummerContext.newPage();
+		try {
+			const [drums, bass] = await Promise.all([
+				db.instrument.findUniqueOrThrow({ where: { slug: 'batterie' } }),
+				db.instrument.findUniqueOrThrow({ where: { slug: 'basse' } })
+			]);
+			const venue = await db.venue.create({
+				data: {
+					name: 'E2E Le Taquin',
+					nameKey: 'e2e le taquin',
+					kind: 'BAR',
+					communeCode: blagnac.code,
+					communeName: blagnac.nom,
+					departmentCode: blagnac.dep,
+					lat: blagnac.lat,
+					lng: blagnac.lng,
+					createdById: host.actorId,
+					validatedAt: new Date(),
+					backline: ['DRUMS', 'BASS_AMP']
+				}
+			});
+
+			await signUpAndVerify(page, account);
+			await skipOnboarding(page, account.email);
+			await setCity(page);
+			await signUpAndVerify(drummerPage, drummerAccount);
+			await skipOnboarding(drummerPage, drummerAccount.email);
+			const person = async (email: string) =>
+				db.person.findUniqueOrThrow({
+					where: { userId: (await requireUser(email)).id },
+					include: { actor: true }
+				});
+			const me = await person(account.email);
+			const drummer = await person(drummerAccount.email);
+			// Je joue de la basse ; l'hôte me confie le lead de sa jam.
+			await db.personInstrument.create({
+				data: { personId: me.actorId, instrumentId: bass.id, declaredLevel: 3, isPrimary: true }
+			});
+			const startsAt = new Date(Date.now() + 26 * 3600 * 1000);
+			const endsAt = new Date(startsAt.getTime() + 3 * 3600 * 1000);
+			const jam = await db.opportunity.create({
+				data: {
+					issuerActorId: host.actorId,
+					leadActorId: me.actorId,
+					kind: 'JAM',
+					title: 'E2E Jam du Taquin',
+					description: '',
+					startsAt,
+					endsAt,
+					expiresAt: endsAt,
+					venueId: venue.id,
+					backline: ['DRUMS', 'BASS_AMP'],
+					jamSpots: {
+						create: [
+							{ instrumentId: drums.id, count: 1 },
+							{ instrumentId: bass.id, count: 1 }
+						]
+					}
+				}
+			});
+
+			await test.step('1. La fiche me dit d’apporter ma basse, l’ampli est là', async () => {
+				await page.goto(`/jams/${jam.id}`);
+				await waitForAppReady(page);
+				await expect(page.getByText('Apporte ta basse et tes câbles.')).toBeVisible();
+				await expect(page.getByText('Sur place : l’ampli basse.')).toBeVisible();
+				await expect(page.getByText(`Lead : ${me.actor.displayName}`)).toBeVisible();
+			});
+
+			await test.step('2. J’invite la batteuse : sa place est réservée', async () => {
+				const lineup = page.getByRole('region', { name: 'Compose ta formation' });
+				await lineup.getByLabel('Identifiant').fill(`@${drummer.actor.handle}`);
+				await lineup.getByLabel('Instrument').selectOption('batterie');
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+				await lineup.getByRole('button', { name: 'Inviter' }).click();
+				await expect(lineup.getByText(/Batterie · en attente/)).toBeVisible();
+				const spots = page.getByRole('region', { name: 'On cherche' });
+				await expect(spots.getByText('Complet · 1 réservée par le lead')).toBeVisible();
+			});
+
+			await test.step('3. La batteuse voit l’invitation et accepte', async () => {
+				await drummerPage.goto('/jam');
+				await waitForAppReady(drummerPage);
+				const invites = drummerPage.getByRole('region', { name: /On t’invite à jouer/ });
+				await invites.getByRole('link', { name: /E2E Jam du Taquin/ }).click();
+				await expect(drummerPage.getByText('Apporte tes baguettes.')).toBeVisible();
+				await expect(drummerPage.getByText('Sur place : la batterie.')).toBeVisible();
+				await expectNoA11yViolations(drummerPage, A11Y_EXCLUDE);
+				await drummerPage.getByRole('button', { name: 'J’accepte' }).click();
+				await expect(
+					drummerPage.getByText('Tu fais partie de la formation. On compte sur toi !')
+				).toBeVisible();
+			});
+
+			await test.step('4. La formation est affichée, sans XP', async () => {
+				await page.reload();
+				await waitForAppReady(page);
+				const lineup = page.getByRole('region', { name: 'La formation' });
+				await expect(lineup.getByText(drummer.actor.displayName)).toBeVisible();
+				const invite = await db.jamInvite.findUniqueOrThrow({
+					where: { opportunityId_actorId: { opportunityId: jam.id, actorId: drummer.actorId } }
+				});
+				expect(invite.status).toBe('ACCEPTED');
+				expect(
+					await db.xpTransaction.count({
+						where: { actorId: { in: [me.actorId, drummer.actorId] } }
+					})
+				).toBe(0);
+			});
+
+			await test.step('5. Je viens à la basse : la place ouverte est prise', async () => {
+				await expect(page.getByLabel('Je joue')).toHaveValue('basse');
+				await page.getByRole('button', { name: 'Je viens' }).click();
+				await expect(page.getByText('Tu viens. On compte sur toi !')).toBeVisible();
+				await expect(page.getByText('2 musicien·nes viennent')).toBeVisible();
+				const attendance = await db.jamAttendance.findUniqueOrThrow({
+					where: { opportunityId_actorId: { opportunityId: jam.id, actorId: me.actorId } }
+				});
+				expect(attendance.instrumentId).toBe(bass.id);
+			});
+		} finally {
+			await drummerContext.close();
+			await db.opportunity.deleteMany({ where: { issuerActorId: host.actorId } });
+			await db.venue.deleteMany({ where: { createdById: host.actorId } });
+			await deleteUser(drummerAccount.email);
 			await deleteMusicians([host]);
 		}
 	});

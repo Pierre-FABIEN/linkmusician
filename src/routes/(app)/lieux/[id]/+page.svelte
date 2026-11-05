@@ -3,10 +3,11 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
-	import { MapPin } from 'lucide-svelte';
+	import { CircleCheck, Clock, MapPin, Speaker } from 'lucide-svelte';
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
 
 	let { data, form } = $props();
+	const labelOf = $derived(new Map(data.backlineOptions.map((o) => [o.value, o.label])));
 	const day = new Intl.DateTimeFormat('fr-FR', {
 		weekday: 'short',
 		day: 'numeric',
@@ -17,7 +18,13 @@
 	});
 
 	$effect(() => {
-		if (data.added) toast.success('Lieu ajouté à l’annuaire. Merci !');
+		if (data.added) {
+			toast.success(
+				data.venue.validated
+					? 'Lieu ajouté à l’annuaire. Merci !'
+					: 'Lieu proposé. Merci ! Il sera visible dès qu’un autre membre l’aura confirmé.'
+			);
+		}
 	});
 	$effect(() => {
 		if (form?.message) toast.success(form.message);
@@ -38,30 +45,101 @@
 			</p>
 		</div>
 
-		<section class="space-y-2 rounded-2xl border bg-card p-4" aria-labelledby="jams-title">
-			<h2 id="jams-title" class="text-lg font-semibold">Jams à venir</h2>
-			{#if data.jams.length === 0}
-				<p class="text-sm text-muted-foreground">Pas de jam prévue ici pour l’instant.</p>
+		{#if !data.venue.validated}
+			<section
+				class="space-y-3 rounded-2xl border border-amber-500/50 bg-amber-500/10 p-4"
+				aria-labelledby="pending-title"
+			>
+				<h2 id="pending-title" class="flex items-center gap-2 font-semibold">
+					<Clock class="size-4" aria-hidden="true" /> En attente de confirmation
+				</h2>
+				{#if data.venue.canConfirm}
+					<p class="text-sm">
+						Un membre vient de proposer ce lieu. Tu le connais ? Confirme qu’il existe et qu’il
+						s’agit bien d’un lieu public ou professionnel : il pourra alors accueillir des jams.
+					</p>
+					<form method="POST" action="?/confirm" use:enhance>
+						<button
+							class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
+						>
+							<CircleCheck class="size-4" aria-hidden="true" /> Je confirme ce lieu
+						</button>
+					</form>
+				{:else}
+					<p class="text-sm">
+						Pour éviter les faux lieux, ta fiche reste visible de toi seul·e jusqu’à ce qu’un autre
+						membre la confirme ou que la modération la valide. Tu connais quelqu’un qui y joue ?
+						Envoie-lui le lien de cette page.
+					</p>
+				{/if}
+			</section>
+		{/if}
+
+		<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="backline-title">
+			<h2 id="backline-title" class="flex items-center gap-2 text-lg font-semibold">
+				<Speaker class="size-4" aria-hidden="true" /> Matériel sur place
+			</h2>
+			{#if data.venue.backline.length === 0}
+				<p class="text-sm text-muted-foreground">
+					Pas de matériel indiqué : chacun·e apporte le sien.
+				</p>
 			{:else}
-				<ul class="space-y-2">
-					{#each data.jams as j (j.id)}
-						<li>
-							<a href="/jams/{j.id}" class="block rounded-xl border p-3 hover:border-primary">
-								<span class="block font-semibold">{j.title}</span>
-								<span class="text-sm text-muted-foreground"
-									>{day.format(new Date(j.startsAt))} · {j.coming} vien{j.coming > 1
-										? 'nent'
-										: 't'}</span
-								>
-							</a>
-						</li>
+				<ul class="flex flex-wrap gap-2">
+					{#each data.venue.backline as item (item)}
+						<li class="rounded-full border px-3 py-1 text-sm">{labelOf.get(item)}</li>
 					{/each}
 				</ul>
 			{/if}
-			<a href="/jams/nouvelle?lieu={data.venue.id}" class="inline-block font-semibold underline"
-				>Publier une jam ici</a
-			>
+			{#if data.venue.canEditBackline}
+				<details class="text-sm">
+					<summary class="cursor-pointer font-semibold underline">Modifier le matériel</summary>
+					<form method="POST" action="?/backline" use:enhance class="mt-3 space-y-3">
+						<fieldset class="grid grid-cols-2 gap-2">
+							<legend class="sr-only">Matériel mis à disposition</legend>
+							{#each data.backlineOptions as o (o.value)}
+								<label class="flex min-h-11 items-center gap-2 rounded-md border px-3">
+									<input
+										type="checkbox"
+										name="backline"
+										value={o.value}
+										checked={data.venue.backline.includes(o.value)}
+									/>
+									{o.label}
+								</label>
+							{/each}
+						</fieldset>
+						<button class="min-h-11 rounded-xl border px-4 font-semibold">Enregistrer</button>
+					</form>
+				</details>
+			{/if}
 		</section>
+
+		{#if data.venue.validated}
+			<section class="space-y-2 rounded-2xl border bg-card p-4" aria-labelledby="jams-title">
+				<h2 id="jams-title" class="text-lg font-semibold">Jams à venir</h2>
+				{#if data.jams.length === 0}
+					<p class="text-sm text-muted-foreground">Pas de jam prévue ici pour l’instant.</p>
+				{:else}
+					<ul class="space-y-2">
+						{#each data.jams as j (j.id)}
+							<li>
+								<a href="/jams/{j.id}" class="block rounded-xl border p-3 hover:border-primary">
+									<span class="block font-semibold">{j.title}</span>
+									<span class="text-sm text-muted-foreground"
+										>{day.format(new Date(j.startsAt))} · {j.coming} vien{j.coming > 1
+											? 'nent'
+											: 't'}</span
+									>
+								</a>
+							</li>
+						{/each}
+					</ul>
+				{/if}
+				<a href="/jams/nouvelle?lieu={data.venue.id}" class="inline-block font-semibold underline"
+					>Publier une jam ici</a
+				>
+			</section>
+		{/if}
 
 		{#if !data.venue.claimed}
 			<p class="text-sm text-muted-foreground">
