@@ -5,6 +5,7 @@
  * sa commune.
  */
 import { z } from 'zod';
+import { siretSchema } from './siret';
 
 export const VENUE_KINDS = [
 	'BAR',
@@ -70,6 +71,8 @@ export const venueSchema = z.object({
 		)
 		.refine((name) => venueNameKey(name).length >= 2, 'Le nom du lieu, en toutes lettres.'),
 	kind: z.enum(VENUE_KINDS, { message: 'Choisis le type de lieu.' }),
-	communeCode: z.string().regex(/^[0-9AB]{5}$/, 'Choisis la commune du lieu.')
+	communeCode: z.string().regex(/^[0-9AB]{5}$/, 'Choisis la commune du lieu.'),
+	/** SIRET facultatif (P2-14d, D30) : vérifié, il valide le lieu tout de suite. */
+	siret: z.preprocess((v) => (v === '' ? undefined : v), siretSchema.optional())
 });
 export type VenueForm = z.infer<typeof venueSchema>;

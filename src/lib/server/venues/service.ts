@@ -9,7 +9,8 @@
  * Validation (P2-14c, D26) : un lieu ajouté par un compte TL0 reste en
  * attente, visible de son seul auteur (et des membres TL1, pour le
  * confirmer) et sans jam, jusqu'à la confirmation d'un second membre TL1 ou
- * d'un modérateur (`validateVenue`, modération).
+ * d'un modérateur (`validateVenue`, modération). Un SIRET vérifié (P2-14d,
+ * D30) le valide tout de suite.
  */
 import { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
@@ -21,6 +22,8 @@ import { distanceBand } from '#lib/geo/distance';
 import { getTrustLevel } from '#lib/server/trust/quotas';
 import { VENUE_KIND_LABELS, venueNameKey, type VenueForm } from '#lib/venues/rules';
 import type { BacklineItem } from '#lib/jam/lineup';
+import { siretMismatch } from '#lib/venues/siret';
+import { SiretLookupError, lookupEstablishment } from './establishments';
 
 /** Palier de confiance qui valide un lieu, à l'ajout ou en le confirmant. */
 export const VALIDATING_TRUST_LEVEL = 1;
@@ -51,7 +54,8 @@ const venueSelect = {
 	communeName: true,
 	departmentCode: true,
 	claimedByActorId: true,
-	backline: true
+	backline: true,
+	verifiedAt: true
 } satisfies Prisma.VenueSelect;
 
 export type VenueCard = Prisma.VenueGetPayload<{ select: typeof venueSelect }> & {
@@ -94,6 +98,7 @@ export async function createVenue(actorId: string, form: VenueForm) {
 		}
 		throw new VenueError('Ce lieu est déjà dans l’annuaire.', 409, existing.id);
 	}
+	const siret = form.siret ? await checkSiret(form.siret, commune.code, actorId) : null;
 	if (!(await venueBucket.consume(actorId, 1))) {
 		throw new VenueError(
 			`Tu as déjà ajouté ${DAILY_VENUES} lieux aujourd’hui. Réessaie demain.`,
@@ -114,7 +119,9 @@ export async function createVenue(actorId: string, form: VenueForm) {
 				lat,
 				lng,
 				createdById: actorId,
-				validatedAt: trusted ? new Date() : null
+				validatedAt: trusted || siret ? new Date() : null,
+				siret,
+				verifiedAt: siret ? new Date() : null
 			},
 			select: { id: true, validatedAt: true }
 		});
@@ -126,6 +133,51 @@ export async function createVenue(actorId: string, form: VenueForm) {
 				select: { id: true }
 			});
 			throw new VenueError('Ce lieu est déjà dans l’annuaire.', 409, twin?.id ?? null);
+		}
+		throw err;
+	}
+}
+
+/**
+ * Vérifie un SIRET pour un lieu de cette commune (D30) ; renvoie le SIRET,
+ * ou lève une `VenueError` lisible.
+ */
+async function checkSiret(siret: string, communeCode: string, actorId: string) {
+	let establishment;
+	try {
+		establishment = await lookupEstablishment(siret, actorId);
+	} catch (err) {
+		if (err instanceof SiretLookupError) throw new VenueError(err.message, 503);
+		throw err;
+	}
+	if (!establishment) throw new VenueError('Aucun établissement ouvert avec ce SIRET.');
+	const mismatch = siretMismatch(establishment, communeCode);
+	if (mismatch) throw new VenueError(mismatch);
+	const taken = await prisma.venue.findUnique({ where: { siret }, select: { id: true } });
+	if (taken)
+		throw new VenueError('Ce SIRET est déjà celui d’un lieu de l’annuaire.', 409, taken.id);
+	return siret;
+}
+
+/**
+ * Ajoute le SIRET d'un lieu (P2-14d, D30) : vérifié, le lieu est validé tout
+ * de suite et porte le badge « vérifié ». Mêmes droits que le matériel.
+ */
+export async function verifyVenueSiret(id: string, actorId: string, siret: string) {
+	const venue = await getVenue(id, actorId);
+	if (!venue) throw new VenueError('Lieu introuvable.', 404);
+	if (venue.verifiedAt) throw new VenueError('Ce lieu est déjà vérifié.');
+	if (!venue.canEditBackline) throw new VenueError('Tu ne peux pas encore modifier ce lieu.', 403);
+	await checkSiret(siret, venue.communeCode, actorId);
+	const now = new Date();
+	try {
+		await prisma.venue.update({
+			where: { id },
+			data: { siret, verifiedAt: now, validatedAt: venue.validated ? undefined : now }
+		});
+	} catch (err) {
+		if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+			throw new VenueError('Ce SIRET est déjà celui d’un lieu de l’annuaire.', 409);
 		}
 		throw err;
 	}

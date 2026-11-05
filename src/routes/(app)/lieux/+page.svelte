@@ -22,7 +22,9 @@
 						<span class="font-semibold">{v.name}</span>
 						<span class="flex items-center gap-1 text-sm text-muted-foreground">
 							<MapPin class="size-3.5" aria-hidden="true" />
-							{v.kindLabel} · {v.communeName}{v.distance ? ` · ${v.distance}` : ''}
+							{v.kindLabel} · {v.communeName}{v.distance ? ` · ${v.distance}` : ''}{v.verifiedAt
+								? ' · vérifié'
+								: ''}
 						</span>
 					</a>
 				</li>

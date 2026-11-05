@@ -2235,6 +2235,9 @@ model Venue {
   confirmedBy      Actor?    @relation("VenueConfirmer", fields: [confirmedById], references: [id], onDelete: SetNull)
   /// Matériel sur place (P2-14c).
   backline         BacklineItem[] @default([])
+  /// SIRET vérifié (P2-14d, D30) : le lieu est validé dès sa vérification.
+  siret            String?   @unique
+  verifiedAt       DateTime?
   createdAt        DateTime  @default(now())
   jams             Opportunity[]
 
@@ -2310,4 +2313,27 @@ model JamInvite {
   @@id([opportunityId, actorId])
   @@index([actorId, status])
   @@map("jam_invites")
+}
+
+// ─── ÉTABLISSEMENTS DE RÉFÉRENCE (P2-14d) ───────────────────────────────────
+
+/// Établissement de la base Sirene (API Recherche d'entreprises), importé
+/// pour Toulouse Métropole (`npm run seed:etablissements`, D30). Sert aux
+/// suggestions et à la vérification d'un lieu ; ne remplit pas l'annuaire.
+/// Jamais de nom de personne ni d'adresse : enseigne et commune seulement.
+model Establishment {
+  siret          String   @id
+  siren          String
+  name           String
+  /// Nom normalisé (`venueNameKey`), pour les suggestions.
+  nameKey        String
+  naf            String
+  communeCode    String
+  communeName    String
+  departmentCode String
+  active         Boolean
+  updatedAt      DateTime @updatedAt
+
+  @@index([communeCode, nameKey])
+  @@map("establishments")
 }

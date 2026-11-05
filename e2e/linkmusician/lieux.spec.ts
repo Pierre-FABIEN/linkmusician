@@ -10,12 +10,16 @@ import { createMusician, deleteMusicians, setCity, skipOnboarding } from '../sup
  * lieu (commune seulement, jamais d'adresse), doublon refusé, recherche.
  * P2-14c — Validation (D26) : le lieu d'un compte TL0 reste en attente,
  * invisible des autres, jusqu'à la confirmation d'un second membre TL1.
+ * P2-14d — SIRET (D30) : un établissement connu est vérifié tout de suite.
  */
 test.describe('LinkMusician — annuaire des lieux', () => {
 	test.setTimeout(5 * 60_000);
 	// Bouton panier du boilerplate (boutique active en e2e), remontée n° 14.
 	const A11Y_EXCLUDE = ['.cartButton'];
 	const blagnac = { code: '31069', nom: 'Blagnac', dep: '31', lat: 43.6459, lng: 1.3785 };
+
+	/** SIRET fictif (clé de Luhn valide), présent seulement dans la base e2e. */
+	const SIRET = '99900000100019';
 
 	test('ajouter le Bar des Amis et le retrouver', async ({ page, account }) => {
 		const other = await createMusician({ name: 'Batteuse', commune: blagnac });
@@ -130,6 +134,48 @@ test.describe('LinkMusician — annuaire des lieux', () => {
 				await expect(mine.getByRole('link', { name: /Le Bar des Amis/ })).toBeVisible();
 			});
 
+			await test.step('4 bis. Un bar connu, avec son SIRET, est validé tout de suite', async () => {
+				await db.establishment.upsert({
+					where: { siret: SIRET },
+					create: {
+						siret: SIRET,
+						siren: SIRET.slice(0, 9),
+						name: 'E2E Le Comptoir Sonore',
+						nameKey: 'e2e comptoir sonore',
+						naf: '56.30Z',
+						communeCode: '31555',
+						communeName: 'Toulouse',
+						departmentCode: '31',
+						active: true
+					},
+					update: {}
+				});
+				await page.goto('/lieux/nouveau');
+				await waitForAppReady(page);
+				// Un SIRET faux est refusé.
+				await page.getByLabel('Nom du lieu').fill('Le Faux Comptoir');
+				await page.getByLabel('Type de lieu').selectOption('BAR');
+				await page.getByLabel(/Numéro SIRET/).fill('123 456 789 01234');
+				await page.getByRole('button', { name: 'Ajouter à l’annuaire' }).click();
+				await expect(page.getByText(/Ce numéro SIRET n’est pas valide/)).toBeVisible();
+				// Suggestion d'établissement : nom, type, commune et SIRET remplis.
+				await page.getByLabel('Nom du lieu').fill('');
+				await page.getByLabel('Nom du lieu').pressSequentially('comptoir son');
+				const suggestions = page.getByRole('list', { name: 'Établissements connus' });
+				await suggestions.getByRole('button', { name: /E2E Le Comptoir Sonore/ }).click();
+				await expect(page.getByLabel(/Numéro SIRET/)).toHaveValue(SIRET);
+				await expect(page.getByLabel('Type de lieu')).toHaveValue('BAR');
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+				await page.getByRole('button', { name: 'Ajouter à l’annuaire' }).click();
+				await expect(page.getByRole('heading', { name: 'E2E Le Comptoir Sonore' })).toBeVisible();
+				await expect(page.getByText('Établissement vérifié (SIRET)')).toBeVisible();
+				await expect(page.getByRole('link', { name: 'Publier une jam ici' })).toBeVisible();
+				const verified = await db.venue.findUniqueOrThrow({ where: { siret: SIRET } });
+				expect(verified.createdById).toBe(myActorId);
+				expect(verified.validatedAt).not.toBeNull();
+				expect(verified.verifiedAt).not.toBeNull();
+			});
+
 			await test.step('5. Devenu·e TL1, je confirme le lieu proposé par une autre', async () => {
 				await db.actor.update({ where: { id: myActorId! }, data: { trustLevel: 1 } });
 				await page.goto('/lieux');
@@ -152,6 +198,7 @@ test.describe('LinkMusician — annuaire des lieux', () => {
 			await db.venue.deleteMany({
 				where: { createdById: { in: [other.actorId, ...(myActorId ? [myActorId] : [])] } }
 			});
+			await db.establishment.deleteMany({ where: { siret: SIRET } });
 			await deleteMusicians([other]);
 		}
 	});

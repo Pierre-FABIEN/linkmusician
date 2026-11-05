@@ -333,6 +333,28 @@ VENUE`) ; quota de création (rate limit). Une jam n'est plus une
   e2e « le lead invite une batteuse, elle accepte ; la fiche dit
   d'apporter sa basse, l'ampli est fourni ».
 
+### P2-14d — Lieux vérifiés par SIRET et établissements de Toulouse
+
+> **Ajouté le 05/11/2026** (demande : « pour les organisateurs, un id
+> d'entreprise à vérifier pour valider, du genre les bars » ; « on se
+> concentre sur Toulouse pour les données »). Décision D30.
+
+- **Dépend de** : P2-14c.
+- **Tâches** : table de référence `Establishment` (SIRET, nom
+  d'enseigne, code NAF, commune, actif) importée de l'API Recherche
+  d'entreprises pour Toulouse Métropole (`npm run seed:etablissements`,
+  relançable) : débits de boissons (56.30Z), salles de spectacle
+  (90.04Z), studios (59.20Z), enseignement culturel (85.52Z), MJC ;
+  entreprises individuelles sans enseigne écartées, aucune adresse.
+  Ajout d'un lieu : suggestions d'établissements pendant la saisie du
+  nom ; SIRET facultatif ; un SIRET vérifié (table, sinon API en direct,
+  Haute-Garonne seulement, même commune, actif) **valide le lieu tout de
+  suite** et affiche le badge « vérifié ». Un lieu en attente peut être
+  validé en ajoutant son SIRET. Un SIRET n'est lié qu'à un lieu.
+- **Fin** : SIRET invalide (clé de Luhn) refusé (test) ; un compte TL0
+  ajoute un bar avec son SIRET, le lieu est validé et accueille une jam
+  (e2e).
+
 ### P2-15 — Après la jam : « J'y étais » et appréciations
 
 - **Dépend de** : P2-14b. Décision D27.

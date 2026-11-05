@@ -3,7 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
-	import { CircleCheck, Clock, MapPin, Speaker } from 'lucide-svelte';
+	import { BadgeCheck, CircleCheck, Clock, MapPin, Speaker } from 'lucide-svelte';
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
 
 	let { data, form } = $props();
@@ -43,6 +43,11 @@
 				<MapPin class="size-4" aria-hidden="true" />
 				{data.venue.kindLabel} · {data.venue.communeName} ({data.venue.departmentCode})
 			</p>
+			{#if data.venue.verified}
+				<p class="flex items-center gap-1 text-sm font-semibold text-primary">
+					<BadgeCheck class="size-4" aria-hidden="true" /> Établissement vérifié (SIRET)
+				</p>
+			{/if}
 		</div>
 
 		{#if !data.venue.validated}
@@ -71,6 +76,25 @@
 						membre la confirme ou que la modération la valide. Tu connais quelqu’un qui y joue ?
 						Envoie-lui le lien de cette page.
 					</p>
+				{/if}
+				{#if data.venue.canEditBackline}
+					<form method="POST" action="?/siret" use:enhance class="space-y-2">
+						<label class="block space-y-1 text-sm font-medium">
+							Tu as son numéro SIRET ? Le lieu est validé tout de suite.
+							<input
+								name="siret"
+								required
+								inputmode="numeric"
+								autocomplete="off"
+								maxlength="17"
+								placeholder="14 chiffres"
+								class="min-h-11 w-full rounded-md border bg-background px-3 font-normal"
+							/>
+						</label>
+						<button class="min-h-11 rounded-xl border bg-background px-4 font-semibold"
+							>Vérifier le SIRET</button
+						>
+					</form>
 				{/if}
 			</section>
 		{/if}

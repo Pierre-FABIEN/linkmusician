@@ -61,6 +61,7 @@
 		"seed": "node prisma/seed.js",
 		"seed:referentiels": "node prisma/seed-referentials.js",
 		"seed:demo": "tsx prisma/seed-demo.ts",
+		"seed:etablissements": "tsx prisma/seed-establishments.ts",
 		"progression:rebuild": "tsx scripts/progression-rebuild.ts",
 		"db:nettoyer-migration": "node scripts/nettoyer-migration.mjs",
 		"db:nouvelle-migration": "node scripts/nouvelle-migration.mjs",

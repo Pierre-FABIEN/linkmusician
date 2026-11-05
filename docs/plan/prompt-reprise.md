@@ -14,7 +14,7 @@ les modifier.
 
 ## État (05/11/2026)
 
-- Livré jusqu'à P2-14c (tableau §5 de docs/plan/README.md). Objectif D28 :
+- Livré jusqu'à P2-14d (tableau §5 de docs/plan/README.md). Objectif D28 :
   lancement public à Toulouse début mars 2027. L'utilisateur juge que tout
   se jouera sur une UX simple et agréable : soigner chaque écran.
 - D27 : « J'y étais » ne rapporte rien ; seules les appréciations
@@ -23,6 +23,9 @@ les modifier.
   7 jours après la jam). Faux présent retiré par l'hôte : appréciations
   reprises par **transaction négative liée** (`reversesId`), jamais
   d'UPDATE ni de DELETE sur `XpTransaction`.
+- D30 (P2-14d) : un lieu peut être vérifié par SIRET (table
+  `establishments` de Toulouse Métropole, `npm run seed:etablissements`) ;
+  vérifié, il est validé tout de suite.
 - Code jam existant (voir `docs/jam/README.md`) :
   - Schéma (fin de `prisma/schema.prisma`) : `Venue` (`validatedAt`,
     `confirmedById`, `backline`), `Opportunity` JAM (`venueId`,
@@ -80,7 +83,7 @@ les modifier.
   `deleteMusicians`, `setCity` = Toulouse, `skipOnboarding`) ; un lieu
   créé en base doit avoir `validatedAt: new Date()` pour être visible ;
   Blagnac `{ code: '31069', nom: 'Blagnac', dep: '31', lat: 43.6459,
-  lng: 1.3785 }` ; a11y : exclure `.cartButton` ; libellés avec
+lng: 1.3785 }` ; a11y : exclure `.cartButton` ; libellés avec
   apostrophe typographique (’).
 - Ne pas arrêter `npm run dev` de l'utilisateur. Commits sur `main`, en
   français, `feat(jam): … (P2-15)`, terminés par la ligne Co-Authored-By.

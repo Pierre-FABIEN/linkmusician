@@ -140,3 +140,32 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   `setJamBackline`, `myJamInvites`), `#server/venues/service`
   (`confirmVenue`, `setVenueBackline`, `myPendingVenues`),
   `validateVenue` (modération). E2E : `jams.spec.ts`, `lieux.spec.ts`.
+
+## Lieux vérifiés par SIRET (P2-14d, D30)
+
+- **Table de référence** `Establishment` : établissements de Toulouse
+  Métropole importés de l'API publique Recherche d'entreprises
+  (`npm run seed:etablissements`, relançable ; ≈ 1 400 au 05/11/2026) :
+  débits de boissons (56.30Z), salles de spectacle (90.04Z), studios
+  (59.20Z), enseignement culturel (85.52Z), MJC. **Jamais de nom de
+  personne** (entreprise individuelle sans enseigne écartée) **ni
+  d'adresse** : enseigne, activité, commune. Elle ne remplit pas
+  l'annuaire : elle sert aux suggestions et à la vérification. À lancer
+  aussi sur la base de production (P3-10).
+- **Ajout d'un lieu** : pendant la saisie du nom, suggestions
+  d'établissements (`/api/etablissements`, comptes connectés) ; en
+  choisir un remplit le nom, le type, la commune et le SIRET. SIRET
+  facultatif, contrôlé (clé de Luhn), puis cherché dans la table, sinon
+  auprès de l'API en direct (5 s au plus, 20 vérifications par personne
+  et par heure environ, jamais en e2e) : actif, en **Haute-Garonne**,
+  même commune que le lieu. Vérifié, il **valide le lieu tout de suite**
+  (`Venue.siret`, unique, `verifiedAt`, badge « Établissement vérifié »),
+  même pour un compte TL0.
+- **Lieu en attente** : son auteur (ou un membre TL1) peut le valider en
+  ajoutant son SIRET sur la fiche.
+- Un SIRET ne prouve pas qu'on travaille au lieu : la revendication de la
+  fiche (P5-03) demandera une preuve en plus.
+- **Code** : `#lib/venues/siret` (pur, testé), `#server/venues/establishments`
+  (`lookupEstablishment`, `suggestEstablishments`), `verifyVenueSiret`
+  dans `#server/venues/service`, script `prisma/seed-establishments.ts`.
+  E2E : `lieux.spec.ts` (étape 4 bis).

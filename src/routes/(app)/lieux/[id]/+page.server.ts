@@ -2,7 +2,14 @@
 // (P2-14b). Validation par un second membre et matériel sur place (P2-14c).
 import { error, fail } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
-import { VenueError, confirmVenue, getVenue, setVenueBackline } from '#lib/server/venues/service';
+import {
+	VenueError,
+	confirmVenue,
+	getVenue,
+	setVenueBackline,
+	verifyVenueSiret
+} from '#lib/server/venues/service';
+import { siretSchema } from '#lib/venues/siret';
 import { upcomingJamsAt } from '#lib/server/jam/publicJams';
 import { ModerationError, fileReport } from '#lib/server/moderation/service';
 import { BACKLINE_ITEMS, BACKLINE_LABELS, backlineSchema } from '#lib/jam/lineup';
@@ -29,6 +36,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 			isCreator: venue.isCreator,
 			canConfirm: venue.canConfirm,
 			canEditBackline: venue.canEditBackline,
+			verified: venue.verifiedAt !== null,
 			backline: venue.backline
 		},
 		backlineOptions: BACKLINE_ITEMS.map((value) => ({ value, label: BACKLINE_LABELS[value] })),
@@ -59,6 +67,19 @@ export const actions: Actions = {
 		try {
 			await setVenueBackline(params.id, (await me(locals)).actorId, parsed.data);
 			return { message: 'Matériel enregistré.' };
+		} catch (err) {
+			return venueFail(err);
+		}
+	},
+	/** SIRET vérifié : le lieu est validé tout de suite (P2-14d, D30). */
+	siret: async ({ locals, params, request }) => {
+		const parsed = siretSchema.safeParse(String((await request.formData()).get('siret') ?? ''));
+		if (!parsed.success) {
+			return fail(400, { error: parsed.error.issues[0]?.message ?? 'SIRET invalide.' });
+		}
+		try {
+			await verifyVenueSiret(params.id, (await me(locals)).actorId, parsed.data);
+			return { message: 'Lieu vérifié : il peut accueillir des jams.' };
 		} catch (err) {
 			return venueFail(err);
 		}
