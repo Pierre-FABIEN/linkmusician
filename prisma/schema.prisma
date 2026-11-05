@@ -1444,6 +1444,8 @@ model Actor {
   endorsementsReceived   JamEndorsement[]       @relation("EndorsementTo")
   networkTies            MusicalTie[]           @relation("TieOwner")
   networkOf              MusicalTie[]           @relation("TieContact")
+  collabEndorsementsGiven    CollabEndorsement[] @relation("CollabEndorsementFrom")
+  collabEndorsementsReceived CollabEndorsement[] @relation("CollabEndorsementTo")
 
   @@map("actors")
 }
@@ -1540,6 +1542,7 @@ model Instrument {
   jamAttendances JamAttendance[]
   jamInvites     JamInvite[]
   jamEndorsements JamEndorsement[]
+  collabEndorsements CollabEndorsement[]
 
   @@index([family, sortOrder])
   @@map("instruments")
@@ -2147,6 +2150,7 @@ model Collaboration {
   updatedAt      DateTime                   @updatedAt
 
   participants CollaborationParticipant[]
+  endorsements CollabEndorsement[]
 
   @@index([conversationId])
   @@map("collaborations")
@@ -2402,4 +2406,42 @@ model MusicalTie {
   @@id([ownerId, contactId])
   @@index([contactId])
   @@map("musical_ties")
+}
+
+// ─── APPRÉCIATIONS APRÈS UNE COLLABORATION (P2-07) ──────────────────────────
+
+/// Qualité saluée après une collaboration confirmée (P2-07).
+enum CollabQuality {
+  RELIABLE
+  ON_TIME
+  PREPARED
+  GOOD_VIBE
+}
+
+/// Appréciation après une collaboration confirmée par tous (P2-07, D27) :
+/// une qualité ou un instrument déclaré, une par paire et par
+/// collaboration, TL1 requise. Reprise par son autrice ou son auteur
+/// (`revokedAt`, XP repris par transaction négative liée) ; elle peut être
+/// redonnée, avec les rendements décroissants de la paire.
+model CollabEndorsement {
+  id              String         @id @default(cuid())
+  collaborationId String
+  collaboration   Collaboration  @relation(fields: [collaborationId], references: [id], onDelete: Cascade)
+  fromActorId     String
+  from            Actor          @relation("CollabEndorsementFrom", fields: [fromActorId], references: [id], onDelete: Cascade)
+  toActorId       String
+  to              Actor          @relation("CollabEndorsementTo", fields: [toActorId], references: [id], onDelete: Cascade)
+  quality         CollabQuality?
+  instrumentId    String?
+  instrument      Instrument?    @relation(fields: [instrumentId], references: [id], onDelete: SetNull)
+  /// Événement `endorsement.received` émis (pour reprendre l'XP).
+  eventId         String?
+  revokedAt       DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([collaborationId, fromActorId, toActorId])
+  @@index([toActorId])
+  @@index([fromActorId])
+  @@map("collab_endorsements")
 }

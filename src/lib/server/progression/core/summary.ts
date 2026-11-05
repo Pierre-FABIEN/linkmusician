@@ -24,7 +24,8 @@ export const EMPTY_MUSICIAN_SUMMARY: MusicianSummary = {
 /**
  * Résumé à partir des événements qui concernent l'acteur. Les événements qui
  * ne le concernent pas sont ignorés, et un même fait rejoué (même groupe,
- * même endosseur) ne compte qu'une fois.
+ * même endosseur) ne compte qu'une fois. Une appréciation reprise
+ * (`endorsement.revoked`, P2-07) ne compte plus.
  *
  * Les concerts corroborés arrivent avec les événements (phase 3) : en
  * attendant, la première date (`FIRST_GIG`) corroborée compte pour un.
@@ -35,7 +36,8 @@ export function musicianSummary(actorId: string, events: readonly DomainEvent[])
 	let collaborations = 0;
 	const bands = new Set<string>();
 	const collaborators = new Set<string>();
-	const endorsers = new Set<string>();
+	/** Appréciations actives par endosseur : reçues moins reprises (P2-07). */
+	const endorsers = new Map<string, number>();
 	const gigs = new Set<string>();
 	const releases = new Set<string>();
 
@@ -60,7 +62,12 @@ export function musicianSummary(actorId: string, events: readonly DomainEvent[])
 				break;
 			case 'endorsement.received':
 				if (event.actorId === actorId && event.endorserId !== actorId) {
-					endorsers.add(event.endorserId);
+					endorsers.set(event.endorserId, (endorsers.get(event.endorserId) ?? 0) + 1);
+				}
+				break;
+			case 'endorsement.revoked':
+				if (event.actorId === actorId) {
+					endorsers.set(event.endorserId, (endorsers.get(event.endorserId) ?? 0) - 1);
 				}
 				break;
 			case 'milestone.attested':
@@ -85,6 +92,6 @@ export function musicianSummary(actorId: string, events: readonly DomainEvent[])
 		distinctCollaborators: collaborators.size,
 		corroboratedGigs: gigs.size,
 		verifiedReleases: releases.size,
-		distinctEndorsers: endorsers.size
+		distinctEndorsers: [...endorsers.values()].filter((n) => n > 0).length
 	};
 }

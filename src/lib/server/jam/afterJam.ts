@@ -6,12 +6,14 @@
  * `endorsement.received` (≈ 40 XP pour la personne appréciée, rendements
  * décroissants par paire). Un faux présent retiré par l'hôte voit ses
  * appréciations, données et reçues pour cette jam, reprises par
- * transaction négative liée (`reverseGain`), jamais effacées du registre.
+ * transaction négative liée (`reverseGain`), jamais effacées du registre,
+ * et retirées du palier (`endorsement.revoked`).
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { getTrustLevel } from '#lib/server/trust/quotas';
-import { emitAndProcess, reverseGain } from '#lib/server/progression/processor';
+import { emitAndProcess } from '#lib/server/progression/processor';
+import { revokeEndorsementEvent } from '#lib/server/endorsements/service';
 import { TRUST_PERMISSIONS } from '#lib/server/progression/core/trust';
 import { endsBeforeCurfew, parisMinutes } from '#lib/jam/publicJam';
 import { leadOf } from '#lib/jam/lineup';
@@ -187,17 +189,16 @@ async function revokeEndorsementsOf(tx: Tx, jamId: string, actorId: string, reas
 			revokedAt: null,
 			OR: [{ fromActorId: actorId }, { toActorId: actorId }]
 		},
-		select: { id: true, eventId: true }
+		select: { id: true, eventId: true, fromActorId: true, toActorId: true }
 	});
 	for (const e of endorsements) {
-		if (e.eventId) {
-			const gains = await tx.xpTransaction.findMany({
-				where: { sourceEventId: e.eventId, reversesId: null, reversedBy: null },
-				select: { id: true }
-			});
-			for (const g of gains) await reverseGain(tx, g.id, reason);
-		}
 		await tx.jamEndorsement.update({ where: { id: e.id }, data: { revokedAt: new Date() } });
+		await revokeEndorsementEvent(tx, {
+			eventId: e.eventId,
+			actorId: e.toActorId,
+			endorserId: e.fromActorId,
+			reason
+		});
 	}
 }
 
@@ -331,22 +332,6 @@ export async function myRecentJams(viewerId: string, now = new Date()) {
 		venue: j.venue?.name ?? '',
 		attended: Boolean(j.attendances[0]?.attendedAt)
 	}));
-}
-
-/** Appréciations reçues, pour le profil : par qualité ou instrument, des plus fréquentes. */
-export async function endorsementsReceived(actorId: string) {
-	const rows = await prisma.jamEndorsement.findMany({
-		where: { toActorId: actorId, revokedAt: null },
-		select: { quality: true, instrument: { select: { name: true } } }
-	});
-	const counts = new Map<string, number>();
-	for (const r of rows) {
-		const label = r.quality ? JAM_QUALITY_LABELS[r.quality] : r.instrument?.name.toLowerCase();
-		if (label) counts.set(label, (counts.get(label) ?? 0) + 1);
-	}
-	return [...counts.entries()]
-		.map(([label, count]) => ({ label, count }))
-		.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
 }
 
 const hhmm = (minutes: number) =>

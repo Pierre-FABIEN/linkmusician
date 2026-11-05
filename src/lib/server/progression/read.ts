@@ -50,6 +50,7 @@ export const SUMMARY_EVENTS: readonly DomainEventType[] = [
 	'membership.accepted',
 	'collaboration.completed',
 	'endorsement.received',
+	'endorsement.revoked',
 	'milestone.attested'
 ];
 

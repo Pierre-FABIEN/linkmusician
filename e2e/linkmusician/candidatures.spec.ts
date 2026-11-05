@@ -9,7 +9,8 @@ import { setCity, skipOnboarding } from '../support/linkmusician';
 /**
  * P2-03 — Candidatures : conditions vérifiées, candidature, acceptation qui
  * ouvre une conversation liée à l'annonce, annonce complète, et premiers
- * points sociaux quand l'échange devient réciproque.
+ * points sociaux quand l'échange devient réciproque. Puis appréciation
+ * après la collaboration confirmée, et sa reprise (P2-07).
  */
 test.describe('LinkMusician — candidatures', () => {
 	test.setTimeout(9 * 60_000);
@@ -137,6 +138,8 @@ test.describe('LinkMusician — candidatures', () => {
 				await expect(
 					page.getByText(`En attente de la confirmation de ${malik.actor.displayName}`)
 				).toBeVisible();
+				// Pas encore confirmée : pas d'appréciation possible (P2-07).
+				await expect(page.getByRole('form', { name: /^Apprécier/ })).toHaveCount(0);
 			});
 
 			await test.step('8. Malik confirme depuis son tableau de bord : XP pour les deux', async () => {
@@ -163,6 +166,51 @@ test.describe('LinkMusician — candidatures', () => {
 				await page.goto(`/@${lea.actor.handle}`);
 				await waitForAppReady(page);
 				await expect(page.getByText('1 collaboration confirmée avec 1 personne')).toBeVisible();
+			});
+
+			await test.step('9. Malik apprécie Léa : « à l’heure » (P2-07)', async () => {
+				// La confiance est recalculée après chaque événement : TL1 pour apprécier.
+				await db.actor.update({ where: { id: malik.actorId }, data: { trustLevel: 1 } });
+				await malikPage.reload();
+				await waitForAppReady(malikPage);
+				const form = malikPage.getByRole('form', { name: `Apprécier ${lea.actor.displayName}` });
+				await expectNoA11yViolations(malikPage, A11Y_EXCLUDE);
+				await form.getByRole('button', { name: 'à l’heure' }).click();
+				await expect(
+					malikPage.getByText(`Tu as apprécié ${lea.actor.displayName} :`, { exact: false })
+				).toBeVisible();
+				await expect
+					.poll(() =>
+						db.xpTransaction.findFirst({
+							where: { actorId: lea.actorId, ruleId: 'endorsement.received' },
+							select: { amount: true, reason: true }
+						})
+					)
+					.toEqual({ amount: 40, reason: 'Appréciation : à l’heure' });
+				await page.goto(`/@${lea.actor.handle}`);
+				await waitForAppReady(page);
+				await expect(
+					page.getByRole('list', { name: 'Appréciations reçues' }).getByText('à l’heure')
+				).toBeVisible();
+			});
+
+			await test.step('10. Malik reprend son appréciation : l’XP est repris', async () => {
+				await malikPage.getByRole('button', { name: 'Reprendre' }).click();
+				await expect(
+					malikPage.getByText(`Tu as apprécié ${lea.actor.displayName} :`, { exact: false })
+				).toHaveCount(0);
+				await expect
+					.poll(async () => {
+						const sum = await db.xpTransaction.aggregate({
+							where: { actorId: lea.actorId, ruleId: { startsWith: 'endorsement.received' } },
+							_sum: { amount: true }
+						});
+						return sum._sum.amount;
+					})
+					.toBe(0);
+				await page.reload();
+				await waitForAppReady(page);
+				await expect(page.getByRole('list', { name: 'Appréciations reçues' })).toHaveCount(0);
 			});
 		} finally {
 			await malikContext.close();

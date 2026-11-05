@@ -235,7 +235,7 @@
 					<Card.Content class="space-y-3 text-sm">
 						{#if data.appreciations.length > 0}
 							<div class="space-y-2">
-								<p class="font-medium">Apprécié·e après des jams</p>
+								<p class="font-medium">Apprécié·e après avoir joué ensemble</p>
 								<ul class="flex flex-wrap gap-2" aria-label="Appréciations reçues">
 									{#each data.appreciations as a (a.label)}
 										<li class="rounded-full border px-3 py-1">

@@ -24,7 +24,8 @@
 	const extras = $derived(
 		[
 			demos ? `${demos} démo${demos > 1 ? 's' : ''}` : null,
-			endorsements ? `endossé par ${endorsements}` : null
+			// « Apprécié par N » : le mot de l’app pour un endossement (P2-07).
+			endorsements ? `apprécié par ${endorsements}` : null
 		].filter((e): e is string => e !== null)
 	);
 </script>

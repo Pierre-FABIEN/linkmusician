@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
-	import { ArrowLeft, Send } from 'lucide-svelte';
+	import { ArrowLeft, Heart, Send } from 'lucide-svelte';
 	import { MAX_MESSAGE_LENGTH } from '#lib/messaging/rules';
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
 	import { COLLAB_KINDS, COLLAB_KIND_LABELS, MAX_COLLAB_TITLE } from '#lib/collaborations/rules';
@@ -13,10 +13,12 @@
 	let { data, form } = $props();
 	const c = $derived(data.conversation);
 	let body = $state('');
+	const chip = 'min-h-11 rounded-full border px-3 text-sm font-semibold hover:border-primary';
 	let sending = $state(false);
 
 	$effect(() => {
 		if (form?.error) toast.error(form.error);
+		if (form && 'message' in form && form.message) toast.success(form.message);
 	});
 
 	/**
@@ -115,6 +117,48 @@
 								<p class="font-medium text-emerald-700 dark:text-emerald-400">
 									Confirmée par vous deux ✓
 								</p>
+								{#each data.appreciations.byCollab[k.id] ?? [] as p (p.handle)}
+									{#if p.given}
+										<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+											<p class="inline-flex items-center gap-1 font-semibold text-primary">
+												<Heart class="size-3.5" aria-hidden="true" />Tu as apprécié {p.displayName} :
+												{p.given}
+											</p>
+											<form method="POST" action="?/revokeEndorsement" use:enhance>
+												<input type="hidden" name="collaborationId" value={k.id} />
+												<input type="hidden" name="to" value={p.handle} />
+												<button class="min-h-11 text-muted-foreground underline">Reprendre</button>
+											</form>
+										</div>
+									{:else if data.appreciations.canEndorse}
+										<form
+											method="POST"
+											action="?/endorseCollab"
+											use:enhance
+											class="space-y-2"
+											aria-label="Apprécier {p.displayName}"
+										>
+											<p>Laisse une appréciation à {p.displayName} :</p>
+											<input type="hidden" name="collaborationId" value={k.id} />
+											<input type="hidden" name="to" value={p.handle} />
+											<div class="flex flex-wrap gap-2">
+												{#each data.qualities as q (q.value)}
+													<button name="quality" value={q.value} class={chip}>{q.label}</button>
+												{/each}
+												{#each p.instruments as i (i.slug)}
+													<button name="instrument" value={i.slug} class={chip}
+														>{i.name.toLowerCase()}</button
+													>
+												{/each}
+											</div>
+										</form>
+									{:else}
+										<p class="text-muted-foreground">
+											Les appréciations s’ouvrent quand ton compte a un peu d’ancienneté (palier de
+											confiance 1).
+										</p>
+									{/if}
+								{/each}
 							{:else if k.step === 'respond'}
 								<p>{k.with} propose cette collaboration.</p>
 								<div class="flex flex-wrap gap-2">

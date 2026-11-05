@@ -163,6 +163,15 @@ COMPLETED` (ou `CANCELLED`) ; pas d'état « en cours », et une
 
 ### P2-07 — Endossements
 
+> **Réalisé le 06/11/2026.** Écarts : une appréciation par paire et par
+> collaboration, pas « une par compétence et par paire » (D32) ; on la
+> laisse depuis la conversation, sous la collaboration confirmée.
+> L'instrument proposé est l'un de ceux que la personne déclare ; le
+> profil affiche « apprécié par N » (personnes distinctes, jams et
+> collaborations). Une appréciation reprise émet `endorsement.revoked`,
+> qui la retire du palier Référence (y compris pour les jams). Pas encore
+> de reprise par l'auteur pour une appréciation de jam.
+
 - **Dépend de** : P2-06, P2-15 (le modèle d'appréciation y naît pour
   les jams ; ce lot l'étend aux collaborations, D27).
 - **Tâches** : modèle d'endossement (compétence ou qualité : « fiable »,

@@ -47,16 +47,16 @@ jamais l'historique, elle s'applique aux nouveaux événements.
 
 **Personne (piste musicien)**
 
-| Événement                                                       | XP                         | Limite                                                                |
-| --------------------------------------------------------------- | -------------------------- | --------------------------------------------------------------------- |
-| Profil complété (≥1 instrument, ≥1 genre, zone, bio)            | 150                        | une fois                                                              |
-| Première démo publiée (validée par la modération)               | 100                        | une fois                                                              |
-| Démo supplémentaire                                             | 30                         | 3 par semaine                                                         |
-| Conversation réciproque issue d'une annonce (l'autre a répondu) | 30                         | 5 par jour                                                            |
-| Adhésion à un groupe acceptée                                   | 200                        | rendements décroissants par groupe                                    |
-| Collaboration terminée, confirmée des deux côtés                | 400 × multiplicateurs (§6) | —                                                                     |
-| Appréciation reçue après une jam (D27, P2-15)                   | 40                         | 1 par paire et par jam ; ×1, ×0,5, ×0,25 puis 0 par paire sur 12 mois |
-| Participer à une étape de groupe (comme membre présent)         | 25 % de l'XP du groupe     | —                                                                     |
+| Événement                                                        | XP                         | Limite                                                                                 |
+| ---------------------------------------------------------------- | -------------------------- | -------------------------------------------------------------------------------------- |
+| Profil complété (≥1 instrument, ≥1 genre, zone, bio)             | 150                        | une fois                                                                               |
+| Première démo publiée (validée par la modération)                | 100                        | une fois                                                                               |
+| Démo supplémentaire                                              | 30                         | 3 par semaine                                                                          |
+| Conversation réciproque issue d'une annonce (l'autre a répondu)  | 30                         | 5 par jour                                                                             |
+| Adhésion à un groupe acceptée                                    | 200                        | rendements décroissants par groupe                                                     |
+| Collaboration terminée, confirmée des deux côtés                 | 400 × multiplicateurs (§6) | —                                                                                      |
+| Appréciation reçue après une jam ou une collaboration (D27, D32) | 40                         | 1 par paire et par jam ou collaboration ; ×1, ×0,5, ×0,25 puis 0 par paire sur 12 mois |
+| Participer à une étape de groupe (comme membre présent)          | 25 % de l'XP du groupe     | —                                                                                      |
 
 **Groupe**, avec les étapes du brief et leur niveau de preuve (§4) :
 
@@ -161,14 +161,14 @@ local » plutôt que « Expert »).
 
 **Musicien**
 
-| Palier            | Conditions                                                                   |
-| ----------------- | ---------------------------------------------------------------------------- |
-| Premiers pas      | Profil complété                                                              |
-| En réseau         | ≥1 conversation réciproque **et** (≥1 groupe **ou** ≥1 collaboration)        |
-| Collaborateur     | ≥3 collaborations confirmées avec ≥2 contreparties distinctes                |
-| Musicien de scène | ≥3 concerts corroborés                                                       |
-| Pilier local      | ≥10 collaborations avec ≥5 contreparties distinctes, ≥10 concerts corroborés |
-| Référence         | ≥1 sortie vérifiée **et** ≥10 endossements de collaborateurs distincts       |
+| Palier            | Conditions                                                                      |
+| ----------------- | ------------------------------------------------------------------------------- |
+| Premiers pas      | Profil complété                                                                 |
+| En réseau         | ≥1 conversation réciproque **et** (≥1 groupe **ou** ≥1 collaboration)           |
+| Collaborateur     | ≥3 collaborations confirmées avec ≥2 contreparties distinctes                   |
+| Musicien de scène | ≥3 concerts corroborés                                                          |
+| Pilier local      | ≥10 collaborations avec ≥5 contreparties distinctes, ≥10 concerts corroborés    |
+| Référence         | ≥1 sortie vérifiée **et** ≥10 endosseurs distincts (appréciations non reprises) |
 
 **Groupe** : le palier est la dernière étape franchie au niveau
 corroboré ou au-delà (Projet → Répète → Compose → Enregistre → Démo →
@@ -211,16 +211,16 @@ signature).
 
 ## 6. Anti-abus
 
-| Abus                               | Contre-mesure                                                                                                                                                                                                                                                                         |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Spam de demandes de contact        | 0 XP pour un contact. Quota de premiers messages à des inconnus selon la confiance (TL0 : 10 par jour). Les refus et blocages reçus font baisser la confiance                                                                                                                         |
-| Collaborations fictives entre amis | Multiplicateurs : **rendements décroissants par contrepartie** (1 / 0,5 / 0,25 / 0 pour la k-ième collaboration avec la même personne sur 12 mois) × **poids de confiance de la contrepartie** (TL0 : 0,1 · TL1 : 0,5 · TL2+ : 1)                                                     |
-| Cliques de comptes                 | Job nocturne : détection des composantes denses du graphe de collaborations sans aucun lien extérieur, puis mise en revue manuelle. Empreinte d'appareil et d'IP à l'inscription (le boilerplate a déjà un module anti-fraude et une détection d'appareil)                            |
-| Faux concerts ou fausses sorties   | Corroboration par un tiers hors groupe, vérification par l'organisation ou une API, contestation possible et reprise d'XP                                                                                                                                                             |
-| Faux endossements                  | Apprécier exige d'avoir dit « J'y étais » à la même jam que la personne, dans les 7 jours, et le palier TL1. Une appréciation par paire et par jam ; rendements décroissants par paire. L'hôte retire un faux présent : ses appréciations sont reprises par transaction négative liée |
-| Farm de démos                      | Plafond hebdomadaire, médias validés par la modération avant de rapporter                                                                                                                                                                                                             |
-| Achat de points                    | Inexistant. Aucun produit payant n'écrit dans le registre XP                                                                                                                                                                                                                          |
-| Valeurs envoyées par le client     | Le client n'envoie jamais de points, seulement des **intentions** (« je déclare un concert »). Le serveur calcule tout                                                                                                                                                                |
+| Abus                               | Contre-mesure                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Spam de demandes de contact        | 0 XP pour un contact. Quota de premiers messages à des inconnus selon la confiance (TL0 : 10 par jour). Les refus et blocages reçus font baisser la confiance                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Collaborations fictives entre amis | Multiplicateurs : **rendements décroissants par contrepartie** (1 / 0,5 / 0,25 / 0 pour la k-ième collaboration avec la même personne sur 12 mois) × **poids de confiance de la contrepartie** (TL0 : 0,1 · TL1 : 0,5 · TL2+ : 1)                                                                                                                                                                                                                                                                                                                               |
+| Cliques de comptes                 | Job nocturne : détection des composantes denses du graphe de collaborations sans aucun lien extérieur, puis mise en revue manuelle. Empreinte d'appareil et d'IP à l'inscription (le boilerplate a déjà un module anti-fraude et une détection d'appareil)                                                                                                                                                                                                                                                                                                      |
+| Faux concerts ou fausses sorties   | Corroboration par un tiers hors groupe, vérification par l'organisation ou une API, contestation possible et reprise d'XP                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Faux endossements                  | Apprécier exige d'avoir dit « J'y étais » à la même jam que la personne, dans les 7 jours, et le palier TL1. Une appréciation par paire et par jam ; rendements décroissants par paire. L'hôte retire un faux présent : ses appréciations sont reprises par transaction négative liée. Après une collaboration (P2-07) : seulement entre participants d'une collaboration confirmée par tous, une par paire et par collaboration, TL1 requise ; reprise possible par son auteur (XP repris, `endorsement.revoked` la retire des endosseurs distincts du palier) |
+| Farm de démos                      | Plafond hebdomadaire, médias validés par la modération avant de rapporter                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Achat de points                    | Inexistant. Aucun produit payant n'écrit dans le registre XP                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Valeurs envoyées par le client     | Le client n'envoie jamais de points, seulement des **intentions** (« je déclare un concert »). Le serveur calcule tout                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
 ## 7. Confiance (trust levels)
 

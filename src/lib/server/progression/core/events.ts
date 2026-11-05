@@ -63,7 +63,23 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		/** Qualité (« bon groove ») ou instrument apprécié. */
 		skill: z.string().min(1),
 		/** Jam où les deux étaient présent·es (P2-15, D27). */
-		jamId: id.optional()
+		jamId: id.optional(),
+		/** Collaboration confirmée par les deux (P2-07). */
+		collaborationId: id.optional()
+	}),
+	/**
+	 * Appréciation reprise (P2-07) : par son autrice ou son auteur, ou parce
+	 * qu'une présence à la jam a été retirée. L'XP est repris à part, par
+	 * transaction négative liée ; ce fait sert au palier (endosseurs
+	 * distincts) et ne rapporte rien.
+	 */
+	z.object({
+		...base,
+		type: z.literal('endorsement.revoked'),
+		actorId: id,
+		endorserId: id,
+		/** Événement `endorsement.received` repris. */
+		endorsementEventId: id
 	}),
 	/**
 	 * « J'y étais » à une jam (P2-15b) : ne rapporte rien (D27), sert aux

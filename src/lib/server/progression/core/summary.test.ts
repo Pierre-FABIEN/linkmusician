@@ -68,6 +68,35 @@ describe('résumé musicien (P1-11)', () => {
 		expect(musicianTier(s).tier?.id).toBe('COLLABORATOR');
 	});
 
+	it('une appréciation reprise ne compte plus pour les endosseurs distincts (P2-07)', () => {
+		const received = (endorserId: string, id: string) =>
+			parseDomainEvent({
+				id,
+				occurredAt: at,
+				type: 'endorsement.received',
+				actorId: ME,
+				endorserId,
+				skill: 'fiable'
+			});
+		const revoked = (endorserId: string, endorsementEventId: string) =>
+			ev({ type: 'endorsement.revoked', actorId: ME, endorserId, endorsementEventId });
+		// a : deux appréciations, une reprise ; b : une, reprise ; c : reprise ailleurs.
+		const s = musicianSummary(ME, [
+			revoked('b', 'b1'), // l'ordre des lignes lues n'a pas d'importance
+			received('a', 'a1'),
+			received('a', 'a2'),
+			revoked('a', 'a1'),
+			received('b', 'b1'),
+			ev({
+				type: 'endorsement.revoked',
+				actorId: 'other',
+				endorserId: 'c',
+				endorsementEventId: 'x'
+			})
+		]);
+		expect(s.distinctEndorsers).toBe(1);
+	});
+
 	it('étapes de groupe : concert corroboré, sortie vérifiée', () => {
 		const milestone = (milestone: string, to: string, memberIds = [ME]) =>
 			ev({ type: 'milestone.attested', bandId: 'b1', milestone, from: null, to, memberIds });

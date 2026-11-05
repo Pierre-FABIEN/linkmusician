@@ -12,6 +12,7 @@ import { getMusicalProfile } from '#lib/prisma/skills/musicalProfile';
 import { getActorLocation } from '#lib/server/geo/queries';
 import { getMusicianTier, getProgress } from '#lib/server/progression/read';
 import { adultBirthCutoff, isIndexable } from '#lib/actors/visibility';
+import { endorsersByInstrument } from '#lib/server/endorsements/service';
 import { publicActorWhere } from './visibility';
 
 /** Médias publiés affichés sur le profil (les plus récents). */
@@ -42,7 +43,7 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 	});
 	if (!actor) return null;
 
-	const [musical, location, progress, tier, media] = await Promise.all([
+	const [musical, location, progress, tier, media, endorsed] = await Promise.all([
 		getMusicalProfile({ actorId: actor.id }),
 		getActorLocation(actor.id),
 		getProgress(actor.id, prisma),
@@ -59,7 +60,8 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 				fileUrl: true,
 				instrumentId: true
 			}
-		})
+		}),
+		endorsersByInstrument(actor.id)
 	]);
 
 	const demosByInstrument = new Map<string, number>();
@@ -89,7 +91,9 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 			name: i.name,
 			level: i.level,
 			primary: i.isPrimary,
-			demos: demosByInstrument.get(i.instrumentId) ?? 0
+			demos: demosByInstrument.get(i.instrumentId) ?? 0,
+			// « Endossé par N » (P2-07) : personnes distinctes, jams et collaborations.
+			endorsements: endorsed.get(i.instrumentId) ?? 0
 		})),
 		genres: musical.genres.map((g) => g.name),
 		influences: musical.influences,

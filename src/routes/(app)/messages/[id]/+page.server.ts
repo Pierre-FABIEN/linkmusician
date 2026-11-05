@@ -23,6 +23,16 @@ import {
 	today
 } from '#lib/server/collaborations/service';
 import { collaborationSchema } from '#lib/collaborations/rules';
+import {
+	collabAppreciations,
+	endorseCollaborator,
+	revokeCollabEndorsement
+} from '#lib/server/collaborations/endorse';
+import {
+	COLLAB_QUALITIES,
+	COLLAB_QUALITY_LABELS,
+	collabEndorseSchema
+} from '#lib/collaborations/endorse';
 import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -35,10 +45,17 @@ export const load: PageServerLoad = async ({ locals, params, depends }) => {
 	try {
 		const actorId = (await me(locals)).actorId;
 		const conversation = await openConversation(actorId, params.id);
+		// Collaborations (P2-06) entre les deux personnes de la conversation.
+		const collaborations = await listForConversation(actorId, params.id);
 		return {
 			conversation,
-			// Collaborations (P2-06) entre les deux personnes de la conversation.
-			collaborations: await listForConversation(actorId, params.id),
+			collaborations,
+			// Appréciations après une collaboration confirmée (P2-07).
+			appreciations: await collabAppreciations(
+				actorId,
+				collaborations.filter((k) => k.status === 'COMPLETED').map((k) => k.id)
+			),
+			qualities: COLLAB_QUALITIES.map((value) => ({ value, label: COLLAB_QUALITY_LABELS[value] })),
 			today: today()
 		};
 	} catch (err) {
@@ -89,6 +106,33 @@ export const actions: Actions = {
 	confirmCollab: async ({ locals, request }) => {
 		const id = String((await request.formData()).get('collaborationId') ?? '');
 		return handle(async () => confirmCollaboration((await me(locals)).actorId, id));
+	},
+	/** Appréciation après une collaboration confirmée (P2-07). */
+	endorseCollab: async ({ locals, request }) => {
+		const data = await request.formData();
+		const field = (name: string) => String(data.get(name) ?? '').trim() || undefined;
+		const parsed = collabEndorseSchema.safeParse({
+			collaborationId: field('collaborationId'),
+			to: field('to'),
+			quality: field('quality'),
+			instrument: field('instrument')
+		});
+		if (!parsed.success) {
+			return fail(400, { error: parsed.error.issues[0]?.message ?? 'Vérifie l’appréciation.' });
+		}
+		try {
+			const done = await endorseCollaborator((await me(locals)).actorId, parsed.data);
+			return { ok: true, message: `Appréciation laissée à ${done.displayName} : ${done.skill}.` };
+		} catch (err) {
+			if (err instanceof CollaborationError) return fail(err.status, { error: err.message });
+			throw err;
+		}
+	},
+	revokeEndorsement: async ({ locals, request }) => {
+		const data = await request.formData();
+		const id = String(data.get('collaborationId') ?? '');
+		const to = String(data.get('to') ?? '');
+		return handle(async () => revokeCollabEndorsement((await me(locals)).actorId, id, to));
 	},
 	cancelCollab: async ({ locals, request }) => {
 		const id = String((await request.formData()).get('collaborationId') ?? '');
