@@ -355,12 +355,23 @@ anime la scène ouverte d'un bar (D27). Les situations courantes :
    jam a toujours lieu dans un **lieu public ou professionnel** : bar,
    café-concert, salle, scène ouverte, MJC, local de répétition, studio.
    **Jamais chez un particulier** (D26).
+   - Chaque jam a un **lead** (l'hôte, ou le ou la musicien·ne qu'il
+     désigne). Le lead **compose sa formation** : il invite des
+     musicien·nes avec qui il a des affinités sur des places réservées ;
+     les autres places restent ouvertes à tous.
+   - La jam indique le **matériel sur place** (batterie, amplis, clavier,
+     sono, micros) : chacun sait s'il doit apporter son instrument, son
+     ampli ou seulement ses cymbales.
+   - Les lieux pourront recevoir des **suggestions de leads** parmi les
+     musicien·nes « prêt·es à animer », triées par réputation
+     (appréciations, jams animées), jamais par l'XP (P5-04).
 3. **Trouve-moi une jam** : un bouton qui propose les jams à venir et
    les personnes dispos près de soi, selon son instrument et ses
    genres. On dit « Je viens » ; on peut venir seul, sans connaître
    personne. C'est souvent la première scène d'un·e débutant·e.
 4. **On joue.** Hors de l'app, dans la vraie vie.
-5. **Après la jam** : chacun peut dire **« J'y étais »**. Ça ne rapporte
+5. **Après la jam** : chacun peut dire **« J'y étais »**, puis voit les
+   présent·es en grille de photos de profil pour les reconnaître. Ça ne rapporte
    rien en soi (D27) : ça ouvre, pendant 7 jours, la possibilité de
    laisser une **appréciation** aux autres présents (« bon groove »,
    « à l'écoute », « belle impro », un instrument) et de choisir :

@@ -314,10 +314,29 @@ VENUE`) ; quota de création (rate limit). Une jam n'est plus une
   (test) ; e2e « je publie une jam au Bar des Amis, quelqu'un dit Je
   viens ».
 
+### P2-14c — Formation du lead et matériel sur place
+
+- **Dépend de** : P2-14b.
+- **Tâches** : **lead** de la jam (l'hôte, ou un·e musicien·ne désigné·e
+  par l'hôte) ; le lead **compose sa formation** : il invite des
+  musicien·nes de son choix (affinités, réseau musical) sur des places
+  réservées, acceptées par l'invité·e ; les autres places restent
+  ouvertes à « Je viens ». **Matériel sur place** : batterie, ampli
+  basse, ampli guitare, clavier, sono et micros, câbles ; par défaut
+  celui de la fiche du lieu, modifiable pour une jam ; la fiche de la
+  jam dit à chacun·e quoi apporter (« apporte ta guitare, l'ampli est
+  là »). Aucune XP (D27).
+- **Fin** : une place réservée n'est pas prise par « Je viens » (test) ;
+  e2e « le lead invite une batteuse, elle accepte ; la fiche dit
+  d'apporter sa basse, l'ampli est fourni ».
+
 ### P2-15 — Après la jam : « J'y étais » et appréciations
 
 - **Dépend de** : P2-14b. Décision D27.
 - **Tâches** : après le début de la jam, « J'y étais » (sans XP) ;
+  écran « Qui était là ? » : les présent·es en **grille de photos de
+  profil** (initiales et instrument si pas de photo) pour reconnaître
+  les gens, un toucher pour apprécier ;
   pendant 7 jours, appréciation d'un autre présent : qualité
   (« bon groove », « à l'écoute », « belle impro », « fiable ») ou
   instrument ; une par paire et par jam ; TL1 requise pour en donner ;

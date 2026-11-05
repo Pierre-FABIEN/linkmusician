@@ -176,7 +176,11 @@ mode jam.
 - **Dépend de** : P5-03, P2-14b.
 - **Tâches** : le lieu revendique sa fiche de l'annuaire (P2-14a) ;
   scène ouverte **récurrente** publiée par le lieu ; musicien·nes
-  animateur·rices affilié·es au lieu ; les appréciations après la jam
+  animateur·rices affilié·es au lieu ; les musicien·nes peuvent se dire
+  **« prêt·e à animer une jam »** ; le lieu reçoit des **suggestions de
+  leads** triées par réputation (appréciations reçues, jams animées ;
+  **jamais l'XP**), propose l'animation, et le lead compose sa formation
+  (P2-14c) ; les appréciations après la jam
   restent la seule source de points (D27) ; règles pour les mineur·es.
 - **Fin** : e2e « je trouve la scène ouverte du jeudi dans le mode jam ».
 
