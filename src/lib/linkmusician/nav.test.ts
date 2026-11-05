@@ -28,8 +28,15 @@ describe('navigation de l’espace', () => {
 		expect(isActive(item(href), path)).toBe(expected);
 	});
 
+	it('l’annuaire des lieux allume l’onglet Jam', () => {
+		const jam = NAV_BY_MODE.JAM.find((i) => i.href === '/jam')!;
+		expect(isActive(jam, '/lieux/nouveau')).toBe(true);
+	});
+
 	it.each([
 		['/jam', 'CAREER', 'JAM'],
+		['/lieux/abc', 'CAREER', 'JAM'],
+		['/lieuxdits', null, 'CAREER'],
 		['/espace', 'JAM', 'CAREER'],
 		['/messages', 'JAM', 'JAM'],
 		['/messages', null, 'CAREER']

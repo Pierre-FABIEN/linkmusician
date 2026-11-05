@@ -119,7 +119,8 @@ export async function exportPersonData(userId: string) {
 		opportunities,
 		applications,
 		collaborations,
-		availability
+		availability,
+		venuesAdded
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -202,6 +203,12 @@ export async function exportPersonData(userId: string) {
 		prisma.availability.findUnique({
 			where: { actorId: person.actorId },
 			select: { slot: true, startsAt: true, endsAt: true, note: true }
+		}),
+		// Annuaire des lieux (P2-14a) : lieux ajoutés par la personne.
+		prisma.venue.findMany({
+			where: { createdById: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { name: true, kind: true, communeName: true, createdAt: true }
 		})
 	]);
 	const media = await prisma.media.findMany({
@@ -283,6 +290,12 @@ export async function exportPersonData(userId: string) {
 			le: o.createdAt
 		})),
 		disponibilite: availability,
+		lieux_ajoutes: venuesAdded.map((v) => ({
+			nom: v.name,
+			type: v.kind,
+			commune: v.communeName,
+			le: v.createdAt
+		})),
 		collaborations: collaborations.map((c) => ({
 			type: c.kind,
 			titre: c.title,
@@ -326,6 +339,9 @@ export async function personAnonymizationOps(
 		prisma.actorActivityDay.deleteMany({ where: { actorId: person.actorId } }),
 		// Mode jam (P2-13).
 		prisma.availability.deleteMany({ where: { actorId: person.actorId } }),
+		// Annuaire des lieux (P2-14a) : les lieux ajoutés restent (ce sont des
+		// lieux publics, utiles aux autres) ; ils restent liés à l'acteur
+		// anonymisé, qui ne dit plus rien de la personne.
 		// Annonces (P2-02) : supprimées avec le compte.
 		prisma.opportunity.deleteMany({ where: { issuerActorId: person.actorId } }),
 		// Candidatures (P2-03) : supprimées avec le compte.

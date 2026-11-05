@@ -48,7 +48,7 @@ export const PLAY_MODE_INFO: Readonly<
 		label: 'Mode jam',
 		pitch:
 			'Envie de jouer ce soir ? Trouve des jams autour de toi et rencontre d’autres musicien·nes.',
-		how: 'Chaque jam confirmée rapporte des points, et tu découvres des musicien·nes.',
+		how: 'Tu découvres des musicien·nes, et tes points montent quand ceux avec qui tu joues t’apprécient.',
 		href: '/jam',
 		slug: 'jam',
 		intro: [
@@ -57,8 +57,8 @@ export const PLAY_MODE_INFO: Readonly<
 				text: 'Pas de projet, pas de pression : mets-toi dispo ou rejoins une jam, toujours dans un lieu public ou un local de répète.'
 			},
 			{
-				title: 'Tu gagnes aussi des points',
-				text: 'Après la jam, confirmez-la tous les deux : elle compte comme une collaboration, et tes points montent.'
+				title: 'Fais-toi remarquer',
+				text: 'Venir ne suffit pas : après la jam, les musicien·nes présents peuvent te laisser une appréciation (« bon groove », « à l’écoute »). C’est ce qui fait monter tes points.'
 			},
 			{
 				title: 'Et peut-être plus',

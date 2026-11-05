@@ -12,7 +12,8 @@ import {
 	ModerationError,
 	rejectMedia,
 	sanction,
-	removeOpportunity
+	removeOpportunity,
+	removeVenue
 } from '#lib/server/moderation/service';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -48,7 +49,8 @@ export const load: PageServerLoad = async () => {
 			reporter: r.reporter.handle,
 			targetActor: r.targetActor,
 			media: r.media ? mediaView(r.media) : null,
-			opportunity: r.opportunity
+			opportunity: r.opportunity,
+			venue: r.venue
 		}))
 	};
 };
@@ -78,6 +80,15 @@ export const actions: Actions = {
 			locals,
 			(by) => removeOpportunity(field(data, 'opportunityId'), field(data, 'reason'), by),
 			'Annonce retirée.'
+		);
+	},
+	/** Retirer un lieu signalé (P2-14a). */
+	removeVenue: async ({ request, locals }) => {
+		const data = await request.formData();
+		return run(
+			locals,
+			(by) => removeVenue(field(data, 'venueId'), field(data, 'reason'), by),
+			'Lieu retiré.'
 		);
 	},
 	approve: async ({ request, locals }) => {

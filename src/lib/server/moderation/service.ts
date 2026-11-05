@@ -35,7 +35,7 @@ const reportBucket = new RefillingTokenBucket<string>(
 export async function fileReport(
 	reporterActorId: string,
 	input: {
-		targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY';
+		targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY' | 'VENUE';
 		targetId: string;
 		reason: string;
 		details?: string;
@@ -58,6 +58,13 @@ export async function fileReport(
 			select: { issuerActorId: true }
 		});
 		targetActorId = opportunity?.issuerActorId ?? null;
+	} else if (input.targetType === 'VENUE') {
+		// Lieu de l'annuaire (P2-14a) : l'acteur visé est la personne qui l'a ajouté.
+		const venue = await prisma.venue.findFirst({
+			where: { id: input.targetId, removedAt: null },
+			select: { createdById: true }
+		});
+		targetActorId = venue?.createdById ?? null;
 	} else {
 		const actor = await prisma.actor.findFirst({
 			where: { id: input.targetId, deletedAt: null },
@@ -121,13 +128,19 @@ export async function moderationQueue() {
 	const opportunityIds = openReports
 		.filter((r) => r.targetType === 'OPPORTUNITY')
 		.map((r) => r.targetId);
-	const [reportedMedia, reportedOpportunities] = await Promise.all([
+	const venueIds = openReports.filter((r) => r.targetType === 'VENUE').map((r) => r.targetId);
+	const [reportedMedia, reportedOpportunities, reportedVenues] = await Promise.all([
 		prisma.media.findMany({ where: { id: { in: mediaIds } } }),
 		prisma.opportunity.findMany({
 			where: { id: { in: opportunityIds } },
 			select: { id: true, title: true, description: true, status: true }
+		}),
+		prisma.venue.findMany({
+			where: { id: { in: venueIds } },
+			select: { id: true, name: true, kind: true, communeName: true, removedAt: true }
 		})
 	]);
+	const venueById = new Map(reportedVenues.map((v) => [v.id, v]));
 	const byId = new Map(reportedMedia.map((m) => [m.id, m]));
 	const opportunityById = new Map(reportedOpportunities.map((o) => [o.id, o]));
 	return {
@@ -135,7 +148,9 @@ export async function moderationQueue() {
 		openReports: openReports.map((r) => ({
 			...r,
 			media: r.targetType === 'MEDIA' ? (byId.get(r.targetId) ?? null) : null,
-			opportunity: r.targetType === 'OPPORTUNITY' ? (opportunityById.get(r.targetId) ?? null) : null
+			opportunity:
+				r.targetType === 'OPPORTUNITY' ? (opportunityById.get(r.targetId) ?? null) : null,
+			venue: r.targetType === 'VENUE' ? (venueById.get(r.targetId) ?? null) : null
 		}))
 	};
 }
@@ -151,7 +166,7 @@ async function refreshTrust(actorId: string) {
 }
 
 async function closeReports(
-	where: { targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY'; targetId: string },
+	where: { targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY' | 'VENUE'; targetId: string },
 	by: Moderator,
 	note: string,
 	status: 'ACTIONED' | 'DISMISSED'
@@ -319,4 +334,28 @@ export async function removeOpportunity(opportunityId: string, reason: string, b
 		metadata: { reason }
 	});
 	await refreshTrust(opportunity.issuerActorId);
+}
+
+/** Retire un lieu de l'annuaire (P2-14a) et clôt ses signalements. */
+export async function removeVenue(venueId: string, reason: string, by: Moderator) {
+	const venue = await prisma.venue.findUnique({
+		where: { id: venueId },
+		select: { createdById: true }
+	});
+	if (!venue) throw new ModerationError('Lieu introuvable.');
+	await prisma.venue.update({ where: { id: venueId }, data: { removedAt: new Date() } });
+	await closeReports(
+		{ targetType: 'VENUE', targetId: venueId },
+		by,
+		`Lieu retiré : ${reason}`,
+		'ACTIONED'
+	);
+	await logAdminAction({
+		actorId: by.userId,
+		action: 'moderation.venue.remove',
+		targetType: 'Venue',
+		targetId: venueId,
+		metadata: { reason }
+	});
+	await refreshTrust(venue.createdById);
 }

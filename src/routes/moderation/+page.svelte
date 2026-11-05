@@ -89,7 +89,10 @@
 								? 'média'
 								: r.targetType === 'OPPORTUNITY'
 									? 'annonce'
-									: 'profil'} de @{r.targetActor.handle}
+									: r.targetType === 'VENUE'
+										? 'lieu ajouté par'
+										: 'profil'}
+							{r.targetType === 'VENUE' ? '' : 'de '}@{r.targetActor.handle}
 						</span>
 						<span class="text-muted-foreground">par @{r.reporter} · {date(r.createdAt)}</span>
 					</div>
@@ -99,6 +102,12 @@
 						<div class="rounded-md border p-3 text-sm">
 							<p class="font-medium">{r.opportunity.title}</p>
 							<p class="whitespace-pre-line text-muted-foreground">{r.opportunity.description}</p>
+						</div>
+					{/if}
+					{#if r.venue}
+						<div class="rounded-md border p-3 text-sm">
+							<p class="font-medium">{r.venue.name}</p>
+							<p class="text-muted-foreground">{r.venue.communeName}</p>
 						</div>
 					{/if}
 
@@ -118,6 +127,19 @@
 								/>
 								<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
 									>Retirer l'annonce</button
+								>
+							</form>
+						{/if}
+						{#if r.venue && !r.venue.removedAt}
+							<form method="POST" action="?/removeVenue" use:enhance>
+								<input type="hidden" name="venueId" value={r.venue.id} />
+								<input
+									type="hidden"
+									name="reason"
+									value={REPORT_REASON_LABELS[r.reason as ReportReasonValue]}
+								/>
+								<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
+									>Retirer le lieu</button
 								>
 							</form>
 						{/if}

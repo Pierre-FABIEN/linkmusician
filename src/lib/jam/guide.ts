@@ -1,7 +1,8 @@
 /**
  * Mode jam : le guide « Ta prochaine étape » (P2-12b). Une seule action à la
- * fois, de la ville à la jam confirmée, jusqu'à l'invitation à passer en
- * carrière. Module pur.
+ * fois, de la ville au premier jeu ensemble, jusqu'à l'invitation à passer en
+ * carrière. Une jam ne se confirme pas comme une collaboration (D27). Module
+ * pur.
  */
 export type JamState = {
 	hasCity: boolean;
@@ -10,8 +11,10 @@ export type JamState = {
 	isDispo: boolean;
 	/** A une conversation ouverte (des deux côtés). */
 	hasConversation: boolean;
-	/** Jams ou répétitions confirmées des deux côtés. */
-	confirmedJams: number;
+	/** Connaît au moins un lieu de jam (autour de soi, ou ajouté). */
+	knowsVenues: boolean;
+	/** Répétitions (ou anciennes jams) confirmées des deux côtés. */
+	playedTogether: number;
 };
 
 export type JamStep = {
@@ -39,7 +42,7 @@ export function jamNextStep(s: JamState): JamStep {
 			cta: 'Indiquer ma ville'
 		});
 	}
-	if (!s.isDispo && !s.hasConversation && s.confirmedJams === 0) {
+	if (!s.isDispo && !s.hasConversation && s.playedTogether === 0) {
 		return s.canBeDispo
 			? step(2, {
 					title: 'Mets-toi dispo',
@@ -54,7 +57,7 @@ export function jamNextStep(s: JamState): JamStep {
 					cta: 'Voir les jams'
 				});
 	}
-	if (!s.hasConversation && s.confirmedJams === 0) {
+	if (!s.hasConversation && s.playedTogether === 0) {
 		return step(3, {
 			title: 'Écris à un·e musicien·ne',
 			text: 'Propose de jouer à quelqu’un de dispo, ou réponds à une jam ouverte.',
@@ -62,10 +65,18 @@ export function jamNextStep(s: JamState): JamStep {
 			cta: 'Voir qui est dispo'
 		});
 	}
-	if (s.confirmedJams === 0) {
+	if (s.playedTogether === 0 && !s.knowsVenues) {
 		return step(4, {
-			title: 'Après la jam, confirmez-la',
-			text: 'Dans votre conversation, proposez la collaboration et confirmez-la tous les deux : vous gagnez vos points.',
+			title: 'Trouve un lieu pour jouer',
+			text: 'Bars, cafés-concerts, MJC, locaux de répète : repère les lieux de jam autour de toi, ou ajoute celui que tu connais.',
+			href: '/lieux',
+			cta: 'Voir les lieux'
+		});
+	}
+	if (s.playedTogether === 0) {
+		return step(4, {
+			title: 'Jouez ensemble',
+			text: 'Retrouvez-vous dans un lieu de jam. Si vous répétez ensemble, déclarez la répétition dans votre conversation : elle compte comme une collaboration.',
 			href: '/messages',
 			cta: 'Ouvrir mes messages'
 		});

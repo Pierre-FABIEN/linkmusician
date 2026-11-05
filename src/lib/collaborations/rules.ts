@@ -7,9 +7,13 @@
 import { z } from 'zod';
 import { parisDay } from '#lib/metrics/indicators';
 
-/** Types proposés au MVP (concert, production : avec leurs preuves, phases 3 à 5). */
-export const COLLAB_KINDS = ['JAM', 'REHEARSAL', 'SESSION_WORK', 'RECORDING'] as const;
-export type CollabKindValue = (typeof COLLAB_KINDS)[number] | 'PRODUCTION' | 'GIG';
+/**
+ * Types proposés au MVP (concert, production : avec leurs preuves, phases 3
+ * à 5). Une jam n'est plus une collaboration (D27) : elle ne rapporte que par
+ * les appréciations des autres présents (P2-15). `JAM` reste pour l'historique.
+ */
+export const COLLAB_KINDS = ['REHEARSAL', 'SESSION_WORK', 'RECORDING'] as const;
+export type CollabKindValue = (typeof COLLAB_KINDS)[number] | 'JAM' | 'PRODUCTION' | 'GIG';
 
 export const COLLAB_KIND_LABELS: Readonly<Record<CollabKindValue, string>> = {
 	JAM: 'Jam',

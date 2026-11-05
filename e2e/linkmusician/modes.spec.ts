@@ -31,7 +31,7 @@ test.describe('LinkMusician — modes de jeu', () => {
 				'en complétant ton profil'
 			);
 			await expect(page.getByRole('button', { name: /Mode jam/ })).toContainText(
-				'rapporte des points'
+				'tes points montent'
 			);
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 		});
@@ -43,7 +43,7 @@ test.describe('LinkMusician — modes de jeu', () => {
 			await expect(page.getByRole('heading', { name: 'Jouer pour le plaisir' })).toBeVisible();
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 			await page.getByRole('button', { name: 'Suivant' }).click();
-			await expect(page.getByRole('heading', { name: 'Tu gagnes aussi des points' })).toBeVisible();
+			await expect(page.getByRole('heading', { name: 'Fais-toi remarquer' })).toBeVisible();
 			await page.getByRole('button', { name: 'Suivant' }).click();
 			await expect(page.getByText('Étape 3 sur 3')).toBeVisible();
 			await page.getByRole('button', { name: 'C’est parti !'.replace('’', "'") }).click();

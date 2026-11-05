@@ -51,3 +51,24 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
 - Service : `src/lib/server/jam/availability.ts`.
 - Modes : `src/lib/linkmusician/modes.ts`.
 - E2E : `e2e/linkmusician/modes.spec.ts`, `e2e/linkmusician/dispo.spec.ts`.
+
+## Annuaire des lieux (P2-14a)
+
+- **Pourquoi** : la plupart des jams sont tenues par un hôte, souvent un
+  bar ou une MJC (D27). Une jam se tient toujours dans un lieu de
+  l'annuaire, jamais chez un particulier (D26).
+- **Données** : `Venue` (nom, clé de doublon `nameKey`, type, commune et
+  son centre aligné sur la grille, jamais d'adresse). `claimedByActorId`
+  sert à la revendication par le lieu (P5-03).
+- **Règles** : `#lib/venues/rules` (types, nettoyage du nom, clé de
+  doublon sans accents ni article) ; service `#server/venues/service`
+  (ajout limité à 5 par jour, recherche, lieux dans un rayon de 50 km).
+- **Écrans** : `/lieux`, `/lieux/nouveau`, `/lieux/[id]` (signalement),
+  section « Lieux de jam » sur `/jam`, étape « Trouve un lieu pour
+  jouer » du guide.
+- **RGPD** : les lieux ajoutés figurent dans l'export (`lieux_ajoutes`) ;
+  à l'anonymisation, ils restent (lieux publics) liés à l'acteur
+  anonymisé.
+- **Points** : ajouter un lieu ne rapporte rien. Une jam n'est plus une
+  collaboration : seules les appréciations après la jam rapporteront
+  (P2-15).

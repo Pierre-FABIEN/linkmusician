@@ -9,13 +9,17 @@ describe('collaborations (P2-06)', () => {
 	it('dates : fenêtre autour d’aujourd’hui', () => {
 		const schema = collaborationSchema('2026-11-05');
 		const ok = (happenedOn: string) =>
-			schema.safeParse({ kind: 'JAM', title: 'Jam du jeudi', happenedOn }).success;
+			schema.safeParse({ kind: 'REHEARSAL', title: 'Répète du jeudi', happenedOn }).success;
 		expect(ok('2026-11-05')).toBe(true);
 		expect(ok(shiftDay('2026-11-05', -60))).toBe(true);
 		expect(ok(shiftDay('2026-11-05', -61))).toBe(false);
 		expect(ok(shiftDay('2026-11-05', 91))).toBe(false);
 		expect(
 			schema.safeParse({ kind: 'GIG', title: 'Concert', happenedOn: '2026-11-05' }).success
+		).toBe(false);
+		// Une jam n'est plus une collaboration (D27).
+		expect(
+			schema.safeParse({ kind: 'JAM', title: 'Jam du jeudi', happenedOn: '2026-11-05' }).success
 		).toBe(false);
 	});
 

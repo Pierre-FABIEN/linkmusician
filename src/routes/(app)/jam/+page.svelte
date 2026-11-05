@@ -190,5 +190,33 @@
 				</ul>
 			{/if}
 		</section>
+
+		<section id="lieux" class="scroll-mt-24 space-y-3" aria-labelledby="venues-title">
+			<div class="flex flex-wrap items-baseline justify-between gap-2">
+				<h2 id="venues-title" class="text-lg font-semibold">Lieux de jam</h2>
+				<a href="/lieux" class="text-sm font-semibold underline">Tous les lieux</a>
+			</div>
+			{#if data.venues.length === 0}
+				<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+					Bars, cafés-concerts, MJC, locaux de répète… Ajoute le lieu où tu aimes jouer : les autres
+					le trouveront.
+					<a href="/lieux/nouveau" class="block pt-2 font-semibold underline">Ajouter un lieu</a>
+				</p>
+			{:else}
+				<ul class="grid gap-3 sm:grid-cols-3" aria-label="Lieux de jam autour de toi">
+					{#each data.venues as v (v.id)}
+						<li>
+							<a
+								href="/lieux/{v.id}"
+								class="block rounded-2xl border bg-card p-4 transition hover:border-primary"
+							>
+								<span class="block font-semibold">{v.name}</span>
+								<span class="text-sm text-muted-foreground">{v.kindLabel} · {v.distance}</span>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</section>
 	</div>
 </div>

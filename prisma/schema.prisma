@@ -1434,6 +1434,8 @@ model Actor {
   collaborationsProposed Collaboration[] @relation("CollaborationProposer")
   collaborations         CollaborationParticipant[]
   availability           Availability?
+  venuesCreated          Venue[]                @relation("VenueCreator")
+  venuesClaimed          Venue[]                @relation("VenueClaimer")
 
   @@map("actors")
 }
@@ -1819,6 +1821,8 @@ enum ReportTarget {
   MEDIA
   /// Annonce (P2-02).
   OPPORTUNITY
+  /// Lieu de l'annuaire (P2-14a).
+  VENUE
 }
 
 enum ReportReason {
@@ -2163,4 +2167,48 @@ model Availability {
 
   @@index([endsAt])
   @@map("availabilities")
+}
+
+// ─── ANNUAIRE DES LIEUX (P2-14a) ────────────────────────────────────────────
+
+/// Types de lieux publics ou professionnels où se tiennent les jams (D26).
+enum VenueKind {
+  BAR
+  CAFE_CONCERT
+  CONCERT_HALL
+  OPEN_STAGE
+  MJC
+  REHEARSAL_SPACE
+  STUDIO
+  MUSIC_STORE
+}
+
+/// Lieu de l'annuaire, ajouté par un membre (D27) et revendiqué plus tard
+/// par le lieu lui-même (P5-03). Jamais d'adresse précise : la commune et son
+/// centre, aligné sur la grille (comme `actor_locations`).
+model Venue {
+  id               String    @id @default(cuid())
+  name             String
+  /// Nom normalisé (minuscules, sans accents ni ponctuation) : doublons.
+  nameKey          String
+  kind             VenueKind
+  communeCode      String
+  communeName      String
+  departmentCode   String
+  /// Centre de la commune aligné sur la grille de ~2 km.
+  lat              Float
+  lng              Float
+  createdById      String
+  createdBy        Actor     @relation("VenueCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  /// Lieu qui a revendiqué sa fiche (phase 5).
+  claimedByActorId String?
+  claimedBy        Actor?    @relation("VenueClaimer", fields: [claimedByActorId], references: [id], onDelete: SetNull)
+  /// Retiré par la modération.
+  removedAt        DateTime?
+  createdAt        DateTime  @default(now())
+
+  @@unique([communeCode, nameKey])
+  @@index([departmentCode])
+  @@index([createdById])
+  @@map("venues")
 }

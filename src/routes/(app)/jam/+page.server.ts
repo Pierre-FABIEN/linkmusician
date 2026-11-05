@@ -15,6 +15,7 @@ import {
 import { AVAILABILITY_SLOTS, type AvailabilitySlotValue } from '#lib/jam/availability';
 import { prisma } from '#lib/server';
 import { jamNextStep } from '#lib/jam/guide';
+import { venuesNear } from '#lib/server/venues/service';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -31,7 +32,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		location ? listNearby(person.actorId, { kind: 'JAM' }) : Promise.resolve([])
 	]);
 	// Guide « Ta prochaine étape » (P2-12b).
-	const [conversations, confirmedJams] = await Promise.all([
+	const [conversations, playedTogether, venuesAdded, nearbyVenues] = await Promise.all([
 		prisma.conversationParticipant.count({
 			where: {
 				actorId: person.actorId,
@@ -44,16 +45,27 @@ export const load: PageServerLoad = async ({ locals }) => {
 				actorId: person.actorId,
 				collaboration: { status: 'COMPLETED', kind: { in: ['JAM', 'REHEARSAL'] } }
 			}
-		})
+		}),
+		prisma.venue.count({ where: { createdById: person.actorId } }),
+		location ? venuesNear(person.actorId, { limit: 3 }) : Promise.resolve([])
 	]);
 	const nextStep = jamNextStep({
 		hasCity: Boolean(location),
 		canBeDispo,
 		isDispo: Boolean(mine),
 		hasConversation: conversations > 0,
-		confirmedJams
+		knowsVenues: venuesAdded > 0 || nearbyVenues.length > 0,
+		playedTogether
 	});
-	return { commune: location?.communeName ?? null, mine, canBeDispo, available, jams, nextStep };
+	return {
+		commune: location?.communeName ?? null,
+		mine,
+		canBeDispo,
+		available,
+		jams,
+		venues: nearbyVenues,
+		nextStep
+	};
 };
 
 export const actions: Actions = {

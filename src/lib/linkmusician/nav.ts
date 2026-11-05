@@ -38,7 +38,13 @@ export const NAV_BY_MODE: Readonly<Record<PlayModeValue, readonly AppNavItem[]>>
 		messages,
 		profile
 	],
-	JAM: [{ href: '/jam', label: 'Jam', icon: Guitar, soon: false }, discover, messages, profile]
+	JAM: [
+		// L'annuaire des lieux (P2-14a) se rattache à l'onglet Jam.
+		{ href: '/jam', label: 'Jam', icon: Guitar, soon: false, match: ['/lieux'] },
+		discover,
+		messages,
+		profile
+	]
 };
 
 /** Navigation du mode carrière (compatibilité). */
@@ -58,7 +64,7 @@ export function modeFor(
 	pathname: string,
 	preferred: PlayModeValue | null | undefined
 ): PlayModeValue {
-	if (pathname === '/jam' || pathname.startsWith('/jam/')) return 'JAM';
+	if (/^\/(jam|lieux)(\/|$)/.test(pathname)) return 'JAM';
 	if (pathname === '/espace' || pathname.startsWith('/espace/')) return 'CAREER';
 	return preferred ?? 'CAREER';
 }

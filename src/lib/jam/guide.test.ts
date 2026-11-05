@@ -6,7 +6,8 @@ const base: JamState = {
 	canBeDispo: true,
 	isDispo: false,
 	hasConversation: false,
-	confirmedJams: 0
+	knowsVenues: false,
+	playedTogether: 0
 };
 
 describe('guide du mode jam (P2-12b)', () => {
@@ -15,8 +16,9 @@ describe('guide du mode jam (P2-12b)', () => {
 		[{}, 2, 'Mets-toi dispo'],
 		[{ canBeDispo: false }, 2, 'Repère une jam'],
 		[{ isDispo: true }, 3, 'Écris à un·e musicien·ne'],
-		[{ isDispo: true, hasConversation: true }, 4, 'Après la jam, confirmez-la'],
-		[{ hasConversation: true, confirmedJams: 1 }, 5, 'Et maintenant, un projet ?']
+		[{ isDispo: true, hasConversation: true }, 4, 'Trouve un lieu pour jouer'],
+		[{ isDispo: true, hasConversation: true, knowsVenues: true }, 4, 'Jouez ensemble'],
+		[{ hasConversation: true, playedTogether: 1 }, 5, 'Et maintenant, un projet ?']
 	] as const)('%o → étape %i', (patch, index, title) => {
 		const step = jamNextStep({ ...base, ...patch });
 		expect(step).toMatchObject({ index, total: 5, title });
