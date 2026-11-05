@@ -132,7 +132,8 @@ parental) sont une piste à étudier en parallèle, après le lancement.
 
 **Piste non technique en parallèle** (§7) : rencontrer d'abord les
 écoles, académies et MJC toulousaines (un prof prescripteur = une
-promotion d'élèves) ; lister les lieux toulousains qui
+promotion d'élèves), puis les festivals de la région qui ont un volet
+pédagogique (stages, masterclasses, bœufs), en partenaires ; lister les lieux toulousains qui
 tiennent une jam, les préinscrire dans l'annuaire, rencontrer les premiers
 studios et organisateurs dès le mois 3, préparer les tracts (musicien·nes,
 pros) pour février.

@@ -189,6 +189,10 @@ mode jam.
 - **Dépend de** : P5-02.
 - **Tâches** : profil, événements, plateaux (`GIG_SLOT`), appels à
   projets avec conditions (rang, genre, zone ; jamais l'XP) ; rangs.
+  **Festivals** : jams du festival (bœufs de fin de concert, scènes
+  ouvertes « off ») publiées comme des jams (P2-14b) dans les lieux du
+  festival ; **stages et masterclasses** reliés aux écoles (P5-11), qui
+  comptent dans la quête « De l'atelier à la scène ».
 - **Fin** : un groupe hors conditions ne peut pas candidater (test).
 
 ### P5-06 — Concerts vérifiés
