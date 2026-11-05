@@ -113,6 +113,11 @@ fête, et le mode jam permet de jouer dès ce soir.
 
 ### P2-05 — Blocage
 
+> **Réalisé le 05/11/2026.** Règles de confiance ajoutées (conception 02
+> §7) : 3 blocages reçus en 90 jours → palier 0 ; plus de la moitié des
+> demandes refusées (plancher 10) → pas de palier 2. Candidatures : le
+> filtre s'appliquera avec P2-03.
+
 - **Dépend de** : P2-04.
 - **Tâches** : modèle `Block` ; bloquer depuis le profil ou une
   conversation ; effets dans les deux sens : plus de profil (404), plus

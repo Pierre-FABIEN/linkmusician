@@ -227,12 +227,19 @@ signature).
 Paliers inspirés de Discourse, recalculés à chaque événement significatif
 et chaque nuit, **rétrogradables**.
 
-| TL  | Nom      | Conditions                                                         | Droits ajoutés                                            |
-| --- | -------- | ------------------------------------------------------------------ | --------------------------------------------------------- |
-| 0   | Nouveau  | Email vérifié                                                      | 10 premiers messages par jour, 1 annonce active, 3 médias |
-| 1   | Membre   | ≥7 jours, profil complet, ≥1 conversation réciproque, 0 sanction   | 30 messages par jour, 3 annonces, endosser                |
-| 2   | Confirmé | ≥30 jours, ≥1 collaboration confirmée avec une contrepartie TL1+   | Corroborer, quotas étendus, 10 médias                     |
-| 3   | Pilier   | ≥90 jours, ≥5 contreparties distinctes, taux de signalement faible | Signalements prioritaires, inviter des organisations      |
+| TL  | Nom      | Conditions                                                                                                                                                  | Droits ajoutés                                            |
+| --- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| 0   | Nouveau  | Email vérifié                                                                                                                                               | 10 premiers messages par jour, 1 annonce active, 3 médias |
+| 1   | Membre   | ≥7 jours, profil complet, ≥1 conversation réciproque, 0 sanction, moins de 3 personnes qui l'ont bloqué (90 jours)                                          | 30 messages par jour, 3 annonces, endosser                |
+| 2   | Confirmé | ≥30 jours, ≥1 collaboration confirmée avec une contrepartie TL1+, au plus la moitié de ses demandes de contact refusées (plancher de 10 demandes, 90 jours) | Corroborer, quotas étendus, 10 médias                     |
+| 3   | Pilier   | ≥90 jours, ≥5 contreparties distinctes, taux de signalement faible                                                                                          | Signalements prioritaires, inviter des organisations      |
+
+Les **refus et blocages reçus** (P2-05) pèsent ainsi sur la confiance :
+3 blocages venant de personnes distinctes en 90 jours ramènent au palier
+0, comme une sanction ; une personne dont la plupart des demandes sont
+refusées ne dépasse pas le palier 1. Le plancher de 10 demandes évite de
+juger un nouveau venu sur 3 refus. Confiance recalculée aussitôt après un
+blocage ou un refus.
 
 ## 8. Quêtes
 

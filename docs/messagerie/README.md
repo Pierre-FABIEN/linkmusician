@@ -29,8 +29,24 @@ Module LinkMusician (lot P2-04, décisions D5 et D8). Pages `/messages`,
   l'onglet Messages ; ouvrir une conversation la marque comme lue.
 - **Temps réel (D8)** : polling toutes les 15 s sur une conversation
   ouverte, seulement onglet visible ; temps réel en phase 4 (P4-12).
-- **Signaler** la personne depuis la conversation (P1-12). Le blocage
-  arrive avec P2-05.
+- **Signaler** la personne depuis la conversation (P1-12).
+
+## Blocage (P2-05)
+
+- Bloquer depuis le profil public ou la conversation ; la personne n'est
+  pas prévenue. Liste et déblocage dans `/reglages`.
+- **Dans les deux sens** : profils introuvables (404), médias aussi,
+  absents de la recherche, nouvelle demande impossible ; une conversation
+  existante reste lisible mais se ferme (« Cette conversation est
+  fermée. »). Un seul filtre : `publicActorWhere(now, viewerId)`, et son
+  équivalent SQL dans la recherche.
+- **Confiance** (conception 02 §7) : 3 blocages reçus en 90 jours
+  ramènent au palier 0 ; trop de demandes refusées bloquent le palier 2.
+  Recalculée aussitôt.
+- RGPD : les personnes bloquées figurent dans l'export ; tous les
+  blocages sont effacés à l'anonymisation.
+- E2E : `e2e/linkmusician/blocage.spec.ts` ; recherche :
+  `musicians.integration.test.ts`.
 - **RGPD** : export des messages envoyés (pas des reçus, données de
   l'autre) ; à l'anonymisation, le texte devient « Message supprimé ».
 

@@ -12,6 +12,8 @@ import {
 	sendMessage
 } from '#lib/server/messaging/service';
 import { fileReport, ModerationError } from '#lib/server/moderation/service';
+import { blockActor } from '#lib/server/blocking/service';
+import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -66,5 +68,16 @@ export const actions: Actions = {
 				details: String(data.get('details') ?? '')
 			})
 		);
+	},
+	/** Bloquer la personne (P2-05) depuis la conversation. */
+	block: async ({ locals, params }) => {
+		const actorId = (await me(locals)).actorId;
+		const other = await prisma.conversationParticipant.findFirst({
+			where: { conversationId: params.id, actorId: { not: actorId } },
+			select: { actorId: true }
+		});
+		if (!other) error(404, 'Conversation introuvable');
+		await blockActor(actorId, other.actorId);
+		redirect(303, '/messages');
 	}
 };

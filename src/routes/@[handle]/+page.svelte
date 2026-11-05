@@ -342,6 +342,20 @@
 							>
 						</form>
 					</details>
+					<details class="rounded-lg border p-3 text-sm">
+						<summary class="cursor-pointer text-muted-foreground">Bloquer {p.displayName}</summary>
+						<p class="mt-2 text-muted-foreground">
+							Vous ne pourrez plus vous écrire ni voir vos profils, dans les deux sens. La personne
+							n'est pas prévenue. Tu pourras débloquer depuis tes réglages.
+						</p>
+						<form method="POST" action="?/block" use:enhance class="mt-2">
+							<button
+								type="submit"
+								class="min-h-11 rounded-md border border-destructive/50 px-3 text-destructive"
+								>Bloquer</button
+							>
+						</form>
+					</details>
 				{/if}
 			</div>
 		</div>

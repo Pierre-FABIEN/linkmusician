@@ -92,12 +92,17 @@ describe('confiance (§7)', () => {
 		activeSanctions: 0,
 		collaborationsWithTrusted: 4,
 		distinctCounterparts: 6,
-		reportRate: 0
+		reportRate: 0,
+		blockedBy: 0,
+		declineRate: 0
 	};
 
 	it.each([
 		['palier 3', {}, 3],
 		['signalements trop fréquents', { reportRate: 0.05 }, 2],
+		['bloqué par 3 personnes (P2-05)', { blockedBy: 3 }, 0],
+		['bloqué par 2 personnes : rien ne change', { blockedBy: 2 }, 3],
+		['demandes trop souvent refusées (P2-05)', { declineRate: 0.6 }, 1],
 		['moins de 5 contreparties', { distinctCounterparts: 4 }, 2],
 		['moins de 90 jours', { accountAgeDays: 60 }, 2],
 		['sans collaboration de confiance', { collaborationsWithTrusted: 0 }, 1],

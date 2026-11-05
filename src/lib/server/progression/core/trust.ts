@@ -18,6 +18,10 @@ export type TrustSummary = {
 	distinctCounterparts: number;
 	/** Part des contenus de la personne signalés et retenus (0 à 1). */
 	reportRate: number;
+	/** Personnes distinctes qui l'ont bloquée sur 90 jours (P2-05). */
+	blockedBy: number;
+	/** Part de ses demandes de message refusées sur 90 jours (0 à 1, plancher de 10). */
+	declineRate: number;
 };
 
 export const TRUST_NAMES: Readonly<Record<TrustLevel, string>> = {
@@ -29,6 +33,17 @@ export const TRUST_NAMES: Readonly<Record<TrustLevel, string>> = {
 
 /** Taux de signalement au-delà duquel le palier 3 est refusé. */
 export const MAX_REPORT_RATE_TL3 = 0.02;
+/** Blocages reçus (personnes distinctes, 90 jours) qui ramènent au palier 0. */
+export const MAX_BLOCKED_BY = 3;
+/** Part de demandes refusées au-delà de laquelle le palier 2 est refusé. */
+export const MAX_DECLINE_RATE_TL2 = 0.5;
+/** Plancher du taux de refus : 3 refus sur 4 demandes ne disent encore rien. */
+export const DECLINE_RATE_FLOOR = 10;
+
+/** Taux de demandes refusées, avec un plancher pour ne pas juger trop tôt. */
+export function declineRate(declined: number, sent: number): number {
+	return declined / Math.max(sent, DECLINE_RATE_FLOOR);
+}
 
 export function computeTrustLevel(s: TrustSummary): TrustLevel {
 	const tl1 =
@@ -36,9 +51,16 @@ export function computeTrustLevel(s: TrustSummary): TrustLevel {
 		s.accountAgeDays >= 7 &&
 		s.profileComplete &&
 		s.reciprocalConversations >= 1 &&
-		s.activeSanctions === 0;
+		s.activeSanctions === 0 &&
+		s.blockedBy < MAX_BLOCKED_BY;
 	if (!tl1) return 0;
-	if (!(s.accountAgeDays >= 30 && s.collaborationsWithTrusted >= 1)) return 1;
+	if (!(
+		s.accountAgeDays >= 30 &&
+		s.collaborationsWithTrusted >= 1 &&
+		s.declineRate <= MAX_DECLINE_RATE_TL2
+	)) {
+		return 1;
+	}
 	if (!(
 		s.accountAgeDays >= 90 &&
 		s.distinctCounterparts >= 5 &&
@@ -112,7 +134,8 @@ export function nextTrustRequirements(s: TrustSummary): {
 				{ label: '7 jours d’ancienneté', met: s.accountAgeDays >= 7 },
 				{ label: 'Profil complété', met: s.profileComplete },
 				{ label: 'Un premier échange réciproque', met: s.reciprocalConversations >= 1 },
-				{ label: 'Aucune sanction en cours', met: s.activeSanctions === 0 }
+				{ label: 'Aucune sanction en cours', met: s.activeSanctions === 0 },
+				{ label: 'Pas de blocages répétés', met: s.blockedBy < MAX_BLOCKED_BY }
 			]
 		};
 	}
@@ -124,6 +147,10 @@ export function nextTrustRequirements(s: TrustSummary): {
 				{
 					label: 'Une collaboration confirmée avec un membre de confiance',
 					met: s.collaborationsWithTrusted >= 1
+				},
+				{
+					label: 'La plupart de tes demandes de contact sont acceptées',
+					met: s.declineRate <= MAX_DECLINE_RATE_TL2
 				}
 			]
 		};

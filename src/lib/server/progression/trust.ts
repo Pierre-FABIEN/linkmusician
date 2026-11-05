@@ -6,7 +6,13 @@
  *
  * Imports relatifs : utilisé aussi hors SvelteKit (tests d'intégration).
  */
-import { computeTrustLevel, isTrustLevel, type TrustLevel, type TrustSummary } from './core/trust';
+import {
+	computeTrustLevel,
+	declineRate,
+	isTrustLevel,
+	type TrustLevel,
+	type TrustSummary
+} from './core/trust';
 import { DAY_MS } from './core/types';
 import { isSanctionActive, reportRate } from '../../moderation/rules';
 import { recordDerived, type Tx } from './events';
@@ -53,6 +59,19 @@ export async function trustSummaryFor(
 		}),
 		tx.media.count({ where: { actorId, status: 'PUBLISHED' } })
 	]);
+	// Blocage et messagerie (P2-05) : signaux de rejet sur 90 jours.
+	const since90 = new Date(now.getTime() - 90 * DAY_MS);
+	const [blockedBy, requestsSent, requestsDeclined] = await Promise.all([
+		tx.block.count({ where: { blockedActorId: actorId, createdAt: { gte: since90 } } }),
+		tx.conversation.count({ where: { initiatorId: actorId, createdAt: { gte: since90 } } }),
+		tx.conversation.count({
+			where: {
+				initiatorId: actorId,
+				createdAt: { gte: since90 },
+				participants: { some: { actorId: { not: actorId }, state: 'DECLINED' } }
+			}
+		})
+	]);
 	const counterpartsPerCollab = collaborations.map((c) =>
 		c.actorIds.filter((id) => id !== actorId)
 	);
@@ -76,7 +95,9 @@ export async function trustSummaryFor(
 		).length,
 		distinctCounterparts: counterparts.length,
 		activeSanctions: sanctions.filter((x) => isSanctionActive(x, now)).length,
-		reportRate: reportRate(actionedReports, publishedMedia)
+		reportRate: reportRate(actionedReports, publishedMedia),
+		blockedBy,
+		declineRate: declineRate(requestsDeclined, requestsSent)
 	};
 }
 

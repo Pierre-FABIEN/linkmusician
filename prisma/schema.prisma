@@ -1427,6 +1427,8 @@ model Actor {
   conversationParticipants ConversationParticipant[]
   conversationsInitiated Conversation[] @relation("ConversationInitiator")
   messagesSent         Message[]
+  blocksMade           Block[]   @relation("BlocksMade")
+  blocksReceived       Block[]   @relation("BlocksReceived")
 
   @@map("actors")
 }
@@ -1949,4 +1951,21 @@ model Message {
 
   @@index([conversationId, createdAt])
   @@map("messages")
+}
+
+// ─── BLOCAGE (P2-05) ────────────────────────────────────────────────────────
+
+/// Blocage d'une personne par une autre. Effet dans les deux sens : ni
+/// profil, ni message, ni résultat de recherche entre elles. Les blocages
+/// reçus pèsent sur la confiance (conception 02 §7).
+model Block {
+  blockerActorId String
+  blocker        Actor    @relation("BlocksMade", fields: [blockerActorId], references: [id], onDelete: Cascade)
+  blockedActorId String
+  blocked        Actor    @relation("BlocksReceived", fields: [blockedActorId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+
+  @@id([blockerActorId, blockedActorId])
+  @@index([blockedActorId, createdAt])
+  @@map("blocks")
 }

@@ -8,6 +8,8 @@ import { qualifiedTable } from '#lib/server/db-schema';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { consumeDailyQuota } from '#lib/server/trust/quotas';
 import { emitAndProcess } from '#lib/server/progression/processor';
+import { isBlockedBetween } from '#lib/server/blocking/service';
+import { recomputeTrust } from '#lib/server/progression/trust';
 import {
 	MESSAGE_ERRORS,
 	canReceiveRequest,
@@ -50,7 +52,12 @@ export async function findConversationWith(actorId: string, otherId: string) {
  */
 export async function startConversation(senderId: string, recipientHandle: string, raw: string) {
 	const recipient = await prisma.actor.findFirst({
-		where: { handle: recipientHandle, ...publicActorWhere(), person: { isNot: null } },
+		// Blocage (P2-05) : introuvable dans les deux sens.
+		where: {
+			handle: recipientHandle,
+			...publicActorWhere(new Date(), senderId),
+			person: { isNot: null }
+		},
 		select: { id: true, person: { select: { birthDate: true } } }
 	});
 	if (!recipient) throw new MessagingError('Profil introuvable.', 404);
@@ -108,19 +115,23 @@ async function loadParticipants(actorId: string, conversationId: string) {
 
 /** Accepter ou refuser une demande reçue. */
 export async function respondToRequest(actorId: string, conversationId: string, accept: boolean) {
-	const { me } = await loadParticipants(actorId, conversationId);
+	const { me, other } = await loadParticipants(actorId, conversationId);
 	if (me.state !== 'REQUEST') return;
 	await prisma.conversationParticipant.update({
 		where: { conversationId_actorId: { conversationId, actorId } },
 		data: { state: accept ? 'ACCEPTED' : 'DECLINED', lastReadAt: new Date() }
 	});
+	// Les refus pèsent sur la confiance de l'expéditeur (P2-05).
+	if (!accept) await prisma.$transaction((tx) => recomputeTrust(tx, [other.actorId]));
 }
 
 export async function sendMessage(actorId: string, conversationId: string, raw: string) {
 	const { conversation, me, other } = await loadParticipants(actorId, conversationId);
-	const mySentCount = await prisma.message.count({
-		where: { conversationId, senderActorId: actorId }
-	});
+	const [mySentCount, blocked] = await Promise.all([
+		prisma.message.count({ where: { conversationId, senderActorId: actorId } }),
+		isBlockedBetween(actorId, other.actorId)
+	]);
+	if (blocked) throw new MessagingError('Cette conversation est fermée.');
 	const permission = sendPermission({
 		myState: me.state as ParticipantState,
 		otherState: other.state as ParticipantState,
@@ -170,7 +181,7 @@ export async function sendMessage(actorId: string, conversationId: string, raw: 
 /** Fil d'une conversation (les plus récents), marqué comme lu. */
 export async function openConversation(actorId: string, conversationId: string) {
 	const { me, other } = await loadParticipants(actorId, conversationId);
-	const [otherActor, messages, mySentCount] = await Promise.all([
+	const [otherActor, messages, mySentCount, blocked] = await Promise.all([
 		prisma.actor.findUniqueOrThrow({
 			where: { id: other.actorId },
 			select: { handle: true, displayName: true, deletedAt: true }
@@ -181,7 +192,8 @@ export async function openConversation(actorId: string, conversationId: string) 
 			take: THREAD_LIMIT,
 			select: { id: true, senderActorId: true, body: true, createdAt: true }
 		}),
-		prisma.message.count({ where: { conversationId, senderActorId: actorId } })
+		prisma.message.count({ where: { conversationId, senderActorId: actorId } }),
+		isBlockedBetween(actorId, other.actorId)
 	]);
 	await prisma.conversationParticipant.update({
 		where: { conversationId_actorId: { conversationId, actorId } },
@@ -190,15 +202,19 @@ export async function openConversation(actorId: string, conversationId: string) 
 	return {
 		id: conversationId,
 		other: {
-			handle: otherActor.deletedAt ? null : otherActor.handle,
+			handle: otherActor.deletedAt || blocked ? null : otherActor.handle,
 			displayName: otherActor.displayName
 		},
 		myState: me.state as ParticipantState,
-		permission: sendPermission({
-			myState: me.state as ParticipantState,
-			otherState: other.state as ParticipantState,
-			mySentCount
-		}),
+		// Blocage (P2-05) : la conversation reste lisible mais se ferme.
+		permission: blocked
+			? ('declined' as const)
+			: sendPermission({
+					myState: me.state as ParticipantState,
+					otherState: other.state as ParticipantState,
+					mySentCount
+				}),
+		blocked,
 		messages: messages.reverse().map((m) => ({
 			id: m.id,
 			mine: m.senderActorId === actorId,

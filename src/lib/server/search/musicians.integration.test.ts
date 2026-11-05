@@ -168,6 +168,15 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 		expect(await search('rayon=50&recherche=BAND')).toEqual(['muret']);
 	});
 
+	it('blocage, dans les deux sens : invisible (P2-05)', async () => {
+		await db.block.create({ data: { blockerActorId: ids.blagnac, blockedActorId: ids.moi } });
+		expect(await search('rayon=50')).toEqual(['muret', 'montauban']);
+		await db.block.deleteMany({ where: { blockerActorId: ids.blagnac } });
+		await db.block.create({ data: { blockerActorId: ids.moi, blockedActorId: ids.muret } });
+		expect(await search('rayon=50')).toEqual(['blagnac', 'montauban']);
+		await db.block.deleteMany({ where: { blockerActorId: ids.moi } });
+	});
+
 	it('réciproque : seulement ceux dont le rayon de déplacement me couvre', async () => {
 		// Blagnac (rayon 25) et Muret (25 par défaut) me couvrent ; Montauban (10) non.
 		expect(await search('rayon=50&reciproque=1')).toEqual(['blagnac', 'muret']);

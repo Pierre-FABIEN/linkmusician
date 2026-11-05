@@ -17,9 +17,10 @@ import { publicActorWhere } from './visibility';
 /** Médias publiés affichés sur le profil (les plus récents). */
 export const PROFILE_MEDIA_LIMIT = 6;
 
-export async function getPublicProfile(handle: string, now = new Date()) {
+/** `viewerId` : un blocage entre le lecteur et l'acteur rend le profil introuvable (P2-05). */
+export async function getPublicProfile(handle: string, now = new Date(), viewerId?: string | null) {
 	const actor = await prisma.actor.findFirst({
-		where: { handle, ...publicActorWhere(now) },
+		where: { handle, ...publicActorWhere(now, viewerId) },
 		select: {
 			id: true,
 			kind: true,

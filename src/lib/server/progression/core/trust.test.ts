@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	canAddWithinStock,
 	isTrustLevel,
+	declineRate,
 	nextTrustRequirements,
 	quotaLimit,
 	TRUST_PERMISSIONS,
@@ -16,7 +17,9 @@ const newcomer: TrustSummary = {
 	activeSanctions: 0,
 	collaborationsWithTrusted: 0,
 	distinctCounterparts: 0,
-	reportRate: 0
+	reportRate: 0,
+	blockedBy: 0,
+	declineRate: 0
 };
 
 describe('table des quotas (§7)', () => {
@@ -89,5 +92,15 @@ describe('conditions du palier suivant', () => {
 	it('reconnaît un palier valide', () => {
 		expect([0, 1, 2, 3].every(isTrustLevel)).toBe(true);
 		expect([4, -1, '1', null].some(isTrustLevel)).toBe(false);
+	});
+});
+
+describe('refus de demandes (P2-05)', () => {
+	it.each([
+		[3, 4, 0.3], // plancher de 10 : 3 refus sur 4 demandes ne disent encore rien
+		[6, 10, 0.6],
+		[10, 40, 0.25]
+	])('%i refusées sur %i → %f', (declined, sent, rate) => {
+		expect(declineRate(declined, sent)).toBeCloseTo(rate);
 	});
 });

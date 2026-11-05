@@ -13,6 +13,7 @@ import {
 	TRUST_NAMES,
 	TRUST_PERMISSIONS
 } from '#lib/server/progression/core/trust';
+import { listBlocked, unblockActor } from '#lib/server/blocking/service';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -27,6 +28,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 	return {
 		handle: person.actor.handle,
 		hidden: person.actor.hidden,
+		// Blocage (P2-05) : personnes bloquées, à débloquer ici.
+		blocked: await listBlocked(person.actorId),
 		names: TRUST_NAMES,
 		quotaLabels: QUOTA_LABELS,
 		trust: {
@@ -38,6 +41,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
+	/** Débloquer une personne (P2-05). */
+	unblock: async ({ request, locals }) => {
+		const person = await requirePerson(locals);
+		const actorId = String((await request.formData()).get('actorId') ?? '');
+		await unblockActor(person.actorId, actorId);
+		return { saved: 'Personne débloquée.' };
+	},
 	/** Masquer ou rendre visible le profil public `/@handle` (D19). */
 	visibility: async ({ request, locals }) => {
 		const person = await requirePerson(locals);

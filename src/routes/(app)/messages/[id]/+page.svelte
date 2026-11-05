@@ -33,11 +33,13 @@
 		minute: '2-digit'
 	});
 	const notice = $derived(
-		c.permission === 'pending'
-			? `Demande envoyée. Tu pourras écrire à nouveau quand ${c.other.displayName} l'aura acceptée.`
-			: c.permission === 'declined'
-				? 'Cette demande n’a pas été acceptée. La conversation est fermée.'
-				: null
+		c.blocked
+			? 'Cette conversation est fermée.'
+			: c.permission === 'pending'
+				? `Demande envoyée. Tu pourras écrire à nouveau quand ${c.other.displayName} l'aura acceptée.`
+				: c.permission === 'declined'
+					? 'Cette demande n’a pas été acceptée. La conversation est fermée.'
+					: null
 	);
 </script>
 
@@ -140,6 +142,25 @@
 					<Send class="size-5" aria-hidden="true" />
 				</button>
 			</form>
+		{/if}
+
+		{#if !c.blocked}
+			<details class="rounded-lg border p-3 text-sm">
+				<summary class="cursor-pointer text-muted-foreground">Bloquer {c.other.displayName}</summary
+				>
+				<p class="mt-2 text-muted-foreground">
+					Vous ne pourrez plus vous écrire ni voir vos profils, dans les deux sens. La personne
+					n'est pas prévenue. Tu pourras débloquer depuis tes réglages.
+				</p>
+				<form method="POST" action="?/block" use:enhance class="mt-2">
+					<button
+						type="submit"
+						class="min-h-11 rounded-md border border-destructive/50 px-3 text-destructive"
+					>
+						Bloquer
+					</button>
+				</form>
+			</details>
 		{/if}
 
 		{#if c.other.handle}

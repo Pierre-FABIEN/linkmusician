@@ -210,13 +210,13 @@ export async function listOwnMedia(actorId: string) {
 }
 
 /** Média visible publiquement : uniquement `PUBLISHED`, sinon `null`. */
-export async function getPublishedMedia(mediaId: string) {
+export async function getPublishedMedia(mediaId: string, viewerId?: string | null) {
 	return prisma.media.findFirst({
 		where: {
 			id: mediaId,
 			status: 'PUBLISHED',
 			// Acteur anonymisé, suspendu ou masqué (D19) : ses médias disparaissent.
-			actor: publicActorWhere()
+			actor: publicActorWhere(new Date(), viewerId)
 		},
 		include: {
 			actor: { select: { id: true, handle: true, displayName: true } },

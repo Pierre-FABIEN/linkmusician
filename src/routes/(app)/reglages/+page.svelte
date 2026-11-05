@@ -1,6 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: réglages, voir +page.server.ts.
 	import { enhance } from '$app/forms';
+	import { page } from '$app/state';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
 
@@ -8,6 +9,7 @@
 
 	$effect(() => {
 		if (form?.saved) toast.success(form.saved);
+		if (page.url.searchParams.get('bloque') === '1') toast.success('Personne bloquée.');
 	});
 	const t = $derived(data.trust);
 </script>
@@ -101,6 +103,25 @@
 				</label>
 				<button type="submit" class="rounded-md border px-3 py-1.5 text-sm">Enregistrer</button>
 			</form>
+		</section>
+
+		<section class="space-y-3" aria-labelledby="blocked-title">
+			<h2 id="blocked-title" class="text-lg font-semibold">Personnes bloquées</h2>
+			{#if data.blocked.length === 0}
+				<p class="text-sm text-muted-foreground">Tu n'as bloqué personne.</p>
+			{:else}
+				<ul class="space-y-2" aria-label="Personnes bloquées">
+					{#each data.blocked as b (b.actorId)}
+						<li class="flex items-center justify-between gap-3 rounded-lg border p-2 text-sm">
+							<span class="truncate">{b.displayName}</span>
+							<form method="POST" action="?/unblock" use:enhance>
+								<input type="hidden" name="actorId" value={b.actorId} />
+								<button type="submit" class="min-h-11 rounded-md border px-3">Débloquer</button>
+							</form>
+						</li>
+					{/each}
+				</ul>
+			{/if}
 		</section>
 
 		<section class="space-y-1">

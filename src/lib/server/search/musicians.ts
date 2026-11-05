@@ -2,7 +2,8 @@
  * Recherche de musicien·nes (P2-01) : une requête PostGIS (rayon autour de
  * la commune de la personne qui cherche, filtres de profil), puis lecture
  * des fiches. Seuls les profils publics sont trouvables (`publicActorWhere`
- * en SQL : ni anonymisé, ni masqué, ni suspendu). Tri par proximité ; la
+ * en SQL : ni anonymisé, ni masqué, ni suspendu), et jamais une personne
+ * séparée de moi par un blocage, dans un sens ou dans l'autre (P2-05). Tri par proximité ; la
  * réputation s'ajoutera avec P2-08.
  *
  * La distance exacte ne sort jamais d'ici : seulement sa tranche
@@ -72,6 +73,10 @@ export async function searchMusicianIds(
 		WHERE me."actorId" = ${searcherId}
 			AND a."deletedAt" IS NULL AND a.hidden = false
 			AND p."onboardedAt" IS NOT NULL
+			AND NOT EXISTS (
+				SELECT 1 FROM ${t('blocks')} b
+				WHERE (b."blockerActorId" = ${searcherId} AND b."blockedActorId" = a.id)
+					OR (b."blockerActorId" = a.id AND b."blockedActorId" = ${searcherId}))
 			AND NOT EXISTS (
 				SELECT 1 FROM ${t('sanctions')} s
 				WHERE s."actorId" = a.id AND s.kind::text = 'SUSPENSION' AND s."liftedAt" IS NULL

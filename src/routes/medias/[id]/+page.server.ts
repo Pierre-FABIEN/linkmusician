@@ -9,7 +9,9 @@ import { fileReport, ModerationError } from '#lib/server/moderation/service';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
-	const media = await getPublishedMedia(params.id);
+	// Blocage (P2-05) : invisible entre deux personnes séparées par un blocage.
+	const viewer = locals.user ? await getPersonByUserId(locals.user.id) : null;
+	const media = await getPublishedMedia(params.id, viewer?.actorId);
 	if (!media) error(404, 'Média introuvable');
 	return {
 		media: {
@@ -31,7 +33,7 @@ export const actions: Actions = {
 		if (!locals.user) return fail(401, { error: 'Connecte-toi pour signaler.' });
 		const reporter = await getPersonByUserId(locals.user.id);
 		if (!reporter) return fail(403, { error: 'Complète ton profil pour signaler.' });
-		const media = await getPublishedMedia(params.id);
+		const media = await getPublishedMedia(params.id, reporter.actorId);
 		if (!media) error(404, 'Média introuvable');
 		const data = await request.formData();
 		const target = data.get('target') === 'ACTOR' ? 'ACTOR' : 'MEDIA';

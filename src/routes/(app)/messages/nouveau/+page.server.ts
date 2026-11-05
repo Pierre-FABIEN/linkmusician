@@ -15,12 +15,12 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const handle = url.searchParams.get('a')?.toLowerCase() ?? '';
+	const person = (await getPersonByUserId(locals.user!.id))!;
 	const recipient = await prisma.actor.findFirst({
-		where: { handle, ...publicActorWhere(), person: { isNot: null } },
+		where: { handle, ...publicActorWhere(new Date(), person.actorId), person: { isNot: null } },
 		select: { id: true, handle: true, displayName: true }
 	});
 	if (!recipient) error(404, 'Profil introuvable');
-	const person = (await getPersonByUserId(locals.user!.id))!;
 	if (recipient.id === person.actorId) redirect(303, '/messages');
 	const existing = await findConversationWith(person.actorId, recipient.id);
 	if (existing) redirect(303, `/messages/${existing.id}`);
