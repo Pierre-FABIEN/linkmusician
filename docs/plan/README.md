@@ -25,7 +25,7 @@ l'horizon :
 | --------------------------------- | ------------------------------------------------------------------------------------------------ |
 | Phase en cours et suivante (0, 1) | Lots complets : objectif, périmètre, dépendances, critères de fin, tests                         |
 | Phases 2-3 (fin du MVP)           | Liste des lots avec objectif et dépendances. Les fiches sont détaillées au démarrage de la phase |
-| Phases 4-6                        | Intentions seulement ([conception/05 §3](../conception/05-mvp-roadmap.md#3-roadmap))             |
+| Phases 4-6                        | Intentions et liste des lots ([phase-4-6.md](./phase-4-6.md), conception 05 §3, 06, 07, 08)      |
 
 À la **fin de chaque phase**, une revue d'une demi-journée (§6) détaille
 la phase suivante.
@@ -68,6 +68,34 @@ En fin de session, il met à jour le tableau §5. Si un lot déborde, on le
 - [ ] Doc mise à jour : conception si une règle a changé, `docs/<domaine>/README.md`
       si un module est créé, décision consignée si une a été prise.
 - [ ] Tableau §5 mis à jour.
+
+## 4 bis. Le chemin, pas à pas
+
+L'ordre conseillé des prochaines sessions (une session = un lot, on
+avance ensemble). Les **décisions** à trancher avant un lot sont
+indiquées : on les tranche en début de session.
+
+| #   | Session                                 | Ce qu'on livre                                                              | À trancher avant                        |
+| --- | --------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------- |
+| 1   | P1-13 Indicateurs produit               | `/admin/metrics` : inscrits, onboarding terminé, rétention                  | —                                       |
+| 2   | P0-05 Coquille et identité visuelle     | L'app porte enfin son nom, navigation de l'espace                           | **D9** (nom et domaine)                 |
+| 3   | P0-06 Doc et synchro amont outillée     | Fin de la phase 0                                                           | —                                       |
+| 4   | Revue de fin de phase 1                 | Fiches détaillées des lots de phase 2                                       | **D4** (zone de lancement)              |
+| 5   | P2-11 Célébrations                      | Chaque gain s'annonce, la montée de niveau se fête                          | —                                       |
+| 6   | P2-01 Recherche                         | Trouver des musicien·nes par instrument, genre, distance                    | —                                       |
+| 7   | P2-04 Messagerie, puis P2-05 Blocage    | Se parler, en sécurité                                                      | —                                       |
+| 8   | P2-02 Annonces, puis P2-03 Candidatures | Les quêtes émises                                                           | —                                       |
+| 9   | P2-06 Collaborations                    | Le cœur : jouer ensemble rapporte aux deux                                  | —                                       |
+| 10  | P2-12 Accueil à deux modes              | Le menu « Carrière / Jam »                                                  | —                                       |
+| 11  | P2-13 à P2-16 Mode jam                  | « Je suis dispo », salons, fin de match, carnet de jams                     | Règles des jams pour les mineur·es (D5) |
+| 12  | P2-07 à P2-10                           | Endossements, réputation, notifications, confiance TL2                      | —                                       |
+| 13  | Revue de fin de phase 2                 | Calibrage du barème, fiches de phase 3                                      | Modèle du morceau (**D20**)             |
+| 14  | P3-01 à P3-03 Groupes                   | Le groupe comme un club, recrutement                                        | —                                       |
+| 15  | P3-11 Morceau minimal                   | Les campagnes commencent                                                    | —                                       |
+| 16  | P3-04 à P3-09 Étapes et preuves         | Les épreuves vérifiées                                                      | Liste finale des étapes                 |
+| 17  | P3-12 à P3-14 Carrière                  | Ambition, écran de carrière, carte (actes I-III), fiche de carrière         | Liste des déblocages (07 §4.5)          |
+| 18  | P3-10 Bêta fermée                       | 50 bêta-testeurs, mesure, **go / no-go**                                    | Pages légales                           |
+| 19  | Phases 4 à 6                            | Les autres métiers et les actes III à VIII ([phase-4-6.md](./phase-4-6.md)) | Gratuité de la vitrine, `VENUE_HOST`    |
 
 ## 5. Tableau de suivi
 
@@ -120,6 +148,12 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 | P2-08 | Réputation (job et carte publique)            | P2-06, P2-07 | ⬜     |     |
 | P2-09 | Notifications in-app et email                 | P2-04, P2-06 | ⬜     |     |
 | P2-10 | Confiance TL2 et détection de collusion       | P2-06        | ⬜     |     |
+| P2-11 | Célébrations (gains, niveaux, rangs, succès)  | P1-11        | ⬜     |     |
+| P2-12 | Accueil à deux modes : carrière et jam        | P0-05        | ⬜     |     |
+| P2-13 | Mode jam : « Je suis dispo »                  | P2-01, P2-12 | ⬜     |     |
+| P2-14 | Mode jam : salons                             | P2-02, P2-13 | ⬜     |     |
+| P2-15 | Mode jam : fin de match                       | P2-06, P2-14 | ⬜     |     |
+| P2-16 | Carnet de jams et réseau musical              | P2-15        | ⬜     |     |
 
 ### Phase 3 — Groupes, étapes et preuves (fin du MVP) → [phase-2-3.md](./phase-2-3.md)
 
@@ -134,7 +168,19 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 | P3-07 | Vérification de sortie par API                       | P3-05         | ⬜     |     |
 | P3-08 | Paliers de groupe, part d'XP aux membres             | P3-05         | ⬜     |     |
 | P3-09 | Modération étendue et vérification manuelle          | P3-06         | ⬜     |     |
+| P3-11 | Morceau minimal (`Work`, contributeurs, maquette)    | P3-01 ; D20   | ⬜     |     |
+| P3-12 | Ambition et écran de carrière                        | P2-12, P3-11  | ⬜     |     |
+| P3-13 | Carte de carrière (actes I à III)                    | P3-05, P3-12  | ⬜     |     |
+| P3-14 | Fiche de carrière et cartes souvenirs                | P2-08, P3-13  | ⬜     |     |
 | P3-10 | Bêta fermée dans la zone de lancement                | Tout le reste | ⬜     |     |
+
+### Phases 4 à 6 — Les autres métiers et la carrière complète → [phase-4-6.md](./phase-4-6.md)
+
+Lots P4-01 à P4-12 (studio, ingé son, producteur, crédits, vitrine des
+propositions, actes III-IV), P5-01 à P5-10 (lieux, organisateurs,
+bookers, managers, concerts vérifiés, acte V), P6-01 à P6-08 (label,
+éditeur, communication, actes VI-VIII, défis collectifs, autres rôles).
+Ils entrent dans ce tableau à la revue de fin de la phase précédente.
 
 ## 6. Rituels
 
@@ -162,10 +208,11 @@ et il ne se règle pas avec du code. À mener **dès la phase 1** :
 Pour une personne à plein temps, assistée par Claude Code. Indicatif
 seulement, à recalibrer après la phase 0.
 
-| Phase   | Lots   | Durée estimée        |
-| ------- | ------ | -------------------- |
-| 0       | 8      | 1 à 2 semaines       |
-| 1       | 13     | 4 à 6 semaines       |
-| 2       | 10     | 4 à 5 semaines       |
-| 3       | 10     | 4 à 5 semaines       |
-| **MVP** | **41** | **≈ 3,5 à 4,5 mois** |
+| Phase   | Lots   | Durée estimée                     |
+| ------- | ------ | --------------------------------- |
+| 0       | 8      | 1 à 2 semaines                    |
+| 1       | 13     | 4 à 6 semaines                    |
+| 2       | 16     | 5 à 7 semaines                    |
+| 3       | 14     | 5 à 7 semaines                    |
+| **MVP** | **51** | **≈ 4,5 à 5,5 mois**              |
+| 4 à 6   | 30     | à estimer à chaque revue de phase |
