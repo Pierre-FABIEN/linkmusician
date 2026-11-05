@@ -156,8 +156,10 @@ jusqu'à `fe82121`, et l'historique a été relié (`d24aed5`). Détail dans
 >   **suit l'appareil** au lieu d'être sombre par défaut (choix du
 >   05/11/2026, les maquettes validées étant en clair) ; contrastes
 >   vérifiés dans les deux thèmes.
-> - **P0-05c — Accueil public** : présentation et « Créer un compte ». La
->   liste d'attente est abandonnée (pas de bêta, D23).
+> - **P0-05c — Accueil public** (réalisé) : présentation (accroche, modes
+>   carrière et jam, trois étapes), « Créer un compte » et connexion. La
+>   liste d'attente est abandonnée (pas de bêta, D23). Le bandeau cookies
+>   ne parle plus de panier quand la boutique est en veille.
 
 - **Objectif** : un visiteur découvre LinkMusician, et un membre connecté
   a son espace.

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Button } from '#shadcn/button';
+	import { PUBLIC_SHOP_ENABLED } from '$app/env/public'; // LINKMUSICIAN: pas de panier en veille
 
 	/**
 	 * Bannière d'information cookies — pas un gestionnaire de consentement :
@@ -42,8 +43,10 @@
 		class="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-xl flex-col gap-3 rounded-lg border bg-background p-4 shadow-lg sm:flex-row sm:items-center sm:justify-between"
 	>
 		<p class="text-sm text-muted-foreground">
-			Ce site utilise uniquement des cookies de session nécessaires à son fonctionnement (connexion,
-			panier) — aucun cookie publicitaire ni traceur de mesure d'audience. En savoir plus dans notre
+			Ce site utilise uniquement des cookies de session nécessaires à son fonctionnement (connexion{PUBLIC_SHOP_ENABLED
+				? ', panier'
+				: ''}) — aucun cookie publicitaire ni traceur de mesure d'audience. En savoir plus dans
+			notre
 			<a href="/confidentialite" class="underline">politique de confidentialité</a>.
 		</p>
 		<Button size="sm" onclick={dismiss} class="shrink-0">Compris</Button>

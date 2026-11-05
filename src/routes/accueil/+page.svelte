@@ -1,6 +1,6 @@
 <script lang="ts">
-	// LINKMUSICIAN: accueil avec connexion, voir +page.server.ts. La vraie page
-	// d'accueil (présentation, identité visuelle) arrive avec le lot P0-05.
+	// LINKMUSICIAN: accueil public (P0-05c) : présentation et connexion, voir
+	// +page.server.ts. Pas de liste d'attente : pas de bêta (D23).
 	import { untrack } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import * as Form from '#shadcn/form';
@@ -13,6 +13,27 @@
 	import { authClient } from '#lib/auth/client';
 	import { APP_HOME } from '#lib/linkmusician/home';
 	import SEO from '#lib/components/SEO.svelte';
+	import '#lib/linkmusician/theme.css';
+	import { BRAND } from '#lib/linkmusician/brand';
+	import { Trophy, Guitar, Users, Mic2, Disc3 } from 'lucide-svelte';
+
+	const modes = [
+		{
+			icon: Trophy,
+			title: 'Mode carrière',
+			text: 'Monte ton groupe, enregistre, joue sur scène, sors ta musique : chaque étape réelle fait avancer ta carrière.'
+		},
+		{
+			icon: Guitar,
+			title: 'Mode jam',
+			text: 'Envie de jouer ce soir ? Trouve des musicien·nes dispos près de chez toi et fais des rencontres.'
+		}
+	];
+	const steps = [
+		{ icon: Users, text: 'Rencontre des musicien·nes près de chez toi' },
+		{ icon: Disc3, text: 'Crée des morceaux, enregistre avec des pros' },
+		{ icon: Mic2, text: 'Monte sur scène, et tout ce que tu fais compte' }
+	];
 
 	let { data } = $props();
 
@@ -41,20 +62,52 @@
 
 <SEO pageKey="home" />
 
-<div class="min-h-screen w-screen px-4 py-24 ccc">
-	<div class="w-full max-w-sm space-y-8">
-		<header class="space-y-2 text-center">
-			<h1 class="text-4xl font-black tracking-tight">LinkMusician</h1>
-			<p class="text-muted-foreground">
-				Le réseau des musicien·nes et des pros de la musique : trouve avec qui jouer, monte tes
-				projets, fais grandir ton parcours.
-			</p>
+<div class="lm-app min-h-screen w-screen px-4 py-24">
+	<div class="mx-auto grid max-w-5xl items-start gap-10 lg:grid-cols-[1fr_24rem]">
+		<header class="space-y-8">
+			<div class="space-y-4">
+				<h1
+					class="bg-[image:var(--lm-gradient)] bg-clip-text text-5xl font-black tracking-tight text-transparent italic uppercase sm:text-6xl"
+				>
+					{BRAND.name}
+				</h1>
+				<p class="text-2xl font-semibold">{BRAND.tagline}</p>
+				<p class="max-w-prose text-muted-foreground">
+					La plateforme des musicien·nes et des pros de la musique : trouve avec qui jouer, monte
+					tes projets, et vois ton parcours grandir.
+				</p>
+				<a
+					href="/auth/signup"
+					class="inline-flex items-center rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-lg transition hover:opacity-90"
+					>Créer un compte</a
+				>
+			</div>
+
+			<ul class="grid gap-4 sm:grid-cols-2" aria-label="Deux façons de jouer">
+				{#each modes as m (m.title)}
+					<li class="space-y-2 rounded-2xl border bg-card p-5 shadow-sm">
+						<m.icon class="size-6 text-primary" aria-hidden="true" />
+						<h2 class="text-lg font-bold">{m.title}</h2>
+						<p class="text-sm text-muted-foreground">{m.text}</p>
+					</li>
+				{/each}
+			</ul>
+
+			<ol class="space-y-3" aria-label="Comment ça marche">
+				{#each steps as s, i (s.text)}
+					<li class="flex items-center gap-3">
+						<span
+							class="grid size-9 shrink-0 place-items-center rounded-full bg-primary font-bold text-primary-foreground"
+							>{i + 1}</span
+						>
+						<s.icon class="size-5 text-muted-foreground" aria-hidden="true" />
+						<span>{s.text}</span>
+					</li>
+				{/each}
+			</ol>
 		</header>
 
-		<section
-			class="rounded-lg border p-6 shadow-lg backdrop-blur-3xl"
-			aria-labelledby="login-title"
-		>
+		<section class="rounded-2xl border bg-card p-6 shadow-lg" aria-labelledby="login-title">
 			<h2 id="login-title" class="mb-4 text-xl font-semibold">Se connecter</h2>
 
 			<form method="POST" action="/auth/login?/login" use:enhance class="space-y-4">

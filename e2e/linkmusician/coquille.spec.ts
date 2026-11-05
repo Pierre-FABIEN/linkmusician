@@ -76,4 +76,26 @@ test.describe('LinkMusician — coquille de l’espace', () => {
 				});
 		});
 	});
+
+	test('accueil public : présentation et connexion', async ({ page }) => {
+		// En e2e la boutique est active : `/` sert l'accueil du boilerplate, et
+		// l'accueil LinkMusician reste joignable à `/accueil`.
+		for (const colorScheme of ['light', 'dark'] as const) {
+			await page.emulateMedia({ colorScheme });
+			await page.goto('/accueil');
+			await waitForAppReady(page);
+			await expect(page.getByRole('heading', { level: 1, name: 'LinkMusician' })).toBeVisible();
+			await expect(page.getByRole('heading', { name: 'Mode carrière' })).toBeVisible();
+			await expect(page.getByRole('heading', { name: 'Mode jam' })).toBeVisible();
+			await expect(page.getByRole('link', { name: 'Créer un compte' }).first()).toHaveAttribute(
+				'href',
+				'/auth/signup'
+			);
+			await expect(page.getByRole('heading', { name: 'Se connecter' })).toBeVisible();
+			if (process.env.E2E_SHOTS) {
+				await page.screenshot({ path: `${process.env.E2E_SHOTS}/accueil-${colorScheme}.png` });
+			}
+			await expectNoA11yViolations(page, A11Y_EXCLUDE);
+		}
+	});
 });
