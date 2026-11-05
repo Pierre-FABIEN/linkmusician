@@ -6,12 +6,13 @@ d'accueil propose deux modes (D21) :
 | Mode         | L'esprit                                 | Dans un jeu de foot | Ce qu'on y fait                                                                     |
 | ------------ | ---------------------------------------- | ------------------- | ----------------------------------------------------------------------------------- |
 | **Carrière** | Construire son parcours, étape par étape | Mode carrière       | Monter une équipe, créer des morceaux, enregistrer, jouer sur scène, sortir, signer |
-| **Jam**      | Jouer pour le plaisir, ici et maintenant | Match rapide        | Trouver des gens dispos près de chez soi et jammer, sans objectif ni engagement     |
+| **Jam**      | Jouer pour le plaisir, ici et maintenant | Match rapide        | Jammer avec des gens dispos près de chez soi, faire des rencontres musicales        |
 
-On passe de l'un à l'autre quand on veut, et ils se nourrissent : un
-jam réussi peut devenir un morceau, et donc une campagne de carrière
-(§3). Le ton est toujours celui de l'**encouragement** : on félicite, on
-montre la suite, on ne met jamais la pression (§6).
+On passe de l'un à l'autre quand on veut. Le jam ne sert pas à lancer
+un projet : il sert à **jouer et à rencontrer**. Mais les rencontres
+d'un soir sont souvent celles avec qui l'on monte un projet plus tard,
+et la carrière peut aller les rechercher quand on en a besoin (§6.2). Le ton est toujours celui de l'**encouragement** : on félicite, on
+montre la suite, on ne met jamais la pression (§7).
 
 Ce document suit le vrai parcours de l'industrie musicale, du premier
 jam à la signature et à la tournée. Il prolonge
@@ -192,7 +193,115 @@ cherchent des artistes par **réputation**, **paliers**, **crédits** et
 enchaîne les épreuves réelles **monte dans leur radar**. L'XP n'y entre
 jamais (02 §1) : ce sont les preuves qui comptent, pas le farming.
 
-## 4. Qui gagne quoi sur toute la chaîne _(proposé, à calibrer)_
+## 4. Aller plus loin dans la carrière
+
+### 4.1 Choisir son ambition
+
+En entrant en mode carrière, on choisit **ce qu'on vise**, comme les
+objectifs fixés en début de saison dans un jeu de foot. On peut en
+changer à tout moment, et il n'y a **jamais d'échec** : l'ambition sert
+seulement à mettre en avant les bonnes étapes de la carte.
+
+| Ambition                         | Ce qu'elle met en avant                                    |
+| -------------------------------- | ---------------------------------------------------------- |
+| Jouer en groupe pour le plaisir  | Actes I et II : trouver son groupe, répéter, composer      |
+| Monter sur scène                 | Actes II et V : un répertoire, des dates, puis une tournée |
+| Enregistrer et sortir ma musique | Actes III, IV et VI : studio, production, sortie           |
+| Devenir pro                      | Toute la carte, jusqu'aux actes VII et VIII                |
+| Accompagner les autres           | Pour les autres métiers : la carrière de sa classe (§4.4)  |
+
+### 4.2 L'écran de carrière
+
+C'est le « hub » du mode carrière, l'équivalent du bureau du manager
+dans un jeu de foot :
+
+- **la carte** : l'acte en cours, les épreuves franchies, la suite
+  dans le brouillard ;
+- **les campagnes en cours** : chaque morceau, son état et ses places
+  libres ;
+- **l'équipe** : son groupe ou ses partenaires réguliers ;
+- **les trois prochains objectifs** (déjà en place, P1-11) ;
+- **l'agenda** : répètes, sessions, dates à venir ;
+- **le journal de bord** : les derniers gains et leur raison.
+
+### 4.3 Solo, groupe et projets parallèles
+
+- **En solo**, la personne mène ses campagnes elle-même et recrute au
+  morceau (un ingé son, une choriste…).
+- **En groupe**, le groupe a **sa propre carrière**, comme un club : un
+  effectif (les membres actuels et passés, avec leurs dates), sa carte,
+  ses rangs (Projet → Répète → Compose → Enregistre → Démo → Live →
+  Tournée → EP → Album → Signé, 02 §5) et son palmarès. Une arrivée ou
+  un départ s'inscrit dans l'historique ; un membre arrivé après une
+  étape n'en reçoit pas les points (05 §3).
+- **Plusieurs projets** en même temps, c'est normal : un groupe de rock,
+  des sessions de basse pour d'autres, un projet électro solo. Chaque
+  projet a sa carte ; la personne a une seule carrière qui les cumule.
+
+### 4.4 Une carrière pour chaque métier
+
+Chaque classe a sa propre carte, et les cartes se croisent : les
+épreuves des uns sont souvent validées par les autres.
+
+| Classe              | Sa carte (rangs, 02 §5)                                                                            | Valide les épreuves de…         |
+| ------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Musicien·ne         | Premiers pas → En réseau → Collaborateur → Musicien de scène → Pilier local → Référence            | —                               |
+| Ingé son, studio    | Home studio → Premiers projets → Portfolio → Établi → Référence ; studio : Ouvert → Incontournable | l'acte III des artistes         |
+| Producteur·rice     | mêmes rangs, crédits de production                                                                 | l'acte IV des artistes          |
+| Organisateur·rice   | Premier événement → Programmateur régulier → Scène locale → Festival                               | l'acte V des artistes           |
+| Manager, booker     | Premier artiste → Développeur → Agence                                                             | l'acte VII (accompagnement)     |
+| Label, éditeur·rice | Première sortie → Catalogue → Développeur d'artistes                                               | l'acte VII (signature, édition) |
+
+Pour un pro, la carrière consiste à **faire grandir les autres** : un
+producteur monte quand les artistes qu'il a produits franchissent leurs
+épreuves. C'est ce qui aligne les intérêts de tout le monde.
+
+### 4.5 Ce que chaque acte débloque
+
+Franchir l'épreuve d'un acte débloque **de nouvelles possibilités
+réelles**, pas seulement des points. Le déblocage repose toujours sur
+une preuve ou un rang, jamais sur l'XP (02 §1).
+
+| Épreuve franchie             | Débloque _(proposé)_                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
+| I · Premier jam confirmé     | Endosser ses partenaires de jam (avec la confiance TL1), apparaître dans « dispos ce soir » des autres |
+| II · Premier morceau composé | Fiche morceau publique, recrutement par rôle, demander un ingé son                                     |
+| III · Enregistrement vérifié | **Vitrine des propositions** : proposer un morceau aux producteurs                                     |
+| IV · Production confirmée    | Candidater aux appels à projets de salles et tremplins                                                 |
+| V · Concert vérifié          | Entrer dans le **radar des pros** (managers, bookers) ; organiser une date à plusieurs groupes         |
+| VI · Sortie vérifiée         | Être proposé aux labels et éditeurs ; page de sortie avec tous les crédits                             |
+| VII · Signature              | Rang « Signé » du groupe, palmarès, possibilité de parrainer (§4.8)                                    |
+
+### 4.6 La fiche de carrière
+
+Comme la fiche d'un joueur, avec ses statistiques : jams, personnes
+rencontrées, collaborations, morceaux, sessions, concerts, villes
+jouées, sorties, crédits. La version **publique** ne montre que les
+faits confirmés par d'autres (la réputation, 02 §1) ; la version privée
+y ajoute l'XP, le niveau et le journal de bord (D1).
+
+Chaque épreuve franchie produit une **carte souvenir** à partager
+(stories, réseaux) : « Premier concert vérifié · Le Sonic, Lyon ». C'est
+une célébration pour la personne et une vitrine pour l'app.
+
+### 4.7 Les coups de pouce
+
+Quand on n'avance plus depuis un moment, l'app ne culpabilise pas : elle
+propose une marche facile à franchir. « Trois jams ce week-end près de
+chez toi », « Un ingé son de ton réseau est dispo en novembre », « Ton
+morceau attend une voix : deux chanteuses de ton carnet de jams sont
+dans le coin ». Le carnet de jams sert ici : les rencontres d'hier
+deviennent les équipes de demain.
+
+### 4.8 Le parrainage
+
+Les personnes au rang Pilier local ou au-delà peuvent **parrainer** des
+débutant·es : les inviter à une jam, les présenter à quelqu'un. Quand
+deux personnes présentées par un parrain collaborent, le parrain obtient
+le succès _Passeur_ (02 §9). On progresse aussi en faisant progresser
+les autres.
+
+## 5. Qui gagne quoi sur toute la chaîne _(proposé, à calibrer)_
 
 Repères indicatifs, cohérents avec le barème du musicien (02 §2.2). Les
 multiplicateurs anti-abus s'appliquent partout (02 §6).
@@ -207,14 +316,14 @@ multiplicateurs anti-abus s'appliquent partout (02 §6).
 | Sortie vérifiée                   | 1 500 (EP)          | Chaque crédité : 300 (crédit sur sortie vérifiée)  |
 | Signature                         | 3 000               | Label : palier « Première sortie », puis Catalogue |
 
-## 5. Le mode jam : jouer pour le plaisir
+## 6. Le mode jam : jouer pour le plaisir
 
 Le mode jam, c'est le **match rapide** : pas d'objectif, pas de carte,
-pas d'engagement. On a envie de jouer ce soir, on trouve des gens, on
-joue. C'est aussi la porte d'entrée la plus simple de l'app : on n'a
-pas besoin d'avoir un projet pour s'amuser.
+pas d'engagement, pas de projet. On a envie de jouer ce soir, on trouve
+des gens, on joue, on rencontre. C'est aussi la porte d'entrée la plus
+simple de l'app : on n'a pas besoin d'avoir un projet pour s'amuser.
 
-### 5.1 Comment ça se joue _(proposé)_
+### 6.1 Comment ça se joue _(proposé)_
 
 1. **« Je suis dispo »** : un interrupteur sur l'accueil, avec un
    créneau (ce soir, demain, ce week-end) et ce qu'on a envie de jouer.
@@ -232,12 +341,14 @@ pas besoin d'avoir un projet pour s'amuser.
 4. **On joue.** Hors de l'app, dans la vraie vie.
 5. **Fin de match** : un écran de fin de partie. Chacun confirme qui
    était là (double confirmation), peut laisser une réaction pour
-   l'ambiance (« 🔥 groove », « on remet ça ») et propose :
-   - **« Rejouer avec la même équipe »** : un nouveau salon prérempli ;
-   - **« On en fait un morceau ? »** : le jam devient une campagne du
-     mode carrière (06 §4), avec cette équipe déjà en place.
+   l'ambiance (« 🔥 groove », « on remet ça ») et choisir :
+   - **« Rejouer ensemble »** : un nouveau salon prérempli avec les
+     mêmes personnes ;
+   - **« Garder le contact »** : la personne rejoint son **réseau
+     musical** (les gens avec qui l'on a vraiment joué), sans rien
+     d'autre à faire.
 
-### 5.2 Ce que le mode jam rapporte
+### 6.2 Ce que le mode jam rapporte
 
 - Un jam confirmé par les participants reste une **vraie
   collaboration** (`JAM`) : il rapporte son XP et compte pour les rangs,
@@ -245,13 +356,15 @@ pas besoin d'avoir un projet pour s'amuser.
 - Mais le mode jam ne **montre** ni objectifs ni carte : seulement un
   **carnet de jams** façon souvenirs, avec le nombre de jams, les
   personnes rencontrées, les instruments croisés, les styles joués et
-  les lieux (par commune).
+  les lieux (par commune). Le carnet est aussi un **réseau** : quand,
+  un jour, on cherche une batteuse pour un projet, l'app propose
+  d'abord celles avec qui l'on a déjà jammé.
 - Des **succès fun** _(proposé)_ : _Noctambule_ (3 jams après 22 h),
   _Touche-à-tout_ (5 styles différents), _Brise-glace_ (une jam avec
   quelqu'un que tu ne connaissais pas), _Chef d'orchestre_ (5 jams
   lancées et jouées).
 
-### 5.3 Sécurité
+### 6.3 Sécurité
 
 - Un salon ne donne le lieu exact qu'aux personnes acceptées par l'hôte.
 - Pour une première rencontre, l'app conseille un lieu public ou un
@@ -261,7 +374,7 @@ pas besoin d'avoir un projet pour s'amuser.
 - Les quotas de confiance (02 §7) limitent le nombre de salons et de
   demandes ; blocage et signalement sont disponibles partout.
 
-## 6. L'esprit : l'encouragement, jamais la pression
+## 7. L'esprit : l'encouragement, jamais la pression
 
 LinkMusician encourage. Il félicite chaque pas, montre toujours la
 prochaine étape, et ne punit jamais une pause : une semaine sans jouer
@@ -280,18 +393,21 @@ ne fait rien perdre. Concrètement :
 - **Les points ne s'achètent pas** : ce qu'on prouve dans l'app doit
   rester vrai pour les pros qui le regardent (01 §5).
 
-## 7. Ce qu'il faudra construire
+## 8. Ce qu'il faudra construire
 
-| Élément                                               | Repose sur                                                        | Quand _(proposé)_ |
-| ----------------------------------------------------- | ----------------------------------------------------------------- | ----------------- |
-| Accueil à deux modes (carrière, jam)                  | Coquille de l'app (P0-05)                                         | Phase 2           |
-| Mode jam : « je suis dispo », salons, fin de match    | Annonces `JAM` (P2-02), collaborations (P2-06), recherche (P2-01) | Phase 2           |
-| Carnet de jams, succès fun, « on en fait un morceau » | Collaborations `JAM`, `Work` (D20)                                | Phase 2-3         |
-| Annonces de gains et animations de niveau             | Registre XP, événements dérivés (P1-07)                           | Phase 2           |
-| Carte de carrière (actes I à III visibles)            | Paliers, étapes de groupe                                         | Phase 3           |
-| Fiche morceau, équipe et rôles à pourvoir             | `Work`, `WorkContributor` (D20)                                   | Phase 3           |
-| Célébration des épreuves, récap de campagne           | Étapes vérifiées, crédits                                         | Phase 3-4         |
-| Actes III-IV jouables (ingé son, producteur)          | Ouverture des métiers, vitrine (06 §4)                            | Phase 4           |
-| Radar des pros, objectifs de la semaine               | Réputation (P2-08), quêtes                                        | Phase 4-5         |
-| Actes V à VII jouables                                | Organisations vérifiées, sorties par API                          | Phases 5-6        |
-| Défis collectifs par ville                            | D3                                                                | Phase 6           |
+| Élément                                            | Repose sur                                                        | Quand _(proposé)_ |
+| -------------------------------------------------- | ----------------------------------------------------------------- | ----------------- |
+| Accueil à deux modes (carrière, jam)               | Coquille de l'app (P0-05)                                         | Phase 2           |
+| Mode jam : « je suis dispo », salons, fin de match | Annonces `JAM` (P2-02), collaborations (P2-06), recherche (P2-01) | Phase 2           |
+| Carnet de jams, réseau musical, succès fun         | Collaborations `JAM`                                              | Phase 2-3         |
+| Annonces de gains et animations de niveau          | Registre XP, événements dérivés (P1-07)                           | Phase 2           |
+| Carte de carrière (actes I à III visibles)         | Paliers, étapes de groupe                                         | Phase 3           |
+| Fiche morceau, équipe et rôles à pourvoir          | `Work`, `WorkContributor` (D20)                                   | Phase 3           |
+| Célébration des épreuves, récap de campagne        | Étapes vérifiées, crédits                                         | Phase 3-4         |
+| Actes III-IV jouables (ingé son, producteur)       | Ouverture des métiers, vitrine (06 §4)                            | Phase 4           |
+| Choix de l'ambition, écran de carrière             | Carte, quêtes, paliers                                            | Phase 3           |
+| Fiche de carrière, cartes souvenirs à partager     | Réputation (P2-08), étapes vérifiées                              | Phase 3-4         |
+| Coups de pouce, parrainage                         | Carnet de jams, réseau musical                                    | Phase 3-4         |
+| Radar des pros, objectifs de la semaine            | Réputation (P2-08), quêtes                                        | Phase 4-5         |
+| Actes V à VII jouables                             | Organisations vérifiées, sorties par API                          | Phases 5-6        |
+| Défis collectifs par ville                         | D3                                                                | Phase 6           |
