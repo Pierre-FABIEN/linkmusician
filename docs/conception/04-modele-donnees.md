@@ -333,7 +333,7 @@ model Conversation {                            // Phase 2
   lastMessageAt DateTime
   participants ConversationParticipant[]
 }
-model ConversationParticipant { conversationId String; actorId String; state String /* REQUEST | ACCEPTED | ARCHIVED */; lastReadAt DateTime?; @@id([conversationId, actorId]) }
+model ConversationParticipant { conversationId String; actorId String; state ConversationState /* REQUEST | ACCEPTED | DECLINED (P2-04) */; lastReadAt DateTime?; @@id([conversationId, actorId]) }
 model Message { id String @id @default(cuid()); conversationId String; senderActorId String; body String; createdAt DateTime @default(now()); @@index([conversationId, createdAt]) }
 
 model ActorActivityDay { actorId String; day DateTime @db.Date; @@id([actorId, day]) } // P1-13 : rétention (D13), rien d'autre n'est tracé

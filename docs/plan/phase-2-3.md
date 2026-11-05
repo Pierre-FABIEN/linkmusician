@@ -91,6 +91,12 @@ fête, et le mode jam permet de jouer dès ce soir.
 
 ### P2-04 — Messagerie
 
+> **Réalisé le 05/11/2026.** Écarts : signalement de la **personne**
+> depuis la conversation (pas encore d'un message isolé : il faudrait une
+> cible `MESSAGE` dans la file de modération) ; le refus d'une demande ne
+> pèse pas encore sur la confiance (avec P2-05). Voir
+> [docs/messagerie](../messagerie/README.md).
+
 - **Dépend de** : P1-09.
 - **Décisions** : règles pour les 16-17 ans (D5) : messages reçus
   seulement de personnes déjà en contact ou via une annonce.

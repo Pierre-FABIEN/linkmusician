@@ -13,6 +13,7 @@ import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { currentSuspension } from '#lib/server/moderation/service';
 import { recordActivity } from '#lib/server/indicators/activity';
 import { getPendingCelebrations } from '#lib/server/progression/celebrations';
+import { unreadTotal } from '#lib/server/messaging/service';
 import { prisma } from '#lib/server';
 import type { LayoutServerLoad } from './$types';
 
@@ -31,7 +32,11 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	await recordActivity(person.actorId);
 
 	// Célébrations (P2-11) : ce qui est neuf depuis la dernière visite.
-	const celebrations = await getPendingCelebrations(person.actorId, prisma);
+	const [celebrations, unread] = await Promise.all([
+		getPendingCelebrations(person.actorId, prisma),
+		// Messagerie (P2-04) : pastille de non-lus dans la navigation.
+		unreadTotal(person.actorId)
+	]);
 
 	return {
 		person: {
@@ -39,6 +44,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 			displayName: person.actor.displayName,
 			tracks: person.tracks.map((t) => ({ track: t.track, isPrimary: t.isPrimary }))
 		},
-		celebrations
+		celebrations,
+		unread
 	};
 };

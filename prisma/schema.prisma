@@ -1424,6 +1424,9 @@ model Actor {
   progress       ActorProgress[]
   achievements   ActorAchievement[]
   activityDays   ActorActivityDay[]
+  conversationParticipants ConversationParticipant[]
+  conversationsInitiated Conversation[] @relation("ConversationInitiator")
+  messagesSent         Message[]
 
   @@map("actors")
 }
@@ -1880,4 +1883,70 @@ model ActorActivityDay {
   @@id([actorId, day])
   @@index([day])
   @@map("actor_activity_days")
+}
+
+// ─── MESSAGERIE (P2-04) ─────────────────────────────────────────────────────
+//
+// Règles : `src/lib/messaging/` (pur) et `src/lib/server/messaging/`. Le
+// premier message à un inconnu est une **demande** (quota de confiance) ;
+// la conversation s'ouvre quand le destinataire l'accepte.
+
+/// État d'une conversation pour un participant.
+enum ConversationState {
+  /// Demande reçue, pas encore acceptée (le destinataire seulement).
+  REQUEST
+  ACCEPTED
+  /// Demande refusée : l'expéditeur ne peut plus écrire.
+  DECLINED
+}
+
+/// Conversation directe entre deux personnes (une seule par paire).
+model Conversation {
+  id             String                    @id @default(cuid())
+  /// Identifiants des deux acteurs, triés et joints : unicité de la paire.
+  pairKey        String                    @unique
+  initiatorId    String
+  initiator      Actor                     @relation("ConversationInitiator", fields: [initiatorId], references: [id], onDelete: Cascade)
+  /// Annonce d'origine (P2-02/P2-03) : seule une conversation née d'une
+  /// annonce rapporte de l'XP quand elle devient réciproque.
+  opportunityId  String?
+  /// Première réponse du destinataire (événement `conversation.reciprocated`).
+  reciprocatedAt DateTime?
+  lastMessageAt  DateTime                  @default(now())
+  createdAt      DateTime                  @default(now())
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([initiatorId, createdAt])
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  conversationId String
+  conversation   Conversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  actorId        String
+  actor          Actor             @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  state          ConversationState
+  /// Lu jusqu'à cette date (non-lus = messages de l'autre postérieurs).
+  lastReadAt     DateTime?
+
+  @@id([conversationId, actorId])
+  @@index([actorId, state])
+  @@map("conversation_participants")
+}
+
+/// Message en texte brut. Anonymisation : le texte est effacé, le message
+/// reste pour l'historique de l'autre personne.
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderActorId  String
+  sender         Actor        @relation(fields: [senderActorId], references: [id], onDelete: Cascade)
+  body           String
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
 }

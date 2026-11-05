@@ -16,7 +16,8 @@
 		Music,
 		MapPin,
 		CalendarCheck,
-		Link2
+		Link2,
+		MessageCircle
 	} from 'lucide-svelte';
 	import LevelBadge from '#lib/components/linkmusician/progress/LevelBadge.svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
@@ -147,7 +148,9 @@
 						class="h-32 bg-violet-900 bg-[radial-gradient(circle_at_20%_30%,var(--color-fuchsia-400),transparent_50%),radial-gradient(circle_at_80%_60%,var(--color-violet-600),transparent_55%)]"
 					></div>
 					<Card.Content class="-mt-12 space-y-4">
-						<div class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
+						<div
+							class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4"
+						>
 							<Avatar.Root class="size-24 border-4 border-background shadow-xl">
 								<Avatar.Fallback class="bg-violet-100 text-3xl font-bold text-violet-800"
 									>{initialsOf(p.displayName)}</Avatar.Fallback
@@ -175,6 +178,18 @@
 							{/if}
 						</div>
 						{#if p.bio}<p class="whitespace-pre-line leading-relaxed">{p.bio}</p>{/if}
+						{#if data.canReport}
+							<a
+								href="/messages/nouveau?a={p.handle}"
+								class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 font-semibold text-white"
+							>
+								<MessageCircle class="size-4" aria-hidden="true" /> Écrire à {p.displayName}
+							</a>
+						{:else if !data.isOwner}
+							<a href="/auth/login" class="inline-block text-sm underline"
+								>Connecte-toi pour écrire à {p.displayName}</a
+							>
+						{/if}
 					</Card.Content>
 				</Card.Root>
 

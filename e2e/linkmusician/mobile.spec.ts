@@ -87,6 +87,7 @@ test.describe('LinkMusician — mobile', () => {
 		await test.step('4. Les pages de l’espace tiennent dans l’écran', async () => {
 			for (const [path, shot] of [
 				['/decouvrir', 'decouvrir'],
+				['/messages', 'messages'],
 				['/profil', 'profil'],
 				['/profil/musical', 'profil-musical'],
 				['/profil/medias', 'medias'],

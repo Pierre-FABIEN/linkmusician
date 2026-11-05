@@ -42,6 +42,11 @@
 							>
 								<item.icon class="size-4" aria-hidden="true" />
 								{item.label}
+								{#if item.href === '/messages' && data.unread > 0}<span
+										class="rounded-full bg-fuchsia-600 px-1.5 text-[11px] font-bold text-white"
+										aria-label="{data.unread} non lu{data.unread > 1 ? 's' : ''}"
+										>{data.unread}</span
+									>{/if}
 								{#if item.soon}<span
 										class="rounded-full bg-muted px-1.5 text-[10px] font-semibold text-muted-foreground uppercase"
 										>bientôt</span
@@ -78,7 +83,13 @@
 							? 'text-primary'
 							: 'text-muted-foreground'}"
 					>
-						<item.icon class="size-5" aria-hidden="true" />
+						<span class="relative">
+							<item.icon class="size-5" aria-hidden="true" />
+							{#if item.href === '/messages' && data.unread > 0}<span
+									class="absolute -top-1.5 -right-2.5 min-w-4 rounded-full bg-fuchsia-600 px-1 text-center text-[10px] leading-4 font-bold text-white"
+									aria-label="{data.unread} non lu{data.unread > 1 ? 's' : ''}">{data.unread}</span
+								>{/if}
+						</span>
 						<span class="max-w-full truncate">{item.label}</span>
 					</a>
 				</li>

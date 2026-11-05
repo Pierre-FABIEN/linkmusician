@@ -31,7 +31,7 @@ export async function createMusician(spec: {
 	const suffix = Math.random().toString(36).slice(2, 8);
 	const handle = `${spec.name.toLowerCase().replace(/[^a-z]/g, '')}-${suffix}`;
 	const user = await db.user.create({
-		data: { email: `${handle}@e2e.linkmusician.test`, referralCode: `E2E${suffix}`.toUpperCase() }
+		data: { email: `${handle}${E2E_MUSICIAN_DOMAIN}`, referralCode: `E2E${suffix}`.toUpperCase() }
 	});
 	const instrument = spec.instrument
 		? await db.instrument.findUniqueOrThrow({ where: { slug: spec.instrument[0] } })
@@ -48,6 +48,8 @@ export async function createMusician(spec: {
 			person: {
 				create: {
 					userId: user.id,
+					// Adulte : une date inconnue vaut mineur·e pour la messagerie (D5).
+					birthDate: new Date('1995-06-15T00:00:00Z'),
 					termsAcceptedAt: new Date(),
 					onboardedAt: new Date(),
 					instruments: instrument
@@ -75,5 +77,30 @@ export async function createMusician(spec: {
 		lng,
 		lat
 	);
-	return { handle, displayName, actorId: actor.id };
+	return { handle, displayName, actorId: actor.id, userId: user.id };
+}
+
+/** Domaine des comptes créés par `createMusician`. */
+export const E2E_MUSICIAN_DOMAIN = '@e2e.linkmusician.test';
+
+/**
+ * Supprime des musicien·nes fictifs (et leurs conversations), pour qu'ils
+ * ne polluent pas les recherches des specs suivants. À appeler dans un
+ * `finally`. Sans argument : tous ceux du domaine e2e.
+ */
+export async function deleteMusicians(list?: { actorId: string; userId: string }[]) {
+	const where = list
+		? { id: { in: list.map((m) => m.actorId) } }
+		: { person: { user: { email: { endsWith: E2E_MUSICIAN_DOMAIN } } } };
+	const actors = await db.actor.findMany({
+		where,
+		select: { id: true, person: { select: { userId: true } } }
+	});
+	const actorIds = actors.map((a) => a.id);
+	const userIds = actors.flatMap((a) => (a.person ? [a.person.userId] : []));
+	await db.conversation.deleteMany({
+		where: { participants: { some: { actorId: { in: actorIds } } } }
+	});
+	await db.actor.deleteMany({ where: { id: { in: actorIds } } });
+	await db.user.deleteMany({ where: { id: { in: userIds } } });
 }
