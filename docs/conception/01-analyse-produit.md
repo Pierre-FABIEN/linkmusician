@@ -127,22 +127,89 @@ ce que je propose à la place.
 
 ## 5. Modèle économique
 
-Principe directeur : **ne jamais vendre ce qui fait la crédibilité.**
-Pas d'XP, pas de réputation, pas de rang de recherche à acheter. Ce qui
-se vend, c'est du confort, de l'outillage et l'accès au signal pour les
-professionnels.
+> Révisé le 05/11/2026 (D25) à partir d'une étude de plateformes
+> comparables (sources en fin de section). Les chiffres sont des repères
+> publics, parfois anciens ou contradictoires : à revérifier avant de
+> fixer un prix.
 
-| Source                                 | Payeur                                   | Contenu                                                                                                                                | Phase | Risque                                    |
-| -------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- | ----------------------------------------- |
-| **Abonnement Pro « Scout »**           | Labels, managers, bookers, organisateurs | Recherche avancée multicritère, alertes « projets qui montent », export, annonces illimitées                                           | 5-6   | Faible : c'est la valeur de la plateforme |
-| **Annonces professionnelles**          | Organisateurs, studios, labels           | Publier un appel à projets ou un plateau (annonces mises en avant **dans une section dédiée**, jamais mêlées aux résultats organiques) | 5     | Moyen : ne pas polluer la recherche       |
-| **Fiche studio étendue / réservation** | Studios                                  | Agenda, réservation, commission sur la réservation (Stripe Connect)                                                                    | 4-5   | Moyen : logistique de paiement            |
-| **Premium musicien / groupe**          | Musiciens, groupes                       | Plus de stockage média, statistiques de profil, personnalisation visuelle, kit de presse exportable                                    | 3+    | Faible si purement confort                |
-| Partenariats                           | Écoles, fabricants, salles               | Quêtes sponsorisées clairement marquées (« enregistre une reprise, gagne une séance studio »)                                          | 6     | Moyen : éthique de la sponsorisation      |
+Principe directeur, inchangé : **ne jamais vendre ce qui fait la
+crédibilité.** Pas d'XP, pas de réputation, pas de rang de recherche, pas
+de place dans le mode jam à acheter. Ce qui se vend : des **prestations
+réelles** (commission), de l'**outillage** pour ceux qui en tirent un
+revenu, et du **confort ou du cosmétique** de jeu.
 
-Exclus : boost de visibilité payant dans la recherche organique, achat
-d'XP ou de badges, vente de données.
+### 5.1 Ce que font les plateformes comparables
 
-Le gratuit doit rester complet pour le cœur : profil, recherche, annonces
-(avec quota), messagerie, groupes, progression. Le payant n'arrive
-qu'en phase 3 au plus tôt. On ne monétise pas un réseau vide.
+| Modèle                     | Exemple                            | Repères trouvés                                                                                    |
+| -------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Abonnement musicien        | BandMix (mise en relation)         | 12,95 $/mois ou 99,95 $/an, messagerie réservée aux payants                                        |
+| Abonnement musicien        | Vampr (« LinkedIn des musiciens ») | Pro ~5 $/mois ; 3 à 4 % des actifs paient                                                          |
+| Freemium gamifié           | Strava                             | ~80 $/an ; 2 à 8 % de payants selon les estimations ; ~90 % du chiffre d'affaires par l'abonnement |
+| Freemium gamifié           | Duolingo                           | ~9 % des utilisateurs mensuels paient (12,2 M sur 133 M fin 2025)                                  |
+| Commission sur prestations | GigSalad (concerts privés)         | 2,5 à 5 % côté artiste + 4 à 8 % côté client, prélevés seulement si la date est réservée           |
+| Commission sur prestations | SoundBetter (production, ingé son) | 5 à 10 % selon les années                                                                          |
+| Commission sur prestations | Malt (freelances, France)          | 10 %, 5 % après 6 mois de relation, 2 % si le freelance a apporté son client                       |
+| Accès payant aux pros      | Groover                            | ~2 € par envoi, moitié reversée au pro, réponse garantie ; modèle très critiqué                    |
+| Outils pour les lieux      | Bandsintown Pro (salles)           | abonnement au prix fonction de la taille de la salle                                               |
+
+Marché : 11 % des Français déclaraient une pratique musicale en amateur
+en 2018 (environ 6 millions de personnes), et **deux tiers de ceux qui
+ont joué ont arrêté**. Aider à continuer de jouer avec d'autres est la
+raison d'être de l'app, et ce qui la rendra rentable.
+
+### 5.2 Les sources de revenus, dans l'ordre
+
+| #   | Source                         | Payeur                                      | Contenu                                                                                                                                                                                        | Repère de prix                                                                                   | Phase |
+| --- | ------------------------------ | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----- |
+| 1   | **Commission sur prestations** | Surtout l'acheteur                          | Cours, sessions studio, ingé son, production, réservation de studio, puis concerts privés. La prestation confirmée est aussi une preuve (points, réputation)                                   | 5 à 8 % de frais de service, peu ou rien côté musicien ; dégressif avec la fidélité (comme Malt) | 4-5   |
+| 2   | **Abonnements outils**         | Lieux, puis pros                            | **Lieux** (bars, salles, MJC) : agenda, appels à groupes, jams publiques, aide licence et GUSO. **Pros** (« Scout ») : recherche avancée, alertes « projets qui montent », annonces illimitées | Lieux 15 à 50 €/mois selon la taille ; pros 30 à 100 €/mois                                      | 5     |
+| 3   | **LinkMusician+** (musiciens)  | Musiciens, groupes                          | Statistiques de profil, stockage, kit presse exportable, **cosmétiques de jeu** (cadres, thèmes, titres). Jamais de pouvoir                                                                    | ~4,99 €/mois ou 39 €/an                                                                          | 3-4   |
+| 4   | **Partenariats**               | Fabricants, écoles, magasins, distributeurs | Défis et quêtes sponsorisés **clairement marqués** ; affiliation (distribution numérique, assurance d'instruments)                                                                             | au contrat                                                                                       | 6     |
+
+Ordre de grandeur pour la source 3 : 20 000 musiciens actifs × 4 % ×
+39 € ≈ 31 000 € par an. Utile, mais insuffisant seul : d'où l'ordre
+ci-dessus, qui fait payer d'abord ceux qui gagnent de l'argent grâce à
+la plateforme.
+
+**Financements publics** (pas un revenu, mais réaliste au démarrage) :
+la pratique amateur et la scène locale relèvent de la politique
+culturelle (Centre national de la musique, régions, Bpifrance pour
+l'innovation).
+
+### 5.3 Ce qu'on refuse
+
+| Refusé                                               | Pourquoi                                                                                 |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Messagerie payante (comme BandMix)                   | Elle tue les rencontres, donc la valeur de l'app                                         |
+| Boost de visibilité dans la recherche ou le mode jam | Les pros doivent découvrir les gens par ce qu'ils ont prouvé, pas par ce qu'ils ont payé |
+| Payer pour être écouté par un pro (comme Groover)    | Rapporte, mais exploite l'espoir des artistes et contredit le principe ci-dessus         |
+| Achat d'XP, de badges, de rangs ; vente de données   | Détruit la crédibilité des preuves et la confiance                                       |
+
+### 5.4 Points de vigilance
+
+- **Juridique (à faire valider par un juriste avant la source 1)** : en
+  France, un artiste payé pour se produire est présumé salarié (cachets ;
+  GUSO pour un organisateur occasionnel). La commission est simple sur
+  les **cours, le studio, l'ingé son et la production**, souvent facturés
+  par des indépendants ; elle est plus délicate sur les **concerts**, qui
+  demanderaient de passer par le GUSO ou un partenaire de portage.
+- **Pas de monétisation d'un réseau vide** : le gratuit reste complet
+  (profil, recherche, annonces avec quota, messagerie, mode jam, groupes,
+  progression). Le payant n'arrive que quand les indicateurs (P1-13)
+  montrent que les gens reviennent.
+- **Paiements** : Stripe Connect (déjà dans le socle) pour les
+  commissions ; la boutique en veille reste séparée.
+
+### 5.5 Sources
+
+- [BandMix – abonnement Premier](https://echomedia.freshdesk.com/support/solutions/articles/2100041066-how-do-i-become-a-premier-member-)
+- [Vampr, conversion (Music Business Worldwide)](https://www.musicbusinessworldwide.com/jaxsta-acquires-linkedin-for-creatives-vampr1/)
+- [Strava (IPOX)](https://www.ipox.com/ipox/ipox-watch-strava) · [Strava (Sacra)](https://sacra.com/c/strava/)
+- [Duolingo, chiffres 2025 (Motley Fool)](https://www.fool.com/investing/2026/02/16/3-key-takeaways-from-duolingos-2025)
+- [GigSalad – frais](https://www.gigsalad.com/join) · [GigSalad – concerts privés (Hypebot)](https://www.hypebot.com/tag/gigsalad/)
+- [SoundBetter (Music Gateway)](https://www.musicgateway.com/blog/how-to/soundbetter-review)
+- [Malt, commissions (Keobiz)](https://www.keobiz.fr/fiches-pratiques/lancer-activite-freelance/plateformes-pour-freelances-malt/)
+- [Groover (TechCrunch)](https://techcrunch.com/2024/02/17/groover-independent-artists-song-discovery) · [Groover, prix](https://help.groover.co/en/articles/2966389-do-i-have-to-pay-to-use-groover)
+- [Bandsintown Pro pour les lieux](https://help.venues.bandsintown.com/en/articles/8487058-how-much-does-it-cost)
+- [Ministère de la Culture – pratique musicale amateur](https://www.culture.gouv.fr/actualites/special-fete-de-la-musique-2-une-pratique-amateur-en-constante-mutation)
+- [INSEE – pratiques amateurs 2018](https://www.insee.fr/fr/statistiques/6535287)

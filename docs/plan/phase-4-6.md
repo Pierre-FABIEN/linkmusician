@@ -209,10 +209,18 @@ mode jam.
   vérifié », « tournée » ; carte souvenir du concert.
 - **Fin** : e2e de l'acte V.
 
+### P5-00 — Validation juridique de la monétisation (D25)
+
+- **Avant** P5-09 et P5-10 : faire valider par un juriste la commission
+  sur prestations (présomption de salariat des artistes, GUSO, statut de
+  la plateforme, CGV), et choisir le partenaire de portage éventuel pour
+  les concerts. Conception 01 §5.4.
+
 ### P5-09 — Offre pro
 
 - **Dépend de** : P4-11.
-- **Tâches** : abonnement (Stripe, socle existant) : recherche avancée,
+- **Tâches** : abonnements **lieux** (agenda, appels à groupes, jams
+  publiques, aide licence et GUSO) et **pros** (Stripe, socle existant) : recherche avancée,
   alertes, flux étendu ; **jamais** de visibilité organique, de place
   dans le mode jam ni d'XP achetée.
 - **Fin** : aucun produit payant n'écrit dans le registre XP (test).
