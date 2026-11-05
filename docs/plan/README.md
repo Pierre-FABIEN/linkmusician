@@ -21,14 +21,14 @@ lot si le précédent dont il dépend n'est pas fusionné.
 Le projet est trop gros pour tout détailler maintenant. Le détail suit
 l'horizon :
 
-| Horizon                           | Niveau de détail                                                                                 |
-| --------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Phase en cours et suivante (0, 1) | Lots complets : objectif, périmètre, dépendances, critères de fin, tests                         |
-| Phases 2-3 (fin du MVP)           | Liste des lots avec objectif et dépendances. Les fiches sont détaillées au démarrage de la phase |
-| Phases 4-6                        | Intentions et liste des lots ([phase-4-6.md](./phase-4-6.md), conception 05 §3, 06, 07, 08)      |
+| Horizon                           | Niveau de détail                                                                                                  |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Phase en cours et suivante (0, 1) | Lots complets : objectif, périmètre, dépendances, critères de fin, tests                                          |
+| Phases 2-3 (fin du MVP)           | **Fiches complètes** ([phase-2-3.md](./phase-2-3.md)) : objectif, dépendances, décisions, tâches, critères de fin |
+| Phases 4-6                        | **Fiches rédigées** ([phase-4-6.md](./phase-4-6.md)) ; barèmes calibrés par personas en début de phase            |
 
-À la **fin de chaque phase**, une revue d'une demi-journée (§6) détaille
-la phase suivante.
+Depuis le 05/11/2026, **toutes les phases ont leurs fiches** : la revue
+de fin de phase (§6) les relit et les ajuste au lieu de les écrire.
 
 ## 3. Cycle de vie d'un lot
 
@@ -75,27 +75,29 @@ L'ordre conseillé des prochaines sessions (une session = un lot, on
 avance ensemble). Les **décisions** à trancher avant un lot sont
 indiquées : on les tranche en début de session.
 
-| #   | Session                                 | Ce qu'on livre                                                              | À trancher avant                        |
-| --- | --------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------- |
-| 1   | P1-13 Indicateurs produit               | `/admin/metrics` : inscrits, onboarding terminé, rétention                  | —                                       |
-| 2   | P0-05 Coquille et identité visuelle     | L'app porte enfin son nom, navigation de l'espace                           | **D9** (nom et domaine)                 |
-| 3   | P0-06 Doc et synchro amont outillée     | Fin de la phase 0                                                           | —                                       |
-| 4   | Revue de fin de phase 1                 | Fiches détaillées des lots de phase 2                                       | **D4** (zone de lancement)              |
-| 5   | P2-11 Célébrations                      | Chaque gain s'annonce, la montée de niveau se fête                          | —                                       |
-| 6   | P2-01 Recherche                         | Trouver des musicien·nes par instrument, genre, distance                    | —                                       |
-| 7   | P2-04 Messagerie, puis P2-05 Blocage    | Se parler, en sécurité                                                      | —                                       |
-| 8   | P2-02 Annonces, puis P2-03 Candidatures | Les quêtes émises                                                           | —                                       |
-| 9   | P2-06 Collaborations                    | Le cœur : jouer ensemble rapporte aux deux                                  | —                                       |
-| 10  | P2-12 Accueil à deux modes              | Le menu « Carrière / Jam »                                                  | —                                       |
-| 11  | P2-13 à P2-16 Mode jam                  | « Je suis dispo », salons, fin de match, carnet de jams                     | Règles des jams pour les mineur·es (D5) |
-| 12  | P2-07 à P2-10                           | Endossements, réputation, notifications, confiance TL2                      | —                                       |
-| 13  | Revue de fin de phase 2                 | Calibrage du barème, fiches de phase 3                                      | Modèle du morceau (**D20**)             |
-| 14  | P3-01 à P3-03 Groupes                   | Le groupe comme un club, recrutement                                        | —                                       |
-| 15  | P3-11 Morceau minimal                   | Les campagnes commencent                                                    | —                                       |
-| 16  | P3-04 à P3-09 Étapes et preuves         | Les épreuves vérifiées                                                      | Liste finale des étapes                 |
-| 17  | P3-12 à P3-14 Carrière                  | Ambition, écran de carrière, carte (actes I-III), fiche de carrière         | Liste des déblocages (07 §4.5)          |
-| 18  | P3-10 Bêta fermée                       | 50 bêta-testeurs, mesure, **go / no-go**                                    | Pages légales                           |
-| 19  | Phases 4 à 6                            | Les autres métiers et les actes III à VIII ([phase-4-6.md](./phase-4-6.md)) | Gratuité de la vitrine, `VENUE_HOST`    |
+| #   | Session                                 | Ce qu'on livre                                                                                       | À trancher avant                        |
+| --- | --------------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| 1   | P1-13 Indicateurs produit               | `/admin/metrics` : inscrits, onboarding terminé, rétention                                           | —                                       |
+| 2   | P0-05 Coquille et identité visuelle     | L'app porte enfin son nom, navigation de l'espace                                                    | **D9** (nom et domaine)                 |
+| 3   | P0-06 Doc et synchro amont outillée     | Fin de la phase 0                                                                                    | —                                       |
+| 4   | Revue de fin de phase 1                 | Relecture des fiches de phase 2, démo                                                                | **D4** (zone de communication)          |
+| 5   | P2-11 Célébrations                      | Chaque gain s'annonce, la montée de niveau se fête                                                   | —                                       |
+| 6   | P2-01 Recherche                         | Trouver des musicien·nes par instrument, genre, distance                                             | —                                       |
+| 7   | P2-04 Messagerie, puis P2-05 Blocage    | Se parler, en sécurité                                                                               | —                                       |
+| 8   | P2-02 Annonces, puis P2-03 Candidatures | Les quêtes émises                                                                                    | —                                       |
+| 9   | P2-06 Collaborations                    | Le cœur : jouer ensemble rapporte aux deux                                                           | —                                       |
+| 10  | P2-12 Accueil à deux modes              | Le menu « Carrière / Jam »                                                                           | —                                       |
+| 11  | P2-13 à P2-16 Mode jam                  | « Je suis dispo », salons, fin de match, carnet de jams                                              | Règles des jams pour les mineur·es (D5) |
+| 12  | P2-07 à P2-10                           | Endossements, réputation, notifications, confiance TL2                                               | —                                       |
+| 13  | Revue de fin de phase 2                 | Calibrage du barème, relecture des fiches de phase 3                                                 | Modèle du morceau (**D20**)             |
+| 14  | P3-01 à P3-03 Groupes                   | Le groupe comme un club, recrutement                                                                 | —                                       |
+| 15  | P3-11 Morceau minimal                   | Les campagnes commencent                                                                             | —                                       |
+| 16  | P3-04 à P3-09 Étapes et preuves         | Les épreuves vérifiées                                                                               | Liste finale des étapes                 |
+| 17  | P3-12 à P3-14 Carrière                  | Ambition, écran de carrière, carte (actes I-III), fiche de carrière                                  | Liste des déblocages (07 §4.5)          |
+| 18  | P3-10 Ouverture publique                | Production, pages légales, sécurité ; app ouverte à tous (pas de bêta, D23)                          | Pages légales                           |
+| 19  | P4-01 à P4-13 Métiers du son            | Ingé son, studio, producteur, crédits, vitrine, actes III-IV, temps réel, coups de pouce             | Gratuité de la vitrine                  |
+| 20  | P5-01 à P5-10 La scène                  | Lieux et jams publiques, organisateurs, concerts vérifiés, bookers, managers, offre pro, réservation | `VENUE_HOST`                            |
+| 21  | P6-01 à P6-07 Sortie et développement   | Label, éditeur, communication, actes VI-VIII, défis collectifs, autres rôles                         | Preuves de placement                    |
 
 ## 5. Tableau de suivi
 
@@ -172,15 +174,17 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 | P3-12 | Ambition et écran de carrière                        | P2-12, P3-11  | ⬜     |     |
 | P3-13 | Carte de carrière (actes I à III)                    | P3-05, P3-12  | ⬜     |     |
 | P3-14 | Fiche de carrière et cartes souvenirs                | P2-08, P3-13  | ⬜     |     |
-| P3-10 | Bêta fermée dans la zone de lancement                | Tout le reste | ⬜     |     |
+| P3-10 | Ouverture publique (pas de bêta, D23)                | Tout le reste | ⬜     |     |
 
 ### Phases 4 à 6 — Les autres métiers et la carrière complète → [phase-4-6.md](./phase-4-6.md)
 
-Lots P4-01 à P4-12 (studio, ingé son, producteur, crédits, vitrine des
-propositions, actes III-IV), P5-01 à P5-10 (lieux, organisateurs,
-bookers, managers, concerts vérifiés, acte V), P6-01 à P6-08 (label,
-éditeur, communication, actes VI-VIII, défis collectifs, autres rôles).
-Ils entrent dans ce tableau à la revue de fin de la phase précédente.
+Lots P4-01 à P4-13 (studio, ingé son, producteur, crédits, vitrine des
+propositions, actes III-IV, temps réel, coups de pouce), P5-01 à P5-10
+(lieux, organisateurs, bookers, managers, concerts vérifiés, acte V),
+P6-01 à P6-07 (label, éditeur, communication, actes VI-VIII, défis
+collectifs, autres rôles). Fiches complètes dans
+[phase-4-6.md](./phase-4-6.md) ; ils entrent dans ce tableau à la revue
+de fin de la phase précédente.
 
 ## 6. Rituels
 
@@ -200,8 +204,8 @@ et il ne se règle pas avec du code. À mener **dès la phase 1** :
 | Quand   | Action                                                                                                                                                                                                                |
 | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Phase 1 | Choisir la zone (D4). Lister 30 lieux relais : écoles de musique, salles de répétition, magasins, scènes ouvertes. Interviewer 10 musiciens (est-ce qu'ils cherchent vraiment des gens, comment font-ils aujourd'hui) |
-| Phase 2 | Liste d'attente sur une page d'accueil. Recruter 50 bêta-testeurs dans la zone                                                                                                                                        |
-| Phase 3 | Saisir avec eux les premières annonces réelles. Bêta fermée (P3-10). Mesurer les indicateurs de [conception/05 §2](../conception/05-mvp-roadmap.md#2-stratégie-mvp)                                                   |
+| Phase 2 | Liste d'attente sur une page d'accueil. Faire connaître le mode jam dans les lieux relais (scènes ouvertes, écoles, magasins)                                                                                         |
+| Phase 3 | Ouverture publique (P3-10). Premières annonces et jams réelles avec les lieux relais. Suivre chaque semaine les indicateurs de [conception/05 §2](../conception/05-mvp-roadmap.md#2-stratégie-mvp)                    |
 
 ## 8. Ordre de grandeur
 

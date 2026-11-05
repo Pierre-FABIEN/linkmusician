@@ -165,8 +165,9 @@ d'acceptation sont vérifiables par un test automatisé ou une mesure.
   contestation et de la reprise. E2E du parcours d'un groupe, de la
   formation au premier concert corroboré. E2E d'export RGPD.
 
-**Point de décision « go / no-go » après 3 mois d'usage réel** sur les
-indicateurs du §2.
+**Pas de bêta (D23)** : le MVP s'ouvre directement au public à la fin de
+la phase 3 (lot P3-10). **Point d'étape après 3 mois d'usage réel** sur
+les indicateurs du §2.
 
 ### Phase 4 — Producteurs, studios, temps réel
 
