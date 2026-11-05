@@ -66,7 +66,7 @@
 									type="radio"
 									name="kind"
 									value={k}
-									checked={(v.kind ?? 'JAM') === k}
+									checked={(v.kind ?? data.defaultKind) === k}
 									class="mt-1 size-4"
 								/>
 								<span>

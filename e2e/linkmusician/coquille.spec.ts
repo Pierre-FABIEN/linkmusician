@@ -22,7 +22,7 @@ test.describe('LinkMusician — coquille de l’espace', () => {
 		await test.step('1. L’espace a sa navigation', async () => {
 			await page.goto('/espace');
 			await waitForAppReady(page);
-			const nav = page.getByRole('navigation', { name: 'Espace' });
+			const nav = page.getByRole('navigation', { name: 'Espace', exact: true });
 			await expect(nav.getByRole('link')).toHaveCount(5);
 			await expect(nav.getByRole('link', { name: 'Mon parcours' })).toHaveAttribute(
 				'aria-current',
@@ -38,7 +38,9 @@ test.describe('LinkMusician — coquille de l’espace', () => {
 			await page.goto('/reglages');
 			await waitForAppReady(page);
 			await expect(
-				page.getByRole('navigation', { name: 'Espace' }).getByRole('link', { name: 'Profil' })
+				page
+					.getByRole('navigation', { name: 'Espace', exact: true })
+					.getByRole('link', { name: 'Profil' })
 			).toHaveAttribute('aria-current', 'page');
 		});
 

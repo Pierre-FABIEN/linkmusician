@@ -24,7 +24,7 @@
 	<header class="w-screen px-4 pt-[max(1rem,env(safe-area-inset-top))] md:pt-6">
 		<div class="mx-auto flex max-w-5xl items-center gap-3">
 			<a
-				href="/espace"
+				href="/jouer"
 				class="shrink-0 bg-[image:var(--lm-gradient)] bg-clip-text text-xl font-black text-transparent italic uppercase"
 				>{BRAND.name}</a
 			>

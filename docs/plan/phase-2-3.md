@@ -227,6 +227,13 @@ COMPLETED` (ou `CANCELLED`) ; pas d'état « en cours », et une
 
 ### P2-12 — Accueil à deux modes
 
+> **Réalisé le 05/11/2026.** `/jouer` est l'accueil de l'espace (arrivée
+> après connexion en mode LinkMusician, logo) ; `Person.preferredMode`
+> retient le dernier choix. Le mode jam a déjà son hub `/jam` (jams ouvertes
+> = annonces de type jam, « Lancer une jam ») ; « Je suis dispo » et les
+> salons arrivent avec P2-13 à P2-16. L'onboarding et « Qui es-tu ? »
+> mènent toujours au tableau de bord.
+
 - **Dépend de** : P0-05.
 - **Tâches** : écran d'accueil de l'espace avec deux grandes entrées,
   **Carrière** et **Jam**, comme le menu d'un jeu ; le dernier mode
@@ -254,7 +261,8 @@ COMPLETED` (ou `CANCELLED`) ; pas d'état « en cours », et une
 
 - **Dépend de** : P2-02, P2-13.
 - **Tâches** : un salon est une annonce `JAM` enrichie : créneau, type
-  de lieu (local, chez quelqu'un, bœuf dans un bar), **places libres**
+  de lieu (**public ou professionnel seulement**, D26 : bar, café-concert,
+  salle, scène ouverte, MJC, local de répétition, studio), **places libres**
   par instrument ; « Trouve-moi une jam » (salons ouverts et personnes
   dispos selon instrument et genres) ; demander à rejoindre, l'hôte
   accepte ; **lieu exact révélé aux seules personnes acceptées** ;

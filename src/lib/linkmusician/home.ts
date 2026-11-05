@@ -8,7 +8,8 @@
  */
 import { PUBLIC_SHOP_ENABLED } from '$app/env/public';
 
-export const APP_HOME = '/espace';
+/** Accueil de l'espace : le menu du jeu, carrière ou jam (P2-12). */
+export const APP_HOME = '/jouer';
 
 /** Destination après une étape d'authentification ; `boilerplatePath` est celle d'origine. */
 export function afterAuthPath(boilerplatePath: string): string {

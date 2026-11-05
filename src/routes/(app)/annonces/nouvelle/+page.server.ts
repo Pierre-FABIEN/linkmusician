@@ -8,10 +8,10 @@ import {
 	TIER_OPTIONS,
 	createOpportunity
 } from '#lib/server/opportunities/service';
-import { opportunitySchema } from '#lib/opportunities/rules';
+import { OPPORTUNITY_KINDS, opportunitySchema } from '#lib/opportunities/rules';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	const person = (await getPersonByUserId(locals.user!.id))!;
 	const [location, instruments, genres] = await Promise.all([
 		getActorLocation(person.actorId),
@@ -29,7 +29,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 			name: g.name,
 			children: g.children.map((c) => ({ slug: c.slug, name: c.name }))
 		})),
-		tiers: TIER_OPTIONS
+		tiers: TIER_OPTIONS,
+		// « Lancer une jam » depuis le mode jam (P2-12) : type présélectionné.
+		defaultKind: (OPPORTUNITY_KINDS as readonly string[]).includes(
+			url.searchParams.get('type') ?? ''
+		)
+			? url.searchParams.get('type')!
+			: 'JAM'
 	};
 };
 

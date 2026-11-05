@@ -8,7 +8,9 @@ d'accueil propose deux modes (D21) :
 | **Carrière** | Construire son parcours, étape par étape | Mode carrière       | Monter une équipe, créer des morceaux, enregistrer, jouer sur scène, sortir, signer |
 | **Jam**      | Jouer pour le plaisir, ici et maintenant | Match rapide        | Jammer avec des gens dispos près de chez soi, faire des rencontres musicales        |
 
-On passe de l'un à l'autre quand on veut. Le jam ne sert pas à lancer
+On passe de l'un à l'autre quand on veut (depuis le 05/11/2026 : écran
+`/jouer`, accueil de l'espace, qui retient le dernier mode choisi ; hub
+`/jam` pour le mode jam). Le jam ne sert pas à lancer
 un projet : il sert à **jouer et à rencontrer**. Mais les rencontres
 d'un soir sont souvent celles avec qui l'on monte un projet plus tard,
 et la carrière peut aller les rechercher quand on en a besoin (§6.2). Le ton est toujours celui de l'**encouragement** : on félicite, on
@@ -334,10 +336,11 @@ simple de l'app : on n'a pas besoin d'avoir un projet pour s'amuser.
    compatibles près de chez soi le voient (commune et distance par
    tranches, jamais d'adresse).
 2. **Lancer une jam** : un salon, comme une partie en ligne. On indique
-   le style, le créneau, le type de lieu (local de répète, chez
-   quelqu'un, bœuf dans un bar) et les **places libres** (« il manque
-   une batterie et une voix »). Le lieu exact n'est donné qu'aux
-   personnes acceptées.
+   le style, le créneau, le **lieu** et les **places libres** (« il manque
+   une batterie et une voix »). Une jam a toujours lieu dans un **lieu
+   public ou professionnel** : bar, café-concert, salle, scène ouverte,
+   MJC, local de répétition, studio. **Jamais chez un particulier**
+   (D26).
 3. **Trouve-moi une jam** : un bouton qui propose les salons ouverts et
    les personnes dispos près de soi, selon son instrument et ses
    genres. On demande à rejoindre, l'hôte accepte.
@@ -374,11 +377,13 @@ d'un·e débutant·e.
 
 ### 6.3 Sécurité
 
-- Un salon ne donne le lieu exact qu'aux personnes acceptées par l'hôte.
-- Pour une première rencontre, l'app conseille un lieu public ou un
-  local de répète.
-- Les mineur·es (D5) ne voient que les jams en lieu public ou en local
-  de répète, et la prise de contact passe par la messagerie restreinte.
+- **Lieux publics ou professionnels seulement** (D26) : bar,
+  café-concert, salle, scène ouverte, MJC, local de répétition, studio.
+  Pas de jam chez un particulier : ni proposée, ni acceptée.
+- **Mineur·es (D5)** : ils voient et rejoignent seulement les jams qui
+  finissent avant 22 h ; leur « Je suis dispo » n'est montré à personne
+  (on ne peut pas les solliciter) ; la prise de contact passe par la
+  messagerie restreinte.
 - Les quotas de confiance (02 §7) limitent le nombre de salons et de
   demandes ; blocage et signalement sont disponibles partout.
 

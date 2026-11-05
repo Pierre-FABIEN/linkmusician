@@ -1462,6 +1462,8 @@ model Person {
   /// Célébrations (P2-11) : gains et événements de progression déjà
   /// montrés jusqu'à cette date. `null` : depuis l'inscription.
   celebrationsSeenAt DateTime?
+  /// Dernier mode de jeu choisi à l'accueil (P2-12, D21).
+  preferredMode      PlayMode?
 
   /// Profil complet (D17, D18). Tout est déclaré, rien n'est vérifié.
   proStatus      ProStatus?
@@ -2127,4 +2129,10 @@ model CollaborationParticipant {
   @@id([collaborationId, actorId])
   @@index([actorId])
   @@map("collaboration_participants")
+}
+
+/// Modes de jeu (D21) : carrière ou jam (P2-12).
+enum PlayMode {
+  CAREER
+  JAM
 }
