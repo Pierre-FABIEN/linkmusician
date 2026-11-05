@@ -47,6 +47,9 @@
 			>
 				<Plus class="size-4" aria-hidden="true" /> Lancer une jam
 			</a>
+			<a href="/jam/carnet" class="block text-sm font-semibold text-white underline"
+				>Mon carnet de jams et mon réseau</a
+			>
 		</header>
 
 		{#if data.invites.length > 0}
@@ -74,7 +77,10 @@
 
 		{#if data.recent.length > 0}
 			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="recent-title">
-				<h2 id="recent-title" class="text-lg font-semibold">Tes dernières jams</h2>
+				<div class="flex flex-wrap items-baseline justify-between gap-2">
+					<h2 id="recent-title" class="text-lg font-semibold">Tes dernières jams</h2>
+					<a href="/jam/carnet" class="text-sm font-semibold underline">Mon carnet de jams</a>
+				</div>
 				<ul class="space-y-2">
 					{#each data.recent as j (j.id)}
 						<li>

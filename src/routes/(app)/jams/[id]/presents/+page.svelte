@@ -3,7 +3,15 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
-	import { CalendarDays, Heart, MapPin, MessageCircle, Repeat } from 'lucide-svelte';
+	import {
+		CalendarDays,
+		Heart,
+		MapPin,
+		MessageCircle,
+		Repeat,
+		UserCheck,
+		UserPlus
+	} from 'lucide-svelte';
 
 	let { data, form } = $props();
 
@@ -125,10 +133,23 @@
 											{/if}
 										</form>
 									{/if}
+									{#if p.inNetwork}
+										<p class="flex min-h-11 items-center gap-2 text-sm font-semibold text-primary">
+											<UserCheck class="size-4" aria-hidden="true" />Dans ton réseau
+										</p>
+									{:else if data.iWasThere}
+										<form method="POST" action="?/keep" use:enhance>
+											<input type="hidden" name="handle" value={p.handle} />
+											<button
+												class="flex min-h-11 items-center gap-2 text-sm font-semibold underline"
+												><UserPlus class="size-4" aria-hidden="true" />Garder le contact</button
+											>
+										</form>
+									{/if}
 									<a
 										href="/messages/nouveau?a={p.handle}"
 										class="flex min-h-11 items-center gap-2 text-sm font-semibold underline"
-										><MessageCircle class="size-4" aria-hidden="true" />Garder le contact</a
+										><MessageCircle class="size-4" aria-hidden="true" />Écrire</a
 									>
 									{#if data.jam.isHost}
 										<form method="POST" action="?/remove" use:enhance>

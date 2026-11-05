@@ -161,6 +161,9 @@
 								</Avatar.Root>
 								<span class="min-w-0">
 									<span class="block truncate font-bold">{r.displayName}</span>
+									{#if r.inNetwork}
+										<span class="block text-xs font-semibold text-primary">Dans ton réseau</span>
+									{/if}
 									<span class="flex items-center gap-1 text-xs text-muted-foreground">
 										<MapPin class="size-3" aria-hidden="true" />
 										{r.distance}{r.commune ? ` · ${r.commune}` : ''}

@@ -1442,6 +1442,8 @@ model Actor {
   jamInvites             JamInvite[]
   endorsementsGiven      JamEndorsement[]       @relation("EndorsementFrom")
   endorsementsReceived   JamEndorsement[]       @relation("EndorsementTo")
+  networkTies            MusicalTie[]           @relation("TieOwner")
+  networkOf              MusicalTie[]           @relation("TieContact")
 
   @@map("actors")
 }
@@ -2381,4 +2383,23 @@ model JamEndorsement {
   @@index([toActorId])
   @@index([fromActorId])
   @@map("jam_endorsements")
+}
+
+// ─── RÉSEAU MUSICAL (P2-16) ──────────────────────────────────────────────────
+
+/// Réseau musical : les gens avec qui l'on a vraiment joué (présence
+/// commune à une jam, collaboration confirmée) et que l'on garde
+/// (« Garder le contact »). Lien à sens unique, visible de son seul
+/// propriétaire ; il fait remonter la personne en tête des recherches et
+/// des invitations. Jamais l'XP.
+model MusicalTie {
+  ownerId   String
+  owner     Actor    @relation("TieOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  contactId String
+  contact   Actor    @relation("TieContact", fields: [contactId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([ownerId, contactId])
+  @@index([contactId])
+  @@map("musical_ties")
 }

@@ -445,32 +445,3 @@ export async function setJamBackline(
 	await managedJam(id, actorId, now);
 	await prisma.opportunity.update({ where: { id }, data: { backline } });
 }
-
-/**
- * Le réseau de la personne, pour suggérer qui inviter : conversations
- * acceptées et partenaires de collaborations.
- */
-export async function networkHandles(actorId: string, now = new Date()): Promise<string[]> {
-	const others = await prisma.actor.findMany({
-		where: {
-			id: { not: actorId },
-			person: { isNot: null },
-			...publicActorWhere(now, actorId),
-			OR: [
-				{
-					conversationParticipants: {
-						some: {
-							state: 'ACCEPTED',
-							conversation: { participants: { some: { actorId, state: 'ACCEPTED' } } }
-						}
-					}
-				},
-				{ collaborations: { some: { collaboration: { participants: { some: { actorId } } } } } }
-			]
-		},
-		orderBy: { displayName: 'asc' },
-		take: 50,
-		select: { handle: true }
-	});
-	return others.map((o) => o.handle);
-}

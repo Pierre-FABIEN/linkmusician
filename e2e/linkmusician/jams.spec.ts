@@ -404,6 +404,36 @@ test.describe('LinkMusician — jams publiques', () => {
 				await expect(page.getByText('Brise-glace')).toBeVisible();
 				expect(await xpOf(me.actorId)).toBe(0);
 			});
+
+			await test.step('6. Malik garde le contact ; son carnet reflète la jam (P2-16)', async () => {
+				await malikPage.goto(`/jams/${jam.id}/presents`);
+				await waitForAppReady(malikPage);
+				await malikPage
+					.getByRole('list', { name: 'Présent·es' })
+					.getByText(me.actor.displayName, { exact: true })
+					.click();
+				await malikPage.getByRole('button', { name: 'Garder le contact' }).click();
+				await expect(malikPage.getByText(/rejoint ton réseau musical/)).toBeVisible();
+				expect(
+					await db.musicalTie.count({ where: { ownerId: malik.actorId, contactId: me.actorId } })
+				).toBe(1);
+				await malikPage.goto('/jam/carnet');
+				await waitForAppReady(malikPage);
+				const log = malikPage.getByRole('list', { name: 'Jams du carnet' });
+				await expect(log.getByRole('heading', { name: 'E2E Bœuf du mardi' })).toBeVisible();
+				await expect(
+					malikPage
+						.getByRole('list', { name: 'Croisé·es à E2E Bœuf du mardi' })
+						.getByRole('link', { name: me.actor.displayName })
+				).toBeVisible();
+				await expect(log.getByText('On t’a apprécié·e : bon groove')).toBeVisible();
+				await expect(
+					malikPage
+						.getByRole('region', { name: 'Mon réseau musical' })
+						.getByRole('link', { name: me.actor.displayName })
+				).toBeVisible();
+				await expectNoA11yViolations(malikPage, A11Y_EXCLUDE);
+			});
 		} finally {
 			await malikContext.close();
 			if (hostId) {

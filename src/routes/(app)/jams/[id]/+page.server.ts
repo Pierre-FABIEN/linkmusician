@@ -10,13 +10,13 @@ import {
 	comeToJam,
 	getJam,
 	inviteToJam,
-	networkHandles,
 	notComingToJam,
 	respondToJamInvite,
 	setJamBackline,
 	setJamLead
 } from '#lib/server/jam/publicJams';
 import { whoWasThere } from '#lib/server/jam/afterJam';
+import { inviteSuggestions } from '#lib/server/network/service';
 import { BACKLINE_ITEMS, BACKLINE_LABELS, backlineSchema, inviteSchema } from '#lib/jam/lineup';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	}
 	const [instruments, network] = await Promise.all([
 		listInstrumentsByFamily(),
-		jam.canManage ? networkHandles(actorId) : Promise.resolve([])
+		jam.canManage ? inviteSuggestions(actorId) : Promise.resolve([])
 	]);
 	return {
 		jam,

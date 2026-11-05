@@ -5,6 +5,7 @@ import { error, fail } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { JamError } from '#lib/server/jam/publicJams';
 import { endorse, iWasThere, notThere, removeFromJam, whoWasThere } from '#lib/server/jam/afterJam';
+import { NetworkError, keepInTouch } from '#lib/server/network/service';
 import { JAM_QUALITIES, JAM_QUALITY_LABELS, endorseSchema } from '#lib/jam/afterJam';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -58,6 +59,17 @@ export const actions: Actions = {
 			return { message: `Merci ! ${done.displayName} reçoit ton « ${done.skill} ».` };
 		} catch (err) {
 			if (err instanceof JamError) return fail(err.status, { error: err.message });
+			throw err;
+		}
+	},
+	/** « Garder le contact » : réseau musical (P2-16). */
+	keep: async ({ locals, request }) => {
+		const handle = text(await request.formData(), 'handle');
+		try {
+			const contact = await keepInTouch((await me(locals)).actorId, handle);
+			return { message: `${contact.displayName} rejoint ton réseau musical.` };
+		} catch (err) {
+			if (err instanceof NetworkError) return fail(err.status, { error: err.message });
 			throw err;
 		}
 	},

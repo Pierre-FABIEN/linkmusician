@@ -3,8 +3,9 @@
  * la commune de la personne qui cherche, filtres de profil), puis lecture
  * des fiches. Seuls les profils publics sont trouvables (`publicActorWhere`
  * en SQL : ni anonymisé, ni masqué, ni suspendu), et jamais une personne
- * séparée de moi par un blocage, dans un sens ou dans l'autre (P2-05). Tri par proximité ; la
- * réputation s'ajoutera avec P2-08.
+ * séparée de moi par un blocage, dans un sens ou dans l'autre (P2-05). Tri :
+ * son réseau musical d'abord (P2-16), puis par proximité ; la réputation
+ * s'ajoutera avec P2-08. Jamais l'XP.
  *
  * La distance exacte ne sort jamais d'ici : seulement sa tranche
  * (`distanceBand`). D'où une pagination par numéro de page, pas par curseur
@@ -63,8 +64,11 @@ export async function searchMusicianIds(
 	const extra =
 		conditions.length > 0 ? Prisma.sql`AND ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
 
-	const rows = await db.$queryRaw<{ actorId: string; meters: number }[]>`
-		SELECT a.id AS "actorId", public.ST_Distance(me.point, other.point)::float8 AS meters
+	const rows = await db.$queryRaw<{ actorId: string; meters: number; inNetwork: boolean }[]>`
+		SELECT a.id AS "actorId", public.ST_Distance(me.point, other.point)::float8 AS meters,
+			EXISTS (
+				SELECT 1 FROM ${t('musical_ties')} mt
+				WHERE mt."ownerId" = ${searcherId} AND mt."contactId" = a.id) AS "inNetwork"
 		FROM ${t('actor_locations')} me
 		JOIN ${t('actor_locations')} other
 			ON other."actorId" <> me."actorId" AND public.ST_DWithin(me.point, other.point, ${radiusM})
@@ -82,7 +86,7 @@ export async function searchMusicianIds(
 				WHERE s."actorId" = a.id AND s.kind::text = 'SUSPENSION' AND s."liftedAt" IS NULL
 				AND (s.until IS NULL OR s.until > ${now}))
 			${extra}
-		ORDER BY meters ASC, a.id ASC
+		ORDER BY "inNetwork" DESC, meters ASC, a.id ASC
 		LIMIT ${PAGE_SIZE + 1} OFFSET ${(filters.page - 1) * PAGE_SIZE}`;
 	return {
 		hits: rows.slice(0, PAGE_SIZE),
@@ -130,6 +134,7 @@ export async function searchMusicians(
 				displayName: p.actor.displayName,
 				commune: p.actor.location?.communeName ?? null,
 				distance: distanceBand(hit.meters),
+				inNetwork: hit.inNetwork,
 				instruments: p.instruments.map((i) => ({
 					name: i.instrument.name,
 					level: i.declaredLevel

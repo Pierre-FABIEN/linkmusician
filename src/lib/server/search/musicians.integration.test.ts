@@ -181,4 +181,11 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 		// Blagnac (rayon 25) et Muret (25 par défaut) me couvrent ; Montauban (10) non.
 		expect(await search('rayon=50&reciproque=1')).toEqual(['blagnac', 'muret']);
 	});
+
+	it('son réseau musical remonte en tête (P2-16), jamais l’XP', async () => {
+		await db.musicalTie.create({ data: { ownerId: ids.moi, contactId: ids.montauban } });
+		expect(await search('rayon=50')).toEqual(['montauban', 'blagnac', 'muret']);
+		expect(await search('rayon=50&instrument=batterie')).toEqual(['blagnac', 'muret']);
+		await db.musicalTie.deleteMany({ where: { ownerId: ids.moi } });
+	});
 });

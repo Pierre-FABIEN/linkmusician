@@ -126,7 +126,8 @@ export async function exportPersonData(userId: string) {
 		venuesConfirmed,
 		jamsLed,
 		endorsementsGiven,
-		endorsementsReceivedRows
+		endorsementsReceivedRows,
+		networkTies
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -276,6 +277,12 @@ export async function exportPersonData(userId: string) {
 				from: { select: { displayName: true } },
 				opportunity: { select: { title: true } }
 			}
+		}),
+		// Réseau musical (P2-16) : les personnes gardées.
+		prisma.musicalTie.findMany({
+			where: { ownerId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { createdAt: true, contact: { select: { displayName: true } } }
 		})
 	]);
 	const media = await prisma.media.findMany({
@@ -365,6 +372,7 @@ export async function exportPersonData(userId: string) {
 			j_y_etais: a.attendedAt,
 			retire_par_l_hote: a.removedAt
 		})),
+		reseau_musical: networkTies.map((t) => ({ nom: t.contact.displayName, le: t.createdAt })),
 		appreciations_donnees: endorsementsGiven.map((e) => ({
 			jam: e.opportunity.title,
 			a: e.to.displayName,
@@ -456,6 +464,10 @@ export async function personAnonymizationOps(
 		// données restent (la réputation des autres), liées à l'acteur
 		// anonymisé. L'XP reste au registre (ajout seul).
 		prisma.jamEndorsement.deleteMany({ where: { toActorId: person.actorId } }),
+		// Réseau musical (P2-16) : supprimé, dans les deux sens.
+		prisma.musicalTie.deleteMany({
+			where: { OR: [{ ownerId: person.actorId }, { contactId: person.actorId }] }
+		}),
 		prisma.opportunity.updateMany({
 			where: { leadActorId: person.actorId },
 			data: { leadActorId: null }

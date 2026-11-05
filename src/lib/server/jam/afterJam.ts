@@ -26,6 +26,7 @@ import {
 	type EndorseForm
 } from '#lib/jam/afterJam';
 import { JamError, isAdult } from './publicJams';
+import { networkIdsOf } from '#lib/server/network/service';
 
 const DAY_MS = 86_400_000;
 
@@ -87,6 +88,7 @@ export async function whoWasThere(id: string, viewerId: string, now = new Date()
 		}),
 		getTrustLevel(viewerId)
 	]);
+	const network = await networkIdsOf(viewerId);
 	const inviteOf = new Map(invites.map((i) => [i.actorId, i.instrument]));
 	const givenTo = new Map(
 		given.map((g) => [
@@ -109,7 +111,8 @@ export async function whoWasThere(id: string, viewerId: string, now = new Date()
 				instrument,
 				isMe: a.actorId === viewerId,
 				isHost: a.actorId === jam.issuerActorId,
-				appreciated: givenTo.get(a.actorId) ?? null
+				appreciated: givenTo.get(a.actorId) ?? null,
+				inNetwork: network.has(a.actorId)
 			};
 		})
 	};
