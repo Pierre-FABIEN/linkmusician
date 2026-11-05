@@ -10,6 +10,7 @@ admin, webhook Stripe) :
 | `login.js`   | `/auth/login` (GET + POST `?/login`)                        | Comptes perf (`npm run seed:perf`)                 |
 | `admin.js`   | `/admin/users`, `/admin/sales`, `/admin/products` (paginés) | Compte admin de démo (`npm run seed`)              |
 | `webhook.js` | `/api/webhooks` (`checkout.session.completed`)              | Fixtures dédiées (`npm run seed:webhook-fixtures`) |
+| `search.js`  | `/decouvrir` (recherche PostGIS et filtres, LinkMusician)   | Comptes de démo (`npm run seed:demo`)              |
 
 Le reste du tunnel de checkout (formulaire d'adresse, redirection vers la
 page Stripe hébergée, retour `/checkout/success`) n'est volontairement pas

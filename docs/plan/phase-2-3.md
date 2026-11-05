@@ -27,6 +27,14 @@ fête, et le mode jam permet de jouer dès ce soir.
 
 ### P2-01 — Recherche géographique multicritère
 
+> **Réalisé le 05/11/2026**, avec trois écarts : pagination par **numéro
+> de page** et non par curseur (un curseur porterait la distance exacte) ;
+> anti-aspiration par **connexion obligatoire et limite par personne**
+> plutôt que par filtre de navigateur ; test k6 à **12 utilisateurs
+> simultanés** (un par compte de démo, la limite étant par personne). La
+> page est `/decouvrir` (entrée « Découvrir » de la navigation). Voir
+> [docs/recherche](../recherche/README.md).
+
 - **Dépend de** : P1-05, P1-06.
 - **Décisions** : part de la réputation et de la proximité dans le tri
   (la réputation n'arrive qu'en P2-08 : tri par proximité seule en

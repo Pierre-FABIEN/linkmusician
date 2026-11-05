@@ -31,8 +31,8 @@ test.describe('LinkMusician — coquille de l’espace', () => {
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 		});
 
+		// Découvrir est devenu la recherche (P2-01) : voir recherche.spec.ts.
 		for (const [label, path, heading] of [
-			['Découvrir', '/decouvrir', 'Découvrir'],
 			['Annonces', '/annonces', 'Annonces'],
 			['Messages', '/messages', 'Messages']
 		] as const) {

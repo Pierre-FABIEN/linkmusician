@@ -16,3 +16,64 @@ export async function skipOnboarding(page: Page, email: string) {
 	const user = await requireUser(email);
 	await db.person.update({ where: { userId: user.id }, data: { onboardedAt: new Date() } });
 }
+
+/**
+ * LINKMUSICIAN: musicien·ne fictif (P2-01), créé directement en base, déjà
+ * passé par l'onboarding, avec une commune (point inséré dans le schéma
+ * `e2e`, comme le ferait `setActorLocation`). Handle unique par appel.
+ */
+export async function createMusician(spec: {
+	name: string;
+	commune: { code: string; nom: string; dep: string; lat: number; lng: number };
+	instrument?: [slug: string, level: number];
+	genre?: string;
+}) {
+	const suffix = Math.random().toString(36).slice(2, 8);
+	const handle = `${spec.name.toLowerCase().replace(/[^a-z]/g, '')}-${suffix}`;
+	const user = await db.user.create({
+		data: { email: `${handle}@e2e.linkmusician.test`, referralCode: `E2E${suffix}`.toUpperCase() }
+	});
+	const instrument = spec.instrument
+		? await db.instrument.findUniqueOrThrow({ where: { slug: spec.instrument[0] } })
+		: null;
+	const genre = spec.genre
+		? await db.genre.findUniqueOrThrow({ where: { slug: spec.genre } })
+		: null;
+	const displayName = `${spec.name} ${suffix}`;
+	const actor = await db.actor.create({
+		data: {
+			kind: 'PERSON',
+			handle,
+			displayName,
+			person: {
+				create: {
+					userId: user.id,
+					termsAcceptedAt: new Date(),
+					onboardedAt: new Date(),
+					instruments: instrument
+						? {
+								create: {
+									instrumentId: instrument.id,
+									declaredLevel: spec.instrument![1],
+									isPrimary: true
+								}
+							}
+						: undefined
+				}
+			},
+			genres: genre ? { create: { genreId: genre.id } } : undefined
+		}
+	});
+	const { code, nom, dep, lat, lng } = spec.commune;
+	await db.$executeRawUnsafe(
+		`INSERT INTO "e2e"."actor_locations" ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
+		 VALUES ($1, $2, $3, $4, public.ST_SetSRID(public.ST_MakePoint($5, $6), 4326)::public.geography, now())`,
+		actor.id,
+		code,
+		nom,
+		dep,
+		lng,
+		lat
+	);
+	return { handle, displayName, actorId: actor.id };
+}
