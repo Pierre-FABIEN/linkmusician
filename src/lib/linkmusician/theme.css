@@ -29,3 +29,26 @@
 		--lm-bottom-offset: calc(3.5rem + env(safe-area-inset-bottom));
 	}
 }
+
+/* Apparition des célébrations (P2-11), coupée si l'appareil le demande. */
+@keyframes lm-pop {
+	0% {
+		opacity: 0;
+		transform: translateY(12px) scale(0.96);
+	}
+	60% {
+		opacity: 1;
+		transform: translateY(-2px) scale(1.02);
+	}
+	100% {
+		transform: none;
+	}
+}
+.lm-pop {
+	animation: lm-pop 0.45s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+	.lm-pop {
+		animation: none;
+	}
+}

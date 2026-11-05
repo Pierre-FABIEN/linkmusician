@@ -8,7 +8,6 @@ import { error, json } from '@sveltejs/kit';
 import { prisma } from '#lib/server';
 import { requirePerson } from '#server/actors/tracksForm';
 import { finalizeUpload } from '#lib/server/media/service';
-import { progressMessage } from '#lib/progression/messages';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
@@ -34,6 +33,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 					: 'Ton fichier est encore en cours de traitement.';
 	return json({
 		status: result.status,
-		message: result.progress ? progressMessage(base, result.progress) : base
+		// Les gains sont fêtés par les célébrations de l'espace (P2-11), plus dans ce message.
+		message: base
 	});
 };

@@ -15,7 +15,6 @@ import {
 } from '#lib/prisma/actors/profile';
 import { requirePerson } from '#server/actors/tracksForm';
 import { onProfileChanged } from '#lib/server/progression/profile';
-import { progressMessage } from '#lib/progression/messages';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -34,8 +33,9 @@ export const actions: Actions = {
 		if (!form.valid) return fail(400, { form });
 
 		await saveProfileDetails(person, form.data);
-		const progress = await onProfileChanged(person.actorId);
+		await onProfileChanged(person.actorId);
 		form.data = profileFormValues(await getProfileDetails(person));
-		return message(form, progressMessage('Ton profil est enregistré.', progress));
+		// Les gains sont fêtés par les célébrations de l'espace (P2-11), plus dans ce message.
+		return message(form, 'Ton profil est enregistré.');
 	}
 };

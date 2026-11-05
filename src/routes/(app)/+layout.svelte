@@ -9,6 +9,7 @@
 	import { BRAND } from '#lib/linkmusician/brand';
 	import { portal } from '#lib/linkmusician/portal';
 	import AccountMenu from '#lib/components/linkmusician/AccountMenu.svelte';
+	import Celebrations from '#lib/components/linkmusician/progress/Celebrations.svelte';
 
 	let { children, data } = $props();
 
@@ -57,6 +58,8 @@
 	</header>
 
 	{@render children()}
+
+	<Celebrations items={data.celebrations.items} upTo={data.celebrations.upTo} />
 
 	<!-- Mobile : barre d'onglets fixe, hors du conteneur de défilement. -->
 	<nav

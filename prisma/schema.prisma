@@ -1450,6 +1450,9 @@ model Person {
   /// déduit du profil (métiers, instruments, genres, ville), mais « juste
   /// explorer » ne laisse aucune trace dans le profil.
   onboardedAt    DateTime?
+  /// Célébrations (P2-11) : gains et événements de progression déjà
+  /// montrés jusqu'à cette date. `null` : depuis l'inscription.
+  celebrationsSeenAt DateTime?
 
   /// Profil complet (D17, D18). Tout est déclaré, rien n'est vérifié.
   proStatus      ProStatus?

@@ -12,6 +12,8 @@ import { redirect } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { currentSuspension } from '#lib/server/moderation/service';
 import { recordActivity } from '#lib/server/indicators/activity';
+import { getPendingCelebrations } from '#lib/server/progression/celebrations';
+import { prisma } from '#lib/server';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
@@ -28,11 +30,15 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	// Indicateurs (P1-13) : « venu aujourd'hui », une ligne par jour au plus.
 	await recordActivity(person.actorId);
 
+	// Célébrations (P2-11) : ce qui est neuf depuis la dernière visite.
+	const celebrations = await getPendingCelebrations(person.actorId, prisma);
+
 	return {
 		person: {
 			handle: person.actor.handle,
 			displayName: person.actor.displayName,
 			tracks: person.tracks.map((t) => ({ track: t.track, isPrimary: t.isPrimary }))
-		}
+		},
+		celebrations
 	};
 };

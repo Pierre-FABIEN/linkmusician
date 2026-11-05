@@ -142,24 +142,24 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 
 ### Phase 2 — Découverte, annonces, messagerie, collaborations → [phase-2-3.md](./phase-2-3.md)
 
-| Lot   | Intitulé                                      | Dépend de    | Statut | PR  |
-| ----- | --------------------------------------------- | ------------ | ------ | --- |
-| P2-01 | Recherche géographique multicritère           | P1-05, P1-06 | ⬜     |     |
-| P2-02 | Annonces (opportunités)                       | P1-09        | ⬜     |     |
-| P2-03 | Candidatures                                  | P2-02        | ⬜     |     |
-| P2-04 | Messagerie (demandes, conversations, polling) | P1-09        | ⬜     |     |
-| P2-05 | Blocage                                       | P2-04        | ⬜     |     |
-| P2-06 | Collaborations à double confirmation          | P2-03, P1-07 | ⬜     |     |
-| P2-07 | Endossements                                  | P2-06        | ⬜     |     |
-| P2-08 | Réputation (job et carte publique)            | P2-06, P2-07 | ⬜     |     |
-| P2-09 | Notifications in-app et email                 | P2-04, P2-06 | ⬜     |     |
-| P2-10 | Confiance TL2 et détection de collusion       | P2-06        | ⬜     |     |
-| P2-11 | Célébrations (gains, niveaux, rangs, succès)  | P1-11        | ⬜     |     |
-| P2-12 | Accueil à deux modes : carrière et jam        | P0-05        | ⬜     |     |
-| P2-13 | Mode jam : « Je suis dispo »                  | P2-01, P2-12 | ⬜     |     |
-| P2-14 | Mode jam : salons                             | P2-02, P2-13 | ⬜     |     |
-| P2-15 | Mode jam : fin de match                       | P2-06, P2-14 | ⬜     |     |
-| P2-16 | Carnet de jams et réseau musical              | P2-15        | ⬜     |     |
+| Lot   | Intitulé                                      | Dépend de    | Statut | PR                                                                                                                                                                                                                                                    |
+| ----- | --------------------------------------------- | ------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P2-01 | Recherche géographique multicritère           | P1-05, P1-06 | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-02 | Annonces (opportunités)                       | P1-09        | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-03 | Candidatures                                  | P2-02        | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-04 | Messagerie (demandes, conversations, polling) | P1-09        | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-05 | Blocage                                       | P2-04        | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-06 | Collaborations à double confirmation          | P2-03, P1-07 | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-07 | Endossements                                  | P2-06        | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-08 | Réputation (job et carte publique)            | P2-06, P2-07 | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-09 | Notifications in-app et email                 | P2-04, P2-06 | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-10 | Confiance TL2 et détection de collusion       | P2-06        | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-11 | Célébrations (gains, niveaux, rangs, succès)  | P1-11        | ✅     | Cartes gains, niveau, succès, montée de confiance, une fois et une seule (`celebrationsSeenAt`), non bloquantes, mouvement réduit respecté. Messages des formulaires simplifiés. Voir [docs/progression](../progression/README.md#célébrations-p2-11) |
+| P2-12 | Accueil à deux modes : carrière et jam        | P0-05        | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-13 | Mode jam : « Je suis dispo »                  | P2-01, P2-12 | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-14 | Mode jam : salons                             | P2-02, P2-13 | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-15 | Mode jam : fin de match                       | P2-06, P2-14 | ⬜     |                                                                                                                                                                                                                                                       |
+| P2-16 | Carnet de jams et réseau musical              | P2-15        | ⬜     |                                                                                                                                                                                                                                                       |
 
 ### Phase 3 — Groupes, étapes et preuves (fin du MVP) → [phase-2-3.md](./phase-2-3.md)
 

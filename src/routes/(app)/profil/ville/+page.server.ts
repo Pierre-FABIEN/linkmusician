@@ -8,7 +8,6 @@ import { getCommune } from '#lib/server/geo/communes';
 import { clearActorLocation, getActorLocation, setActorLocation } from '#lib/server/geo/queries';
 import { requirePerson } from '#server/actors/tracksForm';
 import { onProfileChanged } from '#lib/server/progression/profile';
-import { progressMessage } from '#lib/progression/messages';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -31,8 +30,9 @@ export const actions: Actions = {
 		}
 		if (!commune) return fail(400, { error: 'Choisis une commune dans la liste.' });
 		await setActorLocation(person.actorId, commune);
-		const progress = await onProfileChanged(person.actorId);
-		return { saved: progressMessage(`Ta ville est enregistrée : ${commune.nom}.`, progress) };
+		await onProfileChanged(person.actorId);
+		// Les gains sont fêtés par les célébrations de l'espace (P2-11), plus dans ce message.
+		return { saved: `Ta ville est enregistrée : ${commune.nom}.` };
 	},
 	clear: async ({ locals }) => {
 		const person = await requirePerson(locals);

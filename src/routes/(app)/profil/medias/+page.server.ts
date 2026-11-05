@@ -5,7 +5,6 @@
 import { fail } from '@sveltejs/kit';
 import { requirePerson } from '#server/actors/tracksForm';
 import { getMusicalProfile } from '#lib/prisma/skills/musicalProfile';
-import { progressMessage } from '#lib/progression/messages';
 import {
 	addExternalMedia,
 	countQuotaMedia,
@@ -46,7 +45,7 @@ export const actions: Actions = {
 		const data = await request.formData();
 		const url = String(data.get('url') ?? '');
 		try {
-			const { media, progress } = await addExternalMedia(person.actorId, {
+			const { media } = await addExternalMedia(person.actorId, {
 				url,
 				title: String(data.get('title') ?? ''),
 				isDemo: data.get('isDemo') === 'on',
@@ -56,7 +55,8 @@ export const actions: Actions = {
 				media.status === 'PUBLISHED'
 					? 'Ton lien est publié.'
 					: 'Ton lien est enregistré : il sera visible après validation.';
-			return { message: progress ? progressMessage(base, progress) : base };
+			// Les gains sont fêtés par les célébrations de l'espace (P2-11), plus dans ce message.
+			return { message: base };
 		} catch (err) {
 			if (err instanceof MediaError) return fail(400, { error: err.message, url });
 			throw err;

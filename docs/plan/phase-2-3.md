@@ -172,6 +172,12 @@ fête, et le mode jam permet de jouer dès ce soir.
 
 ### P2-11 — Célébrations
 
+> **Réalisé le 05/11/2026.** Écarts : les rangs (paliers) ne sont pas
+> encore fêtés, faute d'événement de franchissement (le palier se calcule
+> à la lecture) ; à ajouter avec P3-08 ou P3-13. Les messages des
+> formulaires de l'espace ne répètent plus les gains (`progressMessage`
+> supprimé).
+
 - **Dépend de** : P1-11.
 - **Tâches** : lecture des événements dérivés (`progress.level_reached`,
   `progress.achievement_unlocked`, `progress.trust_changed`) non encore

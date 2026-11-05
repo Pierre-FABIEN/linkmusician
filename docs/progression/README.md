@@ -70,3 +70,29 @@ lots (médias, annonces, groupes…).
   projection = registre en mémoire), reconstruction identique, profil
   complété une seule fois, confiance (passage TL1, multiplicateur réel,
   rétrogradation).
+
+## Célébrations (P2-11)
+
+À chaque visite de l'espace, ce qui est neuf depuis la dernière fois se
+fête en cartes non bloquantes, en bas de l'écran (au-dessus de la barre
+d'onglets sur mobile), qui disparaissent seules :
+
+- **gains** : « +100 XP » et la raison du registre ; au-delà de 3, une
+  seule carte fait le total ;
+- **niveau atteint**, **succès débloqué**, **montée de confiance** (jamais
+  une baisse), lus dans les événements dérivés `progress.*`.
+
+Règles :
+
+- tout est calculé côté serveur (`core/celebrations.ts`, pur et testé ;
+  lecture dans `celebrations.ts`) ;
+- **une fois et une seule** : repère `Person.celebrationsSeenAt` (à défaut,
+  la date d'inscription : les gains de l'onboarding se fêtent à l'arrivée
+  dans l'espace). Le client renvoie seulement le repère `upTo` donné par le
+  serveur (`POST /api/celebrations`), borné (jamais en arrière, jamais
+  dans le futur) ;
+- les messages des formulaires de l'espace ne répètent plus les gains ;
+- animations coupées si l'appareil demande moins de mouvement ;
+  `role="status"` pour les lecteurs d'écran.
+
+E2E : `e2e/linkmusician/celebrations.spec.ts`.
