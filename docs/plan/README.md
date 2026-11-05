@@ -99,6 +99,34 @@ indiquées : on les tranche en début de session.
 | 20  | P5-01 à P5-10 La scène                  | Lieux et jams publiques, organisateurs, concerts vérifiés, bookers, managers, offre pro, réservation | `VENUE_HOST`                            |
 | 21  | P6-01 à P6-07 Sortie et développement   | Label, éditeur, communication, actes VI-VIII, défis collectifs, autres rôles                         | Preuves de placement                    |
 
+## 4 ter. Feuille de route jusqu’au lancement à Toulouse (D28)
+
+Objectif fixé le 05/11/2026 : **lancement public à Toulouse début mars
+2027** (≈ 4 mois), avec **tous les acteurs de la scène locale** (musicien·nes,
+groupes, ingé son, studios, producteur·rices, lieux, organisateur·rices et
+festivals, bookers et managers) et une **UX soignée**. Rythme visé : environ
+3 lots par semaine. Un point d'étape à la fin de chaque mois : si on est en
+retard, on retire un lot de la liste, on ne bâcle pas l'UX.
+
+| Mois                       | Lots                                                                                           | Ce qu'on a à la fin                                         |
+| -------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| 1. nov. → début déc. 2026  | P2-14b, P2-15, P2-16, P2-07 à P2-10, revue de phase 2 (D20)                                    | Mode jam complet, appréciations, réputation, notifications  |
+| 2. déc. 2026 → début janv. | P3-01 à P3-06, P3-08, P3-09, P3-11 à P3-14                                                     | Groupes, morceaux, étapes prouvées, mode carrière (I à III) |
+| 3. janv. → début fév. 2027 | P4-01 à P4-07, P4-09, P4-10, P4-13                                                             | Ingé son, studios, producteur·rices, crédits (actes III-IV) |
+| 4. fév. 2027               | P5-01 à P5-08                                                                                  | Lieux, organisateur·rices et festivals, concerts vérifiés   |
+| Fin fév. → début mars 2027 | Revue UX de chaque parcours par rôle (mobile d'abord), P3-10 (production, légal, sécurité), D9 | Ouverture publique à Toulouse                               |
+
+**Après le lancement** (pas nécessaires le premier jour) : P3-07
+(vérification de sortie par API), P4-08 (vitrine des propositions), P4-11
+(radar des pros), P4-12 (messagerie temps réel), P5-00, P5-09 et P5-10
+(monétisation et réservation, après validation juridique, D25), phase 6
+(label, éditeur, communication, actes VI à VIII).
+
+**Piste non technique en parallèle** (§7) : lister les lieux toulousains qui
+tiennent une jam, les préinscrire dans l'annuaire, rencontrer les premiers
+studios et organisateurs dès le mois 3, préparer les tracts (musicien·nes,
+pros) pour février.
+
 ## 5. Tableau de suivi
 
 Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ découpé
