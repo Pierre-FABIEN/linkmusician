@@ -1429,6 +1429,7 @@ model Actor {
   messagesSent         Message[]
   blocksMade           Block[]   @relation("BlocksMade")
   blocksReceived       Block[]   @relation("BlocksReceived")
+  opportunities        Opportunity[]
 
   @@map("actors")
 }
@@ -1516,6 +1517,7 @@ model Instrument {
 
   players PersonInstrument[]
   media   Media[]
+  opportunities Opportunity[]
 
   @@index([family, sortOrder])
   @@map("instruments")
@@ -1807,6 +1809,8 @@ model Media {
 enum ReportTarget {
   ACTOR
   MEDIA
+  /// Annonce (P2-02).
+  OPPORTUNITY
 }
 
 enum ReportReason {
@@ -1968,4 +1972,60 @@ model Block {
   @@id([blockerActorId, blockedActorId])
   @@index([blockedActorId, createdAt])
   @@map("blocks")
+}
+
+// ─── ANNONCES (P2-02) ───────────────────────────────────────────────────────
+//
+// Quêtes émises (conception 02 §8) : « un groupe cherche une batteuse ».
+// Règles pures : `src/lib/opportunities/`. Aucune XP à la publication : la
+// quête rapporte quand elle est remplie (P2-03, P2-06).
+
+enum OpportunityKind {
+  JAM
+  RECRUIT_MEMBER
+  SESSION_WORK
+}
+
+enum OpportunityStatus {
+  OPEN
+  /// Toutes les places prises (P2-03).
+  FILLED
+  /// Clôturée par son auteur.
+  CLOSED
+  EXPIRED
+  /// Retirée par la modération.
+  REMOVED
+}
+
+/// Annonce. Sa zone est la commune de son auteur (`actor_locations`), lue à
+/// la volée : aucun point stocké en double.
+model Opportunity {
+  id            String            @id @default(cuid())
+  issuerActorId String
+  issuer        Actor             @relation(fields: [issuerActorId], references: [id], onDelete: Cascade)
+  kind          OpportunityKind
+  status        OpportunityStatus @default(OPEN)
+  title         String
+  description   String
+  /// Instrument recherché (facultatif) et niveau déclaré minimal souhaité.
+  instrumentId  String?
+  instrument    Instrument?       @relation(fields: [instrumentId], references: [id], onDelete: SetNull)
+  minLevel      Int?
+  /// Genre (slug du référentiel), facultatif.
+  genreSlug     String?
+  /// Palier musicien minimal (conditions d'éligibilité, jamais l'XP).
+  minTier       String?
+  /// Rayon de diffusion autour de la commune de l'auteur (km).
+  radiusKm      Int               @default(25)
+  slots         Int               @default(1)
+  /// Date de la jam ou de la session, facultative.
+  startsAt      DateTime?
+  expiresAt     DateTime
+  closedAt      DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([status, expiresAt])
+  @@index([issuerActorId, status])
+  @@map("opportunities")
 }

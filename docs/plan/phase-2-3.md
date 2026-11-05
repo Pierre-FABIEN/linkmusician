@@ -60,6 +60,13 @@ fête, et le mode jam permet de jouer dès ce soir.
 
 ### P2-02 — Annonces (quêtes émises)
 
+> **Réalisé le 05/11/2026**, avec des écarts : pas d'état brouillon
+> (publication directe) ; la zone est la commune de l'auteur, lue à la
+> volée (aucun point stocké en double) ; les annonces se consultent sur
+> `/annonces`, pas dans les résultats de la recherche ; les conditions
+> d'éligibilité sont affichées et seront vérifiées à la candidature
+> (P2-03, `unmetConditions` déjà testé). Voir [docs/annonces](../annonces/README.md).
+
 - **Dépend de** : P1-09.
 - **Tâches** :
   - modèle `Opportunity` (04) : `JAM`, `RECRUIT_MEMBER`, `SESSION_WORK`

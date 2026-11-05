@@ -31,18 +31,7 @@ test.describe('LinkMusician — coquille de l’espace', () => {
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 		});
 
-		// Découvrir (P2-01) et Messages (P2-04) sont réels : voir leurs specs.
-		for (const [label, path, heading] of [['Annonces', '/annonces', 'Annonces']] as const) {
-			await test.step(`2. ${label} : page « bientôt »`, async () => {
-				await page
-					.getByRole('navigation', { name: 'Espace' })
-					.getByRole('link', { name: label })
-					.click();
-				await expect(page).toHaveURL(new RegExp(`${path}$`));
-				await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
-				await expect(page.getByText('Ce qui arrive')).toBeVisible();
-			});
-		}
+		// Les pages « bientôt » sont devenues réelles (P2-01, P2-02, P2-04) : voir leurs specs.
 		await expectNoA11yViolations(page, A11Y_EXCLUDE);
 
 		await test.step('3. Profil actif aussi sur les réglages', async () => {

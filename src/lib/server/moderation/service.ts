@@ -34,7 +34,12 @@ const reportBucket = new RefillingTokenBucket<string>(
 
 export async function fileReport(
 	reporterActorId: string,
-	input: { targetType: 'ACTOR' | 'MEDIA'; targetId: string; reason: string; details?: string }
+	input: {
+		targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY';
+		targetId: string;
+		reason: string;
+		details?: string;
+	}
 ) {
 	if (!(REPORT_REASONS as readonly string[]).includes(input.reason)) {
 		throw new ModerationError('Choisis un motif.');
@@ -46,6 +51,13 @@ export async function fileReport(
 			select: { actorId: true }
 		});
 		targetActorId = media?.actorId ?? null;
+	} else if (input.targetType === 'OPPORTUNITY') {
+		// Annonce (P2-02) : l'acteur visé est son auteur.
+		const opportunity = await prisma.opportunity.findUnique({
+			where: { id: input.targetId },
+			select: { issuerActorId: true }
+		});
+		targetActorId = opportunity?.issuerActorId ?? null;
 	} else {
 		const actor = await prisma.actor.findFirst({
 			where: { id: input.targetId, deletedAt: null },
@@ -106,13 +118,24 @@ export async function moderationQueue() {
 		})
 	]);
 	const mediaIds = openReports.filter((r) => r.targetType === 'MEDIA').map((r) => r.targetId);
-	const reportedMedia = await prisma.media.findMany({ where: { id: { in: mediaIds } } });
+	const opportunityIds = openReports
+		.filter((r) => r.targetType === 'OPPORTUNITY')
+		.map((r) => r.targetId);
+	const [reportedMedia, reportedOpportunities] = await Promise.all([
+		prisma.media.findMany({ where: { id: { in: mediaIds } } }),
+		prisma.opportunity.findMany({
+			where: { id: { in: opportunityIds } },
+			select: { id: true, title: true, description: true, status: true }
+		})
+	]);
 	const byId = new Map(reportedMedia.map((m) => [m.id, m]));
+	const opportunityById = new Map(reportedOpportunities.map((o) => [o.id, o]));
 	return {
 		pendingMedia,
 		openReports: openReports.map((r) => ({
 			...r,
-			media: r.targetType === 'MEDIA' ? (byId.get(r.targetId) ?? null) : null
+			media: r.targetType === 'MEDIA' ? (byId.get(r.targetId) ?? null) : null,
+			opportunity: r.targetType === 'OPPORTUNITY' ? (opportunityById.get(r.targetId) ?? null) : null
 		}))
 	};
 }
@@ -128,7 +151,7 @@ async function refreshTrust(actorId: string) {
 }
 
 async function closeReports(
-	where: { targetType: 'ACTOR' | 'MEDIA'; targetId: string },
+	where: { targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY'; targetId: string },
 	by: Moderator,
 	note: string,
 	status: 'ACTIONED' | 'DISMISSED'
@@ -269,4 +292,31 @@ export async function currentSuspension(actorId: string) {
 		where: { actorId, kind: 'SUSPENSION', liftedAt: null }
 	});
 	return activeSuspension(sanctions);
+}
+
+/** Retire une annonce (P2-02) et clôt ses signalements. */
+export async function removeOpportunity(opportunityId: string, reason: string, by: Moderator) {
+	const opportunity = await prisma.opportunity.findUnique({
+		where: { id: opportunityId },
+		select: { issuerActorId: true }
+	});
+	if (!opportunity) throw new ModerationError('Annonce introuvable.');
+	await prisma.opportunity.update({
+		where: { id: opportunityId },
+		data: { status: 'REMOVED', closedAt: new Date() }
+	});
+	await closeReports(
+		{ targetType: 'OPPORTUNITY', targetId: opportunityId },
+		by,
+		`Annonce retirée : ${reason}`,
+		'ACTIONED'
+	);
+	await logAdminAction({
+		actorId: by.userId,
+		action: 'moderation.opportunity.remove',
+		targetType: 'Opportunity',
+		targetId: opportunityId,
+		metadata: { reason }
+	});
+	await refreshTrust(opportunity.issuerActorId);
 }

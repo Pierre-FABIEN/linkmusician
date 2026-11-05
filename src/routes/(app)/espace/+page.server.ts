@@ -6,7 +6,7 @@ import { getDashboard } from '#lib/server/progression/dashboard';
 import type { PageServerLoad } from './$types';
 
 /** Écrans déjà construits : un objectif qui mène ailleurs est affiché « bientôt ». */
-const AVAILABLE = ['/profil', '/profil/musical', '/profil/ville', '/profil/medias'];
+const AVAILABLE = ['/profil', '/profil/musical', '/profil/ville', '/profil/medias', '/annonces'];
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// La garde de `(app)/+layout.server.ts` a déjà vérifié compte et personne.

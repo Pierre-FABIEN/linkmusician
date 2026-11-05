@@ -109,7 +109,7 @@ export async function exportPersonData(userId: string) {
 	const details = await getProfileDetails(person);
 	const location = await getActorLocation(person.actorId);
 	const progress = await getProgress(person.actorId, prisma);
-	const [ledger, reportsFiled, sanctions, activityDays, messagesSent, blocksMade] =
+	const [ledger, reportsFiled, sanctions, activityDays, messagesSent, blocksMade, opportunities] =
 		await Promise.all([
 			prisma.xpTransaction.findMany({
 				where: { actorId: person.actorId },
@@ -154,6 +154,12 @@ export async function exportPersonData(userId: string) {
 				where: { blockerActorId: person.actorId },
 				orderBy: { createdAt: 'asc' },
 				select: { createdAt: true, blocked: { select: { displayName: true } } }
+			}),
+			// Annonces (P2-02).
+			prisma.opportunity.findMany({
+				where: { issuerActorId: person.actorId },
+				orderBy: { createdAt: 'asc' },
+				select: { kind: true, title: true, description: true, status: true, createdAt: true }
 			})
 		]);
 	const media = await prisma.media.findMany({
@@ -227,6 +233,13 @@ export async function exportPersonData(userId: string) {
 		})),
 		// Indicateurs (P1-13) : seuls les jours de visite sont relevés.
 		jours_de_visite: activityDays.map((a) => a.day.toISOString().slice(0, 10)),
+		annonces: opportunities.map((o) => ({
+			type: o.kind,
+			titre: o.title,
+			texte: o.description,
+			statut: o.status,
+			le: o.createdAt
+		})),
 		personnes_bloquees: blocksMade.map((b) => ({ nom: b.blocked.displayName, le: b.createdAt })),
 		messages_envoyes: messagesSent.map((m) => ({
 			a: m.conversation.participants[0]?.actor.displayName ?? null,
@@ -255,6 +268,8 @@ export async function personAnonymizationOps(
 		prisma.influence.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.profileLink.deleteMany({ where: { personId: person.actorId } }),
 		prisma.actorActivityDay.deleteMany({ where: { actorId: person.actorId } }),
+		// Annonces (P2-02) : supprimées avec le compte.
+		prisma.opportunity.deleteMany({ where: { issuerActorId: person.actorId } }),
 		// Blocage (P2-05) : faits et reçus, sans objet après l'effacement.
 		prisma.block.deleteMany({
 			where: { OR: [{ blockerActorId: person.actorId }, { blockedActorId: person.actorId }] }

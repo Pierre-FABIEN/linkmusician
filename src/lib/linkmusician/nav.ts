@@ -16,7 +16,7 @@ export type AppNavItem = {
 export const APP_NAV: readonly AppNavItem[] = [
 	{ href: '/espace', label: 'Mon parcours', icon: Trophy, soon: false },
 	{ href: '/decouvrir', label: 'Découvrir', icon: Compass, soon: false },
-	{ href: '/annonces', label: 'Annonces', icon: Megaphone, soon: true },
+	{ href: '/annonces', label: 'Annonces', icon: Megaphone, soon: false },
 	{ href: '/messages', label: 'Messages', icon: MessageCircle, soon: false },
 	{ href: '/profil', label: 'Profil', icon: UserRound, soon: false, match: ['/reglages'] }
 ];

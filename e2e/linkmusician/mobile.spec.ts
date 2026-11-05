@@ -88,6 +88,8 @@ test.describe('LinkMusician — mobile', () => {
 			for (const [path, shot] of [
 				['/decouvrir', 'decouvrir'],
 				['/messages', 'messages'],
+				['/annonces', 'annonces'],
+				['/annonces/nouvelle', 'annonce-nouvelle'],
 				['/profil', 'profil'],
 				['/profil/musical', 'profil-musical'],
 				['/profil/medias', 'medias'],

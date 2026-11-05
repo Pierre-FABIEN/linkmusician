@@ -11,7 +11,8 @@ import {
 	moderationQueue,
 	ModerationError,
 	rejectMedia,
-	sanction
+	sanction,
+	removeOpportunity
 } from '#lib/server/moderation/service';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -46,7 +47,8 @@ export const load: PageServerLoad = async () => {
 			createdAt: r.createdAt,
 			reporter: r.reporter.handle,
 			targetActor: r.targetActor,
-			media: r.media ? mediaView(r.media) : null
+			media: r.media ? mediaView(r.media) : null,
+			opportunity: r.opportunity
 		}))
 	};
 };
@@ -69,6 +71,15 @@ async function run(
 const field = (data: FormData, name: string) => String(data.get(name) ?? '').trim();
 
 export const actions: Actions = {
+	/** Retirer une annonce signalée (P2-02). */
+	removeOpportunity: async ({ request, locals }) => {
+		const data = await request.formData();
+		return run(
+			locals,
+			(by) => removeOpportunity(field(data, 'opportunityId'), field(data, 'reason'), by),
+			'Annonce retirée.'
+		);
+	},
 	approve: async ({ request, locals }) => {
 		const data = await request.formData();
 		return run(locals, (by) => approveMedia(field(data, 'mediaId'), by), 'Média publié.');

@@ -85,12 +85,22 @@
 					<div class="flex flex-wrap justify-between gap-2 text-sm">
 						<span class="font-medium">
 							{REPORT_REASON_LABELS[r.reason as ReportReasonValue]} —
-							{r.targetType === 'MEDIA' ? 'média' : 'profil'} de @{r.targetActor.handle}
+							{r.targetType === 'MEDIA'
+								? 'média'
+								: r.targetType === 'OPPORTUNITY'
+									? 'annonce'
+									: 'profil'} de @{r.targetActor.handle}
 						</span>
 						<span class="text-muted-foreground">par @{r.reporter} · {date(r.createdAt)}</span>
 					</div>
 					{#if r.details}<p class="whitespace-pre-line text-sm">« {r.details} »</p>{/if}
 					{#if r.media}<MediaPlayer media={r.media} />{/if}
+					{#if r.opportunity}
+						<div class="rounded-md border p-3 text-sm">
+							<p class="font-medium">{r.opportunity.title}</p>
+							<p class="whitespace-pre-line text-muted-foreground">{r.opportunity.description}</p>
+						</div>
+					{/if}
 
 					<div class="flex flex-wrap items-end gap-3 text-sm">
 						<form method="POST" action="?/dismiss" use:enhance>
@@ -98,6 +108,19 @@
 							<button type="submit" class="rounded-md border px-3 py-1.5">Classer sans suite</button
 							>
 						</form>
+						{#if r.opportunity && r.opportunity.status !== 'REMOVED'}
+							<form method="POST" action="?/removeOpportunity" use:enhance>
+								<input type="hidden" name="opportunityId" value={r.opportunity.id} />
+								<input
+									type="hidden"
+									name="reason"
+									value={REPORT_REASON_LABELS[r.reason as ReportReasonValue]}
+								/>
+								<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
+									>Retirer l'annonce</button
+								>
+							</form>
+						{/if}
 						{#if r.media}
 							<form method="POST" action="?/reject" use:enhance>
 								<input type="hidden" name="mediaId" value={r.media.id} />

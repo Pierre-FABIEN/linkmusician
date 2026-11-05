@@ -104,3 +104,30 @@ export async function deleteMusicians(list?: { actorId: string; userId: string }
 	await db.actor.deleteMany({ where: { id: { in: actorIds } } });
 	await db.user.deleteMany({ where: { id: { in: userIds } } });
 }
+
+/** LINKMUSICIAN: choisit sa ville par l'écran `/profil/ville` (communes e2e sans réseau). */
+export async function setCity(page: Page, search = 'toulou') {
+	await page.goto('/profil/ville');
+	await waitForAppReady(page);
+	await page.getByLabel('Ta commune').pressSequentially(search, { delay: 50 });
+	await page.getByRole('option').first().getByRole('button').click();
+	await page.getByRole('button', { name: 'Enregistrer' }).click();
+	await page.getByText('Ta ville est enregistrée').first().waitFor();
+}
+
+/** LINKMUSICIAN: annonce d'un·e musicien·ne fictif (P2-02), directement en base. */
+export async function createOpportunity(
+	issuerActorId: string,
+	spec: { title: string; expiresInDays?: number; kind?: 'JAM' | 'RECRUIT_MEMBER' | 'SESSION_WORK' }
+) {
+	return db.opportunity.create({
+		data: {
+			issuerActorId,
+			kind: spec.kind ?? 'JAM',
+			title: spec.title,
+			description: 'Annonce de test : on cherche quelqu’un pour jouer ensemble.',
+			radiusKm: 25,
+			expiresAt: new Date(Date.now() + (spec.expiresInDays ?? 14) * 24 * 3600 * 1000)
+		}
+	});
+}
