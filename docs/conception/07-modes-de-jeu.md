@@ -240,6 +240,9 @@ dans un jeu de foot :
 
 ### 4.4 Une carrière pour chaque métier
 
+Le détail de chaque rôle (quêtes, gains, déblocages, garde-fous) est
+dans [08 — Les carrières, rôle par rôle](./08-carrieres-par-role.md).
+
 Chaque classe a sa propre carte, et les cartes se croisent : les
 épreuves des uns sont souvent validées par les autres.
 

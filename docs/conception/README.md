@@ -19,6 +19,7 @@ dix livrables, plus une revue critique du concept.
 | 11  | Métiers au-delà du musicien (fiches par métier)                     | [06-metiers.md](./06-metiers.md)                                                  |
 | 12  | La chaîne d'un morceau entre les métiers                            | [06-metiers.md §4](./06-metiers.md#4-la-chaîne-dun-morceau--du-jam-au-producteur) |
 | 13  | Les modes de jeu : carrière (actes, épreuves) et jam (match rapide) | [07-modes-de-jeu.md](./07-modes-de-jeu.md)                                        |
+| 14  | Les carrières, rôle par rôle (bilan, qui valide quoi)               | [08-carrieres-par-role.md](./08-carrieres-par-role.md)                            |
 
 ## Les six positions structurantes
 
