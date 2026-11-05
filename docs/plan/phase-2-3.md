@@ -163,7 +163,8 @@ COMPLETED` (ou `CANCELLED`) ; pas d'état « en cours », et une
 
 ### P2-07 — Endossements
 
-- **Dépend de** : P2-06.
+- **Dépend de** : P2-06, P2-15 (le modèle d'appréciation y naît pour
+  les jams ; ce lot l'étend aux collaborations, D27).
 - **Tâches** : modèle d'endossement (compétence ou qualité : « fiable »,
   « à l'heure », un instrument) ; impossible sans collaboration
   confirmée commune ; un par compétence et par paire ; révocable
@@ -283,31 +284,52 @@ COMPLETED` (ou `CANCELLED`) ; pas d'état « en cours », et une
   voit que ce que les règles autorisent (tests) ; e2e « je me mets
   dispo ce soir, quelqu'un du coin me voit ».
 
-### P2-14 — Mode jam : salons
+### P2-14a — Annuaire des lieux
 
-- **Dépend de** : P2-02, P2-13.
-- **Tâches** : un salon est une annonce `JAM` enrichie : créneau, type
-  de lieu (**public ou professionnel seulement**, D26 : bar, café-concert,
-  salle, scène ouverte, MJC, local de répétition, studio), **places libres**
-  par instrument ; « Trouve-moi une jam » (salons ouverts et personnes
-  dispos selon instrument et genres) ; demander à rejoindre, l'hôte
-  accepte ; **lieu exact révélé aux seules personnes acceptées** ;
-  conversation de salon (P2-04).
-- **Fin** : le lieu exact n'apparaît dans aucune réponse pour une
-  personne non acceptée (test) ; e2e « je lance une jam, quelqu'un la
-  rejoint ».
+- **Dépend de** : P2-13. Décisions D26, D27, D22.
+- **Tâches** : modèle `Venue` (nom, type parmi bar, café-concert,
+  salle, scène ouverte, MJC, local de répétition, studio, magasin de
+  musique ; commune avec son centroïde, **jamais d'adresse précise**) ;
+  créé par un membre (`createdById`), doublons évités (même nom
+  normalisé dans la même commune) ; `claimedByActorId` prévu pour la
+  revendication par le lieu en phase 5 (P5-03) ; recherche par nom et
+  commune ; fiche publique `/lieux/[id]` ; signalement (`ReportTarget
+VENUE`) ; quota de création (rate limit). Une jam n'est plus une
+  collaboration (D27) : le type « Jam » disparaît des collaborations
+  proposables (l'historique reste), textes du mode jam corrigés.
+- **Fin** : doublon refusé (test) ; e2e « j'ajoute le Bar des Amis à
+  Lyon, je le retrouve en cherchant ».
 
-### P2-15 — Mode jam : fin de match
+### P2-14b — Mode jam : jams publiques
 
-- **Dépend de** : P2-06, P2-14.
-- **Tâches** : après le créneau, écran de fin de partie ; chacun
-  confirme qui était là → collaboration `JAM` à double confirmation
-  (XP de P2-06) ; réactions (« 🔥 groove », « on remet ça ») sans XP ;
-  « Rejouer ensemble » (salon prérempli) ; « Garder le contact » (ajout
-  au réseau musical) ; succès fun (_Noctambule_, _Touche-à-tout_,
-  _Brise-glace_, _Chef d'orchestre_) dans `core/achievements.ts`.
-- **Fin** : une jam non confirmée ne rapporte rien ; une réaction ne
-  rapporte rien ; e2e « fin de match, XP des deux côtés ».
+- **Dépend de** : P2-02, P2-14a.
+- **Tâches** : une jam est une annonce `JAM` enrichie : **lieu de
+  l'annuaire obligatoire** (D26), début et fin, style, **places
+  souhaitées par instrument** ; l'auteur est l'**hôte** ; « Je viens »
+  sans acceptation (on peut venir seul), retirable ; « Trouve-moi une
+  jam » (jams à venir et personnes dispos selon instrument et genres) ;
+  mineur·es : jams finissant avant 22 h seulement (D5) ; fiche du lieu :
+  ses jams à venir.
+- **Fin** : un·e mineur·e ne voit aucune jam finissant après 22 h
+  (test) ; e2e « je publie une jam au Bar des Amis, quelqu'un dit Je
+  viens ».
+
+### P2-15 — Après la jam : « J'y étais » et appréciations
+
+- **Dépend de** : P2-14b. Décision D27.
+- **Tâches** : après le début de la jam, « J'y étais » (sans XP) ;
+  pendant 7 jours, appréciation d'un autre présent : qualité
+  (« bon groove », « à l'écoute », « belle impro », « fiable ») ou
+  instrument ; une par paire et par jam ; TL1 requise pour en donner ;
+  événement `endorsement.received` (≈ 40 XP, rendements décroissants
+  par paire) ; l'hôte retire un faux présent (et les appréciations
+  liées sont reprises par transaction négative) ; « Rejouer ensemble »,
+  « Garder le contact » ; succès fun (_Noctambule_, _Touche-à-tout_,
+  _Brise-glace_, _Chef d'orchestre_) sans XP ; affichage sur le profil ;
+  RGPD.
+- **Fin** : « J'y étais » ne rapporte rien (test) ; appréciation
+  impossible sans présence commune (test) ; e2e « deux présents,
+  l'une apprécie l'autre, ses points montent ».
 
 ### P2-16 — Carnet de jams et réseau musical
 
@@ -316,7 +338,7 @@ COMPLETED` (ou `CANCELLED`) ; pas d'état « en cours », et une
   instruments croisés, styles, communes) ; réseau musical (gens avec
   qui l'on a vraiment joué) ; quand on cherche quelqu'un (recherche,
   annonce), le réseau est proposé en premier ; RGPD.
-- **Fin** : le carnet reflète les jams confirmées (e2e) ; le réseau
+- **Fin** : le carnet reflète les jams où l'on était (e2e) ; le réseau
   remonte en tête d'une recherche correspondante.
 
 **Revue de fin de phase 2** : démo du parcours ; calibrage du barème

@@ -40,21 +40,21 @@ Les carrières se croisent : les épreuves d'un rôle sont validées par un
 autre. C'est ce qui donne de la valeur aux preuves et aligne les
 intérêts (07 §4.4).
 
-| Épreuve                      | Qui la vit                     | Qui la valide (preuve)                                                                |
-| ---------------------------- | ------------------------------ | ------------------------------------------------------------------------------------- |
-| Jam, collaboration           | Musicien·nes                   | Les participants, des deux côtés                                                      |
-| Adhésion à un groupe         | Musicien·ne, groupe            | Le groupe et la personne                                                              |
-| Première répétition          | Groupe                         | Un membre (corroborée) ; un studio de la plateforme (vérifiée)                        |
-| Morceau composé              | Musicien·nes, groupe           | Les contributeurs (rôles confirmés)                                                   |
-| Enregistrement               | Artistes                       | **Ingé son ou studio** (vérifiée)                                                     |
-| Production                   | Artistes                       | **Producteur·rice** (vérifiée)                                                        |
-| Concert                      | Artistes                       | Un tiers hors groupe (corroboré) ; **organisateur, lieu ou booker** vérifié (vérifié) |
-| Jam publique                 | Musicien·nes                   | **Le lieu** et ≥3 participants _(proposé)_                                            |
-| Tournée                      | Artistes                       | ≥3 concerts corroborés dans ≥3 villes en 30 jours                                     |
-| Sortie (single, EP, album)   | Artistes, crédités             | **API** (ISRC, UPC) ; corroborée par la **communication musicale** _(proposé)_        |
-| Accompagnement               | Manager, booker                | **L'artiste** accompagné                                                              |
-| Contrat d'édition, placement | Auteur·rices-compositeur·rices | **Éditeur·rice** vérifié                                                              |
-| Signature                    | Artistes                       | **Label** vérifié, seul                                                               |
+| Épreuve                      | Qui la vit                     | Qui la valide (preuve)                                                                  |
+| ---------------------------- | ------------------------------ | --------------------------------------------------------------------------------------- |
+| Collaboration                | Musicien·nes                   | Les participants, des deux côtés                                                        |
+| Jam                          | Musicien·nes                   | Aucune preuve de présence ne rapporte ; les **appréciations** des autres présents (D27) |
+| Adhésion à un groupe         | Musicien·ne, groupe            | Le groupe et la personne                                                                |
+| Première répétition          | Groupe                         | Un membre (corroborée) ; un studio de la plateforme (vérifiée)                          |
+| Morceau composé              | Musicien·nes, groupe           | Les contributeurs (rôles confirmés)                                                     |
+| Enregistrement               | Artistes                       | **Ingé son ou studio** (vérifiée)                                                       |
+| Production                   | Artistes                       | **Producteur·rice** (vérifiée)                                                          |
+| Concert                      | Artistes                       | Un tiers hors groupe (corroboré) ; **organisateur, lieu ou booker** vérifié (vérifié)   |
+| Tournée                      | Artistes                       | ≥3 concerts corroborés dans ≥3 villes en 30 jours                                       |
+| Sortie (single, EP, album)   | Artistes, crédités             | **API** (ISRC, UPC) ; corroborée par la **communication musicale** _(proposé)_          |
+| Accompagnement               | Manager, booker                | **L'artiste** accompagné                                                                |
+| Contrat d'édition, placement | Auteur·rices-compositeur·rices | **Éditeur·rice** vérifié                                                                |
+| Signature                    | Artistes                       | **Label** vérifié, seul                                                                 |
 
 ## 3. Musicien·ne — `MUSICIAN` · ouvert
 

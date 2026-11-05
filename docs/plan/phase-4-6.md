@@ -173,10 +173,11 @@ mode jam.
 
 ### P5-04 — Jams publiques des lieux
 
-- **Dépend de** : P5-03, P2-14.
-- **Tâches** : scène ouverte récurrente publiée par un lieu ; visible
-  dans le mode jam de la zone (on peut venir seul) ; confirmation par le
-  lieu et ≥3 participants ; règles pour les mineur·es.
+- **Dépend de** : P5-03, P2-14b.
+- **Tâches** : le lieu revendique sa fiche de l'annuaire (P2-14a) ;
+  scène ouverte **récurrente** publiée par le lieu ; musicien·nes
+  animateur·rices affilié·es au lieu ; les appréciations après la jam
+  restent la seule source de points (D27) ; règles pour les mineur·es.
 - **Fin** : e2e « je trouve la scène ouverte du jeudi dans le mode jam ».
 
 ### P5-05 — Organisateur·rice

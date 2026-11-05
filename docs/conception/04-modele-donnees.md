@@ -53,6 +53,12 @@ model Actor {                                   // Phase 1
   organization Organization?
 }
 
+> **Identifiant public** (05/11/2026) : `handle` sert seulement à l'URL ;
+> toutes les relations passent par `id` (cuid). Le jour où l'on permet de
+> changer d'identifiant, il faudra un historique des anciens handles qui
+> redirige (301) vers le nouveau, et un délai avant qu'un ancien handle
+> puisse être repris. Condition à inscrire dans la fiche de ce lot.
+
 model Person {                                  // Phase 1
   actorId     String   @id
   actor       Actor    @relation(fields: [actorId], references: [id])

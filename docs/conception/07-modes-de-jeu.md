@@ -328,52 +328,72 @@ pas d'engagement, pas de projet. On a envie de jouer ce soir, on trouve
 des gens, on joue, on rencontre. C'est aussi la porte d'entrée la plus
 simple de l'app : on n'a pas besoin d'avoir un projet pour s'amuser.
 
-### 6.1 Comment ça se joue _(proposé)_
+### 6.1 Comment ça se joue
+
+Dans la vraie vie, une jam est le plus souvent **tenue par un hôte** :
+le bar qui fait son bœuf du jeudi, la MJC qui anime un atelier, le
+festival qui ouvre la scène après les concerts, ou un·e musicien·ne qui
+anime la scène ouverte d'un bar (D27). Les situations courantes :
+
+| Situation                                                | Hôte                            |
+| -------------------------------------------------------- | ------------------------------- |
+| Scène ouverte, bœuf d'un bar ou d'un café-concert        | Le lieu                         |
+| Jam animée par un·e musicien·ne dans un bar              | Le ou la musicien·ne animateur  |
+| Atelier jam d'une MJC, d'une école, d'une association    | La structure ou l'encadrant·e   |
+| Bœuf de fin de concert ou de festival                    | L'organisateur                  |
+| Fête de la musique, scène de rue                         | L'organisateur, la collectivité |
+| Quelques musicien·nes dans un local de répète, un studio | L'un ou l'une d'entre eux       |
 
 1. **« Je suis dispo »** : un interrupteur sur l'accueil, avec un
    créneau (ce soir, demain, ce week-end) et ce qu'on a envie de jouer.
    Il s'éteint tout seul à la fin du créneau. Les musicien·nes
    compatibles près de chez soi le voient (commune et distance par
    tranches, jamais d'adresse).
-2. **Lancer une jam** : un salon, comme une partie en ligne. On indique
-   le style, le créneau, le **lieu** et les **places libres** (« il manque
-   une batterie et une voix »). Une jam a toujours lieu dans un **lieu
-   public ou professionnel** : bar, café-concert, salle, scène ouverte,
-   MJC, local de répétition, studio. **Jamais chez un particulier**
-   (D26).
-3. **Trouve-moi une jam** : un bouton qui propose les salons ouverts et
+2. **Publier une jam** : l'hôte choisit le **lieu dans l'annuaire**
+   (ou l'y ajoute : nom, type, commune), le créneau, le style et les
+   **places souhaitées** (« il manque une batterie et une voix »). Une
+   jam a toujours lieu dans un **lieu public ou professionnel** : bar,
+   café-concert, salle, scène ouverte, MJC, local de répétition, studio.
+   **Jamais chez un particulier** (D26).
+3. **Trouve-moi une jam** : un bouton qui propose les jams à venir et
    les personnes dispos près de soi, selon son instrument et ses
-   genres. On demande à rejoindre, l'hôte accepte.
+   genres. On dit « Je viens » ; on peut venir seul, sans connaître
+   personne. C'est souvent la première scène d'un·e débutant·e.
 4. **On joue.** Hors de l'app, dans la vraie vie.
-5. **Fin de match** : un écran de fin de partie. Chacun confirme qui
-   était là (double confirmation), peut laisser une réaction pour
-   l'ambiance (« 🔥 groove », « on remet ça ») et choisir :
-   - **« Rejouer ensemble »** : un nouveau salon prérempli avec les
-     mêmes personnes ;
+5. **Après la jam** : chacun peut dire **« J'y étais »**. Ça ne rapporte
+   rien en soi (D27) : ça ouvre, pendant 7 jours, la possibilité de
+   laisser une **appréciation** aux autres présents (« bon groove »,
+   « à l'écoute », « belle impro », un instrument) et de choisir :
+   - **« Rejouer ensemble »** : une nouvelle jam préremplie ;
    - **« Garder le contact »** : la personne rejoint son **réseau
-     musical** (les gens avec qui l'on a vraiment joué), sans rien
-     d'autre à faire.
-
-Les **jams publiques** des lieux (bars, cafés-concerts, magasins de
-musique, MJC : 06 §3.10) apparaissent aussi dans le mode jam : on peut
-y aller seul, sans connaître personne. C'est souvent la première scène
-d'un·e débutant·e.
+     musical** (les gens avec qui l'on a vraiment joué).
 
 ### 6.2 Ce que le mode jam rapporte
 
-- Un jam confirmé par les participants reste une **vraie
-  collaboration** (`JAM`) : il rapporte son XP et compte pour les rangs,
-  même joué « juste pour le fun ». Rien n'est perdu.
-- Mais le mode jam ne **montre** ni objectifs ni carte : seulement un
+- **Venir ne suffit pas, il faut être remarqué** (D27). Être présent à
+  une jam ne rapporte aucun point. Ce sont les **appréciations** des
+  autres présents qui en rapportent (≈ 40 XP chacune, comme un
+  endossement, 02 §2.2). Celui qui ne joue pas, ou que personne ne
+  remarque, n'avance pas ; celle qui fait groover la salle avance.
+- **Garde-fous** : une appréciation par personne et par jam ; entre
+  deux mêmes personnes, rendements décroissants (la 2ᵉ compte moitié,
+  la 4ᵉ plus rien) ; confiance TL1 requise pour en donner ; l'hôte peut
+  retirer un faux présent ; la détection de collusion (P2-10) surveille
+  les échanges en circuit fermé. Les appréciations sont **positives
+  seulement** : pas de note, pas d'avis négatif (01 §4) ; le négatif
+  passe par le signalement privé.
+- Une jam n'est **pas une collaboration** à 400 XP : celles-ci restent
+  réservées au travail commun (session, enregistrement, groupe).
+- Le mode jam ne **montre** ni objectifs ni carte : seulement un
   **carnet de jams** façon souvenirs, avec le nombre de jams, les
   personnes rencontrées, les instruments croisés, les styles joués et
-  les lieux (par commune). Le carnet est aussi un **réseau** : quand,
-  un jour, on cherche une batteuse pour un projet, l'app propose
-  d'abord celles avec qui l'on a déjà jammé.
+  les lieux. Le carnet est aussi un **réseau** : quand, un jour, on
+  cherche une batteuse pour un projet, l'app propose d'abord celles
+  avec qui l'on a déjà jammé.
 - Des **succès fun** _(proposé)_ : _Noctambule_ (3 jams après 22 h),
   _Touche-à-tout_ (5 styles différents), _Brise-glace_ (une jam avec
   quelqu'un que tu ne connaissais pas), _Chef d'orchestre_ (5 jams
-  lancées et jouées).
+  tenues comme hôte). Ils ne rapportent pas de points.
 
 ### 6.3 Sécurité
 
