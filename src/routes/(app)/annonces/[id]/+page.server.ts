@@ -1,8 +1,8 @@
 /**
  * LINKMUSICIAN: une annonce (P2-02). 404 si l'auteur n'est pas visible
  * (masqué, suspendu, bloqué dans un sens ou dans l'autre) ou si elle a été
- * retirée. L'auteur la clôture ; les autres la signalent. Les candidatures
- * arrivent avec P2-03.
+ * retirée. L'auteur la clôture et tranche les candidatures (P2-03) ; les
+ * autres postulent (conditions vérifiées) ou la signalent.
  */
 import { error, fail } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
@@ -12,6 +12,15 @@ import {
 	getOpportunity
 } from '#lib/server/opportunities/service';
 import { fileReport, ModerationError } from '#lib/server/moderation/service';
+import { prisma } from '#lib/server';
+import {
+	applyTo,
+	decideApplication,
+	eligibilityFor,
+	listForIssuer,
+	myApplication,
+	withdrawApplication
+} from '#lib/server/opportunities/applications';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -19,12 +28,75 @@ async function me(locals: App.Locals) {
 }
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-	const opportunity = await getOpportunity(params.id, (await me(locals)).actorId);
+	const actorId = (await me(locals)).actorId;
+	const opportunity = await getOpportunity(params.id, actorId);
 	if (!opportunity) error(404, 'Annonce introuvable');
-	return { opportunity };
+	if (opportunity.isOwner) {
+		return {
+			opportunity,
+			applications: await listForIssuer(actorId, params.id),
+			mine: null,
+			unmet: []
+		};
+	}
+	const mine = await myApplication(actorId, params.id);
+	let unmet: string[] = [];
+	if (!mine && opportunity.active) {
+		const raw = await prisma.opportunity.findUniqueOrThrow({
+			where: { id: params.id },
+			select: { instrumentId: true, minLevel: true, genreSlug: true, minTier: true }
+		});
+		unmet = await eligibilityFor(actorId, raw);
+	}
+	return { opportunity, applications: [], mine, unmet };
+};
+
+const guard = async (run: () => Promise<unknown>, message: string) => {
+	try {
+		await run();
+		return { message };
+	} catch (err) {
+		if (err instanceof OpportunityError) return fail(err.status, { error: err.message });
+		throw err;
+	}
 };
 
 export const actions: Actions = {
+	apply: async ({ locals, params, request }) => {
+		const body = String((await request.formData()).get('message') ?? '');
+		return guard(
+			async () => applyTo((await me(locals)).actorId, params.id, body),
+			'Candidature envoyée !'
+		);
+	},
+	withdraw: async ({ locals, request }) => {
+		const id = String((await request.formData()).get('applicationId') ?? '');
+		return guard(
+			async () => withdrawApplication((await me(locals)).actorId, id),
+			'Candidature retirée.'
+		);
+	},
+	shortlist: async ({ locals, request }) => {
+		const id = String((await request.formData()).get('applicationId') ?? '');
+		return guard(
+			async () => decideApplication((await me(locals)).actorId, id, 'shortlist'),
+			'Candidature présélectionnée.'
+		);
+	},
+	accept: async ({ locals, request }) => {
+		const id = String((await request.formData()).get('applicationId') ?? '');
+		return guard(
+			async () => decideApplication((await me(locals)).actorId, id, 'accept'),
+			'Candidature acceptée : la conversation est ouverte.'
+		);
+	},
+	decline: async ({ locals, request }) => {
+		const id = String((await request.formData()).get('applicationId') ?? '');
+		return guard(
+			async () => decideApplication((await me(locals)).actorId, id, 'decline'),
+			'Candidature non retenue.'
+		);
+	},
 	close: async ({ locals, params }) => {
 		try {
 			await closeOpportunity((await me(locals)).actorId, params.id);

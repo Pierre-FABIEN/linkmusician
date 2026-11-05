@@ -86,6 +86,10 @@ fête, et le mode jam permet de jouer dès ce soir.
 
 ### P2-03 — Candidatures
 
+> **Réalisé le 05/11/2026.** Écarts : pas de « message type » au refus
+> (le candidat voit « Non retenue ») ; la proposition de collaboration
+> après acceptation arrive avec P2-06.
+
 - **Dépend de** : P2-02.
 - **Tâches** : modèle `Application` (une par annonce et par personne) ;
   états `SENT → SEEN → SHORTLISTED → ACCEPTED | DECLINED | WITHDRAWN` ;

@@ -27,9 +27,36 @@ membres.
   `OPPORTUNITY`, action « Retirer l'annonce » dans `/moderation`).
 - **RGPD** : annonces dans l'export, supprimées à l'anonymisation.
 
+## Candidatures (P2-03)
+
+- **Postuler** avec un message (10 à 1 000 caractères), une fois par
+  annonce, sur une annonce active qui n'est pas la sienne et dont l'auteur
+  est visible (ni bloqué, ni masqué, ni suspendu).
+- **Conditions vérifiées** à ce moment-là (`unmetConditions`) : un
+  sous-genre déclaré compte pour son genre parent ; le palier vient des
+  événements (`getMusicianTier`). Si une condition manque, la page dit
+  laquelle et renvoie au profil musical.
+- **L'auteur** voit les candidatures sur son annonce (les ouvrir les marque
+  « vues ») : présélectionner, accepter, refuser. Pastille du nombre de
+  candidatures à trancher sur « Mes annonces ».
+- **Accepter ouvre une conversation liée à l'annonce** (créée, ou
+  réutilisée si les deux personnes en ont déjà une), avec la candidature
+  en premier message. La première réponse de l'auteur rend l'échange
+  réciproque : **+30 XP pour chacun** (« Échange abouti sur une annonce »,
+  plafond 5 par jour). Places toutes prises : l'annonce passe « Complète ».
+- **Le candidat** suit ses candidatures sur `/annonces` (« Mes
+  candidatures ») et peut retirer une candidature non tranchée.
+- **RGPD** : candidatures envoyées dans l'export, supprimées à
+  l'anonymisation (celles reçues partent avec les annonces).
+- La proposition de **collaboration** après une acceptation arrive avec
+  P2-06.
+
 ## Code et tests
 
 - Règles pures (formulaire, cycle de vie, éligibilité) :
   `src/lib/opportunities/rules.ts`.
 - Service : `src/lib/server/opportunities/service.ts`.
-- E2E : `e2e/linkmusician/annonces.spec.ts`.
+- Candidatures : `src/lib/opportunities/applications.ts` (pur) et
+  `src/lib/server/opportunities/applications.ts`.
+- E2E : `e2e/linkmusician/annonces.spec.ts`,
+  `e2e/linkmusician/candidatures.spec.ts`.

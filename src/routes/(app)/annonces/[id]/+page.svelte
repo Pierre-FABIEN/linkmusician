@@ -9,6 +9,12 @@
 	import { OPPORTUNITY_KIND_INFO, STATUS_LABELS } from '#lib/opportunities/rules';
 	import { INSTRUMENT_LEVELS } from '#lib/skills/levels';
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
+	import {
+		APPLICATION_STATUS_LABELS,
+		MAX_APPLICATION,
+		MIN_APPLICATION,
+		isPending
+	} from '#lib/opportunities/applications';
 
 	let { data, form } = $props();
 	const o = $derived(data.opportunity);
@@ -92,14 +98,128 @@
 					</form>
 				{/if}
 			</section>
+
+			<section class="space-y-3" aria-labelledby="applications-title">
+				<h2 id="applications-title" class="text-lg font-semibold">
+					Candidatures ({data.applications.length})
+				</h2>
+				{#if data.applications.length === 0}
+					<p class="text-sm text-muted-foreground">
+						Pas encore de candidature. Les musicien·nes autour de toi la voient dans leurs annonces.
+					</p>
+				{:else}
+					<ul class="space-y-3" aria-label="Candidatures reçues">
+						{#each data.applications as a (a.id)}
+							<li class="space-y-2 rounded-2xl border bg-card p-4">
+								<div class="flex flex-wrap items-center justify-between gap-2">
+									<span class="font-semibold">
+										{#if a.applicant.handle}
+											<a href="/@{a.applicant.handle}" class="hover:underline"
+												>{a.applicant.displayName}</a
+											>
+										{:else}{a.applicant.displayName}{/if}
+									</span>
+									<Badge variant={a.status === 'ACCEPTED' ? 'default' : 'outline'}
+										>{APPLICATION_STATUS_LABELS[a.status]}</Badge
+									>
+								</div>
+								{#if a.applicant.instruments.length > 0}
+									<p class="text-xs text-muted-foreground">
+										{a.applicant.instruments
+											.map((i) => `${i.name} · ${levelName(i.level)}`)
+											.join(' — ')}
+									</p>
+								{/if}
+								<p class="whitespace-pre-line text-sm">{a.message}</p>
+								{#if isPending(a.status)}
+									<div class="flex flex-wrap gap-2">
+										<form method="POST" action="?/accept" use:enhance>
+											<input type="hidden" name="applicationId" value={a.id} />
+											<button
+												class="min-h-11 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
+												>Accepter</button
+											>
+										</form>
+										{#if a.status !== 'SHORTLISTED'}
+											<form method="POST" action="?/shortlist" use:enhance>
+												<input type="hidden" name="applicationId" value={a.id} />
+												<button class="min-h-11 rounded-xl border px-4">Présélectionner</button>
+											</form>
+										{/if}
+										<form method="POST" action="?/decline" use:enhance>
+											<input type="hidden" name="applicationId" value={a.id} />
+											<button class="min-h-11 rounded-xl border px-4">Refuser</button>
+										</form>
+									</div>
+								{:else if a.conversationId}
+									<a
+										href="/messages/{a.conversationId}"
+										class="inline-block font-semibold underline">Ouvrir la conversation</a
+									>
+								{/if}
+							</li>
+						{/each}
+					</ul>
+				{/if}
+			</section>
 		{:else}
-			{#if o.active}
-				<p class="rounded-2xl border bg-card p-4 text-sm">
-					Les candidatures arrivent très bientôt. En attendant, tu peux
-					<a href="/messages/nouveau?a={o.issuer.handle}" class="font-semibold underline"
-						>écrire à {o.issuer.displayName}</a
-					>.
+			{#if data.mine}
+				<section
+					class="space-y-2 rounded-2xl border bg-card p-4 text-sm"
+					aria-labelledby="mine-title"
+				>
+					<h2 id="mine-title" class="font-semibold">
+						Ta candidature : {APPLICATION_STATUS_LABELS[data.mine.status]}
+					</h2>
+					{#if data.mine.status === 'ACCEPTED' && data.mine.conversationId}
+						<p>Bravo ! {o.issuer.displayName} a accepté : la conversation est ouverte.</p>
+						<a
+							href="/messages/{data.mine.conversationId}"
+							class="inline-block font-semibold underline">Ouvrir la conversation</a
+						>
+					{:else if isPending(data.mine.status)}
+						<form method="POST" action="?/withdraw" use:enhance>
+							<input type="hidden" name="applicationId" value={data.mine.id} />
+							<button class="min-h-11 rounded-xl border px-4">Retirer ma candidature</button>
+						</form>
+					{/if}
+				</section>
+			{:else if o.active && data.unmet.length > 0}
+				<p class="rounded-2xl border bg-muted/40 p-4 text-sm">
+					Cette annonce demande des conditions que ton profil ne remplit pas encore : {data.unmet.join(
+						', '
+					)}.
+					<a href="/profil/musical" class="font-semibold underline"
+						>Mettre à jour mon profil musical</a
+					>
 				</p>
+			{:else if o.active}
+				<form
+					method="POST"
+					action="?/apply"
+					use:enhance
+					class="space-y-3 rounded-2xl border bg-card p-4"
+					aria-labelledby="apply-title"
+				>
+					<h2 id="apply-title" class="font-semibold">Postuler</h2>
+					<label class="block space-y-1 text-sm font-medium">
+						Ton message à {o.issuer.displayName}
+						<textarea
+							name="message"
+							required
+							rows="4"
+							minlength={MIN_APPLICATION}
+							maxlength={MAX_APPLICATION}
+							placeholder="Présente-toi : ce que tu joues, depuis quand, tes disponibilités…"
+							class="w-full rounded-md border bg-background p-2"
+						></textarea>
+					</label>
+					<button
+						type="submit"
+						class="min-h-11 rounded-xl bg-primary px-5 font-semibold text-primary-foreground"
+						>Envoyer ma candidature</button
+					>
+				</form>
 			{/if}
 			<details class="rounded-lg border p-3 text-sm">
 				<summary class="cursor-pointer text-muted-foreground">Signaler cette annonce</summary>

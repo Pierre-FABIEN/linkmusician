@@ -109,59 +109,78 @@ export async function exportPersonData(userId: string) {
 	const details = await getProfileDetails(person);
 	const location = await getActorLocation(person.actorId);
 	const progress = await getProgress(person.actorId, prisma);
-	const [ledger, reportsFiled, sanctions, activityDays, messagesSent, blocksMade, opportunities] =
-		await Promise.all([
-			prisma.xpTransaction.findMany({
-				where: { actorId: person.actorId },
-				orderBy: { createdAt: 'asc' },
-				select: { amount: true, track: true, reason: true, createdAt: true }
-			}),
-			prisma.report.findMany({
-				where: { reporterActorId: person.actorId },
-				orderBy: { createdAt: 'asc' },
-				select: { targetType: true, reason: true, details: true, status: true, createdAt: true }
-			}),
-			prisma.sanction.findMany({
-				where: { actorId: person.actorId },
-				orderBy: { createdAt: 'asc' },
-				select: { kind: true, reason: true, until: true, liftedAt: true, createdAt: true }
-			}),
-			prisma.actorActivityDay.findMany({
-				where: { actorId: person.actorId },
-				orderBy: { day: 'asc' },
-				select: { day: true }
-			}),
-			// Messagerie (P2-04) : les messages envoyés. Les messages reçus sont les
-			// données de l'autre personne et restent hors de cet export.
-			prisma.message.findMany({
-				where: { senderActorId: person.actorId },
-				orderBy: { createdAt: 'asc' },
-				select: {
-					body: true,
-					createdAt: true,
-					conversation: {
-						select: {
-							participants: {
-								where: { actorId: { not: person.actorId } },
-								select: { actor: { select: { displayName: true } } }
-							}
+	const [
+		ledger,
+		reportsFiled,
+		sanctions,
+		activityDays,
+		messagesSent,
+		blocksMade,
+		opportunities,
+		applications
+	] = await Promise.all([
+		prisma.xpTransaction.findMany({
+			where: { actorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { amount: true, track: true, reason: true, createdAt: true }
+		}),
+		prisma.report.findMany({
+			where: { reporterActorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { targetType: true, reason: true, details: true, status: true, createdAt: true }
+		}),
+		prisma.sanction.findMany({
+			where: { actorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { kind: true, reason: true, until: true, liftedAt: true, createdAt: true }
+		}),
+		prisma.actorActivityDay.findMany({
+			where: { actorId: person.actorId },
+			orderBy: { day: 'asc' },
+			select: { day: true }
+		}),
+		// Messagerie (P2-04) : les messages envoyés. Les messages reçus sont les
+		// données de l'autre personne et restent hors de cet export.
+		prisma.message.findMany({
+			where: { senderActorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: {
+				body: true,
+				createdAt: true,
+				conversation: {
+					select: {
+						participants: {
+							where: { actorId: { not: person.actorId } },
+							select: { actor: { select: { displayName: true } } }
 						}
 					}
 				}
-			}),
-			// Blocage (P2-05) : les personnes que j'ai bloquées.
-			prisma.block.findMany({
-				where: { blockerActorId: person.actorId },
-				orderBy: { createdAt: 'asc' },
-				select: { createdAt: true, blocked: { select: { displayName: true } } }
-			}),
-			// Annonces (P2-02).
-			prisma.opportunity.findMany({
-				where: { issuerActorId: person.actorId },
-				orderBy: { createdAt: 'asc' },
-				select: { kind: true, title: true, description: true, status: true, createdAt: true }
-			})
-		]);
+			}
+		}),
+		// Blocage (P2-05) : les personnes que j'ai bloquées.
+		prisma.block.findMany({
+			where: { blockerActorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { createdAt: true, blocked: { select: { displayName: true } } }
+		}),
+		// Annonces (P2-02).
+		prisma.opportunity.findMany({
+			where: { issuerActorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { kind: true, title: true, description: true, status: true, createdAt: true }
+		}),
+		// Candidatures (P2-03).
+		prisma.application.findMany({
+			where: { applicantActorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: {
+				message: true,
+				status: true,
+				createdAt: true,
+				opportunity: { select: { title: true } }
+			}
+		})
+	]);
 	const media = await prisma.media.findMany({
 		where: { actorId: person.actorId },
 		orderBy: { createdAt: 'asc' },
@@ -240,6 +259,12 @@ export async function exportPersonData(userId: string) {
 			statut: o.status,
 			le: o.createdAt
 		})),
+		candidatures: applications.map((a) => ({
+			annonce: a.opportunity.title,
+			message: a.message,
+			statut: a.status,
+			le: a.createdAt
+		})),
 		personnes_bloquees: blocksMade.map((b) => ({ nom: b.blocked.displayName, le: b.createdAt })),
 		messages_envoyes: messagesSent.map((m) => ({
 			a: m.conversation.participants[0]?.actor.displayName ?? null,
@@ -270,6 +295,8 @@ export async function personAnonymizationOps(
 		prisma.actorActivityDay.deleteMany({ where: { actorId: person.actorId } }),
 		// Annonces (P2-02) : supprimées avec le compte.
 		prisma.opportunity.deleteMany({ where: { issuerActorId: person.actorId } }),
+		// Candidatures (P2-03) : supprimées avec le compte.
+		prisma.application.deleteMany({ where: { applicantActorId: person.actorId } }),
 		// Blocage (P2-05) : faits et reçus, sans objet après l'effacement.
 		prisma.block.deleteMany({
 			where: { OR: [{ blockerActorId: person.actorId }, { blockedActorId: person.actorId }] }

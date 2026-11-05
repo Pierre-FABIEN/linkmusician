@@ -217,12 +217,24 @@ export async function listMine(actorId: string, now = new Date()) {
 		where: { issuerActorId: actorId },
 		orderBy: { createdAt: 'desc' },
 		take: 50,
-		select: { id: true, kind: true, title: true, status: true, expiresAt: true, createdAt: true }
+		select: {
+			id: true,
+			kind: true,
+			title: true,
+			status: true,
+			expiresAt: true,
+			createdAt: true,
+			// Candidatures à trancher (P2-03).
+			_count: {
+				select: { applications: { where: { status: { in: ['SENT', 'SEEN', 'SHORTLISTED'] } } } }
+			}
+		}
 	});
-	return items.map((o) => ({
+	return items.map(({ _count, ...o }) => ({
 		...o,
 		kind: o.kind as OpportunityKindValue,
-		status: displayStatus(o, now)
+		status: displayStatus(o, now),
+		pendingApplications: _count.applications
 	}));
 }
 

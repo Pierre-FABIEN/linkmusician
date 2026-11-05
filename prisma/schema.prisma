@@ -1430,6 +1430,7 @@ model Actor {
   blocksMade           Block[]   @relation("BlocksMade")
   blocksReceived       Block[]   @relation("BlocksReceived")
   opportunities        Opportunity[]
+  applications         Application[]
 
   @@map("actors")
 }
@@ -2025,7 +2026,43 @@ model Opportunity {
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 
+  applications Application[]
+
   @@index([status, expiresAt])
   @@index([issuerActorId, status])
   @@map("opportunities")
+}
+
+// ─── CANDIDATURES (P2-03) ───────────────────────────────────────────────────
+
+enum ApplicationStatus {
+  SENT
+  /// Vue par l'auteur de l'annonce.
+  SEEN
+  SHORTLISTED
+  ACCEPTED
+  DECLINED
+  WITHDRAWN
+}
+
+/// Candidature à une annonce (une par annonce et par personne). Son
+/// acceptation ouvre une conversation liée à l'annonce : sa réciprocité
+/// rapporte de l'XP aux deux (règle `conversation.reciprocated`).
+model Application {
+  id               String            @id @default(cuid())
+  opportunityId    String
+  opportunity      Opportunity       @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  applicantActorId String
+  applicant        Actor             @relation(fields: [applicantActorId], references: [id], onDelete: Cascade)
+  message          String
+  status           ApplicationStatus @default(SENT)
+  /// Conversation ouverte à l'acceptation.
+  conversationId   String?
+  decidedAt        DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@unique([opportunityId, applicantActorId])
+  @@index([applicantActorId, createdAt])
+  @@map("applications")
 }

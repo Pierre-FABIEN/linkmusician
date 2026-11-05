@@ -9,6 +9,7 @@
 		STATUS_LABELS
 	} from '#lib/opportunities/rules';
 	import { INSTRUMENT_LEVELS } from '#lib/skills/levels';
+	import { APPLICATION_STATUS_LABELS } from '#lib/opportunities/applications';
 
 	let { data } = $props();
 	const day = new Intl.DateTimeFormat('fr-FR', {
@@ -107,6 +108,29 @@
 			</ul>
 		{/if}
 
+		{#if data.applications.length > 0}
+			<section class="space-y-2" aria-labelledby="my-applications-title">
+				<h2 id="my-applications-title" class="font-semibold">Mes candidatures</h2>
+				<ul class="space-y-2" aria-label="Mes candidatures">
+					{#each data.applications as a (a.id)}
+						<li>
+							<a
+								href={a.status === 'ACCEPTED' && a.conversationId
+									? `/messages/${a.conversationId}`
+									: `/annonces/${a.opportunity.id}`}
+								class="flex min-h-11 items-center justify-between gap-3 rounded-xl border p-3 text-sm hover:border-primary"
+							>
+								<span class="truncate">{a.opportunity.title}</span>
+								<Badge variant={a.status === 'ACCEPTED' ? 'default' : 'outline'}
+									>{APPLICATION_STATUS_LABELS[a.status]}</Badge
+								>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+
 		{#if data.mine.length > 0}
 			<section class="space-y-2" aria-labelledby="mine-title">
 				<h2 id="mine-title" class="font-semibold">Mes annonces</h2>
@@ -118,9 +142,18 @@
 								class="flex min-h-11 items-center justify-between gap-3 rounded-xl border p-3 text-sm hover:border-primary"
 							>
 								<span class="truncate">{o.title}</span>
-								<Badge variant={o.status === 'OPEN' ? 'default' : 'outline'}
-									>{STATUS_LABELS[o.status]}</Badge
-								>
+								<span class="flex shrink-0 items-center gap-2">
+									{#if o.pendingApplications > 0}
+										<Badge class="bg-fuchsia-600 text-white"
+											>{o.pendingApplications} candidature{o.pendingApplications > 1
+												? 's'
+												: ''}</Badge
+										>
+									{/if}
+									<Badge variant={o.status === 'OPEN' ? 'default' : 'outline'}
+										>{STATUS_LABELS[o.status]}</Badge
+									>
+								</span>
 							</a>
 						</li>
 					{/each}

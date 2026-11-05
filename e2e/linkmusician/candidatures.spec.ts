@@ -1,0 +1,133 @@
+import { test, expect } from '../support/fixtures';
+import { makeAccount } from '../support/account';
+import { signUpAndVerify } from '../support/admin';
+import { db, deleteUser, requireUser } from '../support/db';
+import { waitForAppReady } from '../support/flows';
+import { expectNoA11yViolations } from '../support/a11y';
+import { setCity, skipOnboarding } from '../support/linkmusician';
+
+/**
+ * P2-03 — Candidatures : conditions vérifiées, candidature, acceptation qui
+ * ouvre une conversation liée à l'annonce, annonce complète, et premiers
+ * points sociaux quand l'échange devient réciproque.
+ */
+test.describe('LinkMusician — candidatures', () => {
+	test.setTimeout(7 * 60_000);
+	// Bouton panier du boilerplate (boutique active en e2e), remontée n° 14.
+	const A11Y_EXCLUDE = ['.cartButton'];
+
+	test('postuler, être accepté·e, gagner ses premiers points', async ({
+		page,
+		account,
+		browser
+	}) => {
+		const malikAccount = makeAccount();
+		const malikContext = await browser.newContext();
+		const malikPage = await malikContext.newPage();
+		try {
+			await signUpAndVerify(page, account);
+			await skipOnboarding(page, account.email);
+			await setCity(page);
+			await signUpAndVerify(malikPage, malikAccount);
+			await skipOnboarding(malikPage, malikAccount.email);
+			const person = async (email: string) =>
+				db.person.findUniqueOrThrow({
+					where: { userId: (await requireUser(email)).id },
+					include: { actor: true }
+				});
+			const lea = await person(account.email);
+			const malik = await person(malikAccount.email);
+			let opportunityUrl = '';
+
+			await test.step('1. Léa publie : batterie, Confirmé ou plus, une place', async () => {
+				await page.goto('/annonces/nouvelle');
+				await waitForAppReady(page);
+				await page.getByLabel('Titre').fill('Groupe funk cherche batteur');
+				await page
+					.getByLabel('Description')
+					.fill('Groupe funk, répètes le mardi soir, on cherche un batteur groovy.');
+				await page.getByLabel('Instrument recherché').selectOption('batterie');
+				await page.getByLabel('Niveau minimal').selectOption('3');
+				await page.getByRole('button', { name: 'Publier' }).click();
+				await expect(page).toHaveURL(/\/annonces\/c/);
+				opportunityUrl = new URL(page.url()).pathname;
+			});
+
+			await test.step('2. Malik ne remplit pas la condition : il sait pourquoi', async () => {
+				await malikPage.goto(opportunityUrl);
+				await waitForAppReady(malikPage);
+				await expect(malikPage.getByText('tu ne joues pas l’instrument recherché')).toBeVisible();
+				await expect(malikPage.getByRole('button', { name: 'Envoyer ma candidature' })).toHaveCount(
+					0
+				);
+			});
+
+			await test.step('3. Profil à jour : Malik postule', async () => {
+				const drums = await db.instrument.findUniqueOrThrow({ where: { slug: 'batterie' } });
+				await db.personInstrument.create({
+					data: {
+						personId: malik.actorId,
+						instrumentId: drums.id,
+						declaredLevel: 4,
+						isPrimary: true
+					}
+				});
+				await malikPage.reload();
+				await waitForAppReady(malikPage);
+				await malikPage
+					.getByLabel(`Ton message à ${lea.actor.displayName}`)
+					.fill('Batteur funk depuis 10 ans, dispo le mardi !');
+				await malikPage.getByRole('button', { name: 'Envoyer ma candidature' }).click();
+				await expect(malikPage.getByText('Ta candidature : Envoyée')).toBeVisible();
+				await expectNoA11yViolations(malikPage, A11Y_EXCLUDE);
+			});
+
+			await test.step('4. Léa voit la candidature et l’accepte', async () => {
+				await page.goto('/annonces');
+				await waitForAppReady(page);
+				await expect(
+					page.getByRole('list', { name: 'Mes annonces' }).getByText('1 candidature')
+				).toBeVisible();
+				await page.goto(opportunityUrl);
+				await waitForAppReady(page);
+				const card = page.getByRole('list', { name: 'Candidatures reçues' }).getByRole('listitem');
+				await expect(card).toContainText('Batteur funk depuis 10 ans');
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+				await card.getByRole('button', { name: 'Accepter' }).click();
+				await expect(card.getByRole('link', { name: 'Ouvrir la conversation' })).toBeVisible();
+				await expect(page.getByText('Complète', { exact: true })).toBeVisible();
+			});
+
+			await test.step('5. Léa répond : premiers points sociaux pour les deux', async () => {
+				await page
+					.getByRole('list', { name: 'Candidatures reçues' })
+					.getByRole('link', { name: 'Ouvrir la conversation' })
+					.click();
+				await expect(page.getByText('Candidature à « Groupe funk cherche batteur »')).toBeVisible();
+				await page.getByLabel('Ton message').fill('Génial, viens mardi à 20 h !');
+				await page.getByRole('button', { name: 'Envoyer' }).click();
+				await expect(page.getByText('Génial, viens mardi à 20 h !')).toBeVisible();
+				for (const actorId of [lea.actorId, malik.actorId]) {
+					await expect
+						.poll(() =>
+							db.xpTransaction.findFirst({
+								where: { actorId, ruleId: 'conversation.reciprocated' },
+								select: { amount: true, reason: true }
+							})
+						)
+						.toEqual({ amount: 30, reason: 'Échange abouti sur une annonce' });
+				}
+			});
+
+			await test.step('6. Malik voit l’acceptation', async () => {
+				await malikPage.goto(opportunityUrl);
+				await waitForAppReady(malikPage);
+				await expect(malikPage.getByText('Ta candidature : Acceptée')).toBeVisible();
+				await expect(malikPage.getByRole('link', { name: 'Ouvrir la conversation' })).toBeVisible();
+			});
+		} finally {
+			await malikContext.close();
+			await deleteUser(malikAccount.email);
+		}
+	});
+});
