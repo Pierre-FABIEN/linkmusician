@@ -269,3 +269,10 @@ Exemples : _Premier contact abouti_, _Multi-instrumentiste_ (3
 instruments avec démo), _Passeur_ (a présenté deux personnes qui ont
 ensuite collaboré), _Fidèle au poste_ (5 répétitions corroborées dans un
 mois). Aucun succès n'est lié à un volume de messages ou de connexions.
+
+Succès fun des jams (P2-15b, D27), **sans XP**, déclenchés par « J'y
+étais » (événement `jam.attended`, qui ne rapporte rien) ou par une
+appréciation : _Noctambule_ (jam finie après minuit), _Touche-à-tout_
+(trois instruments différents joués en jam), _Brise-glace_ (première
+appréciation laissée), _Chef d'orchestre_ (lead d'une jam dont toute la
+formation invitée, deux personnes au moins, a accepté).

@@ -13,7 +13,9 @@ import { publicActorWhere } from '#lib/server/actors/visibility';
 import { getTrustLevel } from '#lib/server/trust/quotas';
 import { emitAndProcess, reverseGain } from '#lib/server/progression/processor';
 import { TRUST_PERMISSIONS } from '#lib/server/progression/core/trust';
-import { endsBeforeCurfew } from '#lib/jam/publicJam';
+import { endsBeforeCurfew, parisMinutes } from '#lib/jam/publicJam';
+import { leadOf } from '#lib/jam/lineup';
+import { parisDay } from '#lib/metrics/indicators';
 import {
 	AFTER_JAM_DAYS,
 	JAM_QUALITY_LABELS,
@@ -48,6 +50,7 @@ async function findRecentJam(id: string, viewerId: string, now: Date) {
 			startsAt: true,
 			endsAt: true,
 			issuerActorId: true,
+			leadActorId: true,
 			venue: { select: { id: true, name: true, communeName: true } }
 		}
 	});
@@ -118,7 +121,7 @@ export async function iWasThere(id: string, actorId: string, now = new Date()) {
 	if (!jam) throw new JamError('Jam introuvable.', 404);
 	const existing = await prisma.jamAttendance.findUnique({
 		where: { opportunityId_actorId: { opportunityId: id, actorId } },
-		select: { removedAt: true }
+		select: { removedAt: true, attendedAt: true }
 	});
 	if (existing?.removedAt)
 		throw new JamError('L’hôte t’a retiré·e des présent·es de cette jam.', 403);
@@ -128,10 +131,34 @@ export async function iWasThere(id: string, actorId: string, now = new Date()) {
 		select: { status: true, instrumentId: true }
 	});
 	const instrumentId = invite?.status === 'ACCEPTED' ? invite.instrumentId : undefined;
-	await prisma.jamAttendance.upsert({
-		where: { opportunityId_actorId: { opportunityId: id, actorId } },
-		create: { opportunityId: id, actorId, attendedAt: now, instrumentId: instrumentId ?? null },
-		update: { attendedAt: now, ...(instrumentId ? { instrumentId } : {}) }
+	await prisma.$transaction(async (tx) => {
+		await tx.jamAttendance.upsert({
+			where: { opportunityId_actorId: { opportunityId: id, actorId } },
+			create: { opportunityId: id, actorId, attendedAt: now, instrumentId: instrumentId ?? null },
+			update: { attendedAt: now, ...(instrumentId ? { instrumentId } : {}) }
+		});
+		if (existing?.attendedAt) return;
+		// Faits des succès fun (P2-15b), sans XP (D27).
+		const [instruments, invites] = await Promise.all([
+			tx.jamAttendance.findMany({
+				where: { actorId, attendedAt: { not: null }, removedAt: null, instrumentId: { not: null } },
+				distinct: ['instrumentId'],
+				select: { instrumentId: true }
+			}),
+			tx.jamInvite.findMany({ where: { opportunityId: id }, select: { status: true } })
+		]);
+		await emitAndProcess(tx, {
+			type: 'jam.attended',
+			actorId,
+			jamId: id,
+			lateNight: parisDay(jam.startsAt) !== parisDay(jam.endsAt),
+			distinctInstruments: instruments.length,
+			ledFullLineup:
+				leadOf(jam) === actorId &&
+				invites.length >= 2 &&
+				invites.every((i) => i.status === 'ACCEPTED'),
+			occurredAt: now
+		});
 	});
 }
 
@@ -317,4 +344,45 @@ export async function endorsementsReceived(actorId: string) {
 	return [...counts.entries()]
 		.map(([label, count]) => ({ label, count }))
 		.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+}
+
+const hhmm = (minutes: number) =>
+	`${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+
+/**
+ * « Rejouer ensemble » (P2-15b) : brouillon d'une nouvelle jam reprenant
+ * une jam où la personne était (lieu, titre, horaires, style, places).
+ * `null` si elle n'y était pas.
+ */
+export async function replayDraft(jamId: string, viewerId: string) {
+	const jam = await prisma.opportunity.findFirst({
+		where: {
+			id: jamId,
+			kind: 'JAM',
+			OR: [
+				{ issuerActorId: viewerId },
+				{ attendances: { some: { actorId: viewerId, ...presentWhere } } },
+				{ jamInvites: { some: { actorId: viewerId, status: 'ACCEPTED' } } }
+			]
+		},
+		select: {
+			title: true,
+			description: true,
+			genreSlug: true,
+			startsAt: true,
+			endsAt: true,
+			venueId: true,
+			jamSpots: { select: { count: true, instrument: { select: { slug: true } } } }
+		}
+	});
+	if (!jam?.startsAt || !jam.endsAt) return null;
+	return {
+		venueId: jam.venueId,
+		title: jam.title,
+		description: jam.description,
+		genre: jam.genreSlug ?? '',
+		start: hhmm(parisMinutes(jam.startsAt)),
+		end: hhmm(parisMinutes(jam.endsAt)),
+		spots: jam.jamSpots.map((s) => ({ slug: s.instrument.slug, count: s.count }))
+	};
 }

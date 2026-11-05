@@ -200,3 +200,18 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   autres), liées à l'acteur anonymisé ; l'XP reste au registre.
 - **Code** : `#lib/jam/afterJam` (pur, testé), `#server/jam/afterJam`.
   E2E : `jams.spec.ts` (« deux présents, l'une apprécie l'autre »).
+
+## Succès fun et « Rejouer ensemble » (P2-15b)
+
+- **Succès sans XP** (D27, conception 02 §9) : « J'y étais » émet
+  `jam.attended` (aucune règle d'XP ne l'écoute) avec les faits utiles,
+  calculés par le service : jam finie après minuit, instruments
+  différents joués en jam, lead d'une formation complète. _Noctambule_,
+  _Touche-à-tout_, _Brise-glace_ (première appréciation laissée, sur
+  `endorsement.received` avec `jamId`), _Chef d'orchestre_. Ils
+  s'affichent dans la carte « Succès » du profil.
+- **« Rejouer ensemble »** : `/jams/nouvelle?rejouer=<jam>` reprend le
+  lieu, le titre, les horaires, le style, les places et la description
+  d'une jam où l'on était (`replayDraft`) ; il ne reste qu'à choisir le
+  jour, puis à inviter.
+- E2E : `jams.spec.ts`, étape 5 du test « deux présents ».

@@ -340,6 +340,9 @@ test.describe('LinkMusician — jams publiques', () => {
 			});
 
 			await test.step('3. L’hôte apprécie Malik : ses points montent', async () => {
+				// « J'y étais » émet un événement : la confiance est recalculée et un
+				// compte d'un jour redescend en TL0. On lui rend son ancienneté de test.
+				await db.actor.update({ where: { id: me.actorId }, data: { trustLevel: 1 } });
 				await page.reload();
 				await waitForAppReady(page);
 				const present = page.getByRole('list', { name: 'Présent·es' });
@@ -383,6 +386,23 @@ test.describe('LinkMusician — jams publiques', () => {
 				// Registre en ajout seul : le gain et sa reprise.
 				expect(await db.xpTransaction.count({ where: { actorId: fake.actorId } })).toBe(2);
 				await expect(present.getByText(fake.displayName, { exact: true })).toHaveCount(0);
+			});
+
+			await test.step('5. Succès Brise-glace (sans XP) et « Rejouer ensemble »', async () => {
+				await page.getByRole('link', { name: 'Rejouer ensemble' }).click();
+				await expect(page.getByRole('heading', { name: 'Rejouer ensemble' })).toBeVisible();
+				await expect(page.getByLabel('Titre')).toHaveValue('E2E Bœuf du mardi');
+				await expect(page.getByLabel('Lieu')).toHaveValue(venue.id);
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+				expect(
+					await db.actorAchievement.count({
+						where: { actorId: me.actorId, achievementId: 'jam-icebreaker' }
+					})
+				).toBe(1);
+				await page.goto(`/@${me.actor.handle}`);
+				await waitForAppReady(page);
+				await expect(page.getByText('Brise-glace')).toBeVisible();
+				expect(await xpOf(me.actorId)).toBe(0);
 			});
 		} finally {
 			await malikContext.close();

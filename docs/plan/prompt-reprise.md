@@ -1,26 +1,25 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 05/11/2026, après P2-15a).
+> Mis à jour à chaque fin de lot (dernière : 05/11/2026, après P2-15b).
 
 ---
 
 ```markdown
-On reprend LinkMusician au lot P2-15b, puis P2-16. Ne refais pas
+On reprend LinkMusician au lot P2-16. Ne refais pas
 l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui sert est
-ci-dessous. Ne lis que : les fiches « P2-15 » (note de découpage) et
-« P2-16 » de docs/plan/phase-2-3.md, la section « Après la jam » de
+ci-dessous. Ne lis que : la fiche « P2-16 » de docs/plan/phase-2-3.md, la section « Après la jam » de
 docs/jam/README.md, et les fichiers de code cités ici au moment de les
 modifier.
 
 ## État (05/11/2026)
 
-- Livré jusqu'à P2-15a (tableau §5 de docs/plan/README.md). Objectif D28 :
+- Livré jusqu'à P2-15b (tableau §5 de docs/plan/README.md). Objectif D28 :
   lancement public à Toulouse début mars 2027. L'utilisateur juge que tout
   se jouera sur une UX simple et agréable : soigner chaque écran.
 - D27 : une jam ne rapporte rien ; seules les appréciations rapportent
   (règle `endorsement.received` : 40, 20, 10 puis 0 par paire sur 12 mois).
-  Les **succès fun de P2-15b ne rapportent aucune XP**.
+  Succès fun (P2-15b) sans XP, via l'événement `jam.attended`.
 - D30 (P2-14d) : lieux vérifiés par SIRET, table `establishments` de
   Toulouse Métropole (`npm run seed:etablissements`).
 - Code jam (voir `docs/jam/README.md`) :
@@ -41,15 +40,7 @@ modifier.
   - E2E : `e2e/linkmusician/jams.spec.ts` (3 tests, deux comptes via
     `browser.newContext()` + `makeAccount()`).
 
-## P2-15b à faire (petit lot)
-
-Succès fun sans XP (_Noctambule_ : jam finie après minuit ;
-_Touche-à-tout_ : 3 instruments différents en jam ; _Brise-glace_ :
-première appréciation donnée ; _Chef d'orchestre_ : lead d'une jam avec
-formation complète) ; « Rejouer ensemble » prérempli (même lieu, mêmes
-invité·es proposé·es).
-
-## P2-16 ensuite
+## P2-16 à faire (proposition, à ajuster à la fiche)
 
 Carnet de jams (jams où l'on était, personnes, instruments, styles,
 communes) ; réseau musical (gens avec qui l'on a vraiment joué : présence

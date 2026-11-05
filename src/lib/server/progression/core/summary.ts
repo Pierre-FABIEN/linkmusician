@@ -72,6 +72,7 @@ export function musicianSummary(actorId: string, events: readonly DomainEvent[])
 				break;
 			case 'profile.updated':
 			case 'media.published':
+			case 'jam.attended':
 				break;
 		}
 	}

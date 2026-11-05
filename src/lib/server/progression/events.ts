@@ -24,6 +24,7 @@ export function actorIdsOf(event: DomainEvent): string[] {
 		case 'profile.completed':
 		case 'profile.updated':
 		case 'media.published':
+		case 'jam.attended':
 			return [event.actorId];
 		case 'conversation.reciprocated':
 			return [event.actorId, event.counterpartId];

@@ -65,6 +65,22 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		/** Jam où les deux étaient présent·es (P2-15, D27). */
 		jamId: id.optional()
 	}),
+	/**
+	 * « J'y étais » à une jam (P2-15b) : ne rapporte rien (D27), sert aux
+	 * succès fun. Les faits utiles sont calculés par le service émetteur.
+	 */
+	z.object({
+		...base,
+		type: z.literal('jam.attended'),
+		actorId: id,
+		jamId: id,
+		/** La jam a fini après minuit (heure de Paris). */
+		lateNight: z.boolean(),
+		/** Instruments différents joués en jam jusqu'ici, celle-ci comprise. */
+		distinctInstruments: z.number().int().min(0),
+		/** Lead d'une jam dont toutes les places réservées ont été acceptées. */
+		ledFullLineup: z.boolean()
+	}),
 	z.object({
 		...base,
 		type: z.literal('milestone.attested'),

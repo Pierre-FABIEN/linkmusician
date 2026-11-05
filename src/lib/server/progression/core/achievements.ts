@@ -45,6 +45,34 @@ export const ACHIEVEMENTS: readonly AchievementDefinition[] = [
 		description: 'Une collaboration confirmée des deux côtés.',
 		unlockedBy: byRule('collaboration.completed')
 	},
+	// Succès fun des jams (P2-15b) : aucun ne rapporte d'XP (D27).
+	{
+		id: 'jam-night-owl',
+		name: 'Noctambule',
+		description: 'Présent·e à une jam qui a fini après minuit.',
+		unlockedBy: (event) => (event.type === 'jam.attended' && event.lateNight ? [event.actorId] : [])
+	},
+	{
+		id: 'jam-all-rounder',
+		name: 'Touche-à-tout',
+		description: 'Trois instruments différents joués en jam.',
+		unlockedBy: (event) =>
+			event.type === 'jam.attended' && event.distinctInstruments >= 3 ? [event.actorId] : []
+	},
+	{
+		id: 'jam-icebreaker',
+		name: 'Brise-glace',
+		description: 'Première appréciation laissée à quelqu’un après une jam.',
+		unlockedBy: (event) =>
+			event.type === 'endorsement.received' && event.jamId ? [event.endorserId] : []
+	},
+	{
+		id: 'jam-conductor',
+		name: 'Chef d’orchestre',
+		description: 'Lead d’une jam dont toute la formation invitée a répondu présent.',
+		unlockedBy: (event) =>
+			event.type === 'jam.attended' && event.ledFullLineup ? [event.actorId] : []
+	},
 	{
 		id: 'founder',
 		name: 'Fondateur·rice',

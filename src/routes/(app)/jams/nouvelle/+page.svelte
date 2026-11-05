@@ -7,7 +7,11 @@
 	let { data, form } = $props();
 
 	// Instruments choisis pour les places (une ligne chacun).
-	let picked = $state<string[]>([]);
+	// « Rejouer ensemble » (P2-15b) : valeurs reprises de la dernière jam.
+	// svelte-ignore state_referenced_locally
+	const again = data.again;
+	const againCount = new Map((again?.spots ?? []).map((s) => [s.slug, s.count]));
+	let picked = $state<string[]>(again?.spots.map((s) => s.slug) ?? []);
 	let toAdd = $state('');
 	const nameOf = (slug: string) => data.instruments.find((i) => i.slug === slug)?.name ?? slug;
 	function addSpot() {
@@ -22,7 +26,13 @@
 	<div class="mx-auto max-w-lg space-y-6 rounded-lg border p-6 shadow-lg">
 		<div class="space-y-2">
 			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
-			<h1 class="text-2xl font-bold">Publier une jam</h1>
+			<h1 class="text-2xl font-bold">{again ? 'Rejouer ensemble' : 'Publier une jam'}</h1>
+			{#if again}
+				<p class="rounded-md border border-primary/50 bg-primary/5 p-3 text-sm">
+					Tout est repris de « {again.title} » : choisis juste le jour. Une fois la jam publiée, invite
+					celles et ceux avec qui tu veux rejouer.
+				</p>
+			{/if}
 			<p class="text-sm text-muted-foreground">
 				Dans un lieu public ou professionnel de l’annuaire, jamais chez quelqu’un. Les musicien·nes
 				autour disent « Je viens », sans attendre ton accord.
@@ -67,7 +77,7 @@
 						name="title"
 						required
 						maxlength="80"
-						value={form?.values?.title ?? ''}
+						value={form?.values?.title ?? again?.title ?? ''}
 						placeholder="Bœuf funk du jeudi"
 						class="w-full rounded-md border bg-background p-2 text-sm font-normal"
 					/>
@@ -90,7 +100,7 @@
 							type="time"
 							name="start"
 							required
-							value={form?.values?.start ?? '20:00'}
+							value={form?.values?.start ?? again?.start ?? '20:00'}
 							class="w-full rounded-md border bg-background p-2 text-sm font-normal"
 						/>
 					</label>
@@ -100,7 +110,7 @@
 							type="time"
 							name="end"
 							required
-							value={form?.values?.end ?? '23:00'}
+							value={form?.values?.end ?? again?.end ?? '23:00'}
 							class="w-full rounded-md border bg-background p-2 text-sm font-normal"
 						/>
 					</label>
@@ -113,7 +123,9 @@
 					>
 						<option value="">Tous styles</option>
 						{#each data.genres as g (g.slug)}
-							<option value={g.slug} selected={form?.values?.genre === g.slug}>{g.name}</option>
+							<option value={g.slug} selected={(form?.values?.genre ?? again?.genre) === g.slug}
+								>{g.name}</option
+							>
 						{/each}
 					</select>
 				</label>
@@ -128,7 +140,7 @@
 								name="spot-{slug}"
 								min="0"
 								max={MAX_SPOTS_PER_INSTRUMENT}
-								value="1"
+								value={againCount.get(slug) ?? 1}
 								class="w-20 rounded-md border bg-background p-2"
 							/>
 						</label>
@@ -159,7 +171,7 @@
 						maxlength="1000"
 						placeholder="Ampli basse et batterie sur place, viens avec ta guitare."
 						class="w-full rounded-md border bg-background p-2 text-sm font-normal"
-						>{form?.values?.description ?? ''}</textarea
+						>{form?.values?.description ?? again?.description ?? ''}</textarea
 					>
 				</label>
 				<button
