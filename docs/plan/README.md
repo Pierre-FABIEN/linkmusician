@@ -108,13 +108,13 @@ festivals, bookers et managers) et une **UX soignée**. Rythme visé : environ
 3 lots par semaine. Un point d'étape à la fin de chaque mois : si on est en
 retard, on retire un lot de la liste, on ne bâcle pas l'UX.
 
-| Mois                       | Lots                                                                                           | Ce qu'on a à la fin                                         |
-| -------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| 1. nov. → début déc. 2026  | P2-14b, P2-14c, P2-15, P2-16, P2-17, P2-18, P2-07 à P2-10, revue de phase 2 (D20)              | Mode jam complet, appréciations, réputation, notifications  |
-| 2. déc. 2026 → début janv. | P3-01 à P3-06, P3-08, P3-09, P3-11 à P3-14                                                     | Groupes, morceaux, étapes prouvées, mode carrière (I à III) |
-| 3. janv. → début fév. 2027 | P4-01 à P4-07, P4-09, P4-10, P4-13                                                             | Ingé son, studios, producteur·rices, crédits (actes III-IV) |
-| 4. fév. 2027               | P5-01 à P5-08, P5-11                                                                           | Lieux, organisateur·rices et festivals, concerts vérifiés   |
-| Fin fév. → début mars 2027 | Revue UX de chaque parcours par rôle (mobile d'abord), P3-10 (production, légal, sécurité), D9 | Ouverture publique à Toulouse                               |
+| Mois                       | Lots                                                                                                                         | Ce qu'on a à la fin                                         |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| 1. nov. → début déc. 2026  | P2-14b, P2-14c, P2-15, P2-16, P2-17, P2-18, P2-07 à P2-10, revue de phase 2 (D20)                                            | Mode jam complet, appréciations, réputation, notifications  |
+| 2. déc. 2026 → début janv. | P3-01 à P3-06, P3-08, P3-09, P3-11 à P3-14                                                                                   | Groupes, morceaux, étapes prouvées, mode carrière (I à III) |
+| 3. janv. → début fév. 2027 | P4-01 à P4-07, P4-09, P4-10, P4-13                                                                                           | Ingé son, studios, producteur·rices, crédits (actes III-IV) |
+| 4. fév. 2027               | P5-01 à P5-08, P5-11                                                                                                         | Lieux, organisateur·rices et festivals, concerts vérifiés   |
+| Fin fév. → début mars 2027 | Revue UX de chaque parcours par rôle (mobile d'abord), **P3-10a audit de sécurité**, P3-10 (production, légal, sécurité), D9 | Ouverture publique à Toulouse                               |
 
 **Après le lancement** (pas nécessaires le premier jour) : P3-07
 (vérification de sortie par API), P4-08 (vitrine des propositions), P4-11
@@ -207,22 +207,23 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 
 ### Phase 3 — Groupes, étapes et preuves (fin du MVP) → [phase-2-3.md](./phase-2-3.md)
 
-| Lot   | Intitulé                                             | Dépend de     | Statut | PR  |
-| ----- | ---------------------------------------------------- | ------------- | ------ | --- |
-| P3-01 | Organisation « groupe » et adhésions avec historique | P2-06         | ⬜     |     |
-| P3-02 | Page de groupe                                       | P3-01         | ⬜     |     |
-| P3-03 | Annonces « cherche un membre » liées au groupe       | P3-01, P2-02  | ⬜     |     |
-| P3-04 | Étapes : définitions et déclaration                  | P3-01         | ⬜     |     |
-| P3-05 | Preuves et attestations                              | P3-04         | ⬜     |     |
-| P3-06 | Contestation et reprise d'XP                         | P3-05         | ⬜     |     |
-| P3-07 | Vérification de sortie par API                       | P3-05         | ⬜     |     |
-| P3-08 | Paliers de groupe, part d'XP aux membres             | P3-05         | ⬜     |     |
-| P3-09 | Modération étendue et vérification manuelle          | P3-06         | ⬜     |     |
-| P3-11 | Morceau minimal (`Work`, contributeurs, maquette)    | P3-01 ; D20   | ⬜     |     |
-| P3-12 | Ambition et écran de carrière                        | P2-12, P3-11  | ⬜     |     |
-| P3-13 | Carte de carrière (actes I à III)                    | P3-05, P3-12  | ⬜     |     |
-| P3-14 | Fiche de carrière et cartes souvenirs                | P2-08, P3-13  | ⬜     |     |
-| P3-10 | Ouverture publique (pas de bêta, D23)                | Tout le reste | ⬜     |     |
+| Lot    | Intitulé                                             | Dépend de             | Statut | PR  |
+| ------ | ---------------------------------------------------- | --------------------- | ------ | --- |
+| P3-01  | Organisation « groupe » et adhésions avec historique | P2-06                 | ⬜     |     |
+| P3-02  | Page de groupe                                       | P3-01                 | ⬜     |     |
+| P3-03  | Annonces « cherche un membre » liées au groupe       | P3-01, P2-02          | ⬜     |     |
+| P3-04  | Étapes : définitions et déclaration                  | P3-01                 | ⬜     |     |
+| P3-05  | Preuves et attestations                              | P3-04                 | ⬜     |     |
+| P3-06  | Contestation et reprise d'XP                         | P3-05                 | ⬜     |     |
+| P3-07  | Vérification de sortie par API                       | P3-05                 | ⬜     |     |
+| P3-08  | Paliers de groupe, part d'XP aux membres             | P3-05                 | ⬜     |     |
+| P3-09  | Modération étendue et vérification manuelle          | P3-06                 | ⬜     |     |
+| P3-11  | Morceau minimal (`Work`, contributeurs, maquette)    | P3-01 ; D20           | ⬜     |     |
+| P3-12  | Ambition et écran de carrière                        | P2-12, P3-11          | ⬜     |     |
+| P3-13  | Carte de carrière (actes I à III)                    | P3-05, P3-12          | ⬜     |     |
+| P3-14  | Fiche de carrière et cartes souvenirs                | P2-08, P3-13          | ⬜     |     |
+| P3-10a | Audit de sécurité avant production (bloquant)        | Lots du lancement     | ⬜     |     |
+| P3-10  | Ouverture publique (pas de bêta, D23)                | P3-10a, tout le reste | ⬜     |     |
 
 ### Phases 4 à 6 — Les autres métiers et la carrière complète → [phase-4-6.md](./phase-4-6.md)
 

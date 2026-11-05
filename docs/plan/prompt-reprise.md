@@ -32,7 +32,19 @@ cités ici au moment de les modifier.
     `src/lib/prisma/actors/person.ts`.
   - E2E : `e2e/linkmusician/jams.spec.ts` (modèle à suivre).
 
+## Avant P2-14c : la spec de sécurité du boilerplate
+
+`npm run test:e2e -- e2e/admin/security.spec.ts` échoue (remontée n° 18).
+Établir la cause (test obsolète sous SvelteKit 3, ou vrai trou d'accès à
+l'admin). Un vrai trou se corrige tout de suite, marqué `LINKMUSICIAN:`.
+Checklist complète de l'audit : fiche P3-10a.
+
 ## P2-14c à faire (proposition, à ajuster à la fiche)
+
+0. **Validation des lieux** (D26) : un lieu ajouté par un compte TL0 est
+   invisible et n'accueille aucune jam tant qu'un second membre ne l'a
+   pas confirmé ou qu'un modérateur ne l'a pas validé (champ
+   `Venue.validatedAt`, `Venue.confirmedById`).
 
 1. Schéma : `Opportunity.leadActorId` (le lead, par défaut l'hôte) ;
    modèle `JamInvite` (opportunityId, actorId, instrumentId, statut

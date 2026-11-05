@@ -325,7 +325,10 @@ VENUE`) ; quota de création (rate limit). Une jam n'est plus une
   basse, ampli guitare, clavier, sono et micros, câbles ; par défaut
   celui de la fiche du lieu, modifiable pour une jam ; la fiche de la
   jam dit à chacun·e quoi apporter (« apporte ta guitare, l'ampli est
-  là »). Aucune XP (D27).
+  là »). Aucune XP (D27). **Validation des lieux** (sécurité, D26) :
+  un lieu ajouté par un compte récent (TL0) reste invisible et ne peut
+  pas accueillir de jam tant qu'un second membre ne l'a pas confirmé ou
+  qu'un modérateur ne l'a pas validé.
 - **Fin** : une place réservée n'est pas prise par « Je viens » (test) ;
   e2e « le lead invite une batteuse, elle accepte ; la fiche dit
   d'apporter sa basse, l'ampli est fourni ».
@@ -525,6 +528,48 @@ actes. Puis LinkMusician s'ouvre au public.
   serveur à chaque épreuve (image Open Graph).
 - **Fin** : la fiche publique ne contient ni XP ni confiance (test du
   payload) ; l'image se génère.
+
+### P3-10a — Audit de sécurité avant production
+
+- **Dépend de** : tous les lots du lancement (D28). **Bloquant** pour
+  P3-10 : aucune ouverture tant qu'un point de la checklist reste ouvert.
+- **Checklist** :
+  1. Specs de sécurité du boilerplate au vert (`e2e/admin/security.spec.ts`,
+     `users.spec.ts`, `exports.spec.ts`, `auth/gdpr-data.spec.ts`,
+     remontée n° 18) : cause établie, corrigée ou remontée en amont.
+  2. Lieux (D26) : aucune jam possible dans un lieu non validé ; lieux
+     ajoutés par un compte récent invisibles jusqu'à confirmation par un
+     second membre ou un modérateur (P2-14c).
+  3. Mineur·es (D5) : chaque fonction (jams, formation du lead,
+     invitations, suggestions, messagerie, appréciations) respecte le
+     couvre-feu de 22 h, la dispo invisible, la messagerie restreinte et
+     l'absence de suggestion à des adultes inconnu·es ; un test par
+     fonction.
+  4. Limiteurs de débit : tous sur Redis (Upstash) en production, aucun
+     en mémoire ; test de charge (k6) sur les actions limitées.
+  5. HTML injecté : chaque `{@html}` (blog, données structurées) nettoyé ;
+     aucun texte d'utilisateur rendu en HTML (test XSS).
+  6. Service worker : aucune page connectée ni réponse privée en cache.
+  7. Accès par identifiant : pour chaque route `[id]` et chaque action, un
+     test avec l'identifiant d'un autre compte (non-membre, bloqué,
+     mineur·e, contenu retiré).
+  8. En-têtes (CSP, HSTS, cookies `Secure`, `HttpOnly`, `SameSite`),
+     origine des actions, `npm audit` sans faille haute ou critique.
+  9. Données qui ne sortent jamais : score interne de réputation, date de
+     naissance, point de localisation, e-mail ; test qui inspecte les
+     réponses JSON de chaque page.
+  10. Abus de jeu : collusion d'appréciations (P2-10), faux présents à une
+      jam, rendements décroissants vérifiés.
+  11. RGPD : export et anonymisation couvrent chaque donnée personnelle
+      (relecture de bout en bout du schéma).
+  12. Secrets et accès : variables d'environnement de production, comptes
+      admin avec double authentification, journal d'audit des actions de
+      modération.
+- **Outils** : commande `/security-review` sur tout le code ; pentest
+  externe si le budget le permet (atout pour les écoles et les
+  incubateurs).
+- **Fin** : checklist entièrement cochée, consignée dans
+  `docs/securite/audit-lancement.md` avec les preuves (tests, sorties).
 
 ### P3-10 — Ouverture publique
 
