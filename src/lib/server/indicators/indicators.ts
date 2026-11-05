@@ -23,8 +23,8 @@ import { toDomainEvent } from '#lib/server/progression/events';
  * encore mesurable » plutôt qu'un 0 % trompeur.
  */
 export const INDICATOR_AVAILABILITY: Availability = {
-	conversations: false,
-	collaborations: false
+	conversations: true, // P2-04
+	collaborations: true // P2-06
 };
 
 /** Périodes proposées (jours) ; `null` = depuis le début. */

@@ -117,7 +117,8 @@ export async function exportPersonData(userId: string) {
 		messagesSent,
 		blocksMade,
 		opportunities,
-		applications
+		applications,
+		collaborations
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -178,6 +179,22 @@ export async function exportPersonData(userId: string) {
 				status: true,
 				createdAt: true,
 				opportunity: { select: { title: true } }
+			}
+		}),
+		// Collaborations (P2-06) : elles survivent à l'anonymisation (historique
+		// de l'autre personne, affichée « Compte supprimé »).
+		prisma.collaboration.findMany({
+			where: { participants: { some: { actorId: person.actorId } } },
+			orderBy: { happenedOn: 'asc' },
+			select: {
+				kind: true,
+				title: true,
+				happenedOn: true,
+				status: true,
+				participants: {
+					where: { actorId: { not: person.actorId } },
+					select: { actor: { select: { displayName: true } } }
+				}
 			}
 		})
 	]);
@@ -258,6 +275,13 @@ export async function exportPersonData(userId: string) {
 			texte: o.description,
 			statut: o.status,
 			le: o.createdAt
+		})),
+		collaborations: collaborations.map((c) => ({
+			type: c.kind,
+			titre: c.title,
+			le: c.happenedOn,
+			statut: c.status,
+			avec: c.participants.map((p) => p.actor.displayName)
 		})),
 		candidatures: applications.map((a) => ({
 			annonce: a.opportunity.title,

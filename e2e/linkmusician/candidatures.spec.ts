@@ -12,7 +12,7 @@ import { setCity, skipOnboarding } from '../support/linkmusician';
  * points sociaux quand l'échange devient réciproque.
  */
 test.describe('LinkMusician — candidatures', () => {
-	test.setTimeout(7 * 60_000);
+	test.setTimeout(9 * 60_000);
 	// Bouton panier du boilerplate (boutique active en e2e), remontée n° 14.
 	const A11Y_EXCLUDE = ['.cartButton'];
 
@@ -124,6 +124,45 @@ test.describe('LinkMusician — candidatures', () => {
 				await waitForAppReady(malikPage);
 				await expect(malikPage.getByText('Ta candidature : Acceptée')).toBeVisible();
 				await expect(malikPage.getByRole('link', { name: 'Ouvrir la conversation' })).toBeVisible();
+			});
+
+			await test.step('7. Léa propose une collaboration (jam d’aujourd’hui)', async () => {
+				await page.goto('/messages');
+				await waitForAppReady(page);
+				await page.getByRole('link', { name: new RegExp(malik.actor.displayName) }).click();
+				await waitForAppReady(page);
+				await page.getByText('Proposer une collaboration').click();
+				await page.getByLabel('Titre').fill('Jam funk au local');
+				await page.getByRole('button', { name: 'Proposer' }).click();
+				await expect(
+					page.getByText(`En attente de la confirmation de ${malik.actor.displayName}`)
+				).toBeVisible();
+			});
+
+			await test.step('8. Malik confirme depuis son tableau de bord : XP pour les deux', async () => {
+				await malikPage.goto('/espace');
+				await waitForAppReady(malikPage);
+				const toConfirm = malikPage.getByRole('list', { name: 'Collaborations à confirmer' });
+				await expect(toConfirm).toContainText('Jam funk au local');
+				await expectNoA11yViolations(malikPage, A11Y_EXCLUDE);
+				await toConfirm.getByRole('link').click();
+				await waitForAppReady(malikPage);
+				await malikPage.getByRole('button', { name: 'Confirmer' }).click();
+				await expect(malikPage.getByText('Confirmée par vous deux ✓')).toBeVisible();
+				for (const actorId of [lea.actorId, malik.actorId]) {
+					// Comptes neufs (TL0) : le poids de confiance de l'autre vaut 0,1.
+					await expect
+						.poll(() =>
+							db.xpTransaction.findFirst({
+								where: { actorId, ruleId: 'collaboration.completed' },
+								select: { amount: true, reason: true }
+							})
+						)
+						.toEqual({ amount: 40, reason: 'Collaboration confirmée ×0,1' });
+				}
+				await page.goto(`/@${lea.actor.handle}`);
+				await waitForAppReady(page);
+				await expect(page.getByText('1 collaboration confirmée avec 1 personne')).toBeVisible();
 			});
 		} finally {
 			await malikContext.close();

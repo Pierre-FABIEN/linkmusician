@@ -74,6 +74,28 @@
 			</Card.Content>
 		</Card.Root>
 
+		{#if data.toConfirm.length > 0}
+			<section
+				class="space-y-2 rounded-2xl border-2 border-primary/40 bg-card p-4"
+				aria-labelledby="to-confirm-title"
+			>
+				<h2 id="to-confirm-title" class="font-semibold">À confirmer</h2>
+				<ul class="space-y-2" aria-label="Collaborations à confirmer">
+					{#each data.toConfirm as k (k.id)}
+						<li>
+							<a
+								href="/messages/{k.conversationId}"
+								class="flex min-h-11 items-center justify-between gap-3 rounded-xl border p-3 text-sm hover:border-primary"
+							>
+								<span class="truncate">{k.title} · avec {k.with}</span>
+								<span class="shrink-0 font-semibold text-primary">Confirmer →</span>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+
 		<div class="grid gap-6 lg:grid-cols-3">
 			<!-- Objectifs -->
 			<Card.Root class="lg:col-span-2">

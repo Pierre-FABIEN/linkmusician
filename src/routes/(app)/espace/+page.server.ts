@@ -3,6 +3,7 @@
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { getActorLocation } from '#lib/server/geo/queries';
 import { getDashboard } from '#lib/server/progression/dashboard';
+import { pendingForMe } from '#lib/server/collaborations/service';
 import type { PageServerLoad } from './$types';
 
 /** Écrans déjà construits : un objectif qui mène ailleurs est affiché « bientôt ». */
@@ -11,9 +12,11 @@ const AVAILABLE = ['/profil', '/profil/musical', '/profil/ville', '/profil/media
 export const load: PageServerLoad = async ({ locals }) => {
 	// La garde de `(app)/+layout.server.ts` a déjà vérifié compte et personne.
 	const person = (await getPersonByUserId(locals.user!.id))!;
-	const [dashboard, location] = await Promise.all([
+	const [dashboard, location, toConfirm] = await Promise.all([
 		getDashboard(person.actorId),
-		getActorLocation(person.actorId)
+		getActorLocation(person.actorId),
+		// Collaborations qui attendent ma réponse ou ma confirmation (P2-06).
+		pendingForMe(person.actorId)
 	]);
 	return {
 		dashboard: {
@@ -24,6 +27,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			}))
 		},
 		commune: location?.communeName ?? null,
+		toConfirm,
 		hidden: person.actor.hidden
 	};
 };

@@ -8,6 +8,7 @@
 	import { ArrowLeft, Send } from 'lucide-svelte';
 	import { MAX_MESSAGE_LENGTH } from '#lib/messaging/rules';
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
+	import { COLLAB_KINDS, COLLAB_KIND_LABELS, MAX_COLLAB_TITLE } from '#lib/collaborations/rules';
 
 	let { data, form } = $props();
 	const c = $derived(data.conversation);
@@ -38,6 +39,11 @@
 		month: 'short',
 		hour: '2-digit',
 		minute: '2-digit'
+	});
+	const dayLabel = new Intl.DateTimeFormat('fr-FR', {
+		weekday: 'short',
+		day: 'numeric',
+		month: 'short'
 	});
 	const notice = $derived(
 		c.blocked
@@ -91,6 +97,116 @@
 					</form>
 				</div>
 			</section>
+		{/if}
+
+		{#if data.collaborations.length > 0}
+			<section class="space-y-2" aria-labelledby="collabs-title">
+				<h2 id="collabs-title" class="text-sm font-semibold">Collaborations</h2>
+				<ul class="space-y-2" aria-label="Collaborations">
+					{#each data.collaborations as k (k.id)}
+						<li class="space-y-2 rounded-2xl border bg-card p-3 text-sm">
+							<div class="flex flex-wrap items-center justify-between gap-2">
+								<span class="font-semibold">{COLLAB_KIND_LABELS[k.kind]} · {k.title}</span>
+								<span class="text-muted-foreground"
+									>{dayLabel.format(new Date(`${k.happenedOn}T12:00:00Z`))}</span
+								>
+							</div>
+							{#if k.step === 'done'}
+								<p class="font-medium text-emerald-700 dark:text-emerald-400">
+									Confirmée par vous deux ✓
+								</p>
+							{:else if k.step === 'respond'}
+								<p>{k.with} propose cette collaboration.</p>
+								<div class="flex flex-wrap gap-2">
+									<form method="POST" action="?/respondCollab" use:enhance>
+										<input type="hidden" name="collaborationId" value={k.id} />
+										<input type="hidden" name="answer" value="yes" />
+										<button
+											class="min-h-11 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
+											>Confirmer</button
+										>
+									</form>
+									<form method="POST" action="?/respondCollab" use:enhance>
+										<input type="hidden" name="collaborationId" value={k.id} />
+										<input type="hidden" name="answer" value="no" />
+										<button class="min-h-11 rounded-xl border px-4">Ce n'est pas exact</button>
+									</form>
+								</div>
+							{:else if k.step === 'confirm'}
+								<p>C'est passé : confirme que ça a bien eu lieu.</p>
+								<form method="POST" action="?/confirmCollab" use:enhance>
+									<input type="hidden" name="collaborationId" value={k.id} />
+									<button
+										class="min-h-11 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
+										>Confirmer</button
+									>
+								</form>
+							{:else}
+								<p class="text-muted-foreground">
+									{k.step === 'wait_date'
+										? 'Prévue : tu pourras la confirmer une fois passée.'
+										: `En attente de la confirmation de ${k.with}.`}
+								</p>
+								<form method="POST" action="?/cancelCollab" use:enhance>
+									<input type="hidden" name="collaborationId" value={k.id} />
+									<button class="min-h-11 text-muted-foreground underline">Annuler</button>
+								</form>
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+
+		{#if c.permission === 'ok' && c.myState === 'ACCEPTED' && c.other.handle}
+			<details class="rounded-2xl border p-3 text-sm">
+				<summary class="min-h-11 cursor-pointer content-center font-medium text-primary">
+					Vous avez joué ensemble ? Proposer une collaboration
+				</summary>
+				<p class="mt-1 text-muted-foreground">
+					Quand vous l'aurez confirmée tous les deux, elle comptera dans vos parcours.
+				</p>
+				<form
+					method="POST"
+					action="?/proposeCollab"
+					use:enhance
+					class="mt-3 grid gap-3 sm:grid-cols-2"
+				>
+					<label class="block space-y-1 font-medium">
+						Type
+						<select name="kind" class="w-full rounded-md border bg-background p-2">
+							{#each COLLAB_KINDS as kind (kind)}<option value={kind}
+									>{COLLAB_KIND_LABELS[kind]}</option
+								>{/each}
+						</select>
+					</label>
+					<label class="block space-y-1 font-medium">
+						Date
+						<input
+							name="happenedOn"
+							type="date"
+							value={data.today}
+							required
+							class="w-full rounded-md border bg-background p-2"
+						/>
+					</label>
+					<label class="block space-y-1 font-medium sm:col-span-2">
+						Titre
+						<input
+							name="title"
+							required
+							maxlength={MAX_COLLAB_TITLE}
+							placeholder="Jam funk au local"
+							class="w-full rounded-md border bg-background p-2"
+						/>
+					</label>
+					<button
+						type="submit"
+						class="min-h-11 rounded-xl bg-primary px-4 font-semibold text-primary-foreground sm:w-fit"
+						>Proposer</button
+					>
+				</form>
+			</details>
 		{/if}
 
 		<ol class="space-y-2" aria-label="Messages">

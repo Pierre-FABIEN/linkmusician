@@ -1431,6 +1431,8 @@ model Actor {
   blocksReceived       Block[]   @relation("BlocksReceived")
   opportunities        Opportunity[]
   applications         Application[]
+  collaborationsProposed Collaboration[] @relation("CollaborationProposer")
+  collaborations         CollaborationParticipant[]
 
   @@map("actors")
 }
@@ -2065,4 +2067,64 @@ model Application {
   @@unique([opportunityId, applicantActorId])
   @@index([applicantActorId, createdAt])
   @@map("applications")
+}
+
+// ─── COLLABORATIONS (P2-06) ─────────────────────────────────────────────────
+//
+// Une collaboration rapporte quand **chaque** participant l'a confirmée
+// (événement `collaboration.completed`, règle et multiplicateurs dans
+// `progression/core`). Règles pures : `src/lib/collaborations/`.
+
+enum CollabKind {
+  JAM
+  REHEARSAL
+  SESSION_WORK
+  RECORDING
+  PRODUCTION
+  GIG
+}
+
+enum CollabStatus {
+  /// Proposée, en attente de l'autre.
+  PROPOSED
+  /// Acceptée, date à venir.
+  ACCEPTED
+  /// Confirmée par tous : a rapporté.
+  COMPLETED
+  CANCELLED
+}
+
+model Collaboration {
+  id             String                     @id @default(cuid())
+  kind           CollabKind
+  status         CollabStatus               @default(PROPOSED)
+  title          String
+  /// Jour où elle a eu (ou aura) lieu.
+  happenedOn     DateTime                   @db.Date
+  proposedById   String
+  proposedBy     Actor                      @relation("CollaborationProposer", fields: [proposedById], references: [id], onDelete: Cascade)
+  /// Annonce et conversation d'origine, si elle en vient.
+  opportunityId  String?
+  conversationId String?
+  completedAt    DateTime?
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+
+  participants CollaborationParticipant[]
+
+  @@index([conversationId])
+  @@map("collaborations")
+}
+
+model CollaborationParticipant {
+  collaborationId       String
+  collaboration         Collaboration @relation(fields: [collaborationId], references: [id], onDelete: Cascade)
+  actorId               String
+  actor                 Actor         @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  acceptedAt            DateTime?
+  confirmedCompletionAt DateTime?
+
+  @@id([collaborationId, actorId])
+  @@index([actorId])
+  @@map("collaboration_participants")
 }

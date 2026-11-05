@@ -43,7 +43,7 @@ test.describe('LinkMusician — indicateurs produit', () => {
 			await expect(
 				page.getByRole('heading', { name: 'Conversation réciproque dans les 14 jours' })
 			).toBeVisible();
-			await expect(page.getByText('Pas encore mesurable').first()).toBeVisible();
+			await expect(page.getByText('Pas encore assez de recul').first()).toBeVisible();
 			await expect(page.getByRole('table', { name: 'Personnes par métier' })).toContainText(
 				'Musicien'
 			);

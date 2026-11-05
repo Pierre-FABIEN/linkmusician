@@ -13,6 +13,16 @@ import {
 } from '#lib/server/messaging/service';
 import { fileReport, ModerationError } from '#lib/server/moderation/service';
 import { blockActor } from '#lib/server/blocking/service';
+import {
+	CollaborationError,
+	cancelCollaboration,
+	confirmCollaboration,
+	listForConversation,
+	proposeCollaboration,
+	respondToCollaboration,
+	today
+} from '#lib/server/collaborations/service';
+import { collaborationSchema } from '#lib/collaborations/rules';
 import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -23,7 +33,14 @@ async function me(locals: App.Locals) {
 export const load: PageServerLoad = async ({ locals, params, depends }) => {
 	depends('app:conversation');
 	try {
-		return { conversation: await openConversation((await me(locals)).actorId, params.id) };
+		const actorId = (await me(locals)).actorId;
+		const conversation = await openConversation(actorId, params.id);
+		return {
+			conversation,
+			// Collaborations (P2-06) entre les deux personnes de la conversation.
+			collaborations: await listForConversation(actorId, params.id),
+			today: today()
+		};
 	} catch (err) {
 		if (err instanceof MessagingError) error(err.status, err.message);
 		throw err;
@@ -35,8 +52,12 @@ const handle = async (run: () => Promise<unknown>) => {
 		await run();
 		return { ok: true };
 	} catch (err) {
-		if (err instanceof MessagingError || err instanceof ModerationError) {
-			return fail(err instanceof MessagingError ? err.status : 400, { error: err.message });
+		if (
+			err instanceof MessagingError ||
+			err instanceof ModerationError ||
+			err instanceof CollaborationError
+		) {
+			return fail(err instanceof ModerationError ? 400 : err.status, { error: err.message });
 		}
 		throw err;
 	}
@@ -46,6 +67,32 @@ export const actions: Actions = {
 	send: async ({ locals, params, request }) => {
 		const body = String((await request.formData()).get('body') ?? '');
 		return handle(async () => sendMessage((await me(locals)).actorId, params.id, body));
+	},
+	/** Collaborations (P2-06). */
+	proposeCollab: async ({ locals, params, request }) => {
+		const parsed = collaborationSchema(today()).safeParse(
+			Object.fromEntries(await request.formData())
+		);
+		if (!parsed.success) {
+			return fail(400, { error: parsed.error.issues[0]?.message ?? 'Vérifie le formulaire.' });
+		}
+		return handle(async () =>
+			proposeCollaboration((await me(locals)).actorId, params.id, parsed.data)
+		);
+	},
+	respondCollab: async ({ locals, request }) => {
+		const data = await request.formData();
+		const id = String(data.get('collaborationId') ?? '');
+		const accept = data.get('answer') === 'yes';
+		return handle(async () => respondToCollaboration((await me(locals)).actorId, id, accept));
+	},
+	confirmCollab: async ({ locals, request }) => {
+		const id = String((await request.formData()).get('collaborationId') ?? '');
+		return handle(async () => confirmCollaboration((await me(locals)).actorId, id));
+	},
+	cancelCollab: async ({ locals, request }) => {
+		const id = String((await request.formData()).get('collaborationId') ?? '');
+		return handle(async () => cancelCollaboration((await me(locals)).actorId, id));
 	},
 	accept: async ({ locals, params }) =>
 		handle(async () => respondToRequest((await me(locals)).actorId, params.id, true)),

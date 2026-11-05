@@ -140,6 +140,13 @@ fête, et le mode jam permet de jouer dès ce soir.
 
 ### P2-06 — Collaborations à double confirmation
 
+> **Réalisé le 05/11/2026.** Cycle simplifié : `PROPOSED → ACCEPTED →
+COMPLETED` (ou `CANCELLED`) ; pas d'état « en cours », et une
+> collaboration déjà passée se confirme en un clic (proposer vaut
+> confirmation pour soi). Contestation (`DISPUTED`) avec P3-06. Concerts
+> et productions avec leurs preuves (phases 3 à 5). Indicateurs de
+> conversation et de collaboration désormais mesurables (P1-13).
+
 - **Dépend de** : P2-03, P1-07. **Lot central de la phase.**
 - **Tâches** : modèles `Collaboration` et `CollaborationParticipant` ;
   cycle `PROPOSED → ACCEPTED → IN_PROGRESS → COMPLETED` (ou

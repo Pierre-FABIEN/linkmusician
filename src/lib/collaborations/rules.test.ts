@@ -1,0 +1,48 @@
+import { describe, expect, it } from 'vitest';
+import { collabStatus, collaborationSchema, hasHappened, nextStep, shiftDay } from './rules';
+
+const yes = { accepted: true, confirmed: true };
+const accepted = { accepted: true, confirmed: false };
+const none = { accepted: false, confirmed: false };
+
+describe('collaborations (P2-06)', () => {
+	it('dates : fenêtre autour d’aujourd’hui', () => {
+		const schema = collaborationSchema('2026-11-05');
+		const ok = (happenedOn: string) =>
+			schema.safeParse({ kind: 'JAM', title: 'Jam du jeudi', happenedOn }).success;
+		expect(ok('2026-11-05')).toBe(true);
+		expect(ok(shiftDay('2026-11-05', -60))).toBe(true);
+		expect(ok(shiftDay('2026-11-05', -61))).toBe(false);
+		expect(ok(shiftDay('2026-11-05', 91))).toBe(false);
+		expect(
+			schema.safeParse({ kind: 'GIG', title: 'Concert', happenedOn: '2026-11-05' }).success
+		).toBe(false);
+	});
+
+	it('a eu lieu : jour civil à Paris', () => {
+		expect(hasHappened('2026-11-05', new Date('2026-11-04T23:30:00Z'))).toBe(true); // déjà le 5 à Paris
+		expect(hasHappened('2026-11-06', new Date('2026-11-05T12:00:00Z'))).toBe(false);
+	});
+
+	it.each([
+		[[yes, none], 'PROPOSED'],
+		[[yes, accepted], 'ACCEPTED'],
+		[[accepted, accepted], 'ACCEPTED'],
+		[[yes, yes], 'COMPLETED'],
+		[[yes], 'PROPOSED']
+	] as const)('état %o → %s', (participants, status) => {
+		expect(collabStatus(participants)).toBe(status);
+	});
+
+	it.each([
+		['PROPOSED', none, true, 'respond'],
+		['PROPOSED', yes, true, 'wait_other'],
+		['ACCEPTED', accepted, false, 'wait_date'],
+		['ACCEPTED', accepted, true, 'confirm'],
+		['ACCEPTED', yes, true, 'wait_other'],
+		['COMPLETED', yes, true, 'done'],
+		['CANCELLED', accepted, true, 'cancelled']
+	] as const)('%s, %o, a eu lieu=%s → %s', (status, me, happened, step) => {
+		expect(nextStep(status, me, happened)).toBe(step);
+	});
+});
