@@ -11,6 +11,7 @@
 import { redirect } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { currentSuspension } from '#lib/server/moderation/service';
+import { recordActivity } from '#lib/server/indicators/activity';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
@@ -24,6 +25,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	if (await currentSuspension(person.actorId)) redirect(302, '/suspendu');
 	// Onboarding (P1-10) : tant qu'il n'est pas terminé, on y reprend.
 	if (!person.onboardedAt) redirect(302, '/demarrer');
+	// Indicateurs (P1-13) : « venu aujourd'hui », une ligne par jour au plus.
+	await recordActivity(person.actorId);
 
 	return {
 		person: {

@@ -44,7 +44,7 @@ export function achievementCatalog(unlocked: readonly { id: string; unlockedAt: 
 }
 
 /** Événements qui établissent un palier (`core/summary.ts`). */
-const SUMMARY_EVENTS: readonly DomainEventType[] = [
+export const SUMMARY_EVENTS: readonly DomainEventType[] = [
 	'profile.completed',
 	'conversation.reciprocated',
 	'membership.accepted',

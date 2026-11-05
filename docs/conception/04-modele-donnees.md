@@ -336,6 +336,8 @@ model Conversation {                            // Phase 2
 model ConversationParticipant { conversationId String; actorId String; state String /* REQUEST | ACCEPTED | ARCHIVED */; lastReadAt DateTime?; @@id([conversationId, actorId]) }
 model Message { id String @id @default(cuid()); conversationId String; senderActorId String; body String; createdAt DateTime @default(now()); @@index([conversationId, createdAt]) }
 
+model ActorActivityDay { actorId String; day DateTime @db.Date; @@id([actorId, day]) } // P1-13 : rétention (D13), rien d'autre n'est tracé
+
 model Notification { id String @id @default(cuid()); recipientActorId String; type String; payload Json; readAt DateTime?; createdAt DateTime @default(now()); @@index([recipientActorId, readAt]) }
 
 // ─── MODÉRATION ──────────────────────────────────────────────────────────

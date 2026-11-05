@@ -109,7 +109,7 @@ export async function exportPersonData(userId: string) {
 	const details = await getProfileDetails(person);
 	const location = await getActorLocation(person.actorId);
 	const progress = await getProgress(person.actorId, prisma);
-	const [ledger, reportsFiled, sanctions] = await Promise.all([
+	const [ledger, reportsFiled, sanctions, activityDays] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
 			orderBy: { createdAt: 'asc' },
@@ -124,6 +124,11 @@ export async function exportPersonData(userId: string) {
 			where: { actorId: person.actorId },
 			orderBy: { createdAt: 'asc' },
 			select: { kind: true, reason: true, until: true, liftedAt: true, createdAt: true }
+		}),
+		prisma.actorActivityDay.findMany({
+			where: { actorId: person.actorId },
+			orderBy: { day: 'asc' },
+			select: { day: true }
 		})
 	]);
 	const media = await prisma.media.findMany({
@@ -195,6 +200,8 @@ export async function exportPersonData(userId: string) {
 			levee_le: s.liftedAt,
 			le: s.createdAt
 		})),
+		// Indicateurs (P1-13) : seuls les jours de visite sont relevés.
+		jours_de_visite: activityDays.map((a) => a.day.toISOString().slice(0, 10)),
 		cree_le: person.createdAt
 	};
 }
@@ -216,6 +223,7 @@ export async function personAnonymizationOps(
 		prisma.actorGenre.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.influence.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.profileLink.deleteMany({ where: { personId: person.actorId } }),
+		prisma.actorActivityDay.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.actorLocation.deleteMany({ where: { actorId: person.actorId } }),
 		// Les fichiers Cloudinary sont supprimés après la transaction (`anonymizeUser`).
 		prisma.media.deleteMany({ where: { actorId: person.actorId } }),

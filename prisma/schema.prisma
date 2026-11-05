@@ -1423,6 +1423,7 @@ model Actor {
   xpTransactions XpTransaction[]
   progress       ActorProgress[]
   achievements   ActorAchievement[]
+  activityDays   ActorActivityDay[]
 
   @@map("actors")
 }
@@ -1861,4 +1862,19 @@ model Sanction {
 
   @@index([actorId, kind])
   @@map("sanctions")
+}
+
+// ─── INDICATEURS PRODUIT (P1-13, D13) ───────────────────────────────────────
+
+/// Jour où une personne est venue dans son espace (au plus une ligne par
+/// jour). Sert à la rétention (conception 05 §2) ; rien d'autre n'est tracé
+/// (ni pages, ni durée). Exporté et effacé avec le compte (RGPD).
+model ActorActivityDay {
+  actorId String
+  actor   Actor    @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  day     DateTime @db.Date
+
+  @@id([actorId, day])
+  @@index([day])
+  @@map("actor_activity_days")
 }

@@ -278,6 +278,11 @@ peuvent démarrer pendant la phase 0.
 
 ## P1-13 — Instrumentation des indicateurs produit
 
+> **Réalisé le 05/11/2026**, avec un écart : la page est à
+> `/admin/indicateurs`, car `/admin/metrics` porte déjà les métriques
+> techniques du boilerplate. D13 acceptée (mesure maison). Voir
+> [docs/indicateurs](../indicateurs/README.md).
+
 - **Objectif** : pouvoir mesurer le go / no-go de la fin du MVP
   ([conception/05 §2](../conception/05-mvp-roadmap.md#2-stratégie-mvp)).
 - **Décision** : D13, entre une table d'événements produit maison
