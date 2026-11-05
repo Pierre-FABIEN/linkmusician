@@ -33,7 +33,7 @@ plusieurs organisations (son groupe, son studio).
 // ─── ACTEURS ─────────────────────────────────────────────────────────────
 
 enum ActorKind { PERSON ORGANIZATION }
-enum OrgKind { BAND STUDIO LABEL PROMOTER MANAGEMENT PUBLISHER MEDIA }
+enum OrgKind { BAND STUDIO LABEL PROMOTER MANAGEMENT PUBLISHER MEDIA VENUE } // VENUE : proposé (D22, 06 §3.10)
 enum TrackKind { MUSICIAN PRODUCER SOUND_ENGINEER MANAGER BOOKER PROMOTER LABEL_PRO PUBLISHER MUSIC_COMMS } // pistes d'une personne (D15)
 enum OrgRole { OWNER ADMIN MEMBER }
 enum MembershipStatus { INVITED REQUESTED ACTIVE LEFT REMOVED }

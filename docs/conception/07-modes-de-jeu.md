@@ -351,6 +351,11 @@ simple de l'app : on n'a pas besoin d'avoir un projet pour s'amuser.
      musical** (les gens avec qui l'on a vraiment joué), sans rien
      d'autre à faire.
 
+Les **jams publiques** des lieux (bars, cafés-concerts, magasins de
+musique, MJC : 06 §3.10) apparaissent aussi dans le mode jam : on peut
+y aller seul, sans connaître personne. C'est souvent la première scène
+d'un·e débutant·e.
+
 ### 6.2 Ce que le mode jam rapporte
 
 - Un jam confirmé par les participants reste une **vraie

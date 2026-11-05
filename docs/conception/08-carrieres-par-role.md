@@ -26,6 +26,9 @@ s'appliquent partout (02 §6).
 | Carrière détaillée par rôle                            | _(proposé)_ : ce document                                                                                                      | 08                     |
 | Barèmes des autres métiers                             | **À calibrer** par personas au début de leur phase                                                                             | 06 §6                  |
 
+**Lieux et nouveaux rôles (D22)** : rôle Lieu _(proposé)_, détaillé au
+§14 ; douze autres rôles à envisager au §15.
+
 **Questions ouvertes** : vitrine des propositions gratuite ou incluse
 dans une offre pro (phase 5) ; preuves de placement pour l'éditeur ;
 phase d'arrivée de la communication musicale ; liste finale des actes
@@ -37,20 +40,21 @@ Les carrières se croisent : les épreuves d'un rôle sont validées par un
 autre. C'est ce qui donne de la valeur aux preuves et aligne les
 intérêts (07 §4.4).
 
-| Épreuve                      | Qui la vit                     | Qui la valide (preuve)                                                                 |
-| ---------------------------- | ------------------------------ | -------------------------------------------------------------------------------------- |
-| Jam, collaboration           | Musicien·nes                   | Les participants, des deux côtés                                                       |
-| Adhésion à un groupe         | Musicien·ne, groupe            | Le groupe et la personne                                                               |
-| Première répétition          | Groupe                         | Un membre (corroborée) ; un studio de la plateforme (vérifiée)                         |
-| Morceau composé              | Musicien·nes, groupe           | Les contributeurs (rôles confirmés)                                                    |
-| Enregistrement               | Artistes                       | **Ingé son ou studio** (vérifiée)                                                      |
-| Production                   | Artistes                       | **Producteur·rice** (vérifiée)                                                         |
-| Concert                      | Artistes                       | Un tiers hors groupe (corroboré) ; **organisateur, salle ou booker** vérifié (vérifié) |
-| Tournée                      | Artistes                       | ≥3 concerts corroborés dans ≥3 villes en 30 jours                                      |
-| Sortie (single, EP, album)   | Artistes, crédités             | **API** (ISRC, UPC) ; corroborée par la **communication musicale** _(proposé)_         |
-| Accompagnement               | Manager, booker                | **L'artiste** accompagné                                                               |
-| Contrat d'édition, placement | Auteur·rices-compositeur·rices | **Éditeur·rice** vérifié                                                               |
-| Signature                    | Artistes                       | **Label** vérifié, seul                                                                |
+| Épreuve                      | Qui la vit                     | Qui la valide (preuve)                                                                |
+| ---------------------------- | ------------------------------ | ------------------------------------------------------------------------------------- |
+| Jam, collaboration           | Musicien·nes                   | Les participants, des deux côtés                                                      |
+| Adhésion à un groupe         | Musicien·ne, groupe            | Le groupe et la personne                                                              |
+| Première répétition          | Groupe                         | Un membre (corroborée) ; un studio de la plateforme (vérifiée)                        |
+| Morceau composé              | Musicien·nes, groupe           | Les contributeurs (rôles confirmés)                                                   |
+| Enregistrement               | Artistes                       | **Ingé son ou studio** (vérifiée)                                                     |
+| Production                   | Artistes                       | **Producteur·rice** (vérifiée)                                                        |
+| Concert                      | Artistes                       | Un tiers hors groupe (corroboré) ; **organisateur, lieu ou booker** vérifié (vérifié) |
+| Jam publique                 | Musicien·nes                   | **Le lieu** et ≥3 participants _(proposé)_                                            |
+| Tournée                      | Artistes                       | ≥3 concerts corroborés dans ≥3 villes en 30 jours                                     |
+| Sortie (single, EP, album)   | Artistes, crédités             | **API** (ISRC, UPC) ; corroborée par la **communication musicale** _(proposé)_        |
+| Accompagnement               | Manager, booker                | **L'artiste** accompagné                                                              |
+| Contrat d'édition, placement | Auteur·rices-compositeur·rices | **Éditeur·rice** vérifié                                                              |
+| Signature                    | Artistes                       | **Label** vérifié, seul                                                               |
 
 ## 3. Musicien·ne — `MUSICIAN` · ouvert
 
@@ -395,7 +399,81 @@ accès aux dossiers de presse des artistes.
 **Garde-fous** : pas de points pour un simple partage ; une couverture
 n'est pas une note.
 
-## 14. Pour chaque rôle, à l'ouverture
+## 14. Lieu — organisation `VENUE` · phase 5 _(proposé, D22)_
+
+Bars, cafés-concerts, restaurants, salles, MJC, tiers-lieux, campings et
+hôtels en saison (06 §3.10). Le lieu est géré par une personne (piste
+`VENUE_HOST` proposée, ou organisateur·rice) ; les points vont à la
+personne, le rang au lieu.
+
+**Ambitions** : faire vivre son lieu chaque semaine · devenir **le**
+lieu des jams de son quartier · lancer des groupes · avoir une
+programmation reconnue.
+
+**Carte** _(proposé)_
+
+| Rang                    | Conditions                                                  |
+| ----------------------- | ----------------------------------------------------------- |
+| Lieu ouvert             | Fiche complète (jauge, scène, matériel, genres, conditions) |
+| Scène ouverte           | ≥3 jams publiques ou concerts tenus et confirmés            |
+| Lieu de la scène locale | ≥20 dates, ≥15 groupes distincts                            |
+| Lieu culte              | ≥50 dates, ≥5 groupes passés ensuite au rang Tournée        |
+
+**Quêtes**
+
+- Principales : compléter sa fiche · accueillir sa première jam publique
+  · programmer son premier groupe · tenir une soirée par mois pendant 3
+  mois · programmer un groupe pour sa toute première date.
+- Apprendre le métier : licence d'entrepreneur de spectacles (au-delà de
+  6 représentations par an) · payer les artistes par le GUSO · déclarer
+  ses soirées à la SACEM. La plateforme guide, elle ne gère jamais.
+- Émises : « cherche un groupe pour le vendredi 14 », « scène ouverte
+  tous les jeudis », « cherche un duo acoustique pour l'été ».
+
+**Gains** _(proposé)_ : date tenue et confirmée par le groupe 150 · jam
+publique tenue, confirmée par ≥3 participants 80 · groupe programmé pour
+sa toute première date 100 · groupe passé ensuite au rang Live : succès
+_Tremplin_.
+
+**Épreuves qu'il valide** : les concerts des groupes (corroborés ;
+vérifiés si le lieu est vérifié) ; les jams publiques, qui comptent dans
+le carnet de jams des participants.
+
+**Déblocages** : apparaître dans le **mode jam** de la zone · appels à
+groupes avec conditions (genre, rang, zone, jamais l'XP) · agenda public
+du lieu · mise en relation avec les bookers et organisateurs (rang
+Lieu de la scène locale).
+
+**Mode jam** : c'est son point fort. Une scène ouverte chaque semaine
+fait du lieu un rendez-vous du mode jam, où l'on peut venir seul.
+
+**Garde-fous** : une date ne compte qu'une fois tenue et confirmée par
+le groupe ; une jam publique, par ses participants ; aucune mise en
+avant payante dans le mode jam ; mineur·es : jams publiques seulement
+dans les lieux qui les accueillent, en journée ou en début de soirée
+_(proposé)_.
+
+## 15. D'autres rôles à envisager _(proposé)_
+
+Le tableau de 06 §3.11 recense d'autres acteurs du même type, à mesurer
+avant de les construire. Leur carrière suivrait le même modèle.
+
+| Rôle                                        | Ambition type                          | Épreuve phare (validée par)                       | Acte          |
+| ------------------------------------------- | -------------------------------------- | ------------------------------------------------- | ------------- |
+| Client d'événement privé                    | Trouver le bon groupe pour son mariage | « Premier cachet » d'un groupe (les deux parties) | V             |
+| Collectivité, comité des fêtes              | Animer la fête de la musique           | Concert de rue corroboré                          | V, défis D3   |
+| Vidéaste, photographe                       | Un portfolio de clips et live sessions | Clip crédité, confirmé par l'artiste              | VI            |
+| Graphiste, illustrateur·rice                | Des pochettes qui sortent              | Pochette créditée sur une sortie vérifiée         | VI            |
+| Auteur·rice, parolier·e, arrangeur·se       | Écrire pour d'autres                   | Rôle confirmé sur un morceau                      | II            |
+| DJ                                          | Remplir des soirées                    | Date tenue, remix crédité                         | V             |
+| Technicien·ne lumière, backliner, régisseur | Partir en tournée                      | Concert corroboré comme tiers hors groupe         | V             |
+| Magasin de musique, luthier·ère             | Devenir le repaire des musicien·nes    | Jam publique tenue en boutique                    | mode jam      |
+| Loueur de matériel, local de répétition     | Remplir ses créneaux                   | Répétition honorée (comme le studio)              | II, mode jam  |
+| Prof, école, conservatoire                  | Faire jouer ses élèves avec d'autres   | Atelier ou jam d'élèves tenue                     | I, parrainage |
+| Tremplin, concours                          | Révéler des groupes                    | Participation et résultat vérifiés                | V             |
+| Radio associative, webzine local            | Faire découvrir sa scène               | Diffusion corroborant une sortie                  | VI            |
+
+## 16. Pour chaque rôle, à l'ouverture
 
 Rappel de 06 §5, complété :
 

@@ -180,7 +180,9 @@ groupe (confort uniquement).
 
 ### Phase 5 — Organisateurs, managers, bookers, monétisation pro
 
-Organisations `PROMOTER` et `MANAGEMENT`, **organisations vérifiées**
+Organisations `PROMOTER`, `MANAGEMENT` et _(proposé, D22)_ `VENUE` (bars,
+cafés-concerts, salles, MJC : dates et jams publiques visibles dans le
+mode jam), **organisations vérifiées**
 (SIRET), annonces « plateau » et appels à projets avec conditions
 d'éligibilité, vérification des concerts (étapes 6 et 7 au niveau
 `VERIFIED`), abonnement Scout, réservation de studio avec Stripe Connect.

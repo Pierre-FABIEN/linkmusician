@@ -239,6 +239,63 @@ community managers et journalistes musicaux.
 - **Question ouverte** : phase d'arrivée (6 proposée, ou plus tôt si la
   demande mesurée le justifie).
 
+### 3.10 Lieu — organisation `VENUE` · phase 5 _(proposé)_
+
+Bars, cafés-concerts, restaurants, salles, MJC et centres culturels,
+tiers-lieux, campings et hôtels en saison. Ce n'est pas un métier mais
+une **structure**, administrée par la personne qui la gère ou la
+programme.
+
+- **Besoin immédiat** : faire vivre son lieu, attirer du monde, trouver
+  des groupes fiables pour ses soirées.
+- **Apporte** : des scènes, souvent les **toutes premières** d'un
+  groupe ; des **jams publiques** (bœufs, scènes ouvertes).
+- **Fiche** : type de lieu, jauge, scène et matériel disponibles
+  (sono, backline), genres programmés, jours de programmation,
+  conditions (cachet, chapeau, défraiement), photos.
+- **Preuves apportées aux autres** : un concert confirmé par le lieu
+  **corrobore** l'étape « Premier concert » ; **vérifiée** quand le lieu
+  est une organisation vérifiée (SIRET).
+- **Paliers** _(proposé)_ : Lieu ouvert (fiche complète) → Scène ouverte
+  (≥3 jams ou concerts tenus) → Lieu de la scène locale (≥20 dates, ≥15
+  groupes distincts) → Lieu culte (≥50 dates, ≥5 groupes passés ensuite
+  au rang Tournée).
+- **Sources d'XP** _(proposé)_ : date tenue, confirmée par le groupe ;
+  jam publique tenue, confirmée par au moins 3 participants ; groupe
+  programmé pour la première fois de sa vie.
+- **Fonctionnalités** : publier une soirée ou une jam publique, qui
+  apparaît dans le **mode jam** des musicien·nes de la zone ; appels à
+  groupes pour ses dates ; agenda du lieu.
+- **Apprendre le métier** (quêtes d'apprentissage, sans jamais le gérer
+  à la place du lieu) : licence d'entrepreneur de spectacles au-delà de
+  6 représentations par an, rémunération des artistes par le GUSO pour
+  un organisateur occasionnel, déclaration à la SACEM.
+- **Personne qui le gère** : piste `VENUE_HOST` (« lieu et
+  programmation ») _(proposé)_, ou piste organisateur·rice.
+- **Garde-fous** : une date ne rapporte qu'une fois tenue et confirmée
+  par le groupe ; aucune visibilité achetée dans le mode jam.
+
+### 3.11 Autres rôles à envisager _(proposé)_
+
+Idées du même type : des acteurs qui font vivre la musique sans être
+musicien·nes, et qui peuvent **apporter des preuves** ou **des
+occasions** aux autres. À mesurer avant de construire (§2).
+
+| Rôle                                                       | Ce qu'il apporte                                                       | Épreuve qu'il peut valider                                | Lien avec les modes de jeu                          |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------- | --------------------------------------------------- |
+| **Client d'événement privé** (particulier, entreprise)     | Des prestations payées : mariages, anniversaires, soirées d'entreprise | Prestation tenue (« Premier cachet »)                     | Quêtes émises « cherche un groupe pour un mariage » |
+| **Collectivité, comité des fêtes**                         | Fête de la musique, fêtes de village, kiosques, festivals municipaux   | Concert corroboré, puis vérifié                           | Défis collectifs par ville (D3), le 21 juin         |
+| **Vidéaste, photographe**                                  | Clips, live sessions, photos de presse                                 | Clip ou live session publié, crédité                      | Acte VI (la sortie)                                 |
+| **Graphiste, illustrateur·rice**                           | Pochettes, affiches, identité visuelle                                 | Pochette créditée sur une sortie vérifiée                 | Acte VI                                             |
+| **Auteur·rice, parolier·e, arrangeur·se**                  | Textes, arrangements                                                   | Rôle de composition confirmé sur un morceau               | Acte II (la création)                               |
+| **DJ**                                                     | Soirées, remixes, premières parties                                    | Date tenue, remix crédité                                 | Mode jam (sessions DJ / live), acte V               |
+| **Technicien·ne lumière, backliner, roadie, régisseur·se** | Le live qui fonctionne                                                 | Corrobore un concert (tiers hors groupe)                  | Acte V (la scène), tournée                          |
+| **Magasin de musique, luthier·ère**                        | Jams en boutique, réparations, essais, petites annonces                | Accueil d'une jam publique                                | Lieu de jam du mode jam                             |
+| **Loueur de matériel, local de répétition**                | Backline, sono, salles de répète à l'heure                             | Répétition honorée (comme le studio)                      | Acte II, mode jam (salle de jam)                    |
+| **Prof de musique, école, conservatoire**                  | Cours, ateliers, jams d'élèves                                         | Atelier ou jam d'élèves tenue (jamais un niveau certifié) | Porte d'entrée des débutant·es, parrainage          |
+| **Tremplin, concours**                                     | Sélections, prix, premières grandes scènes                             | Participation et résultat vérifiés par l'organisateur     | Épreuves spéciales, cartes souvenirs                |
+| **Radio associative, webzine local**                       | Diffusion, interviews (voir communication musicale, §3.9)              | Diffusion corroborant une sortie                          | Acte VI                                             |
+
 ## 4. La chaîne d'un morceau : du jam au producteur
 
 Les métiers ne sont pas des îlots. Ils se relaient autour d'un **même
