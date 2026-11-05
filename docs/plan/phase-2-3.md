@@ -245,6 +245,11 @@ COMPLETED` (ou `CANCELLED`) ; pas d'état « en cours », et une
 
 ### P2-13 — Mode jam : « Je suis dispo »
 
+> **Réalisé le 05/11/2026.** Règles des mineur·es tranchées (D5, D26) :
+> dispo jamais affichée (bouton non proposé), jams finissant avant 22 h.
+> Le quota est une limite d'activations (5, puis une toutes les ~5 h).
+> Voir [docs/jam](../jam/README.md).
+
 - **Dépend de** : P2-01, P2-12.
 - **Décisions** : règles pour les mineur·es (D5) : lieux publics et
   locaux de répète seulement, créneaux en journée ou début de soirée.

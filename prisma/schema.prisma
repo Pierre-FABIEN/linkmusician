@@ -1433,6 +1433,7 @@ model Actor {
   applications         Application[]
   collaborationsProposed Collaboration[] @relation("CollaborationProposer")
   collaborations         CollaborationParticipant[]
+  availability           Availability?
 
   @@map("actors")
 }
@@ -2135,4 +2136,29 @@ model CollaborationParticipant {
 enum PlayMode {
   CAREER
   JAM
+}
+
+// ─── MODE JAM : « JE SUIS DISPO » (P2-13) ───────────────────────────────────
+
+enum AvailabilitySlot {
+  TONIGHT
+  TOMORROW
+  WEEKEND
+}
+
+/// Disponibilité pour jouer (une active par personne), visible des
+/// musicien·nes autour ; s'éteint seule à `endsAt`. Jamais montrée pour un·e
+/// mineur·e (D5, D26).
+model Availability {
+  actorId   String           @id
+  actor     Actor            @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  slot      AvailabilitySlot
+  startsAt  DateTime
+  endsAt    DateTime
+  /// « Envie d'un bœuf funk » : texte brut, court, facultatif.
+  note      String?
+  createdAt DateTime         @default(now())
+
+  @@index([endsAt])
+  @@map("availabilities")
 }

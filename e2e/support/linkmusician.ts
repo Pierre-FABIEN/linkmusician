@@ -27,6 +27,8 @@ export async function createMusician(spec: {
 	commune: { code: string; nom: string; dep: string; lat: number; lng: number };
 	instrument?: [slug: string, level: number];
 	genre?: string;
+	/** Date de naissance (adulte par défaut). */
+	birthDate?: string;
 }) {
 	const suffix = Math.random().toString(36).slice(2, 8);
 	const handle = `${spec.name.toLowerCase().replace(/[^a-z]/g, '')}-${suffix}`;
@@ -49,7 +51,7 @@ export async function createMusician(spec: {
 				create: {
 					userId: user.id,
 					// Adulte : une date inconnue vaut mineur·e pour la messagerie (D5).
-					birthDate: new Date('1995-06-15T00:00:00Z'),
+					birthDate: new Date(`${spec.birthDate ?? '1995-06-15'}T00:00:00Z`),
 					termsAcceptedAt: new Date(),
 					onboardedAt: new Date(),
 					instruments: instrument
@@ -128,6 +130,20 @@ export async function createOpportunity(
 			description: 'Annonce de test : on cherche quelqu’un pour jouer ensemble.',
 			radiusKm: 25,
 			expiresAt: new Date(Date.now() + (spec.expiresInDays ?? 14) * 24 * 3600 * 1000)
+		}
+	});
+}
+
+/** LINKMUSICIAN: « Je suis dispo » d'un·e musicien·ne fictif (P2-13), en base. */
+export async function createAvailability(actorId: string, hoursLeft = 4, note?: string) {
+	const now = Date.now();
+	return db.availability.create({
+		data: {
+			actorId,
+			slot: 'TONIGHT',
+			startsAt: new Date(now - 3600 * 1000),
+			endsAt: new Date(now + hoursLeft * 3600 * 1000),
+			note: note ?? null
 		}
 	});
 }

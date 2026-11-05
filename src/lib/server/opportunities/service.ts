@@ -13,6 +13,7 @@ import { checkStockQuota } from '#lib/server/trust/quotas';
 import { getActorLocation } from '#lib/server/geo/queries';
 import { MUSICIAN_TIERS } from '#lib/server/progression/core/tiers';
 import { distanceBand } from '#lib/geo/distance';
+import { clearExpiredAvailabilities } from '#lib/server/jam/availability';
 import {
 	displayStatus,
 	expiresAtFor,
@@ -238,11 +239,14 @@ export async function listMine(actorId: string, now = new Date()) {
 	}));
 }
 
-/** Tâche quotidienne : les annonces échues passent à « expirée ». */
+/**
+ * Tâche quotidienne : les annonces échues passent à « expirée », et les
+ * disponibilités « Je suis dispo » échues sont effacées (P2-13).
+ */
 export async function expireOpportunities(now = new Date()) {
 	const { count } = await prisma.opportunity.updateMany({
 		where: { status: 'OPEN', expiresAt: { lte: now } },
 		data: { status: 'EXPIRED' }
 	});
-	return { expired: count };
+	return { expired: count, availabilitiesCleared: await clearExpiredAvailabilities(now) };
 }

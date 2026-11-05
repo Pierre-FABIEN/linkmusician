@@ -118,7 +118,8 @@ export async function exportPersonData(userId: string) {
 		blocksMade,
 		opportunities,
 		applications,
-		collaborations
+		collaborations,
+		availability
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -196,6 +197,11 @@ export async function exportPersonData(userId: string) {
 					select: { actor: { select: { displayName: true } } }
 				}
 			}
+		}),
+		// Mode jam (P2-13).
+		prisma.availability.findUnique({
+			where: { actorId: person.actorId },
+			select: { slot: true, startsAt: true, endsAt: true, note: true }
 		})
 	]);
 	const media = await prisma.media.findMany({
@@ -276,6 +282,7 @@ export async function exportPersonData(userId: string) {
 			statut: o.status,
 			le: o.createdAt
 		})),
+		disponibilite: availability,
 		collaborations: collaborations.map((c) => ({
 			type: c.kind,
 			titre: c.title,
@@ -317,6 +324,8 @@ export async function personAnonymizationOps(
 		prisma.influence.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.profileLink.deleteMany({ where: { personId: person.actorId } }),
 		prisma.actorActivityDay.deleteMany({ where: { actorId: person.actorId } }),
+		// Mode jam (P2-13).
+		prisma.availability.deleteMany({ where: { actorId: person.actorId } }),
 		// Annonces (P2-02) : supprimées avec le compte.
 		prisma.opportunity.deleteMany({ where: { issuerActorId: person.actorId } }),
 		// Candidatures (P2-03) : supprimées avec le compte.
