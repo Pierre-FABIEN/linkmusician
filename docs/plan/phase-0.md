@@ -142,6 +142,18 @@ jusqu'à `fe82121`, et l'historique a été relié (`d24aed5`). Détail dans
 
 ## P0-05 — Coquille de l'application et identité visuelle de base
 
+> **Découpé le 05/11/2026** en trois lots :
+>
+> - **P0-05a — Nom et identité** (réalisé) : D9 acceptée, constante
+>   `BRAND` (`src/lib/linkmusician/brand.ts`) lue par le SEO, le sitemap,
+>   Better Auth, la 2FA, les emails, l'écran de chargement et le pied de
+>   page ; manifeste, `robots.txt`, couleur et image de partage
+>   (`static/og-default.jpg`) au nom de LinkMusician.
+> - **P0-05b — Coquille de l'espace** : layout `(app)`, navigation, pages
+>   « bientôt », jetons de design et thème sombre.
+> - **P0-05c — Accueil public** : présentation et « Créer un compte ». La
+>   liste d'attente est abandonnée (pas de bêta, D23).
+
 - **Objectif** : un visiteur découvre LinkMusician, et un membre connecté
   a son espace.
 - **Tâches** :

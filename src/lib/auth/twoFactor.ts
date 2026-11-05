@@ -30,8 +30,10 @@ import { verifyTOTP } from '@oslojs/otp';
 import { encodeBase32NoPadding } from '@oslojs/encoding';
 import { prisma } from '#lib/server';
 import { BETTER_AUTH_SECRET } from '$app/env/private';
+import { BRAND } from '#lib/linkmusician/brand';
 
-const TOTP_ISSUER = 'MadeInDiamonds';
+// LINKMUSICIAN: nom du produit (D9).
+const TOTP_ISSUER = BRAND.name;
 /** Même valeur que `backupCodeOptions.amount` dans `#lib/auth/index.ts`. */
 const RECOVERY_CODE_LENGTH = 15;
 

@@ -195,7 +195,8 @@
 	<link rel="icon" href="/favicon.ico" />
 	<meta name="viewport" content="width=device-width" />
 	<link rel="manifest" href="/pwa/manifest.webmanifest" />
-	<meta name="theme-color" content="#4285f4" />
+	<!-- LINKMUSICIAN: couleur du produit (D9), voir #lib/linkmusician/brand. -->
+	<meta name="theme-color" content="#7c3aed" />
 </svelte:head>
 
 {#if !$firstLoadComplete}

@@ -10,4 +10,5 @@ User-agent: *
 Disallow: /api/
 
 # Sitemap
-Sitemap: https://madeindiamonds.com/sitemap.xml
+# LINKMUSICIAN: domaine provisoire (D9), à confirmer avant l'ouverture (P3-10).
+Sitemap: https://linkmusician.fr/sitemap.xml

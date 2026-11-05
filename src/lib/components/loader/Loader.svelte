@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import { BRAND } from '#lib/linkmusician/brand'; // LINKMUSICIAN: nom du produit (D9)
 </script>
 
 <div
@@ -13,7 +14,7 @@
 		<p
 			class="text-2xl font-black tracking-wide italic uppercase [font-family:'Open_Sans_Variable',sans-serif]"
 		>
-			MadeInDiamonds
+			{BRAND.name}
 		</p>
 		<div class="bg-muted h-1 w-32 overflow-hidden rounded-full">
 			<div class="bg-foreground h-full w-1/2 animate-pulse"></div>

@@ -21,6 +21,7 @@ import {
 } from '#lib/prisma/passwordResetSession/passwordResetSession';
 import nodemailer from 'nodemailer';
 import { getCompanyIdentity } from '#lib/server/companyIdentity';
+import { BRAND } from '#lib/linkmusician/brand'; // LINKMUSICIAN: nom du produit dans les emails (D9)
 
 export interface PasswordResetSession {
 	id: string;
@@ -168,11 +169,11 @@ export async function sendPasswordResetEmail(email: string, code: string): Promi
 	// tous les clients mail. Logo réel (`/admin/identite`) si fourni, sinon
 	// pas d'image du tout plutôt qu'une URL inventée.
 	const { logoUrl } = await getCompanyIdentity();
-	const logoHtml = logoUrl ? `<img src="${logoUrl}" alt="MadeInDiamonds Logo" />` : '';
+	const logoHtml = logoUrl ? `<img src="${logoUrl}" alt="${BRAND.name} Logo" />` : '';
 
 	try {
 		const mailOptions = {
-			from: '"MadeInDiamonds" <contact@madeindiamonds.com>', // Expéditeur
+			from: `"${BRAND.name}" <${BRAND.email}>`, // Expéditeur
 			to: email, // Destinataire
 			subject: 'Password Reset Request', // Objet de l'email
 			text: `Your password reset code is: ${code}`, // Corps texte brut (fallback)
@@ -180,7 +181,7 @@ export async function sendPasswordResetEmail(email: string, code: string): Promi
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>MadeInDiamonds - Password Reset</title>
+  <title>${BRAND.name} - Password Reset</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -241,7 +242,7 @@ export async function sendPasswordResetEmail(email: string, code: string): Promi
 
           <div class="footer">
             <p>If you did not request this, please ignore this email.</p>
-            <p>— The MadeInDiamonds Team</p>
+            <p>— The ${BRAND.name} Team</p>
           </div>
         </div>
       </td>

@@ -1,7 +1,9 @@
+import { BRAND } from '#lib/linkmusician/brand'; // LINKMUSICIAN:
+
 // Configuration du sitemap
 export const sitemapConfig = {
 	// URL de base du site
-	site: 'https://madeindiamonds.com', // Domaine MadeInDiamonds
+	site: BRAND.url, // LINKMUSICIAN: domaine du produit (D9)
 
 	// Routes à exclure du sitemap (routes privées, admin, auth)
 	excludedRoutes: [

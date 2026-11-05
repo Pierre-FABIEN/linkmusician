@@ -18,9 +18,10 @@ import { resolveAppUrl } from '#lib/server/app-url';
 import { generateUniqueReferralCode } from '#lib/prisma/referral/referral';
 import { isDummySecret } from '#lib/server/dummy-secrets';
 import { BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '$app/env/private';
+import { BRAND } from '#lib/linkmusician/brand'; // LINKMUSICIAN: nom du produit (D9)
 
 export const auth = betterAuth({
-	appName: 'MadeInDiamonds',
+	appName: BRAND.name, // LINKMUSICIAN:
 	secret: BETTER_AUTH_SECRET,
 	// Résolu PAR REQUÊTE (hôte demandé, voir `allowedHosts`), jamais une
 	// chaîne figée au démarrage : `svelteKitHandler` (`src/hooks.server.ts`)
@@ -116,7 +117,7 @@ export const auth = betterAuth({
 
 	plugins: [
 		twoFactor({
-			issuer: 'MadeInDiamonds',
+			issuer: BRAND.name, // LINKMUSICIAN:
 			// Un seul code de secours, jamais régénérable sans reconfigurer la
 			// 2FA — même sémantique que l'ancien `User.recoveryCode` (Lucia).
 			// `length: 15` donne un code affiché de 16 caractères

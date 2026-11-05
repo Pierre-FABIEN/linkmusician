@@ -1,25 +1,24 @@
-// Configuration SEO pour MadeInDiamonds — boutique de bijoux et joaillerie
-// en ligne (bagues, colliers, créations en métaux précieux et diamants).
+// Configuration SEO. LINKMUSICIAN: site, valeurs par défaut, accueil,
+// contact et erreur au nom du produit ; les pages de la boutique (en veille)
+// gardent leurs textes d'origine.
+import { BRAND } from '#lib/linkmusician/brand';
+
 export const seoConfig = {
-	// Informations de base du site
+	// LINKMUSICIAN: identité du produit (D9), voir `#lib/linkmusician/brand`.
 	site: {
-		name: 'MadeInDiamonds',
-		url: 'https://madeindiamonds.com',
-		description:
-			'MadeInDiamonds — joaillerie en ligne. Bagues, colliers et bijoux en métaux précieux et diamants, livrés en France et en Europe.',
-		keywords:
-			'bijouterie en ligne, joaillerie, bagues, colliers, diamants, métaux précieux, bijoux sur-mesure, MadeInDiamonds',
-		author: 'MadeInDiamonds',
+		name: BRAND.name,
+		url: BRAND.url,
+		description: BRAND.description,
+		keywords: BRAND.keywords,
+		author: BRAND.name,
 		locale: 'fr_FR'
 	},
 
 	// Métadonnées par défaut
 	defaults: {
-		title: 'MadeInDiamonds — Joaillerie en ligne',
-		description:
-			'Découvrez MadeInDiamonds, joaillerie en ligne spécialisée dans les bagues, colliers et créations en métaux précieux et diamants.',
-		keywords:
-			'bijouterie en ligne, joaillerie, bagues, colliers, diamants, métaux précieux, MadeInDiamonds',
+		title: `${BRAND.name} — ${BRAND.tagline}`,
+		description: BRAND.description,
+		keywords: BRAND.keywords,
 		image: '/og-default.jpg',
 		type: 'website'
 	},
@@ -28,10 +27,9 @@ export const seoConfig = {
 	// (`/og-default.jpg`) tant qu'aucun visuel distinct par page n'existe.
 	pages: {
 		home: {
-			title: 'MadeInDiamonds — Bijoux et joaillerie en ligne',
-			description:
-				'Découvrez la collection MadeInDiamonds : bagues, colliers et créations en métaux précieux et diamants, livrées en France et en Europe.',
-			keywords: 'bijouterie en ligne, joaillerie, bagues, colliers, diamants, MadeInDiamonds',
+			title: `${BRAND.name} — ${BRAND.tagline}`,
+			description: BRAND.description,
+			keywords: BRAND.keywords,
 			image: '/og-default.jpg'
 		},
 		blog: {
@@ -49,10 +47,9 @@ export const seoConfig = {
 			image: '/og-default.jpg'
 		},
 		contact: {
-			title: 'Contact — Une question sur une commande ou un bijou',
-			description:
-				'Contactez MadeInDiamonds pour toute question sur nos bijoux, une commande ou un rendez-vous.',
-			keywords: 'contact bijouterie, service client, commande, MadeInDiamonds',
+			title: `Contact — ${BRAND.name}`,
+			description: `Une question sur ${BRAND.name} ? Écris-nous.`,
+			keywords: `contact, ${BRAND.name}`,
 			image: '/og-default.jpg'
 		},
 		checkout: {
@@ -69,10 +66,9 @@ export const seoConfig = {
 			image: '/og-default.jpg'
 		},
 		error: {
-			title: 'Page non trouvée — MadeInDiamonds',
-			description:
-				'La page que vous recherchez n’existe pas. Retournez à l’accueil pour découvrir nos bijoux.',
-			keywords: 'page non trouvée, erreur 404, MadeInDiamonds',
+			title: `Page non trouvée — ${BRAND.name}`,
+			description: `La page que tu cherches n’existe pas. Retourne à l’accueil de ${BRAND.name}.`,
+			keywords: `page non trouvée, erreur 404, ${BRAND.name}`,
 			image: '/og-default.jpg'
 		}
 		// `auth` et `admin` retirés : tout /auth/* et /admin/* est en `noindex`

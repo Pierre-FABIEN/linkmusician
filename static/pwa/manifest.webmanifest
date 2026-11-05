@@ -1,7 +1,7 @@
 {
-	"name": "MadeInDiamonds",
-	"short_name": "MadeInDiamonds",
-	"description": "Studio web — sites, e-commerce et identités digitales.",
+	"name": "LinkMusician",
+	"short_name": "LinkMusician",
+	"description": "Trouve avec qui jouer. Avance comme dans un jeu.",
 	"icons": [
 		{
 			"src": "./favicon/icon-192x192.png",
@@ -19,5 +19,5 @@
 	"start_url": "/",
 	"display": "standalone",
 	"background_color": "#ffffff",
-	"theme_color": "#000000"
+	"theme_color": "#7c3aed"
 }
