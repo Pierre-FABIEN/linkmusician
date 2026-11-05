@@ -1,0 +1,21 @@
+/*
+ * LINKMUSICIAN: jetons de design de l'espace (P0-05b). Les couleurs des
+ * maquettes P1-02 (violet, fuchsia) remplacent le noir et blanc du
+ * boilerplate dans l'espace `(app)` seulement, en clair comme en sombre :
+ * le thème suit le réglage de l'appareil.
+ */
+.lm-app {
+	--primary: oklch(0.541 0.281 293.009); /* violet-600 */
+	--primary-foreground: oklch(0.985 0 0);
+	--ring: oklch(0.606 0.25 292.717); /* violet-500 */
+	--lm-accent: oklch(0.591 0.293 322.896); /* fuchsia-600 */
+	--lm-gradient: linear-gradient(90deg, oklch(0.541 0.281 293.009), oklch(0.591 0.293 322.896));
+}
+
+.dark .lm-app {
+	--primary: oklch(0.811 0.111 293.571); /* violet-300 */
+	--primary-foreground: oklch(0.283 0.141 291.089); /* violet-950 */
+	--ring: oklch(0.702 0.183 293.541); /* violet-400 */
+	--lm-accent: oklch(0.833 0.145 321.434); /* fuchsia-300 */
+	--lm-gradient: linear-gradient(90deg, oklch(0.702 0.183 293.541), oklch(0.74 0.238 322.16));
+}

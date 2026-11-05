@@ -30,7 +30,7 @@
 
 <SEO title="Mes métiers" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 py-24">
+<div class="min-h-screen w-screen px-4 pt-6 pb-24">
 	<div class="mx-auto max-w-lg rounded-lg border p-6 shadow-lg backdrop-blur-3xl">
 		<a href="/espace" class="text-sm text-muted-foreground underline">← Mon espace</a>
 		<h1 class="mt-2 mb-2 text-2xl font-bold">Mes métiers</h1>

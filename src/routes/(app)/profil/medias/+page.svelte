@@ -21,7 +21,7 @@
 
 <SEO title="Mes médias" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 py-24">
+<div class="min-h-screen w-screen px-4 pt-6 pb-24">
 	<div class="mx-auto max-w-2xl space-y-8 rounded-lg border p-6 shadow-lg backdrop-blur-3xl">
 		<div>
 			<a href="/profil" class="text-sm text-muted-foreground underline">← Mon profil</a>

@@ -149,8 +149,13 @@ jusqu'à `fe82121`, et l'historique a été relié (`d24aed5`). Détail dans
 >   Better Auth, la 2FA, les emails, l'écran de chargement et le pied de
 >   page ; manifeste, `robots.txt`, couleur et image de partage
 >   (`static/og-default.jpg`) au nom de LinkMusician.
-> - **P0-05b — Coquille de l'espace** : layout `(app)`, navigation, pages
->   « bientôt », jetons de design et thème sombre.
+> - **P0-05b — Coquille de l'espace** (réalisé) : layout `(app)` et
+>   navigation (`src/lib/linkmusician/nav.ts`), pages « bientôt »
+>   (`ComingSoon.svelte`) pour Découvrir, Annonces et Messages, couleurs
+>   LinkMusician (`src/lib/linkmusician/theme.css`). Écart : le thème
+>   **suit l'appareil** au lieu d'être sombre par défaut (choix du
+>   05/11/2026, les maquettes validées étant en clair) ; contrastes
+>   vérifiés dans les deux thèmes.
 > - **P0-05c — Accueil public** : présentation et « Créer un compte ». La
 >   liste d'attente est abandonnée (pas de bêta, D23).
 

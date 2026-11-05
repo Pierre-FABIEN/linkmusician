@@ -29,7 +29,7 @@
 
 <SEO title="Mon espace" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 py-24">
+<div class="min-h-screen w-screen px-4 pt-6 pb-24">
 	<div class="mx-auto max-w-5xl space-y-6">
 		<!-- En-tête : identité et progression -->
 		<Card.Root class="overflow-hidden pt-0">
