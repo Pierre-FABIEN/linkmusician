@@ -14,6 +14,7 @@ supprimée (décision D6).
 | Ordre de travail, fiches de lots, **état d'avancement** | `docs/plan/README.md` (tableau §5)             |
 | Décisions tranchées ou en attente                       | `docs/decisions/README.md`                     |
 | Conventions de code et vérifications avant PR           | `CONTRIBUTING.md`                              |
+| Reprendre une session sans tout relire                  | `docs/plan/prompt-reprise.md`                  |
 
 ## Méthode de travail
 
