@@ -237,6 +237,20 @@ mode jam.
   (commission) ; réservation honorée = preuve (P4-09).
 - **Fin** : e2e « je réserve et paie un créneau » (Stripe en mode test).
 
+### P5-11 — Écoles, MJC, conservatoires (D29)
+
+- **Dépend de** : P5-02, P2-14c.
+- **Tâches** : organisation `SCHOOL` (école de musiques actuelles,
+  académie, MJC, conservatoire) ; un·e prof ou responsable invite ses
+  élèves (lien d'invitation) et publie des **ateliers jam** (jams du
+  lieu, lead = le prof) ; quête **« De l'atelier à la scène »** (premier
+  atelier, puis première jam publique) ; les confirmé·es qui animent
+  ou parrainent des élèves gagnent en réputation (_Passeur_, 07 §4.8) ;
+  aucune liste d'élèves publique ; règles des mineur·es (D5) inchangées.
+- **Fin** : e2e « la prof invite un élève, il rejoint l'atelier puis
+  une jam publique » ; un·e mineur·e ne voit que les ateliers finis avant
+  22 h (test).
+
 ---
 
 ## Phase 6 — Sortie et développement : actes VI à VIII

@@ -113,7 +113,7 @@ retard, on retire un lot de la liste, on ne bâcle pas l'UX.
 | 1. nov. → début déc. 2026  | P2-14b, P2-14c, P2-15, P2-16, P2-17, P2-18, P2-07 à P2-10, revue de phase 2 (D20)              | Mode jam complet, appréciations, réputation, notifications  |
 | 2. déc. 2026 → début janv. | P3-01 à P3-06, P3-08, P3-09, P3-11 à P3-14                                                     | Groupes, morceaux, étapes prouvées, mode carrière (I à III) |
 | 3. janv. → début fév. 2027 | P4-01 à P4-07, P4-09, P4-10, P4-13                                                             | Ingé son, studios, producteur·rices, crédits (actes III-IV) |
-| 4. fév. 2027               | P5-01 à P5-08                                                                                  | Lieux, organisateur·rices et festivals, concerts vérifiés   |
+| 4. fév. 2027               | P5-01 à P5-08, P5-11                                                                           | Lieux, organisateur·rices et festivals, concerts vérifiés   |
 | Fin fév. → début mars 2027 | Revue UX de chaque parcours par rôle (mobile d'abord), P3-10 (production, légal, sécurité), D9 | Ouverture publique à Toulouse                               |
 
 **Après le lancement** (pas nécessaires le premier jour) : P3-07
@@ -122,7 +122,17 @@ retard, on retire un lot de la liste, on ne bâcle pas l'UX.
 (monétisation et réservation, après validation juridique, D25), phase 6
 (label, éditeur, communication, actes VI à VIII).
 
-**Piste non technique en parallèle** (§7) : lister les lieux toulousains qui
+**Cibles du lancement (D29)** : d'abord les **élèves majeurs** des écoles
+de musiques actuelles, académies, MJC et conservatoires (ils ne savent
+pas où jouer : c'est là que l'app sert le plus) ; les musicien·nes
+confirmé·es du réseau de l'utilisateur viennent pour la **notoriété** et
+servent de **leads**. Les mineur·es (16-17 ans) restent accueilli·es avec
+les protections de D5 ; les moins de 16 ans (comptes encadrés, accord
+parental) sont une piste à étudier en parallèle, après le lancement.
+
+**Piste non technique en parallèle** (§7) : rencontrer d'abord les
+écoles, académies et MJC toulousaines (un prof prescripteur = une
+promotion d'élèves) ; lister les lieux toulousains qui
 tiennent une jam, les préinscrire dans l'annuaire, rencontrer les premiers
 studios et organisateurs dès le mois 3, préparer les tracts (musicien·nes,
 pros) pour février.
