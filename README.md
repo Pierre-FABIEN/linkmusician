@@ -1,29 +1,61 @@
-# Boilerplate-core
+# LinkMusician
 
-Socle SvelteKit (Svelte 5) : commerce, blog, espace d'administration et
-authentification, sur PostgreSQL via Prisma.
+La plateforme sociale et professionnelle de la musique, qui se vit comme
+un **jeu** : trouve avec qui jouer près de chez toi, monte ton groupe,
+enregistre, joue sur scène, et vois ta carrière avancer. Deux modes :
+**carrière** (8 actes calqués sur l'industrie) et **jam** (jouer et se
+rencontrer, dès ce soir). Mobile d'abord, installable comme une app (PWA).
 
-## Projet LinkMusician
+## Pour s'y retrouver
 
-Ce socle sert de base à **LinkMusician**, une plateforme de la musique
-avec une progression de type RPG. Points d'entrée :
+| Besoin                                                  | Document                                                                               |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Vision, règles métier, modes de jeu, carrières par rôle | [docs/conception/](./docs/conception/README.md)                                        |
+| Ordre de travail, fiches de lots, état d'avancement     | [docs/plan/](./docs/plan/README.md) (chemin pas à pas : §4 bis)                        |
+| Décisions prises ou en attente                          | [docs/decisions/](./docs/decisions/README.md)                                          |
+| Consignes de travail avec Claude Code                   | [CLAUDE.md](./CLAUDE.md)                                                               |
+| Conventions et vérifications avant commit               | [CONTRIBUTING.md](./CONTRIBUTING.md)                                                   |
+| Synchroniser avec le boilerplate                        | [docs/linkmusician/synchro-boilerplate.md](./docs/linkmusician/synchro-boilerplate.md) |
 
-- [docs/conception/](./docs/conception/README.md) : vision, règles, architecture
-- [docs/plan/](./docs/plan/README.md) : lots de travail et état d'avancement
-- [docs/decisions/](./docs/decisions/README.md) : registre des décisions
-- [CLAUDE.md](./CLAUDE.md) : consignes de travail avec Claude Code
+Modules LinkMusician : [compétences](./docs/skills/README.md) ·
+[localisation](./docs/geo/README.md) · [médias](./docs/media/README.md) ·
+[progression](./docs/progression/README.md) ·
+[modération](./docs/moderation/README.md) ·
+[onboarding](./docs/onboarding/README.md) ·
+[profil public et tableau de bord](./docs/profil-public/README.md) ·
+[indicateurs](./docs/indicateurs/README.md).
 
 ## Démarrer
 
 ```bash
 npm install
-cp .env.example .env          # renseigner DATABASE_URL, BETTER_AUTH_SECRET…
-npm run db:deploy             # applique les migrations
-npm run seed                  # jeu de données de démonstration
-npm run dev
+cp .env.example .env          # une seule URL Neon (pooler), BETTER_AUTH_SECRET…
+npm run db:deploy             # applique les migrations (connexion directe)
+npm run seed:referentiels     # instruments et genres (rejouable, sans risque)
+npm run seed:demo             # 12 musicien·nes fictifs autour de ta commune (rejouable)
+npm run dev                   # http://localhost:2000
 ```
 
-## Documentation
+- `npm run seed:demo` est **non destructif** : il ne crée que des comptes
+  `<handle>@demo.linkmusician.test` (mot de passe `DemoPass!2026`, ou
+  `SEED_DEMO_PASSWORD`) et ne touche jamais au tien. Commune choisie :
+  `npm run seed:demo -- --commune=<code INSEE>`.
+- `npm run seed` **vide toute la base** (jeu de démo du boilerplate) puis
+  relance les deux seeds ci-dessus.
+- Tests e2e : **arrêter `npm run dev`** avant (voir [e2e/README.md](./e2e/README.md)).
+
+---
+
+## Le socle : Boilerplate-core
+
+LinkMusician est bâti sur le boilerplate SvelteKit (Svelte 5) `Boilerplate-Ecommerce` :
+commerce, blog, administration et authentification sur PostgreSQL via
+Prisma. Ses modules sont **conservés** (D6) : la boutique est mise en
+veille par `PUBLIC_SHOP_ENABLED`, pas supprimée. Le code LinkMusician vit
+dans ses propres fichiers ; une modification du socle est minimale et
+marquée `LINKMUSICIAN:`.
+
+### Documentation du socle
 
 | Sujet                           | Document                                                 |
 | ------------------------------- | -------------------------------------------------------- |
@@ -46,7 +78,7 @@ npm run dev
 | Tests end-to-end                | [e2e/README.md](./e2e/README.md)                         |
 | Contribuer                      | [CONTRIBUTING.md](./CONTRIBUTING.md)                     |
 
-## Structure
+### Structure
 
 ```
 src/lib/lucia/        module d'authentification (retirable, voir docs/auth)
@@ -65,7 +97,7 @@ prisma/               schéma, migrations et seed
 e2e/                  parcours Playwright
 ```
 
-## Commandes
+### Commandes
 
 ```bash
 npm run dev                 # Vite (:2000) + Prisma Studio (:5555) + stripe listen (webhooks)
@@ -80,7 +112,7 @@ npm run db:studio:e2e       # Prisma Studio (schéma e2e, http://localhost:5556)
 npm run stripe:listen       # CLI Stripe → POST http://localhost:2000/api/webhooks
 ```
 
-## CI
+### CI
 
 `.github/workflows/ci.yml` tourne sur push/PR vers `main`, deux jobs :
 

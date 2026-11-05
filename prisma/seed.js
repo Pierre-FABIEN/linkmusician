@@ -5,6 +5,7 @@ import { symmetricEncrypt } from 'better-auth/crypto';
 import dotenv from 'dotenv';
 import { blog } from './seed-data/blog.js'; // BLOG-PLUGIN
 import { seedReferentials } from './seed-referentials.js'; // LINKMUSICIAN:
+import { spawnSync } from 'node:child_process'; // LINKMUSICIAN: seed de démo (P0-06)
 
 dotenv.config();
 
@@ -1042,6 +1043,9 @@ async function main() {
 	console.log('3 messages de contact créés.');
 
 	await seedReferentials(prisma); // LINKMUSICIAN: instruments et genres (rejouable)
+	// LINKMUSICIAN: musicien·nes fictifs (P0-06), script séparé et rejouable.
+	const demo = spawnSync('npx', ['tsx', 'prisma/seed-demo.ts'], { stdio: 'inherit' });
+	if (demo.status !== 0) console.warn('Seed de démo LinkMusician en échec (voir ci-dessus).');
 
 	console.log('\nComptes de démonstration (mot de passe : ' + DEMO_PASSWORD + ')');
 	console.log(`  ${ADMIN_EMAIL}          ADMIN`);

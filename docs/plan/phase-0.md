@@ -184,6 +184,12 @@ jusqu'à `fe82121`, et l'historique a été relié (`d24aed5`). Détail dans
 
 ## P0-06 — Documentation et synchro amont outillée
 
+> **Réalisé le 05/11/2026.** Écart : le seed LinkMusician est un script
+> **séparé et non destructif** (`npm run seed:demo`, `prisma/seed-demo.ts`),
+> appelé aussi en fin de `prisma/seed.js` : `npm run seed` vide toute la
+> base, ce qui aurait effacé les comptes de dev. Synchro de test : rien à
+> fusionner (amont déjà intégré), procédure validée.
+
 - **Tâches** :
   - `README.md` racine : présenter LinkMusician en premier, et le socle
     boilerplate ensuite.
