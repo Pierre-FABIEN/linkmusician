@@ -233,16 +233,30 @@
 						<Card.Description>La réputation : des faits, pas un score.</Card.Description>
 					</Card.Header>
 					<Card.Content class="space-y-3 text-sm">
+						{#if data.appreciations.length > 0}
+							<div class="space-y-2">
+								<p class="font-medium">Apprécié·e après des jams</p>
+								<ul class="flex flex-wrap gap-2" aria-label="Appréciations reçues">
+									{#each data.appreciations as a (a.label)}
+										<li class="rounded-full border px-3 py-1">
+											{a.label}{a.count > 1 ? ` × ${a.count}` : ''}
+										</li>
+									{/each}
+								</ul>
+							</div>
+						{/if}
 						{#each confirmed as s (s.text)}
 							<p class="flex items-start gap-2">
 								<s.icon class="mt-0.5 size-4 shrink-0 text-emerald-600" aria-hidden="true" />
 								{s.text}
 							</p>
 						{:else}
-							<p class="text-muted-foreground">
-								Rien de confirmé pour l'instant. Les collaborations et les concerts confirmés par
-								d'autres apparaîtront ici.
-							</p>
+							{#if data.appreciations.length === 0}
+								<p class="text-muted-foreground">
+									Rien de confirmé pour l'instant. Les collaborations et les concerts confirmés par
+									d'autres apparaîtront ici.
+								</p>
+							{/if}
 						{/each}
 					</Card.Content>
 				</Card.Root>

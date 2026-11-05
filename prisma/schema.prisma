@@ -1440,6 +1440,8 @@ model Actor {
   venuesConfirmed        Venue[]                @relation("VenueConfirmer")
   jamsLed                Opportunity[]          @relation("JamLead")
   jamInvites             JamInvite[]
+  endorsementsGiven      JamEndorsement[]       @relation("EndorsementFrom")
+  endorsementsReceived   JamEndorsement[]       @relation("EndorsementTo")
 
   @@map("actors")
 }
@@ -1535,6 +1537,7 @@ model Instrument {
   jamSpots      JamSpot[]
   jamAttendances JamAttendance[]
   jamInvites     JamInvite[]
+  jamEndorsements JamEndorsement[]
 
   @@index([family, sortOrder])
   @@map("instruments")
@@ -2058,6 +2061,7 @@ model Opportunity {
   jamSpots     JamSpot[]
   attendances  JamAttendance[]
   jamInvites   JamInvite[]
+  endorsements JamEndorsement[]
 
   @@index([status, expiresAt])
   @@index([issuerActorId, status])
@@ -2272,6 +2276,10 @@ model JamAttendance {
   /// Instrument joué (P2-14c), facultatif : prend une place ouverte.
   instrumentId  String?
   instrument    Instrument? @relation(fields: [instrumentId], references: [id], onDelete: SetNull)
+  /// « J'y étais » (P2-15, D27) : sans XP, ouvre les appréciations 7 jours.
+  attendedAt    DateTime?
+  /// Faux présent retiré par l'hôte : ses appréciations sont reprises.
+  removedAt     DateTime?
   createdAt     DateTime    @default(now())
 
   @@id([opportunityId, actorId])
@@ -2336,4 +2344,41 @@ model Establishment {
 
   @@index([communeCode, nameKey])
   @@map("establishments")
+}
+
+// ─── APRÈS LA JAM : APPRÉCIATIONS (P2-15) ───────────────────────────────────
+
+/// Qualités qu'un·e présent·e peut saluer (libellés : `#lib/jam/afterJam`).
+enum JamQuality {
+  GROOVE
+  LISTENING
+  IMPRO
+  RELIABLE
+}
+
+/// Appréciation d'un·e présent·e à un·e autre, pendant les 7 jours après la
+/// jam (D27) : une qualité ou un instrument, une par paire et par jam. Elle
+/// émet `endorsement.received` (≈ 40 XP, rendements décroissants par paire).
+/// Reprise (`revokedAt`, transaction négative liée) si l'hôte retire un faux
+/// présent.
+model JamEndorsement {
+  id            String      @id @default(cuid())
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  fromActorId   String
+  from          Actor       @relation("EndorsementFrom", fields: [fromActorId], references: [id], onDelete: Cascade)
+  toActorId     String
+  to            Actor       @relation("EndorsementTo", fields: [toActorId], references: [id], onDelete: Cascade)
+  quality       JamQuality?
+  instrumentId  String?
+  instrument    Instrument? @relation(fields: [instrumentId], references: [id], onDelete: SetNull)
+  /// Événement `endorsement.received` émis (pour reprendre l'XP).
+  eventId       String?
+  revokedAt     DateTime?
+  createdAt     DateTime    @default(now())
+
+  @@unique([opportunityId, fromActorId, toActorId])
+  @@index([toActorId])
+  @@index([fromActorId])
+  @@map("jam_endorsements")
 }

@@ -75,6 +75,16 @@
 			</p>
 		</div>
 
+		{#if data.started}
+			<a
+				href="/jams/{jam.id}/presents"
+				class="flex min-h-11 items-center justify-between rounded-2xl border-2 border-primary bg-card p-4 font-semibold"
+			>
+				<span>La jam a commencé : tu y es ? Qui est là ?</span>
+				<span aria-hidden="true">→</span>
+			</a>
+		{/if}
+
 		{#if jam.myInvite?.status === 'INVITED'}
 			<section
 				class="space-y-3 rounded-2xl border-2 border-primary bg-card p-4"

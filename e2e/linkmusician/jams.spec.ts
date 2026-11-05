@@ -10,6 +10,8 @@ import { createMusician, deleteMusicians, setCity, skipOnboarding } from '../sup
  * P2-14b — Jams publiques : voir une jam dans un lieu autour de soi, dire
  * « Je viens » (sans XP), publier sa propre jam dans un lieu de l'annuaire.
  * P2-14c — Formation du lead (places réservées) et matériel sur place.
+ * P2-15 — Après la jam : « J'y étais » (sans XP), appréciations (XP),
+ * retrait d'un faux présent par l'hôte (XP reprise).
  */
 test.describe('LinkMusician — jams publiques', () => {
 	test.setTimeout(5 * 60_000);
@@ -251,6 +253,145 @@ test.describe('LinkMusician — jams publiques', () => {
 			await db.venue.deleteMany({ where: { createdById: host.actorId } });
 			await deleteUser(drummerAccount.email);
 			await deleteMusicians([host]);
+		}
+	});
+	test('deux présents, l’une apprécie l’autre, ses points montent', async ({
+		page,
+		account,
+		browser
+	}) => {
+		const fake = await createMusician({ name: 'Faux', commune: blagnac });
+		const malikAccount = makeAccount();
+		const malikContext = await browser.newContext();
+		const malikPage = await malikContext.newPage();
+		let hostId: string | null = null;
+		try {
+			await signUpAndVerify(page, account);
+			await skipOnboarding(page, account.email);
+			await signUpAndVerify(malikPage, malikAccount);
+			await skipOnboarding(malikPage, malikAccount.email);
+			const person = async (email: string) =>
+				db.person.findUniqueOrThrow({
+					where: { userId: (await requireUser(email)).id },
+					include: { actor: true }
+				});
+			const me = await person(account.email);
+			const malik = await person(malikAccount.email);
+			hostId = me.actorId;
+			// L'hôte a un peu d'ancienneté : il peut apprécier (TL1).
+			await db.actor.update({ where: { id: me.actorId }, data: { trustLevel: 1 } });
+			const venue = await db.venue.create({
+				data: {
+					name: 'E2E Le Bœuf Café',
+					nameKey: 'e2e boeuf cafe',
+					kind: 'CAFE_CONCERT',
+					communeCode: blagnac.code,
+					communeName: blagnac.nom,
+					departmentCode: blagnac.dep,
+					lat: blagnac.lat,
+					lng: blagnac.lng,
+					createdById: me.actorId,
+					validatedAt: new Date()
+				}
+			});
+			// La jam a commencé il y a une heure.
+			const startsAt = new Date(Date.now() - 3600 * 1000);
+			const endsAt = new Date(Date.now() + 2 * 3600 * 1000);
+			const jam = await db.opportunity.create({
+				data: {
+					issuerActorId: me.actorId,
+					kind: 'JAM',
+					title: 'E2E Bœuf du mardi',
+					description: '',
+					startsAt,
+					endsAt,
+					expiresAt: endsAt,
+					venueId: venue.id
+				}
+			});
+			await db.jamAttendance.create({
+				data: { opportunityId: jam.id, actorId: fake.actorId, attendedAt: new Date() }
+			});
+			const xpOf = async (actorId: string) =>
+				(await db.xpTransaction.aggregate({ where: { actorId }, _sum: { amount: true } }))._sum
+					.amount ?? 0;
+
+			await test.step('1. L’hôte dit « J’y étais » : rien ne rapporte', async () => {
+				await page.goto('/jam');
+				await waitForAppReady(page);
+				const recent = page.getByRole('region', { name: 'Tes dernières jams' });
+				await recent.getByRole('link', { name: /E2E Bœuf du mardi/ }).click();
+				await expect(page.getByRole('heading', { name: 'Qui était là ?' })).toBeVisible();
+				await page.getByRole('button', { name: 'J’y étais' }).click();
+				await expect(page.getByText('C’est noté : tu y étais !')).toBeVisible();
+				expect(await xpOf(me.actorId)).toBe(0);
+			});
+
+			await test.step('2. Malik y était aussi', async () => {
+				await malikPage.goto(`/jams/${jam.id}`);
+				await waitForAppReady(malikPage);
+				await malikPage.getByRole('link', { name: /La jam a commencé/ }).click();
+				await malikPage.getByRole('button', { name: 'J’y étais' }).click();
+				await expect(malikPage.getByText('C’est noté : tu y étais !')).toBeVisible();
+				// TL0 : il voit les présent·es mais ne peut pas encore apprécier.
+				await expect(malikPage.getByText('palier de confiance 1')).toBeVisible();
+				await expectNoA11yViolations(malikPage, A11Y_EXCLUDE);
+				expect(await xpOf(malik.actorId)).toBe(0);
+			});
+
+			await test.step('3. L’hôte apprécie Malik : ses points montent', async () => {
+				await page.reload();
+				await waitForAppReady(page);
+				const present = page.getByRole('list', { name: 'Présent·es' });
+				await present.getByText(malik.actor.displayName, { exact: true }).click();
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+				await page
+					.getByRole('form', { name: `Apprécier ${malik.actor.displayName}` })
+					.getByRole('button', { name: 'bon groove' })
+					.click();
+				await expect(page.getByText(/reçoit ton « bon groove »/)).toBeVisible();
+				await expect.poll(() => xpOf(malik.actorId)).toBe(40);
+				expect(await xpOf(me.actorId)).toBe(0);
+				await malikPage.goto(`/@${malik.actor.handle}`);
+				await waitForAppReady(malikPage);
+				await expect(
+					malikPage.getByRole('list', { name: 'Appréciations reçues' }).getByText('bon groove')
+				).toBeVisible();
+			});
+
+			await test.step('4. Un faux présent, retiré par l’hôte, perd ses points', async () => {
+				// La confiance est recalculée après chaque gain : un compte d'un jour
+				// redescend en TL0. On lui rend son ancienneté de test.
+				await db.actor.update({ where: { id: me.actorId }, data: { trustLevel: 1 } });
+				await page.reload();
+				await waitForAppReady(page);
+				const present = page.getByRole('list', { name: 'Présent·es' });
+				await present.getByText(fake.displayName, { exact: true }).click();
+				await page
+					.getByRole('form', { name: `Apprécier ${fake.displayName}` })
+					.getByRole('button', { name: 'à l’écoute' })
+					.click();
+				await expect(page.getByText(/reçoit ton « à l’écoute »/)).toBeVisible();
+				await expect.poll(() => xpOf(fake.actorId)).toBe(40);
+				// La carte reste ouverte après l'appréciation ; sinon on la rouvre.
+				const remove = page.getByRole('button', { name: `Pas là : retirer ${fake.displayName}` });
+				if (!(await remove.isVisible()))
+					await present.getByText(fake.displayName, { exact: true }).click();
+				await remove.click();
+				await expect(page.getByText(/Présent retiré/)).toBeVisible();
+				await expect.poll(() => xpOf(fake.actorId)).toBe(0);
+				// Registre en ajout seul : le gain et sa reprise.
+				expect(await db.xpTransaction.count({ where: { actorId: fake.actorId } })).toBe(2);
+				await expect(present.getByText(fake.displayName, { exact: true })).toHaveCount(0);
+			});
+		} finally {
+			await malikContext.close();
+			if (hostId) {
+				await db.opportunity.deleteMany({ where: { issuerActorId: hostId } });
+				await db.venue.deleteMany({ where: { createdById: hostId } });
+			}
+			await deleteUser(malikAccount.email);
+			await deleteMusicians([fake]);
 		}
 	});
 });

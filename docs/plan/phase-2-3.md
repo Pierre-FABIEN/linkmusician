@@ -375,6 +375,16 @@ VENUE`) ; quota de création (rate limit). Une jam n'est plus une
   impossible sans présence commune (test) ; e2e « deux présents,
   l'une apprécie l'autre, ses points montent ».
 
+> **Découpé le 05/11/2026.** P2-15a (livré) : « J'y étais », « Qui était
+> là ? », appréciations et XP, retrait d'un faux présent, appréciations
+> sur le profil, « Rejouer ensemble » (nouvelle jam au même lieu) et
+> « Garder le contact » (message), RGPD. P2-15b : succès fun sans XP
+> (_Noctambule_, _Touche-à-tout_, _Brise-glace_, _Chef d'orchestre_),
+> « Rejouer ensemble » prérempli avec les mêmes invité·es, photos de
+> profil dans la grille (à l'arrivée des photos de profil). Le réseau
+> musical (« Garder le contact » qui ajoute vraiment au réseau) est fait
+> avec P2-16.
+
 ### P2-16 — Carnet de jams et réseau musical
 
 - **Dépend de** : P2-15.

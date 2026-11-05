@@ -8,6 +8,7 @@ import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { getPublicProfile } from '#lib/server/actors/publicProfile';
 import { fileReport, ModerationError } from '#lib/server/moderation/service';
 import { blockActor, BlockingError } from '#lib/server/blocking/service';
+import { endorsementsReceived } from '#lib/server/jam/afterJam';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -25,6 +26,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const isOwner = viewer?.actorId === actorId;
 	return {
 		profile: publicProfile,
+		// Appréciations reçues après des jams (P2-15, D27).
+		appreciations: await endorsementsReceived(actorId),
 		isOwner,
 		canReport: Boolean(viewer) && !isOwner
 	};

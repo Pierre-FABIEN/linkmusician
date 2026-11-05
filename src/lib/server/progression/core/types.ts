@@ -34,8 +34,11 @@ export interface RuleContext {
 	priorCollaborations(a: string, b: string, since: Date): number;
 	/** Adhésions acceptées antérieures de la personne à ce groupe. */
 	priorMemberships(personId: string, bandId: string): number;
-	/** Endossement déjà crédité pour (acteur, endosseur, compétence). */
-	hasEndorsement(actorId: string, endorserId: string, skill: string): boolean;
+	/**
+	 * Appréciations (endossements) déjà reçues de cet endosseur depuis
+	 * `since`, celle en cours exclue (rendements décroissants par paire, D27).
+	 */
+	priorEndorsements(actorId: string, endorserId: string, since: Date): number;
 	trustLevel(actorId: string): TrustLevel;
 }
 

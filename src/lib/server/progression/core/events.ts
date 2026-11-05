@@ -60,7 +60,10 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		type: z.literal('endorsement.received'),
 		actorId: id,
 		endorserId: id,
-		skill: z.string().min(1)
+		/** Qualité (« bon groove ») ou instrument apprécié. */
+		skill: z.string().min(1),
+		/** Jam où les deux étaient présent·es (P2-15, D27). */
+		jamId: id.optional()
 	}),
 	z.object({
 		...base,

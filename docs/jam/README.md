@@ -169,3 +169,34 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   (`lookupEstablishment`, `suggestEstablishments`), `verifyVenueSiret`
   dans `#server/venues/service`, script `prisma/seed-establishments.ts`.
   E2E : `lieux.spec.ts` (étape 4 bis).
+
+## Après la jam (P2-15a, D27)
+
+- **« J'y étais »** (`JamAttendance.attendedAt`) : du début de la jam à
+  7 jours après sa fin (`isAfterJamOpen`), pour toute personne qui voit
+  la jam (attendue, en formation, hôte ou non). **Aucune XP.** Les
+  invité·es de la formation gardent leur instrument.
+- **« Qui était là ? »** (`/jams/[id]/presents`, et `/jams/[id]` y
+  redirige une fois la jam finie) : grille des présent·es (initiales et
+  instrument tant qu'il n'y a pas de photo de profil) ; toucher une
+  carte ouvre l'appréciation, « Garder le contact » (message) et, pour
+  l'hôte, « Pas là : retirer ». « Rejouer ensemble » ouvre une nouvelle
+  jam au même lieu. Sur `/jam`, « Tes dernières jams ».
+- **Appréciation** (`JamEndorsement`) : une qualité (bon groove, à
+  l'écoute, belle impro, fiable) ou l'instrument de la personne ; une par
+  paire et par jam ; il faut avoir dit tous deux « J'y étais », être dans
+  les 7 jours et au palier TL1 (`endorseRefusal`, testé). Elle émet
+  `endorsement.received` : 40 XP, puis 20, 10 et 0 pour une même paire
+  sur 12 mois (règle `endorsement.received`, conception 02 §2.2).
+- **Faux présent** : l'hôte le retire (`removedAt`) ; ses appréciations
+  données et reçues pour cette jam sont reprises (`revokedAt`, et
+  transaction négative liée par `reverseGain`). Retirer soi-même son
+  « J'y étais » a le même effet.
+- **Profil public** : « Apprécié·e après des jams » (qualités et
+  instruments, avec leur nombre).
+- **RGPD** : « J'y étais » et retrait dans l'export (`jams_je_viens`),
+  appréciations données et reçues. À l'anonymisation, les appréciations
+  reçues sont supprimées ; celles données restent (réputation des
+  autres), liées à l'acteur anonymisé ; l'XP reste au registre.
+- **Code** : `#lib/jam/afterJam` (pur, testé), `#server/jam/afterJam`.
+  E2E : `jams.spec.ts` (« deux présents, l'une apprécie l'autre »).

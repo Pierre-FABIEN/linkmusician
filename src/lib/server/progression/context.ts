@@ -84,14 +84,14 @@ export async function loadRuleContext(
 					payloadOf(e).personId === personId &&
 					payloadOf(e).bandId === bandId
 			).length,
-		hasEndorsement: (actorId, endorserId, skill) =>
-			prior.some(
+		priorEndorsements: (actorId, endorserId, since) =>
+			prior.filter(
 				(e) =>
 					e.type === 'endorsement.received' &&
+					e.occurredAt >= since &&
 					payloadOf(e).actorId === actorId &&
-					payloadOf(e).endorserId === endorserId &&
-					payloadOf(e).skill === skill
-			),
+					payloadOf(e).endorserId === endorserId
+			).length,
 		trustLevel: trustOf
 	};
 }

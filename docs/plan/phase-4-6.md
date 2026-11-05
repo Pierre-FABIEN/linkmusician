@@ -168,8 +168,17 @@ mode jam.
   matériel, conditions (cachet, chapeau, défraiement), jours, photos ;
   agenda public ; rangs Lieu ouvert → Lieu culte ; quêtes
   d'apprentissage (licence de spectacles, GUSO, SACEM : liens et
-  explications, rien de géré).
-- **Fin** : e2e « un bar crée sa fiche et publie une date ».
+  explications, rien de géré). **Revendication de la fiche (D31)**, à
+  avancer avant le lancement : niveau 1 « Géré par le lieu » (code
+  publié dans la bio Instagram ou Facebook officielle ou sur le site,
+  contrôle par un modérateur) ; niveau 2 « Gérant vérifié » (identité
+  comparée aux dirigeants de l'API Recherche d'entreprises, par
+  ProConnect si possible, sinon documents en modération) ; le niveau 2
+  est exigé pour les outils payants et pour contester une fiche.
+  Préalable : demander à la DINUM si un service privé peut se raccorder
+  à ProConnect.
+- **Fin** : e2e « un bar crée sa fiche et publie une date » ; e2e « un
+  bar revendique sa fiche avec le code publié sur son compte ».
 
 ### P5-04 — Jams publiques des lieux
 

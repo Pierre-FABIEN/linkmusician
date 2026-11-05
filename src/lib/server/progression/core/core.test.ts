@@ -21,7 +21,7 @@ function ctx(over: Partial<RuleContext> = {}): RuleContext {
 		countGains: () => 0,
 		priorCollaborations: () => 0,
 		priorMemberships: () => 0,
-		hasEndorsement: () => false,
+		priorEndorsements: () => 0,
 		trustLevel: () => 2,
 		...over
 	};
@@ -245,9 +245,15 @@ describe('règles', () => {
 			['endorsement.received', BAREME.endorsementReceived]
 		],
 		[
-			'endossement en double',
-			ev({ type: 'endorsement.received', actorId: 'a', endorserId: 'b', skill: 'guitare' }),
-			ctx({ hasEndorsement: () => true }),
+			'appréciation, deuxième de la même personne : ×0,5',
+			ev({ type: 'endorsement.received', actorId: 'a', endorserId: 'b', skill: 'bon groove' }),
+			ctx({ priorEndorsements: () => 1 }),
+			['endorsement.received', BAREME.endorsementReceived / 2]
+		],
+		[
+			'appréciation, quatrième de la même personne : rien',
+			ev({ type: 'endorsement.received', actorId: 'a', endorserId: 'b', skill: 'bon groove' }),
+			ctx({ priorEndorsements: () => 3 }),
 			null
 		],
 		[
@@ -402,7 +408,10 @@ describe('registre en mémoire', () => {
 				endorserId: 'b',
 				skill: 'basse'
 			});
-		expect(endorse()).toHaveLength(1);
+		// Rendements décroissants par paire (D27) : 40, 20, 10, puis rien.
+		expect(endorse().map((g) => g.amount)).toEqual([BAREME.endorsementReceived]);
+		expect(endorse().map((g) => g.amount)).toEqual([BAREME.endorsementReceived / 2]);
+		expect(endorse().map((g) => g.amount)).toEqual([BAREME.endorsementReceived / 4]);
 		expect(endorse()).toHaveLength(0);
 		l.setTrust('b', 3);
 		expect(l.context().trustLevel('b')).toBe(3);

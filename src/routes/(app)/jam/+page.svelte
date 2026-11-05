@@ -72,6 +72,32 @@
 			</section>
 		{/if}
 
+		{#if data.recent.length > 0}
+			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="recent-title">
+				<h2 id="recent-title" class="text-lg font-semibold">Tes dernières jams</h2>
+				<ul class="space-y-2">
+					{#each data.recent as j (j.id)}
+						<li>
+							<a
+								href="/jams/{j.id}/presents"
+								class="flex min-h-11 flex-wrap items-center justify-between gap-2 rounded-xl border p-3 hover:border-primary"
+							>
+								<span>
+									<span class="block font-semibold">{j.title}</span>
+									<span class="text-sm text-muted-foreground"
+										>{day.format(new Date(j.startsAt))} · {j.venue}</span
+									>
+								</span>
+								<span class="text-sm font-semibold text-primary"
+									>{j.attended ? 'Apprécier les présent·es' : 'Tu y étais ?'}</span
+								>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+
 		<NextStep {...data.nextStep} tone="jam" />
 
 		<section

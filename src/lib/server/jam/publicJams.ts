@@ -37,7 +37,7 @@ export class JamError extends Error {
 	}
 }
 
-async function isAdult(actorId: string) {
+export async function isAdult(actorId: string) {
 	const person = await prisma.person.findUnique({
 		where: { actorId },
 		select: { birthDate: true }

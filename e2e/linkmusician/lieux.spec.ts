@@ -168,7 +168,7 @@ test.describe('LinkMusician — annuaire des lieux', () => {
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
 				await page.getByRole('button', { name: 'Ajouter à l’annuaire' }).click();
 				await expect(page.getByRole('heading', { name: 'E2E Le Comptoir Sonore' })).toBeVisible();
-				await expect(page.getByText('Établissement vérifié (SIRET)')).toBeVisible();
+				await expect(page.getByText('Établissement vérifié (existe à l’Insee)')).toBeVisible();
 				await expect(page.getByRole('link', { name: 'Publier une jam ici' })).toBeVisible();
 				const verified = await db.venue.findUniqueOrThrow({ where: { siret: SIRET } });
 				expect(verified.createdById).toBe(myActorId);

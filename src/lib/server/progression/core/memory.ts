@@ -15,7 +15,7 @@ export class MemoryLedger {
 	readonly gains: Recorded[] = [];
 	private collaborations: { a: string; b: string; at: Date }[] = [];
 	private memberships: { personId: string; bandId: string }[] = [];
-	private endorsements = new Set<string>();
+	private endorsements: { actorId: string; endorserId: string; at: Date }[] = [];
 	private now = new Date(0);
 
 	constructor(private trust: Record<string, TrustLevel> = {}) {}
@@ -37,8 +37,10 @@ export class MemoryLedger {
 				).length,
 			priorMemberships: (personId, bandId) =>
 				this.memberships.filter((m) => m.personId === personId && m.bandId === bandId).length,
-			hasEndorsement: (actorId, endorserId, skill) =>
-				this.endorsements.has(`${actorId}|${endorserId}|${skill}`),
+			priorEndorsements: (actorId, endorserId, since) =>
+				this.endorsements.filter(
+					(e) => e.actorId === actorId && e.endorserId === endorserId && e.at >= since
+				).length,
 			trustLevel: (actorId) => this.trust[actorId] ?? 0
 		};
 	}
@@ -60,7 +62,11 @@ export class MemoryLedger {
 			this.memberships.push({ personId: event.personId, bandId: event.bandId });
 		}
 		if (event.type === 'endorsement.received') {
-			this.endorsements.add(`${event.actorId}|${event.endorserId}|${event.skill}`);
+			this.endorsements.push({
+				actorId: event.actorId,
+				endorserId: event.endorserId,
+				at: event.occurredAt
+			});
 		}
 		return gains;
 	}

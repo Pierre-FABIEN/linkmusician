@@ -1,7 +1,7 @@
 // LINKMUSICIAN: fiche d'une jam publique (P2-14b) : lieu, créneau, places,
 // « Je viens » (sans acceptation, sans XP, D27). Formation du lead,
 // invitations et matériel sur place (P2-14c).
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { listInstrumentsByFamily } from '#lib/prisma/skills/referentials';
 import {
@@ -16,6 +16,7 @@ import {
 	setJamBackline,
 	setJamLead
 } from '#lib/server/jam/publicJams';
+import { whoWasThere } from '#lib/server/jam/afterJam';
 import { BACKLINE_ITEMS, BACKLINE_LABELS, backlineSchema, inviteSchema } from '#lib/jam/lineup';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -26,7 +27,11 @@ async function me(locals: App.Locals) {
 export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const { actorId } = await me(locals);
 	const jam = await getJam(params.id, actorId);
-	if (!jam) error(404, 'Jam introuvable');
+	if (!jam) {
+		// Jam finie : place à « Qui était là ? » pendant 7 jours (P2-15).
+		if (await whoWasThere(params.id, actorId)) redirect(303, `/jams/${params.id}/presents`);
+		error(404, 'Jam introuvable');
+	}
 	const [instruments, network] = await Promise.all([
 		listInstrumentsByFamily(),
 		jam.canManage ? networkHandles(actorId) : Promise.resolve([])
@@ -38,7 +43,8 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		),
 		network,
 		backlineOptions: BACKLINE_ITEMS.map((value) => ({ value, label: BACKLINE_LABELS[value] })),
-		published: url.searchParams.has('publiee')
+		published: url.searchParams.has('publiee'),
+		started: jam.startsAt.getTime() <= Date.now()
 	};
 };
 

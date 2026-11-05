@@ -45,7 +45,7 @@
 			</p>
 			{#if data.venue.verified}
 				<p class="flex items-center gap-1 text-sm font-semibold text-primary">
-					<BadgeCheck class="size-4" aria-hidden="true" /> Établissement vérifié (SIRET)
+					<BadgeCheck class="size-4" aria-hidden="true" /> Établissement vérifié (existe à l’Insee)
 				</p>
 			{/if}
 		</div>

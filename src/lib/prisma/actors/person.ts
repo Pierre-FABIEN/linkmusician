@@ -124,7 +124,9 @@ export async function exportPersonData(userId: string) {
 		jamsComing,
 		jamInvites,
 		venuesConfirmed,
-		jamsLed
+		jamsLed,
+		endorsementsGiven,
+		endorsementsReceivedRows
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -221,6 +223,8 @@ export async function exportPersonData(userId: string) {
 			select: {
 				createdAt: true,
 				instrument: { select: { name: true } },
+				attendedAt: true,
+				removedAt: true,
 				opportunity: { select: { title: true, startsAt: true } }
 			}
 		}),
@@ -247,6 +251,31 @@ export async function exportPersonData(userId: string) {
 			where: { leadActorId: person.actorId },
 			orderBy: { createdAt: 'asc' },
 			select: { title: true, startsAt: true }
+		}),
+		// Après la jam (P2-15) : appréciations données et reçues.
+		prisma.jamEndorsement.findMany({
+			where: { fromActorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: {
+				quality: true,
+				createdAt: true,
+				revokedAt: true,
+				instrument: { select: { name: true } },
+				to: { select: { displayName: true } },
+				opportunity: { select: { title: true } }
+			}
+		}),
+		prisma.jamEndorsement.findMany({
+			where: { toActorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: {
+				quality: true,
+				createdAt: true,
+				revokedAt: true,
+				instrument: { select: { name: true } },
+				from: { select: { displayName: true } },
+				opportunity: { select: { title: true } }
+			}
 		})
 	]);
 	const media = await prisma.media.findMany({
@@ -332,7 +361,25 @@ export async function exportPersonData(userId: string) {
 			jam: a.opportunity.title,
 			debut: a.opportunity.startsAt,
 			instrument: a.instrument?.name ?? null,
-			le: a.createdAt
+			le: a.createdAt,
+			j_y_etais: a.attendedAt,
+			retire_par_l_hote: a.removedAt
+		})),
+		appreciations_donnees: endorsementsGiven.map((e) => ({
+			jam: e.opportunity.title,
+			a: e.to.displayName,
+			qualite: e.quality,
+			instrument: e.instrument?.name ?? null,
+			le: e.createdAt,
+			reprise_le: e.revokedAt
+		})),
+		appreciations_recues: endorsementsReceivedRows.map((e) => ({
+			jam: e.opportunity.title,
+			de: e.from.displayName,
+			qualite: e.quality,
+			instrument: e.instrument?.name ?? null,
+			le: e.createdAt,
+			reprise_le: e.revokedAt
 		})),
 		jams_invitations: jamInvites.map((i) => ({
 			jam: i.opportunity.title,
@@ -405,6 +452,10 @@ export async function personAnonymizationOps(
 		// Formation (P2-14c) : invitations reçues supprimées, lead retiré (l'hôte
 		// reprend la main). Les lieux confirmés restent, comme les lieux ajoutés.
 		prisma.jamInvite.deleteMany({ where: { actorId: person.actorId } }),
+		// Après la jam (P2-15) : appréciations reçues supprimées ; celles
+		// données restent (la réputation des autres), liées à l'acteur
+		// anonymisé. L'XP reste au registre (ajout seul).
+		prisma.jamEndorsement.deleteMany({ where: { toActorId: person.actorId } }),
 		prisma.opportunity.updateMany({
 			where: { leadActorId: person.actorId },
 			data: { leadActorId: null }
