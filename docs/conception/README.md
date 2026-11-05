@@ -4,19 +4,21 @@ Dossier de conception produit et d'architecture, rédigé **avant tout
 développement**. Il répond à la « première mission » du brief fondateur :
 dix livrables, plus une revue critique du concept.
 
-| #   | Livrable                                                     | Document                                                                   |
-| --- | ------------------------------------------------------------ | -------------------------------------------------------------------------- |
-| 1   | Analyse fonctionnelle + incohérences et risques              | [01-analyse-produit.md](./01-analyse-produit.md)                           |
-| 2   | Modèle économique                                            | [01-analyse-produit.md §5](./01-analyse-produit.md#5-modèle-économique)    |
-| 3   | Architecture fonctionnelle                                   | [03-architecture.md §1](./03-architecture.md#1-architecture-fonctionnelle) |
-| 4   | Architecture technique (sur le boilerplate)                  | [03-architecture.md §2](./03-architecture.md#2-architecture-technique)     |
-| 5   | Modèle de données relationnel                                | [04-modele-donnees.md](./04-modele-donnees.md)                             |
-| 6   | Système XP et de progression                                 | [02-progression.md](./02-progression.md)                                   |
-| 7   | Niveaux par catégorie d'acteur                               | [02-progression.md §5](./02-progression.md#5-paliers-par-métier)           |
-| 8   | Parcours utilisateur (onboarding)                            | [05-mvp-roadmap.md §1](./05-mvp-roadmap.md#1-onboarding)                   |
-| 9   | Stratégie MVP                                                | [05-mvp-roadmap.md §2](./05-mvp-roadmap.md#2-stratégie-mvp)                |
-| 10  | Roadmap par phases (décisions, dépendances, critères, tests) | [05-mvp-roadmap.md §3](./05-mvp-roadmap.md#3-roadmap)                      |
-| 11  | Métiers au-delà du musicien (fiches par métier)              | [06-metiers.md](./06-metiers.md)                                           |
+| #   | Livrable                                                            | Document                                                                          |
+| --- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| 1   | Analyse fonctionnelle + incohérences et risques                     | [01-analyse-produit.md](./01-analyse-produit.md)                                  |
+| 2   | Modèle économique                                                   | [01-analyse-produit.md §5](./01-analyse-produit.md#5-modèle-économique)           |
+| 3   | Architecture fonctionnelle                                          | [03-architecture.md §1](./03-architecture.md#1-architecture-fonctionnelle)        |
+| 4   | Architecture technique (sur le boilerplate)                         | [03-architecture.md §2](./03-architecture.md#2-architecture-technique)            |
+| 5   | Modèle de données relationnel                                       | [04-modele-donnees.md](./04-modele-donnees.md)                                    |
+| 6   | Système XP et de progression                                        | [02-progression.md](./02-progression.md)                                          |
+| 7   | Niveaux par catégorie d'acteur                                      | [02-progression.md §5](./02-progression.md#5-paliers-par-métier)                  |
+| 8   | Parcours utilisateur (onboarding)                                   | [05-mvp-roadmap.md §1](./05-mvp-roadmap.md#1-onboarding)                          |
+| 9   | Stratégie MVP                                                       | [05-mvp-roadmap.md §2](./05-mvp-roadmap.md#2-stratégie-mvp)                       |
+| 10  | Roadmap par phases (décisions, dépendances, critères, tests)        | [05-mvp-roadmap.md §3](./05-mvp-roadmap.md#3-roadmap)                             |
+| 11  | Métiers au-delà du musicien (fiches par métier)                     | [06-metiers.md](./06-metiers.md)                                                  |
+| 12  | La chaîne d'un morceau entre les métiers                            | [06-metiers.md §4](./06-metiers.md#4-la-chaîne-dun-morceau--du-jam-au-producteur) |
+| 13  | Les modes de jeu : carrière (actes, épreuves) et jam (match rapide) | [07-modes-de-jeu.md](./07-modes-de-jeu.md)                                        |
 
 ## Les six positions structurantes
 

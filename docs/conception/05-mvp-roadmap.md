@@ -149,7 +149,9 @@ d'acceptation sont vérifiables par un test automatisé ou une mesure.
   `Milestone`, `Evidence`, `Attestation`, paliers de groupe, part d'XP
   aux membres présents, contestations et reprise d'XP, vérification de
   sortie par API (Spotify ou MusicBrainz), écrans de modération admin,
-  extension de l'export et de l'anonymisation RGPD.
+  extension de l'export et de l'anonymisation RGPD. _(proposé, D20)_ Le
+  morceau minimal (`Work`, contributeurs, maquette), base des étapes
+  de composition et d'enregistrement ([06 §4](./06-metiers.md#4-la-chaîne-dun-morceau--du-jam-au-producteur)).
 - **Dépendances** : phase 2 (annonces, collaborations).
 - **Acceptation** :
   - Un concert corroboré uniquement par un membre du groupe reste
@@ -168,10 +170,12 @@ indicateurs du §2.
 
 ### Phase 4 — Producteurs, studios, temps réel
 
-Pistes `PRODUCER` et `ENGINEER`, organisation `STUDIO` (matériel,
-tarifs, créneaux), collaborations de production et d'enregistrement
-(qui **vérifient** les étapes 2 et 4 des groupes), crédits sur les
-médias, messagerie temps réel (Ably ou Pusher), premium musicien et
+Pistes `PRODUCER` et `SOUND_ENGINEER`, organisation `STUDIO` (matériel,
+tarifs, créneaux), annonces ciblées par métier, collaborations de
+production et d'enregistrement **liées au morceau** (qui **vérifient**
+les étapes 2 et 4 des groupes), crédits sur les morceaux, vitrine des
+**propositions** de morceaux ouverte aux producteurs (D20,
+[06 §4](./06-metiers.md#4-la-chaîne-dun-morceau--du-jam-au-producteur)), messagerie temps réel (Ably ou Pusher), premium musicien et
 groupe (confort uniquement).
 
 ### Phase 5 — Organisateurs, managers, bookers, monétisation pro

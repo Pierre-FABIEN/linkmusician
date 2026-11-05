@@ -3,7 +3,8 @@
 Le musicien est le seul métier complet au lancement. Les huit autres sont
 proposés dès l'inscription et enregistrés, mais affichés « bientôt »
 (décision D15) : on mesure ainsi la demande réelle avant de les
-construire. Ce document décrit, pour chacun, ce qu'il deviendra.
+construire. Ce document décrit, pour chacun, ce qu'il deviendra, et
+comment ils se relaient autour d'un même morceau (§4).
 
 Il s'appuie sur [01 §2](./01-analyse-produit.md#2-acteurs-et-besoins-réels)
 (besoins et ordre d'arrivée), [02 §5](./02-progression.md#5-paliers-par-métier)
@@ -238,7 +239,143 @@ community managers et journalistes musicaux.
 - **Question ouverte** : phase d'arrivée (6 proposée, ou plus tôt si la
   demande mesurée le justifie).
 
-## 4. Ce que chaque ouverture demandera
+## 4. La chaîne d'un morceau : du jam au producteur
+
+Les métiers ne sont pas des îlots. Ils se relaient autour d'un **même
+morceau**, et chacun intervient à son tour : les musicien·nes le créent,
+l'ingé son l'enregistre, le ou la producteur·rice le découvre et le
+fait grandir, puis l'organisateur·rice le met sur scène et le label le
+signe. Le **morceau** est le fil conducteur de la plateforme (D20) :
+c'est lui qui rend visible la valeur que chaque métier apporte aux
+autres, et c'est autour de lui que chacun gagne des points.
+
+### 4.1 Le scénario
+
+La version complète, jusqu'à la signature et la tournée, avec sa couche
+de jeu, est dans [07 — Les modes de jeu](./07-modes-de-jeu.md).
+
+1. **Se rencontrer** _(phase 2)_. Léa, bassiste, répond à l'annonce de
+   jam de Malik, batteur. Ils échangent, jouent ensemble, et confirment
+   tous les deux le jam : c'est une **collaboration** (`JAM`). Chacun
+   gagne de l'XP sur sa piste musicien.
+2. **Créer un morceau ou un groupe** _(phase 3)_. Le courant passe : ils
+   composent un titre ensemble, ou montent un groupe. Le **morceau**
+   existe sur la plateforme avec ses **contributeurs** (Léa : basse,
+   composition ; Malik : batterie). Chaque contributeur confirme son
+   rôle. Une maquette (média) s'y rattache. Si c'est un groupe, l'étape
+   « Première composition » du groupe avance.
+3. **Chercher un·e ingé son** _(phase 4)_. Pour enregistrer proprement,
+   le groupe publie une annonce ciblée sur le métier ingé son (« cherche
+   ingé son pour enregistrer 1 titre, Lyon, rock ») ou cherche
+   directement par métier, spécialité et zone. Sam, ingé son, répond.
+4. **Enregistrer** _(phase 4)_. La session est une collaboration
+   `RECORDING` **liée au morceau**. Quand toutes les parties la
+   confirment terminée :
+   - Léa et Malik gagnent de l'XP sur leur piste **musicien** ;
+   - Sam gagne de l'XP sur sa piste **ingé son**, et un crédit
+     confirmé sur le morceau (« enregistrement, mixage : Sam ») ;
+   - le morceau passe à l'état « enregistré » et la nouvelle version
+     audio s'y rattache ;
+   - l'étape « Premier enregistrement » du groupe est **vérifiée**, car
+     un professionnel présent sur la plateforme la confirme (02 §2.2).
+5. **Proposer le morceau** _(phase 4)_. Le morceau enregistré, l'équipe
+   peut le **proposer** : il entre dans la vitrine des propositions
+   ouverte aux producteurs (« ce que nous cherchons : production,
+   arrangement »). C'est un choix explicite de l'équipe, jamais
+   automatique, et il se retire à tout moment.
+6. **Être découvert par un·e producteur·rice** _(phase 4)_. Nora,
+   productrice, parcourt les propositions filtrées par genre, zone et
+   besoin. Elle écoute, contacte le groupe, propose une collaboration
+   de production. Une fois confirmée par tous : XP sur sa piste
+   **producteur**, crédit confirmé, XP pour les musiciens, morceau
+   « produit ».
+7. **Et ensuite** _(phases 5 et 6)_. Le morceau produit peut être joué
+   sur scène (l'organisateur·rice **vérifie** le concert), sortir
+   (sortie **vérifiée** par ISRC ou UPC), puis intéresser un label (la
+   signature n'est validée que par le label vérifié). Chaque maillon
+   suit la même règle : une collaboration confirmée de tous les côtés,
+   des crédits confirmés, des points pour chacun.
+
+### 4.2 Les états d'un morceau _(proposé)_
+
+| État            | Atteint quand                                                    | Preuve                                                    |
+| --------------- | ---------------------------------------------------------------- | --------------------------------------------------------- |
+| Idée            | Un contributeur crée le morceau                                  | Déclarée                                                  |
+| Composé         | ≥2 contributeurs ont confirmé leur rôle, une maquette est jointe | Corroborée (les contributeurs)                            |
+| Enregistré      | Une collaboration `RECORDING` liée est terminée                  | Vérifiée si l'ingé son ou le studio est sur la plateforme |
+| Mixé, masterisé | Idem, collaboration de mixage ou de mastering                    | Idem                                                      |
+| Produit         | Une collaboration `PRODUCTION` liée est terminée                 | Vérifiée par le producteur                                |
+| Sorti           | La sortie est identifiée par ISRC ou UPC                         | Vérifiée par API (Spotify, MusicBrainz)                   |
+
+Un morceau peut sauter des états (un titre enregistré en home studio
+sans ingé son) : les états décrivent ce qui est **prouvé**, pas un
+passage obligé.
+
+### 4.3 Qui gagne quoi _(proposé, à calibrer par personas)_
+
+| Moment                            | Musicien·nes du morceau           | Ingé son                      | Producteur·rice               |
+| --------------------------------- | --------------------------------- | ----------------------------- | ----------------------------- |
+| Jam ou collaboration confirmée    | XP collaboration (piste musicien) | —                             | —                             |
+| Morceau composé (rôles confirmés) | XP composition                    | —                             | —                             |
+| Enregistrement confirmé           | XP enregistrement                 | XP session + crédit           | —                             |
+| Production confirmée              | XP production reçue               | —                             | XP production + crédit        |
+| Sortie vérifiée                   | XP sortie                         | XP crédit sur sortie vérifiée | XP crédit sur sortie vérifiée |
+
+Chaque gain va **sur la piste du métier exercé** dans la collaboration :
+une guitariste qui est aussi ingé son gagne sur sa piste ingé son quand
+elle enregistre les autres. Le niveau de compte reste la somme.
+
+### 4.4 Règles
+
+- **Rien d'unilatéral** : créer un morceau, le proposer ou contacter
+  quelqu'un ne rapporte rien. Seules les collaborations terminées et
+  confirmées par **toutes** les parties, et les crédits confirmés par
+  l'équipe du morceau, rapportent (§1).
+- **Crédits** : un crédit (« enregistrement : Sam ») n'existe que
+  confirmé par le morceau (un contributeur) **et** par la personne
+  créditée. Il apparaît sur le morceau, sur le profil de chacun et dans
+  la réputation.
+- **Anti-collusion** : rendements décroissants par paire de personnes et
+  par morceau (02 §6) ; un même morceau ne rapporte qu'une fois par
+  type de collaboration et par personne.
+- **Propositions aux producteurs** : opt-in de l'équipe, retirables,
+  triées par pertinence (genre, zone, besoin), **jamais par XP** (02 §1).
+  Un producteur ne voit ni l'XP ni la confiance des musiciens, seulement
+  le morceau, ses crédits et la réputation publique.
+- **Droits** : la plateforme ne gère ni les droits d'auteur ni la
+  répartition des revenus. Les rôles de composition sont déclaratifs ;
+  l'éditeur·rice (phase 6) ou la SACEM restent la référence.
+- **Mineurs** : un morceau proposé par une équipe comptant un·e mineur·e
+  n'est visible des producteurs que s'il est explicitement proposé, et
+  la prise de contact passe par la messagerie restreinte (D5).
+
+### 4.5 Ce que cela ajoute au modèle _(proposé)_
+
+- `Work` (morceau) : titre, état, genres, acteur porteur (personne ou
+  groupe), médias (versions successives).
+- `WorkContributor` : acteur, rôle (instrument, composition, paroles,
+  enregistrement, mixage, mastering, production), date de confirmation.
+  Remplace à terme `MediaCredit` pour les crédits portés par un morceau.
+- `Collaboration.workId` : une collaboration peut être liée à un
+  morceau (`RECORDING`, `PRODUCTION`, `SESSION_WORK`…).
+- `WorkPitch` (proposition) : morceau, public visé (producteurs,
+  puis labels en phase 6), ce qui est cherché, état, expiration.
+- Événements de domaine : `work.composed`, `work.credit_confirmed`,
+  `work.pitched`, et `collaboration.completed` porteur du `workId`.
+
+### 4.6 Phases
+
+- **Phase 2** : jams et collaborations entre musiciens (déjà prévus).
+- **Phase 3** _(proposé)_ : le **morceau minimal** (`Work`,
+  `WorkContributor`, maquette) avec les groupes, car les étapes
+  « Première composition » et « Premier enregistrement » s'y appuient.
+- **Phase 4** : ouverture des métiers **ingé son** et **producteur**,
+  annonces ciblées par métier, collaborations liées au morceau, crédits,
+  vitrine des **propositions**.
+- **Phases 5 et 6** : concert vérifié par l'organisateur, sortie
+  vérifiée, propositions ouvertes aux labels.
+
+## 5. Ce que chaque ouverture demandera
 
 Pour ouvrir un métier, il faudra au minimum :
 
@@ -253,11 +390,12 @@ Pour ouvrir un métier, il faudra au minimum :
    `src/lib/actors/tracks.ts`) ;
 6. l'export et l'anonymisation RGPD de ses nouvelles données.
 
-## 5. Décisions à prendre
+## 6. Décisions à prendre
 
-| Sujet                                | Quand                                                    |
-| ------------------------------------ | -------------------------------------------------------- |
-| Phase de la communication musicale   | Revue de phase 3                                         |
-| Paliers et preuves de l'éditeur·rice | Avant la phase 6                                         |
-| Ouverture anticipée selon la demande | Revue de chaque phase, à partir des comptages par métier |
-| Barème des métiers (personas dédiés) | Au début de leur phase                                   |
+| Sujet                                                   | Quand                                                    |
+| ------------------------------------------------------- | -------------------------------------------------------- |
+| Phase de la communication musicale                      | Revue de phase 3                                         |
+| Paliers et preuves de l'éditeur·rice                    | Avant la phase 6                                         |
+| Ouverture anticipée selon la demande                    | Revue de chaque phase, à partir des comptages par métier |
+| Barème des métiers (personas dédiés)                    | Au début de leur phase                                   |
+| Modèle du morceau et des propositions (D20, détails §4) | Avant la phase 3                                         |

@@ -173,6 +173,8 @@ model Media {                                   // Phase 1
 }
 
 model MediaCredit { mediaId String; actorId String; role String; confirmedAt DateTime?; @@id([mediaId, actorId, role]) }
+// Proposé (D20) : le morceau `Work`, ses contributeurs `WorkContributor` et ses
+// propositions `WorkPitch` relient les métiers (voir 06-metiers.md §4.5).
 
 // ─── OPPORTUNITÉS (annonces = quêtes émises) ─────────────────────────────
 
