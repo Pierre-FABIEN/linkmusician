@@ -360,6 +360,34 @@ VENUE`) ; quota de création (rate limit). Une jam n'est plus une
 - **Fin** : le carnet reflète les jams où l'on était (e2e) ; le réseau
   remonte en tête d'une recherche correspondante.
 
+### P2-17 — Conseils en contexte
+
+- **Dépend de** : P2-12b.
+- **Tâches** : sur chaque écran clé, un **conseil court** qui explique
+  comment jouer le jeu : créer du lien (écrire, proposer de jouer,
+  « Garder le contact »), **apprécier** les gens avec qui l'on a joué,
+  trouver des musicien·nes pour un projet ; un conseil à la fois, ton
+  d'encouragement (07 §7), masquable (« J'ai compris »), mémorisé par
+  personne ; catalogue pur `#lib/guide/tips` (écran, condition,
+  texte, lien) testé ; jamais sur un écran déjà guidé par « Ta prochaine
+  étape ».
+- **Fin** : un conseil masqué ne revient pas (e2e) ; aucun écran clé sans
+  conseil (test du catalogue).
+
+### P2-18 — Suggestions de musicien·nes selon styles et niveaux
+
+- **Dépend de** : P2-01, P2-16.
+- **Tâches** : sur son profil et dans l'espace, « Des musicien·nes pour
+  toi » ; sur le profil d'un autre, « Dans le même style » ; calcul pur
+  de compatibilité : genres en commun, **niveau déclaré proche**,
+  instrument complémentaire (une guitariste se voit proposer basse,
+  batterie, voix), distance par tranches, réseau musical en premier ;
+  **jamais l'XP** ni le palier ; filtre de visibilité
+  (`publicActorWhere`), mineur·es jamais suggéré·es aux adultes
+  inconnu·es (D5) ; « Pas intéressé·e » retire une suggestion.
+- **Fin** : l'XP ne change pas l'ordre (test) ; un·e mineur·e n'apparaît
+  pas (test) ; e2e « je vois une batteuse rock de mon niveau ».
+
 **Revue de fin de phase 2** : démo du parcours ; calibrage du barème
 sur les données de test (temps pour atteindre le niveau 5 et le rang
 « Collaborateur ») ; relecture des fiches de phase 3 ; trancher D20

@@ -437,6 +437,15 @@ ne fait rien perdre. Concrètement :
 - **Les points ne s'achètent pas** : ce qu'on prouve dans l'app doit
   rester vrai pour les pros qui le regardent (01 §5).
 
+### 7.1 Toujours savoir comment jouer _(P2-17, P2-18)_
+
+- Sur chaque écran clé, un **conseil court** rappelle comment créer du
+  lien, apprécier les gens avec qui l'on a joué, trouver des
+  musicien·nes pour un projet. Un seul à la fois, masquable.
+- Le profil propose des **musicien·nes compatibles** : mêmes styles,
+  niveau déclaré proche, instruments complémentaires, près de chez soi,
+  le réseau musical d'abord. Jamais trié par l'XP.
+
 ## 8. Ce qu'il faudra construire
 
 | Élément                                            | Repose sur                                                        | Quand _(proposé)_ |

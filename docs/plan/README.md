@@ -110,7 +110,7 @@ retard, on retire un lot de la liste, on ne bâcle pas l'UX.
 
 | Mois                       | Lots                                                                                           | Ce qu'on a à la fin                                         |
 | -------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| 1. nov. → début déc. 2026  | P2-14b, P2-14c, P2-15, P2-16, P2-07 à P2-10, revue de phase 2 (D20)                            | Mode jam complet, appréciations, réputation, notifications  |
+| 1. nov. → début déc. 2026  | P2-14b, P2-14c, P2-15, P2-16, P2-17, P2-18, P2-07 à P2-10, revue de phase 2 (D20)              | Mode jam complet, appréciations, réputation, notifications  |
 | 2. déc. 2026 → début janv. | P3-01 à P3-06, P3-08, P3-09, P3-11 à P3-14                                                     | Groupes, morceaux, étapes prouvées, mode carrière (I à III) |
 | 3. janv. → début fév. 2027 | P4-01 à P4-07, P4-09, P4-10, P4-13                                                             | Ingé son, studios, producteur·rices, crédits (actes III-IV) |
 | 4. fév. 2027               | P5-01 à P5-08                                                                                  | Lieux, organisateur·rices et festivals, concerts vérifiés   |
@@ -191,6 +191,8 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 | P2-14c | Formation du lead et matériel sur place                                   | P2-14b        | ⬜     |                                                                                                                                                                                                                                                                    |
 | P2-15  | Après la jam : « J'y étais » et appréciations                             | P2-14b        | ⬜     |                                                                                                                                                                                                                                                                    |
 | P2-16  | Carnet de jams et réseau musical                                          | P2-15         | ⬜     |                                                                                                                                                                                                                                                                    |
+| P2-17  | Conseils en contexte                                                      | P2-12b        | ⬜     |                                                                                                                                                                                                                                                                    |
+| P2-18  | Suggestions de musicien·nes selon styles et niveaux                       | P2-01, P2-16  | ⬜     |                                                                                                                                                                                                                                                                    |
 
 ### Phase 3 — Groupes, étapes et preuves (fin du MVP) → [phase-2-3.md](./phase-2-3.md)
 
