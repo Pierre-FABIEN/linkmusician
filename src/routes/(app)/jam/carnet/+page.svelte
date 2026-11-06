@@ -1,5 +1,6 @@
 <script lang="ts">
 	// LINKMUSICIAN: carnet de jams et réseau musical (P2-16), voir +page.server.ts.
+	import TipCard from '#lib/components/linkmusician/TipCard.svelte';
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
@@ -39,6 +40,8 @@
 				Les jams où tu étais, les gens que tu y as croisés. Rien que pour toi.
 			</p>
 		</div>
+
+		<TipCard tip={data.tip} />
 
 		{#if data.entries.length === 0}
 			<p class="rounded-2xl border bg-card p-6 text-center text-sm text-muted-foreground">

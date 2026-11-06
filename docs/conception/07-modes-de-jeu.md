@@ -447,7 +447,9 @@ ne fait rien perdre. Concrètement :
 
 - Sur chaque écran clé, un **conseil court** rappelle comment créer du
   lien, apprécier les gens avec qui l'on a joué, trouver des
-  musicien·nes pour un projet. Un seul à la fois, masquable.
+  musicien·nes pour un projet. Un seul à la fois, masquable, jamais sur
+  un écran déjà guidé par « Ta prochaine étape » (fait en P2-17, voir
+  [docs/guide](../guide/README.md)).
 - Le profil propose des **musicien·nes compatibles** : mêmes styles,
   niveau déclaré proche, instruments complémentaires, près de chez soi,
   le réseau musical d'abord. Jamais trié par l'XP.

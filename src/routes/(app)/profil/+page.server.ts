@@ -16,13 +16,16 @@ import {
 import { requirePerson } from '#server/actors/tracksForm';
 import { onProfileChanged } from '#lib/server/progression/profile';
 
+import { currentTip } from '#lib/server/guide/service';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const person = await requirePerson(locals);
 	const details = await getProfileDetails(person);
 	return {
-		form: await superValidate(profileFormValues(details), zod(profileSchema), { errors: false })
+		form: await superValidate(profileFormValues(details), zod(profileSchema), { errors: false }),
+		// Conseil en contexte (P2-17).
+		tip: await currentTip('profil', person)
 	};
 };
 

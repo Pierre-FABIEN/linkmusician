@@ -1,5 +1,6 @@
 <script lang="ts">
 	// LINKMUSICIAN: annonces (P2-02), voir +page.server.ts.
+	import TipCard from '#lib/components/linkmusician/TipCard.svelte';
 	import SEO from '#lib/components/SEO.svelte';
 	import { Badge } from '#shadcn/badge';
 	import { MapPin, Megaphone, Plus, Users } from 'lucide-svelte';
@@ -39,6 +40,8 @@
 				<Plus class="size-4" aria-hidden="true" /> Publier une annonce
 			</a>
 		</header>
+
+		<TipCard tip={data.tip} />
 
 		<nav aria-label="Type d'annonce" class="flex flex-wrap gap-2">
 			<a

@@ -1485,6 +1485,9 @@ model Person {
   modeIntrosSeen     PlayMode[]       @default([])
   /// Dernier digest email (P2-09b) : au plus un par jour.
   digestSentAt       DateTime?
+  /// Conseils en contexte masqués (« J'ai compris », P2-17) : identifiants du
+  /// catalogue `#lib/guide/tips`. Un conseil masqué ne revient pas.
+  tipsDismissed      String[]         @default([])
 
   /// Profil complet (D17, D18). Tout est déclaré, rien n'est vérifié.
   proStatus      ProStatus?

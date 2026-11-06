@@ -374,6 +374,8 @@ export async function exportPersonData(userId: string) {
 		cgu_acceptees_le: person.termsAcceptedAt,
 		// Digest email (P2-09b) : date du dernier envoi.
 		dernier_digest_email_le: person.digestSentAt,
+		// Conseils en contexte masqués (P2-17).
+		conseils_masques: person.tipsDismissed,
 		metiers: person.tracks.map((t) => ({ metier: t.track, principal: t.isPrimary })),
 		instruments: musical.instruments.map((i) => ({
 			instrument: i.name,
@@ -631,7 +633,8 @@ export async function personAnonymizationOps(
 				lookingFor: [],
 				equipment: [],
 				practiceSince: null,
-				travelRadiusKm: null
+				travelRadiusKm: null,
+				tipsDismissed: []
 			}
 		}),
 		prisma.actor.update({

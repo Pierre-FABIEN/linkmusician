@@ -34,6 +34,7 @@ import {
 	collabEndorseSchema
 } from '#lib/collaborations/endorse';
 import { redirect } from '@sveltejs/kit';
+import { currentTip } from '#lib/server/guide/service';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -43,7 +44,8 @@ async function me(locals: App.Locals) {
 export const load: PageServerLoad = async ({ locals, params, depends }) => {
 	depends('app:conversation');
 	try {
-		const actorId = (await me(locals)).actorId;
+		const person = await me(locals);
+		const actorId = person.actorId;
 		const conversation = await openConversation(actorId, params.id);
 		// Collaborations (P2-06) entre les deux personnes de la conversation.
 		const collaborations = await listForConversation(actorId, params.id);
@@ -56,7 +58,9 @@ export const load: PageServerLoad = async ({ locals, params, depends }) => {
 				collaborations.filter((k) => k.status === 'COMPLETED').map((k) => k.id)
 			),
 			qualities: COLLAB_QUALITIES.map((value) => ({ value, label: COLLAB_QUALITY_LABELS[value] })),
-			today: today()
+			today: today(),
+			// Conseil en contexte (P2-17).
+			tip: await currentTip('conversation', person)
 		};
 	} catch (err) {
 		if (err instanceof MessagingError) error(err.status, err.message);

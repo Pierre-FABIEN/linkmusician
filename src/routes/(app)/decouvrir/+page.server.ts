@@ -10,6 +10,7 @@ import { listGenreTree, listInstrumentsByFamily } from '#lib/prisma/skills/refer
 import { RefillingTokenBucket } from '#lib/server/rate-limit';
 import { searchMusicians } from '#lib/server/search/musicians';
 import { parseFilters } from '#lib/search/filters';
+import { currentTip } from '#lib/server/guide/service';
 import type { PageServerLoad } from './$types';
 
 /** 60 recherches d'affilée, puis une toutes les 2 secondes. */
@@ -24,6 +25,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		listGenreTree()
 	]);
 	const base = {
+		// Conseil en contexte (P2-17).
+		tip: await currentTip('decouvrir', person),
 		filters,
 		commune: location?.communeName ?? null,
 		instruments: instruments.map((f) => ({

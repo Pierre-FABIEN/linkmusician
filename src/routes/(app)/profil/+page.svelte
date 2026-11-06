@@ -1,5 +1,6 @@
 <script lang="ts">
 	// LINKMUSICIAN: « Mon profil », voir +page.server.ts.
+	import TipCard from '#lib/components/linkmusician/TipCard.svelte';
 	import { untrack } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms/client';
@@ -54,6 +55,8 @@
 				<a href="/profil/medias" class="underline">Mes médias</a>.
 			</p>
 		</div>
+
+		<TipCard tip={data.tip} />
 
 		<!-- Liens en `type="text"` : un champ `url` refuserait « lea.bandcamp.com »
 		     (sans https://) avant même l'envoi, alors que `checkLink` le complète. -->

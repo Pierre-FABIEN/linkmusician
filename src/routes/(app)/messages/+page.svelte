@@ -1,5 +1,6 @@
 <script lang="ts">
 	// LINKMUSICIAN: messagerie (P2-04), voir +page.server.ts.
+	import TipCard from '#lib/components/linkmusician/TipCard.svelte';
 	import SEO from '#lib/components/SEO.svelte';
 	import * as Avatar from '#shadcn/avatar';
 	import { MessageCircle } from 'lucide-svelte';
@@ -58,6 +59,8 @@
 <div class="min-h-screen w-screen px-4 pt-6 pb-24">
 	<div class="mx-auto max-w-2xl space-y-6">
 		<h1 class="text-3xl font-black tracking-tight">Messages</h1>
+
+		<TipCard tip={data.tip} />
 
 		{#if data.requests.length > 0}
 			<section class="space-y-2" aria-labelledby="requests-title">

@@ -3,6 +3,7 @@
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { jamLog } from '#lib/server/jam/log';
 import { leaveNetwork, myNetwork } from '#lib/server/network/service';
+import { currentTip } from '#lib/server/guide/service';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -10,9 +11,15 @@ async function me(locals: App.Locals) {
 }
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const { actorId } = await me(locals);
-	const [log, network] = await Promise.all([jamLog(actorId), myNetwork(actorId)]);
-	return { ...log, network };
+	const person = await me(locals);
+	const { actorId } = person;
+	const [log, network, tip] = await Promise.all([
+		jamLog(actorId),
+		myNetwork(actorId),
+		// Conseil en contexte (P2-17).
+		currentTip('carnet', person)
+	]);
+	return { ...log, network, tip };
 };
 
 export const actions: Actions = {

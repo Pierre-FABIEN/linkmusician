@@ -1,5 +1,6 @@
 <script lang="ts">
 	// LINKMUSICIAN: une conversation (P2-04), voir +page.server.ts.
+	import TipCard from '#lib/components/linkmusician/TipCard.svelte';
 	import { enhance } from '$app/forms';
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
@@ -78,6 +79,8 @@
 				{/if}
 			</h1>
 		</header>
+
+		<TipCard tip={data.tip} />
 
 		{#if c.myState === 'REQUEST'}
 			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="request-title">

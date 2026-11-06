@@ -1,35 +1,35 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après P2-10).
+> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après P2-17).
 
 ---
 
 ```markdown
-On reprend LinkMusician au lot **P2-17** (conseils en contexte). Ne refais
-pas l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui sert est
-ci-dessous. Lire la fiche « P2-17 » de docs/plan/phase-2-3.md et la
-conception 07 §7 (l'esprit, §7.1 « Toujours savoir comment jouer »).
+On reprend LinkMusician au lot **P2-18** (suggestions de musicien·nes selon
+styles et niveaux). Ne refais pas l'analyse du projet : CLAUDE.md est déjà
+chargé, tout ce qui sert est ci-dessous. Lire la fiche « P2-18 » de
+docs/plan/phase-2-3.md et la conception 07 §7.1.
 
 ## État (06/11/2026)
 
-- Livrés et verts : P2-08 (réputation), P2-09a et P2-09b (notifications,
-  digest email), P2-10 (TL2 et détection de collusion). Restent en phase
-  2 : P2-17, P2-18, puis la revue de phase 2. Objectif D28 : lancement
-  public à Toulouse début mars 2027. L'utilisateur juge que tout se jouera
-  sur une UX simple et agréable.
+- Livrés et verts : P2-08 à P2-10, P2-17 (conseils en contexte). Reste en
+  phase 2 : P2-18, puis la **revue de phase 2** (démo du parcours,
+  calibrage du barème, relecture des fiches de phase 3, trancher D20).
+  Objectif D28 : lancement public à Toulouse début mars 2027.
+  L'utilisateur juge que tout se jouera sur une UX simple et agréable.
 - Points ouverts hors lots : docs/plan/README.md §5 bis (à relire en
   début de session, à compléter en fin de lot).
-- P2-17, points d'appui : « Ta prochaine étape » (P2-12b,
-  `src/lib/components/linkmusician/NextStep.svelte`) ; écrans clés dans
-  `src/routes/(app)/` (jouer, decouvrir, jam, jams, messages, annonces,
-  profil, espace) ; mémoriser par personne comme `modeIntrosSeen` sur
-  `Person` (P2-12b) ; catalogue pur `#lib/guide/tips`.
+- P2-18, points d'appui : recherche `src/lib/server/search/musicians.ts`
+  (PostGIS, `publicActorWhere` en SQL, blocages, tri D33 : réseau puis
+  tranche) ; réseau musical `musical_ties` (P2-16) ; mineur·es : D5 et
+  `#lib/actors/visibility` (`adultBirthCutoff`) ; niveaux déclarés
+  `person_instruments.declaredLevel` ; profil public
+  `src/routes/@[handle]/` ; espace `src/routes/(app)/espace/`. Jamais
+  l'XP ni le palier. « Pas intéressé·e » à mémoriser par personne.
 - Le wifi public de l'utilisateur bloque le port 5432 (Neon injoignable) :
   dans ce cas, écrire la migration à la main et la vérifier ensuite avec
   `npm run db:nouvelle-migration -- verif` (diff vide attendu).
-- D30/D31 : lieux vérifiés par SIRET ; revendication en deux niveaux
-  (P5-03, raccordement ProConnect à demander à la DINUM).
 
 ## Rappels
 
