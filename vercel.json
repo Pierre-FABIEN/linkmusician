@@ -10,6 +10,10 @@
 			"schedule": "30 3 * * *"
 		},
 		{
+			"path": "/api/jobs/reputation",
+			"schedule": "40 3 * * *"
+		},
+		{
 			"path": "/api/jobs/opportunities",
 			"schedule": "45 3 * * *"
 		},

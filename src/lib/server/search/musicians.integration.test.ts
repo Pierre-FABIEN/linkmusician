@@ -188,4 +188,40 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 		expect(await search('rayon=50&instrument=batterie')).toEqual(['blagnac', 'muret']);
 		await db.musicalTie.deleteMany({ where: { ownerId: ids.moi } });
 	});
+
+	it('réputation : départage dans une même tranche, sans franchir les tranches (P2-08, D33)', async () => {
+		const snapshot = (actorId: string, internalScore: number) =>
+			db.reputationSnapshot.create({
+				data: {
+					actorId,
+					confirmedCollabs: 0,
+					distinctCounterparts: 0,
+					corroboratedGigs: 0,
+					verifiedReleases: 0,
+					bands: 0,
+					distinctEndorsers: 0,
+					endorsementsByKind: [],
+					internalScore,
+					computedAt: new Date()
+				}
+			});
+		// Muret (10 à 25 km) très bien noté ne passe pas devant Blagnac (5 à 10 km).
+		await snapshot(ids.muret, 50);
+		expect(await search('rayon=50')).toEqual(['blagnac', 'muret', 'montauban']);
+		// Montauban ramené à Blagnac : même tranche, la réputation départage.
+		await setActorLocation(ids.montauban, commune('Blagnac'), { db, schema: 'e2e' });
+		await snapshot(ids.montauban, 5);
+		expect(await search('rayon=50')).toEqual(['montauban', 'blagnac', 'muret']);
+		// Le score ne sort jamais de la recherche.
+		const { results } = await searchMusicians(
+			ids.moi,
+			parseFilters(new URLSearchParams('rayon=50')),
+			{ db, schema: 'e2e' }
+		);
+		expect(JSON.stringify(results)).not.toMatch(/score|internal|reputation/i);
+		await setActorLocation(ids.montauban, commune('Montauban'), { db, schema: 'e2e' });
+		await db.reputationSnapshot.deleteMany({
+			where: { actorId: { in: [ids.muret, ids.montauban] } }
+		});
+	});
 });

@@ -3,9 +3,11 @@
  * la commune de la personne qui cherche, filtres de profil), puis lecture
  * des fiches. Seuls les profils publics sont trouvables (`publicActorWhere`
  * en SQL : ni anonymisé, ni masqué, ni suspendu), et jamais une personne
- * séparée de moi par un blocage, dans un sens ou dans l'autre (P2-05). Tri :
- * son réseau musical d'abord (P2-16), puis par proximité ; la réputation
- * s'ajoutera avec P2-08. Jamais l'XP.
+ * séparée de moi par un blocage, dans un sens ou dans l'autre (P2-05). Tri
+ * (D33) : son réseau musical d'abord (P2-16), puis par tranche de distance
+ * affichée, puis, dans une même tranche, par réputation (score interne de
+ * P2-08, qui ne sort jamais de la requête SQL), enfin par distance. Jamais
+ * l'XP.
  *
  * La distance exacte ne sort jamais d'ici : seulement sa tranche
  * (`distanceBand`). D'où une pagination par numéro de page, pas par curseur
@@ -14,7 +16,7 @@
  * Imports relatifs : utilisé aussi par le test d'intégration, hors SvelteKit.
  */
 import { Prisma, type PrismaClient } from '@prisma/client';
-import { distanceBand } from '../../geo/distance';
+import { DISTANCE_BANDS, distanceBand } from '../../geo/distance';
 import { PAGE_SIZE, type SearchFilters } from '../../search/filters';
 import { qualifiedTable, schemaOf } from '../db-schema';
 
@@ -22,6 +24,19 @@ import { qualifiedTable, schemaOf } from '../db-schema';
 export const DEFAULT_TRAVEL_KM = 25;
 
 type Target = { db: PrismaClient; schema?: string };
+
+/**
+ * Rang de la tranche de distance affichée (`distanceBand`), en SQL. Constantes
+ * du code en littéraux (pas de paramètres non typés dans un `CASE`).
+ */
+const bandRank = (meters: Prisma.Sql) =>
+	Prisma.sql`CASE ${Prisma.join(
+		DISTANCE_BANDS.map(
+			(b, i) =>
+				Prisma.sql`WHEN ${meters} < ${Prisma.raw(String(b.maxKm * 1000))} THEN ${Prisma.raw(String(i))}`
+		),
+		' '
+	)} ELSE ${Prisma.raw(String(DISTANCE_BANDS.length))} END`;
 
 /** Identifiants des profils trouvés, du plus proche au plus lointain. */
 export async function searchMusicianIds(
@@ -64,29 +79,36 @@ export async function searchMusicianIds(
 	const extra =
 		conditions.length > 0 ? Prisma.sql`AND ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
 
+	// Le score de réputation ne sert qu'à ordonner : il reste dans la
+	// sous-requête et n'est jamais sélectionné (P2-08).
 	const rows = await db.$queryRaw<{ actorId: string; meters: number; inNetwork: boolean }[]>`
-		SELECT a.id AS "actorId", public.ST_Distance(me.point, other.point)::float8 AS meters,
-			EXISTS (
-				SELECT 1 FROM ${t('musical_ties')} mt
-				WHERE mt."ownerId" = ${searcherId} AND mt."contactId" = a.id) AS "inNetwork"
-		FROM ${t('actor_locations')} me
-		JOIN ${t('actor_locations')} other
-			ON other."actorId" <> me."actorId" AND public.ST_DWithin(me.point, other.point, ${radiusM})
-		JOIN ${t('actors')} a ON a.id = other."actorId"
-		JOIN ${t('persons')} p ON p."actorId" = a.id
-		WHERE me."actorId" = ${searcherId}
-			AND a."deletedAt" IS NULL AND a.hidden = false
-			AND p."onboardedAt" IS NOT NULL
-			AND NOT EXISTS (
-				SELECT 1 FROM ${t('blocks')} b
-				WHERE (b."blockerActorId" = ${searcherId} AND b."blockedActorId" = a.id)
-					OR (b."blockerActorId" = a.id AND b."blockedActorId" = ${searcherId}))
-			AND NOT EXISTS (
-				SELECT 1 FROM ${t('sanctions')} s
-				WHERE s."actorId" = a.id AND s.kind::text = 'SUSPENSION' AND s."liftedAt" IS NULL
-				AND (s.until IS NULL OR s.until > ${now}))
-			${extra}
-		ORDER BY "inNetwork" DESC, meters ASC, a.id ASC
+		SELECT r."actorId", r.meters, r."inNetwork" FROM (
+			SELECT a.id AS "actorId", public.ST_Distance(me.point, other.point)::float8 AS meters,
+				EXISTS (
+					SELECT 1 FROM ${t('musical_ties')} mt
+					WHERE mt."ownerId" = ${searcherId} AND mt."contactId" = a.id) AS "inNetwork",
+				COALESCE(rs."internalScore", 0) AS rank_score
+			FROM ${t('actor_locations')} me
+			JOIN ${t('actor_locations')} other
+				ON other."actorId" <> me."actorId" AND public.ST_DWithin(me.point, other.point, ${radiusM})
+			JOIN ${t('actors')} a ON a.id = other."actorId"
+			JOIN ${t('persons')} p ON p."actorId" = a.id
+			LEFT JOIN ${t('reputation_snapshots')} rs ON rs."actorId" = a.id
+			WHERE me."actorId" = ${searcherId}
+				AND a."deletedAt" IS NULL AND a.hidden = false
+				AND p."onboardedAt" IS NOT NULL
+				AND NOT EXISTS (
+					SELECT 1 FROM ${t('blocks')} b
+					WHERE (b."blockerActorId" = ${searcherId} AND b."blockedActorId" = a.id)
+						OR (b."blockerActorId" = a.id AND b."blockedActorId" = ${searcherId}))
+				AND NOT EXISTS (
+					SELECT 1 FROM ${t('sanctions')} s
+					WHERE s."actorId" = a.id AND s.kind::text = 'SUSPENSION' AND s."liftedAt" IS NULL
+					AND (s.until IS NULL OR s.until > ${now}))
+				${extra}
+		) r
+		ORDER BY r."inNetwork" DESC, ${bandRank(Prisma.sql`r.meters`)} ASC, r.rank_score DESC,
+			r.meters ASC, r."actorId" ASC
 		LIMIT ${PAGE_SIZE + 1} OFFSET ${(filters.page - 1) * PAGE_SIZE}`;
 	return {
 		hits: rows.slice(0, PAGE_SIZE),

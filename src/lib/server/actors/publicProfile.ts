@@ -1,8 +1,9 @@
 /**
  * Profil public `/@handle` (P1-11). Ne renvoie que ce qui est public (D1) :
  * identité, profil musical, commune, médias publiés, palier, succès et
- * pastille de niveau. Jamais l'XP, le registre, la date de naissance, la
- * confiance ni un point de localisation.
+ * pastille de niveau, carte de réputation (P2-08). Jamais l'XP, le registre,
+ * la date de naissance, la confiance, le score de réputation ni un point de
+ * localisation.
  *
  * `null` si l'acteur n'existe pas ou n'est pas visible (anonymisé, masqué,
  * suspendu : `publicActorWhere`). L'appelant répond 404 sans dire pourquoi.
@@ -13,6 +14,7 @@ import { getActorLocation } from '#lib/server/geo/queries';
 import { getMusicianTier, getProgress } from '#lib/server/progression/read';
 import { adultBirthCutoff, isIndexable } from '#lib/actors/visibility';
 import { endorsersByInstrument } from '#lib/server/endorsements/service';
+import { getPublicReputation } from '#lib/server/progression/reputation';
 import { publicActorWhere } from './visibility';
 
 /** Médias publiés affichés sur le profil (les plus récents). */
@@ -43,7 +45,7 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 	});
 	if (!actor) return null;
 
-	const [musical, location, progress, tier, media, endorsed] = await Promise.all([
+	const [musical, location, progress, tier, media, endorsed, reputation] = await Promise.all([
 		getMusicalProfile({ actorId: actor.id }),
 		getActorLocation(actor.id),
 		getProgress(actor.id, prisma),
@@ -61,7 +63,8 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 				instrumentId: true
 			}
 		}),
-		endorsersByInstrument(actor.id)
+		endorsersByInstrument(actor.id),
+		getPublicReputation(actor.id, prisma)
 	]);
 
 	const demosByInstrument = new Map<string, number>();
@@ -71,7 +74,6 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 		}
 	}
 	const person = actor.person;
-	const s = tier.summary;
 
 	return {
 		id: actor.id,
@@ -107,13 +109,24 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 			description: a.description,
 			unlockedAt: a.unlockedAt
 		})),
-		/** « Ce que d'autres confirment » : des faits, pas un score. */
+		/**
+		 * « Ce que d'autres confirment » (P2-08) : la carte de réputation, des
+		 * faits et pas un score. Seule une réactivité flatteuse est montrée.
+		 */
 		confirmed: {
-			collaborations: s.collaborations,
-			distinctCollaborators: s.distinctCollaborators,
-			corroboratedGigs: s.corroboratedGigs,
-			distinctEndorsers: s.distinctEndorsers,
-			bands: s.bands
+			collaborations: reputation.confirmedCollabs,
+			distinctCollaborators: reputation.distinctCounterparts,
+			corroboratedGigs: reputation.corroboratedGigs,
+			verifiedReleases: reputation.verifiedReleases,
+			distinctEndorsers: reputation.distinctEndorsers,
+			bands: reputation.bands,
+			respondsWithin:
+				reputation.responseBucket === 'FAST'
+					? ('24h' as const)
+					: reputation.responseBucket === 'DAY'
+						? ('48h' as const)
+						: null,
+			appreciations: reputation.endorsementsByKind
 		}
 	};
 }

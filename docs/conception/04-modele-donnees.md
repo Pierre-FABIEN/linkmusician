@@ -316,14 +316,17 @@ model ActorProgress {                           // Phase 1, PROJECTION reconstru
 model AchievementDefinition { id String @id; scope ActorKind; name String; description String; icon String; secret Boolean @default(false) }
 model ActorAchievement { actorId String; achievementId String; unlockedAt DateTime @default(now()); sourceEventId String; @@id([actorId, achievementId]) }
 
-model ReputationSnapshot {                      // Phase 2, recalculé par job
+model ReputationSnapshot {                      // P2-08, projection : événements, nuit, à la demande
   actorId String @id
   confirmedCollabs Int
   distinctCounterparts Int
-  verifiedMilestones Int
-  endorsementsByKind Json
-  responseRateBucket String                     // "<24h" | "<48h" | "lent"
-  internalScore Float                           // tri de recherche uniquement, jamais affiché
+  corroboratedGigs Int                          // étapes vérifiées, détaillées
+  verifiedReleases Int
+  bands Int
+  distinctEndorsers Int
+  endorsementsByKind Json                       // [{ label, count }]
+  responseBucket String?                        // FAST (<24 h) | DAY (<48 h) | SLOW | null (< 3 demandes)
+  internalScore Float                           // tri de recherche uniquement, jamais affiché ni renvoyé
   computedAt DateTime
 }
 

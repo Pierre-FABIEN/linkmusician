@@ -12,6 +12,7 @@ import { actorIdsOf, emit, toDomainEvent, type NewDomainEvent, type Tx } from '.
 import { appendGains, reverseTransaction } from './ledger';
 import { projectActors, recordProgressEvents, unlockAchievements } from './projector';
 import { recomputeTrust } from './trust';
+import { recomputeReputation, REPUTATION_EVENTS } from './reputation';
 
 export type ProcessResult = {
 	eventId: string;
@@ -46,6 +47,8 @@ export async function processEvent(tx: Tx, eventId: string): Promise<ProcessResu
 	// Événement significatif : la confiance des personnes concernées est
 	// recalculée (après les règles, qui ont lu la confiance d'avant).
 	await recomputeTrust(tx, actorIdsOf(event));
+	// Réputation (P2-08) : la carte des personnes concernées suit le fait.
+	if (REPUTATION_EVENTS.has(event.type)) await recomputeReputation(tx, actorIdsOf(event));
 	await tx.domainEvent.update({ where: { id: event.id }, data: { processedAt: new Date() } });
 	return { eventId, skipped: false, gains, inserted, levelUps, achievements };
 }

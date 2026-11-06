@@ -54,6 +54,24 @@ lots (médias, annonces, groupes…).
 - `/reglages` : palier, conditions du suivant, limites.
 - Sanctions et taux de signalement à 0 jusqu'à la modération (P1-12).
 
+## Réputation (P2-08)
+
+- Carte stockée dans `reputation_snapshots`, calculée par
+  `core/reputation.ts` (pur) à partir des faits lus par `reputation.ts` :
+  résumé musicien (événements), appréciations actives, délais de réponse
+  aux demandes reçues. **Jamais l'XP** : un test fait échouer le calcul
+  s'il touche au registre ou aux projections d'XP, un autre vérifie qu'un
+  million d'XP ne change pas le score.
+- Recalculée après chaque événement de `REPUTATION_EVENTS` (processeur),
+  chaque nuit (`/api/jobs/reputation`, cron Vercel à 3 h 40 : la
+  réactivité change sans événement) et à la demande (première lecture
+  d'un profil qui n'a pas encore de carte).
+- `internalScore` : tri de la recherche seulement (D33). Jamais lu par
+  `getPublicReputation`, jamais sélectionné par la recherche, absent de
+  l'export RGPD (calcul sur des faits déjà exportés). Les réponses JSON du
+  profil et de la recherche sont inspectées en e2e.
+- Anonymisation : la carte est supprimée et ne se recalcule plus.
+
 ## Provisoire
 
 - **Paliers** : colonne `tier` non renseignée avant le tableau de bord

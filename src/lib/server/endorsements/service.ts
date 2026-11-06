@@ -1,6 +1,8 @@
 /**
  * Appréciations (endossements), communes aux jams (P2-15) et aux
- * collaborations (P2-07) : reprise, et lecture pour le profil public.
+ * collaborations (P2-07) : reprise, et lecture pour le profil public. Les
+ * appréciations par libellé vivent dans la carte de réputation (P2-08,
+ * `#lib/server/progression/reputation`).
  *
  * Une appréciation reprise n'est jamais effacée du registre : son XP est
  * repris par transaction négative liée (`reverseGain`), et l'événement
@@ -8,8 +10,6 @@
  */
 import { prisma } from '#lib/server';
 import { emitAndProcess, reverseGain } from '#lib/server/progression/processor';
-import { JAM_QUALITY_LABELS } from '#lib/jam/afterJam';
-import { COLLAB_QUALITY_LABELS } from '#lib/collaborations/endorse';
 
 type Tx = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
@@ -32,31 +32,6 @@ export async function revokeEndorsementEvent(
 		endorsementEventId: input.eventId,
 		occurredAt: now
 	});
-}
-
-/**
- * Appréciations reçues, pour le profil : par qualité ou instrument, des plus
- * fréquentes, jams et collaborations confondues.
- */
-export async function endorsementsReceived(actorId: string) {
-	const where = { toActorId: actorId, revokedAt: null };
-	const select = { quality: true, instrument: { select: { name: true } } } as const;
-	const [jams, collabs] = await Promise.all([
-		prisma.jamEndorsement.findMany({ where, select }),
-		prisma.collabEndorsement.findMany({ where, select })
-	]);
-	const labels = [
-		...jams.map((r) => (r.quality ? JAM_QUALITY_LABELS[r.quality] : r.instrument?.name)),
-		...collabs.map((r) => (r.quality ? COLLAB_QUALITY_LABELS[r.quality] : r.instrument?.name))
-	];
-	const counts = new Map<string, number>();
-	for (const raw of labels) {
-		const label = raw?.toLowerCase();
-		if (label) counts.set(label, (counts.get(label) ?? 0) + 1);
-	}
-	return [...counts.entries()]
-		.map(([label, count]) => ({ label, count }))
-		.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
 }
 
 /**

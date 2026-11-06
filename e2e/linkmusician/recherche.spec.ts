@@ -2,13 +2,19 @@ import { test, expect } from '../support/fixtures';
 import { signUpAndVerify } from '../support/admin';
 import { waitForAppReady } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
-import { createMusician, deleteMusicians, skipOnboarding } from '../support/linkmusician';
+import {
+	createMusician,
+	deleteMusicians,
+	setReputation,
+	skipOnboarding
+} from '../support/linkmusician';
 
 /**
  * P2-01 — Recherche : depuis Toulouse, un batteur de Blagnac (~7 km) est
  * trouvé à « 5 à 10 km », un bassiste de Montauban (~46 km) seulement avec
  * un rayon plus large ; les filtres passent par l'URL ; une carte mène au
- * profil public.
+ * profil public. P2-08 : la carte de réputation du profil se remplit, et le
+ * score interne de tri n'apparaît dans aucune réponse JSON.
  */
 test.describe('LinkMusician — recherche', () => {
 	test.setTimeout(5 * 60_000);
@@ -81,6 +87,35 @@ test.describe('LinkMusician — recherche', () => {
 				await expect(
 					page.getByRole('heading', { level: 1, name: bassist.displayName })
 				).toBeVisible();
+			});
+
+			await test.step('6. Carte de réputation : des faits, jamais le score (P2-08)', async () => {
+				// Score volontairement reconnaissable, pour le chercher dans les réponses.
+				const SCORE = 7.654321;
+				await setReputation(
+					bassist.actorId,
+					{ confirmedCollabs: 3, distinctCounterparts: 2, responseBucket: 'FAST' },
+					SCORE
+				);
+				await setReputation(
+					drummer.actorId,
+					{ confirmedCollabs: 0, distinctCounterparts: 0 },
+					SCORE
+				);
+				await page.reload();
+				await waitForAppReady(page);
+				await expect(page.getByText('3 collaborations confirmées avec 2 personnes')).toBeVisible();
+				await expect(page.getByText('Répond généralement sous 24 h')).toBeVisible();
+
+				for (const path of [`/@${bassist.handle}/__data.json`, '/decouvrir/__data.json?rayon=50']) {
+					const res = await page.request.get(path);
+					expect(res.ok(), path).toBe(true);
+					const body = await res.text();
+					expect(body, path).not.toContain('internalScore');
+					expect(body, path).not.toContain(String(SCORE));
+				}
+				const search = await page.request.get('/decouvrir/__data.json?rayon=50');
+				expect(await search.text()).toContain(drummer.displayName);
 			});
 		} finally {
 			await deleteMusicians([drummer, bassist]);

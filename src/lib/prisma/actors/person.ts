@@ -129,7 +129,8 @@ export async function exportPersonData(userId: string) {
 		endorsementsReceivedRows,
 		networkTies,
 		collabEndorsementsGiven,
-		collabEndorsementsReceived
+		collabEndorsementsReceived,
+		reputation
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -310,6 +311,21 @@ export async function exportPersonData(userId: string) {
 				from: { select: { displayName: true } },
 				collaboration: { select: { title: true } }
 			}
+		}),
+		// Réputation (P2-08) : la carte publique. Le score interne de tri n'est
+		// qu'un calcul sur ces faits, déjà tous présents dans l'export.
+		prisma.reputationSnapshot.findUnique({
+			where: { actorId: person.actorId },
+			select: {
+				confirmedCollabs: true,
+				distinctCounterparts: true,
+				corroboratedGigs: true,
+				verifiedReleases: true,
+				bands: true,
+				distinctEndorsers: true,
+				responseBucket: true,
+				computedAt: true
+			}
 		})
 	]);
 	const media = await prisma.media.findMany({
@@ -471,6 +487,18 @@ export async function exportPersonData(userId: string) {
 			texte: m.body,
 			le: m.createdAt
 		})),
+		carte_de_reputation: reputation
+			? {
+					collaborations_confirmees: reputation.confirmedCollabs,
+					personnes_distinctes: reputation.distinctCounterparts,
+					concerts_corrobores: reputation.corroboratedGigs,
+					sorties_verifiees: reputation.verifiedReleases,
+					groupes: reputation.bands,
+					personnes_qui_recommandent: reputation.distinctEndorsers,
+					reactivite: reputation.responseBucket,
+					calculee_le: reputation.computedAt
+				}
+			: null,
 		cree_le: person.createdAt
 	};
 }
@@ -509,6 +537,9 @@ export async function personAnonymizationOps(
 		prisma.jamEndorsement.deleteMany({ where: { toActorId: person.actorId } }),
 		// Collaborations (P2-07) : même règle que les jams.
 		prisma.collabEndorsement.deleteMany({ where: { toActorId: person.actorId } }),
+		// Réputation (P2-08) : projection supprimée ; elle ne se recalcule pas
+		// pour un acteur anonymisé (`recomputeReputation`).
+		prisma.reputationSnapshot.deleteMany({ where: { actorId: person.actorId } }),
 		// Réseau musical (P2-16) : supprimé, dans les deux sens.
 		prisma.musicalTie.deleteMany({
 			where: { OR: [{ ownerId: person.actorId }, { contactId: person.actorId }] }

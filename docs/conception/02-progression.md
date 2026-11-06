@@ -22,6 +22,24 @@ Règles d'étanchéité :
   3 concerts vérifiés · répond généralement sous 48 h · endossé
   "fiable" par 5 collaborateurs »). Un score interne existe pour trier
   les résultats, mais il n'est jamais montré.
+- **Carte de réputation** (P2-08, `ReputationSnapshot`) : collaborations
+  confirmées et personnes distinctes, groupes, concerts corroborés, sorties
+  vérifiées, personnes qui recommandent, appréciations par libellé, et
+  réactivité. La réactivité est la **médiane** des délais de première
+  réponse aux demandes reçues sur 180 jours (une demande sans réponse
+  depuis 7 jours compte comme lente, une demande refusée ne compte pas :
+  refuser est une réponse), à partir de 3 demandes. Seules « répond
+  généralement sous 24 h » et « sous 48 h » s'affichent : une réactivité
+  lente n'est jamais écrite sur le profil, elle pèse seulement sur le tri.
+- **Score interne** (`core/reputation.ts`) : somme pondérée de
+  `ln(1 + n)` sur chaque fait (personnes distinctes ×3, personnes qui
+  recommandent ×2, concerts corroborés et sorties vérifiées ×1,5,
+  collaborations ×1, groupes ×0,5), plus la réactivité (+1 sous 24 h,
+  +0,5 sous 48 h, −0,5 au-delà). Le logarithme fait que le dixième fait
+  vaut moins que le premier ; les personnes distinctes pèsent plus que les
+  répétitions. Recalculé après chaque événement qui touche la réputation,
+  chaque nuit et à la demande. Il ne sert qu'au tri de la recherche (D33)
+  et ne sort jamais du serveur.
 - Les compétences restent **déclaratives et assumées comme telles** :
   « Confirmé (déclaré) · 2 démos · endossé par 4 musiciens ». La
   plateforme ne certifie jamais un niveau musical.

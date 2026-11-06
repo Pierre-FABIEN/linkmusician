@@ -1446,6 +1446,7 @@ model Actor {
   networkOf              MusicalTie[]           @relation("TieContact")
   collabEndorsementsGiven    CollabEndorsement[] @relation("CollabEndorsementFrom")
   collabEndorsementsReceived CollabEndorsement[] @relation("CollabEndorsementTo")
+  reputation                 ReputationSnapshot?
 
   @@map("actors")
 }
@@ -2444,4 +2445,33 @@ model CollabEndorsement {
   @@index([toActorId])
   @@index([fromActorId])
   @@map("collab_endorsements")
+}
+
+// ─── RÉPUTATION (P2-08) ─────────────────────────────────────────────────────
+
+/// Carte de réputation (conception 02 §1) : ce que d'autres confirment,
+/// recalculée après chaque événement qui la touche, chaque nuit
+/// (`/api/jobs/reputation`) et à la demande. Projection reconstructible :
+/// rien ici n'est saisi. L'XP n'entre dans aucun de ces champs.
+model ReputationSnapshot {
+  actorId              String   @id
+  actor                Actor    @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  confirmedCollabs     Int
+  distinctCounterparts Int
+  /// Concerts corroborés et sorties vérifiées (étapes de groupe).
+  corroboratedGigs     Int
+  verifiedReleases     Int
+  bands                Int
+  /// Personnes distinctes qui ont laissé une appréciation encore active.
+  distinctEndorsers    Int
+  /// Appréciations actives par libellé : `[{ label, count }]`, des plus fréquentes.
+  endorsementsByKind   Json
+  /// `FAST` (< 24 h), `DAY` (< 48 h), `SLOW`, ou `null` sans assez de demandes reçues.
+  responseBucket       String?
+  /// Tri de la recherche uniquement. Jamais affiché, jamais renvoyé au client.
+  internalScore        Float
+  computedAt           DateTime
+
+  @@index([internalScore])
+  @@map("reputation_snapshots")
 }

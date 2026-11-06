@@ -23,8 +23,11 @@ Lus dans l'URL (partageable), validés par `src/lib/search/filters.ts`
 
 - **Profils publics seulement** : ni anonymisé, ni masqué, ni suspendu, et
   onboarding terminé (mêmes règles que `publicActorWhere`, écrites en SQL).
-- **Tri par proximité**, puis par identifiant ; la réputation s'ajoutera
-  au tri avec P2-08 (jamais l'XP).
+- **Tri** (D33) : son réseau musical d'abord (P2-16), puis la tranche de
+  distance affichée, puis, dans une même tranche, la réputation (score
+  interne de P2-08), enfin la distance et l'identifiant. Jamais l'XP. Le
+  score reste dans la sous-requête SQL : il n'est jamais sélectionné ni
+  renvoyé.
 - **Jamais de distance précise** vers le navigateur : seulement la tranche
   (`distanceBand`). D'où une pagination par numéro de page plutôt que par
   curseur (un curseur porterait la distance).

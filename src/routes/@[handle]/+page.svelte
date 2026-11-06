@@ -17,7 +17,9 @@
 		MapPin,
 		CalendarCheck,
 		Link2,
-		MessageCircle
+		MessageCircle,
+		Disc3,
+		Clock
 	} from 'lucide-svelte';
 	import LevelBadge from '#lib/components/linkmusician/progress/LevelBadge.svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
@@ -62,9 +64,17 @@
 				icon: Mic2,
 				text: plural(p.confirmed.corroboratedGigs, 'concert corroboré', 'concerts corroborés')
 			},
+			p.confirmed.verifiedReleases > 0 && {
+				icon: Disc3,
+				text: plural(p.confirmed.verifiedReleases, 'sortie vérifiée', 'sorties vérifiées')
+			},
 			p.confirmed.distinctEndorsers > 0 && {
 				icon: ThumbsUp,
 				text: `Recommandé·e par ${plural(p.confirmed.distinctEndorsers, 'personne', 'personnes')}`
+			},
+			p.confirmed.respondsWithin !== null && {
+				icon: Clock,
+				text: `Répond généralement sous ${p.confirmed.respondsWithin === '24h' ? '24' : '48'} h`
 			}
 		].filter((s) => s !== false)
 	);
@@ -233,11 +243,11 @@
 						<Card.Description>La réputation : des faits, pas un score.</Card.Description>
 					</Card.Header>
 					<Card.Content class="space-y-3 text-sm">
-						{#if data.appreciations.length > 0}
+						{#if p.confirmed.appreciations.length > 0}
 							<div class="space-y-2">
 								<p class="font-medium">Apprécié·e après avoir joué ensemble</p>
 								<ul class="flex flex-wrap gap-2" aria-label="Appréciations reçues">
-									{#each data.appreciations as a (a.label)}
+									{#each p.confirmed.appreciations as a (a.label)}
 										<li class="rounded-full border px-3 py-1">
 											{a.label}{a.count > 1 ? ` × ${a.count}` : ''}
 										</li>
@@ -251,7 +261,7 @@
 								{s.text}
 							</p>
 						{:else}
-							{#if data.appreciations.length === 0}
+							{#if p.confirmed.appreciations.length === 0}
 								<p class="text-muted-foreground">
 									Rien de confirmé pour l'instant. Les collaborations et les concerts confirmés par
 									d'autres apparaîtront ici.

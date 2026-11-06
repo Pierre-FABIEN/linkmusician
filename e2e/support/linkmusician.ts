@@ -147,3 +147,31 @@ export async function createAvailability(actorId: string, hoursLeft = 4, note?: 
 		}
 	});
 }
+
+/**
+ * LINKMUSICIAN: carte de réputation posée en base (P2-08), comme le ferait le
+ * job. Le score sert au tri ; il ne doit jamais apparaître dans une réponse.
+ */
+export async function setReputation(
+	actorId: string,
+	card: { confirmedCollabs: number; distinctCounterparts: number; responseBucket?: string },
+	internalScore: number
+) {
+	const data = {
+		confirmedCollabs: card.confirmedCollabs,
+		distinctCounterparts: card.distinctCounterparts,
+		corroboratedGigs: 0,
+		verifiedReleases: 0,
+		bands: 0,
+		distinctEndorsers: 0,
+		endorsementsByKind: [],
+		responseBucket: card.responseBucket ?? null,
+		internalScore,
+		computedAt: new Date()
+	};
+	return db.reputationSnapshot.upsert({
+		where: { actorId },
+		create: { actorId, ...data },
+		update: data
+	});
+}
