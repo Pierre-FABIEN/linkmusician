@@ -133,7 +133,8 @@ export async function exportPersonData(userId: string) {
 		reputation,
 		notifications,
 		notificationPreferences,
-		collusionCases
+		collusionCases,
+		suggestionsDismissed
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -352,6 +353,12 @@ export async function exportPersonData(userId: string) {
 			where: { memberIds: { has: person.actorId } },
 			orderBy: { detectedAt: 'asc' },
 			select: { status: true, detectedAt: true, handledAt: true }
+		}),
+		// Suggestions écartées (« Pas intéressé·e », P2-18).
+		prisma.suggestionDismissal.findMany({
+			where: { ownerId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: { createdAt: true, actor: { select: { displayName: true } } }
 		})
 	]);
 	const media = await prisma.media.findMany({
@@ -541,6 +548,10 @@ export async function exportPersonData(userId: string) {
 			dans_l_app: p.inApp,
 			par_email: p.email
 		})),
+		suggestions_ecartees: suggestionsDismissed.map((d) => ({
+			nom: d.actor.displayName,
+			le: d.createdAt
+		})),
 		verifications_de_moderation: collusionCases.map((c) => ({
 			objet: 'Cercle fermé de collaborations et d’appréciations (détection automatique)',
 			statut: c.status,
@@ -588,6 +599,10 @@ export async function personAnonymizationOps(
 		// Réputation (P2-08) : projection supprimée ; elle ne se recalcule pas
 		// pour un acteur anonymisé (`recomputeReputation`).
 		prisma.reputationSnapshot.deleteMany({ where: { actorId: person.actorId } }),
+		// Suggestions écartées (P2-18) : dans les deux sens.
+		prisma.suggestionDismissal.deleteMany({
+			where: { OR: [{ ownerId: person.actorId }, { actorId: person.actorId }] }
+		}),
 		// Collusion (P2-10) : les cas qui la citent sont supprimés.
 		prisma.collusionCase.deleteMany({ where: { memberIds: { has: person.actorId } } }),
 		// Notifications (P2-09a) : reçues et causées, et préférences.

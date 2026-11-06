@@ -1,32 +1,29 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après P2-17).
+> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après P2-18).
 
 ---
 
 ```markdown
-On reprend LinkMusician au lot **P2-18** (suggestions de musicien·nes selon
-styles et niveaux). Ne refais pas l'analyse du projet : CLAUDE.md est déjà
-chargé, tout ce qui sert est ci-dessous. Lire la fiche « P2-18 » de
-docs/plan/phase-2-3.md et la conception 07 §7.1.
+On reprend LinkMusician à la **revue de fin de phase 2**. Ne refais pas
+l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui sert est
+ci-dessous.
 
 ## État (06/11/2026)
 
-- Livrés et verts : P2-08 à P2-10, P2-17 (conseils en contexte). Reste en
-  phase 2 : P2-18, puis la **revue de phase 2** (démo du parcours,
-  calibrage du barème, relecture des fiches de phase 3, trancher D20).
-  Objectif D28 : lancement public à Toulouse début mars 2027.
-  L'utilisateur juge que tout se jouera sur une UX simple et agréable.
-- Points ouverts hors lots : docs/plan/README.md §5 bis (à relire en
-  début de session, à compléter en fin de lot).
-- P2-18, points d'appui : recherche `src/lib/server/search/musicians.ts`
-  (PostGIS, `publicActorWhere` en SQL, blocages, tri D33 : réseau puis
-  tranche) ; réseau musical `musical_ties` (P2-16) ; mineur·es : D5 et
-  `#lib/actors/visibility` (`adultBirthCutoff`) ; niveaux déclarés
-  `person_instruments.declaredLevel` ; profil public
-  `src/routes/@[handle]/` ; espace `src/routes/(app)/espace/`. Jamais
-  l'XP ni le palier. « Pas intéressé·e » à mémoriser par personne.
+- **Phase 2 terminée** : tous ses lots sont ✅ (tableau §5 de
+  docs/plan/README.md), le dernier étant P2-18 (suggestions de
+  musicien·nes). Objectif D28 : lancement public à Toulouse début mars 2027. L'utilisateur juge que tout se jouera sur une UX simple et
+  agréable.
+- Revue de fin de phase 2 (fin de docs/plan/phase-2-3.md, rituels §6 du
+  plan) : démo du parcours livré ; vérifier les critères de la phase ;
+  calibrer le barème XP sur les données de test (temps pour atteindre le
+  niveau 5 et le rang « Collaborateur ») ; relire et détailler les fiches
+  de phase 3 ; trancher **D20** (modèle du morceau, voir
+  docs/decisions/README.md).
+- Points ouverts hors lots : docs/plan/README.md §5 bis (à relire, en
+  particulier les calibrages « après le pilote »).
 - Le wifi public de l'utilisateur bloque le port 5432 (Neon injoignable) :
   dans ce cas, écrire la migration à la main et la vérifier ensuite avec
   `npm run db:nouvelle-migration -- verif` (diff vide attendu).

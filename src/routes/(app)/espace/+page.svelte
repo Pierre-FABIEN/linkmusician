@@ -1,6 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: tableau de bord de progression (P1-11), d'après la maquette
 	// validée `/_lab/tableau-de-bord`. Les valeurs viennent toutes du serveur.
+	import Suggestions from '#lib/components/linkmusician/Suggestions.svelte';
 	import SEO from '#lib/components/SEO.svelte';
 	import * as Card from '#shadcn/card';
 	import * as Avatar from '#shadcn/avatar';
@@ -110,6 +111,12 @@
 				</ul>
 			</section>
 		{/if}
+
+		<Suggestions
+			title="Des musicien·nes pour toi"
+			suggestions={data.suggestions}
+			emptyHint={data.suggestionsHint}
+		/>
 
 		<div class="grid gap-6 lg:grid-cols-3">
 			<!-- Objectifs -->

@@ -1450,6 +1450,8 @@ model Actor {
   notifications              Notification[]           @relation("NotificationRecipient")
   notificationsCaused        Notification[]           @relation("NotificationFrom")
   notificationPreferences    NotificationPreference[]
+  suggestionsDismissed       SuggestionDismissal[]    @relation("SuggestionOwner")
+  dismissedAsSuggestion      SuggestionDismissal[]    @relation("SuggestionTarget")
 
   @@map("actors")
 }
@@ -2567,4 +2569,19 @@ model CollusionCase {
 
   @@index([status, sharedIps])
   @@map("collusion_cases")
+}
+
+// ─── SUGGESTIONS DE MUSICIEN·NES (P2-18) ────────────────────────────────────
+
+/// « Pas intéressé·e » : la personne ne sera plus suggérée à `ownerId`. Elle
+/// reste trouvable par la recherche ; seule la suggestion disparaît.
+model SuggestionDismissal {
+  ownerId   String
+  owner     Actor    @relation("SuggestionOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  actorId   String
+  actor     Actor    @relation("SuggestionTarget", fields: [actorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([ownerId, actorId])
+  @@map("suggestion_dismissals")
 }

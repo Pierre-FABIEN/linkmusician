@@ -1,6 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: profil public `/@handle` (P1-11), d'après la maquette validée
 	// `/_lab/profil`. Voir +page.server.ts.
+	import Suggestions from '#lib/components/linkmusician/Suggestions.svelte';
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
@@ -383,5 +384,12 @@
 				{/if}
 			</div>
 		</div>
+
+		{#if data.suggestions.length > 0}
+			<Suggestions
+				title={data.isOwner ? 'Des musicien·nes pour toi' : 'Dans le même style'}
+				suggestions={data.suggestions}
+			/>
+		{/if}
 	</div>
 </div>

@@ -452,7 +452,9 @@ ne fait rien perdre. Concrètement :
   [docs/guide](../guide/README.md)).
 - Le profil propose des **musicien·nes compatibles** : mêmes styles,
   niveau déclaré proche, instruments complémentaires, près de chez soi,
-  le réseau musical d'abord. Jamais trié par l'XP.
+  le réseau musical d'abord. Jamais trié par l'XP. Un·e mineur·e n'est
+  jamais suggéré·e à un adulte inconnu (fait en P2-18, voir
+  [docs/recherche](../recherche/README.md#suggestions-de-musiciennes-p2-18)).
 
 ## 8. Ce qu'il faudra construire
 

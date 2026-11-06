@@ -8,6 +8,8 @@ import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { getPublicProfile } from '#lib/server/actors/publicProfile';
 import { fileReport, ModerationError } from '#lib/server/moderation/service';
 import { blockActor, BlockingError } from '#lib/server/blocking/service';
+import { suggestMusicians } from '#lib/server/discovery/suggestions';
+import { prisma } from '#lib/server';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -23,8 +25,22 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	// L'identifiant interne reste côté serveur.
 	const { id: actorId, ...publicProfile } = profile;
 	const isOwner = viewer?.actorId === actorId;
+	// Suggestions (P2-18), pour un membre seulement : les siennes sur son
+	// profil, « Dans le même style » sur celui d'un autre.
+	const suggestions =
+		viewer?.onboardedAt && profile.kind === 'PERSON'
+			? await suggestMusicians(
+					viewer.actorId,
+					{ db: prisma },
+					{
+						likeActorId: isOwner ? undefined : actorId,
+						limit: 3
+					}
+				)
+			: [];
 	return {
 		profile: publicProfile,
+		suggestions,
 		isOwner,
 		canReport: Boolean(viewer) && !isOwner
 	};
