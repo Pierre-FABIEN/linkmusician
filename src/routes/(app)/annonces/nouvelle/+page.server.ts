@@ -9,17 +9,21 @@ import {
 	createOpportunity
 } from '#lib/server/opportunities/service';
 import { OPPORTUNITY_KINDS, opportunitySchema } from '#lib/opportunities/rules';
+import { managedBands } from '#lib/server/bands/service';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	// Une jam se publie dans un lieu de l'annuaire (P2-14b).
 	if (url.searchParams.get('type') === 'JAM') redirect(303, '/jams/nouvelle');
 	const person = (await getPersonByUserId(locals.user!.id))!;
-	const [location, instruments, genres] = await Promise.all([
+	const [location, instruments, genres, bands] = await Promise.all([
 		getActorLocation(person.actorId),
 		listInstrumentsByFamily(),
-		listGenreTree()
+		listGenreTree(),
+		// Groupes que je gère : publier un recrutement en leur nom (P3-03).
+		managedBands(person.actorId)
 	]);
+	const groupe = url.searchParams.get('groupe');
 	return {
 		commune: location?.communeName ?? null,
 		instruments: instruments.map((f) => ({
@@ -32,6 +36,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			children: g.children.map((c) => ({ slug: c.slug, name: c.name }))
 		})),
 		tiers: TIER_OPTIONS,
+		bands: bands.map(({ handle, name, commune }) => ({ handle, name, commune })),
+		defaultBand: bands.some((b) => b.handle === groupe) ? groupe : '',
 		// « Lancer une jam » depuis le mode jam (P2-12) : type présélectionné.
 		defaultKind: (OPPORTUNITY_KINDS as readonly string[]).includes(
 			url.searchParams.get('type') ?? ''
@@ -53,9 +59,20 @@ export const actions: Actions = {
 			});
 		}
 		if (parsed.data.kind === 'JAM') redirect(303, '/jams/nouvelle');
+		// Au nom d'un groupe que je gère (P3-03) : relu côté serveur.
+		const asBand = typeof raw.asBand === 'string' ? raw.asBand : '';
+		const band = asBand
+			? (await managedBands(person.actorId)).find((b) => b.handle === asBand)
+			: null;
+		if (asBand && !band) {
+			return fail(403, {
+				values: raw as Record<string, string>,
+				error: 'Tu ne gères pas ce groupe.'
+			});
+		}
 		let id: string;
 		try {
-			({ id } = await createOpportunity(person.actorId, parsed.data));
+			({ id } = await createOpportunity(person.actorId, parsed.data, new Date(), band?.id ?? null));
 		} catch (err) {
 			if (err instanceof OpportunityError) {
 				return fail(err.status, { values: raw as Record<string, string>, error: err.message });

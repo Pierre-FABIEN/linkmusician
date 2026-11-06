@@ -23,7 +23,6 @@ import { isBlockedBetween } from '#lib/server/blocking/service';
 import { playedTogether } from '#lib/server/network/service';
 import { notify } from '#lib/server/notifications/service';
 import { emitAndProcess } from '#lib/server/progression/processor';
-import { saveGenres } from '#lib/prisma/skills/musicalProfile';
 import { clearActorLocation, setActorLocation } from '#lib/server/geo/queries';
 import type { Commune } from '#lib/geo/fuzz';
 import { addExternalMedia, deleteOwnMedia, MediaError } from '#lib/server/media/service';
@@ -512,6 +511,87 @@ export async function setMyTitle(bandId: string, personId: string, title: string
 	await prisma.membership.update({ where: { id: mine.id }, data: { title } });
 }
 
+// ─── Recrutement (P3-03) ─────────────────────────────────────────────────
+
+/** Groupes que la personne gère (OWNER, ADMIN), pour publier en leur nom. */
+export async function managedBands(personId: string) {
+	const rows = await prisma.membership.findMany({
+		where: {
+			personId,
+			status: 'ACTIVE',
+			role: { in: ['OWNER', 'ADMIN'] },
+			org: { kind: 'BAND', dissolvedAt: null, actor: { deletedAt: null } }
+		},
+		orderBy: { startedAt: 'asc' },
+		select: {
+			org: {
+				select: {
+					actorId: true,
+					actor: {
+						select: {
+							handle: true,
+							displayName: true,
+							location: { select: { communeName: true } }
+						}
+					}
+				}
+			}
+		}
+	});
+	return rows.map((r) => ({
+		id: r.org.actorId,
+		handle: r.org.actor.handle,
+		name: r.org.actor.displayName,
+		commune: r.org.actor.location?.communeName ?? null
+	}));
+}
+
+/** Personnes qui gèrent le groupe (pour les notifications et les droits). */
+export async function bandManagerIds(bandId: string, db: Tx | typeof prisma = prisma) {
+	return managersOf(db as Tx, bandId);
+}
+
+/**
+ * Candidature acceptée sur une annonce « cherche un membre » du groupe : la
+ * personne entre dans le groupe (formation à la 2ᵉ adhésion, XP), dans la
+ * transaction de l'acceptation. Une invitation ou une demande en attente
+ * devient l'adhésion.
+ */
+export async function joinFromRecruitment(
+	tx: Tx,
+	input: { bandId: string; personId: string; managerId: string; title: string | null },
+	now = new Date()
+) {
+	const { bandId, personId, managerId } = input;
+	await lockBand(tx, bandId);
+	await liveBand(tx, bandId);
+	await requireManager(tx, bandId, managerId);
+	const existing = await tx.membership.findFirst({
+		where: { orgId: bandId, personId, status: open },
+		select: { id: true, status: true, title: true }
+	});
+	if (existing?.status === 'ACTIVE') {
+		throw new BandError('Cette personne fait déjà partie du groupe.');
+	}
+	if (!existing && (await countActiveBands(tx, personId)) >= MAX_ACTIVE_BANDS) {
+		throw new BandError(`Cette personne est déjà dans ${MAX_ACTIVE_BANDS} groupes.`);
+	}
+	if (existing) {
+		await tx.membership.update({
+			where: { id: existing.id },
+			data: { status: 'ACTIVE', startedAt: now, title: existing.title ?? input.title }
+		});
+	} else {
+		await tx.membership.create({
+			data: { orgId: bandId, personId, status: 'ACTIVE', startedAt: now, title: input.title }
+		});
+	}
+	await afterJoin(tx, bandId, personId, now, managerId);
+}
+
+/** Le recrutement a besoin du délai long (événements de progression). */
+export const BAND_TX = TX;
+
 // ─── Fiche du groupe (P3-02) ─────────────────────────────────────────────
 
 /** Ce que la gestion modifie : nom, présentation, genres, ville. */
@@ -520,6 +600,10 @@ export async function updateBandProfile(
 	managerId: string,
 	input: { name: string; bio: string | null; genreIds: string[]; commune: Commune | null }
 ) {
+	const genreIds = [...new Set(input.genreIds)];
+	const known = await prisma.genre.count({ where: { id: { in: genreIds }, active: true } });
+	if (known !== genreIds.length)
+		throw new BandError('Un genre choisi n’existe plus : recharge la page.');
 	await prisma.$transaction(async (tx) => {
 		await lockBand(tx, bandId);
 		await liveBand(tx, bandId);
@@ -528,8 +612,12 @@ export async function updateBandProfile(
 			where: { id: bandId },
 			data: { displayName: input.name, bio: input.bio }
 		});
+		// Genres facultatifs pour un groupe (une personne en déclare au moins un).
+		await tx.actorGenre.deleteMany({ where: { actorId: bandId } });
+		await tx.actorGenre.createMany({
+			data: genreIds.map((genreId) => ({ actorId: bandId, genreId }))
+		});
 	}, TX);
-	await saveGenres({ actorId: bandId }, { genreIds: input.genreIds });
 	// Comme pour une personne : seul le centre de la commune, sur une grille.
 	if (input.commune) await setActorLocation(bandId, input.commune);
 	else await clearActorLocation(bandId);

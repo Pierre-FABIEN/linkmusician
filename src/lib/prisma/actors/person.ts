@@ -182,11 +182,19 @@ export async function exportPersonData(userId: string) {
 			orderBy: { createdAt: 'asc' },
 			select: { createdAt: true, blocked: { select: { displayName: true } } }
 		}),
-		// Annonces (P2-02).
+		// Annonces (P2-02), et celles publiées au nom d'un groupe (P3-03).
 		prisma.opportunity.findMany({
-			where: { issuerActorId: person.actorId },
+			where: { OR: [{ issuerActorId: person.actorId }, { postedById: person.actorId }] },
 			orderBy: { createdAt: 'asc' },
-			select: { kind: true, title: true, description: true, status: true, createdAt: true }
+			select: {
+				kind: true,
+				title: true,
+				description: true,
+				status: true,
+				createdAt: true,
+				postedById: true,
+				issuer: { select: { displayName: true } }
+			}
 		}),
 		// Candidatures (P2-03).
 		prisma.application.findMany({
@@ -458,7 +466,8 @@ export async function exportPersonData(userId: string) {
 			titre: o.title,
 			texte: o.description,
 			statut: o.status,
-			le: o.createdAt
+			le: o.createdAt,
+			au_nom_du_groupe: o.postedById ? o.issuer.displayName : null
 		})),
 		disponibilite: availability,
 		jams_je_viens: jamsComing.map((a) => ({
@@ -647,7 +656,12 @@ export async function personAnonymizationOps(
 			where: { leadActorId: person.actorId },
 			data: { leadActorId: null }
 		}),
-		// Annonces (P2-02) : supprimées avec le compte.
+		// Annonces (P2-02) : supprimées avec le compte. Celles publiées au nom
+		// d'un groupe (P3-03) restent au groupe ; on oublie qui les a publiées.
+		prisma.opportunity.updateMany({
+			where: { postedById: person.actorId },
+			data: { postedById: null }
+		}),
 		prisma.opportunity.deleteMany({ where: { issuerActorId: person.actorId } }),
 		// Candidatures (P2-03) : supprimées avec le compte.
 		prisma.application.deleteMany({ where: { applicantActorId: person.actorId } }),

@@ -52,12 +52,13 @@ export async function fileReport(
 		});
 		targetActorId = media?.actorId ?? null;
 	} else if (input.targetType === 'OPPORTUNITY') {
-		// Annonce (P2-02) : l'acteur visé est son auteur.
+		// Annonce (P2-02) : l'acteur visé est son auteur ; pour une annonce de
+		// groupe (P3-03), la personne qui l'a publiée.
 		const opportunity = await prisma.opportunity.findUnique({
 			where: { id: input.targetId },
-			select: { issuerActorId: true }
+			select: { issuerActorId: true, postedById: true }
 		});
-		targetActorId = opportunity?.issuerActorId ?? null;
+		targetActorId = opportunity ? (opportunity.postedById ?? opportunity.issuerActorId) : null;
 	} else if (input.targetType === 'VENUE') {
 		// Lieu de l'annuaire (P2-14a) : l'acteur visé est la personne qui l'a ajouté.
 		const venue = await prisma.venue.findFirst({
@@ -328,7 +329,7 @@ export async function currentSuspension(actorId: string) {
 export async function removeOpportunity(opportunityId: string, reason: string, by: Moderator) {
 	const opportunity = await prisma.opportunity.findUnique({
 		where: { id: opportunityId },
-		select: { issuerActorId: true }
+		select: { issuerActorId: true, postedById: true }
 	});
 	if (!opportunity) throw new ModerationError('Annonce introuvable.');
 	await prisma.opportunity.update({
@@ -348,7 +349,8 @@ export async function removeOpportunity(opportunityId: string, reason: string, b
 		targetId: opportunityId,
 		metadata: { reason }
 	});
-	await refreshTrust(opportunity.issuerActorId);
+	// Annonce de groupe (P3-03) : c'est la confiance de la personne qui l'a publiée.
+	await refreshTrust(opportunity.postedById ?? opportunity.issuerActorId);
 }
 
 /** Valide un lieu en attente (P2-14c, D26) : visible de tous, il accueille des jams. */

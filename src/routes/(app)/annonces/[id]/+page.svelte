@@ -57,7 +57,9 @@
 			</div>
 			<h1 class="text-3xl font-black tracking-tight">{o.title}</h1>
 			<p class="text-sm text-muted-foreground">
-				par <a href="/@{o.issuer.handle}" class="font-medium underline">{o.issuer.displayName}</a>
+				{o.issuer.isBand ? 'Le groupe' : 'par'}
+				<a href="/@{o.issuer.handle}" class="font-medium underline">{o.issuer.displayName}</a>
+				{o.issuer.isBand ? 'recrute' : ''}
 			</p>
 		</header>
 
@@ -172,7 +174,14 @@
 						Ta candidature : {APPLICATION_STATUS_LABELS[data.mine.status]}
 					</h2>
 					{#if data.mine.status === 'ACCEPTED' && data.mine.conversationId}
-						<p>Bravo ! {o.issuer.displayName} a accepté : la conversation est ouverte.</p>
+						<p>
+							{#if o.issuer.isBand && o.kind === 'RECRUIT_MEMBER'}
+								Bravo ! Tu fais maintenant partie de {o.issuer.displayName}. La conversation est
+								ouverte.
+							{:else}
+								Bravo ! {o.issuer.displayName} a accepté : la conversation est ouverte.
+							{/if}
+						</p>
 						<a
 							href="/messages/{data.mine.conversationId}"
 							class="inline-block font-semibold underline">Ouvrir la conversation</a

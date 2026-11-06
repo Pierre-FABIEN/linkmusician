@@ -172,5 +172,13 @@ describe.skipIf(!enabled)('page publique d’un groupe (schéma e2e)', () => {
 		});
 		const page = (await getPublicBand(band.handle, new Date(), null))!;
 		expect(page).toMatchObject({ bio: 'Rock garage.', genres: ['Rock'] });
+		// Sans genre : accepté (facultatif pour un groupe).
+		await service.updateBandProfile(band.id, ids.lea, {
+			name: `${PREFIX}Les Rats`,
+			bio: null,
+			genreIds: [],
+			commune: null
+		});
+		expect((await getPublicBand(band.handle, new Date(), null))!.genres).toEqual([]);
 	}, 60_000);
 });

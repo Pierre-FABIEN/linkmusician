@@ -50,6 +50,9 @@
 					<a href="/groupes/{band.handle}/modifier" class="font-semibold underline"
 						>Modifier la fiche du groupe</a
 					>
+					<a href="/annonces/nouvelle?groupe={band.handle}" class="font-semibold underline"
+						>Publier une annonce de recrutement</a
+					>
 				{/if}
 			</p>
 			<p class="text-sm text-muted-foreground">

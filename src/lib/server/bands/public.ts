@@ -70,7 +70,7 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 		}
 	}
 
-	const [visibleRows, genres, location, media] = await Promise.all([
+	const [visibleRows, genres, location, media, recruiting] = await Promise.all([
 		prisma.actor.findMany({
 			where: { id: { in: org.memberships.map((m) => m.person.id) }, ...publicActorWhere(now) },
 			select: { id: true }
@@ -86,6 +86,18 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 			orderBy: { createdAt: 'desc' },
 			take: PUBLIC_MEDIA_LIMIT,
 			select: { id: true, title: true, kind: true, isDemo: true, externalUrl: true, fileUrl: true }
+		}),
+		// Annonces « cherche un membre » ouvertes (P3-03).
+		prisma.opportunity.findMany({
+			where: {
+				issuerActorId: actor.id,
+				kind: 'RECRUIT_MEMBER',
+				status: 'OPEN',
+				expiresAt: { gt: now }
+			},
+			orderBy: { createdAt: 'desc' },
+			take: 5,
+			select: { id: true, title: true, instrument: { select: { name: true } } }
 		})
 	]);
 	const visible = new Set(visibleRows.map((a) => a.id));
@@ -140,6 +152,11 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 		members: active.map(card),
 		past: past.map(card),
 		media,
+		recruiting: recruiting.map((r) => ({
+			id: r.id,
+			title: r.title,
+			instrument: r.instrument?.name ?? null
+		})),
 		viewer: {
 			status: mine?.status ?? null,
 			manager: mine?.status === 'ACTIVE' && isManager(mine.role)

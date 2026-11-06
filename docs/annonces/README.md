@@ -51,6 +51,34 @@ membres.
 - La proposition de **collaboration** après une acceptation arrive avec
   P2-06.
 
+## Recrutement d'un groupe (P3-03)
+
+- **Au nom d'un groupe** : une personne qui gère le groupe (OWNER ou
+  ADMIN) choisit « Publier au nom de » sur `/annonces/nouvelle` (ou suit
+  « Publier une annonce de recrutement » depuis `/groupes/[handle]`). Le
+  groupe est l'émetteur (`issuerActorId`), la personne est notée
+  (`postedById`). Un groupe ne publie **que des recrutements**.
+- **Zone** : la ville du groupe (fiche du groupe), obligatoire.
+- **Quota** : selon la confiance de la personne qui publie, compté sur les
+  annonces actives du groupe (un groupe reste au palier 0).
+- **Gestion partagée** : toute la gestion du groupe voit l'annonce dans
+  « Mes annonces », la clôture, reçoit la notification de candidature et
+  tranche (`managesIssuer`). Un membre du groupe ne postule pas à son
+  propre groupe.
+- **Accepter** ouvre la conversation entre la candidate et la personne qui
+  accepte (+30 XP chacun à la réciprocité, comme P2-03) **et** fait entrer
+  la candidate dans le groupe, dans la même transaction
+  (`joinFromRecruitment`) : adhésion avec l'instrument recherché comme
+  rôle, XP d'adhésion, formation du groupe si c'est le 2ᵉ membre. Une
+  invitation ou une demande en attente devient l'adhésion.
+- **Page publique du groupe** : « Le groupe recrute » liste ses
+  recrutements ouverts.
+- **Modération** : un signalement ou un retrait vise la personne qui a
+  publié (sa confiance), pas le groupe.
+- **RGPD** : les annonces publiées pour un groupe figurent dans l'export
+  (`au_nom_du_groupe`) ; à l'anonymisation, elles restent au groupe et
+  `postedById` est oublié.
+
 ## Code et tests
 
 - Règles pures (formulaire, cycle de vie, éligibilité) :
@@ -58,5 +86,8 @@ membres.
 - Service : `src/lib/server/opportunities/service.ts`.
 - Candidatures : `src/lib/opportunities/applications.ts` (pur) et
   `src/lib/server/opportunities/applications.ts`.
+- Recrutement d'un groupe : intégration
+  `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/opportunities`.
 - E2E : `e2e/linkmusician/annonces.spec.ts`,
-  `e2e/linkmusician/candidatures.spec.ts`.
+  `e2e/linkmusician/candidatures.spec.ts`,
+  `e2e/linkmusician/recrutement.spec.ts`.

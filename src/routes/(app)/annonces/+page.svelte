@@ -144,7 +144,11 @@
 								href="/annonces/{o.id}"
 								class="flex min-h-11 items-center justify-between gap-3 rounded-xl border p-3 text-sm hover:border-primary"
 							>
-								<span class="truncate">{o.title}</span>
+								<span class="truncate"
+									>{o.title}{#if o.band}<span class="text-muted-foreground">
+											· {o.band}</span
+										>{/if}</span
+								>
 								<span class="flex shrink-0 items-center gap-2">
 									{#if o.pendingApplications > 0}
 										<Badge class="bg-fuchsia-600 text-white"

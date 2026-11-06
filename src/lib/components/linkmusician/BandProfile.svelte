@@ -8,7 +8,7 @@
 	import * as Card from '#shadcn/card';
 	import * as Avatar from '#shadcn/avatar';
 	import { Badge } from '#shadcn/badge';
-	import { History, MapPin, Music, UserPlus, UsersRound } from 'lucide-svelte';
+	import { History, MapPin, Megaphone, Music, UserPlus, UsersRound } from 'lucide-svelte';
 	import { initialsOf } from '#lib/actors/display';
 	import { ROLE_LABELS, periodLabel } from '#lib/bands/rules';
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
@@ -208,6 +208,38 @@
 			</div>
 
 			<div class="space-y-6">
+				{#if band.recruiting.length > 0}
+					<Card.Root class="border-primary">
+						<Card.Header>
+							<Card.Title
+								><h2 class="flex items-center gap-2">
+									<Megaphone class="size-5" aria-hidden="true" /> Le groupe recrute
+								</h2></Card.Title
+							>
+						</Card.Header>
+						<Card.Content>
+							<ul class="space-y-2 text-sm" aria-label="Recrutements ouverts">
+								{#each band.recruiting as r (r.id)}
+									<li>
+										{#if signedIn}
+											<a href="/annonces/{r.id}" class="font-semibold underline">{r.title}</a>
+										{:else}
+											<span class="font-semibold">{r.title}</span>
+										{/if}
+										{#if r.instrument}<span class="block text-muted-foreground">{r.instrument}</span
+											>{/if}
+									</li>
+								{/each}
+							</ul>
+							{#if !signedIn}
+								<a href="/auth/login" class="mt-3 inline-block text-sm underline"
+									>Connecte-toi pour postuler</a
+								>
+							{/if}
+						</Card.Content>
+					</Card.Root>
+				{/if}
+
 				{#if band.genres.length > 0}
 					<Card.Root>
 						<Card.Header><Card.Title><h2>Genres</h2></Card.Title></Card.Header>

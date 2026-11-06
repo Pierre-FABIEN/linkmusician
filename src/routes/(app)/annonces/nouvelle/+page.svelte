@@ -18,6 +18,16 @@
 	let { data, form } = $props();
 	const v = $derived((form?.values ?? {}) as Record<string, string>);
 	let sending = $state(false);
+	// Au nom de (P3-03) : moi, ou un groupe que je gère (recrutement seulement).
+	// svelte-ignore state_referenced_locally
+	let asBand = $state<string>(v.asBand ?? data.defaultBand);
+	// svelte-ignore state_referenced_locally
+	let kind = $state<string>(v.kind ?? (data.defaultBand ? 'RECRUIT_MEMBER' : data.defaultKind));
+	const band = $derived(data.bands.find((b) => b.handle === asBand) ?? null);
+	const commune = $derived(band ? band.commune : data.commune);
+	$effect(() => {
+		if (band) kind = 'RECRUIT_MEMBER';
+	});
 	const field = 'w-full rounded-md border bg-background p-2';
 </script>
 
@@ -26,16 +36,30 @@
 <div class="min-h-screen w-screen px-4 pt-6 pb-24">
 	<div class="mx-auto max-w-2xl space-y-4">
 		<h1 class="text-3xl font-black tracking-tight">Publier une annonce</h1>
-		{#if !data.commune}
+		{#if !data.commune && data.bands.length === 0}
 			<p class="rounded-2xl border bg-card p-6 text-center">
 				Une annonce se diffuse autour de ta ville : indique-la d'abord.
 				<a href="/profil/ville" class="block pt-2 font-semibold underline">Indiquer ma ville</a>
 			</p>
 		{:else}
-			<p class="text-sm text-muted-foreground">
-				Diffusée autour de {data.commune}. Publier ne rapporte pas de points : c'est quand quelqu'un
-				répond et que vous jouez ensemble que chacun gagne.
-			</p>
+			{#if commune}
+				<p class="text-sm text-muted-foreground">
+					Diffusée autour de {commune}. Publier ne rapporte pas de points : c'est quand quelqu'un
+					répond et que vous jouez ensemble que chacun gagne.
+				</p>
+			{:else if band}
+				<p role="status" class="rounded-2xl border bg-card p-4 text-sm">
+					L’annonce se diffuse autour de la ville du groupe : indique-la d’abord.
+					<a href="/groupes/{band.handle}/modifier" class="font-semibold underline"
+						>Fiche de {band.name}</a
+					>
+				</p>
+			{:else}
+				<p role="status" class="rounded-2xl border bg-card p-4 text-sm">
+					L’annonce se diffuse autour de ta ville : indique-la d’abord.
+					<a href="/profil/ville" class="font-semibold underline">Indiquer ma ville</a>
+				</p>
+			{/if}
 			{#if form?.error}
 				<p
 					role="alert"
@@ -55,6 +79,22 @@
 					};
 				}}
 			>
+				{#if data.bands.length > 0}
+					<label class="block space-y-1 font-medium">
+						Publier au nom de
+						<select name="asBand" bind:value={asBand} class={field}>
+							<option value="">Moi</option>
+							{#each data.bands as b (b.handle)}
+								<option value={b.handle}>{b.name} (groupe)</option>
+							{/each}
+						</select>
+						{#if band}
+							<span class="block text-sm font-normal text-muted-foreground"
+								>Un groupe publie un recrutement : la personne retenue entre dans le groupe.</span
+							>
+						{/if}
+					</label>
+				{/if}
 				<fieldset class="space-y-2">
 					<legend class="font-medium">Type</legend>
 					<div class="grid gap-2 sm:grid-cols-3">
@@ -66,7 +106,8 @@
 									type="radio"
 									name="kind"
 									value={k}
-									checked={(v.kind ?? data.defaultKind) === k}
+									bind:group={kind}
+									disabled={band !== null && k !== 'RECRUIT_MEMBER'}
 									class="mt-1 size-4"
 								/>
 								<span>
@@ -152,7 +193,7 @@
 						<select name="radiusKm" class={field}>
 							{#each OPPORTUNITY_RADII as r (r)}
 								<option value={r} selected={(v.radiusKm ?? '25') === String(r)}
-									>{r} km autour de toi</option
+									>{r} km autour {band ? 'du groupe' : 'de toi'}</option
 								>
 							{/each}
 						</select>
@@ -188,7 +229,7 @@
 				</div>
 				<button
 					type="submit"
-					disabled={sending}
+					disabled={sending || !commune}
 					class="min-h-11 w-full rounded-xl bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-50 sm:w-auto"
 				>
 					Publier

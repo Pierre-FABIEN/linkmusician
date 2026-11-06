@@ -85,10 +85,18 @@ export const actions: Actions = {
 	},
 	accept: async ({ locals, request }) => {
 		const id = String((await request.formData()).get('applicationId') ?? '');
-		return guard(
-			async () => decideApplication((await me(locals)).actorId, id, 'accept'),
-			'Candidature acceptée : la conversation est ouverte.'
-		);
+		try {
+			const { joinedBand } = await decideApplication((await me(locals)).actorId, id, 'accept');
+			// Recrutement d'un groupe (P3-03) : la personne entre dans le groupe.
+			return {
+				message: joinedBand
+					? 'Candidature acceptée : bienvenue dans le groupe ! La conversation est ouverte.'
+					: 'Candidature acceptée : la conversation est ouverte.'
+			};
+		} catch (err) {
+			if (err instanceof OpportunityError) return fail(err.status, { error: err.message });
+			throw err;
+		}
 	},
 	decline: async ({ locals, request }) => {
 		const id = String((await request.formData()).get('applicationId') ?? '');

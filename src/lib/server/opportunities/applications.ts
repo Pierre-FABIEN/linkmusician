@@ -3,6 +3,11 @@
  * trancher les candidatures de son annonce. L'acceptation ouvre une
  * conversation liée à l'annonce : quand l'échange devient réciproque, la
  * règle `conversation.reciprocated` crédite les deux personnes.
+ *
+ * Recrutement d'un groupe (P3-03) : la gestion du groupe est prévenue et
+ * tranche ; accepter ouvre la conversation avec la personne qui accepte et
+ * fait entrer la candidate dans le groupe (`joinFromRecruitment`, XP
+ * d'adhésion et formation du groupe), dans la même transaction.
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
@@ -17,7 +22,8 @@ import {
 	applicationTransition,
 	type ApplicationStatusValue
 } from '#lib/opportunities/applications';
-import { OpportunityError } from './service';
+import { OpportunityError, managesIssuer } from './service';
+import { BAND_TX, BandError, bandManagerIds, joinFromRecruitment } from '#lib/server/bands/service';
 import { notify } from '#lib/server/notifications/service';
 
 /** Ce que le profil d'une personne dit des conditions d'une annonce. */
@@ -84,7 +90,20 @@ export async function applyTo(
 ) {
 	const o = await prisma.opportunity.findUnique({ where: { id: opportunityId } });
 	if (!o || o.status === 'REMOVED') throw new OpportunityError('Annonce introuvable.', 404);
-	if (o.issuerActorId === actorId) throw new OpportunityError('C’est ton annonce.');
+	if (await managesIssuer(actorId, o.issuerActorId))
+		throw new OpportunityError('C’est ton annonce.');
+	const issuerIsBand = Boolean(
+		await prisma.organization.findUnique({
+			where: { actorId: o.issuerActorId },
+			select: { actorId: true }
+		})
+	);
+	if (issuerIsBand) {
+		const member = await prisma.membership.count({
+			where: { orgId: o.issuerActorId, personId: actorId, status: 'ACTIVE' }
+		});
+		if (member > 0) throw new OpportunityError('Tu fais déjà partie de ce groupe.');
+	}
 	if (!isActive(o, now)) throw new OpportunityError('Cette annonce n’est plus ouverte.');
 	const issuerVisible = await prisma.actor.count({
 		where: { id: o.issuerActorId, ...publicActorWhere(now, actorId) }
@@ -103,14 +122,18 @@ export async function applyTo(
 			data: { opportunityId, applicantActorId: actorId, message: checkedMessage(raw) },
 			select: { id: true }
 		});
-		// Notification (P2-09a) : la candidature se lit sur l'annonce.
-		await notify(tx, {
-			recipientId: o.issuerActorId,
-			type: 'APPLICATION_RECEIVED',
-			fromActorId: actorId,
-			href: `/annonces/${opportunityId}`,
-			title: o.title
-		});
+		// Notification (P2-09a) : la candidature se lit sur l'annonce. Pour un
+		// groupe, chaque personne qui le gère est prévenue (P3-03).
+		const recipients = issuerIsBand ? await bandManagerIds(o.issuerActorId, tx) : [o.issuerActorId];
+		for (const recipientId of recipients) {
+			await notify(tx, {
+				recipientId,
+				type: 'APPLICATION_RECEIVED',
+				fromActorId: actorId,
+				href: `/annonces/${opportunityId}`,
+				title: o.title
+			});
+		}
 		return created;
 	});
 }
@@ -152,12 +175,12 @@ export async function listMyApplications(actorId: string) {
  * Candidatures reçues sur mon annonce. Les ouvrir les marque « vues » : le
  * candidat sait où il en est.
  */
-export async function listForIssuer(issuerId: string, opportunityId: string) {
-	const o = await prisma.opportunity.findFirst({
-		where: { id: opportunityId, issuerActorId: issuerId },
-		select: { id: true }
+export async function listForIssuer(viewerId: string, opportunityId: string) {
+	const o = await prisma.opportunity.findUnique({
+		where: { id: opportunityId },
+		select: { id: true, issuerActorId: true }
 	});
-	if (!o) return [];
+	if (!o || !(await managesIssuer(viewerId, o.issuerActorId))) return [];
 	await prisma.application.updateMany({
 		where: { opportunityId, status: 'SENT' },
 		data: { status: 'SEEN' }
@@ -206,7 +229,10 @@ export async function listForIssuer(issuerId: string, opportunityId: string) {
 	}));
 }
 
-/** Présélectionner, accepter ou refuser une candidature de mon annonce. */
+/**
+ * Présélectionner, accepter ou refuser une candidature de mon annonce (ou
+ * de celle d'un groupe que je gère). `issuerId` : la personne qui tranche.
+ */
 export async function decideApplication(
 	issuerId: string,
 	applicationId: string,
@@ -217,9 +243,10 @@ export async function decideApplication(
 		where: { id: applicationId },
 		include: { opportunity: true }
 	});
-	if (!app || app.opportunity.issuerActorId !== issuerId) {
+	if (!app || !(await managesIssuer(issuerId, app.opportunity.issuerActorId))) {
 		throw new OpportunityError('Candidature introuvable.', 404);
 	}
+	const bandId = app.opportunity.issuerActorId === issuerId ? null : app.opportunity.issuerActorId;
 	const next = applicationTransition(app.status as ApplicationStatusValue, action);
 	if (!next) throw new OpportunityError('Cette candidature est déjà tranchée.');
 	if (action !== 'accept') {
@@ -227,13 +254,17 @@ export async function decideApplication(
 			where: { id: applicationId },
 			data: { status: next, ...(action === 'decline' ? { decidedAt: now } : {}) }
 		});
-		return { conversationId: null };
+		return { conversationId: null, joinedBand: false };
 	}
 	const o = app.opportunity;
 	if (o.status !== 'OPEN') throw new OpportunityError('Cette annonce n’est plus ouverte.');
 	if (await isBlockedBetween(issuerId, app.applicantActorId)) {
 		throw new OpportunityError('Impossible d’accepter cette candidature.');
 	}
+
+	const instrument = o.instrumentId
+		? await prisma.instrument.findUnique({ where: { id: o.instrumentId }, select: { name: true } })
+		: null;
 
 	return prisma.$transaction(async (tx) => {
 		const accepted = await tx.application.count({
@@ -297,6 +328,24 @@ export async function decideApplication(
 			where: { id: applicationId },
 			data: { status: 'ACCEPTED', decidedAt: now, conversationId }
 		});
+		// Recrutement d'un groupe (P3-03) : la candidate entre dans le groupe.
+		if (bandId && o.kind === 'RECRUIT_MEMBER') {
+			try {
+				await joinFromRecruitment(
+					tx,
+					{
+						bandId,
+						personId: app.applicantActorId,
+						managerId: issuerId,
+						title: instrument?.name.toLowerCase() ?? null
+					},
+					now
+				);
+			} catch (err) {
+				if (err instanceof BandError) throw new OpportunityError(err.message, err.status);
+				throw err;
+			}
+		}
 		if (accepted + 1 >= o.slots) {
 			await tx.opportunity.update({ where: { id: o.id }, data: { status: 'FILLED' } });
 		}
@@ -308,6 +357,6 @@ export async function decideApplication(
 			href: `/messages/${conversationId}`,
 			title: o.title
 		});
-		return { conversationId };
-	});
+		return { conversationId, joinedBand: Boolean(bandId && o.kind === 'RECRUIT_MEMBER') };
+	}, BAND_TX);
 }

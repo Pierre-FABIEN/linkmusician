@@ -66,6 +66,12 @@ l'historique comme un club : qui y a joué, et quand.
   se montre.
 - **Profil d'une personne** : carte « Groupes » (groupes actuels, avec ce
   qu'elle y fait et depuis quand).
+- **Recrutement (P3-03)** : annonce « cherche un membre » émise par le
+  groupe ; accepter une candidature fait entrer la personne dans le groupe
+  (`joinFromRecruitment`). Voir [annonces](../annonces/README.md#recrutement-dun-groupe-p3-03).
+- **Genres** : facultatifs pour un groupe (une personne en déclare au
+  moins un) ; enregistrés par `updateBandProfile`, sans toucher aux
+  influences.
 - **Limites** : 10 groupes actifs par personne, 20 invitations en attente
   par groupe.
 - **RGPD** : adhésions dans l'export (`groupes`). À l'anonymisation, les

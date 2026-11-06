@@ -4,6 +4,10 @@
  *
  * La zone d'une annonce est la commune de son auteur (`actor_locations`) ;
  * une annonce est visible des personnes situées dans son rayon de diffusion.
+ *
+ * Recrutement (P3-03) : un groupe émet son annonce « cherche un membre »,
+ * publiée par une personne qui le gère (`postedById`). Sa ville est celle du
+ * groupe ; toute la gestion du groupe la clôture et tranche les candidatures.
  */
 import { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
@@ -35,6 +39,24 @@ export class OpportunityError extends Error {
 export const TIER_OPTIONS = MUSICIAN_TIERS.map((t) => ({ id: t.id, label: t.label }));
 const tierLabel = (id: string | null) => TIER_OPTIONS.find((t) => t.id === id)?.label ?? null;
 
+/**
+ * La personne gère-t-elle cette annonce ? Son auteur, ou une personne qui
+ * gère le groupe émetteur (P3-03).
+ */
+export async function managesIssuer(viewerId: string, issuerActorId: string) {
+	if (viewerId === issuerActorId) return true;
+	const managed = await prisma.membership.count({
+		where: {
+			orgId: issuerActorId,
+			personId: viewerId,
+			status: 'ACTIVE',
+			role: { in: ['OWNER', 'ADMIN'] },
+			org: { dissolvedAt: null }
+		}
+	});
+	return managed > 0;
+}
+
 /** Annonces actives d'une personne (pour le quota). */
 async function activeCount(actorId: string, now: Date) {
 	return prisma.opportunity.count({
@@ -42,14 +64,38 @@ async function activeCount(actorId: string, now: Date) {
 	});
 }
 
-export async function createOpportunity(actorId: string, form: OpportunityForm, now = new Date()) {
-	if (!(await getActorLocation(actorId))) {
+export async function createOpportunity(
+	actorId: string,
+	form: OpportunityForm,
+	now = new Date(),
+	/** Publier au nom d'un groupe que l'on gère (recrutement seulement, P3-03). */
+	bandId: string | null = null
+) {
+	const issuerId = bandId ?? actorId;
+	if (bandId) {
+		if (form.kind !== 'RECRUIT_MEMBER') {
+			throw new OpportunityError('Au nom d’un groupe, on publie seulement un recrutement.');
+		}
+		if (!(await managesIssuer(actorId, bandId))) {
+			throw new OpportunityError(
+				'Seules les personnes qui gèrent le groupe publient en son nom.',
+				403
+			);
+		}
+		if (!(await getActorLocation(bandId))) {
+			throw new OpportunityError(
+				'Indique d’abord la ville du groupe (fiche du groupe) : l’annonce se diffuse autour d’elle.'
+			);
+		}
+	} else if (!(await getActorLocation(actorId))) {
 		throw new OpportunityError('Indique d’abord ta ville : une annonce se diffuse autour de toi.');
 	}
+	// Quota : selon la confiance de la personne qui publie (un groupe reste au
+	// palier 0), compté sur les annonces de l'émetteur.
 	const quota = await checkStockQuota(
 		actorId,
 		'activeOpportunities',
-		await activeCount(actorId, now)
+		await activeCount(issuerId, now)
 	);
 	if (!quota.allowed) {
 		throw new OpportunityError(
@@ -75,7 +121,8 @@ export async function createOpportunity(actorId: string, form: OpportunityForm, 
 	// Aucune XP ici : la quête rapporte quand elle est remplie (02 §8).
 	return prisma.opportunity.create({
 		data: {
-			issuerActorId: actorId,
+			issuerActorId: issuerId,
+			postedById: bandId ? actorId : null,
 			kind: form.kind,
 			title: form.title,
 			description: form.description,
@@ -93,8 +140,15 @@ export async function createOpportunity(actorId: string, form: OpportunityForm, 
 }
 
 export async function closeOpportunity(actorId: string, id: string) {
+	const row = await prisma.opportunity.findUnique({
+		where: { id },
+		select: { issuerActorId: true }
+	});
+	if (!row || !(await managesIssuer(actorId, row.issuerActorId))) {
+		throw new OpportunityError('Cette annonce n’est plus ouverte.');
+	}
 	const { count } = await prisma.opportunity.updateMany({
-		where: { id, issuerActorId: actorId, status: 'OPEN' },
+		where: { id, status: 'OPEN' },
 		data: { status: 'CLOSED', closedAt: new Date() }
 	});
 	if (count === 0) throw new OpportunityError('Cette annonce n’est plus ouverte.');
@@ -113,6 +167,7 @@ export async function getOpportunity(id: string, viewerId: string, now = new Dat
 			issuer: {
 				select: {
 					id: true,
+					kind: true,
 					handle: true,
 					displayName: true,
 					location: { select: { communeName: true } }
@@ -121,7 +176,8 @@ export async function getOpportunity(id: string, viewerId: string, now = new Dat
 		}
 	});
 	if (!o) return null;
-	const isOwner = o.issuerActorId === viewerId;
+	// L'auteur, ou la gestion du groupe émetteur (P3-03).
+	const isOwner = await managesIssuer(viewerId, o.issuerActorId);
 	if (!isOwner) {
 		if (o.status === 'REMOVED') return null;
 		const visible = await prisma.actor.count({
@@ -149,7 +205,11 @@ export async function getOpportunity(id: string, viewerId: string, now = new Dat
 		expiresAt: o.expiresAt,
 		createdAt: o.createdAt,
 		commune: o.issuer.location?.communeName ?? null,
-		issuer: { handle: o.issuer.handle, displayName: o.issuer.displayName },
+		issuer: {
+			handle: o.issuer.handle,
+			displayName: o.issuer.displayName,
+			isBand: o.issuer.kind === 'ORGANIZATION'
+		},
 		isOwner
 	};
 }
@@ -212,10 +272,19 @@ export async function listNearby(
 	}));
 }
 
-/** Mes annonces, toutes, les plus récentes d'abord. */
+/** Mes annonces et celles des groupes que je gère (P3-03), les plus récentes d'abord. */
 export async function listMine(actorId: string, now = new Date()) {
+	const bands = await prisma.membership.findMany({
+		where: {
+			personId: actorId,
+			status: 'ACTIVE',
+			role: { in: ['OWNER', 'ADMIN'] },
+			org: { dissolvedAt: null }
+		},
+		select: { orgId: true }
+	});
 	const items = await prisma.opportunity.findMany({
-		where: { issuerActorId: actorId },
+		where: { issuerActorId: { in: [actorId, ...bands.map((b) => b.orgId)] } },
 		orderBy: { createdAt: 'desc' },
 		take: 50,
 		select: {
@@ -225,14 +294,18 @@ export async function listMine(actorId: string, now = new Date()) {
 			status: true,
 			expiresAt: true,
 			createdAt: true,
+			issuerActorId: true,
+			issuer: { select: { displayName: true } },
 			// Candidatures à trancher (P2-03).
 			_count: {
 				select: { applications: { where: { status: { in: ['SENT', 'SEEN', 'SHORTLISTED'] } } } }
 			}
 		}
 	});
-	return items.map(({ _count, ...o }) => ({
+	return items.map(({ _count, issuer, issuerActorId, ...o }) => ({
 		...o,
+		/** Nom du groupe émetteur, si ce n'est pas moi (P3-03). */
+		band: issuerActorId === actorId ? null : issuer.displayName,
 		kind: o.kind as OpportunityKindValue,
 		status: displayStatus(o, now),
 		pendingApplications: _count.applications

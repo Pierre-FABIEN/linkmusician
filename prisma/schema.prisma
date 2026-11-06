@@ -1455,6 +1455,7 @@ model Actor {
   organization               Organization?
   memberships                Membership[]             @relation("MembershipPerson")
   membershipInvitesSent      Membership[]             @relation("MembershipInviter")
+  opportunitiesPosted        Opportunity[]            @relation("OpportunityPoster")
 
   @@map("actors")
 }
@@ -2044,6 +2045,10 @@ model Opportunity {
   id            String            @id @default(cuid())
   issuerActorId String
   issuer        Actor             @relation(fields: [issuerActorId], references: [id], onDelete: Cascade)
+  /// Personne qui a publié l'annonce au nom d'un groupe (P3-03) ; vide quand
+  /// l'émetteur est la personne elle-même. Oublié à l'anonymisation.
+  postedById    String?
+  postedBy      Actor?            @relation("OpportunityPoster", fields: [postedById], references: [id], onDelete: SetNull)
   kind          OpportunityKind
   status        OpportunityStatus @default(OPEN)
   title         String
