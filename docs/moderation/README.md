@@ -21,6 +21,14 @@ Module LinkMusician (lot P1-12).
 - **Signalements ouverts** : classer sans suite, retirer le média (ferme
   ses signalements), avertir (30 jours) ou suspendre (7 jours, 30 jours ou
   jusqu'à levée).
+- **Cercles fermés à vérifier** (P2-10) : groupes repérés la nuit par
+  `/api/jobs/collusion` (cron 3 h 50), des personnes qui ne collaborent et
+  ne s'apprécient qu'entre elles, sans lien avec le reste de la scène. Les
+  cas avec des adresses IP de session partagées passent en tête. Deux
+  décisions : « Rien d'anormal » ou « Collusion confirmée » (note
+  obligatoire). **Aucune sanction automatique** : avertir ou suspendre se
+  fait à part, membre par membre. Un cas tranché n'est pas rouvert pour le
+  même groupe.
 - Chaque décision est inscrite au journal d'audit du boilerplate
   (`admin_audit_logs`, actions `moderation.*`).
 
@@ -35,9 +43,11 @@ Module LinkMusician (lot P1-12).
 
 ## RGPD
 
-Export : signalements faits, sanctions reçues, registre d'XP. Anonymisation :
-le texte libre des signalements faits est effacé ; signalements et sanctions
-restent pour l'historique de modération.
+Export : signalements faits, sanctions reçues, registre d'XP, vérifications
+de cercle fermé qui concernent la personne (date et issue, jamais les autres
+membres). Anonymisation : le texte libre des signalements faits est effacé ;
+signalements et sanctions restent pour l'historique de modération ; les cas
+de cercle fermé qui la citent sont supprimés.
 
 ## Code
 

@@ -7,6 +7,8 @@ import { fail } from '@sveltejs/kit';
 import { requireModerator } from '#lib/server/moderation/guards';
 import {
 	approveMedia,
+	collusionQueue,
+	decideCollusion,
 	dismissReport,
 	moderationQueue,
 	ModerationError,
@@ -20,7 +22,7 @@ import { VENUE_KIND_LABELS } from '#lib/venues/rules';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const queue = await moderationQueue();
+	const [queue, collusion] = await Promise.all([moderationQueue(), collusionQueue()]);
 	const mediaView = (m: {
 		id: string;
 		kind: string;
@@ -37,6 +39,8 @@ export const load: PageServerLoad = async () => {
 		isDemo: m.isDemo
 	});
 	return {
+		// Cercles fermés repérés la nuit (P2-10), jamais sanctionnés d'office.
+		collusion,
 		pendingVenues: queue.pendingVenues.map((v) => ({
 			id: v.id,
 			name: v.name,
@@ -83,6 +87,16 @@ async function run(
 const field = (data: FormData, name: string) => String(data.get(name) ?? '').trim();
 
 export const actions: Actions = {
+	/** Trancher un cercle fermé (P2-10) : rien d'anormal ou collusion confirmée. */
+	decideCollusion: async ({ request, locals }) => {
+		const data = await request.formData();
+		const decision = field(data, 'decision') === 'CONFIRMED' ? 'CONFIRMED' : 'DISMISSED';
+		return run(
+			locals,
+			(by) => decideCollusion(field(data, 'caseId'), decision, field(data, 'note'), by),
+			decision === 'CONFIRMED' ? 'Collusion confirmée.' : 'Cas classé : rien d’anormal.'
+		);
+	},
 	/** Retirer une annonce signalée (P2-02). */
 	removeOpportunity: async ({ request, locals }) => {
 		const data = await request.formData();

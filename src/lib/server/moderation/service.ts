@@ -389,3 +389,67 @@ export async function removeVenue(venueId: string, reason: string, by: Moderator
 	});
 	await refreshTrust(venue.createdById);
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Cercles fermés (P2-10)                                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Cas ouverts par le job de collusion, les plus suspects d'abord (adresses
+ * IP partagées, puis volume d'échanges). Membres avec leur palier et leurs
+ * collaborations confirmées, pour juger d'un coup d'œil.
+ */
+export async function collusionQueue() {
+	const cases = await prisma.collusionCase.findMany({
+		where: { status: 'OPEN' },
+		orderBy: [{ sharedIps: 'desc' }, { interactions: 'desc' }, { detectedAt: 'asc' }],
+		take: 50
+	});
+	const ids = [...new Set(cases.flatMap((c) => c.memberIds))];
+	const actors = await prisma.actor.findMany({
+		where: { id: { in: ids } },
+		select: { id: true, handle: true, displayName: true, trustLevel: true, createdAt: true }
+	});
+	const byId = new Map(actors.map((a) => [a.id, a]));
+	return cases.map((c) => ({
+		id: c.id,
+		interactions: c.interactions,
+		density: c.density,
+		sharedIps: c.sharedIps,
+		detectedAt: c.detectedAt,
+		lastSeenAt: c.lastSeenAt,
+		members: c.memberIds.flatMap((id) => {
+			const a = byId.get(id);
+			return a ? [a] : [];
+		})
+	}));
+}
+
+/** Trancher un cas : rien d'anormal (`DISMISSED`) ou collusion confirmée. */
+export async function decideCollusion(
+	caseId: string,
+	decision: 'DISMISSED' | 'CONFIRMED',
+	note: string,
+	by: Moderator
+) {
+	if (decision === 'CONFIRMED' && !note) {
+		throw new ModerationError('Explique en une phrase ce qui confirme la collusion.');
+	}
+	const { count } = await prisma.collusionCase.updateMany({
+		where: { id: caseId, status: 'OPEN' },
+		data: {
+			status: decision,
+			handledByUserId: by.userId,
+			handledAt: new Date(),
+			decisionNote: note || null
+		}
+	});
+	if (count === 0) throw new ModerationError('Ce cas est déjà traité.');
+	await logAdminAction({
+		actorId: by.userId,
+		action:
+			decision === 'CONFIRMED' ? 'moderation.collusion.confirm' : 'moderation.collusion.dismiss',
+		targetType: 'CollusionCase',
+		targetId: caseId
+	});
+}

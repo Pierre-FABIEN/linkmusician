@@ -119,6 +119,40 @@ describe.skipIf(!enabled)('confiance (schéma e2e)', () => {
 		});
 	}, 120_000);
 
+	it('TL2 dans un scénario réaliste (P2-10)', async () => {
+		// Nina et Omar : 40 jours, profil complété, un échange réciproque (TL1),
+		// puis une collaboration confirmée par les deux : chacun a collaboré
+		// avec une personne de confiance TL1+.
+		const nina = await person('nina', 40);
+		const omar = await person('omar', 40);
+		for (const id of [nina, omar]) {
+			await tx((t) => emitAndProcess(t, { type: 'profile.completed', actorId: id }));
+		}
+		await tx((t) =>
+			emitAndProcess(t, {
+				type: 'conversation.reciprocated',
+				actorId: nina,
+				counterpartId: omar,
+				fromOpportunity: false
+			})
+		);
+		const level = async (id: string) =>
+			(await db.actor.findUniqueOrThrow({ where: { id } })).trustLevel;
+		expect([await level(nina), await level(omar)]).toEqual([1, 1]);
+		await tx((t) =>
+			emitAndProcess(t, {
+				type: 'collaboration.completed',
+				collaborationId: `${PREFIX}tl2`,
+				participantIds: [nina, omar]
+			})
+		);
+		expect([await level(nina), await level(omar)]).toEqual([2, 2]);
+		expect(await tx((t) => trustSummaryFor(t, nina))).toMatchObject({
+			collaborationsWithTrusted: 1,
+			distinctCounterparts: 1
+		});
+	}, 120_000);
+
 	it('est rétrogradable : un compte rajeuni repasse TL0', async () => {
 		await db.person.update({ where: { actorId: lea }, data: { createdAt: new Date() } });
 		const changes = await tx((t) => recomputeTrust(t, [lea, 'acteur-inexistant']));

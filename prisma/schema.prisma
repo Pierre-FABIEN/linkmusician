@@ -2532,3 +2532,36 @@ model NotificationPreference {
   @@id([actorId, type])
   @@map("notification_preferences")
 }
+
+// ─── DÉTECTION DE COLLUSION (P2-10) ─────────────────────────────────────────
+
+enum CollusionStatus {
+  OPEN
+  DISMISSED
+  CONFIRMED
+}
+
+/// Cercle fermé repéré par le job nocturne (`/api/jobs/collusion`) : un groupe
+/// de personnes qui ne collaborent et ne s'apprécient qu'entre elles. Mis en
+/// revue dans `/moderation`, **jamais sanctionné automatiquement**.
+model CollusionCase {
+  id              String          @id @default(cuid())
+  /// Membres, triés : la même composante n'ouvre qu'un seul cas.
+  memberIds       String[]
+  memberKey       String          @unique
+  /// Collaborations et appréciations entre membres sur la fenêtre observée.
+  interactions    Int
+  /// Liens existants / liens possibles (0 à 1).
+  density         Float
+  /// Adresses IP de session communes à au moins deux membres.
+  sharedIps       Int
+  status          CollusionStatus @default(OPEN)
+  detectedAt      DateTime        @default(now())
+  lastSeenAt      DateTime        @default(now())
+  handledByUserId String?
+  handledAt       DateTime?
+  decisionNote    String?
+
+  @@index([status, sharedIps])
+  @@map("collusion_cases")
+}

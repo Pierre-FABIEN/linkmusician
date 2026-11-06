@@ -70,6 +70,79 @@
 			{/each}
 		</section>
 
+		<section class="space-y-4" aria-labelledby="collusion-title">
+			<h2 id="collusion-title" class="text-lg font-semibold">
+				Cercles fermés à vérifier ({data.collusion.length})
+			</h2>
+			<p class="text-sm text-muted-foreground">
+				Des personnes qui ne collaborent et ne s'apprécient qu'entre elles, sans aucun lien avec le
+				reste de la scène. Ce n'est qu'une piste : deux amis qui ne jouent qu'ensemble y ressemblent
+				aussi. Rien n'est sanctionné d'office.
+			</p>
+			{#if data.collusion.length === 0}<p class="text-sm text-muted-foreground">
+					Rien en attente.
+				</p>{/if}
+			{#each data.collusion as c (c.id)}
+				<article
+					class="space-y-3 rounded-lg border p-4 text-sm"
+					aria-label="Cercle fermé de {c.members.length} personnes"
+				>
+					<ul class="flex flex-wrap gap-2">
+						{#each c.members as m (m.id)}
+							<li class="rounded-full border px-3 py-1">
+								<a href="/@{m.handle}" class="font-medium underline">{m.displayName}</a>
+								<span class="text-muted-foreground">
+									· TL{m.trustLevel} · inscrit·e le {new Date(m.createdAt).toLocaleDateString(
+										'fr-FR'
+									)}</span
+								>
+							</li>
+						{/each}
+					</ul>
+					<p class="text-muted-foreground">
+						{c.interactions} échanges entre eux (collaborations, appréciations), {Math.round(
+							c.density * 100
+						)} % des liens possibles · repéré le {date(c.detectedAt)}, revu le {date(c.lastSeenAt)}
+					</p>
+					{#if c.sharedIps > 0}
+						<p class="font-medium text-amber-700 dark:text-amber-300">
+							Mêmes connexions : {c.sharedIps}
+							{c.sharedIps > 1 ? 'adresses IP partagées' : 'adresse IP partagée'} entre membres.
+						</p>
+					{/if}
+					<form method="POST" action="?/decideCollusion" use:enhance class="space-y-2">
+						<input type="hidden" name="caseId" value={c.id} />
+						<label class="block">
+							<span class="sr-only">Note de décision</span>
+							<input
+								name="note"
+								placeholder="Note (obligatoire pour confirmer)"
+								class="w-full rounded-md border bg-background p-1.5"
+							/>
+						</label>
+						<div class="flex flex-wrap gap-2">
+							<button
+								type="submit"
+								name="decision"
+								value="DISMISSED"
+								class="rounded-md border px-3 py-1.5">Rien d'anormal</button
+							>
+							<button
+								type="submit"
+								name="decision"
+								value="CONFIRMED"
+								class="rounded-md border px-3 py-1.5 text-destructive">Collusion confirmée</button
+							>
+						</div>
+						<p class="text-xs text-muted-foreground">
+							Confirmer ne sanctionne personne : les avertissements et suspensions se décident à
+							part, membre par membre.
+						</p>
+					</form>
+				</article>
+			{/each}
+		</section>
+
 		<section class="space-y-4" aria-labelledby="venues-title">
 			<h2 id="venues-title" class="text-lg font-semibold">
 				Lieux à valider ({data.pendingVenues.length})

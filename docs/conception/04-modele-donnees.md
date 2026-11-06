@@ -362,6 +362,14 @@ model NotificationPreference { actorId String; type NotificationType; inApp Bool
 
 // ─── MODÉRATION ──────────────────────────────────────────────────────────
 
+model CollusionCase {                           // P2-10 : cercle fermé en revue, jamais sanctionné d'office
+  id String @id @default(cuid())
+  memberIds String[]; memberKey String @unique  // membres triés
+  interactions Int; density Float; sharedIps Int
+  status CollusionStatus                        // OPEN | DISMISSED | CONFIRMED
+  detectedAt DateTime; lastSeenAt DateTime; handledByUserId String?; handledAt DateTime?; decisionNote String?
+}
+
 model Report {                                  // Phase 1
   id String @id @default(cuid())
   reporterActorId String

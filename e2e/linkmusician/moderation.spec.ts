@@ -8,7 +8,8 @@ import { skipOnboarding } from '../support/linkmusician';
 /**
  * P1-12 — Signalement → décision du modérateur. Un compte neuf publie un lien
  * (en attente) ; un modérateur le valide ; le même modérateur, comme membre,
- * le signale ; puis, comme modérateur, retire le média.
+ * le signale ; puis, comme modérateur, retire le média. P2-10 : un cercle
+ * fermé repéré la nuit apparaît dans la file et se classe sans sanction.
  */
 test.describe('LinkMusician — modération', () => {
 	test.setTimeout(8 * 60_000);
@@ -99,7 +100,53 @@ test.describe('LinkMusician — modération', () => {
 				const response = await page.goto(`/medias/${media.id}`);
 				expect(response?.status()).toBe(404);
 			});
+
+			await test.step('5. Cercle fermé : en revue, classé sans sanction (P2-10)', async () => {
+				const modPerson = await db.person.findUniqueOrThrow({
+					where: { userId: (await requireUser(moderatorAccount.email)).id },
+					include: { actor: true }
+				});
+				const memberIds = [author.actorId, modPerson.actorId].sort();
+				const found = await db.collusionCase.create({
+					data: {
+						memberIds,
+						memberKey: memberIds.join('|'),
+						interactions: 5,
+						density: 1,
+						sharedIps: 1
+					}
+				});
+				await mod.goto('/moderation');
+				await waitForAppReady(mod);
+				const card = mod
+					.getByRole('article', { name: 'Cercle fermé de 2 personnes' })
+					.filter({ hasText: modPerson.actor.displayName });
+				await expect(card).toBeVisible();
+				await expect(card.getByText('1 adresse IP partagée entre membres.')).toBeVisible();
+				await card
+					.getByRole('button', { name: "Rien d'anormal" })
+					.evaluate((b) => (b as HTMLButtonElement).click());
+				await expect
+					.poll(
+						async () =>
+							(await db.collusionCase.findUniqueOrThrow({ where: { id: found.id } })).status,
+						{
+							timeout: 30_000
+						}
+					)
+					.toBe('DISMISSED');
+				expect(await db.sanction.count({ where: { actorId: { in: memberIds } } })).toBe(0);
+			});
 		} finally {
+			await db.collusionCase.deleteMany({
+				where: {
+					memberIds: {
+						has:
+							(await db.person.findFirst({ where: { user: { email: account.email } } }))?.actorId ??
+							''
+					}
+				}
+			});
 			await modContext.close();
 			await deleteUser(moderatorAccount.email);
 		}
