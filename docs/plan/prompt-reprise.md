@@ -18,8 +18,8 @@ docs/plan/phase-2-3.md et la conception 02 §6 (anti-abus) et §7
   P2-09b (digest email). Restent en phase 2 : P2-10, P2-17, P2-18, puis la
   revue de phase 2. Objectif D28 : lancement public à Toulouse début mars 2027. L'utilisateur juge que tout se jouera sur une UX simple et
   agréable.
-- Décision en attente : **D34** (Web Push reporté après le pilote),
-  « Proposée ».
+- Points ouverts hors lots : docs/plan/README.md §5 bis (à relire en
+  début de session, à compléter en fin de lot).
 - P2-10, points d'appui :
   - Condition TL2 déjà posée dans `src/lib/server/progression/core/trust.ts`
     (`collaborationsWithTrusted`, lu par `trustSummaryFor` dans
