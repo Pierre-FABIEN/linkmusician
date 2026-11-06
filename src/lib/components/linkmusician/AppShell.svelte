@@ -4,12 +4,15 @@
 	 * partagée par l'espace `(app)` et les pages publiques vues par un membre
 	 * (profil `/@handle`, médias). Ordinateur : onglets en haut. Mobile : bande
 	 * du haut et barre d'onglets en bas. Les onglets suivent le **mode de jeu**,
-	 * et la pastille du haut ramène au menu `/jouer` pour en changer.
+	 * et la pastille du haut ramène au menu `/jouer` pour en changer. La
+	 * cloche (P2-09a) mène à `/notifications` ; les deux pastilles sont
+	 * relues à chaque navigation et toutes les 60 s quand l'onglet est visible.
 	 */
 	import '#lib/linkmusician/theme.css';
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
-	import { ArrowLeftRight, Guitar, Trophy } from 'lucide-svelte';
+	import { ArrowLeftRight, Bell, Guitar, Trophy } from 'lucide-svelte';
+	import { badgeLabel } from '#lib/notifications/types';
 	import { NAV_BY_MODE, isActive, modeFor } from '#lib/linkmusician/nav';
 	import { PLAY_MODE_INFO, type PlayModeValue } from '#lib/linkmusician/modes';
 	import { BRAND } from '#lib/linkmusician/brand';
@@ -21,13 +24,49 @@
 		children,
 		user,
 		unread = 0,
+		notifications = 0,
 		preferredMode = null
 	}: {
 		children: Snippet;
 		user: ShellUser | null;
 		unread?: number;
+		notifications?: number;
 		preferredMode?: PlayModeValue | null;
 	} = $props();
+
+	/** Pastilles relues après le chargement (`/api/notifications/badge`). */
+	let live = $state<{ notifications: number; messages: number } | null>(null);
+	const messages = $derived(live?.messages ?? unread);
+	const bell = $derived(live?.notifications ?? notifications);
+
+	async function refreshBadges() {
+		try {
+			const res = await fetch('/api/notifications/badge', { cache: 'no-store' });
+			if (res.ok) live = await res.json();
+		} catch {
+			// Hors ligne : on garde les dernières valeurs.
+		}
+	}
+
+	// À chaque navigation (la page des notifications vient de tout lire)…
+	$effect(() => {
+		void page.url.pathname;
+		refreshBadges();
+	});
+	// … et toutes les 60 s, seulement quand l'onglet est visible.
+	$effect(() => {
+		const timer = setInterval(() => {
+			if (document.visibilityState === 'visible') refreshBadges();
+		}, 60_000);
+		const onVisible = () => {
+			if (document.visibilityState === 'visible') refreshBadges();
+		};
+		document.addEventListener('visibilitychange', onVisible);
+		return () => {
+			clearInterval(timer);
+			document.removeEventListener('visibilitychange', onVisible);
+		};
+	});
 
 	const mode = $derived(modeFor(page.url.pathname, preferredMode));
 	const nav = $derived(NAV_BY_MODE[mode]);
@@ -41,11 +80,11 @@
 </script>
 
 {#snippet badge(small: boolean)}
-	{#if unread > 0}<span
+	{#if messages > 0}<span
 			class={small
 				? 'absolute -top-1.5 -right-2.5 min-w-4 rounded-full bg-fuchsia-600 px-1 text-center text-[10px] leading-4 font-bold text-white'
 				: 'rounded-full bg-fuchsia-600 px-1.5 text-[11px] font-bold text-white'}
-			aria-label="{unread} non lu{unread > 1 ? 's' : ''}">{unread}</span
+			aria-label="{messages} non lu{messages > 1 ? 's' : ''}">{badgeLabel(messages)}</span
 		>{/if}
 {/snippet}
 
@@ -89,7 +128,21 @@
 					{/each}
 				</ul>
 			</nav>
-			<div class="ml-auto shrink-0">
+			<div class="ml-auto flex shrink-0 items-center gap-1">
+				<a
+					href="/notifications"
+					class="relative inline-flex size-11 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+					aria-current={page.url.pathname === '/notifications' ? 'page' : undefined}
+					aria-label={bell > 0
+						? `Notifications : ${bell} nouvelle${bell > 1 ? 's' : ''}`
+						: 'Notifications'}
+				>
+					<Bell class="size-5" aria-hidden="true" />
+					{#if bell > 0}<span
+							class="absolute top-1.5 right-1 min-w-4 rounded-full bg-fuchsia-600 px-1 text-center text-[10px] leading-4 font-bold text-white"
+							aria-hidden="true">{badgeLabel(bell)}</span
+						>{/if}
+				</a>
 				<AccountMenu {user} />
 			</div>
 		</div>

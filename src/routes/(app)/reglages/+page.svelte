@@ -105,6 +105,32 @@
 			</form>
 		</section>
 
+		<section id="notifications" class="scroll-mt-24 space-y-3" aria-labelledby="notif-title">
+			<h2 id="notif-title" class="text-lg font-semibold">Notifications</h2>
+			<p class="text-sm text-muted-foreground">
+				Choisis ce qui s'affiche sous la cloche. Tes gains et tes succès s'annoncent toujours à ton
+				arrivée, et tes messages gardent leur pastille.
+			</p>
+			<form method="POST" action="?/notifications" use:enhance class="space-y-3">
+				<fieldset class="space-y-1">
+					<legend class="sr-only">Me prévenir dans l'app</legend>
+					{#each data.notificationPreferences as pref (pref.type)}
+						<label class="flex min-h-11 items-center gap-3 text-sm">
+							<input
+								type="checkbox"
+								name="inApp"
+								value={pref.type}
+								checked={pref.inApp}
+								class="size-4"
+							/>
+							{pref.label}
+						</label>
+					{/each}
+				</fieldset>
+				<button type="submit" class="rounded-md border px-3 py-1.5 text-sm">Enregistrer</button>
+			</form>
+		</section>
+
 		<section class="space-y-3" aria-labelledby="blocked-title">
 			<h2 id="blocked-title" class="text-lg font-semibold">Personnes bloquées</h2>
 			{#if data.blocked.length === 0}

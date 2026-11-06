@@ -12,6 +12,7 @@ import { getTrustLevel } from '#lib/server/trust/quotas';
 import { emitAndProcess } from '#lib/server/progression/processor';
 import { TRUST_PERMISSIONS } from '#lib/server/progression/core/trust';
 import { revokeEndorsementEvent } from '#lib/server/endorsements/service';
+import { notify } from '#lib/server/notifications/service';
 import {
 	COLLAB_QUALITY_LABELS,
 	collabEndorseRefusal,
@@ -113,6 +114,14 @@ export async function endorseCollaborator(
 			occurredAt: now
 		});
 		await tx.collabEndorsement.update({ where: { id: row.id }, data: { eventId: result.eventId } });
+		// Notification (P2-09a) : l'appréciation se lit sur son profil.
+		await notify(tx, {
+			recipientId: to.id,
+			type: 'ENDORSEMENT',
+			fromActorId: fromId,
+			href: `/@${form.to}`,
+			title: skill
+		});
 	});
 	return { displayName: to.displayName, skill };
 }

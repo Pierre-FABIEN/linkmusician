@@ -1447,6 +1447,9 @@ model Actor {
   collabEndorsementsGiven    CollabEndorsement[] @relation("CollabEndorsementFrom")
   collabEndorsementsReceived CollabEndorsement[] @relation("CollabEndorsementTo")
   reputation                 ReputationSnapshot?
+  notifications              Notification[]           @relation("NotificationRecipient")
+  notificationsCaused        Notification[]           @relation("NotificationFrom")
+  notificationPreferences    NotificationPreference[]
 
   @@map("actors")
 }
@@ -2474,4 +2477,53 @@ model ReputationSnapshot {
 
   @@index([internalScore])
   @@map("reputation_snapshots")
+}
+
+// ─── NOTIFICATIONS (P2-09) ──────────────────────────────────────────────────
+
+/// Ce qui attend une réaction de la personne. Les gains, niveaux et succès
+/// ont leurs célébrations (P2-11) et les messages leur pastille : ils
+/// n'entrent pas ici, seulement dans le digest email (P2-09b).
+enum NotificationType {
+  CONTACT_REQUEST
+  APPLICATION_RECEIVED
+  APPLICATION_ACCEPTED
+  COLLAB_TO_CONFIRM
+  ENDORSEMENT
+  JAM_INVITE
+}
+
+/// Notification dans l'app (cloche). Le texte est composé à l'affichage
+/// (`#lib/notifications/types`) : le nom de l'autre personne est relu,
+/// « Compte supprimé » après une anonymisation.
+model Notification {
+  id               String           @id @default(cuid())
+  recipientActorId String
+  recipient        Actor            @relation("NotificationRecipient", fields: [recipientActorId], references: [id], onDelete: Cascade)
+  type             NotificationType
+  fromActorId      String?
+  from             Actor?           @relation("NotificationFrom", fields: [fromActorId], references: [id], onDelete: Cascade)
+  /// Page où agir (chemin interne).
+  href             String
+  /// Titre de l'annonce, de la jam ou de la collaboration, au moment du fait.
+  title            String?
+  readAt           DateTime?
+  createdAt        DateTime         @default(now())
+
+  @@index([recipientActorId, readAt])
+  @@index([recipientActorId, createdAt])
+  @@map("notifications")
+}
+
+/// Préférence par type : seules les exceptions sont enregistrées (tout est
+/// activé par défaut). `email` sert au digest (P2-09b).
+model NotificationPreference {
+  actorId String
+  actor   Actor            @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  type    NotificationType
+  inApp   Boolean          @default(true)
+  email   Boolean          @default(true)
+
+  @@id([actorId, type])
+  @@map("notification_preferences")
 }

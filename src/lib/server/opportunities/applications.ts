@@ -18,6 +18,7 @@ import {
 	type ApplicationStatusValue
 } from '#lib/opportunities/applications';
 import { OpportunityError } from './service';
+import { notify } from '#lib/server/notifications/service';
 
 /** Ce que le profil d'une personne dit des conditions d'une annonce. */
 export async function candidateFacts(actorId: string): Promise<CandidateFacts> {
@@ -97,9 +98,20 @@ export async function applyTo(
 	if (unmet.length > 0) {
 		throw new OpportunityError(`Tu ne peux pas postuler : ${unmet.join(', ')}.`);
 	}
-	return prisma.application.create({
-		data: { opportunityId, applicantActorId: actorId, message: checkedMessage(raw) },
-		select: { id: true }
+	return prisma.$transaction(async (tx) => {
+		const created = await tx.application.create({
+			data: { opportunityId, applicantActorId: actorId, message: checkedMessage(raw) },
+			select: { id: true }
+		});
+		// Notification (P2-09a) : la candidature se lit sur l'annonce.
+		await notify(tx, {
+			recipientId: o.issuerActorId,
+			type: 'APPLICATION_RECEIVED',
+			fromActorId: actorId,
+			href: `/annonces/${opportunityId}`,
+			title: o.title
+		});
+		return created;
 	});
 }
 
@@ -288,6 +300,14 @@ export async function decideApplication(
 		if (accepted + 1 >= o.slots) {
 			await tx.opportunity.update({ where: { id: o.id }, data: { status: 'FILLED' } });
 		}
+		// Notification (P2-09a) : la conversation est ouverte.
+		await notify(tx, {
+			recipientId: app.applicantActorId,
+			type: 'APPLICATION_ACCEPTED',
+			fromActorId: issuerId,
+			href: `/messages/${conversationId}`,
+			title: o.title
+		});
 		return { conversationId };
 	});
 }

@@ -1,46 +1,42 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 06/11/2026, P2-08 en cours).
+> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après P2-09a).
 
 ---
 
 ```markdown
-On reprend LinkMusician pour **finir P2-08** (réputation), puis P2-09.
-Ne refais pas l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui
-sert est ci-dessous.
+On reprend LinkMusician au lot **P2-09b** (digest email). Ne refais pas
+l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui sert est
+ci-dessous. Lire la fiche « P2-09 » (découpage) de docs/plan/phase-2-3.md
+et docs/notifications/README.md.
 
 ## État (06/11/2026)
 
-- Livré jusqu'à P2-16 et P2-07. P2-08 est 🟡 : code, docs et tests écrits
-  et commités (`npm run check`, lint, unitaires verts), mais la base Neon
-  était injoignable depuis la session (port 5432, IPv6 seulement). Restent
-  en phase 2 : finir P2-08, puis P2-09, P2-10, P2-17, P2-18, et la revue de
+- P2-08 (réputation) et P2-09a (notifications dans l'app) : codés,
+  migrations appliquées (dev et e2e, aucun écart), check, lint et
+  unitaires verts. **Tests reportés par l'utilisateur** : intégration
+  progression (`PROGRESSION_INTEGRATION=1 npx vitest --run
+src/lib/server/progression src/lib/server/collaborations`), puis e2e
+  `recherche.spec.ts` (étape 6), `messagerie.spec.ts` (étape 2b),
+  `profil-public`, `candidatures`, `jams`. Les deux lots passent ✅
+  quand ils sont verts.
+- Restent en phase 2 : P2-09b, P2-10, P2-17, P2-18, puis la revue de
   phase 2. Objectif D28 : lancement public à Toulouse début mars 2027.
   L'utilisateur juge que tout se jouera sur une UX simple et agréable.
-- Pour finir P2-08, dans l'ordre :
-  1. `npm run db:status`, puis `npm run db:deploy && npm run
-db:deploy:e2e && npx prisma generate`. La migration
-     `20261106120000_reputation_snapshots` est **écrite à la main** :
-     vérifier ensuite avec `npm run db:nouvelle-migration -- verif` que le
-     diff est vide (supprimer le dossier généré s'il l'est).
-  2. `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/progression
-src/lib/server/collaborations` (nouveau : `reputation.integration.test.ts`)
-     et `GEO_INTEGRATION=1 npx vitest --run src/lib/server/search` (nouveau
-     cas : tri D33).
-  3. `npm run test:e2e -- e2e/linkmusician` (nouvelle étape 6 de
-     `recherche.spec.ts` : carte remplie, score absent des `__data.json`).
-  4. Définition de terminé, P2-08 ✅ au tableau §5, prompt de reprise.
-- Ce que P2-08 a posé : `core/reputation.ts` (pur : réactivité par
-  médiane, score `ln(1+n)` pondéré, `publicReputation`),
-  `progression/reputation.ts` (faits lus dans la transaction, jamais l'XP ;
-  `recomputeReputation` appelé par le processeur pour `REPUTATION_EVENTS` ;
-  `getPublicReputation` calcule à la demande), job `/api/jobs/reputation`
-  (cron 3 h 40), carte du profil (`publicProfile.ts`, `confirmed`, avec
-  « Répond généralement sous 24/48 h » et sorties vérifiées), tri de
-  recherche D33 (réseau, tranche, réputation, distance ; score jamais
-  sélectionné), RGPD (export sans score, suppression à l'anonymisation).
-- P2-09 (notifications) : lire sa fiche dans docs/plan/phase-2-3.md.
+- P2-09b : job quotidien (modèle : `src/lib/server/jobs/trust.ts` et
+  `src/routes/api/jobs/trust/`, cron dans `vercel.json`), emails via
+  `src/lib/server/smtp-mail.ts`, au plus un digest par jour et par
+  personne et seulement s'il y a du neuf (notifications non lues,
+  messages non lus via `unreadTotal`, gains et succès depuis le dernier
+  digest) ; colonne `email` de `notification_preferences` à exposer dans
+  `/reglages` (section `#notifications`) ; désinscription par type par
+  lien signé ; purge des notifications lues de plus de 90 jours ; décider
+  du Web Push ou le reporter. Ton : 07 §7 (encourager, jamais
+  culpabiliser).
+- Le wifi public de l'utilisateur bloque le port 5432 (Neon injoignable) :
+  dans ce cas, écrire la migration à la main et la vérifier ensuite avec
+  `npm run db:nouvelle-migration -- verif` (diff vide attendu).
 - D30/D31 : lieux vérifiés par SIRET ; revendication en deux niveaux
   (P5-03, raccordement ProConnect à demander à la DINUM).
 

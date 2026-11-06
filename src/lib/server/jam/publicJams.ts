@@ -14,6 +14,7 @@ import { prisma } from '#lib/server';
 import { isIndexable } from '#lib/actors/visibility';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { checkStockQuota } from '#lib/server/trust/quotas';
+import { notify } from '#lib/server/notifications/service';
 import { getVenue, venuesNear } from '#lib/server/venues/service';
 import { checkJamWindow, endsBeforeCurfew, type JamForm } from '#lib/jam/publicJam';
 import {
@@ -385,6 +386,14 @@ export async function inviteToJam(id: string, leadId: string, form: InviteForm, 
 		where: { opportunityId_actorId: { opportunityId: id, actorId: invitee.id } },
 		create: { opportunityId: id, actorId: invitee.id, instrumentId: instrument.id },
 		update: { instrumentId: instrument.id, status: 'INVITED', createdAt: now, respondedAt: null }
+	});
+	// Notification (P2-09a) : une place est réservée, à accepter ou non.
+	await notify(prisma, {
+		recipientId: invitee.id,
+		type: 'JAM_INVITE',
+		fromActorId: leadId,
+		href: `/jams/${id}`,
+		title: row.title
 	});
 	return invitee;
 }

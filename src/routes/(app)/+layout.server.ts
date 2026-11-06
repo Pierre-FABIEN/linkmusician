@@ -14,6 +14,7 @@ import { currentSuspension } from '#lib/server/moderation/service';
 import { recordActivity } from '#lib/server/indicators/activity';
 import { getPendingCelebrations } from '#lib/server/progression/celebrations';
 import { unreadTotal } from '#lib/server/messaging/service';
+import { unreadNotifications } from '#lib/server/notifications/service';
 import { prisma } from '#lib/server';
 import type { LayoutServerLoad } from './$types';
 
@@ -32,10 +33,12 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	await recordActivity(person.actorId);
 
 	// Célébrations (P2-11) : ce qui est neuf depuis la dernière visite.
-	const [celebrations, unread] = await Promise.all([
+	const [celebrations, unread, notifications] = await Promise.all([
 		getPendingCelebrations(person.actorId, prisma),
 		// Messagerie (P2-04) : pastille de non-lus dans la navigation.
-		unreadTotal(person.actorId)
+		unreadTotal(person.actorId),
+		// Notifications (P2-09a) : pastille de la cloche.
+		unreadNotifications(person.actorId)
 	]);
 
 	return {
@@ -46,6 +49,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		},
 		celebrations,
 		unread,
+		notifications,
 		// Mode de jeu (P2-12b) : il choisit les onglets.
 		preferredMode: person.preferredMode
 	};

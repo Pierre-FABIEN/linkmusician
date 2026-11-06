@@ -10,7 +10,8 @@ import type { Page } from '@playwright/test';
 /**
  * P2-04 — Messagerie : demande, acceptation, échange réciproque ; un·e
  * mineur·e ne reçoit pas de nouvelle demande ; un TL0 est limité à 10
- * premiers messages par jour.
+ * premiers messages par jour. P2-09a : la demande allume la cloche de
+ * Malik, et ouvrir ses notifications l'éteint.
  */
 test.describe('LinkMusician — messagerie', () => {
 	test.setTimeout(6 * 60_000);
@@ -66,6 +67,26 @@ test.describe('LinkMusician — messagerie', () => {
 				await expect(page.getByText('ça te dit une jam funk ?')).toBeVisible();
 				await expect(page.getByText('Demande envoyée')).toBeVisible();
 				await expect(page.getByRole('button', { name: 'Envoyer' })).toHaveCount(0);
+			});
+
+			await test.step('2b. Malik reçoit la demande : la cloche s’allume (P2-09a)', async () => {
+				await malikPage.goto('/jouer');
+				await waitForAppReady(malikPage);
+				const bell = malikPage.getByRole('link', { name: 'Notifications : 1 nouvelle' });
+				await expect(bell).toBeVisible();
+				await bell.click();
+				await expect(malikPage).toHaveURL(/\/notifications$/);
+				const item = malikPage
+					.getByRole('list', { name: 'Notifications' })
+					.getByRole('link', { name: `${lea.actor.displayName} aimerait échanger avec toi.` });
+				await expect(item).toBeVisible();
+				await expectNoA11yViolations(malikPage, A11Y_EXCLUDE);
+				// Vue : la cloche s'éteint.
+				await expect(
+					malikPage.getByRole('link', { name: 'Notifications', exact: true })
+				).toBeVisible();
+				await item.click();
+				await expect(malikPage).toHaveURL(/\/messages\/c/);
 			});
 
 			await test.step('3. Malik voit la demande, l’accepte et répond', async () => {

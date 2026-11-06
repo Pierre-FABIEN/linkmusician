@@ -347,7 +347,18 @@ model Message { id String @id @default(cuid()); conversationId String; senderAct
 
 model ActorActivityDay { actorId String; day DateTime @db.Date; @@id([actorId, day]) } // P1-13 : rétention (D13), rien d'autre n'est tracé
 
-model Notification { id String @id @default(cuid()); recipientActorId String; type String; payload Json; readAt DateTime?; createdAt DateTime @default(now()); @@index([recipientActorId, readAt]) }
+model Notification {                            // P2-09a : la cloche ; texte composé à l'affichage
+  id String @id @default(cuid())
+  recipientActorId String
+  type NotificationType                         // CONTACT_REQUEST | APPLICATION_RECEIVED | APPLICATION_ACCEPTED | COLLAB_TO_CONFIRM | ENDORSEMENT | JAM_INVITE
+  fromActorId String?                           // nom relu à l'affichage (« Compte supprimé » après anonymisation)
+  href String                                   // page où agir
+  title String?                                 // annonce, jam, collaboration ou qualité appréciée
+  readAt DateTime?
+  createdAt DateTime @default(now())
+  @@index([recipientActorId, readAt])
+}
+model NotificationPreference { actorId String; type NotificationType; inApp Boolean @default(true); email Boolean @default(true); @@id([actorId, type]) } // exceptions seulement
 
 // ─── MODÉRATION ──────────────────────────────────────────────────────────
 

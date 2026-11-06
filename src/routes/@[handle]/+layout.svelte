@@ -10,6 +10,7 @@
 	<AppShell
 		user={data.user ?? null}
 		unread={data.memberShell.unread}
+		notifications={data.memberShell.notifications}
 		preferredMode={data.memberShell.preferredMode}
 	>
 		{@render children()}

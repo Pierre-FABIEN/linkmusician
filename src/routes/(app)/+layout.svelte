@@ -9,7 +9,12 @@
 	let { children, data } = $props();
 </script>
 
-<AppShell user={data.user ?? null} unread={data.unread} preferredMode={data.preferredMode}>
+<AppShell
+	user={data.user ?? null}
+	unread={data.unread}
+	notifications={data.notifications}
+	preferredMode={data.preferredMode}
+>
 	{@render children()}
 	<Celebrations items={data.celebrations.items} upTo={data.celebrations.upTo} />
 </AppShell>

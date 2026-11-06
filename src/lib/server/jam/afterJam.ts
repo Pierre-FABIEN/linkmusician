@@ -14,6 +14,7 @@ import { publicActorWhere } from '#lib/server/actors/visibility';
 import { getTrustLevel } from '#lib/server/trust/quotas';
 import { emitAndProcess } from '#lib/server/progression/processor';
 import { revokeEndorsementEvent } from '#lib/server/endorsements/service';
+import { notify } from '#lib/server/notifications/service';
 import { TRUST_PERMISSIONS } from '#lib/server/progression/core/trust';
 import { endsBeforeCurfew, parisMinutes } from '#lib/jam/publicJam';
 import { leadOf } from '#lib/jam/lineup';
@@ -293,6 +294,14 @@ export async function endorse(id: string, fromId: string, form: EndorseForm, now
 			occurredAt: now
 		});
 		await tx.jamEndorsement.update({ where: { id: row.id }, data: { eventId: result.eventId } });
+		// Notification (P2-09a) : l'appréciation se lit sur son profil.
+		await notify(tx, {
+			recipientId: to.id,
+			type: 'ENDORSEMENT',
+			fromActorId: fromId,
+			href: `/@${form.to}`,
+			title: skill
+		});
 	});
 	return { displayName: to.displayName, skill };
 }

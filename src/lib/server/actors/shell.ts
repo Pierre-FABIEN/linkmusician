@@ -5,10 +5,15 @@
  */
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { unreadTotal } from '#lib/server/messaging/service';
+import { unreadNotifications } from '#lib/server/notifications/service';
 
 export async function memberShell(locals: App.Locals) {
 	if (!locals.user?.emailVerified) return null;
 	const person = await getPersonByUserId(locals.user.id);
 	if (!person?.onboardedAt) return null;
-	return { unread: await unreadTotal(person.actorId), preferredMode: person.preferredMode };
+	const [unread, notifications] = await Promise.all([
+		unreadTotal(person.actorId),
+		unreadNotifications(person.actorId)
+	]);
+	return { unread, notifications, preferredMode: person.preferredMode };
 }

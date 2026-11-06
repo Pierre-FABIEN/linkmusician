@@ -205,6 +205,21 @@ COMPLETED` (ou `CANCELLED`) ; pas d'état « en cours », et une
 - **Fin** : jamais plus d'un email de digest par jour et par personne ;
   désinscription par type ; e2e « je reçois une demande, le badge
   s'allume ».
+- **Découpé** (06/11/2026) :
+  - **P2-09a — Dans l'app** : modèle `Notification` et préférences,
+    émission aux six points (demande de contact, candidature reçue,
+    candidature acceptée, collaboration à confirmer, appréciation,
+    invitation de jam), cloche dans la coquille, `/notifications`,
+    préférences par type dans `/reglages`, RGPD, e2e du badge. Les gains,
+    niveaux et succès restent annoncés par les célébrations (P2-11) et les
+    messages par leur pastille : pas de doublon sous la cloche.
+  - **P2-09b — Digest email** (dépend de P2-09a) : job quotidien, au plus
+    un email par jour et par personne, seulement s'il y a du neuf non lu
+    (notifications, messages non lus, gains et succès de la veille) ;
+    préférence « par email » par type dans `/reglages` et lien de
+    désinscription par type dans l'email (jeton signé, sans connexion) ;
+    purge des notifications lues de plus de 90 jours ; décider du Web Push
+    (03 §mobile) ou le reporter.
 
 ### P2-10 — Confiance TL2 et détection de collusion
 

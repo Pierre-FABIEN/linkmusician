@@ -8,6 +8,7 @@
 import { prisma } from '#lib/server';
 import { isBlockedBetween } from '#lib/server/blocking/service';
 import { emitAndProcess } from '#lib/server/progression/processor';
+import { notify } from '#lib/server/notifications/service';
 import { parisDay } from '#lib/metrics/indicators';
 import {
 	collabStatus,
@@ -61,7 +62,7 @@ export async function proposeCollaboration(
 	});
 	if (duplicate > 0) throw new CollaborationError('Une collaboration existe déjà pour ce jour.');
 	const happened = hasHappened(input.happenedOn, now);
-	return prisma.collaboration.create({
+	const created = await prisma.collaboration.create({
 		data: {
 			kind: input.kind,
 			title: input.title,
@@ -79,6 +80,15 @@ export async function proposeCollaboration(
 		},
 		select: { id: true }
 	});
+	// Notification (P2-09a) : l'autre personne a une collaboration à confirmer.
+	await notify(prisma, {
+		recipientId: other.actorId,
+		type: 'COLLAB_TO_CONFIRM',
+		fromActorId: proposerId,
+		href: `/messages/${conversationId}`,
+		title: input.title
+	});
+	return created;
 }
 
 async function load(actorId: string, collaborationId: string) {

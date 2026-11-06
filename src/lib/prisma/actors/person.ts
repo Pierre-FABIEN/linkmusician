@@ -130,7 +130,9 @@ export async function exportPersonData(userId: string) {
 		networkTies,
 		collabEndorsementsGiven,
 		collabEndorsementsReceived,
-		reputation
+		reputation,
+		notifications,
+		notificationPreferences
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -326,6 +328,22 @@ export async function exportPersonData(userId: string) {
 				responseBucket: true,
 				computedAt: true
 			}
+		}),
+		// Notifications (P2-09a) : reçues, et préférences par type.
+		prisma.notification.findMany({
+			where: { recipientActorId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: {
+				type: true,
+				title: true,
+				readAt: true,
+				createdAt: true,
+				from: { select: { displayName: true } }
+			}
+		}),
+		prisma.notificationPreference.findMany({
+			where: { actorId: person.actorId },
+			select: { type: true, inApp: true, email: true }
 		})
 	]);
 	const media = await prisma.media.findMany({
@@ -499,6 +517,18 @@ export async function exportPersonData(userId: string) {
 					calculee_le: reputation.computedAt
 				}
 			: null,
+		notifications: notifications.map((n) => ({
+			type: n.type,
+			de: n.from?.displayName ?? null,
+			titre: n.title,
+			le: n.createdAt,
+			lue_le: n.readAt
+		})),
+		preferences_de_notifications: notificationPreferences.map((p) => ({
+			type: p.type,
+			dans_l_app: p.inApp,
+			par_email: p.email
+		})),
 		cree_le: person.createdAt
 	};
 }
@@ -540,6 +570,11 @@ export async function personAnonymizationOps(
 		// Réputation (P2-08) : projection supprimée ; elle ne se recalcule pas
 		// pour un acteur anonymisé (`recomputeReputation`).
 		prisma.reputationSnapshot.deleteMany({ where: { actorId: person.actorId } }),
+		// Notifications (P2-09a) : reçues et causées, et préférences.
+		prisma.notification.deleteMany({
+			where: { OR: [{ recipientActorId: person.actorId }, { fromActorId: person.actorId }] }
+		}),
+		prisma.notificationPreference.deleteMany({ where: { actorId: person.actorId } }),
 		// Réseau musical (P2-16) : supprimé, dans les deux sens.
 		prisma.musicalTie.deleteMany({
 			where: { OR: [{ ownerId: person.actorId }, { contactId: person.actorId }] }

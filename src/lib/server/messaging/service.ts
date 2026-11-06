@@ -10,6 +10,7 @@ import { consumeDailyQuota } from '#lib/server/trust/quotas';
 import { emitAndProcess } from '#lib/server/progression/processor';
 import { isBlockedBetween } from '#lib/server/blocking/service';
 import { recomputeTrust } from '#lib/server/progression/trust';
+import { notify } from '#lib/server/notifications/service';
 import {
 	MESSAGE_ERRORS,
 	canReceiveRequest,
@@ -92,6 +93,13 @@ export async function startConversation(senderId: string, recipientHandle: strin
 			messages: { create: { senderActorId: senderId, body, createdAt: now } }
 		},
 		select: { id: true }
+	});
+	// Notification (P2-09a) : une demande attend une réponse.
+	await notify(prisma, {
+		recipientId: recipient.id,
+		type: 'CONTACT_REQUEST',
+		fromActorId: senderId,
+		href: `/messages/${conversation.id}`
 	});
 	return { id: conversation.id, created: true };
 }

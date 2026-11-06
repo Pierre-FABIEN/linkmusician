@@ -1,7 +1,8 @@
 /**
  * LINKMUSICIAN: réglages (P1-09) : palier de confiance, conditions du palier
  * suivant, quotas. Lecture seule : la confiance se calcule côté serveur.
- * Visibilité du profil public (P1-11, D19) : seul réglage modifiable ici.
+ * Visibilité du profil public (P1-11, D19), préférences de notifications
+ * (P2-09a).
  */
 import { prisma } from '#lib/server';
 import { requirePerson } from '#server/actors/tracksForm';
@@ -14,6 +15,7 @@ import {
 	TRUST_PERMISSIONS
 } from '#lib/server/progression/core/trust';
 import { listBlocked, unblockActor } from '#lib/server/blocking/service';
+import { getNotificationPreferences, setInAppPreferences } from '#lib/server/notifications/service';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -30,6 +32,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 		hidden: person.actor.hidden,
 		// Blocage (P2-05) : personnes bloquées, à débloquer ici.
 		blocked: await listBlocked(person.actorId),
+		// Notifications (P2-09a) : un interrupteur par type, tout activé par défaut.
+		notificationPreferences: await getNotificationPreferences(person.actorId),
 		names: TRUST_NAMES,
 		quotaLabels: QUOTA_LABELS,
 		trust: {
@@ -47,6 +51,12 @@ export const actions: Actions = {
 		const actorId = String((await request.formData()).get('actorId') ?? '');
 		await unblockActor(person.actorId, actorId);
 		return { saved: 'Personne débloquée.' };
+	},
+	/** Types de notifications voulus dans l'app (P2-09a). */
+	notifications: async ({ request, locals }) => {
+		const person = await requirePerson(locals);
+		await setInAppPreferences(person.actorId, (await request.formData()).getAll('inApp'));
+		return { saved: 'Tes préférences de notifications sont enregistrées.' };
 	},
 	/** Masquer ou rendre visible le profil public `/@handle` (D19). */
 	visibility: async ({ request, locals }) => {
