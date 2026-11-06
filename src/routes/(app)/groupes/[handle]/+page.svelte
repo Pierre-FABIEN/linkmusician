@@ -44,6 +44,14 @@
 				<UsersRound class="size-7" aria-hidden="true" />
 				{band.name}
 			</h1>
+			<p class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+				<a href="/@{band.handle}" class="underline">Voir la page publique</a>
+				{#if manager && !dissolved}
+					<a href="/groupes/{band.handle}/modifier" class="font-semibold underline"
+						>Modifier la fiche du groupe</a
+					>
+				{/if}
+			</p>
 			<p class="text-sm text-muted-foreground">
 				{#if dissolved}
 					Groupe dissous le {day.format(new Date(band.dissolvedAt!))}.

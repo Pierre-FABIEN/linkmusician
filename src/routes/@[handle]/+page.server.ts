@@ -10,6 +10,8 @@ import { fileReport, ModerationError } from '#lib/server/moderation/service';
 import { blockActor, BlockingError } from '#lib/server/blocking/service';
 import { suggestMusicians } from '#lib/server/discovery/suggestions';
 import { prisma } from '#lib/server';
+import { getPublicBand } from '#lib/server/bands/public';
+import { BandError, requestToJoin } from '#lib/server/bands/service';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -20,7 +22,22 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const viewer = locals.user ? await getPersonByUserId(locals.user.id) : null;
 	// Blocage (P2-05) : 404 dans les deux sens, sans dire pourquoi.
 	const profile = await getPublicProfile(handle, new Date(), viewer?.actorId);
-	if (!profile) error(404, 'Profil introuvable');
+	if (!profile) {
+		// Page publique d'un groupe (P3-02).
+		const band = await getPublicBand(handle, new Date(), viewer?.actorId);
+		if (!band) error(404, 'Profil introuvable');
+		// L'identifiant interne reste côté serveur.
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { id: _bandId, ...publicBand } = band;
+		return {
+			profile: null,
+			band: publicBand,
+			suggestions: [],
+			isOwner: false,
+			signedIn: Boolean(viewer?.onboardedAt),
+			canReport: Boolean(viewer)
+		};
+	}
 
 	// L'identifiant interne reste côté serveur.
 	const { id: actorId, ...publicProfile } = profile;
@@ -40,6 +57,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			: [];
 	return {
 		profile: publicProfile,
+		band: null,
+		signedIn: Boolean(viewer?.onboardedAt),
 		suggestions,
 		isOwner,
 		canReport: Boolean(viewer) && !isOwner
@@ -52,11 +71,10 @@ export const actions: Actions = {
 		if (!locals.user) return fail(401, { error: 'Connecte-toi pour signaler.' });
 		const reporter = await getPersonByUserId(locals.user.id);
 		if (!reporter) return fail(403, { error: 'Complète ton profil pour signaler.' });
-		const profile = await getPublicProfile(
-			params.handle.toLowerCase(),
-			new Date(),
-			reporter.actorId
-		);
+		const handle = params.handle.toLowerCase();
+		const profile =
+			(await getPublicProfile(handle, new Date(), reporter.actorId)) ??
+			(await getPublicBand(handle, new Date(), reporter.actorId));
 		if (!profile) error(404, 'Profil introuvable');
 		const data = await request.formData();
 		try {
@@ -73,6 +91,22 @@ export const actions: Actions = {
 			};
 		} catch (err) {
 			if (err instanceof ModerationError) return fail(400, { error: err.message });
+			throw err;
+		}
+	},
+	/** Demander à rejoindre un groupe (P3-02), depuis sa page publique. */
+	join: async ({ params, locals }) => {
+		if (!locals.user) return fail(401, { error: 'Connecte-toi pour rejoindre le groupe.' });
+		const me = await getPersonByUserId(locals.user.id);
+		if (!me?.onboardedAt)
+			return fail(403, { error: 'Complète ton profil pour rejoindre le groupe.' });
+		const band = await getPublicBand(params.handle.toLowerCase(), new Date(), me.actorId);
+		if (!band) error(404, 'Profil introuvable');
+		try {
+			await requestToJoin(band.id, me.actorId);
+			return { joined: 'Demande envoyée : le groupe te répondra.' };
+		} catch (err) {
+			if (err instanceof BandError) return fail(err.status, { error: err.message });
 			throw err;
 		}
 	},

@@ -42,7 +42,30 @@ l'historique comme un club : qui y a joué, et quand.
   passés, invitations et demandes pour la gestion, « Demander à
   rejoindre », « Quitter le groupe »). Rattachées à l'onglet « Mon
   parcours » (mode carrière). La page publique `/@handle` du groupe arrive
-  avec P3-02 ; d'ici là, `/@handle` ne montre que des personnes.
+  avec P3-02 (ci-dessous).
+- **Page publique (P3-02)** : `/@handle` du groupe (`src/lib/server/bands/public.ts`,
+  `BandProfile.svelte`), même visibilité qu'un profil (`publicActorWhere`,
+  blocage dans les deux sens avec la gestion). Effectif actuel et passé
+  avec rôle, « ce que j'y fais » et période ; présentation, genres, ville,
+  liens d'écoute ; « Demander à rejoindre » pour un membre connecté ;
+  signalement. Indexée et dans le sitemap une fois formée, tant qu'elle
+  n'est pas dissoute ; données structurées `MusicGroup` (fondation,
+  ville, membres adultes et visibles en `OrganizationRole`).
+- **Membres sur la page publique (D38)** : compte supprimé « Compte
+  supprimé » ; profil masqué ou suspendu « Un·e musicien·ne », sans lien ;
+  mineur·e nommé·e seulement pour un membre connecté (`publicMember`),
+  jamais dans les données structurées. Aucune donnée interne (identifiant,
+  date de naissance, XP, confiance) dans la réponse (test d'intégration).
+- **Fiche du groupe** : `/groupes/[handle]/modifier`, pour la gestion :
+  nom, présentation (600 caractères, texte brut), genres (5 au plus),
+  ville (centre de commune seulement), liens YouTube, SoundCloud ou
+  Bandcamp. Quota et validation des liens suivent la confiance de la
+  personne qui publie (le groupe reste au palier 0) ; un lien de groupe
+  n'est jamais une « démo » qui rapporte de l'XP (les étapes, P3-04, s'en
+  chargent). L'envoi de fichiers au nom du groupe viendra si le besoin
+  se montre.
+- **Profil d'une personne** : carte « Groupes » (groupes actuels, avec ce
+  qu'elle y fait et depuis quand).
 - **Limites** : 10 groupes actifs par personne, 20 invitations en attente
   par groupe.
 - **RGPD** : adhésions dans l'export (`groupes`). À l'anonymisation, les
@@ -54,4 +77,6 @@ l'historique comme un club : qui y a joué, et quand.
 - **Tests** : `src/lib/bands/rules.test.ts` ; intégration
   `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/bands`
   (historique après départs et retours, formation, OWNER, mineur·e,
-  anonymisation) ; e2e `e2e/linkmusician/groupes.spec.ts`.
+  anonymisation ; page publique : effectif, mineure, données internes,
+  sitemap, fiche) ; e2e `e2e/linkmusician/groupes.spec.ts` (création,
+  invitation, départ, fiche, page publique vue par un visiteur).

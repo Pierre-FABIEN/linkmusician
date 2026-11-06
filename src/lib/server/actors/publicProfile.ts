@@ -9,6 +9,7 @@
  * suspendu : `publicActorWhere`). L'appelant répond 404 sans dire pourquoi.
  */
 import { prisma } from '#lib/server';
+import { bandsOfPerson, indexableBands } from '#lib/server/bands/public';
 import { getMusicalProfile } from '#lib/prisma/skills/musicalProfile';
 import { getActorLocation } from '#lib/server/geo/queries';
 import { getMusicianTier, getProgress } from '#lib/server/progression/read';
@@ -46,27 +47,31 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 	});
 	if (!actor) return null;
 
-	const [musical, location, progress, tier, media, endorsed, reputation] = await Promise.all([
-		getMusicalProfile({ actorId: actor.id }),
-		getActorLocation(actor.id),
-		getProgress(actor.id, prisma),
-		getMusicianTier(actor.id, prisma),
-		prisma.media.findMany({
-			where: { actorId: actor.id, status: 'PUBLISHED' },
-			orderBy: { createdAt: 'desc' },
-			select: {
-				id: true,
-				title: true,
-				kind: true,
-				isDemo: true,
-				externalUrl: true,
-				fileUrl: true,
-				instrumentId: true
-			}
-		}),
-		endorsersByInstrument(actor.id),
-		getPublicReputation(actor.id, prisma)
-	]);
+	const [musical, location, progress, tier, media, endorsed, reputation, bands] = await Promise.all(
+		[
+			getMusicalProfile({ actorId: actor.id }),
+			getActorLocation(actor.id),
+			getProgress(actor.id, prisma),
+			getMusicianTier(actor.id, prisma),
+			prisma.media.findMany({
+				where: { actorId: actor.id, status: 'PUBLISHED' },
+				orderBy: { createdAt: 'desc' },
+				select: {
+					id: true,
+					title: true,
+					kind: true,
+					isDemo: true,
+					externalUrl: true,
+					fileUrl: true,
+					instrumentId: true
+				}
+			}),
+			endorsersByInstrument(actor.id),
+			getPublicReputation(actor.id, prisma),
+			// Ses groupes actuels (P3-02).
+			bandsOfPerson(actor.id, now, viewerId)
+		]
+	);
 
 	const demosByInstrument = new Map<string, number>();
 	for (const m of media) {
@@ -100,6 +105,7 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 		})),
 		genres: musical.genres.map((g) => g.name),
 		influences: musical.influences,
+		bands,
 		media: media.slice(0, PROFILE_MEDIA_LIMIT).map(({ instrumentId: _i, ...m }) => m),
 		mediaCount: media.length,
 		level: progress.level,
@@ -136,12 +142,17 @@ export type PublicProfile = NonNullable<Awaited<ReturnType<typeof getPublicProfi
 
 /** Acteurs indexables, pour le sitemap : visibles et majeurs. */
 export async function indexableProfiles(now = new Date()) {
-	return prisma.actor.findMany({
-		where: {
-			...publicActorWhere(now),
-			person: { birthDate: { lte: adultBirthCutoff(now) } }
-		},
-		select: { handle: true, updatedAt: true },
-		orderBy: { handle: 'asc' }
-	});
+	const [persons, bands] = await Promise.all([
+		prisma.actor.findMany({
+			where: {
+				...publicActorWhere(now),
+				person: { birthDate: { lte: adultBirthCutoff(now) } }
+			},
+			select: { handle: true, updatedAt: true },
+			orderBy: { handle: 'asc' }
+		}),
+		// Groupes formés et non dissous (P3-02).
+		indexableBands(now)
+	]);
+	return [...persons, ...bands].sort((a, b) => a.handle.localeCompare(b.handle));
 }

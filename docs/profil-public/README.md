@@ -29,6 +29,11 @@ Module LinkMusician (lot P1-11, décisions D1 et D19, maquettes P1-02
   indexés (`isIndexable`, `src/lib/actors/visibility.ts`) : `noindex`
   sinon, et absents du sitemap. Une date de naissance inconnue vaut refus.
 - **Adresse unique** : `/@Lea` redirige (301) vers `/@lea`.
+- **Groupes (P3-02)** : `/@handle` sert aussi la page publique d'un groupe
+  (`getPublicBand`, composant `BandProfile.svelte`, voir
+  [groupes](../groupes/README.md)). Le profil d'une personne cite ses
+  groupes actuels (`bandsOfPerson`). Le sitemap (`indexableProfiles`)
+  ajoute les groupes formés et non dissous.
 - **SEO** : titre « Nom (@handle) », description tirée de la bio,
   données structurées `Person` (ou `MusicGroup` pour une structure) avec
   la commune, les instruments et genres (`knowsAbout`) et les liens

@@ -1,36 +1,34 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après P3-01).
+> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après P3-02).
 
 ---
 
 ```markdown
-On reprend LinkMusician avec le lot **P3-02** (page de groupe). Ne refais
-pas l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui sert est
-ci-dessous.
+On reprend LinkMusician avec le lot **P3-03** (recrutement : annonce
+« cherche un membre » émise par le groupe). Ne refais pas l'analyse du
+projet : CLAUDE.md est déjà chargé, tout ce qui sert est ci-dessous.
 
 ## État (06/11/2026)
 
-- **Phase 2 terminée et revue** ([docs/plan/revue-phase-2.md](./revue-phase-2.md)),
-  D35 (morceau minimal) et D36 (« En réseau » par une jam) tranchées.
+- **Phase 2 terminée et revue** ([docs/plan/revue-phase-2.md](./revue-phase-2.md)).
   Objectif D28 : lancement public à Toulouse début mars 2027. L'UX simple
   et agréable prime.
-- **P3-01 livré** ([docs/groupes](../groupes/README.md), D37) : `Organization`
-  et `Membership` (une ligne par période, index partiel
-  `memberships_open_key`), service unique `src/lib/server/bands/service.ts`
-  sous verrou, pages `/groupes`, `/groupes/nouveau`, `/groupes/[handle]`
-  (vue connectée), formation à la 2ᵉ adhésion (XP aux deux, étape
-  `FORMATION` vérifiée).
-- **P3-02** : page publique `/@handle` du groupe. Aujourd'hui
-  `getPublicProfile` (`src/lib/server/actors/publicProfile.ts`) filtre
-  `kind: 'PERSON'` : y brancher les organisations (mêmes règles de
-  visibilité, JSON-LD `MusicGroup`, sitemap), effectif actuel et passé
-  (réutiliser `bandPage`, `periodLabel`), médias du groupe (garde « OWNER
-  ou ADMIN » pour publier), genres et commune du groupe si utile au
-  recrutement (P3-03). Penser au lien « Demander à rejoindre » et aux
-  groupes sur le profil des membres.
-- Ordre prévu : P3-02 → P3-03 → P3-11 → P3-04 à P3-09 → P3-12
+- **P3-01 et P3-02 livrés** ([docs/groupes](../groupes/README.md), D37,
+  D38) : groupes et adhésions (service unique `src/lib/server/bands/service.ts`
+  sous verrou, garde `requireManager`), pages `/groupes`, `/groupes/[handle]`,
+  `/groupes/[handle]/modifier` (fiche : nom, présentation, genres, ville,
+  liens), page publique `/@handle` du groupe (`src/lib/server/bands/public.ts`,
+  `BandProfile.svelte`).
+- **P3-03** : `RECRUIT_MEMBER` et `Opportunity.issuerActorId` existent ;
+  le groupe devient l'émetteur, publié par un·e OWNER ou ADMIN
+  (`requireManager`). Le rayon d'une annonce part de la commune de
+  l'auteur : pour un groupe, sa ville (fiche du groupe, `ActorLocation`
+  du groupe). Candidatures reçues par la gestion ; l'acceptation ouvre la
+  conversation (comme P2-03) **et** crée l'adhésion (`afterJoin`, XP et
+  formation). Relire `docs/annonces/README.md` (quota TL, conditions).
+- Ordre prévu : P3-03 → P3-11 → P3-04 à P3-09 → P3-12
   à P3-14 (tableau §4 bis de docs/plan/README.md).
 - Points ouverts hors lots : docs/plan/README.md §5 bis.
 - Le wifi public de l'utilisateur bloque le port 5432 (Neon injoignable) :

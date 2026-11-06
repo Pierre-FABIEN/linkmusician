@@ -29,9 +29,13 @@ export async function countQuotaMedia(actorId: string) {
 	return prisma.media.count({ where: { actorId, status: { in: [...QUOTA_STATUSES] } } });
 }
 
-/** Refuse un ajout au-delà du quota de médias du palier de confiance. */
-export async function assertMediaQuota(actorId: string) {
-	const quota = await checkStockQuota(actorId, 'mediaItems', await countQuotaMedia(actorId));
+/**
+ * Refuse un ajout au-delà du quota de médias du palier de confiance.
+ * `trustActorId` : pour un groupe (P3-02), la confiance qui compte est celle
+ * de la personne qui publie, pas celle du groupe (toujours au palier 0).
+ */
+export async function assertMediaQuota(actorId: string, trustActorId = actorId) {
+	const quota = await checkStockQuota(trustActorId, 'mediaItems', await countQuotaMedia(actorId));
 	if (!quota.allowed) {
 		throw new MediaError(
 			`Tu as atteint ta limite de ${quota.limit} médias pour l'instant. Elle augmente avec ta confiance (voir Réglages).`
@@ -65,11 +69,13 @@ export async function publishMedia(mediaId: string): Promise<ProgressSummary | n
 /** Ajoute un lien YouTube, SoundCloud ou Bandcamp. */
 export async function addExternalMedia(
 	actorId: string,
-	input: { url: string; title?: string; isDemo: boolean; instrumentId?: string | null }
+	input: { url: string; title?: string; isDemo: boolean; instrumentId?: string | null },
+	/** Personne qui publie au nom d'un groupe (quota et validation selon sa confiance). */
+	trustActorId = actorId
 ) {
 	const parsed = parseExternalMedia(input.url);
 	if (!parsed.ok) throw new MediaError(EXTERNAL_MESSAGES[parsed.reason]);
-	const quota = await assertMediaQuota(actorId);
+	const quota = await assertMediaQuota(actorId, trustActorId);
 
 	const title =
 		normalizeTitle(input.title ?? '') ||

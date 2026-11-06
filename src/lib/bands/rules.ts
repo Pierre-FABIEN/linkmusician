@@ -13,6 +13,8 @@
  *   « Formation ».
  */
 import { z } from 'zod';
+import { normalizeBio } from '#lib/actors/profile';
+import { MAX_GENRES } from '#lib/skills/profile';
 
 export const ORG_ROLES = ['OWNER', 'ADMIN', 'MEMBER'] as const;
 export type OrgRoleValue = (typeof ORG_ROLES)[number];
@@ -156,3 +158,54 @@ export function successorOf<
 	const others = active.filter((m) => m.personId !== ownerId).sort(compareMembers);
 	return others[0] ?? null;
 }
+
+/** Présentation du groupe (P3-02) : texte brut, comme celle d'une personne. */
+export const MAX_BAND_BIO = 600;
+
+export type PublicMemberInput = {
+	deleted: boolean;
+	/** Profil public visible (ni masqué, ni suspendu). */
+	visible: boolean;
+	adult: boolean;
+	displayName: string;
+	handle: string;
+};
+
+/**
+ * Comment un membre apparaît sur la page publique d'un groupe (P3-02).
+ * Compte supprimé : « Compte supprimé ». Profil masqué ou suspendu (D19) :
+ * sans nom ni lien. Mineur·e (D5) : nommé·e seulement pour un membre
+ * connecté ; un visiteur (et donc un moteur de recherche) ne voit pas son nom.
+ */
+export function publicMember(
+	m: PublicMemberInput,
+	viewerSignedIn: boolean
+): { name: string; handle: string | null } {
+	if (m.deleted) return { name: 'Compte supprimé', handle: null };
+	if (!m.visible || (!m.adult && !viewerSignedIn))
+		return { name: 'Un·e musicien·ne', handle: null };
+	return { name: m.displayName, handle: m.handle };
+}
+
+/** Fiche du groupe, modifiée par la gestion (P3-02). */
+export const bandProfileSchema = z.object({
+	name: bandSchema.shape.name,
+	bio: z
+		.string()
+		.optional()
+		.transform((v) => normalizeBio(v ?? ''))
+		.refine((v) => [...v].length <= MAX_BAND_BIO, {
+			message: `La présentation tient en ${MAX_BAND_BIO} caractères.`
+		})
+		.transform((v) => v || null),
+	genreIds: z
+		.array(z.string().min(1))
+		.max(MAX_GENRES, { message: `${MAX_GENRES} genres au maximum.` }),
+	communeCode: z
+		.string()
+		.optional()
+		.transform((v) => v?.trim() || null)
+		.refine((v) => v === null || /^[0-9AB]{5}$/.test(v), {
+			message: 'Choisis une commune dans la liste.'
+		})
+});

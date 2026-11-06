@@ -10,6 +10,8 @@ import { skipOnboarding } from '../support/linkmusician';
  * P3-01 — Groupe et adhésions : je monte un groupe (aucun point), j'invite
  * Malik ; il accepte, le groupe est formé et nous gagnons des points tous
  * les deux ; il part, et reste dans l'historique avec ses dates.
+ * P3-02 — Page publique du groupe : je remplis sa fiche, un visiteur voit
+ * l'effectif actuel et passé, et le groupe figure sur mon profil.
  */
 test.describe('LinkMusician — groupes', () => {
 	test.setTimeout(4 * 60_000);
@@ -100,6 +102,50 @@ test.describe('LinkMusician — groupes', () => {
 					past.getByRole('link', { name: malik.actor.displayName, exact: true })
 				).toBeVisible();
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+			});
+
+			await test.step('5. Je remplis la fiche du groupe', async () => {
+				await page.getByRole('link', { name: 'Modifier la fiche du groupe' }).click();
+				await page.getByLabel('Présentation').fill('Rock garage, répètes le jeudi.');
+				await page.getByRole('checkbox', { name: 'Rock', exact: true }).check();
+				await page.getByRole('button', { name: 'Enregistrer la fiche' }).click();
+				await expect(page.getByText('La fiche du groupe est enregistrée.')).toBeVisible();
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+			});
+
+			await test.step('6. Un visiteur voit la page publique, anciens membres compris', async () => {
+				const band = await db.actor.findFirstOrThrow({
+					where: { kind: 'ORGANIZATION', displayName: bandName }
+				});
+				const visitor = await browser.newContext();
+				try {
+					const visitorPage = await visitor.newPage();
+					await visitorPage.goto(`/@${band.handle}`);
+					await waitForAppReady(visitorPage);
+					await expect(
+						visitorPage.getByRole('heading', { name: bandName, level: 1 })
+					).toBeVisible();
+					await expect(visitorPage.getByText('Rock garage, répètes le jeudi.')).toBeVisible();
+					await expect(visitorPage.getByRole('list', { name: 'Membres actuels' })).toContainText(
+						me.actor.displayName
+					);
+					const past = visitorPage.getByRole('list', { name: 'Anciens membres' });
+					await expect(past).toContainText(malik.actor.displayName);
+					// Arrivé et parti le même mois : la période tient en un mois.
+					await expect(past).toContainText(/\p{L}+ \d{4}/u);
+					await expect(
+						visitorPage.getByRole('link', { name: `Connecte-toi pour rejoindre ${bandName}` })
+					).toBeVisible();
+					await expectNoA11yViolations(visitorPage, A11Y_EXCLUDE);
+				} finally {
+					await visitor.close();
+				}
+
+				// Mon profil public cite le groupe.
+				await page.goto(`/@${me.actor.handle}`);
+				await expect(
+					page.getByRole('list', { name: `Groupes de ${me.actor.displayName}` })
+				).toContainText(bandName);
 			});
 		} finally {
 			await malikContext.close();

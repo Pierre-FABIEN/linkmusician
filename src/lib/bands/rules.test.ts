@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+	bandProfileSchema,
 	bandSchema,
 	canRemove,
 	formsBand,
@@ -7,6 +8,7 @@ import {
 	isManager,
 	leaveCheck,
 	periodLabel,
+	publicMember,
 	successorOf
 } from './rules';
 
@@ -100,5 +102,48 @@ describe('périodes', () => {
 		expect(periodLabel(d(2026, 2), d(2026, 5))).toBe('mars 2026 – juin 2026');
 		expect(periodLabel(d(2026, 2), d(2026, 2))).toBe('mars 2026');
 		expect(periodLabel(null, null)).toBe('');
+	});
+});
+
+describe('membres sur la page publique (P3-02)', () => {
+	const base = { deleted: false, visible: true, adult: true, displayName: 'Léa', handle: 'lea' };
+	it.each([
+		['adulte visible', base, false, { name: 'Léa', handle: 'lea' }],
+		[
+			'compte supprimé',
+			{ ...base, deleted: true },
+			true,
+			{ name: 'Compte supprimé', handle: null }
+		],
+		[
+			'profil masqué',
+			{ ...base, visible: false },
+			true,
+			{ name: 'Un·e musicien·ne', handle: null }
+		],
+		[
+			'mineure, visiteur',
+			{ ...base, adult: false },
+			false,
+			{ name: 'Un·e musicien·ne', handle: null }
+		],
+		['mineure, membre connecté', { ...base, adult: false }, true, { name: 'Léa', handle: 'lea' }]
+	] as const)('%s', (_, input, signedIn, expected) => {
+		expect(publicMember(input, signedIn)).toEqual(expected);
+	});
+});
+
+describe('fiche du groupe (P3-02)', () => {
+	it('nettoie la présentation, la commune est facultative', () => {
+		expect(
+			bandProfileSchema.parse({ name: 'Les Rats', bio: '  Rock  garage \r\n', genreIds: ['g1'] })
+		).toEqual({ name: 'Les Rats', bio: 'Rock garage', genreIds: ['g1'], communeCode: null });
+	});
+	it.each([
+		['présentation trop longue', { name: 'Ok', bio: 'x'.repeat(601), genreIds: [] }],
+		['trop de genres', { name: 'Ok', genreIds: ['1', '2', '3', '4', '5', '6'] }],
+		['commune mal formée', { name: 'Ok', genreIds: [], communeCode: 'Toulouse' }]
+	])('refuse : %s', (_, input) => {
+		expect(bandProfileSchema.safeParse(input).success).toBe(false);
 	});
 });

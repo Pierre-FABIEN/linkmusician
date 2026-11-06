@@ -23,6 +23,10 @@ import { isBlockedBetween } from '#lib/server/blocking/service';
 import { playedTogether } from '#lib/server/network/service';
 import { notify } from '#lib/server/notifications/service';
 import { emitAndProcess } from '#lib/server/progression/processor';
+import { saveGenres } from '#lib/prisma/skills/musicalProfile';
+import { clearActorLocation, setActorLocation } from '#lib/server/geo/queries';
+import type { Commune } from '#lib/geo/fuzz';
+import { addExternalMedia, deleteOwnMedia, MediaError } from '#lib/server/media/service';
 import {
 	BAND_ERRORS,
 	MAX_ACTIVE_BANDS,
@@ -506,6 +510,68 @@ export async function setMyTitle(bandId: string, personId: string, title: string
 	const mine = await activeMembership(prisma, bandId, personId);
 	if (!mine) throw new BandError('Tu ne fais pas partie de ce groupe.', 404);
 	await prisma.membership.update({ where: { id: mine.id }, data: { title } });
+}
+
+// ─── Fiche du groupe (P3-02) ─────────────────────────────────────────────
+
+/** Ce que la gestion modifie : nom, présentation, genres, ville. */
+export async function updateBandProfile(
+	bandId: string,
+	managerId: string,
+	input: { name: string; bio: string | null; genreIds: string[]; commune: Commune | null }
+) {
+	await prisma.$transaction(async (tx) => {
+		await lockBand(tx, bandId);
+		await liveBand(tx, bandId);
+		await requireManager(tx, bandId, managerId);
+		await tx.actor.update({
+			where: { id: bandId },
+			data: { displayName: input.name, bio: input.bio }
+		});
+	}, TX);
+	await saveGenres({ actorId: bandId }, { genreIds: input.genreIds });
+	// Comme pour une personne : seul le centre de la commune, sur une grille.
+	if (input.commune) await setActorLocation(bandId, input.commune);
+	else await clearActorLocation(bandId);
+}
+
+/**
+ * Lien YouTube, SoundCloud ou Bandcamp au nom du groupe. Quota et
+ * validation suivent la confiance de la personne qui publie. Jamais une
+ * « démo » qui rapporte de l'XP : les étapes du groupe (P3-04) s'en chargent.
+ */
+export async function addBandMedia(
+	bandId: string,
+	managerId: string,
+	input: { url: string; title: string }
+) {
+	await prisma.$transaction(async (tx) => {
+		await liveBand(tx, bandId);
+		await requireManager(tx, bandId, managerId);
+	});
+	try {
+		const { media } = await addExternalMedia(
+			bandId,
+			{ url: input.url, title: input.title, isDemo: false, instrumentId: null },
+			managerId
+		);
+		return media;
+	} catch (err) {
+		if (err instanceof MediaError) throw new BandError(err.message);
+		throw err;
+	}
+}
+
+export async function deleteBandMedia(bandId: string, managerId: string, mediaId: string) {
+	await prisma.$transaction(async (tx) => {
+		await requireManager(tx, bandId, managerId);
+	});
+	try {
+		await deleteOwnMedia(bandId, mediaId);
+	} catch (err) {
+		if (err instanceof MediaError) throw new BandError(err.message, 404);
+		throw err;
+	}
 }
 
 // ─── Lectures ────────────────────────────────────────────────────────────
