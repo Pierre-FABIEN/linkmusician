@@ -183,8 +183,11 @@ model Media {                                   // Phase 1
 }
 
 model MediaCredit { mediaId String; actorId String; role String; confirmedAt DateTime?; @@id([mediaId, actorId, role]) }
-// Le morceau `Work` et ses contributeurs `WorkContributor` (D35, phase 3), puis
-// ses propositions `WorkPitch` (phase 4), relient les métiers (06-metiers.md §4.5).
+// Le morceau `Work` (porteur : personne ou groupe ; idée ou composé), ses
+// contributeurs `WorkContributor` (confirmation = consentement) et ses rôles
+// `WorkRole` (instrument, composition, paroles, arrangement ; sans contributeur :
+// à pourvoir), livrés en P3-11 (D35, D40, docs/morceaux), puis ses propositions
+// `WorkPitch` (phase 4), relient les métiers (06-metiers.md §4.5).
 
 // ─── OPPORTUNITÉS (annonces = quêtes émises) ─────────────────────────────
 

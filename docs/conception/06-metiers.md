@@ -413,6 +413,9 @@ elle enregistre les autres. Le niveau de compte reste la somme.
 - `WorkContributor` : acteur, rôle (instrument, composition, paroles,
   enregistrement, mixage, mastering, production), date de confirmation.
   Remplace à terme `MediaCredit` pour les crédits portés par un morceau.
+  Livré en P3-11 avec `WorkRole` : un rôle par ligne, rattaché à un
+  contributeur ou **à pourvoir** (bouton « Recruter »). Composer, maquette
+  et retrait d'un crédit : D40 et [docs/morceaux](../morceaux/README.md).
 - `Collaboration.workId` : une collaboration peut être liée à un
   morceau (`RECORDING`, `PRODUCTION`, `SESSION_WORK`…).
 - `WorkPitch` (proposition) : morceau, public visé (producteurs,

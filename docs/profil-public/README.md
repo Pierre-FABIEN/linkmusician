@@ -34,6 +34,10 @@ Module LinkMusician (lot P1-11, décisions D1 et D19, maquettes P1-02
   [groupes](../groupes/README.md)). Le profil d'une personne cite ses
   groupes actuels (`bandsOfPerson`). Le sitemap (`indexableProfiles`)
   ajoute les groupes formés et non dissous.
+- **Morceaux (P3-11)** : carte « Morceaux » (`publicWorksOf`) avec les
+  morceaux composés que l'acteur porte et, pour une personne, ceux où son
+  crédit est confirmé. Jamais une idée, ni la maquette d'une idée
+  (`notIdeaDemo`, voir [morceaux](../morceaux/README.md)).
 - **SEO** : titre « Nom (@handle) », description tirée de la bio,
   données structurées `Person` (ou `MusicGroup` pour une structure) avec
   la commune, les instruments et genres (`knowsAbout`) et les liens
