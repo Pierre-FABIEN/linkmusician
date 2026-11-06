@@ -193,7 +193,7 @@ export async function createBand(personId: string, form: BandForm, now = new Dat
  * Un·e mineur·e ne reçoit d'invitation que d'une personne qu'il ou elle
  * connaît : conversation acceptée des deux côtés, ou jouée ensemble.
  */
-async function canInviteMinor(inviterId: string, inviteeId: string) {
+export async function canInviteMinor(inviterId: string, inviteeId: string) {
 	const conversation = await prisma.conversation.findFirst({
 		where: {
 			AND: [

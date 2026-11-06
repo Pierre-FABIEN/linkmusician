@@ -2720,6 +2720,9 @@ model Work {
   /// Maquette : un média du porteur (lien externe), jamais une démo à XP.
   demoMediaId String?
   demoMedia   Media?         @relation("WorkDemo", fields: [demoMediaId], references: [id], onDelete: SetNull)
+  /// Maquette ajoutée depuis le morceau : elle suit sa visibilité (cachée
+  /// des listes publiques tant que le morceau est une idée).
+  demoFromWork Boolean       @default(false)
   composedAt  DateTime?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt

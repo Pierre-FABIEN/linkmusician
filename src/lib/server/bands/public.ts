@@ -9,6 +9,7 @@
  * (`publicMember`).
  */
 import { prisma } from '#lib/server';
+import { notIdeaDemo } from '#lib/server/works/visibility';
 import { isIndexable } from '#lib/actors/visibility';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { getActorLocation } from '#lib/server/geo/queries';
@@ -82,7 +83,7 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 		}),
 		getActorLocation(actor.id),
 		prisma.media.findMany({
-			where: { actorId: actor.id, status: 'PUBLISHED' },
+			where: { actorId: actor.id, status: 'PUBLISHED', ...notIdeaDemo },
 			orderBy: { createdAt: 'desc' },
 			take: PUBLIC_MEDIA_LIMIT,
 			select: { id: true, title: true, kind: true, isDemo: true, externalUrl: true, fileUrl: true }

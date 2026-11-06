@@ -15,7 +15,8 @@ export const NOTIFICATION_TYPES = [
 	'JAM_INVITE',
 	'BAND_INVITE',
 	'BAND_REQUEST',
-	'BAND_JOINED'
+	'BAND_JOINED',
+	'WORK_CREDIT'
 ] as const;
 export type NotificationTypeValue = (typeof NOTIFICATION_TYPES)[number];
 
@@ -33,7 +34,8 @@ export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, st
 	JAM_INVITE: 'Invitations à une jam',
 	BAND_INVITE: 'Invitations à rejoindre un groupe',
 	BAND_REQUEST: 'Demandes pour rejoindre mes groupes',
-	BAND_JOINED: 'Nouveaux membres de mes groupes'
+	BAND_JOINED: 'Nouveaux membres de mes groupes',
+	WORK_CREDIT: 'Crédits sur un morceau à confirmer'
 };
 
 /**
@@ -81,6 +83,8 @@ export function notificationText(
 			return `${who} aimerait rejoindre le groupe${what}.`;
 		case 'BAND_JOINED':
 			return `${who} a rejoint le groupe${what}.`;
+		case 'WORK_CREDIT':
+			return `${who} te crédite sur le morceau${what}. Confirme ton rôle si c’est bien toi.`;
 	}
 }
 

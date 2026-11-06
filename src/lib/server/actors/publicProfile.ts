@@ -9,6 +9,7 @@
  * suspendu : `publicActorWhere`). L'appelant répond 404 sans dire pourquoi.
  */
 import { prisma } from '#lib/server';
+import { notIdeaDemo } from '#lib/server/works/visibility';
 import { bandsOfPerson, indexableBands } from '#lib/server/bands/public';
 import { getMusicalProfile } from '#lib/prisma/skills/musicalProfile';
 import { getActorLocation } from '#lib/server/geo/queries';
@@ -54,7 +55,7 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 			getProgress(actor.id, prisma),
 			getMusicianTier(actor.id, prisma),
 			prisma.media.findMany({
-				where: { actorId: actor.id, status: 'PUBLISHED' },
+				where: { actorId: actor.id, status: 'PUBLISHED', ...notIdeaDemo },
 				orderBy: { createdAt: 'desc' },
 				select: {
 					id: true,

@@ -15,6 +15,7 @@ import { getMusicalProfile } from '#lib/prisma/skills/musicalProfile';
 import { getProfileDetails } from '#lib/prisma/actors/profile';
 import { getActorLocation } from '#lib/server/geo/queries';
 import { getProgress } from '#lib/server/progression/read';
+import { worksExport } from '#lib/server/works/service';
 
 export type NewPersonInput = {
 	userId: string;
@@ -136,7 +137,8 @@ export async function exportPersonData(userId: string) {
 		notificationPreferences,
 		collusionCases,
 		suggestionsDismissed,
-		memberships
+		memberships,
+		works
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -384,7 +386,9 @@ export async function exportPersonData(userId: string) {
 				org: { select: { actor: { select: { displayName: true } } } },
 				invitedBy: { select: { displayName: true } }
 			}
-		})
+		}),
+		// Morceaux (P3-11) : portés et crédits.
+		worksExport(person.actorId)
 	]);
 	const media = await prisma.media.findMany({
 		where: { actorId: person.actorId },
@@ -584,6 +588,23 @@ export async function exportPersonData(userId: string) {
 			debut: m.startedAt,
 			fin: m.endedAt
 		})),
+		morceaux: {
+			portes: works.owned.map((w) => ({
+				titre: w.title,
+				etat: w.state,
+				preuve: w.proof,
+				genres: w.genres,
+				cree_le: w.createdAt,
+				compose_le: w.composedAt
+			})),
+			credits: works.credits.map((c) => ({
+				morceau: c.work,
+				porte_par: c.carriedBy,
+				roles: c.roles,
+				confirme_le: c.confirmedAt,
+				cree_le: c.createdAt
+			}))
+		},
 		suggestions_ecartees: suggestionsDismissed.map((d) => ({
 			nom: d.actor.displayName,
 			le: d.createdAt
@@ -615,6 +636,17 @@ export async function personAnonymizationOps(
 		prisma.personTrack.deleteMany({ where: { personId: person.actorId } }),
 		prisma.personInstrument.deleteMany({ where: { personId: person.actorId } }),
 		prisma.actorGenre.deleteMany({ where: { actorId: person.actorId } }),
+		// Morceaux (P3-11) : ceux que la personne porte sont supprimés ; ses
+		// crédits confirmés sur ceux des autres restent (« Compte supprimé »),
+		// les crédits en attente disparaissent (leurs rôles redeviennent à
+		// pourvoir).
+		prisma.work.deleteMany({ where: { ownerId: person.actorId } }),
+		prisma.workContributor.deleteMany({ where: { personId: person.actorId, confirmedAt: null } }),
+		prisma.workContributor.updateMany({
+			where: { invitedById: person.actorId },
+			data: { invitedById: null }
+		}),
+		prisma.work.updateMany({ where: { createdById: person.actorId }, data: { createdById: null } }),
 		prisma.influence.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.profileLink.deleteMany({ where: { personId: person.actorId } }),
 		prisma.actorActivityDay.deleteMany({ where: { actorId: person.actorId } }),

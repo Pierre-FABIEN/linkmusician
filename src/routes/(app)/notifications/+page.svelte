@@ -11,7 +11,8 @@
 		ThumbsUp,
 		Settings,
 		UsersRound,
-		UserPlus
+		UserPlus,
+		Music
 	} from 'lucide-svelte';
 	import type { NotificationTypeValue } from '#lib/notifications/types';
 
@@ -26,7 +27,8 @@
 		JAM_INVITE: Guitar,
 		BAND_INVITE: UsersRound,
 		BAND_REQUEST: UserPlus,
-		BAND_JOINED: UsersRound
+		BAND_JOINED: UsersRound,
+		WORK_CREDIT: Music
 	};
 
 	const rtf = new Intl.RelativeTimeFormat('fr-FR', { numeric: 'auto' });

@@ -18,6 +18,7 @@ import { checkDeclaredFile, DECLARED_FILE_MESSAGES, type UploadKind } from '#lib
 import { checkUpload, UPLOAD_MESSAGES } from '#lib/media/rules';
 import { getTrustLevel } from '#lib/server/trust/quotas';
 import { destroyAsset, fetchAsset, isCloudinaryConfigured, signUpload } from './cloudinary';
+import { notIdeaDemo } from '#lib/server/works/visibility';
 
 export class MediaError extends Error {
 	constructor(message: string) {
@@ -221,6 +222,8 @@ export async function getPublishedMedia(mediaId: string, viewerId?: string | nul
 		where: {
 			id: mediaId,
 			status: 'PUBLISHED',
+			// Maquette d'une idée (P3-11) : visible depuis le morceau seulement.
+			...notIdeaDemo,
 			// Acteur anonymisé, suspendu ou masqué (D19) : ses médias disparaissent.
 			actor: publicActorWhere(new Date(), viewerId)
 		},
