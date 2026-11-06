@@ -108,25 +108,56 @@
 		<section id="notifications" class="scroll-mt-24 space-y-3" aria-labelledby="notif-title">
 			<h2 id="notif-title" class="text-lg font-semibold">Notifications</h2>
 			<p class="text-sm text-muted-foreground">
-				Choisis ce qui s'affiche sous la cloche. Tes gains et tes succès s'annoncent toujours à ton
-				arrivée, et tes messages gardent leur pastille.
+				Choisis ce qui s'affiche sous la cloche et ce que tu reçois par email. L'email est un résumé
+				: au plus un par jour, seulement quand il y a du neuf. Tes gains et tes succès s'annoncent
+				aussi à ton arrivée, et tes messages gardent leur pastille.
 			</p>
 			<form method="POST" action="?/notifications" use:enhance class="space-y-3">
-				<fieldset class="space-y-1">
-					<legend class="sr-only">Me prévenir dans l'app</legend>
-					{#each data.notificationPreferences as pref (pref.type)}
-						<label class="flex min-h-11 items-center gap-3 text-sm">
-							<input
-								type="checkbox"
-								name="inApp"
-								value={pref.type}
-								checked={pref.inApp}
-								class="size-4"
-							/>
-							{pref.label}
-						</label>
-					{/each}
-				</fieldset>
+				<table class="w-full text-sm">
+					<caption class="sr-only">Notifications par sujet</caption>
+					<thead>
+						<tr class="text-left text-xs text-muted-foreground">
+							<th scope="col" class="py-2 font-medium">Sujet</th>
+							<th scope="col" class="w-20 py-2 text-center font-medium">Dans l'app</th>
+							<th scope="col" class="w-20 py-2 text-center font-medium">Par email</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each data.notificationPreferences as pref (pref.type)}
+							<tr class="border-t">
+								<th scope="row" class="py-2 pr-2 text-left font-normal">{pref.label}</th>
+								<td class="text-center">
+									{#if pref.inApp !== null}
+										<label class="inline-flex size-11 items-center justify-center">
+											<span class="sr-only">{pref.label} dans l'app</span>
+											<input
+												type="checkbox"
+												name="inApp"
+												value={pref.type}
+												checked={pref.inApp}
+												class="size-4"
+											/>
+										</label>
+									{:else}
+										<span class="text-muted-foreground" aria-label="Toujours dans l'app">—</span>
+									{/if}
+								</td>
+								<td class="text-center">
+									<label class="inline-flex size-11 items-center justify-center">
+										<span class="sr-only">{pref.label} par email</span>
+										<input
+											type="checkbox"
+											name="email"
+											value={pref.type}
+											checked={pref.email}
+											class="size-4"
+										/>
+									</label>
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
 				<button type="submit" class="rounded-md border px-3 py-1.5 text-sm"
 					>Enregistrer mes notifications</button
 				>

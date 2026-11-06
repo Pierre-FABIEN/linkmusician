@@ -1,33 +1,37 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après P2-09a).
+> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après P2-09b).
 
 ---
 
 ```markdown
-On reprend LinkMusician au lot **P2-09b** (digest email). Ne refais pas
-l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui sert est
-ci-dessous. Lire la fiche « P2-09 » (découpage) de docs/plan/phase-2-3.md
-et docs/notifications/README.md.
+On reprend LinkMusician au lot **P2-10** (confiance TL2 et détection de
+collusion). Ne refais pas l'analyse du projet : CLAUDE.md est déjà chargé,
+tout ce qui sert est ci-dessous. Lire la fiche « P2-10 » de
+docs/plan/phase-2-3.md et la conception 02 §6 (anti-abus) et §7
+(confiance).
 
 ## État (06/11/2026)
 
-- P2-08 (réputation) et P2-09a (notifications dans l'app) : ✅, tous
-  les tests verts (intégration progression et recherche, e2e).
-- Restent en phase 2 : P2-09b, P2-10, P2-17, P2-18, puis la revue de
-  phase 2. Objectif D28 : lancement public à Toulouse début mars 2027.
-  L'utilisateur juge que tout se jouera sur une UX simple et agréable.
-- P2-09b : job quotidien (modèle : `src/lib/server/jobs/trust.ts` et
-  `src/routes/api/jobs/trust/`, cron dans `vercel.json`), emails via
-  `src/lib/server/smtp-mail.ts`, au plus un digest par jour et par
-  personne et seulement s'il y a du neuf (notifications non lues,
-  messages non lus via `unreadTotal`, gains et succès depuis le dernier
-  digest) ; colonne `email` de `notification_preferences` à exposer dans
-  `/reglages` (section `#notifications`) ; désinscription par type par
-  lien signé ; purge des notifications lues de plus de 90 jours ; décider
-  du Web Push ou le reporter. Ton : 07 §7 (encourager, jamais
-  culpabiliser).
+- Livrés et verts : P2-08 (réputation), P2-09a (notifications dans l'app),
+  P2-09b (digest email). Restent en phase 2 : P2-10, P2-17, P2-18, puis la
+  revue de phase 2. Objectif D28 : lancement public à Toulouse début mars 2027. L'utilisateur juge que tout se jouera sur une UX simple et
+  agréable.
+- Décision en attente : **D34** (Web Push reporté après le pilote),
+  « Proposée ».
+- P2-10, points d'appui :
+  - Condition TL2 déjà posée dans `src/lib/server/progression/core/trust.ts`
+    (`collaborationsWithTrusted`, lu par `trustSummaryFor` dans
+    `progression/trust.ts`) : vérifier qu'elle est complète.
+  - Job nocturne : modèle `src/lib/server/jobs/reputation.ts` et sa route
+    `src/routes/api/jobs/reputation/` (cron dans `vercel.json`). Graphe des
+    collaborations : événements `collaboration.completed`
+    (`participantIds`).
+  - File de revue en modération : `src/lib/server/moderation/service.ts`
+    et `/moderation` ; aucune sanction automatique.
+  - Empreinte d'appareil existante (boilerplate) :
+    `src/lib/server/deviceContext.ts`, `fraud.ts`.
 - Le wifi public de l'utilisateur bloque le port 5432 (Neon injoignable) :
   dans ce cas, écrire la migration à la main et la vérifier ensuite avec
   `npm run db:nouvelle-migration -- verif` (diff vide attendu).

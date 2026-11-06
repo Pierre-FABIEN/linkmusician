@@ -11,11 +11,15 @@
  */
 import type { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
+import { notBlockedWith } from './where';
 import {
+	EMAIL_TOPICS,
+	EMAIL_TOPIC_LABELS,
+	isEmailTopic,
 	isNotificationType,
 	notificationText,
 	NOTIFICATION_TYPES,
-	NOTIFICATION_TYPE_LABELS,
+	type EmailTopic,
 	type NotificationTypeValue
 } from '#lib/notifications/types';
 
@@ -69,21 +73,6 @@ export async function notify(db: Db, input: NotifyInput): Promise<boolean> {
 	return true;
 }
 
-/** Filtre « pas de blocage entre l'auteur de la notification et moi ». */
-function notBlockedWith(actorId: string): Prisma.NotificationWhereInput {
-	return {
-		OR: [
-			{ fromActorId: null },
-			{
-				from: {
-					blocksMade: { none: { blockedActorId: actorId } },
-					blocksReceived: { none: { blockerActorId: actorId } }
-				}
-			}
-		]
-	};
-}
-
 /** Nombre de notifications non lues (pastille de la cloche). */
 export async function unreadNotifications(actorId: string): Promise<number> {
 	return prisma.notification.count({
@@ -94,7 +83,11 @@ export async function unreadNotifications(actorId: string): Promise<number> {
 /** Dernières notifications, texte composé, les non lues signalées. */
 export async function listNotifications(actorId: string) {
 	const rows = await prisma.notification.findMany({
-		where: { recipientActorId: actorId, ...notBlockedWith(actorId) },
+		where: {
+			recipientActorId: actorId,
+			type: { in: [...NOTIFICATION_TYPES] },
+			...notBlockedWith(actorId)
+		},
 		orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
 		take: NOTIFICATION_PAGE_SIZE,
 		select: {
@@ -107,14 +100,20 @@ export async function listNotifications(actorId: string) {
 			from: { select: { displayName: true } }
 		}
 	});
-	return rows.map((n) => ({
-		id: n.id,
-		type: n.type,
-		href: n.href,
-		text: notificationText(n.type, n.from?.displayName ?? null, n.title),
-		unread: n.readAt === null,
-		createdAt: n.createdAt
-	}));
+	return rows.flatMap((n) => {
+		const type = n.type;
+		if (!isNotificationType(type)) return [];
+		return [
+			{
+				id: n.id,
+				type,
+				href: n.href,
+				text: notificationText(type, n.from?.displayName ?? null, n.title),
+				unread: n.readAt === null,
+				createdAt: n.createdAt
+			}
+		];
+	});
 }
 
 /** Tout marquer comme lu jusqu'à `upTo` (ce que la page a montré). */
@@ -126,30 +125,75 @@ export async function markNotificationsRead(actorId: string, upTo: Date, now = n
 	});
 }
 
-/** Préférences de tous les types, avec les valeurs par défaut (activé). */
+/**
+ * Préférences de tous les sujets, avec les valeurs par défaut (activé).
+ * `inApp` vaut `null` pour les sujets sans ligne sous la cloche (messages,
+ * progression) : ils ne se règlent que par email.
+ */
 export async function getNotificationPreferences(actorId: string) {
 	const rows = await prisma.notificationPreference.findMany({
 		where: { actorId },
-		select: { type: true, inApp: true }
+		select: { type: true, inApp: true, email: true }
 	});
-	const byType = new Map(rows.map((r) => [r.type, r.inApp]));
-	return NOTIFICATION_TYPES.map((type) => ({
+	const byType = new Map(rows.map((r) => [r.type as string, r]));
+	return EMAIL_TOPICS.map((type) => ({
 		type,
-		label: NOTIFICATION_TYPE_LABELS[type],
-		inApp: byType.get(type) ?? true
+		label: EMAIL_TOPIC_LABELS[type],
+		inApp: isNotificationType(type) ? (byType.get(type)?.inApp ?? true) : null,
+		email: byType.get(type)?.email ?? true
 	}));
 }
 
-/** Enregistre les types voulus dans l'app ; les autres sont coupés. */
-export async function setInAppPreferences(actorId: string, wanted: readonly unknown[]) {
-	const on = new Set(wanted.filter(isNotificationType));
+/** Sujets d'email voulus par l'acteur (pour le digest). */
+export async function emailTopicsOf(actorId: string): Promise<Set<EmailTopic>> {
+	const prefs = await getNotificationPreferences(actorId);
+	return new Set(prefs.filter((p) => p.email).map((p) => p.type));
+}
+
+/** Enregistre les cases cochées dans `/reglages` ; les autres sont coupées. */
+export async function setNotificationPreferences(
+	actorId: string,
+	wanted: { inApp: readonly unknown[]; email: readonly unknown[] }
+) {
+	const inApp = new Set(wanted.inApp.filter(isNotificationType));
+	const email = new Set(wanted.email.filter(isEmailTopic));
 	await prisma.$transaction(
-		NOTIFICATION_TYPES.map((type) =>
+		EMAIL_TOPICS.map((type) => {
+			const data = {
+				inApp: isNotificationType(type) ? inApp.has(type) : true,
+				email: email.has(type)
+			};
+			return prisma.notificationPreference.upsert({
+				where: { actorId_type: { actorId, type } },
+				create: { actorId, type, ...data },
+				update: data
+			});
+		})
+	);
+}
+
+/** Désinscription depuis un email : coupe un sujet, ou tous (`ALL`). */
+export async function unsubscribeEmail(actorId: string, topic: EmailTopic | 'ALL') {
+	const topics = topic === 'ALL' ? EMAIL_TOPICS : [topic];
+	await prisma.$transaction(
+		topics.map((type) =>
 			prisma.notificationPreference.upsert({
 				where: { actorId_type: { actorId, type } },
-				create: { actorId, type, inApp: on.has(type) },
-				update: { inApp: on.has(type) }
+				create: { actorId, type, email: false },
+				update: { email: false }
 			})
 		)
 	);
+}
+
+/** Purge (P2-09b) : notifications lues depuis plus de 90 jours. */
+export const READ_NOTIFICATION_RETENTION_DAYS = 90;
+
+export async function purgeReadNotifications(now = new Date()) {
+	const { count } = await prisma.notification.deleteMany({
+		where: {
+			readAt: { lt: new Date(now.getTime() - READ_NOTIFICATION_RETENTION_DAYS * 86_400_000) }
+		}
+	});
+	return count;
 }

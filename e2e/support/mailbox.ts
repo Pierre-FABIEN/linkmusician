@@ -10,7 +10,8 @@ const MAILBOX_URL = `http://127.0.0.1:${process.env.SMTP_HTTP_PORT ?? 2526}/mess
  * caractères non ASCII encodés en `=XX` : sans décodage, le code de vérification
  * peut se retrouver scindé en deux.
  */
-function decodeQuotedPrintable(body: string): string {
+// LINKMUSICIAN: exportée pour lire les liens du digest (P2-09b).
+export function decodeQuotedPrintable(body: string): string {
 	return body
 		.replace(/=\r?\n/g, '')
 		.replace(/=([0-9A-F]{2})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));

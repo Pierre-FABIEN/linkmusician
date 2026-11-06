@@ -1483,6 +1483,8 @@ model Person {
   preferredMode      PlayMode?
   /// Modes dont la présentation pas à pas a été vue (P2-12b).
   modeIntrosSeen     PlayMode[]       @default([])
+  /// Dernier digest email (P2-09b) : au plus un par jour.
+  digestSentAt       DateTime?
 
   /// Profil complet (D17, D18). Tout est déclaré, rien n'est vérifié.
   proStatus      ProStatus?
@@ -2491,6 +2493,9 @@ enum NotificationType {
   COLLAB_TO_CONFIRM
   ENDORSEMENT
   JAM_INVITE
+  /// Préférence d'email seulement (P2-09b) : jamais une ligne de `Notification`.
+  MESSAGES
+  PROGRESS
 }
 
 /// Notification dans l'app (cloche). Le texte est composé à l'affichage

@@ -30,6 +30,24 @@ export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, st
 	JAM_INVITE: 'Invitations à une jam'
 };
 
+/**
+ * Sujets du digest email (P2-09b) : les types de la cloche, plus les
+ * messages non lus et la progression (gains, succès), qui n'ont pas de
+ * ligne sous la cloche (célébrations, pastille des messages).
+ */
+export const EMAIL_TOPICS = [...NOTIFICATION_TYPES, 'MESSAGES', 'PROGRESS'] as const;
+export type EmailTopic = (typeof EMAIL_TOPICS)[number];
+
+export function isEmailTopic(value: unknown): value is EmailTopic {
+	return typeof value === 'string' && (EMAIL_TOPICS as readonly string[]).includes(value);
+}
+
+export const EMAIL_TOPIC_LABELS: Readonly<Record<EmailTopic, string>> = {
+	...NOTIFICATION_TYPE_LABELS,
+	MESSAGES: 'Messages non lus',
+	PROGRESS: 'Mes gains et mes succès'
+};
+
 /** Ce que la notification dit, à partir du nom de l'autre et du titre. */
 export function notificationText(
 	type: NotificationTypeValue,

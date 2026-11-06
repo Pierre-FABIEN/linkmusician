@@ -35,3 +35,34 @@
   tout est activé par défaut. La colonne `email` sert à P2-09b.
 - **RGPD** : notifications reçues et préférences dans l'export ;
   supprimées à l'anonymisation, comme celles que la personne a causées.
+
+## Digest email (P2-09b)
+
+- **Job** `/api/jobs/digest` (`src/lib/server/jobs/digest.ts`), cron Vercel
+  à 17 h UTC (18 h l'hiver, 19 h l'été à Toulouse).
+- **Au plus un email par jour** : `persons.digestSentAt` est réservé par une
+  mise à jour conditionnelle avant l'envoi (20 h d'écart minimum). Deux
+  passages simultanés n'envoient pas deux emails ; un envoi qui échoue
+  après la réservation est perdu plutôt que doublé.
+- **Seulement s'il y a du neuf** depuis le dernier digest (7 jours au
+  plus) : notifications non lues, messages non lus, gains et succès. Ce
+  qui a été annoncé n'est jamais rappelé : pas de relance quotidienne.
+- **Sujets** (`EMAIL_TOPICS`) : les six types de la cloche, plus
+  `MESSAGES` et `PROGRESS` (préférence d'email seulement, jamais une ligne
+  de notification). Réglables dans `/reglages` (« Dans l'app », « Par
+  email »).
+- **Désinscription par sujet** : un lien par sujet présent dans l'email,
+  plus « Ne plus recevoir ces emails » (tous les sujets) ; lien signé
+  HMAC (`BETTER_AUTH_SECRET`, sans expiration), page
+  `/notifications/desinscription` sans connexion. **Ouvrir le lien ne coupe
+  rien** (les antivirus de messagerie suivent les liens) : un clic sur
+  « Confirmer ». En-tête `List-Unsubscribe` vers cette page.
+- **Pas de désinscription en un clic par POST** (`List-Unsubscribe-Post`) :
+  la protection CSRF de SvelteKit refuse un POST de formulaire venu des
+  serveurs de messagerie. Gmail ne l'exige qu'au-delà de 5 000 emails par
+  jour ; à reprendre avant ce volume (route dédiée exemptée).
+- Comptes non vérifiés, anonymisés ou suspendus : aucun digest.
+- **Purge** : notifications lues depuis plus de 90 jours, au passage du job.
+- **Web Push** : reporté (D34).
+- Tests : contenu (pur), jetons, job sur le schéma `e2e` avec envoi
+  factice, e2e de bout en bout via le puits SMTP.

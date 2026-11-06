@@ -364,6 +364,8 @@ export async function exportPersonData(userId: string) {
 		profil_public_masque: person.actor.hidden,
 		date_de_naissance: person.birthDate?.toISOString().slice(0, 10) ?? null,
 		cgu_acceptees_le: person.termsAcceptedAt,
+		// Digest email (P2-09b) : date du dernier envoi.
+		dernier_digest_email_le: person.digestSentAt,
 		metiers: person.tracks.map((t) => ({ metier: t.track, principal: t.isPrimary })),
 		instruments: musical.instruments.map((i) => ({
 			instrument: i.name,

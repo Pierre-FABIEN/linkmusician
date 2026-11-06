@@ -2,7 +2,7 @@
  * LINKMUSICIAN: réglages (P1-09) : palier de confiance, conditions du palier
  * suivant, quotas. Lecture seule : la confiance se calcule côté serveur.
  * Visibilité du profil public (P1-11, D19), préférences de notifications
- * (P2-09a).
+ * (P2-09a, P2-09b).
  */
 import { prisma } from '#lib/server';
 import { requirePerson } from '#server/actors/tracksForm';
@@ -15,7 +15,10 @@ import {
 	TRUST_PERMISSIONS
 } from '#lib/server/progression/core/trust';
 import { listBlocked, unblockActor } from '#lib/server/blocking/service';
-import { getNotificationPreferences, setInAppPreferences } from '#lib/server/notifications/service';
+import {
+	getNotificationPreferences,
+	setNotificationPreferences
+} from '#lib/server/notifications/service';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -52,10 +55,14 @@ export const actions: Actions = {
 		await unblockActor(person.actorId, actorId);
 		return { saved: 'Personne débloquée.' };
 	},
-	/** Types de notifications voulus dans l'app (P2-09a). */
+	/** Sujets voulus dans l'app (P2-09a) et par email (P2-09b). */
 	notifications: async ({ request, locals }) => {
 		const person = await requirePerson(locals);
-		await setInAppPreferences(person.actorId, (await request.formData()).getAll('inApp'));
+		const form = await request.formData();
+		await setNotificationPreferences(person.actorId, {
+			inApp: form.getAll('inApp'),
+			email: form.getAll('email')
+		});
 		return { saved: 'Tes préférences de notifications sont enregistrées.' };
 	},
 	/** Masquer ou rendre visible le profil public `/@handle` (D19). */

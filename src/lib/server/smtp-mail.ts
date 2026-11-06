@@ -36,6 +36,7 @@ export async function sendMail(options: {
 	text: string;
 	html: string;
 	attachments?: MailAttachment[];
+	headers?: Record<string, string>; // LINKMUSICIAN: `List-Unsubscribe` du digest (P2-09b)
 }): Promise<SMTPTransport.SentMessageInfo> {
 	const transporter = createSmtpTransport();
 	return transporter.sendMail({
@@ -44,7 +45,8 @@ export async function sendMail(options: {
 		subject: options.subject,
 		text: options.text,
 		html: options.html,
-		attachments: options.attachments
+		attachments: options.attachments,
+		headers: options.headers // LINKMUSICIAN:
 	});
 }
 
