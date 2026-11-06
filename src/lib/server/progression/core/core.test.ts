@@ -22,6 +22,8 @@ function ctx(over: Partial<RuleContext> = {}): RuleContext {
 		priorCollaborations: () => 0,
 		priorMemberships: () => 0,
 		priorEndorsements: () => 0,
+		priorCoWorks: () => 0,
+		creditedOnWork: () => false,
 		trustLevel: () => 2,
 		...over
 	};
@@ -563,5 +565,71 @@ describe('avancement des objectifs (P2-12b)', () => {
 			demos: 0
 		} satisfies QuestState;
 		expect(questProgress(state)).toEqual({ done: 2, total: 10 });
+	});
+});
+
+describe('morceau composé (D35)', () => {
+	const composed = (ids: string[], workId = 'w') =>
+		ev({ type: 'work.composed', workId, contributorIds: ids });
+
+	it.each([
+		['premier morceau ensemble, TL2', 0, 2, 1, 150],
+		['deuxième', 1, 2, 0.5, 75],
+		['troisième', 2, 2, 0.25, 38],
+		['quatrième : rien', 3, 2, 0, null],
+		['autre en TL0', 0, 0, 0.1, 15]
+	] as const)('%s', (_, prior, tl, multiplier, amount) => {
+		const gains = gainsFor(
+			composed(['a', 'b']),
+			ctx({ priorCoWorks: () => prior, trustLevel: () => tl })
+		);
+		if (amount === null) return expect(gains).toEqual([]);
+		expect(gains.map((g) => [g.actorId, g.amount, g.multiplier])).toEqual([
+			['a', amount, multiplier],
+			['b', amount, multiplier]
+		]);
+	});
+
+	it('seul·e, aucun événement valide', () => {
+		expect(() => parseDomainEvent(composed(['a']))).toThrow();
+	});
+
+	it('une fois par morceau et par personne', () => {
+		const gains = gainsFor(
+			composed(['a', 'b']),
+			ctx({ creditedOnWork: (person) => person === 'a' })
+		);
+		expect(gains.map((g) => g.actorId)).toEqual(['b']);
+	});
+
+	it('confirmation tardive : seule la personne qui confirme reçoit sa part', () => {
+		const gains = gainsFor(
+			ev({ type: 'work.credit_confirmed', workId: 'w', personId: 'c', otherIds: ['a', 'b'] }),
+			ctx()
+		);
+		expect(gains.map((g) => [g.actorId, g.amount, g.ruleId])).toEqual([
+			['c', 150, 'work.credit_confirmed']
+		]);
+	});
+
+	it('registre en mémoire : 4ᵉ morceau avec la même personne, rien ; reconfirmer, rien', () => {
+		const l = new MemoryLedger({ a: 2, b: 2, c: 2 });
+		const amounts = [1, 2, 3, 4].map(
+			(i) =>
+				l
+					.apply({ ...composed(['a', 'b'], `w${i}`), id: `e${i}`, occurredAt: at })
+					.find((g) => g.actorId === 'a')?.amount ?? 0
+		);
+		expect(amounts).toEqual([150, 75, 38, 0]);
+		// c rejoint w1 plus tard : première fois avec a et b → plein tarif.
+		const late = {
+			type: 'work.credit_confirmed',
+			workId: 'w1',
+			personId: 'c',
+			otherIds: ['a', 'b']
+		};
+		expect(l.apply({ ...late, id: 'e5', occurredAt: at }).map((g) => g.amount)).toEqual([150]);
+		// Retirée puis réinvitée, c ne reçoit pas une deuxième part.
+		expect(l.apply({ ...late, id: 'e6', occurredAt: at })).toEqual([]);
 	});
 });

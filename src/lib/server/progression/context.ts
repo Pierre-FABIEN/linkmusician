@@ -43,7 +43,15 @@ export async function loadRuleContext(
 		}),
 		tx.domainEvent.findMany({
 			where: {
-				type: { in: ['collaboration.completed', 'membership.accepted', 'endorsement.received'] },
+				type: {
+					in: [
+						'collaboration.completed',
+						'membership.accepted',
+						'endorsement.received',
+						'work.composed',
+						'work.credit_confirmed'
+					]
+				},
 				actorIds: { hasSome: actors }
 			},
 			select: {
@@ -59,6 +67,8 @@ export async function loadRuleContext(
 	const priorGains = gains.filter((g) => isPrior(g.sourceEvent));
 	const prior = related.filter(isPrior);
 	const payloadOf = (e: (typeof prior)[number]) => e.payload as Record<string, unknown>;
+	const isWorkEvent = (e: (typeof prior)[number]) =>
+		e.type === 'work.composed' || e.type === 'work.credit_confirmed';
 
 	return {
 		now: event.occurredAt,
@@ -92,6 +102,26 @@ export async function loadRuleContext(
 					payloadOf(e).actorId === actorId &&
 					payloadOf(e).endorserId === endorserId
 			).length,
+		priorCoWorks: (a, b, since, workId) =>
+			new Set(
+				prior
+					.filter(
+						(e) =>
+							isWorkEvent(e) &&
+							payloadOf(e).workId !== workId &&
+							e.occurredAt >= since &&
+							e.actorIds.includes(a) &&
+							e.actorIds.includes(b)
+					)
+					.map((e) => payloadOf(e).workId)
+			).size,
+		creditedOnWork: (personId, workId) =>
+			prior.some(
+				(e) =>
+					payloadOf(e).workId === workId &&
+					((e.type === 'work.composed' && e.actorIds.includes(personId)) ||
+						(e.type === 'work.credit_confirmed' && payloadOf(e).personId === personId))
+			),
 		trustLevel: trustOf
 	};
 }

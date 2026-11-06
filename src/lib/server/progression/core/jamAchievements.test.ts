@@ -11,6 +11,8 @@ const ctx: RuleContext = {
 	priorCollaborations: () => 0,
 	priorMemberships: () => 0,
 	priorEndorsements: () => 0,
+	priorCoWorks: () => 0,
+	creditedOnWork: () => false,
 	trustLevel: () => 1
 };
 const attended = (over: Record<string, unknown> = {}) =>

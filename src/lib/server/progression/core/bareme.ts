@@ -25,6 +25,8 @@ export const BAREME = {
 	membershipAccepted: 200,
 	collaborationCompleted: 400,
 	endorsementReceived: 40,
+	/** Morceau composé à plusieurs, par contributeur confirmé (D35). */
+	workComposed: 150,
 	/** Part de l'XP d'une étape de groupe versée à chaque membre présent. */
 	memberShare: 0.25,
 

@@ -55,6 +55,30 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		/** Personnes ayant confirmé, des deux côtés (au moins deux). */
 		participantIds: z.array(id).min(2)
 	}),
+	/**
+	 * Morceau composé à plusieurs, corroboré (D35) : au moins deux personnes
+	 * ont confirmé leur rôle et une maquette est jointe. Chaque contributeur
+	 * confirmé reçoit sa part, une fois par morceau.
+	 */
+	z.object({
+		...base,
+		type: z.literal('work.composed'),
+		workId: id,
+		/** Personnes ayant confirmé leur rôle (au moins deux). */
+		contributorIds: z.array(id).min(2)
+	}),
+	/**
+	 * Rôle confirmé sur un morceau déjà corroboré (D35) : la personne reçoit
+	 * sa part à ce moment-là ; les autres ne reçoivent rien de plus.
+	 */
+	z.object({
+		...base,
+		type: z.literal('work.credit_confirmed'),
+		workId: id,
+		personId: id,
+		/** Autres contributeurs déjà confirmés (au moins un). */
+		otherIds: z.array(id).min(1)
+	}),
 	z.object({
 		...base,
 		type: z.literal('endorsement.received'),

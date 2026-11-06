@@ -1456,6 +1456,10 @@ model Actor {
   memberships                Membership[]             @relation("MembershipPerson")
   membershipInvitesSent      Membership[]             @relation("MembershipInviter")
   opportunitiesPosted        Opportunity[]            @relation("OpportunityPoster")
+  works                      Work[]                   @relation("WorkOwner")
+  worksCreated               Work[]                   @relation("WorkCreator")
+  workCredits                WorkContributor[]        @relation("WorkContributorPerson")
+  workCreditsInvited         WorkContributor[]        @relation("WorkContributorInviter")
 
   @@map("actors")
 }
@@ -1556,6 +1560,7 @@ model Instrument {
   jamSpots      JamSpot[]
   jamAttendances JamAttendance[]
   jamInvites     JamInvite[]
+  workRoles      WorkRole[]
   jamEndorsements JamEndorsement[]
   collabEndorsements CollabEndorsement[]
 
@@ -1573,6 +1578,7 @@ model Genre {
   parent    Genre?   @relation("GenreTree", fields: [parentId], references: [id], onDelete: Restrict)
   children  Genre[]  @relation("GenreTree")
   actors    ActorGenre[]
+  works     WorkGenre[]
   sortOrder Int
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -1834,6 +1840,8 @@ model Media {
   instrumentId     String?
   instrument       Instrument?    @relation(fields: [instrumentId], references: [id], onDelete: SetNull)
   rejectionReason  String?
+  /// Morceaux dont ce média est la maquette (P3-11).
+  worksAsDemo      Work[]         @relation("WorkDemo")
   publishedAt      DateTime?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
@@ -2512,6 +2520,8 @@ enum NotificationType {
   BAND_REQUEST
   /// Nouveau membre dans un de ses groupes (P3-01).
   BAND_JOINED
+  /// On te crédite sur un morceau : confirme ton rôle (P3-11).
+  WORK_CREDIT
   /// Préférence d'email seulement (P2-09b) : jamais une ligne de `Notification`.
   MESSAGES
   PROGRESS
@@ -2670,4 +2680,102 @@ model Membership {
   @@index([orgId, status])
   @@index([personId, status])
   @@map("memberships")
+}
+
+// ─── MORCEAUX (P3-11, D35) ──────────────────────────────────────────────────
+
+/// Idée (visible de son équipe) puis composé (public, avec ses crédits).
+enum WorkState {
+  IDEA
+  COMPOSED
+}
+
+/// Composé seul·e : déclaré, sans XP. À plusieurs (≥2 crédits confirmés) :
+/// corroboré, et chaque contributeur confirmé reçoit sa part (D35).
+enum WorkProof {
+  DECLARED
+  CORROBORATED
+}
+
+enum WorkRoleKind {
+  INSTRUMENT
+  COMPOSITION
+  LYRICS
+  ARRANGEMENT
+}
+
+/// Morceau. Porté par une personne ou un groupe (`ownerId`, un `Actor`) ;
+/// seul point d'écriture : `src/lib/server/works/service.ts`.
+model Work {
+  id          String         @id @default(cuid())
+  ownerId     String
+  owner       Actor          @relation("WorkOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  /// Personne qui a créé le morceau (au nom du groupe le cas échéant).
+  createdById String?
+  createdBy   Actor?         @relation("WorkCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  title       String
+  state       WorkState      @default(IDEA)
+  /// Renseigné au passage à « composé ».
+  proof       WorkProof?
+  /// Maquette : un média du porteur (lien externe), jamais une démo à XP.
+  demoMediaId String?
+  demoMedia   Media?         @relation("WorkDemo", fields: [demoMediaId], references: [id], onDelete: SetNull)
+  composedAt  DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  genres       WorkGenre[]
+  contributors WorkContributor[]
+  roles        WorkRole[]
+
+  @@index([ownerId, state])
+  @@map("works")
+}
+
+model WorkGenre {
+  workId  String
+  work    Work   @relation(fields: [workId], references: [id], onDelete: Cascade)
+  genreId String
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Restrict)
+
+  @@id([workId, genreId])
+  @@index([genreId])
+  @@map("work_genres")
+}
+
+/// Personne créditée sur un morceau. Le crédit n'existe publiquement qu'une
+/// fois confirmé par elle (`confirmedAt`) : confirmer vaut consentement.
+model WorkContributor {
+  id          String     @id @default(cuid())
+  workId      String
+  work        Work       @relation(fields: [workId], references: [id], onDelete: Cascade)
+  personId    String
+  person      Actor      @relation("WorkContributorPerson", fields: [personId], references: [id], onDelete: Cascade)
+  invitedById String?
+  invitedBy   Actor?     @relation("WorkContributorInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+  confirmedAt DateTime?
+  createdAt   DateTime   @default(now())
+  roles       WorkRole[]
+
+  @@unique([workId, personId])
+  @@index([personId])
+  @@map("work_contributors")
+}
+
+/// Rôle sur un morceau. Sans contributeur, il est « à pourvoir » (bouton
+/// « Recruter »). Un instrument vient du référentiel.
+model WorkRole {
+  id            String           @id @default(cuid())
+  workId        String
+  work          Work             @relation(fields: [workId], references: [id], onDelete: Cascade)
+  kind          WorkRoleKind
+  instrumentId  String?
+  instrument    Instrument?      @relation(fields: [instrumentId], references: [id], onDelete: Restrict)
+  contributorId String?
+  contributor   WorkContributor? @relation(fields: [contributorId], references: [id], onDelete: SetNull)
+  createdAt     DateTime         @default(now())
+
+  @@index([workId])
+  @@index([contributorId])
+  @@map("work_roles")
 }

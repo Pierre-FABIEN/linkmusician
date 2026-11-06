@@ -30,7 +30,16 @@ type Payload = Record<string, unknown>;
 export async function interactionsSince(db: PrismaClient, since: Date): Promise<Interaction[]> {
 	const events = await db.domainEvent.findMany({
 		where: {
-			type: { in: ['collaboration.completed', 'endorsement.received', 'endorsement.revoked'] },
+			type: {
+				in: [
+					'collaboration.completed',
+					'endorsement.received',
+					'endorsement.revoked',
+					// Morceaux composés à plusieurs (P3-11) : crédits confirmés.
+					'work.composed',
+					'work.credit_confirmed'
+				]
+			},
 			occurredAt: { gte: since }
 		},
 		select: { id: true, type: true, payload: true }
@@ -47,6 +56,17 @@ export async function interactionsSince(db: PrismaClient, since: Date): Promise<
 			const ids = [...new Set(p.participantIds.map(String))];
 			for (let i = 0; i < ids.length; i++) {
 				for (let j = i + 1; j < ids.length; j++) result.push({ a: ids[i], b: ids[j] });
+			}
+		}
+		if (e.type === 'work.composed' && Array.isArray(p.contributorIds)) {
+			const ids = [...new Set(p.contributorIds.map(String))];
+			for (let i = 0; i < ids.length; i++) {
+				for (let j = i + 1; j < ids.length; j++) result.push({ a: ids[i], b: ids[j] });
+			}
+		}
+		if (e.type === 'work.credit_confirmed' && Array.isArray(p.otherIds)) {
+			for (const other of new Set(p.otherIds.map(String))) {
+				result.push({ a: String(p.personId), b: other });
 			}
 		}
 		if (e.type === 'endorsement.received' && !revoked.has(e.id)) {

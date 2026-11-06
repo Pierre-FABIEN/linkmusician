@@ -198,6 +198,27 @@ describe('personas (conception 02 §2.3)', () => {
 		expect(tier?.id).toBe('NETWORKED');
 	});
 
+	it('Deux ami·es qui enchaînent les morceaux (D35) : 3 morceaux payants, puis plus rien', () => {
+		const l = new MemoryLedger({ lea: 2, sam: 2 });
+		for (let i = 0; i < 12; i++)
+			l.apply(
+				ev(
+					{ type: 'work.composed', workId: `m${i}`, contributorIds: ['lea', 'sam'] },
+					day(3 + i * 7)
+				)
+			);
+		// 150 + 75 + 38 : moins qu'une seule collaboration confirmée.
+		expect(l.xp('lea')).toBe(263);
+		expect(l.xp('lea')).toBeLessThan(400);
+		// Avec une troisième personne, le morceau suivant rapporte de nouveau.
+		l.setTrust('noa', 2);
+		const gains = l.apply(
+			ev({ type: 'work.composed', workId: 'm-noa', contributorIds: ['lea', 'sam', 'noa'] }, day(90))
+		);
+		expect(gains.find((g) => g.actorId === 'lea')?.amount).toBe(75);
+		expect(gains.find((g) => g.actorId === 'noa')?.amount).toBe(150);
+	});
+
 	it('Farmeur : 40 collaborations fictives avec 2 comptes TL0, pas plus qu’un Curieux', () => {
 		const farm = new MemoryLedger({ f1: 0, f2: 0 });
 		farm.apply(ev({ type: 'profile.completed', actorId: 'farmeur' }, day(1)));

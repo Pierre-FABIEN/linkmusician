@@ -39,6 +39,13 @@ export interface RuleContext {
 	 * `since`, celle en cours exclue (rendements décroissants par paire, D27).
 	 */
 	priorEndorsements(actorId: string, endorserId: string, since: Date): number;
+	/**
+	 * Morceaux distincts où les deux personnes sont créditées ensemble depuis
+	 * `since`, celui-ci exclu (rendements décroissants par paire, D35).
+	 */
+	priorCoWorks(a: string, b: string, since: Date, workId: string): number;
+	/** La personne a déjà reçu sa part pour ce morceau (une fois par morceau). */
+	creditedOnWork(personId: string, workId: string): boolean;
 	trustLevel(actorId: string): TrustLevel;
 }
 
