@@ -13,14 +13,8 @@ et docs/notifications/README.md.
 
 ## État (06/11/2026)
 
-- P2-08 (réputation) et P2-09a (notifications dans l'app) : codés,
-  migrations appliquées (dev et e2e, aucun écart), check, lint et
-  unitaires verts. **Tests reportés par l'utilisateur** : intégration
-  progression (`PROGRESSION_INTEGRATION=1 npx vitest --run
-src/lib/server/progression src/lib/server/collaborations`), puis e2e
-  `recherche.spec.ts` (étape 6), `messagerie.spec.ts` (étape 2b),
-  `profil-public`, `candidatures`, `jams`. Les deux lots passent ✅
-  quand ils sont verts.
+- P2-08 (réputation) et P2-09a (notifications dans l'app) : ✅, tous
+  les tests verts (intégration progression et recherche, e2e).
 - Restent en phase 2 : P2-09b, P2-10, P2-17, P2-18, puis la revue de
   phase 2. Objectif D28 : lancement public à Toulouse début mars 2027.
   L'utilisateur juge que tout se jouera sur une UX simple et agréable.

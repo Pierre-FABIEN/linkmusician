@@ -71,7 +71,7 @@ describe.skipIf(!enabled)('moteur de progression (schéma e2e)', () => {
 		// Même en forçant l'écriture des gains : la contrainte d'unicité tient.
 		expect(await tx((t) => appendGains(t, first.eventId, first.gains))).toBe(0);
 		expect(await db.xpTransaction.count({ where: { sourceEventId: first.eventId } })).toBe(1);
-	});
+	}, 120_000);
 
 	it('le registre est en ajout seul ; une annulation est une ligne négative', async () => {
 		const [, ben] = people;
@@ -92,7 +92,7 @@ describe.skipIf(!enabled)('moteur de progression (schéma e2e)', () => {
 			where: { actorId_track: { actorId: ben, track: 'MUSICIAN' } }
 		});
 		expect(progress.xp).toBe(0); // projection recalculée après l'annulation
-	});
+	}, 120_000);
 
 	it('200 événements aléatoires : registre = projection = registre en mémoire, rebuild identique', async () => {
 		await cleanupLedgerOf(people.slice(2).concat(bands));

@@ -78,7 +78,7 @@ test.describe('LinkMusician — profil public et tableau de bord', () => {
 			await page.goto('/reglages');
 			await waitForAppReady(page);
 			await page.getByLabel('Masquer mon profil public').check();
-			await page.getByRole('button', { name: 'Enregistrer' }).click();
+			await page.getByRole('button', { name: 'Enregistrer', exact: true }).click();
 			await expect(page.getByText('Ton profil public est masqué.')).toBeVisible();
 			await expect
 				.poll(

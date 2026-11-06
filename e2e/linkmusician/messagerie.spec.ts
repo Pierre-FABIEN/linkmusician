@@ -85,8 +85,8 @@ test.describe('LinkMusician — messagerie', () => {
 				await expect(
 					malikPage.getByRole('link', { name: 'Notifications', exact: true })
 				).toBeVisible();
-				await item.click();
-				await expect(malikPage).toHaveURL(/\/messages\/c/);
+				// Le lien mène à la conversation (sans l'ouvrir : l'étape 3 compte le non-lu).
+				await expect(item).toHaveAttribute('href', /^\/messages\/c/);
 			});
 
 			await test.step('3. Malik voit la demande, l’accepte et répond', async () => {

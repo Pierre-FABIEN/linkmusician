@@ -127,7 +127,9 @@
 						</label>
 					{/each}
 				</fieldset>
-				<button type="submit" class="rounded-md border px-3 py-1.5 text-sm">Enregistrer</button>
+				<button type="submit" class="rounded-md border px-3 py-1.5 text-sm"
+					>Enregistrer mes notifications</button
+				>
 			</form>
 		</section>
 
