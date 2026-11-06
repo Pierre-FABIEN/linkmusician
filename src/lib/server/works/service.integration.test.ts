@@ -237,7 +237,7 @@ describe.skipIf(!enabled)('morceaux (schéma e2e)', { timeout: 60_000 }, () => {
 		});
 		await expect(
 			service.creditPerson(work.id, ids.lea, { handle: PREFIX + 'zoe', roles: [bass] })
-		).rejects.toThrow(/ne peut pas être créditée/);
+		).rejects.toThrow(/ne peut pas recevoir de crédit/);
 	});
 
 	it('la maquette ajoutée depuis une idée reste cachée jusqu’à la composition', async () => {

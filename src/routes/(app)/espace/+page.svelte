@@ -7,7 +7,7 @@
 	import * as Avatar from '#shadcn/avatar';
 	import { Badge } from '#shadcn/badge';
 	import { Separator } from '#shadcn/separator';
-	import { Sparkles, ShieldCheck, EyeOff, UsersRound } from 'lucide-svelte';
+	import { Sparkles, ShieldCheck, EyeOff, UsersRound, Music } from 'lucide-svelte';
 	import { plural } from '#lib/jam/log';
 	import XpBar from '#lib/components/linkmusician/progress/XpBar.svelte';
 	import LevelBadge from '#lib/components/linkmusician/progress/LevelBadge.svelte';
@@ -129,6 +129,24 @@
 					{plural(data.bands.active, 'groupe')}
 				{:else}
 					Monter ou rejoindre un groupe
+				{/if}
+			</span>
+		</a>
+
+		<a
+			href="/morceaux"
+			class="flex min-h-11 items-center justify-between gap-3 rounded-2xl border bg-card p-4 hover:bg-muted"
+		>
+			<span class="flex items-center gap-2 font-semibold">
+				<Music class="size-5" aria-hidden="true" /> Mes morceaux
+			</span>
+			<span class="text-sm text-muted-foreground">
+				{#if data.workCredits > 0}
+					<span class="font-semibold text-primary"
+						>{plural(data.workCredits, 'crédit', 'crédits')} à confirmer</span
+					>
+				{:else}
+					Noter une idée de morceau
 				{/if}
 			</span>
 		</a>

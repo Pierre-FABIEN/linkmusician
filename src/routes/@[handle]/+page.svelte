@@ -3,6 +3,7 @@
 	// `/_lab/profil`. Voir +page.server.ts.
 	import Suggestions from '#lib/components/linkmusician/Suggestions.svelte';
 	import BandProfile from '#lib/components/linkmusician/BandProfile.svelte';
+	import WorksCard from '#lib/components/linkmusician/works/WorksCard.svelte';
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
@@ -226,6 +227,8 @@
 							</Card.Content>
 						</Card.Root>
 					{/if}
+
+					<WorksCard works={p.works} signedIn={data.signedIn} />
 
 					{#if p.media.length > 0}
 						<Card.Root>

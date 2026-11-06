@@ -7,6 +7,7 @@ import { pendingForMe } from '#lib/server/collaborations/service';
 import { suggestMusicians } from '#lib/server/discovery/suggestions';
 import { prisma } from '#lib/server';
 import { bandCounts } from '#lib/server/bands/service';
+import { pendingCredits } from '#lib/server/works/service';
 import type { PageServerLoad } from './$types';
 
 /** Écrans déjà construits : un objectif qui mène ailleurs est affiché « bientôt ». */
@@ -16,13 +17,14 @@ const AVAILABLE = [
 	'/profil/ville',
 	'/profil/medias',
 	'/annonces',
-	'/groupes'
+	'/groupes',
+	'/morceaux'
 ];
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// La garde de `(app)/+layout.server.ts` a déjà vérifié compte et personne.
 	const person = (await getPersonByUserId(locals.user!.id))!;
-	const [dashboard, location, toConfirm, suggestions, bands] = await Promise.all([
+	const [dashboard, location, toConfirm, suggestions, bands, workCredits] = await Promise.all([
 		getDashboard(person.actorId),
 		getActorLocation(person.actorId),
 		// Collaborations qui attendent ma réponse ou ma confirmation (P2-06).
@@ -30,7 +32,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		// « Des musicien·nes pour toi » (P2-18).
 		suggestMusicians(person.actorId, { db: prisma }),
 		// Mes groupes (P3-01) : nombre de groupes et invitations reçues.
-		bandCounts(person.actorId)
+		bandCounts(person.actorId),
+		// Mes morceaux (P3-11) : crédits qui attendent ma confirmation.
+		pendingCredits(person.actorId)
 	]);
 	return {
 		dashboard: {
@@ -44,6 +48,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		toConfirm,
 		suggestions,
 		bands,
+		workCredits,
 		// Sans suggestion : ce qui manque pour en recevoir.
 		suggestionsHint: location
 			? {

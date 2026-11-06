@@ -5,7 +5,7 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import { MAX_MEMBER_TITLE, ROLE_LABELS, isManager, periodLabel } from '#lib/bands/rules';
 	import { plural } from '#lib/jam/log';
-	import { PartyPopper, UserPlus, UsersRound } from 'lucide-svelte';
+	import { Music, PartyPopper, UserPlus, UsersRound } from 'lucide-svelte';
 
 	let { data, form } = $props();
 
@@ -197,6 +197,45 @@
 				{/each}
 			</ul>
 		</section>
+
+		{#if member}
+			<section class="space-y-3" aria-labelledby="works-title">
+				<div class="flex flex-wrap items-center justify-between gap-2">
+					<h2 id="works-title" class="flex items-center gap-2 text-xl font-bold">
+						<Music class="size-5" aria-hidden="true" /> Morceaux
+					</h2>
+					{#if manager && !dissolved}
+						<a
+							href="/morceaux/nouveau?groupe={band.handle}"
+							class="inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold"
+							>Nouvelle idée</a
+						>
+					{/if}
+				</div>
+				{#if data.works.length === 0}
+					<p class="text-sm text-muted-foreground">
+						Pas encore de morceau. Une idée reste entre vous ; une fois composée avec une maquette,
+						elle apparaît sur la page du groupe.
+					</p>
+				{:else}
+					<ul class="space-y-2">
+						{#each data.works as w (w.id)}
+							<li>
+								<a
+									href="/morceaux/{w.id}"
+									class="flex min-h-11 items-center justify-between gap-2 rounded-2xl border bg-card p-4 hover:border-primary"
+								>
+									<span class="truncate font-semibold">{w.title}</span>
+									<span class="shrink-0 text-xs text-muted-foreground"
+										>{w.state === 'COMPOSED' ? 'Composé' : 'Idée'}</span
+									>
+								</a>
+							</li>
+						{/each}
+					</ul>
+				{/if}
+			</section>
+		{/if}
 
 		{#if manager && !dissolved}
 			<section class="space-y-3" aria-labelledby="invite-title">

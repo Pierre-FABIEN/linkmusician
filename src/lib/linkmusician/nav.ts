@@ -32,8 +32,14 @@ const discover: AppNavItem = { href: '/decouvrir', label: 'Découvrir', icon: Co
 
 export const NAV_BY_MODE: Readonly<Record<PlayModeValue, readonly AppNavItem[]>> = {
 	CAREER: [
-		// Mes groupes (P3-01) se rattachent à Mon parcours.
-		{ href: '/espace', label: 'Mon parcours', icon: Trophy, soon: false, match: ['/groupes'] },
+		// Mes groupes (P3-01) et mes morceaux (P3-11) se rattachent à Mon parcours.
+		{
+			href: '/espace',
+			label: 'Mon parcours',
+			icon: Trophy,
+			soon: false,
+			match: ['/groupes', '/morceaux']
+		},
 		discover,
 		{ href: '/annonces', label: 'Annonces', icon: Megaphone, soon: false },
 		messages,

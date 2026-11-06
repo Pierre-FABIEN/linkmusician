@@ -10,6 +10,7 @@
  */
 import { prisma } from '#lib/server';
 import { notIdeaDemo } from '#lib/server/works/visibility';
+import { publicWorksOf } from '#lib/server/works/service';
 import { isIndexable } from '#lib/actors/visibility';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { getActorLocation } from '#lib/server/geo/queries';
@@ -71,7 +72,7 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 		}
 	}
 
-	const [visibleRows, genres, location, media, recruiting] = await Promise.all([
+	const [visibleRows, genres, location, media, recruiting, works] = await Promise.all([
 		prisma.actor.findMany({
 			where: { id: { in: org.memberships.map((m) => m.person.id) }, ...publicActorWhere(now) },
 			select: { id: true }
@@ -99,7 +100,9 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 			orderBy: { createdAt: 'desc' },
 			take: 5,
 			select: { id: true, title: true, instrument: { select: { name: true } } }
-		})
+		}),
+		// Morceaux composés du groupe (P3-11).
+		publicWorksOf(actor.id, now, viewerId)
 	]);
 	const visible = new Set(visibleRows.map((a) => a.id));
 	const signedIn = Boolean(viewerId);
@@ -153,6 +156,7 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 		members: active.map(card),
 		past: past.map(card),
 		media,
+		works,
 		recruiting: recruiting.map((r) => ({
 			id: r.id,
 			title: r.title,

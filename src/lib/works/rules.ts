@@ -8,6 +8,7 @@
  *   corroboré, chaque contributeur confirmé reçoit sa part.
  */
 import { z } from 'zod';
+import { MAX_TITLE } from '#lib/opportunities/rules';
 
 export const WORK_ROLE_KINDS = ['INSTRUMENT', 'COMPOSITION', 'LYRICS', 'ARRANGEMENT'] as const;
 export type WorkRoleKindValue = (typeof WORK_ROLE_KINDS)[number];
@@ -169,6 +170,6 @@ export function recruitHref(input: {
 	params.set('type', input.bandHandle ? 'RECRUIT_MEMBER' : 'SESSION_WORK');
 	if (input.bandHandle) params.set('groupe', input.bandHandle);
 	if (input.instrumentSlug) params.set('instrument', input.instrumentSlug);
-	params.set('titre', `${input.roleLabel} pour « ${input.workTitle} »`.slice(0, 100));
+	params.set('titre', `${input.roleLabel} pour « ${input.workTitle} »`.slice(0, MAX_TITLE));
 	return `/annonces/nouvelle?${params}`;
 }

@@ -296,7 +296,7 @@ export async function creditPerson(
 	if (!person) throw new WorkError('Aucun·e musicien·ne avec cet identifiant.', 404);
 	const self = person.id === managerId;
 	const unreachable = new WorkError(
-		`${person.displayName} ne peut pas être créditée sur ce morceau pour l’instant.`
+		`${person.displayName} ne peut pas recevoir de crédit sur ce morceau pour l’instant.`
 	);
 	if (!self) {
 		if (await isBlockedBetween(managerId, person.id)) throw unreachable;
@@ -403,7 +403,7 @@ export async function leaveCredit(workId: string, personId: string) {
 			where: { workId_personId: { workId, personId } },
 			select: { id: true, confirmedAt: true }
 		});
-		if (!credit) throw new WorkError('Tu n’es pas créditée sur ce morceau.', 404);
+		if (!credit) throw new WorkError('Tu n’as pas de crédit sur ce morceau.', 404);
 		if (credit.confirmedAt) await tx.workRole.deleteMany({ where: { contributorId: credit.id } });
 		await tx.workContributor.delete({ where: { id: credit.id } });
 	}, TX);
@@ -705,8 +705,9 @@ export async function workPage(workId: string, viewerId: string | null, now = ne
 						id: demo.id,
 						title: demo.title,
 						status: demo.status,
-						url: demo.externalUrl ?? demo.fileUrl,
-						kind: demo.kind
+						kind: demo.kind,
+						externalUrl: demo.externalUrl,
+						fileUrl: demo.fileUrl
 					}
 				: null,
 		credits,

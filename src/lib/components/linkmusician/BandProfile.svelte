@@ -14,6 +14,7 @@
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
 	import { seoConfig } from '#lib/seo.config';
 	import type { PublicBand } from '#lib/server/bands/public';
+	import WorksCard from './works/WorksCard.svelte';
 
 	let {
 		band,
@@ -208,6 +209,8 @@
 			</div>
 
 			<div class="space-y-6">
+				<WorksCard works={band.works} {signedIn} />
+
 				{#if band.recruiting.length > 0}
 					<Card.Root class="border-primary">
 						<Card.Header>

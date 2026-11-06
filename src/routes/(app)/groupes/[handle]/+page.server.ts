@@ -19,6 +19,7 @@ import {
 	withdrawPending
 } from '#lib/server/bands/service';
 import { bandSchema, inviteSchema, isManager } from '#lib/bands/rules';
+import { bandWorks } from '#lib/server/works/service';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -33,6 +34,8 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	return {
 		band,
 		candidates: manager && !band.dissolvedAt ? await inviteCandidates(band.id, actorId) : [],
+		// Morceaux du groupe (P3-11), idées comprises : pour ses membres actifs.
+		works: band.my?.status === 'ACTIVE' ? await bandWorks(band.id) : [],
 		created: url.searchParams.has('cree')
 	};
 };

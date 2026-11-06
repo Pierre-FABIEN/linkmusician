@@ -8,7 +8,7 @@ import {
 	TIER_OPTIONS,
 	createOpportunity
 } from '#lib/server/opportunities/service';
-import { OPPORTUNITY_KINDS, opportunitySchema } from '#lib/opportunities/rules';
+import { MAX_TITLE, OPPORTUNITY_KINDS, opportunitySchema } from '#lib/opportunities/rules';
 import { managedBands } from '#lib/server/bands/service';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -38,6 +38,15 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		tiers: TIER_OPTIONS,
 		bands: bands.map(({ handle, name, commune }) => ({ handle, name, commune })),
 		defaultBand: bands.some((b) => b.handle === groupe) ? groupe : '',
+		// « Recruter » depuis un rôle à pourvoir d'un morceau (P3-11).
+		prefill: {
+			title: (url.searchParams.get('titre') ?? '').slice(0, MAX_TITLE),
+			instrument: instruments.some((f) =>
+				f.instruments.some((i) => i.slug === url.searchParams.get('instrument'))
+			)
+				? url.searchParams.get('instrument')!
+				: ''
+		},
 		// « Lancer une jam » depuis le mode jam (P2-12) : type présélectionné.
 		defaultKind: (OPPORTUNITY_KINDS as readonly string[]).includes(
 			url.searchParams.get('type') ?? ''

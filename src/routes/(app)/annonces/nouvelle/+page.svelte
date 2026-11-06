@@ -126,7 +126,7 @@
 						name="title"
 						required
 						maxlength={MAX_TITLE}
-						value={v.title ?? ''}
+						value={v.title ?? data.prefill.title}
 						placeholder="Jam funk jeudi soir"
 						class={field}
 					/>
@@ -150,7 +150,11 @@
 							{#each data.instruments as family (family.family)}
 								<optgroup label={INSTRUMENT_FAMILY_LABELS[family.family]}>
 									{#each family.instruments as i (i.slug)}
-										<option value={i.slug} selected={v.instrument === i.slug}>{i.name}</option>
+										<option
+											value={i.slug}
+											selected={(v.instrument ?? data.prefill.instrument) === i.slug}
+											>{i.name}</option
+										>
 									{/each}
 								</optgroup>
 							{/each}
