@@ -50,8 +50,10 @@ Lus dans l'URL (partageable), validés par `src/lib/search/filters.ts`
 
 ## Suggestions de musicien·nes (P2-18)
 
-- **Où** : « Des musicien·nes pour toi » dans Mon parcours (`/espace`, six
-  cartes) et sur son propre profil public ; « Dans le même style » sur le
+- **Où** : « Des musicien·nes pour toi » en tête de `/decouvrir` tant
+  qu'aucun filtre n'est appliqué (six cartes ; Mon parcours n'en garde
+  qu'un lien « Trouver des musicien·nes », pour rester sur l'essentiel,
+  06/11/2026) et sur son propre profil public ; « Dans le même style » sur le
   profil d'un·e autre (trois cartes, membres connecté·es seulement).
 - **Candidat·es** (`src/lib/server/discovery/suggestions.ts`) : PostGIS dans
   un rayon de 50 km autour de ma commune, les 200 plus proches, avec les

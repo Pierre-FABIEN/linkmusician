@@ -11,6 +11,7 @@ import { RefillingTokenBucket } from '#lib/server/rate-limit';
 import { searchMusicians } from '#lib/server/search/musicians';
 import { parseFilters } from '#lib/search/filters';
 import { currentTip } from '#lib/server/guide/service';
+import { suggestMusicians } from '#lib/server/discovery/suggestions';
 import type { PageServerLoad } from './$types';
 
 /** 60 recherches d'affilée, puis une toutes les 2 secondes. */
@@ -39,10 +40,21 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			children: g.children.map((c) => ({ slug: c.slug, name: c.name }))
 		}))
 	};
-	if (!location) return { ...base, state: 'no-location' as const, results: [], hasMore: false };
+	if (!location)
+		return {
+			...base,
+			state: 'no-location' as const,
+			results: [],
+			hasMore: false,
+			suggestions: []
+		};
 	if (!(await searchBucket.consume(person.actorId, 1))) {
-		return { ...base, state: 'limited' as const, results: [], hasMore: false };
+		return { ...base, state: 'limited' as const, results: [], hasMore: false, suggestions: [] };
 	}
-	const { results, hasMore } = await searchMusicians(person.actorId, filters, { db: prisma });
-	return { ...base, state: 'ok' as const, results, hasMore };
+	const [{ results, hasMore }, suggestions] = await Promise.all([
+		searchMusicians(person.actorId, filters, { db: prisma }),
+		// « Des musicien·nes pour toi » (P2-18) : en tête, tant qu'on ne filtre pas.
+		url.searchParams.size === 0 ? suggestMusicians(person.actorId, { db: prisma }) : []
+	]);
+	return { ...base, state: 'ok' as const, results, hasMore, suggestions };
 };

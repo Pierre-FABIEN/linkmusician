@@ -39,8 +39,8 @@ test.describe('LinkMusician — suggestions de musicien·nes', () => {
 			await db.actorGenre.create({ data: { actorId: me.actorId, genreId: rock.id } });
 
 			const list = page.getByRole('list', { name: 'Des musicien·nes pour toi' });
-			await test.step('1. Dans mon espace, avec la raison', async () => {
-				await page.goto('/espace');
+			await test.step('1. Sur Découvrir, avec la raison', async () => {
+				await page.goto('/decouvrir');
 				await waitForAppReady(page);
 				const card = list.getByRole('listitem').filter({ hasText: drummer.displayName });
 				await expect(card).toBeVisible();
@@ -53,13 +53,14 @@ test.describe('LinkMusician — suggestions de musicien·nes', () => {
 				await page
 					.getByRole('button', { name: `Pas intéressé·e par ${drummer.displayName}` })
 					.click();
-				await expect(page.getByText(drummer.displayName)).toHaveCount(0);
+				// Elle quitte les suggestions (elle reste trouvable par la recherche).
+				await expect(list.getByText(drummer.displayName)).toHaveCount(0);
 				await expect
 					.poll(() => db.suggestionDismissal.count({ where: { ownerId: me.actorId } }))
 					.toBe(1);
 				await page.reload();
 				await waitForAppReady(page);
-				await expect(page.getByText(drummer.displayName)).toHaveCount(0);
+				await expect(list.getByText(drummer.displayName)).toHaveCount(0);
 			});
 		} finally {
 			await deleteMusicians([drummer]);

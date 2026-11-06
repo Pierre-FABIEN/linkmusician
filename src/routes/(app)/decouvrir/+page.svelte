@@ -1,6 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: recherche de musicien·nes (P2-01), voir +page.server.ts.
 	import TipCard from '#lib/components/linkmusician/TipCard.svelte';
+	import Suggestions from '#lib/components/linkmusician/Suggestions.svelte';
 	import SEO from '#lib/components/SEO.svelte';
 	import * as Avatar from '#shadcn/avatar';
 	import { Badge } from '#shadcn/badge';
@@ -39,6 +40,8 @@
 		</header>
 
 		<TipCard tip={data.tip} />
+
+		<Suggestions title="Des musicien·nes pour toi" suggestions={data.suggestions} />
 
 		<form method="GET" class="space-y-3 rounded-2xl border bg-card p-4">
 			<div class="grid gap-3 sm:grid-cols-[1fr_10rem_auto]">

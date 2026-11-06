@@ -32,7 +32,8 @@ test.describe('LinkMusician — profil public et tableau de bord', () => {
 			await page.goto('/espace');
 			await waitForAppReady(page);
 			await expect(page.getByRole('heading', { name: 'Tes prochains objectifs' })).toBeVisible();
-			await expect(page.getByText(/Aucun gain pour l.instant/)).toBeVisible();
+			await page.getByText('D’où viennent mes points ?').click();
+			await expect(page.getByText(/Aucun point pour l.instant/)).toBeVisible();
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 		});
 
@@ -48,6 +49,8 @@ test.describe('LinkMusician — profil public et tableau de bord', () => {
 
 			await page.goto('/espace');
 			await waitForAppReady(page);
+			// L'historique des points est replié en bas de Mon parcours.
+			await page.getByText('D’où viennent mes points ?').click();
 			const history = page.getByRole('list', { name: 'Historique des gains' });
 			await expect(history.getByText('Première démo publiée')).toBeVisible();
 			await expect(history.getByText('+100 XP')).toBeVisible();

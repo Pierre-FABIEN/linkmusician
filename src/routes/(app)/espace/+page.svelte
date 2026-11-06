@@ -1,13 +1,10 @@
 <script lang="ts">
 	// LINKMUSICIAN: tableau de bord de progression (P1-11), d'après la maquette
 	// validée `/_lab/tableau-de-bord`. Les valeurs viennent toutes du serveur.
-	import Suggestions from '#lib/components/linkmusician/Suggestions.svelte';
 	import SEO from '#lib/components/SEO.svelte';
 	import * as Card from '#shadcn/card';
 	import * as Avatar from '#shadcn/avatar';
-	import { Badge } from '#shadcn/badge';
-	import { Separator } from '#shadcn/separator';
-	import { Sparkles, ShieldCheck, EyeOff, UsersRound, Music } from 'lucide-svelte';
+	import { Sparkles, ShieldCheck, EyeOff, UsersRound, Music, Search } from 'lucide-svelte';
 	import { plural } from '#lib/jam/log';
 	import XpBar from '#lib/components/linkmusician/progress/XpBar.svelte';
 	import LevelBadge from '#lib/components/linkmusician/progress/LevelBadge.svelte';
@@ -151,11 +148,15 @@
 			</span>
 		</a>
 
-		<Suggestions
-			title="Des musicien·nes pour toi"
-			suggestions={data.suggestions}
-			emptyHint={data.suggestionsHint}
-		/>
+		<a
+			href="/decouvrir"
+			class="flex min-h-11 items-center justify-between gap-3 rounded-2xl border bg-card p-4 hover:bg-muted"
+		>
+			<span class="flex items-center gap-2 font-semibold">
+				<Search class="size-5" aria-hidden="true" /> Trouver des musicien·nes
+			</span>
+			<span class="text-sm text-muted-foreground">Près de chez toi, à ton niveau</span>
+		</a>
 
 		<div class="grid gap-6 lg:grid-cols-3">
 			<!-- Objectifs -->
@@ -205,50 +206,39 @@
 				</Card.Content>
 			</Card.Root>
 
-			<!-- Derniers gains -->
-			<Card.Root class="lg:col-span-2">
-				<Card.Header>
-					<Card.Title><h2>Derniers gains</h2></Card.Title>
-					<Card.Description>Chaque point a une raison. Visible par toi seul·e.</Card.Description>
-				</Card.Header>
-				<Card.Content>
-					{#if d.history.length === 0}
-						<p class="text-sm text-muted-foreground">
-							Aucun gain pour l'instant : ton premier objectif ci-dessus t'en rapportera.
-						</p>
-					{:else}
-						<ul aria-label="Historique des gains">
-							{#each d.history as g, i (g.id)}
-								{#if i > 0}<Separator />{/if}
-								<li class="flex items-center justify-between gap-3 py-2.5 text-sm">
-									<span>{g.reason}</span>
-									<span class="flex shrink-0 items-center gap-3">
-										<time
-											class="text-muted-foreground"
-											datetime={new Date(g.createdAt).toISOString()}
-											>{dateFormat.format(new Date(g.createdAt))}</time
-										>
-										<Badge
-											class="font-semibold {g.amount >= 0
-												? 'bg-fuchsia-100 text-fuchsia-800 hover:bg-fuchsia-100'
-												: 'bg-muted text-foreground hover:bg-muted'}"
-											>{g.amount >= 0 ? '+' : '−'}{Math.abs(g.amount)} XP</Badge
-										>
-									</span>
-								</li>
-							{/each}
-						</ul>
-					{/if}
-				</Card.Content>
-			</Card.Root>
-
 			<!-- Succès -->
-			<Card.Root>
+			<Card.Root class="lg:col-span-3">
 				<Card.Header><Card.Title><h2>Succès</h2></Card.Title></Card.Header>
 				<Card.Content class="space-y-3">
 					{#each d.achievements as a (a.id)}<AchievementBadge {...a} />{/each}
 				</Card.Content>
 			</Card.Root>
 		</div>
+
+		<!-- Historique des points : replié, pour qui veut savoir d'où vient chaque point. -->
+		<details class="text-sm">
+			<summary class="min-h-11 cursor-pointer content-center text-muted-foreground">
+				D’où viennent mes points ?
+			</summary>
+			{#if d.history.length === 0}
+				<p class="py-2 text-muted-foreground">
+					Aucun point pour l’instant : ton premier objectif t’en rapportera.
+				</p>
+			{:else}
+				<ul aria-label="Historique des gains" class="mt-1">
+					{#each d.history as g (g.id)}
+						<li class="flex items-center justify-between gap-3 py-1.5">
+							<span>{g.reason}</span>
+							<span class="shrink-0 text-muted-foreground">
+								{g.amount >= 0 ? '+' : '−'}{Math.abs(g.amount)} XP ·
+								<time datetime={new Date(g.createdAt).toISOString()}
+									>{dateFormat.format(new Date(g.createdAt))}</time
+								>
+							</span>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</details>
 	</div>
 </div>
