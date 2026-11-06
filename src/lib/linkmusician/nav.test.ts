@@ -28,6 +28,11 @@ describe('navigation de l’espace', () => {
 		expect(isActive(item(href), path)).toBe(expected);
 	});
 
+	it('les groupes allument l’onglet Mon parcours (P3-01)', () => {
+		const career = NAV_BY_MODE.CAREER.find((i) => i.href === '/espace')!;
+		expect(isActive(career, '/groupes/les-rats')).toBe(true);
+	});
+
 	it('l’annuaire des lieux allume l’onglet Jam', () => {
 		const jam = NAV_BY_MODE.JAM.find((i) => i.href === '/jam')!;
 		expect(isActive(jam, '/lieux/nouveau')).toBe(true);
@@ -38,6 +43,7 @@ describe('navigation de l’espace', () => {
 		['/lieux/abc', 'CAREER', 'JAM'],
 		['/lieuxdits', null, 'CAREER'],
 		['/espace', 'JAM', 'CAREER'],
+		['/groupes/les-rats', 'JAM', 'CAREER'],
 		['/messages', 'JAM', 'JAM'],
 		['/messages', null, 'CAREER']
 	] as const)('mode sur %s (préférence %s) : %s', (path, preferred, mode) => {

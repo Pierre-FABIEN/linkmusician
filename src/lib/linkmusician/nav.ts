@@ -32,7 +32,8 @@ const discover: AppNavItem = { href: '/decouvrir', label: 'Découvrir', icon: Co
 
 export const NAV_BY_MODE: Readonly<Record<PlayModeValue, readonly AppNavItem[]>> = {
 	CAREER: [
-		{ href: '/espace', label: 'Mon parcours', icon: Trophy, soon: false },
+		// Mes groupes (P3-01) se rattachent à Mon parcours.
+		{ href: '/espace', label: 'Mon parcours', icon: Trophy, soon: false, match: ['/groupes'] },
 		discover,
 		{ href: '/annonces', label: 'Annonces', icon: Megaphone, soon: false },
 		messages,
@@ -65,6 +66,6 @@ export function modeFor(
 	preferred: PlayModeValue | null | undefined
 ): PlayModeValue {
 	if (/^\/(jams?|lieux)(\/|$)/.test(pathname)) return 'JAM';
-	if (pathname === '/espace' || pathname.startsWith('/espace/')) return 'CAREER';
+	if (/^\/(espace|groupes)(\/|$)/.test(pathname)) return 'CAREER';
 	return preferred ?? 'CAREER';
 }

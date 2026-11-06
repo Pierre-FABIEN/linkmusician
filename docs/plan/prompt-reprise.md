@@ -1,30 +1,36 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après la revue de fin de phase 2).
+> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après P3-01).
 
 ---
 
 ```markdown
-On reprend LinkMusician avec le lot **P3-01** (groupe et adhésions). Ne
-refais pas l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui
-sert est ci-dessous.
+On reprend LinkMusician avec le lot **P3-02** (page de groupe). Ne refais
+pas l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui sert est
+ci-dessous.
 
 ## État (06/11/2026)
 
-- **Phase 2 terminée et revue** ([docs/plan/revue-phase-2.md](./revue-phase-2.md)) :
-  critères vérifiés, barème calibré sans changement de valeur, palier
-  « En réseau » ouvert aux jams appréciées (D36), morceau minimal tranché
-  (D35, pour P3-11). Objectif D28 : lancement public à Toulouse début
-  mars 2027. L'utilisateur juge que tout se jouera sur une UX simple et
-  agréable.
-- **P3-01** : lire sa fiche dans docs/plan/phase-2-3.md (relue à la
-  revue). La table `Organization` n'existe pas encore (seul
-  `ActorKind.ORGANIZATION` existe) ; le moteur gère déjà
-  `membership.accepted`, les étapes et la part des membres. Le cœur du
-  lot : le modèle, la garde « agir au nom du groupe » (OWNER ou ADMIN)
-  réutilisée ensuite par P3-03 et P3-11, et l'UX.
-- Ordre prévu : P3-01 → P3-02 → P3-03 → P3-11 → P3-04 à P3-09 → P3-12
+- **Phase 2 terminée et revue** ([docs/plan/revue-phase-2.md](./revue-phase-2.md)),
+  D35 (morceau minimal) et D36 (« En réseau » par une jam) tranchées.
+  Objectif D28 : lancement public à Toulouse début mars 2027. L'UX simple
+  et agréable prime.
+- **P3-01 livré** ([docs/groupes](../groupes/README.md), D37) : `Organization`
+  et `Membership` (une ligne par période, index partiel
+  `memberships_open_key`), service unique `src/lib/server/bands/service.ts`
+  sous verrou, pages `/groupes`, `/groupes/nouveau`, `/groupes/[handle]`
+  (vue connectée), formation à la 2ᵉ adhésion (XP aux deux, étape
+  `FORMATION` vérifiée).
+- **P3-02** : page publique `/@handle` du groupe. Aujourd'hui
+  `getPublicProfile` (`src/lib/server/actors/publicProfile.ts`) filtre
+  `kind: 'PERSON'` : y brancher les organisations (mêmes règles de
+  visibilité, JSON-LD `MusicGroup`, sitemap), effectif actuel et passé
+  (réutiliser `bandPage`, `periodLabel`), médias du groupe (garde « OWNER
+  ou ADMIN » pour publier), genres et commune du groupe si utile au
+  recrutement (P3-03). Penser au lien « Demander à rejoindre » et aux
+  groupes sur le profil des membres.
+- Ordre prévu : P3-02 → P3-03 → P3-11 → P3-04 à P3-09 → P3-12
   à P3-14 (tableau §4 bis de docs/plan/README.md).
 - Points ouverts hors lots : docs/plan/README.md §5 bis.
 - Le wifi public de l'utilisateur bloque le port 5432 (Neon injoignable) :

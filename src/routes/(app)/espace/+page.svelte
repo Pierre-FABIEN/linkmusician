@@ -7,7 +7,8 @@
 	import * as Avatar from '#shadcn/avatar';
 	import { Badge } from '#shadcn/badge';
 	import { Separator } from '#shadcn/separator';
-	import { Sparkles, ShieldCheck, EyeOff } from 'lucide-svelte';
+	import { Sparkles, ShieldCheck, EyeOff, UsersRound } from 'lucide-svelte';
+	import { plural } from '#lib/jam/log';
 	import XpBar from '#lib/components/linkmusician/progress/XpBar.svelte';
 	import LevelBadge from '#lib/components/linkmusician/progress/LevelBadge.svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
@@ -111,6 +112,26 @@
 				</ul>
 			</section>
 		{/if}
+
+		<a
+			href="/groupes"
+			class="flex min-h-11 items-center justify-between gap-3 rounded-2xl border bg-card p-4 hover:bg-muted"
+		>
+			<span class="flex items-center gap-2 font-semibold">
+				<UsersRound class="size-5" aria-hidden="true" /> Mes groupes
+			</span>
+			<span class="text-sm text-muted-foreground">
+				{#if data.bands.invitations > 0}
+					<span class="font-semibold text-primary"
+						>{plural(data.bands.invitations, 'invitation', 'invitations')} à voir</span
+					>
+				{:else if data.bands.active > 0}
+					{plural(data.bands.active, 'groupe')}
+				{:else}
+					Monter ou rejoindre un groupe
+				{/if}
+			</span>
+		</a>
 
 		<Suggestions
 			title="Des musicien·nes pour toi"

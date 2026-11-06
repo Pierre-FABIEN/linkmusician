@@ -12,7 +12,10 @@ export const NOTIFICATION_TYPES = [
 	'APPLICATION_ACCEPTED',
 	'COLLAB_TO_CONFIRM',
 	'ENDORSEMENT',
-	'JAM_INVITE'
+	'JAM_INVITE',
+	'BAND_INVITE',
+	'BAND_REQUEST',
+	'BAND_JOINED'
 ] as const;
 export type NotificationTypeValue = (typeof NOTIFICATION_TYPES)[number];
 
@@ -27,7 +30,10 @@ export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, st
 	APPLICATION_ACCEPTED: 'Candidatures acceptées',
 	COLLAB_TO_CONFIRM: 'Collaborations à confirmer',
 	ENDORSEMENT: 'Appréciations reçues',
-	JAM_INVITE: 'Invitations à une jam'
+	JAM_INVITE: 'Invitations à une jam',
+	BAND_INVITE: 'Invitations à rejoindre un groupe',
+	BAND_REQUEST: 'Demandes pour rejoindre mes groupes',
+	BAND_JOINED: 'Nouveaux membres de mes groupes'
 };
 
 /**
@@ -69,6 +75,12 @@ export function notificationText(
 			return `${who} t’a laissé une appréciation${what}.`;
 		case 'JAM_INVITE':
 			return `${who} t’invite à la jam${what}.`;
+		case 'BAND_INVITE':
+			return `${who} t’invite à rejoindre le groupe${what}.`;
+		case 'BAND_REQUEST':
+			return `${who} aimerait rejoindre le groupe${what}.`;
+		case 'BAND_JOINED':
+			return `${who} a rejoint le groupe${what}.`;
 	}
 }
 

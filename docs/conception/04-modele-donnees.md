@@ -36,7 +36,7 @@ enum ActorKind { PERSON ORGANIZATION }
 enum OrgKind { BAND STUDIO LABEL PROMOTER MANAGEMENT PUBLISHER MEDIA VENUE } // VENUE : proposé (D22, 06 §3.10)
 enum TrackKind { MUSICIAN PRODUCER SOUND_ENGINEER MANAGER BOOKER PROMOTER LABEL_PRO PUBLISHER MUSIC_COMMS } // pistes d'une personne (D15)
 enum OrgRole { OWNER ADMIN MEMBER }
-enum MembershipStatus { INVITED REQUESTED ACTIVE LEFT REMOVED }
+enum MembershipStatus { INVITED REQUESTED ACTIVE LEFT REMOVED DECLINED } // P3-01 : DECLINED = invitation ou demande refusée ou retirée
 
 model Actor {                                   // Phase 1
   id         String    @id @default(cuid())
@@ -96,10 +96,12 @@ model PersonTrack {                             // Phase 1 : tous enregistrables
   @@id([personId, track])
 }
 
-model Organization {                            // Phase 3 (BAND), 4+ (autres)
+model Organization {                            // Phase 3 (BAND, P3-01), 4+ (autres)
   actorId    String  @id
   actor      Actor   @relation(fields: [actorId], references: [id])
-  kind       OrgKind
+  kind       OrgKind                            // BAND seul en base pour l'instant
+  formedAt   DateTime?                          // P3-01 : 2ᵉ adhésion active (étape « Formation »)
+  dissolvedAt DateTime?                         // P3-01 : dissous par sa dernière personne
   verifiedAt DateTime?                          // organisation vérifiée (SIRET…), §4 de 02
   legalId    String?                            // SIRET, chiffré
   website    String?
@@ -113,6 +115,7 @@ model Membership {                              // Phase 3
   role      OrgRole @default(MEMBER)
   title     String?                             // « bassiste », « ingé son »
   status    MembershipStatus
+  invitedById String?                           // P3-01 : qui a invité (oublié à l'anonymisation)
   startedAt DateTime?
   endedAt   DateTime?                           // l'historique attribue les étapes aux membres présents
   @@index([orgId, status])
@@ -391,6 +394,10 @@ model Sanction { id String @id @default(cuid()); actorId String; kind String /* 
   en back-office. Partout ailleurs, on passe par `Actor`.
 - **`Membership.startedAt` / `endedAt`** : un concert d'octobre crédite
   les membres actifs en octobre, pas le bassiste arrivé en décembre.
+  Une ligne par période : un retour crée une nouvelle ligne. Au plus une
+  ligne ouverte (`INVITED`, `REQUESTED`, `ACTIVE`) par personne et par
+  groupe, tenue par l'index partiel `memberships_open_key` (SQL brut,
+  protégé par `scripts/migration-clean.mjs`, voir [groupes](../groupes/README.md)).
 - **Registre protégé par la base** : un déclencheur refuse tout `UPDATE`
   ou `DELETE` sur `xp_transactions` (migration
   `linkmusician_progression`). `ActorProgress` porte aussi une ligne

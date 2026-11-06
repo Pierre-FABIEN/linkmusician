@@ -1452,6 +1452,9 @@ model Actor {
   notificationPreferences    NotificationPreference[]
   suggestionsDismissed       SuggestionDismissal[]    @relation("SuggestionOwner")
   dismissedAsSuggestion      SuggestionDismissal[]    @relation("SuggestionTarget")
+  organization               Organization?
+  memberships                Membership[]             @relation("MembershipPerson")
+  membershipInvitesSent      Membership[]             @relation("MembershipInviter")
 
   @@map("actors")
 }
@@ -2498,6 +2501,12 @@ enum NotificationType {
   COLLAB_TO_CONFIRM
   ENDORSEMENT
   JAM_INVITE
+  /// Invitation à rejoindre un groupe (P3-01).
+  BAND_INVITE
+  /// Demande pour rejoindre un de ses groupes (P3-01).
+  BAND_REQUEST
+  /// Nouveau membre dans un de ses groupes (P3-01).
+  BAND_JOINED
   /// Préférence d'email seulement (P2-09b) : jamais une ligne de `Notification`.
   MESSAGES
   PROGRESS
@@ -2584,4 +2593,76 @@ model SuggestionDismissal {
 
   @@id([ownerId, actorId])
   @@map("suggestion_dismissals")
+}
+
+// ─── GROUPES ET ADHÉSIONS (P3-01) ───────────────────────────────────────────
+
+/// Type d'organisation : le groupe d'abord, les autres métiers ensuite
+/// (studio, lieu, label…, conception 04).
+enum OrgKind {
+  BAND
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+/// INVITED et REQUESTED sont en attente ; ACTIVE est une adhésion en cours ;
+/// LEFT, REMOVED et DECLINED sont closes. Un retour crée une nouvelle ligne :
+/// l'historique garde chaque période.
+enum MembershipStatus {
+  INVITED
+  REQUESTED
+  ACTIVE
+  LEFT
+  REMOVED
+  DECLINED
+}
+
+/// Organisation : un `Actor` de type ORGANIZATION (handle, nom, présentation,
+/// XP sur la piste BAND). Un groupe a toujours un OWNER tant qu'il n'est pas
+/// dissous (`src/lib/server/bands/service.ts`, seul point d'écriture).
+model Organization {
+  actorId     String       @id
+  actor       Actor        @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  kind        OrgKind
+  /// Formation : la 2ᵉ adhésion active (étape « Formation » vérifiée).
+  formedAt    DateTime?
+  /// Dissous par sa dernière personne : l'historique reste lisible.
+  dissolvedAt DateTime?
+  createdAt   DateTime     @default(now())
+  memberships Membership[]
+
+  @@map("organizations")
+}
+
+/// Une période d'appartenance d'une personne à un groupe, ou une invitation
+/// ou une demande en attente. Au plus une ligne ouverte (INVITED, REQUESTED,
+/// ACTIVE) par personne et par groupe, garanti par le service sous verrou.
+model Membership {
+  id          String           @id @default(cuid())
+  orgId       String
+  org         Organization     @relation(fields: [orgId], references: [actorId], onDelete: Cascade)
+  /// Acteur de la personne.
+  personId    String
+  person      Actor            @relation("MembershipPerson", fields: [personId], references: [id], onDelete: Cascade)
+  role        OrgRole          @default(MEMBER)
+  /// Ce que la personne fait dans le groupe (« basse, chœurs »), texte brut.
+  title       String?
+  status      MembershipStatus
+  /// Qui a invité (invitation) ; vide pour une demande ou une fondation.
+  invitedById String?
+  invitedBy   Actor?           @relation("MembershipInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+  /// Début et fin de la période (l'historique attribue les étapes aux
+  /// membres présents à leur date, P3-08).
+  startedAt   DateTime?
+  endedAt     DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([orgId, status])
+  @@index([personId, status])
+  @@map("memberships")
 }

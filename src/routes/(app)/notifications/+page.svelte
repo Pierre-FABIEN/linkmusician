@@ -9,7 +9,9 @@
 		PartyPopper,
 		Guitar,
 		ThumbsUp,
-		Settings
+		Settings,
+		UsersRound,
+		UserPlus
 	} from 'lucide-svelte';
 	import type { NotificationTypeValue } from '#lib/notifications/types';
 
@@ -21,7 +23,10 @@
 		APPLICATION_ACCEPTED: PartyPopper,
 		COLLAB_TO_CONFIRM: Handshake,
 		ENDORSEMENT: ThumbsUp,
-		JAM_INVITE: Guitar
+		JAM_INVITE: Guitar,
+		BAND_INVITE: UsersRound,
+		BAND_REQUEST: UserPlus,
+		BAND_JOINED: UsersRound
 	};
 
 	const rtf = new Intl.RelativeTimeFormat('fr-FR', { numeric: 'auto' });

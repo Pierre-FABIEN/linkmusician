@@ -5,7 +5,9 @@ export const BOILERPLATE_INDEXES = [
 	'transactions_createdAt_idx',
 	'transactions_orderId_idx',
 	'transactions_userId_idx',
-	'blog_posts_published_createdAt_idx'
+	'blog_posts_published_createdAt_idx',
+	// LinkMusician : index partiels que Prisma 5 ne sait pas décrire.
+	'memberships_open_key'
 ];
 
 /**
@@ -17,7 +19,7 @@ export function cleanMigrationSql(sql) {
 	let out = sql;
 	for (const name of BOILERPLATE_INDEXES) {
 		const pattern = new RegExp(
-			`(--\\s*(?:DropIndex|CreateIndex)\\s*\\n)?\\s*(?:DROP INDEX|CREATE INDEX)\\s+"${name}"[^;]*;[ \\t]*\\n?`,
+			`(--\\s*(?:DropIndex|CreateIndex)\\s*\\n)?\\s*(?:DROP INDEX|CREATE (?:UNIQUE )?INDEX)\\s+"${name}"[^;]*;[ \\t]*\\n?`,
 			'g'
 		);
 		out = out.replace(pattern, (match) => {

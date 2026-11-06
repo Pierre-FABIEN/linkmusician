@@ -10,6 +10,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { civilDateToUtc } from '#lib/actors/age';
 import { suggestHandle } from '#lib/actors/handle';
+import { successorOf } from '#lib/bands/rules';
 import { getMusicalProfile } from '#lib/prisma/skills/musicalProfile';
 import { getProfileDetails } from '#lib/prisma/actors/profile';
 import { getActorLocation } from '#lib/server/geo/queries';
@@ -134,7 +135,8 @@ export async function exportPersonData(userId: string) {
 		notifications,
 		notificationPreferences,
 		collusionCases,
-		suggestionsDismissed
+		suggestionsDismissed,
+		memberships
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -359,6 +361,21 @@ export async function exportPersonData(userId: string) {
 			where: { ownerId: person.actorId },
 			orderBy: { createdAt: 'asc' },
 			select: { createdAt: true, actor: { select: { displayName: true } } }
+		}),
+		// Groupes (P3-01) : chaque période, invitation ou demande.
+		prisma.membership.findMany({
+			where: { personId: person.actorId },
+			orderBy: { createdAt: 'asc' },
+			select: {
+				role: true,
+				title: true,
+				status: true,
+				startedAt: true,
+				endedAt: true,
+				createdAt: true,
+				org: { select: { actor: { select: { displayName: true } } } },
+				invitedBy: { select: { displayName: true } }
+			}
 		})
 	]);
 	const media = await prisma.media.findMany({
@@ -548,6 +565,16 @@ export async function exportPersonData(userId: string) {
 			dans_l_app: p.inApp,
 			par_email: p.email
 		})),
+		groupes: memberships.map((m) => ({
+			groupe: m.org.actor.displayName,
+			role: m.role,
+			ce_que_j_y_fais: m.title,
+			statut: m.status,
+			invite_par: m.invitedBy?.displayName ?? null,
+			cree_le: m.createdAt,
+			debut: m.startedAt,
+			fin: m.endedAt
+		})),
 		suggestions_ecartees: suggestionsDismissed.map((d) => ({
 			nom: d.actor.displayName,
 			le: d.createdAt
@@ -572,7 +599,9 @@ export async function personAnonymizationOps(
 ): Promise<Prisma.PrismaPromise<unknown>[]> {
 	const person = await prisma.person.findUnique({ where: { userId }, select: { actorId: true } });
 	if (!person) return [];
+	const bandOps = await bandAnonymizationOps(person.actorId);
 	return [
+		...bandOps,
 		prisma.person.update({ where: { userId }, data: { birthDate: null } }),
 		prisma.personTrack.deleteMany({ where: { personId: person.actorId } }),
 		prisma.personInstrument.deleteMany({ where: { personId: person.actorId } }),
@@ -675,3 +704,55 @@ export {
 	mediaAssetsOfUser as personMediaAssets,
 	destroyMediaAssets
 } from '#lib/server/media/service';
+
+/**
+ * Groupes (P3-01) : les adhésions en cours se closent (la personne reste
+ * dans l'historique du groupe, « Compte supprimé »), les invitations et
+ * demandes en attente sont supprimées. Un groupe dont la personne était
+ * responsable passe à son successeur (`successorOf`) ou, sans autre membre,
+ * est dissous : un groupe garde toujours un OWNER.
+ */
+async function bandAnonymizationOps(actorId: string): Promise<Prisma.PrismaPromise<unknown>[]> {
+	const now = new Date();
+	const owned = await prisma.membership.findMany({
+		where: { personId: actorId, status: 'ACTIVE', role: 'OWNER', org: { dissolvedAt: null } },
+		select: {
+			orgId: true,
+			org: {
+				select: {
+					memberships: {
+						where: { status: 'ACTIVE' },
+						select: { id: true, personId: true, role: true, startedAt: true }
+					}
+				}
+			}
+		}
+	});
+	const ops: Prisma.PrismaPromise<unknown>[] = [];
+	for (const band of owned) {
+		const next = successorOf(actorId, band.org.memberships);
+		if (next) {
+			ops.push(prisma.membership.update({ where: { id: next.id }, data: { role: 'OWNER' } }));
+		} else {
+			ops.push(
+				prisma.membership.updateMany({
+					where: { orgId: band.orgId, status: { in: ['INVITED', 'REQUESTED'] } },
+					data: { status: 'DECLINED', endedAt: now }
+				}),
+				prisma.organization.update({ where: { actorId: band.orgId }, data: { dissolvedAt: now } })
+			);
+		}
+	}
+	ops.push(
+		prisma.membership.updateMany({
+			where: { personId: actorId, status: 'ACTIVE' },
+			data: { status: 'LEFT', endedAt: now }
+		}),
+		prisma.membership.deleteMany({
+			where: { personId: actorId, status: { in: ['INVITED', 'REQUESTED'] } }
+		}),
+		// Invitations envoyées : on oublie qui a invité.
+		prisma.membership.updateMany({ where: { invitedById: actorId }, data: { invitedById: null } })
+	);
+	return ops;
+}

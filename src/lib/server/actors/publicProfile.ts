@@ -23,7 +23,8 @@ export const PROFILE_MEDIA_LIMIT = 6;
 /** `viewerId` : un blocage entre le lecteur et l'acteur rend le profil introuvable (P2-05). */
 export async function getPublicProfile(handle: string, now = new Date(), viewerId?: string | null) {
 	const actor = await prisma.actor.findFirst({
-		where: { handle, ...publicActorWhere(now, viewerId) },
+		// Personnes seulement : la page publique d'un groupe arrive avec P3-02.
+		where: { handle, kind: 'PERSON', ...publicActorWhere(now, viewerId) },
 		select: {
 			id: true,
 			kind: true,
