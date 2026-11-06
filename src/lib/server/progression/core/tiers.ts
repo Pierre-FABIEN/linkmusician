@@ -13,6 +13,8 @@ export type MusicianSummary = {
 	corroboratedGigs: number;
 	verifiedReleases: number;
 	distinctEndorsers: number;
+	/** Appréciations actives reçues après une jam (D27) : comptent pour « En réseau ». */
+	jamAppreciations: number;
 };
 
 export const MUSICIAN_TIERS = [
@@ -21,7 +23,8 @@ export const MUSICIAN_TIERS = [
 		id: 'NETWORKED',
 		label: 'En réseau',
 		reached: (s: MusicianSummary) =>
-			s.reciprocalConversations >= 1 && (s.bands >= 1 || s.collaborations >= 1)
+			s.reciprocalConversations >= 1 &&
+			(s.bands >= 1 || s.collaborations >= 1 || s.jamAppreciations >= 1)
 	},
 	{
 		id: 'COLLABORATOR',

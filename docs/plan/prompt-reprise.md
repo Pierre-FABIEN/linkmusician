@@ -1,29 +1,32 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après P2-18).
+> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après la revue de fin de phase 2).
 
 ---
 
 ```markdown
-On reprend LinkMusician à la **revue de fin de phase 2**. Ne refais pas
-l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui sert est
-ci-dessous.
+On reprend LinkMusician avec le lot **P3-01** (groupe et adhésions). Ne
+refais pas l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui
+sert est ci-dessous.
 
 ## État (06/11/2026)
 
-- **Phase 2 terminée** : tous ses lots sont ✅ (tableau §5 de
-  docs/plan/README.md), le dernier étant P2-18 (suggestions de
-  musicien·nes). Objectif D28 : lancement public à Toulouse début mars 2027. L'utilisateur juge que tout se jouera sur une UX simple et
+- **Phase 2 terminée et revue** ([docs/plan/revue-phase-2.md](./revue-phase-2.md)) :
+  critères vérifiés, barème calibré sans changement de valeur, palier
+  « En réseau » ouvert aux jams appréciées (D36), morceau minimal tranché
+  (D35, pour P3-11). Objectif D28 : lancement public à Toulouse début
+  mars 2027. L'utilisateur juge que tout se jouera sur une UX simple et
   agréable.
-- Revue de fin de phase 2 (fin de docs/plan/phase-2-3.md, rituels §6 du
-  plan) : démo du parcours livré ; vérifier les critères de la phase ;
-  calibrer le barème XP sur les données de test (temps pour atteindre le
-  niveau 5 et le rang « Collaborateur ») ; relire et détailler les fiches
-  de phase 3 ; trancher **D20** (modèle du morceau, voir
-  docs/decisions/README.md).
-- Points ouverts hors lots : docs/plan/README.md §5 bis (à relire, en
-  particulier les calibrages « après le pilote »).
+- **P3-01** : lire sa fiche dans docs/plan/phase-2-3.md (relue à la
+  revue). La table `Organization` n'existe pas encore (seul
+  `ActorKind.ORGANIZATION` existe) ; le moteur gère déjà
+  `membership.accepted`, les étapes et la part des membres. Le cœur du
+  lot : le modèle, la garde « agir au nom du groupe » (OWNER ou ADMIN)
+  réutilisée ensuite par P3-03 et P3-11, et l'UX.
+- Ordre prévu : P3-01 → P3-02 → P3-03 → P3-11 → P3-04 à P3-09 → P3-12
+  à P3-14 (tableau §4 bis de docs/plan/README.md).
+- Points ouverts hors lots : docs/plan/README.md §5 bis.
 - Le wifi public de l'utilisateur bloque le port 5432 (Neon injoignable) :
   dans ce cas, écrire la migration à la main et la vérifier ensuite avec
   `npm run db:nouvelle-migration -- verif` (diff vide attendu).

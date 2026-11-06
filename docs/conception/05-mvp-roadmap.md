@@ -149,8 +149,8 @@ d'acceptation sont vérifiables par un test automatisé ou une mesure.
   `Milestone`, `Evidence`, `Attestation`, paliers de groupe, part d'XP
   aux membres présents, contestations et reprise d'XP, vérification de
   sortie par API (Spotify ou MusicBrainz), écrans de modération admin,
-  extension de l'export et de l'anonymisation RGPD. _(proposé, D20)_ Le
-  morceau minimal (`Work`, contributeurs, maquette), base des étapes
+  extension de l'export et de l'anonymisation RGPD. Le
+  morceau minimal (`Work`, contributeurs, maquette, D35), base des étapes
   de composition et d'enregistrement ([06 §4](./06-metiers.md#4-la-chaîne-dun-morceau--du-jam-au-producteur)).
 - **Dépendances** : phase 2 (annonces, collaborations).
 - **Acceptation** :

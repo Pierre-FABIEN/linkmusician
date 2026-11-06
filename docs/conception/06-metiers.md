@@ -353,30 +353,30 @@ de jeu, est dans [07 — Les modes de jeu](./07-modes-de-jeu.md).
    suit la même règle : une collaboration confirmée de tous les côtés,
    des crédits confirmés, des points pour chacun.
 
-### 4.2 Les états d'un morceau _(proposé)_
+### 4.2 Les états d'un morceau _(idée et composé tranchés par D35)_
 
-| État            | Atteint quand                                                    | Preuve                                                    |
-| --------------- | ---------------------------------------------------------------- | --------------------------------------------------------- |
-| Idée            | Un contributeur crée le morceau                                  | Déclarée                                                  |
-| Composé         | ≥2 contributeurs ont confirmé leur rôle, une maquette est jointe | Corroborée (les contributeurs)                            |
-| Enregistré      | Une collaboration `RECORDING` liée est terminée                  | Vérifiée si l'ingé son ou le studio est sur la plateforme |
-| Mixé, masterisé | Idem, collaboration de mixage ou de mastering                    | Idem                                                      |
-| Produit         | Une collaboration `PRODUCTION` liée est terminée                 | Vérifiée par le producteur                                |
-| Sorti           | La sortie est identifiée par ISRC ou UPC                         | Vérifiée par API (Spotify, MusicBrainz)                   |
+| État            | Atteint quand                                                                        | Preuve                                                                   |
+| --------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| Idée            | Un contributeur crée le morceau ; visible de son équipe seulement                    | Déclarée                                                                 |
+| Composé         | Une maquette est jointe ; à plusieurs, ≥2 contributeurs ont aussi confirmé leur rôle | Seul·e : déclarée, sans XP. À plusieurs : corroborée (les contributeurs) |
+| Enregistré      | Une collaboration `RECORDING` liée est terminée                                      | Vérifiée si l'ingé son ou le studio est sur la plateforme                |
+| Mixé, masterisé | Idem, collaboration de mixage ou de mastering                                        | Idem                                                                     |
+| Produit         | Une collaboration `PRODUCTION` liée est terminée                                     | Vérifiée par le producteur                                               |
+| Sorti           | La sortie est identifiée par ISRC ou UPC                                             | Vérifiée par API (Spotify, MusicBrainz)                                  |
 
 Un morceau peut sauter des états (un titre enregistré en home studio
 sans ingé son) : les états décrivent ce qui est **prouvé**, pas un
 passage obligé.
 
-### 4.3 Qui gagne quoi _(proposé, à calibrer par personas)_
+### 4.3 Qui gagne quoi _(composition tranchée par D35, le reste à calibrer par personas)_
 
-| Moment                            | Musicien·nes du morceau           | Ingé son                      | Producteur·rice               |
-| --------------------------------- | --------------------------------- | ----------------------------- | ----------------------------- |
-| Jam ou collaboration confirmée    | XP collaboration (piste musicien) | —                             | —                             |
-| Morceau composé (rôles confirmés) | XP composition                    | —                             | —                             |
-| Enregistrement confirmé           | XP enregistrement                 | XP session + crédit           | —                             |
-| Production confirmée              | XP production reçue               | —                             | XP production + crédit        |
-| Sortie vérifiée                   | XP sortie                         | XP crédit sur sortie vérifiée | XP crédit sur sortie vérifiée |
+| Moment                            | Musicien·nes du morceau                               | Ingé son                      | Producteur·rice               |
+| --------------------------------- | ----------------------------------------------------- | ----------------------------- | ----------------------------- |
+| Jam ou collaboration confirmée    | XP collaboration (piste musicien)                     | —                             | —                             |
+| Morceau composé (rôles confirmés) | 150 XP × multiplicateurs, à plusieurs seulement (D35) | —                             | —                             |
+| Enregistrement confirmé           | XP enregistrement                                     | XP session + crédit           | —                             |
+| Production confirmée              | XP production reçue                                   | —                             | XP production + crédit        |
+| Sortie vérifiée                   | XP sortie                                             | XP crédit sur sortie vérifiée | XP crédit sur sortie vérifiée |
 
 Chaque gain va **sur la piste du métier exercé** dans la collaboration :
 une guitariste qui est aussi ingé son gagne sur sa piste ingé son quand
@@ -406,7 +406,7 @@ elle enregistre les autres. Le niveau de compte reste la somme.
   n'est visible des producteurs que s'il est explicitement proposé, et
   la prise de contact passe par la messagerie restreinte (D5).
 
-### 4.5 Ce que cela ajoute au modèle _(proposé)_
+### 4.5 Ce que cela ajoute au modèle _(`Work` et `WorkContributor` tranchés par D35, le reste en phase 4)_
 
 - `Work` (morceau) : titre, état, genres, acteur porteur (personne ou
   groupe), médias (versions successives).
@@ -423,7 +423,7 @@ elle enregistre les autres. Le niveau de compte reste la somme.
 ### 4.6 Phases
 
 - **Phase 2** : jams et collaborations entre musiciens (déjà prévus).
-- **Phase 3** _(proposé)_ : le **morceau minimal** (`Work`,
+- **Phase 3** (D35) : le **morceau minimal** (`Work`,
   `WorkContributor`, maquette) avec les groupes, car les étapes
   « Première composition » et « Premier enregistrement » s'y appuient.
 - **Phase 4** : ouverture des métiers **ingé son** et **producteur**,

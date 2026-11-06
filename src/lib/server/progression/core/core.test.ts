@@ -428,13 +428,20 @@ describe('paliers (§5)', () => {
 		distinctCollaborators: 0,
 		corroboratedGigs: 0,
 		verifiedReleases: 0,
-		distinctEndorsers: 0
+		distinctEndorsers: 0,
+		jamAppreciations: 0
 	};
 
 	it.each([
 		['aucun', {}, null],
 		['premiers pas', { profileComplete: true }, 'FIRST_STEPS'],
 		['en réseau', { profileComplete: true, reciprocalConversations: 1, bands: 1 }, 'NETWORKED'],
+		[
+			'en réseau par une jam appréciée',
+			{ profileComplete: true, reciprocalConversations: 1, jamAppreciations: 1 },
+			'NETWORKED'
+		],
+		['jam appréciée sans échange', { profileComplete: true, jamAppreciations: 3 }, 'FIRST_STEPS'],
 		['collaborateur', { collaborations: 3, distinctCollaborators: 2 }, 'COLLABORATOR'],
 		['de scène', { corroboratedGigs: 3 }, 'STAGE'],
 		[
@@ -468,6 +475,7 @@ describe('quêtes (§8)', () => {
 		corroboratedGigs: 0,
 		verifiedReleases: 0,
 		distinctEndorsers: 0,
+		jamAppreciations: 0,
 		hasInstrument: false,
 		hasGenre: false,
 		hasZone: false,
@@ -547,6 +555,7 @@ describe('avancement des objectifs (P2-12b)', () => {
 			corroboratedGigs: 0,
 			verifiedReleases: 0,
 			distinctEndorsers: 0,
+			jamAppreciations: 0,
 			hasInstrument: true,
 			hasGenre: true,
 			hasZone: false,

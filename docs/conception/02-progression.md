@@ -74,6 +74,7 @@ jamais l'historique, elle s'applique aux nouveaux événements.
 | Adhésion à un groupe acceptée                                    | 200                        | rendements décroissants par groupe                                                     |
 | Collaboration terminée, confirmée des deux côtés                 | 400 × multiplicateurs (§6) | —                                                                                      |
 | Appréciation reçue après une jam ou une collaboration (D27, D32) | 40                         | 1 par paire et par jam ou collaboration ; ×1, ×0,5, ×0,25 puis 0 par paire sur 12 mois |
+| Morceau composé à plusieurs, rôle confirmé (D35, phase 3)        | 150 × multiplicateurs (§6) | une fois par morceau et par personne ; seul·e, un morceau composé ne rapporte rien     |
 | Participer à une étape de groupe (comme membre présent)          | 25 % de l'XP du groupe     | —                                                                                      |
 
 **Groupe**, avec les étapes du brief et leur niveau de preuve (§4) :
@@ -105,12 +106,13 @@ Les valeurs ci-dessus sont des points de départ. Elles se calibrent avec
 des **personas simulés**, un test unitaire qui rejoue un trimestre
 d'activité typique sur `progression/core` :
 
-| Persona           | Activité sur 3 mois                                           | Cible                                        |
-| ----------------- | ------------------------------------------------------------- | -------------------------------------------- |
-| Curieux           | Profil, 1 démo, 2 conversations                               | Niveau 3-4, palier « En réseau » non atteint |
-| Musicien actif    | Rejoint un groupe, 3 collaborations avec 2 personnes, 2 démos | Niveau 6-8, palier « Collaborateur »         |
-| Groupe qui tourne | Étapes 1 à 6, 4 concerts corroborés                           | Palier « Live »                              |
-| Farmeur           | 40 collaborations fictives avec 2 comptes TL0                 | **≤ Curieux** grâce aux multiplicateurs      |
+| Persona           | Activité sur 3 mois                                                                                         | Cible                                                                               |
+| ----------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Curieux           | Profil, 1 démo, 2 conversations                                                                             | Niveau 3-4, palier « En réseau » non atteint                                        |
+| Musicien actif    | Rejoint un groupe, 3 collaborations avec 2 personnes, 2 démos                                               | Niveau 6-8, palier « Collaborateur »                                                |
+| Groupe qui tourne | Étapes 1 à 6, 4 concerts corroborés                                                                         | Palier « Live »                                                                     |
+| Farmeur           | 40 collaborations fictives avec 2 comptes TL0                                                               | **≤ Curieux** grâce aux multiplicateurs                                             |
+| Élève en mode jam | 1 jam par semaine, 2 appréciations à chaque fois (cercle de 12 habitué·es), 1 échange toutes les 3 semaines | Niveau 4-5, palier « En réseau » (D36) ; ≤ 5 après 6 mois sans nouvelles rencontres |
 
 Si une modification du barème fait sortir un persona de sa cible, le
 test échoue. C'est le garde-fou contre l'inflation de points.
@@ -126,6 +128,27 @@ relevées (tableau ci-dessus) et le poids d'une contrepartie TL0 abaissé à
 | Curieux        | 310           | 3      | 3-4       |
 | Musicien actif | 1 565         | 6      | 6-8       |
 | Farmeur        | 290           | 2      | ≤ Curieux |
+
+**Revue de fin de phase 2 (06/11/2026).** Le persona « Élève en mode
+jam » (la cible n° 1, D29) est ajouté. Simulation sur 6 mois, avec des
+contreparties TL1 le premier mois du pilote, puis TL2 :
+
+| Persona                                                | Niveau 5      | « Collaborateur » | Niveau à 1 / 3 / 6 mois |
+| ------------------------------------------------------ | ------------- | ----------------- | ----------------------- |
+| Élève en mode jam (1 jam par semaine)                  | 10 semaines   | jamais            | 4 / 5 / 5               |
+| Élève timide (1 jam toutes les 2 semaines)             | pas en 6 mois | jamais            | 3 / 3 / 4               |
+| Élève en mode jam + 1 collaboration par mois           | 7 semaines    | 11 semaines       | 4 / 6 / 8               |
+| Musicien·ne d'annonces (1 collaboration en 3 semaines) | 6 semaines    | 9 semaines        | 3 / 6 / 7               |
+| Lead (2 jams par semaine, 2 collaborations par mois)   | 3 semaines    | 7 semaines        | 6 / 9 / 11              |
+
+Le barème tient : le niveau 5 arrive en 1 à 3 mois pour qui joue, et
+« Collaborateur » demande de vraies collaborations. Deux constats :
+une habituée des jams restait « Premiers pas » pour toujours, puisqu'une
+jam n'est plus une collaboration (D27), d'où D36 ; et un même cercle
+d'habitué·es ne peut pas donner plus de 70 XP par personne et par an
+(rendements décroissants), ce qui plafonne au niveau 5 : c'est voulu,
+la suite vient des rencontres, des collaborations et de la carte de
+carrière (P3-13). Aucune valeur du barème ne change.
 
 Les valeurs des étapes de groupe sont inchangées. Le barème vit dans
 `src/lib/server/progression/core/bareme.ts`, et les personas dans
@@ -179,14 +202,14 @@ local » plutôt que « Expert »).
 
 **Musicien**
 
-| Palier            | Conditions                                                                      |
-| ----------------- | ------------------------------------------------------------------------------- |
-| Premiers pas      | Profil complété                                                                 |
-| En réseau         | ≥1 conversation réciproque **et** (≥1 groupe **ou** ≥1 collaboration)           |
-| Collaborateur     | ≥3 collaborations confirmées avec ≥2 contreparties distinctes                   |
-| Musicien de scène | ≥3 concerts corroborés                                                          |
-| Pilier local      | ≥10 collaborations avec ≥5 contreparties distinctes, ≥10 concerts corroborés    |
-| Référence         | ≥1 sortie vérifiée **et** ≥10 endosseurs distincts (appréciations non reprises) |
+| Palier            | Conditions                                                                                                      |
+| ----------------- | --------------------------------------------------------------------------------------------------------------- |
+| Premiers pas      | Profil complété                                                                                                 |
+| En réseau         | ≥1 conversation réciproque **et** (≥1 groupe, ≥1 collaboration **ou** ≥1 appréciation reçue après une jam, D36) |
+| Collaborateur     | ≥3 collaborations confirmées avec ≥2 contreparties distinctes                                                   |
+| Musicien de scène | ≥3 concerts corroborés                                                                                          |
+| Pilier local      | ≥10 collaborations avec ≥5 contreparties distinctes, ≥10 concerts corroborés                                    |
+| Référence         | ≥1 sortie vérifiée **et** ≥10 endosseurs distincts (appréciations non reprises)                                 |
 
 **Groupe** : le palier est la dernière étape franchie au niveau
 corroboré ou au-delà (Projet → Répète → Compose → Enregistre → Démo →

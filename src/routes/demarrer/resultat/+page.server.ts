@@ -35,7 +35,8 @@ export const load: PageServerLoad = async ({ parent }) => {
 		distinctCollaborators: 0,
 		corroboratedGigs: 0,
 		verifiedReleases: 0,
-		distinctEndorsers: 0
+		distinctEndorsers: 0,
+		jamAppreciations: 0
 	});
 	return {
 		stepId: 'resultat' as const,

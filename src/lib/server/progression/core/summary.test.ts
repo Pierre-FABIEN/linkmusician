@@ -97,6 +97,41 @@ describe('résumé musicien (P1-11)', () => {
 		expect(s.distinctEndorsers).toBe(1);
 	});
 
+	it('appréciations de jam actives, une reprise lue avant ou après (D27)', () => {
+		const received = (id: string, jamId?: string) =>
+			parseDomainEvent({
+				id,
+				occurredAt: at,
+				type: 'endorsement.received',
+				actorId: ME,
+				endorserId: `e-${id}`,
+				skill: 'bon groove',
+				...(jamId && { jamId })
+			});
+		const revoked = (endorsementEventId: string) =>
+			ev({
+				type: 'endorsement.revoked',
+				actorId: ME,
+				endorserId: `e-${endorsementEventId}`,
+				endorsementEventId
+			});
+		const s = musicianSummary(ME, [
+			revoked('j1'),
+			received('j1', 'jam1'),
+			received('j2', 'jam1'),
+			received('c1'), // après une collaboration : ne compte pas comme jam
+			ev({
+				type: 'conversation.reciprocated',
+				actorId: ME,
+				counterpartId: 'x',
+				fromOpportunity: false
+			}),
+			ev({ type: 'profile.completed', actorId: ME })
+		]);
+		expect(s.jamAppreciations).toBe(1);
+		expect(musicianTier(s).tier?.id).toBe('NETWORKED');
+	});
+
 	it('étapes de groupe : concert corroboré, sortie vérifiée', () => {
 		const milestone = (milestone: string, to: string, memberIds = [ME]) =>
 			ev({ type: 'milestone.attested', bandId: 'b1', milestone, from: null, to, memberIds });

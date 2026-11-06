@@ -45,7 +45,8 @@ describe('personas (conception 02 §2.3)', () => {
 			distinctCollaborators: 0,
 			corroboratedGigs: 0,
 			verifiedReleases: 0,
-			distinctEndorsers: 0
+			distinctEndorsers: 0,
+			jamAppreciations: 0
 		});
 		expect(reached).not.toContain('NETWORKED');
 	});
@@ -120,7 +121,8 @@ describe('personas (conception 02 §2.3)', () => {
 			distinctCollaborators: 2,
 			corroboratedGigs: 0,
 			verifiedReleases: 0,
-			distinctEndorsers: 0
+			distinctEndorsers: 0,
+			jamAppreciations: 0
 		});
 		expect(tier?.id).toBe('COLLABORATOR');
 	});
@@ -136,6 +138,64 @@ describe('personas (conception 02 §2.3)', () => {
 				FIRST_GIG: 'CORROBORATED'
 			})?.label
 		).toBe('Live');
+	});
+
+	it('Élève en mode jam (D29) : niveau 4-5 en 3 mois, plafond sans nouvelles rencontres', () => {
+		// Une jam par semaine, deux appréciations à chaque fois, venues d'un
+		// cercle de 12 habitué·es ; une conversation réciproque toutes les 3
+		// semaines ; aucune collaboration (une jam n'en est pas une, D27).
+		const me = 'eleve';
+		const l = new MemoryLedger();
+		l.apply(ev({ type: 'profile.completed', actorId: me }, day(1)));
+		l.apply(ev({ type: 'media.published', actorId: me, mediaId: 'd1', kind: 'DEMO' }, day(3)));
+		let endorser = 0;
+		const levelAt: Record<number, number> = {};
+		for (let week = 0; week < 26; week++) {
+			const d = 6 + week * 7;
+			if (week % 3 === 1)
+				l.apply(
+					ev(
+						{
+							type: 'conversation.reciprocated',
+							actorId: me,
+							counterpartId: `c${week}`,
+							fromOpportunity: true
+						},
+						day(d)
+					)
+				);
+			for (let k = 0; k < 2; k++)
+				l.apply(
+					ev(
+						{
+							type: 'endorsement.received',
+							actorId: me,
+							endorserId: `p${endorser++ % 12}`,
+							skill: 'bon groove',
+							jamId: `jam${week}`
+						},
+						day(d)
+					)
+				);
+			levelAt[week] = l.level(me);
+		}
+		expect(levelAt[12]).toBeGreaterThanOrEqual(4);
+		expect(levelAt[12]).toBeLessThanOrEqual(5);
+		// Les rendements décroissants par paire bornent ce qu'un même cercle
+		// peut donner (12 × 70 XP) : le niveau 6 demande de nouvelles rencontres.
+		expect(levelAt[25]).toBeLessThanOrEqual(5);
+		const { tier } = musicianTier({
+			profileComplete: true,
+			reciprocalConversations: 1,
+			bands: 0,
+			collaborations: 0,
+			distinctCollaborators: 0,
+			corroboratedGigs: 0,
+			verifiedReleases: 0,
+			distinctEndorsers: 12,
+			jamAppreciations: 2
+		});
+		expect(tier?.id).toBe('NETWORKED');
 	});
 
 	it('Farmeur : 40 collaborations fictives avec 2 comptes TL0, pas plus qu’un Curieux', () => {

@@ -447,10 +447,17 @@ VENUE`) ; quota de création (rate limit). Une jam n'est plus une
 - **Fin** : l'XP ne change pas l'ordre (test) ; un·e mineur·e n'apparaît
   pas (test) ; e2e « je vois une batteuse rock de mon niveau ».
 
-**Revue de fin de phase 2** : démo du parcours ; calibrage du barème
-sur les données de test (temps pour atteindre le niveau 5 et le rang
-« Collaborateur ») ; relecture des fiches de phase 3 ; trancher D20
-(modèle du morceau).
+**Revue de fin de phase 2 (06/11/2026)** : ✅ critères d'acceptation de
+la phase ([conception/05 §3](../conception/05-mvp-roadmap.md#3-roadmap))
+couverts par des tests (recherche par rayon et tranches, rendements
+400/200/100/0, quota TL0 au 11ᵉ message, appréciation sans
+collaboration refusée, blocage, e2e annonce → collaboration → XP des
+deux côtés) ; barème calibré sur 6 personas, aucune valeur changée
+([conception/02 §2.3](../conception/02-progression.md#23-calibrer-le-barème)) ;
+palier « En réseau » ouvert aux jams appréciées (**D36**) ; morceau
+minimal tranché (**D35**) ; fiches de la phase 3 relues (P3-01, P3-03,
+P3-04, P3-08, P3-11, P3-13 ajustées). Démo du parcours : scénario dans
+[revue-phase-2.md](./revue-phase-2.md).
 
 ---
 
@@ -463,11 +470,21 @@ actes. Puis LinkMusician s'ouvre au public.
 ### P3-01 — Groupe et adhésions
 
 - **Dépend de** : P2-06.
-- **Tâches** : `Organization(BAND)` et `Membership` (invitation,
-  demande, départ ; rôles OWNER, ADMIN, MEMBER ; `startedAt`,
-  `endedAt`) ; un groupe sans OWNER est impossible ; transfert de
-  propriété ; événement `membership.accepted` (règle existante,
-  rendements décroissants) ; RGPD.
+- **Tâches** : table `Organization` liée à un `Actor` de type
+  `ORGANIZATION` (le type existe, pas la table), avec un
+  `OrganizationKind` extensible (`BAND` d'abord ; studio, lieu, label
+  plus tard) ; le `@handle` est partagé avec les personnes
+  (`Actor.handle`) ; `Membership` (invitation, demande, départ ; rôles
+  OWNER, ADMIN, MEMBER ; `startedAt`, `endedAt`) ; un groupe sans OWNER
+  est impossible ; transfert de propriété ; **agir au nom du groupe**
+  (une garde unique « OWNER ou ADMIN de ce groupe », réutilisée par les
+  annonces, les médias et les morceaux) ; mineur·es : inviter un·e
+  mineur·e suit les règles de la messagerie restreinte (D5) ; événement
+  `membership.accepted` (règle existante, rendements décroissants) ;
+  l'étape « Formation » vérifiée à la 2ᵉ adhésion acceptée ; RGPD.
+- **Revue P2** : le moteur sait déjà tout (`membershipAccepted`,
+  `milestoneBand`, `milestoneMember`, `bandTier`) ; le lot est surtout
+  du modèle, des droits et de l'UX.
 - **Fin** : historique des adhésions juste après départs et retours
   (intégration) ; e2e « je crée un groupe, j'invite Malik ».
 
@@ -482,8 +499,12 @@ actes. Puis LinkMusician s'ouvre au public.
 ### P3-03 — Recrutement
 
 - **Dépend de** : P3-01, P2-02.
-- **Tâches** : annonce « cherche un membre » émise par le groupe ;
-  l'acceptation crée l'adhésion ; quête remplie, XP des deux côtés.
+- **Tâches** : annonce « cherche un membre » émise par le groupe
+  (`RECRUIT_MEMBER` et `Opportunity.issuerActorId` existent déjà : le
+  groupe devient l'émetteur, publiée par un·e OWNER ou ADMIN) ;
+  candidatures reçues par les OWNER et ADMIN ; l'acceptation ouvre la
+  conversation (comme P2-03) et crée l'adhésion ; quête remplie, XP des
+  deux côtés.
 - **Fin** : e2e « le groupe recrute une batteuse ».
 
 ### P3-04 — Étapes : définitions et déclaration
@@ -492,7 +513,9 @@ actes. Puis LinkMusician s'ouvre au public.
 - **Décisions** : liste finale des étapes et preuves recevables.
 - **Tâches** : `MilestoneDefinition` versionné (seed), `Milestone` ;
   déclaration d'une étape (1 à 6 au MVP) ; émission de
-  `milestone.attested` (règle existante, XP différentielle).
+  `milestone.attested` (règle existante, XP différentielle) ; « Première
+  composition » corroborée par un morceau composé du groupe (P3-11,
+  D35).
 - **Fin** : une étape déclarée rapporte l'XP « déclarée » ; seed
   rejouable.
 
@@ -529,7 +552,9 @@ actes. Puis LinkMusician s'ouvre au public.
 - **Dépend de** : P3-05.
 - **Tâches** : rang de groupe = dernière étape corroborée (Projet →
   Signé) ; 25 % de l'XP aux membres **présents à la date** de l'étape ;
-  TierBadge du groupe.
+  TierBadge du groupe. Les règles pures existent déjà (`bandTier`,
+  `milestoneMember`) : reste le service qui fixe `memberIds` d'après
+  l'historique des adhésions à la date de l'étape.
 - **Fin** : un membre arrivé après une étape n'en reçoit pas la part
   (intégration).
 
@@ -543,15 +568,28 @@ actes. Puis LinkMusician s'ouvre au public.
 
 ### P3-11 — Morceau minimal
 
-- **Dépend de** : P3-01 ; **D20** (modèle) tranchée.
+- **Dépend de** : P3-01 ; D20 et **D35** (modèle et barème, tranchés
+  le 06/11/2026).
 - **Tâches** : `Work` (titre, état, genres, porteur : personne ou
-  groupe), `WorkContributor` (rôle, confirmation), maquette rattachée
+  groupe), `WorkContributor` (rôles : instrument du référentiel,
+  composition, paroles, arrangement ; confirmation), maquette rattachée
   (média) ; fiche morceau avec **rôles à pourvoir** et bouton
-  « Recruter » (annonce ciblée) ; états idée → composé ; événements
-  `work.composed`, `work.credit_confirmed` et règles d'XP ; l'étape
-  « Première composition » s'appuie sur un morceau composé ; RGPD.
-- **Fin** : un morceau passe « composé » quand ≥2 contributeurs ont
-  confirmé et qu'une maquette est jointe (unitaire, e2e).
+  « Recruter » (annonce ciblée) ; états idée → composé : **seul·e**, une
+  maquette suffit (déclaré, sans XP) ; **à plusieurs**, ≥2 rôles
+  confirmés et une maquette (corroboré) ; une idée n'est visible que de
+  son équipe, un morceau composé apparaît sur le profil ou la page de
+  groupe ; événement `work.composed` et règle pure : 150 XP par
+  contributeur confirmé, une fois par morceau, × rendement décroissant
+  par paire × confiance (comme `collaborationCompleted`), part versée à
+  qui confirme plus tard ; persona de calibrage « deux ami·es qui
+  enchaînent les morceaux » ; l'étape « Première composition » s'appuie
+  sur un morceau composé du groupe ; RGPD. Pas de `Collaboration.workId`
+  ni de `WorkPitch` (phase 4).
+- **Fin** : seul·e avec une maquette, le morceau est composé sans XP ;
+  à plusieurs, il passe « composé » quand ≥2 contributeurs ont confirmé
+  et qu'une maquette est jointe, et chacun reçoit sa part ; un 4ᵉ
+  morceau avec la même personne ne rapporte rien (unitaires) ; une idée
+  n'est pas visible hors de l'équipe (intégration) ; e2e.
 
 ### P3-12 — Ambition et écran de carrière
 
@@ -572,8 +610,10 @@ actes. Puis LinkMusician s'ouvre au public.
   franchies, suivantes dans le brouillard), calculées depuis les
   preuves et les rangs, **jamais depuis l'XP** ; affichage de la carte ;
   célébration d'épreuve (P2-11) ; déblocages réels de l'acte I et II.
-- **Fin** : un jam confirmé franchit l'acte I ; un morceau composé
-  l'acte II (unitaires et e2e).
+- **Fin** : une jam où l'on a reçu une appréciation (ou une
+  collaboration confirmée) franchit l'acte I ; un morceau composé à
+  plusieurs l'acte II, pas un morceau composé seul·e (unitaires et
+  e2e).
 
 ### P3-14 — Fiche de carrière et cartes souvenirs
 

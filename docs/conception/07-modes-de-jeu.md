@@ -71,16 +71,18 @@ chez lui et sortir un titre sans groupe. La carte montre ce qui est
 
 **Acte I — La rencontre.** On répond à une annonce, on écrit, on joue
 ensemble. Quêtes : « Réponds à une annonce », « Fais ton premier jam »,
-« Joue avec 3 personnes différentes ». Épreuve : un jam confirmé des deux
-côtés.
+« Joue avec 3 personnes différentes ». Épreuve : une jam où l'on était
+et où l'on a reçu une appréciation (D27, D36), ou une collaboration
+confirmée des deux côtés.
 
 **Acte II — La création.** On compose, on forme un groupe, on répète, on
 publie une maquette. On apprend aussi le métier : la plateforme guide
 vers le dépôt des œuvres à la SACEM et le partage des rôles de
 composition, sans jamais le gérer elle-même (06 §4.4). Quêtes :
 « Crée ton premier morceau », « Recrute un·e chanteur·se » (quête émise),
-« Première répète corroborée ». Épreuve : un morceau composé, rôles
-confirmés.
+« Première répète corroborée ». Épreuve : un morceau composé à
+plusieurs, rôles confirmés (corroboré, D35) ; composé seul·e, il compte
+pour les quêtes, pas pour l'épreuve.
 
 **Acte III — Le studio.** On cherche un ingé son, on réserve un studio,
 on enregistre, on mixe, on masterise. Quêtes : « Trouve ton ingé son »,

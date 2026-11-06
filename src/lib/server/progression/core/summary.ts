@@ -18,7 +18,8 @@ export const EMPTY_MUSICIAN_SUMMARY: MusicianSummary = {
 	distinctCollaborators: 0,
 	corroboratedGigs: 0,
 	verifiedReleases: 0,
-	distinctEndorsers: 0
+	distinctEndorsers: 0,
+	jamAppreciations: 0
 };
 
 /**
@@ -38,6 +39,9 @@ export function musicianSummary(actorId: string, events: readonly DomainEvent[])
 	const collaborators = new Set<string>();
 	/** Appréciations actives par endosseur : reçues moins reprises (P2-07). */
 	const endorsers = new Map<string, number>();
+	/** Appréciations reçues après une jam, et événements repris (ordre de lecture quelconque). */
+	const jamAppreciations = new Set<string>();
+	const revokedEvents = new Set<string>();
 	const gigs = new Set<string>();
 	const releases = new Set<string>();
 
@@ -63,11 +67,13 @@ export function musicianSummary(actorId: string, events: readonly DomainEvent[])
 			case 'endorsement.received':
 				if (event.actorId === actorId && event.endorserId !== actorId) {
 					endorsers.set(event.endorserId, (endorsers.get(event.endorserId) ?? 0) + 1);
+					if (event.jamId) jamAppreciations.add(event.id);
 				}
 				break;
 			case 'endorsement.revoked':
 				if (event.actorId === actorId) {
 					endorsers.set(event.endorserId, (endorsers.get(event.endorserId) ?? 0) - 1);
+					revokedEvents.add(event.endorsementEventId);
 				}
 				break;
 			case 'milestone.attested':
@@ -92,6 +98,7 @@ export function musicianSummary(actorId: string, events: readonly DomainEvent[])
 		distinctCollaborators: collaborators.size,
 		corroboratedGigs: gigs.size,
 		verifiedReleases: releases.size,
-		distinctEndorsers: [...endorsers.values()].filter((n) => n > 0).length
+		distinctEndorsers: [...endorsers.values()].filter((n) => n > 0).length,
+		jamAppreciations: [...jamAppreciations].filter((id) => !revokedEvents.has(id)).length
 	};
 }

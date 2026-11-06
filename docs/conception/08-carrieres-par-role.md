@@ -21,7 +21,7 @@ s'appliquent partout (02 §6).
 | Musicien·ne : barème et rangs                          | **Décidé** et calibré par personas                                                                                             | 02 §2.2, §5            |
 | Groupe : étapes, preuves, rangs                        | **Décidé** (phase 3)                                                                                                           | 02 §2.2, §4, §5        |
 | Autres métiers : rangs                                 | **Décidé** pour producteur, ingé son, studio, organisateur, manager, booker, label ; _(proposé)_ pour éditeur et communication | 02 §5, 06 §3           |
-| Chaîne d'un morceau (D20)                              | **Principe acquis**, modèle à valider avant la phase 3                                                                         | 06 §4                  |
+| Chaîne d'un morceau (D20)                              | **Principe acquis**, morceau minimal tranché (D35, 06/11/2026)                                                                 | 06 §4                  |
 | Modes de jeu carrière et jam (D21)                     | **Principe acquis**, mécaniques _(proposées)_                                                                                  | 07                     |
 | Carrière détaillée par rôle                            | _(proposé)_ : ce document                                                                                                      | 08                     |
 | Barèmes des autres métiers                             | **À calibrer** par personas au début de leur phase                                                                             | 06 §6                  |
