@@ -4,18 +4,17 @@ import { APP_NAV, NAV_BY_MODE, isActive, modeFor } from './nav';
 const item = (href: string) => APP_NAV.find((i) => i.href === href)!;
 
 describe('navigation de l’espace', () => {
-	it('carrière : cinq entrées', () => {
+	it('carrière : quatre onglets, messages dans les actions de l’en-tête', () => {
 		expect(NAV_BY_MODE.CAREER.map((i) => i.label)).toEqual([
 			'Mon parcours',
 			'Découvrir',
 			'Annonces',
-			'Messages',
 			'Profil'
 		]);
 	});
 
-	it('jam : simple, quatre entrées', () => {
-		expect(NAV_BY_MODE.JAM.map((i) => i.label)).toEqual(['Jam', 'Découvrir', 'Messages', 'Profil']);
+	it('jam : trois onglets, messages dans les actions de l’en-tête', () => {
+		expect(NAV_BY_MODE.JAM.map((i) => i.label)).toEqual(['Jam', 'Découvrir', 'Profil']);
 	});
 
 	it.each([

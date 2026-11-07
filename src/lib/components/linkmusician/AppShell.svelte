@@ -5,13 +5,13 @@
 	 * (profil `/@handle`, médias). Ordinateur : onglets en haut. Mobile : bande
 	 * du haut et barre d'onglets en bas. Les onglets suivent le **mode de jeu**,
 	 * et la pastille du haut ramène au menu `/jouer` pour en changer. La
-	 * cloche (P2-09a) mène à `/notifications` ; les deux pastilles sont
+	 * icônes Messages et Notifications sont à droite ; leurs pastilles sont
 	 * relues à chaque navigation et toutes les 60 s quand l'onglet est visible.
 	 */
 	import '#lib/linkmusician/theme.css';
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
-	import { ArrowLeftRight, Bell, Guitar, Trophy } from 'lucide-svelte';
+	import { ArrowLeftRight, Bell, Guitar, MessageCircle, Trophy } from 'lucide-svelte';
 	import { badgeLabel } from '#lib/notifications/types';
 	import { NAV_BY_MODE, isActive, modeFor } from '#lib/linkmusician/nav';
 	import { PLAY_MODE_INFO, type PlayModeValue } from '#lib/linkmusician/modes';
@@ -79,11 +79,9 @@
 	});
 </script>
 
-{#snippet badge(small: boolean)}
+{#snippet badge()}
 	{#if messages > 0}<span
-			class={small
-				? 'absolute -top-1.5 -right-2.5 min-w-4 rounded-full bg-fuchsia-600 px-1 text-center text-[10px] leading-4 font-bold text-white'
-				: 'rounded-full bg-fuchsia-600 px-1.5 text-[11px] font-bold text-white'}
+			class="absolute -top-1.5 -right-2.5 min-w-4 rounded-full bg-fuchsia-600 px-1 text-center text-[10px] leading-4 font-bold text-white"
 			aria-label="{messages} non lu{messages > 1 ? 's' : ''}">{badgeLabel(messages)}</span
 		>{/if}
 {/snippet}
@@ -122,13 +120,23 @@
 							>
 								<item.icon class="size-4" aria-hidden="true" />
 								{item.label}
-								{#if item.href === '/messages'}{@render badge(false)}{/if}
 							</a>
 						</li>
 					{/each}
 				</ul>
 			</nav>
 			<div class="ml-auto flex shrink-0 items-center gap-1">
+				<a
+					href="/messages"
+					class="relative inline-flex size-11 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+					aria-current={page.url.pathname.startsWith('/messages') ? 'page' : undefined}
+					aria-label={messages > 0
+						? `Messages : ${messages} non lu${messages > 1 ? 's' : ''}`
+						: 'Messages'}
+				>
+					<MessageCircle class="size-5" aria-hidden="true" />
+					{@render badge()}
+				</a>
 				<a
 					href="/notifications"
 					class="relative inline-flex size-11 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
@@ -172,7 +180,6 @@
 					>
 						<span class="relative">
 							<item.icon class="size-5" aria-hidden="true" />
-							{#if item.href === '/messages'}{@render badge(true)}{/if}
 						</span>
 						<span class="max-w-full truncate">{item.label}</span>
 					</a>
