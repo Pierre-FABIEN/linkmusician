@@ -59,18 +59,18 @@
 
 <SEO title="Mon profil musical" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-8 rounded-lg border p-6 shadow-lg backdrop-blur-3xl">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-7xl space-y-8 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
 		<div>
 			<a href="/espace" class="text-sm text-muted-foreground underline">← Mon espace</a>
-			<h1 class="mt-2 text-2xl font-bold">Mon profil musical</h1>
+			<h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Mon profil musical</h1>
 			<p class="text-sm text-muted-foreground">
 				Ce que tu joues, à quel niveau, et ce qui t'inspire. Les niveaux sont déclarés : ils
 				s'affichent toujours avec la mention « déclaré ».
 			</p>
 		</div>
 
-		<form method="POST" use:enhance class="space-y-10">
+		<form method="POST" use:enhance class="grid gap-y-10 lg:grid-cols-2 lg:gap-x-8">
 			<!-- Instruments -->
 			<section aria-labelledby="instruments-title" class="space-y-3">
 				<h2 id="instruments-title" class="text-lg font-semibold">
@@ -79,7 +79,7 @@
 					>
 				</h2>
 
-				<ul class="space-y-3">
+				<ul class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
 					{#each $form.instruments as played, index (played.instrumentId)}
 						{@const name = instrumentNames.get(played.instrumentId) ?? '?'}
 						<li class="space-y-2 rounded-lg border p-3">
@@ -193,7 +193,7 @@
 			</section>
 
 			<!-- Influences -->
-			<section class="space-y-2">
+			<section class="space-y-2 lg:col-span-2">
 				<label for="influences" class="block text-lg font-semibold">Influences</label>
 				<p class="text-sm text-muted-foreground">
 					Artistes, albums, courants : une influence par ligne, {MAX_INFLUENCES} au maximum.
@@ -210,7 +210,7 @@
 				{/if}
 			</section>
 
-			<Button type="submit" class="w-full" disabled={$submitting}>Enregistrer</Button>
+			<Button type="submit" class="w-full lg:col-span-2" disabled={$submitting}>Enregistrer</Button>
 		</form>
 	</div>
 </div>

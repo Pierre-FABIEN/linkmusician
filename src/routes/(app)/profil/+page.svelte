@@ -43,11 +43,11 @@
 
 <SEO title="Mon profil" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-8 rounded-lg border p-6 shadow-lg backdrop-blur-3xl">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-5xl space-y-8 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
 		<div>
 			<a href="/espace" class="text-sm text-muted-foreground underline">← Mon espace</a>
-			<h1 class="mt-2 text-2xl font-bold">Mon profil</h1>
+			<h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Mon profil</h1>
 			<p class="text-sm text-muted-foreground">
 				Tout est déclaratif et facultatif. Instruments, genres et influences :
 				<a href="/profil/musical" class="underline">Mon profil musical</a>. Ta commune :
@@ -79,22 +79,25 @@
 			<fieldset class="space-y-2">
 				<legend class="text-lg font-semibold">Statut</legend>
 				<p class="text-sm text-muted-foreground">Affiché avec la mention « déclaré ».</p>
-				{#each PRO_STATUSES as status (status)}
-					<label class="flex cursor-pointer items-start gap-2 rounded-lg border p-3">
-						<input
-							type="radio"
-							name="proStatus"
-							value={status}
-							class="mt-1 size-4"
-							bind:group={$form.proStatus}
-						/>
-						<span>
-							<span class="font-medium">{PRO_STATUS_INFO[status].label}</span>
-							<span class="block text-sm text-muted-foreground">{PRO_STATUS_INFO[status].hint}</span
-							>
-						</span>
-					</label>
-				{/each}
+				<div class="grid gap-2 sm:grid-cols-2">
+					{#each PRO_STATUSES as status (status)}
+						<label class="flex cursor-pointer items-start gap-2 rounded-lg border p-3">
+							<input
+								type="radio"
+								name="proStatus"
+								value={status}
+								class="mt-1 size-4"
+								bind:group={$form.proStatus}
+							/>
+							<span>
+								<span class="font-medium">{PRO_STATUS_INFO[status].label}</span>
+								<span class="block text-sm text-muted-foreground"
+									>{PRO_STATUS_INFO[status].hint}</span
+								>
+							</span>
+						</label>
+					{/each}
+				</div>
 				<label class="flex cursor-pointer items-center gap-2 p-3 text-sm text-muted-foreground">
 					<input
 						type="radio"

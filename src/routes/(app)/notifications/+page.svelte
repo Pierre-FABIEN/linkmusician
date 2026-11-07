@@ -48,10 +48,10 @@
 
 <SEO title="Notifications" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-6">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-6xl space-y-6 lg:space-y-8">
 		<div class="flex items-center justify-between gap-3">
-			<h1 class="text-3xl font-black tracking-tight">Notifications</h1>
+			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Notifications</h1>
 			<a
 				href="/reglages#notifications"
 				class="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -77,7 +77,7 @@
 				>
 			</div>
 		{:else}
-			<ul class="space-y-2" aria-label="Notifications">
+			<ul class="grid gap-3 lg:grid-cols-2" aria-label="Notifications">
 				{#each data.notifications as n (n.id)}
 					{@const Icon = ICONS[n.type]}
 					<li>
