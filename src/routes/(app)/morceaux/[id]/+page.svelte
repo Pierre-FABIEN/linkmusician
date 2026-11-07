@@ -45,11 +45,13 @@
 
 <SEO title={work.title} noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-8">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-6xl space-y-8">
 		<div class="space-y-2">
 			<a href="/morceaux" class="text-sm text-muted-foreground underline">← Mes morceaux</a>
-			<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight break-words">
+			<h1
+				class="flex items-center gap-2 text-3xl font-black tracking-tight break-words sm:text-4xl"
+			>
 				<Music class="size-7 shrink-0" aria-hidden="true" />
 				{work.title}
 			</h1>
@@ -120,7 +122,7 @@
 		{#if work.manage && !composed}
 			<section class="space-y-4 rounded-2xl border bg-card p-4" aria-labelledby="compose-title">
 				<h2 id="compose-title" class="text-xl font-bold">Prêt à le déclarer composé ?</h2>
-				<ul class="space-y-2 text-sm">
+				<ul class="grid gap-2 text-sm sm:grid-cols-2">
 					<li class="flex items-center gap-2">
 						{#if work.demo && work.demo.status !== 'REJECTED'}
 							<Check class="size-4 text-primary" aria-hidden="true" />
@@ -238,7 +240,7 @@
 
 		<section class="space-y-3" aria-labelledby="credits-title">
 			<h2 id="credits-title" class="text-xl font-bold">Crédits</h2>
-			<ul class="space-y-2">
+			<ul class="grid gap-2 md:grid-cols-2">
 				{#each work.credits as c (c.id)}
 					<li
 						class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border bg-card p-4"
@@ -303,7 +305,7 @@
 						Il manque quelqu’un ? Ajoute le rôle, puis publie une annonce en un clic.
 					</p>
 				{:else}
-					<ul class="space-y-2">
+					<ul class="grid gap-2 md:grid-cols-2">
 						{#each work.openRoles as r (r.id)}
 							<li
 								class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border bg-card p-4"

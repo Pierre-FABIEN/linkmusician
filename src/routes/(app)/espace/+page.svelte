@@ -47,7 +47,7 @@
 			{/if}
 
 			<!-- En-tête : identité et progression -->
-			<Card.Root class="overflow-hidden pt-0">
+			<Card.Root class="overflow-hidden pt-0 {d.objectives[0] ? '' : 'lg:col-span-2'}">
 				<div class="h-24 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500"></div>
 				<Card.Content class="-mt-10 space-y-5">
 					<div

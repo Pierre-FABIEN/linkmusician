@@ -33,13 +33,13 @@
 
 <SEO title="Modifier {data.band.name}" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-8">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-6xl space-y-8 rounded-3xl border bg-card p-5 sm:p-8 lg:p-10">
 		<div class="space-y-2">
 			<a href="/groupes/{data.band.handle}" class="text-sm text-muted-foreground underline"
 				>← {data.band.name}</a
 			>
-			<h1 class="text-3xl font-black tracking-tight">Fiche du groupe</h1>
+			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Fiche du groupe</h1>
 			<p class="text-sm text-muted-foreground">
 				Ce que tout le monde voit sur
 				<a href="/@{data.band.handle}" class="underline">la page publique du groupe</a>. On

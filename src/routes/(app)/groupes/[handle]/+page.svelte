@@ -87,11 +87,11 @@
 
 <SEO title={band.name} noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-8">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-7xl space-y-8">
 		<div class="space-y-2">
 			<a href="/groupes" class="text-sm text-muted-foreground underline">← Mes groupes</a>
-			<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight">
+			<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight sm:text-4xl">
 				<UsersRound class="size-7" aria-hidden="true" />
 				{band.name}
 			</h1>
@@ -155,7 +155,7 @@
 		{#if manager && band.requests.length > 0}
 			<section class="space-y-3" aria-labelledby="requests-title">
 				<h2 id="requests-title" class="text-xl font-bold">Demandes pour rejoindre</h2>
-				<ul class="space-y-2">
+				<ul class="grid gap-2 md:grid-cols-2">
 					{#each band.requests as r (r.membershipId)}
 						<li
 							class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border bg-card p-4"
@@ -186,7 +186,7 @@
 
 		<section class="space-y-3" aria-labelledby="members-title">
 			<h2 id="members-title" class="text-xl font-bold">Membres</h2>
-			<ul class="space-y-2" aria-label="Membres actuels">
+			<ul class="grid gap-3 md:grid-cols-2" aria-label="Membres actuels">
 				{#each band.members as m (m.membershipId)}
 					<li class="space-y-2 rounded-2xl border bg-card p-4">
 						<div class="flex flex-wrap items-start justify-between gap-2">
@@ -259,7 +259,7 @@
 						Le parcours s’ouvre quand le groupe est formé : invitez un premier membre.
 					</p>
 				{:else}
-					<ol class="space-y-2" aria-label="Étapes du groupe">
+					<ol class="grid gap-3 xl:grid-cols-2" aria-label="Étapes du groupe">
 						{#each openSteps as def (def.key)}
 							{@const step = stepOf(def.key)}
 							{@const rule = proofRule(def.key)}
@@ -506,7 +506,7 @@
 						elle apparaît sur la page du groupe.
 					</p>
 				{:else}
-					<ul class="space-y-2">
+					<ul class="grid gap-3 sm:grid-cols-2">
 						{#each data.works as w (w.id)}
 							<li>
 								<a
@@ -570,7 +570,7 @@
 					>
 				</form>
 				{#if band.invitations.length > 0}
-					<ul class="space-y-2" aria-label="Invitations en attente">
+					<ul class="grid gap-2 sm:grid-cols-2" aria-label="Invitations en attente">
 						{#each band.invitations as i (i.membershipId)}
 							<li
 								class="flex items-center justify-between gap-2 rounded-2xl border bg-card px-4 py-2 text-sm"
@@ -590,7 +590,7 @@
 		{#if band.past.length > 0}
 			<section class="space-y-3" aria-labelledby="past-title">
 				<h2 id="past-title" class="text-xl font-bold">Ils et elles y ont joué</h2>
-				<ul class="space-y-1 text-sm" aria-label="Anciens membres">
+				<ul class="grid gap-x-6 gap-y-1 text-sm md:grid-cols-2" aria-label="Anciens membres">
 					{#each band.past as m (m.membershipId)}
 						<li>
 							{#if m.handle}
