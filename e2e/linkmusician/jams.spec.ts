@@ -64,10 +64,17 @@ test.describe('LinkMusician — jams publiques', () => {
 			).actorId;
 
 			await test.step('1. La jam du lieu voisin est dans le mode jam', async () => {
+				const viewport = page.viewportSize();
+				await page.setViewportSize({ width: 320, height: 800 });
 				await page.goto('/jam');
 				await waitForAppReady(page);
 				await expect(page.getByRole('button', { name: 'Mois précédent' })).toBeVisible();
 				await expect(page.getByRole('button', { name: 'Mois suivant' })).toBeVisible();
+				const calendarPanel = page.locator('#jams > .grid > div').first();
+				expect(
+					await calendarPanel.evaluate((element) => element.scrollWidth <= element.clientWidth)
+				).toBe(true);
+				if (viewport) await page.setViewportSize(viewport);
 				const list = page.getByRole('list', { name: 'Jams à venir' });
 				await list.getByRole('link', { name: /E2E Bœuf du Préau/ }).click();
 				await expect(page.getByRole('heading', { name: 'E2E Bœuf du Préau' })).toBeVisible();

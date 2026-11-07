@@ -269,8 +269,8 @@
 					<a href="/profil/ville" class="block pt-2 font-semibold underline">Indiquer ma ville</a>
 				</p>
 			{:else}
-				<div class="grid gap-4 lg:grid-cols-[minmax(18rem,0.9fr)_minmax(0,1.1fr)]">
-					<div class="space-y-3 rounded-3xl border bg-card p-3 shadow-sm sm:p-5">
+				<div class="grid gap-4 lg:grid-cols-[minmax(22rem,1.1fr)_minmax(0,1fr)]">
+					<div class="min-w-0 space-y-3 rounded-3xl border bg-card p-3 shadow-sm sm:p-5">
 						<div class="flex items-center gap-2 px-1 text-sm text-muted-foreground">
 							<span
 								class="inline-flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
@@ -286,7 +286,7 @@
 							weekStartsOn={1}
 							weekdayFormat="short"
 							calendarLabel="Calendrier des jams à venir"
-							class="mx-auto w-full max-w-sm rounded-2xl border bg-background p-3 [--cell-size:2.75rem]"
+							class="mx-auto w-full min-w-0 max-w-sm rounded-2xl border bg-background p-3 [--cell-size:2rem] lg:[--cell-size:2.75rem]"
 						>
 							{#snippet children({ months, weekdays })}
 								<Calendar.Header class="pb-2">
@@ -300,7 +300,7 @@
 											<Calendar.GridHead>
 												<Calendar.GridRow class="justify-around">
 													{#each weekdays as weekday (weekday)}
-														<Calendar.HeadCell class="w-11 text-center">
+														<Calendar.HeadCell class="w-8 text-center lg:w-11">
 															<span aria-hidden="true">{weekday.slice(0, 2)}</span>
 															<span class="sr-only">{weekday}</span>
 														</Calendar.HeadCell>
@@ -312,10 +312,10 @@
 													<Calendar.GridRow class="mt-1 justify-around">
 														{#each weekDates as date (date)}
 															{@const dateJams = jamsOn(date)}
-															<Calendar.Cell {date} month={month.value} class="size-11">
+															<Calendar.Cell {date} month={month.value} class="size-8 lg:size-11">
 																<Calendar.Day
 																	aria-label={calendarDayLabel(date)}
-																	class="relative size-11 rounded-xl font-semibold focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+																	class="relative size-8 rounded-xl font-semibold focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:size-11"
 																>
 																	{date.day}
 																	{#if dateJams.length > 0}
@@ -341,7 +341,7 @@
 						</p>
 					</div>
 
-					<div class="space-y-3" aria-labelledby="selected-jams-title">
+					<div class="min-w-0 space-y-3" aria-labelledby="selected-jams-title">
 						<div class="flex flex-wrap items-center justify-between gap-2">
 							<div>
 								<p class="text-sm text-muted-foreground">Sélection du calendrier</p>
