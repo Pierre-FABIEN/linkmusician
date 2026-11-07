@@ -60,6 +60,20 @@ test.describe('LinkMusician — recherche', () => {
 				await expect(card).toBeVisible();
 				await expect(card).toContainText('5 à 10 km · Blagnac');
 				await expect(results.getByText(bassist.displayName)).toHaveCount(0);
+				const initialViewport = page.viewportSize();
+				await page.setViewportSize({ width: 1440, height: 900 });
+				const filtersBox = await page.locator('form[method="GET"]').boundingBox();
+				const resultsBox = await results.boundingBox();
+				expect(filtersBox).not.toBeNull();
+				expect(resultsBox).not.toBeNull();
+				if (!filtersBox || !resultsBox)
+					throw new Error('Les filtres et les résultats doivent être visibles.');
+				expect(filtersBox.x).toBeLessThan(resultsBox.x);
+				await page.setViewportSize({ width: 320, height: 800 });
+				expect(
+					await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+				).toBe(true);
+				if (initialViewport) await page.setViewportSize(initialViewport);
 				// Bouton panier du boilerplate (boutique active en e2e), remontée n° 14.
 				await expectNoA11yViolations(page, ['.cartButton']);
 			});

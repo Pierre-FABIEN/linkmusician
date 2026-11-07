@@ -33,6 +33,20 @@ test.describe('LinkMusician — modes de jeu', () => {
 			await expect(page.getByRole('button', { name: /Mode jam/ })).toContainText(
 				'tes points montent'
 			);
+			const initialViewport = page.viewportSize();
+			await page.setViewportSize({ width: 1440, height: 900 });
+			const careerCard = await page.getByRole('button', { name: /Mode carrière/ }).boundingBox();
+			const jamCard = await page.getByRole('button', { name: /Mode jam/ }).boundingBox();
+			expect(careerCard).not.toBeNull();
+			expect(jamCard).not.toBeNull();
+			if (!careerCard || !jamCard) throw new Error('Les cartes de mode doivent être visibles.');
+			expect(careerCard.width).toBeGreaterThan(500);
+			expect(Math.abs(careerCard.y - jamCard.y)).toBeLessThan(2);
+			await page.setViewportSize({ width: 320, height: 800 });
+			expect(
+				await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+			).toBe(true);
+			if (initialViewport) await page.setViewportSize(initialViewport);
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 		});
 

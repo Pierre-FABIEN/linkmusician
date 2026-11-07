@@ -29,64 +29,68 @@
 
 <SEO title="Mon espace" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-5xl space-y-6">
-		{#if d.objectives[0]}
-			{@const o = d.objectives[0]}
-			<NextStep
-				index={Math.min(d.questProgress.done + 1, d.questProgress.total)}
-				total={d.questProgress.total}
-				title={o.label}
-				text={o.xp
-					? `Une étape réelle de ta carrière : environ ${o.xp} XP à la clé.`
-					: 'Une étape réelle de ta carrière, à franchir avec d’autres.'}
-				href={o.href ?? '/annonces'}
-				cta={o.href ? 'J’y vais' : 'Bientôt disponible'}
-			/>
-		{/if}
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
+		<div class="grid items-stretch gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+			{#if d.objectives[0]}
+				{@const o = d.objectives[0]}
+				<NextStep
+					index={Math.min(d.questProgress.done + 1, d.questProgress.total)}
+					total={d.questProgress.total}
+					title={o.label}
+					text={o.xp
+						? `Une étape réelle de ta carrière : environ ${o.xp} XP à la clé.`
+						: 'Une étape réelle de ta carrière, à franchir avec d’autres.'}
+					href={o.href ?? '/annonces'}
+					cta={o.href ? 'J’y vais' : 'Bientôt disponible'}
+				/>
+			{/if}
 
-		<!-- En-tête : identité et progression -->
-		<Card.Root class="overflow-hidden pt-0">
-			<div class="h-24 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500"></div>
-			<Card.Content class="-mt-10 space-y-5">
-				<div class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
-					<Avatar.Root class="size-20 border-4 border-background shadow-lg">
-						<Avatar.Fallback class="bg-violet-100 text-2xl font-bold text-violet-800"
-							>{initialsOf(data.person.displayName)}</Avatar.Fallback
-						>
-					</Avatar.Root>
-					<div class="min-w-0 flex-1">
-						<h1 class="text-2xl font-black tracking-tight">Salut {firstName} !</h1>
-						<p class="text-sm text-muted-foreground">{subtitle}</p>
+			<!-- En-tête : identité et progression -->
+			<Card.Root class="overflow-hidden pt-0">
+				<div class="h-24 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500"></div>
+				<Card.Content class="-mt-10 space-y-5">
+					<div
+						class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4"
+					>
+						<Avatar.Root class="size-20 border-4 border-background shadow-lg">
+							<Avatar.Fallback class="bg-violet-100 text-2xl font-bold text-violet-800"
+								>{initialsOf(data.person.displayName)}</Avatar.Fallback
+							>
+						</Avatar.Root>
+						<div class="min-w-0 flex-1">
+							<h1 class="text-2xl font-black tracking-tight">Salut {firstName} !</h1>
+							<p class="text-sm text-muted-foreground">{subtitle}</p>
+						</div>
+						{#if d.tier}<TierBadge {...d.tier} />{/if}
 					</div>
-					{#if d.tier}<TierBadge {...d.tier} />{/if}
-				</div>
-				<div class="flex items-center gap-4">
-					<LevelBadge level={d.level} />
-					<div class="flex-1">
-						<XpBar
-							level={d.level}
-							xp={d.xp}
-							xpIntoLevel={d.xpIntoLevel}
-							xpForNextLevel={d.xpForNextLevel}
-						/>
+					<div class="flex items-center gap-4">
+						<LevelBadge level={d.level} />
+						<div class="flex-1">
+							<XpBar
+								level={d.level}
+								xp={d.xp}
+								xpIntoLevel={d.xpIntoLevel}
+								xpForNextLevel={d.xpForNextLevel}
+							/>
+						</div>
 					</div>
-				</div>
-				<div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-					{#if data.hidden}
-						<span class="flex items-center gap-1 text-muted-foreground"
-							><EyeOff class="size-4" aria-hidden="true" /> Profil public masqué</span
-						>
-					{:else}
-						<a href="/@{data.person.handle}" class="underline">Voir mon profil public</a>
-					{/if}
-					<a href="/profil" class="underline">Mon profil</a>
-					<a href="/profil/musical" class="underline">Mon profil musical</a>
-					<a href="/profil/medias" class="underline">Mes médias</a>
-					<a href="/reglages" class="underline">Réglages</a>
-				</div>
-			</Card.Content>
-		</Card.Root>
+					<div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+						{#if data.hidden}
+							<span class="flex items-center gap-1 text-muted-foreground"
+								><EyeOff class="size-4" aria-hidden="true" /> Profil public masqué</span
+							>
+						{:else}
+							<a href="/@{data.person.handle}" class="underline">Voir mon profil public</a>
+						{/if}
+						<a href="/profil" class="underline">Mon profil</a>
+						<a href="/profil/musical" class="underline">Mon profil musical</a>
+						<a href="/profil/medias" class="underline">Mes médias</a>
+						<a href="/reglages" class="underline">Réglages</a>
+					</div>
+				</Card.Content>
+			</Card.Root>
+		</div>
 
 		{#if data.toConfirm.length > 0}
 			<section
@@ -110,53 +114,55 @@
 			</section>
 		{/if}
 
-		<a
-			href="/groupes"
-			class="flex min-h-11 items-center justify-between gap-3 rounded-2xl border bg-card p-4 hover:bg-muted"
-		>
-			<span class="flex items-center gap-2 font-semibold">
-				<UsersRound class="size-5" aria-hidden="true" /> Mes groupes
-			</span>
-			<span class="text-sm text-muted-foreground">
-				{#if data.bands.invitations > 0}
-					<span class="font-semibold text-primary"
-						>{plural(data.bands.invitations, 'invitation', 'invitations')} à voir</span
-					>
-				{:else if data.bands.active > 0}
-					{plural(data.bands.active, 'groupe')}
-				{:else}
-					Monter ou rejoindre un groupe
-				{/if}
-			</span>
-		</a>
+		<div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+			<a
+				href="/groupes"
+				class="flex min-h-24 flex-col items-start justify-between gap-3 rounded-2xl border bg-card p-5 transition hover:-translate-y-0.5 hover:border-primary hover:bg-muted hover:shadow-sm"
+			>
+				<span class="flex items-center gap-2 font-semibold">
+					<UsersRound class="size-5" aria-hidden="true" /> Mes groupes
+				</span>
+				<span class="text-sm text-muted-foreground">
+					{#if data.bands.invitations > 0}
+						<span class="font-semibold text-primary"
+							>{plural(data.bands.invitations, 'invitation', 'invitations')} à voir</span
+						>
+					{:else if data.bands.active > 0}
+						{plural(data.bands.active, 'groupe')}
+					{:else}
+						Monter ou rejoindre un groupe
+					{/if}
+				</span>
+			</a>
 
-		<a
-			href="/morceaux"
-			class="flex min-h-11 items-center justify-between gap-3 rounded-2xl border bg-card p-4 hover:bg-muted"
-		>
-			<span class="flex items-center gap-2 font-semibold">
-				<Music class="size-5" aria-hidden="true" /> Mes morceaux
-			</span>
-			<span class="text-sm text-muted-foreground">
-				{#if data.workCredits > 0}
-					<span class="font-semibold text-primary"
-						>{plural(data.workCredits, 'crédit', 'crédits')} à confirmer</span
-					>
-				{:else}
-					Noter une idée de morceau
-				{/if}
-			</span>
-		</a>
+			<a
+				href="/morceaux"
+				class="flex min-h-24 flex-col items-start justify-between gap-3 rounded-2xl border bg-card p-5 transition hover:-translate-y-0.5 hover:border-primary hover:bg-muted hover:shadow-sm"
+			>
+				<span class="flex items-center gap-2 font-semibold">
+					<Music class="size-5" aria-hidden="true" /> Mes morceaux
+				</span>
+				<span class="text-sm text-muted-foreground">
+					{#if data.workCredits > 0}
+						<span class="font-semibold text-primary"
+							>{plural(data.workCredits, 'crédit', 'crédits')} à confirmer</span
+						>
+					{:else}
+						Noter une idée de morceau
+					{/if}
+				</span>
+			</a>
 
-		<a
-			href="/decouvrir"
-			class="flex min-h-11 items-center justify-between gap-3 rounded-2xl border bg-card p-4 hover:bg-muted"
-		>
-			<span class="flex items-center gap-2 font-semibold">
-				<Search class="size-5" aria-hidden="true" /> Trouver des musicien·nes
-			</span>
-			<span class="text-sm text-muted-foreground">Près de chez toi, à ton niveau</span>
-		</a>
+			<a
+				href="/decouvrir"
+				class="flex min-h-24 flex-col items-start justify-between gap-3 rounded-2xl border bg-card p-5 transition hover:-translate-y-0.5 hover:border-primary hover:bg-muted hover:shadow-sm"
+			>
+				<span class="flex items-center gap-2 font-semibold">
+					<Search class="size-5" aria-hidden="true" /> Trouver des musicien·nes
+				</span>
+				<span class="text-sm text-muted-foreground">Près de chez toi, à ton niveau</span>
+			</a>
+		</div>
 
 		<div class="grid gap-6 lg:grid-cols-3">
 			<!-- Objectifs -->

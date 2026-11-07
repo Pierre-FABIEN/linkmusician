@@ -14,9 +14,9 @@
 
 <SEO title={info.label} noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<section
-		class="mx-auto flex max-w-lg flex-col gap-6 rounded-3xl p-6 text-white shadow-xl {data.mode ===
+		class="mx-auto flex max-w-3xl flex-col gap-6 rounded-3xl p-6 text-white shadow-xl sm:p-8 lg:gap-8 lg:p-10 {data.mode ===
 		'JAM'
 			? 'bg-gradient-to-br from-orange-600 to-pink-600'
 			: 'bg-gradient-to-br from-violet-700 to-fuchsia-600'}"
@@ -38,10 +38,16 @@
 			{/each}
 		</ol>
 
-		<div class="lm-pop min-h-40 space-y-3" role="group" aria-roledescription="étape">
+		<div
+			class="lm-pop min-h-40 space-y-3 lg:min-h-48 lg:space-y-4"
+			role="group"
+			aria-roledescription="étape"
+		>
 			{#key step}
-				<h1 id="intro-title" class="text-3xl font-black tracking-tight">{current.title}</h1>
-				<p class="text-lg leading-relaxed text-white/95">{current.text}</p>
+				<h1 id="intro-title" class="text-3xl font-black tracking-tight sm:text-4xl">
+					{current.title}
+				</h1>
+				<p class="text-lg leading-relaxed text-white/95 lg:text-xl">{current.text}</p>
 				{#if last && data.firstStep}
 					<p class="rounded-2xl bg-black/20 p-4 font-semibold">
 						Ta première étape : {data.firstStep}

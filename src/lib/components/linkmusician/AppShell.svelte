@@ -89,8 +89,8 @@
 {/snippet}
 
 <div class="lm-app">
-	<header class="w-screen px-4 pt-[max(1rem,env(safe-area-inset-top))] md:pt-6">
-		<div class="mx-auto flex max-w-5xl items-center gap-3">
+	<header class="w-full px-4 pt-[max(1rem,env(safe-area-inset-top))] md:pt-6">
+		<div class="mx-auto flex max-w-7xl items-center gap-3">
 			<a
 				href="/jouer"
 				class="shrink-0 bg-[image:var(--lm-gradient)] bg-clip-text text-xl font-black text-transparent italic uppercase"
