@@ -66,6 +66,8 @@ test.describe('LinkMusician — jams publiques', () => {
 			await test.step('1. La jam du lieu voisin est dans le mode jam', async () => {
 				await page.goto('/jam');
 				await waitForAppReady(page);
+				await expect(page.getByRole('button', { name: 'Mois précédent' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Mois suivant' })).toBeVisible();
 				const list = page.getByRole('list', { name: 'Jams à venir' });
 				await list.getByRole('link', { name: /E2E Bœuf du Préau/ }).click();
 				await expect(page.getByRole('heading', { name: 'E2E Bœuf du Préau' })).toBeVisible();

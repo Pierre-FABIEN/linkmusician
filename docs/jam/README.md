@@ -16,7 +16,7 @@ Jouer pour le plaisir et rencontrer, sans projet ni engagement.
   dispo (ou repérer une jam, pour les mineur·es) → écrire à quelqu'un →
   confirmer la jam (points) → passer en mode carrière.
 - **`/jam`** : « Je suis dispo », les dispos autour de soi, les jams
-  ouvertes (annonces de type jam), « Lancer une jam ».
+  ouvertes dans un calendrier mensuel, « Lancer une jam ».
 
 ## « Je suis dispo » (P2-13)
 
@@ -91,6 +91,9 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   style, places), `/jams/[id]` (« Je viens »), jams à venir sur `/jam` et
   sur la fiche du lieu (« Publier une jam ici »). Les annonces ne
   proposent plus le type Jam (`/annonces/nouvelle?type=JAM` redirige).
+- **Calendrier** : le calendrier accessible sur `/jam` repère les jours
+  contenant des jams dans le fuseau de Paris. Sélectionner une date affiche
+  ses événements ; les jours marqués sont aussi annoncés par lecteur d'écran.
 - **RGPD** : « Je viens » dans l'export (`jams_je_viens`), supprimés à
   l'anonymisation.
 

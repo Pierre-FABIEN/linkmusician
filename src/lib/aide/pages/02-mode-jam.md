@@ -48,6 +48,10 @@ Les **jams à venir** autour de toi s’affichent sur l’accueil : le lieu,
 le jour, l’heure, le style, et les **places** encore ouvertes (« il
 manque une batterie et une voix »).
 
+Le **calendrier** met un point sous les jours où une jam est prévue. Choisis
+un jour pour afficher ses jams ; les flèches changent de mois. Tu peux aussi
+parcourir les jours au clavier avec les flèches du clavier.
+
 1. Ouvre une jam pour voir sa fiche : la formation, et **ce que tu dois
    apporter** selon ton instrument (« Apporte ta basse et tes câbles. Sur
    place : l’ampli basse. »).

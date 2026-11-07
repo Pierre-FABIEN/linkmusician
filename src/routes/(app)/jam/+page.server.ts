@@ -17,6 +17,7 @@ import { jamNextStep } from '#lib/jam/guide';
 import { venuesNear } from '#lib/server/venues/service';
 import { myJamInvites, upcomingJamsNear } from '#lib/server/jam/publicJams';
 import { myRecentJams } from '#lib/server/jam/afterJam';
+import { parisDayKey } from '#lib/jam/calendar';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -70,6 +71,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		jams,
 		invites,
 		recent,
+		calendarDate: parisDayKey(jams[0]?.startsAt ?? new Date()),
 		venues: nearbyVenues,
 		nextStep
 	};
