@@ -628,6 +628,27 @@ actes. Puis LinkMusician s'ouvre au public.
 - **Fin** : la fiche publique ne contient ni XP ni confiance (test du
   payload) ; l'image se génère.
 
+### P3-15 — Guide des démarches
+
+- **Dépend de** : P2-17, P3-04, P3-11.
+- **Décisions** : D42 (périmètre, relecture, responsabilité du contenu).
+- **Conception** : [09-demarches.md](../conception/09-demarches.md).
+- **P3-15a — Fiches et déclencheurs** : `/demarches` et
+  `/demarches/[fiche]` ; les fiches du lancement (protéger un morceau,
+  écrire à plusieurs, première démo et déclaration des œuvres, premier
+  concert et programme des œuvres, être payé·e pour un concert, jouer
+  gratuitement, l'association du groupe, les mineur·es sur scène) ; une
+  phrase et un lien là où la question se pose (09 §3), une à la fois,
+  « J'ai compris » ; contenu versionné avec sources et date de
+  vérification.
+- **P3-15b — Documents préremplis** : bulletin de partage d'un morceau
+  (crédits confirmés et rôles, parts à saisir et à signer à la main) ;
+  programme des œuvres d'un concert (morceaux composés du groupe).
+- **Fin** : chaque fiche a ses sources officielles, un « en bref » et une
+  date de vérification de moins d'un an (test) ; fiches relues par
+  quelqu'un du métier avant l'ouverture ; e2e « je télécharge le bulletin
+  de partage de notre morceau ».
+
 ### P3-10a — Audit de sécurité avant production
 
 - **Dépend de** : tous les lots du lancement (D28). **Bloquant** pour
