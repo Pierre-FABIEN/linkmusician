@@ -1,6 +1,6 @@
 # 09 — Les démarches : guider et tout expliquer
 
-> Rédigé le 07/11/2026, après P3-04. Statut : **proposé** (D42). Les faits
+> Rédigé le 07/11/2026, après P3-04. Statut : **accepté** (D42, 07/11/2026). Les faits
 > juridiques ci-dessous sont des repères pour cadrer le produit, pas le
 > contenu final des fiches : chacun sera revérifié sur la source officielle
 > avant publication (§5).
