@@ -4,24 +4,21 @@ import { APP_NAV, NAV_BY_MODE, isActive, modeFor } from './nav';
 const item = (href: string) => APP_NAV.find((i) => i.href === href)!;
 
 describe('navigation de l’espace', () => {
-	it('carrière : quatre onglets, messages dans les actions de l’en-tête', () => {
+	it('carrière : trois onglets, profil et messages dans les actions de l’en-tête', () => {
 		expect(NAV_BY_MODE.CAREER.map((i) => i.label)).toEqual([
 			'Mon parcours',
 			'Découvrir',
-			'Annonces',
-			'Profil'
+			'Annonces'
 		]);
 	});
 
-	it('jam : trois onglets, messages dans les actions de l’en-tête', () => {
-		expect(NAV_BY_MODE.JAM.map((i) => i.label)).toEqual(['Jam', 'Découvrir', 'Profil']);
+	it('jam : deux onglets, profil et messages dans les actions de l’en-tête', () => {
+		expect(NAV_BY_MODE.JAM.map((i) => i.label)).toEqual(['Jam', 'Découvrir']);
 	});
 
 	it.each([
 		['/espace', '/espace', true],
-		['/profil', '/profil/musical', true],
-		['/profil', '/reglages/metiers', true],
-		['/profil', '/profils', false],
+		['/espace', '/annonces', false],
 		['/espace', '/profil', false]
 	])('%s actif sur %s : %s', (href, path, expected) => {
 		expect(isActive(item(href), path)).toBe(expected);

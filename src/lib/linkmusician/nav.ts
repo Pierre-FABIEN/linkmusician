@@ -3,7 +3,7 @@
  * (P2-12b, D21) : en carrière on suit son parcours, en jam on joue et on
  * rencontre. Le mode se change depuis la pastille du haut (`/jouer`).
  */
-import { Compass, Guitar, Megaphone, Trophy, UserRound } from 'lucide-svelte';
+import { Compass, Guitar, Megaphone, Trophy } from 'lucide-svelte';
 import type { PlayModeValue } from './modes';
 
 export type AppNavItem = {
@@ -15,13 +15,6 @@ export type AppNavItem = {
 	match?: readonly string[];
 };
 
-const profile: AppNavItem = {
-	href: '/profil',
-	label: 'Profil',
-	icon: UserRound,
-	soon: false,
-	match: ['/reglages']
-};
 const discover: AppNavItem = { href: '/decouvrir', label: 'Découvrir', icon: Compass, soon: false };
 
 export const NAV_BY_MODE: Readonly<Record<PlayModeValue, readonly AppNavItem[]>> = {
@@ -35,14 +28,12 @@ export const NAV_BY_MODE: Readonly<Record<PlayModeValue, readonly AppNavItem[]>>
 			match: ['/groupes', '/morceaux']
 		},
 		discover,
-		{ href: '/annonces', label: 'Annonces', icon: Megaphone, soon: false },
-		profile
+		{ href: '/annonces', label: 'Annonces', icon: Megaphone, soon: false }
 	],
 	JAM: [
 		// L'annuaire des lieux (P2-14a) se rattache à l'onglet Jam.
 		{ href: '/jam', label: 'Jam', icon: Guitar, soon: false, match: ['/lieux', '/jams'] },
-		discover,
-		profile
+		discover
 	]
 };
 

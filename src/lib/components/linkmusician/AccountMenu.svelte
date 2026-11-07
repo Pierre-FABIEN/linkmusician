@@ -9,6 +9,7 @@
 	import * as DropdownMenu from '#shadcn/dropdown-menu';
 	import { buttonVariants } from '#shadcn/button';
 	import { enhance } from '$app/forms';
+	import { page } from '$app/state';
 	import { CircleUser } from 'lucide-svelte';
 
 	type AccountUser = {
@@ -38,6 +39,18 @@
 			<DropdownMenu.Item>
 				{#snippet child({ props })}
 					<a href="/espace" {...props}>Mon espace</a>
+				{/snippet}
+			</DropdownMenu.Item>
+			<DropdownMenu.Item>
+				{#snippet child({ props })}
+					<a
+						href="/profil"
+						{...props}
+						aria-current={page.url.pathname.startsWith('/profil') ||
+						page.url.pathname.startsWith('/reglages')
+							? 'page'
+							: undefined}>Mon profil</a
+					>
 				{/snippet}
 			</DropdownMenu.Item>
 			<DropdownMenu.Item>
