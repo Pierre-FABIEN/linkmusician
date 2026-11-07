@@ -57,40 +57,42 @@
 	</li>
 {/snippet}
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-6">
-		<h1 class="text-3xl font-black tracking-tight">Messages</h1>
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
+		<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Messages</h1>
 		<MessagesTabs current="conversations" />
 
 		<TipCard tip={data.tip} />
 
-		{#if data.requests.length > 0}
-			<section class="space-y-2" aria-labelledby="requests-title">
-				<h2 id="requests-title" class="font-semibold">
-					Demandes reçues ({data.requests.length})
-				</h2>
-				<ul class="space-y-2">
-					{#each data.requests as c (c.id)}{@render row(c, 'Premier message')}{/each}
-				</ul>
-			</section>
-		{/if}
-
-		<section class="space-y-2" aria-labelledby="conversations-title">
-			<h2 id="conversations-title" class="font-semibold">Conversations</h2>
-			{#if data.conversations.length === 0}
-				<div class="space-y-2 rounded-2xl border bg-card p-6 text-center">
-					<MessageCircle class="mx-auto size-6 text-primary" aria-hidden="true" />
-					<p class="font-semibold">Pas encore de conversation.</p>
-					<p class="text-sm text-muted-foreground">
-						Trouve quelqu'un avec qui jouer et écris-lui depuis son profil.
-					</p>
-					<a href="/decouvrir" class="inline-block pt-1 font-semibold underline">Découvrir</a>
-				</div>
-			{:else}
-				<ul class="space-y-2">
-					{#each data.conversations as c (c.id)}{@render row(c, status(c))}{/each}
-				</ul>
+		<div class="grid items-start gap-6 xl:grid-cols-2">
+			{#if data.requests.length > 0}
+				<section class="space-y-2" aria-labelledby="requests-title">
+					<h2 id="requests-title" class="font-semibold">
+						Demandes reçues ({data.requests.length})
+					</h2>
+					<ul class="space-y-2">
+						{#each data.requests as c (c.id)}{@render row(c, 'Premier message')}{/each}
+					</ul>
+				</section>
 			{/if}
-		</section>
+
+			<section class="space-y-2" aria-labelledby="conversations-title">
+				<h2 id="conversations-title" class="font-semibold">Conversations</h2>
+				{#if data.conversations.length === 0}
+					<div class="space-y-2 rounded-2xl border bg-card p-6 text-center">
+						<MessageCircle class="mx-auto size-6 text-primary" aria-hidden="true" />
+						<p class="font-semibold">Pas encore de conversation.</p>
+						<p class="text-sm text-muted-foreground">
+							Trouve quelqu'un avec qui jouer et écris-lui depuis son profil.
+						</p>
+						<a href="/decouvrir" class="inline-block pt-1 font-semibold underline">Découvrir</a>
+					</div>
+				{:else}
+					<ul class="space-y-2">
+						{#each data.conversations as c (c.id)}{@render row(c, status(c))}{/each}
+					</ul>
+				{/if}
+			</section>
+		</div>
 	</div>
 </div>

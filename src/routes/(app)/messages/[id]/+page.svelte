@@ -61,8 +61,8 @@
 
 <SEO title="Messages — {c.other.displayName}" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-4">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-5xl space-y-5 lg:space-y-6">
 		<header class="flex items-center gap-3">
 			<a
 				href="/messages"
@@ -248,7 +248,7 @@
 			</details>
 		{/if}
 
-		<ol class="space-y-2" aria-label="Messages">
+		<ol class="mx-auto w-full max-w-3xl space-y-2" aria-label="Messages">
 			{#each c.messages as m (m.id)}
 				<li class="flex {m.mine ? 'justify-end' : 'justify-start'}">
 					<div
@@ -278,7 +278,7 @@
 			<form
 				method="POST"
 				action="?/send"
-				class="flex items-end gap-2"
+				class="mx-auto flex w-full max-w-3xl items-end gap-2"
 				use:enhance={() => {
 					sending = true;
 					return async ({ result, update }) => {

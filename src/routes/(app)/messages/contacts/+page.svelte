@@ -22,9 +22,9 @@
 
 <SEO title="Contacts" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-6">
-		<h1 class="text-3xl font-black tracking-tight">Messages</h1>
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
+		<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Messages</h1>
 		<MessagesTabs current="contacts" />
 
 		{#if form?.error}
@@ -59,7 +59,7 @@
 				Bientôt, tu pourras ouvrir une discussion avec tout le groupe.
 			</p>
 			{#if data.groups.length > 0}
-				<ul class="space-y-2" aria-label="Groupes de contacts">
+				<ul class="grid gap-3 md:grid-cols-2" aria-label="Groupes de contacts">
 					{#each data.groups as g (g.id)}
 						<li class="space-y-2 rounded-2xl border bg-card p-4">
 							<div class="flex items-start justify-between gap-2">
@@ -159,7 +159,7 @@
 				<h2 id="carnet-title" class="flex items-center gap-2 text-xl font-bold">
 					<BookUser class="size-5" aria-hidden="true" /> Mon carnet ({data.contacts.length})
 				</h2>
-				<ul class="space-y-2" aria-label="Mon carnet">
+				<ul class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="Mon carnet">
 					{#each data.contacts as c (c.id)}
 						<li class="space-y-3 rounded-2xl border bg-card p-4">
 							<div class="flex flex-wrap items-start justify-between gap-2">

@@ -10,9 +10,9 @@
 
 <SEO title="Écrire à {data.recipient.displayName}" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-4">
-		<h1 class="text-2xl font-black">Écrire à {data.recipient.displayName}</h1>
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-4xl space-y-5">
+		<h1 class="text-3xl font-black sm:text-4xl">Écrire à {data.recipient.displayName}</h1>
 		<p class="text-sm text-muted-foreground">
 			C'est une demande : un seul message, jusqu'à ce que {data.recipient.displayName} l'accepte. Présente-toi
 			et dis ce que tu as envie de jouer.
@@ -27,7 +27,7 @@
 		{/if}
 		<form
 			method="POST"
-			class="space-y-3"
+			class="space-y-4 rounded-3xl border bg-card p-4 sm:p-6 lg:p-8"
 			use:enhance={() => {
 				sending = true;
 				return async ({ update }) => {

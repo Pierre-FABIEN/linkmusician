@@ -42,8 +42,8 @@
 
 <SEO title={o.title} noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<article class="mx-auto max-w-2xl space-y-5">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<article class="mx-auto max-w-5xl space-y-6 lg:space-y-8">
 		<a
 			href="/annonces"
 			class="inline-flex min-h-11 items-center gap-1 text-sm text-muted-foreground hover:underline"
@@ -55,7 +55,7 @@
 				<Badge variant="secondary">{OPPORTUNITY_KIND_INFO[o.kind].label}</Badge>
 				{#if o.status !== 'OPEN'}<Badge variant="outline">{STATUS_LABELS[o.status]}</Badge>{/if}
 			</div>
-			<h1 class="text-3xl font-black tracking-tight">{o.title}</h1>
+			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{o.title}</h1>
 			<p class="text-sm text-muted-foreground">
 				{o.issuer.isBand ? 'Le groupe' : 'par'}
 				<a href="/@{o.issuer.handle}" class="font-medium underline">{o.issuer.displayName}</a>
@@ -75,7 +75,9 @@
 			</li>
 		</ul>
 
-		<p class="whitespace-pre-line leading-relaxed">{o.description}</p>
+		<p class="max-w-4xl whitespace-pre-line text-base leading-relaxed sm:text-lg">
+			{o.description}
+		</p>
 
 		{#if conditions.length > 0}
 			<section class="rounded-2xl border bg-card p-4" aria-labelledby="conditions-title">
@@ -110,7 +112,7 @@
 						Pas encore de candidature. Les musicien·nes autour de toi la voient dans leurs annonces.
 					</p>
 				{:else}
-					<ul class="space-y-3" aria-label="Candidatures reçues">
+					<ul class="grid gap-3 lg:grid-cols-2" aria-label="Candidatures reçues">
 						{#each data.applications as a (a.id)}
 							<li class="space-y-2 rounded-2xl border bg-card p-4">
 								<div class="flex flex-wrap items-center justify-between gap-2">
