@@ -29,11 +29,11 @@
 
 <SEO title="Mon carnet de jams" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-8">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-7xl space-y-8">
 		<div class="space-y-2">
 			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
-			<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight">
+			<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight sm:text-4xl">
 				<BookHeart class="size-7" aria-hidden="true" /> Mon carnet de jams
 			</h1>
 			<p class="text-sm text-muted-foreground">
@@ -55,7 +55,7 @@
 				{/each}
 			</ul>
 
-			<ol class="space-y-4" aria-label="Jams du carnet">
+			<ol class="grid gap-4 lg:grid-cols-2" aria-label="Jams du carnet">
 				{#each data.entries as e (e.jamId)}
 					<li class="space-y-3 rounded-2xl border bg-card p-4">
 						<div>
@@ -104,7 +104,7 @@
 					Après une jam, touche « Garder le contact » sur les personnes avec qui tu veux rejouer.
 				</p>
 			{:else}
-				<ul class="grid gap-3 sm:grid-cols-2">
+				<ul class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
 					{#each data.network as n (n.handle)}
 						<li class="flex items-start justify-between gap-2 rounded-2xl border bg-card p-4">
 							<span>

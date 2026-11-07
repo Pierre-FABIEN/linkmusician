@@ -53,11 +53,11 @@
 
 <SEO title={jam.title} noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<article class="mx-auto max-w-2xl space-y-6">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<article class="mx-auto max-w-6xl space-y-6 lg:space-y-8">
 		<div class="space-y-2">
 			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
-			<h1 class="text-3xl font-black tracking-tight">{jam.title}</h1>
+			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{jam.title}</h1>
 			<p class="flex items-center gap-2">
 				<CalendarDays class="size-4" aria-hidden="true" />
 				{when.format(new Date(jam.startsAt))} → {hour.format(new Date(jam.endsAt))}
