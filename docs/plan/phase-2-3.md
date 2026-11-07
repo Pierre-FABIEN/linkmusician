@@ -630,7 +630,7 @@ actes. Puis LinkMusician s'ouvre au public.
 
 ### P3-16 — Carnet de contacts et discussions de groupe
 
-- **Dépend de** : P2-16, P3-05 (fait après, choix du 07/11/2026).
+- **Dépend de** : P2-16. Fait juste après P3-05 (choix du 07/11/2026).
 - **Décisions** : D44, D45.
 - **Idée** : aller à une jam sans connaître personne, en repartir avec des
   contacts qu'on recontacte par l'app, sans échanger son numéro. À mettre

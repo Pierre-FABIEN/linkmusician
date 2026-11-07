@@ -106,6 +106,10 @@ describe('qui peut confirmer', () => {
 		const hidden = 'Cette personne ne peut pas confirmer cette étape.';
 		expect(attesterBlocker({ ...base, role: 'OUTSIDER', blocked: true })).toBe(hidden);
 		expect(attesterBlocker({ ...base, role: 'OUTSIDER', minorUnknown: true })).toBe(hidden);
+		// Un membre du groupe : la raison est dite, elle ne révèle rien.
+		expect(
+			attesterBlocker({ ...base, role: 'OUTSIDER', everMember: true, minorUnknown: true })
+		).toMatch(/extérieure/);
 	});
 });
 

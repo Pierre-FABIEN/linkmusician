@@ -1,6 +1,7 @@
 import { test, expect } from '../support/fixtures';
 import { signUpAndVerify } from '../support/admin';
-import { db, requireUser } from '../support/db';
+import { makeAccount } from '../support/account';
+import { db, deleteUser, requireUser } from '../support/db';
 import { waitForAppReady } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
 import { skipOnboarding } from '../support/linkmusician';
@@ -10,6 +11,9 @@ import { skipOnboarding } from '../support/linkmusician';
  * concert (date et précision) ; il entre dans le parcours « déclaré », le
  * groupe gagne l'XP déclarée et j'en reçois une part ; un visiteur le voit
  * sur la page publique du groupe.
+ * P3-05 — Preuves : un membre du groupe ne peut pas corroborer le concert ;
+ * avec le lien de l'événement et la confirmation d'une personne extérieure,
+ * il devient « corroboré » et le groupe reçoit la différence d'XP.
  */
 test.describe('LinkMusician — étapes de groupe', () => {
 	test.setTimeout(3 * 60_000);
@@ -111,6 +115,137 @@ test.describe('LinkMusician — étapes de groupe', () => {
 			});
 		} finally {
 			await db.actor.deleteMany({ where: { handle: { in: [bandHandle, drummerHandle] } } });
+		}
+	});
+
+	test('une personne extérieure corrobore notre premier concert', async ({
+		page,
+		account,
+		browser
+	}) => {
+		const suffix = Math.random().toString(36).slice(2, 7);
+		const bandHandle = `e2e-preuves-${suffix}`;
+		const drummerHandle = `e2e-preuves-batterie-${suffix}`;
+		const friendAccount = makeAccount();
+		const friendContext = await browser.newContext();
+		const friendPage = await friendContext.newPage();
+		try {
+			await signUpAndVerify(page, account);
+			await skipOnboarding(page, account.email);
+			await signUpAndVerify(friendPage, friendAccount);
+			await skipOnboarding(friendPage, friendAccount.email);
+			const person = async (email: string) =>
+				db.person.findUniqueOrThrow({
+					where: { userId: (await requireUser(email)).id },
+					include: { actor: true }
+				});
+			const me = await person(account.email);
+			const friend = await person(friendAccount.email);
+
+			// Un groupe formé, avec son premier concert déclaré (P3-04 a son e2e).
+			const startedAt = new Date(Date.now() - 30 * 86_400_000);
+			await db.actor.create({
+				data: { kind: 'PERSON', handle: drummerHandle, displayName: `E2E Batteuse ${suffix}` }
+			});
+			const drummer = await db.actor.findUniqueOrThrow({ where: { handle: drummerHandle } });
+			const band = await db.actor.create({
+				data: {
+					kind: 'ORGANIZATION',
+					handle: bandHandle,
+					displayName: `E2E Les Preuves ${suffix}`,
+					organization: {
+						create: {
+							kind: 'BAND',
+							formedAt: startedAt,
+							memberships: {
+								create: [
+									{ personId: me.actorId, role: 'OWNER', status: 'ACTIVE', startedAt },
+									{ personId: drummer.id, role: 'MEMBER', status: 'ACTIVE', startedAt }
+								]
+							}
+						}
+					}
+				}
+			});
+			const gig = await db.milestone.create({
+				data: {
+					definitionId: 'FIRST_GIG',
+					bandId: band.id,
+					proof: 'DECLARED',
+					occurredAt: new Date('2026-06-21T12:00:00Z'),
+					note: 'Fête de la musique',
+					declaredById: me.actorId,
+					definitionVersion: 1
+				}
+			});
+			const bandXp = async () =>
+				(
+					await db.xpTransaction.aggregate({
+						where: { actorId: band.id, ruleId: 'milestone.band' },
+						_sum: { amount: true }
+					})
+				)._sum.amount ?? 0;
+
+			await test.step('1. Un membre du groupe ne peut pas corroborer le concert', async () => {
+				await page.goto(`/groupes/${bandHandle}`);
+				await waitForAppReady(page);
+				const proofs = page.getByRole('list', { name: 'Preuves : Premier concert' });
+				await expect(proofs).toContainText('Une personne hors du groupe qui y était confirme');
+				await page.getByRole('button', { name: 'Prouver : Premier concert' }).click();
+				await page.getByLabel('Une personne hors du groupe qui y était').fill(`@${drummerHandle}`);
+				await page.getByRole('button', { name: 'Demander de confirmer' }).click();
+				await expect(page.getByRole('alert')).toContainText('Il faut une personne extérieure');
+				expect((await db.milestone.findUniqueOrThrow({ where: { id: gig.id } })).proof).toBe(
+					'DECLARED'
+				);
+			});
+
+			await test.step('2. Je joins l’affiche et je demande à une amie qui y était', async () => {
+				await page
+					.getByLabel('Lien vers l’événement ou l’affiche')
+					.fill('https://www.instagram.com/p/affiche-fete-musique/');
+				await page.getByRole('button', { name: 'Ajouter le lien' }).click();
+				await expect(page.getByText('Lien ajouté.')).toBeVisible();
+				// Le panneau reste ouvert : on enchaîne avec la demande.
+				await db.actor.update({ where: { id: friend.actorId }, data: { trustLevel: 1 } });
+				await page
+					.getByLabel('Une personne hors du groupe qui y était')
+					.fill(`@${friend.actor.handle}`);
+				await page.getByRole('button', { name: 'Demander de confirmer' }).click();
+				await expect(
+					page.getByText(`Demande envoyée à ${friend.actor.displayName}.`)
+				).toBeVisible();
+				await expect(
+					page.getByRole('list', { name: 'Demandes et liens : Premier concert' })
+				).toContainText(`${friend.actor.displayName} · en attente`);
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+			});
+
+			await test.step('3. Elle confirme depuis sa notification : corroboré', async () => {
+				await friendPage.goto('/notifications');
+				await waitForAppReady(friendPage);
+				await friendPage.getByRole('link', { name: /te demande de confirmer/ }).click();
+				await expect(friendPage).toHaveURL(new RegExp(`/etapes/${gig.id}$`));
+				await expect(
+					friendPage.getByRole('heading', { name: 'Premier concert', level: 1 })
+				).toBeVisible();
+				await expectNoA11yViolations(friendPage, A11Y_EXCLUDE);
+				await db.actor.update({ where: { id: friend.actorId }, data: { trustLevel: 1 } });
+				await friendPage.getByRole('button', { name: 'Je confirme, j’y étais' }).click();
+				await expect(
+					friendPage.getByText('Merci ! Grâce à toi, l’étape est corroborée.')
+				).toBeVisible();
+				await expect.poll(bandXp).toBe(350);
+
+				await page.reload();
+				await expect(page.getByRole('list', { name: 'Étapes du groupe' })).toContainText(
+					'Corroborée'
+				);
+			});
+		} finally {
+			await friendContext.close();
+			await db.actor.deleteMany({ where: { handle: { in: [bandHandle, drummerHandle] } } });
+			await deleteUser(friendAccount.email);
 		}
 	});
 });

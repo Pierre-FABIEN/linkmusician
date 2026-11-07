@@ -276,15 +276,21 @@ model Milestone {                               // P3-04 : une par groupe et par
   @@unique([bandId, definitionId])
 }
 
-model Evidence { id String @id @default(cuid()); milestoneId String; kind String; url String?; mediaId String?; externalRef String? } // ISRC, UPC, lien d'événement
-model Attestation {                             // corroboration ou vérification par un tiers
-  milestoneId String
-  attesterActorId String
-  level       ProofStatus                       // CORROBORATED | VERIFIED
-  createdAt   DateTime @default(now())
-  revokedAt   DateTime?
-  @@id([milestoneId, attesterActorId])
+model MilestoneEvidence {                       // P3-05 : un lien joint à une étape
+  id String @id @default(cuid()); milestoneId String
+  kind EvidenceKind                             // EVENT | LISTEN | RECORDING
+  url String; addedById String?
+  status EvidenceStatus                         // PENDING (démo : modération) | ACCEPTED | REJECTED
+  reviewedAt DateTime?; reviewedByUserId String?; rejectionReason String?
 }
+model MilestoneAttestation {                    // P3-05 : demande de confirmation et réponse
+  id String @id @default(cuid()); milestoneId String; attesterId String; requestedById String?
+  role AttesterRole                             // MEMBER | OUTSIDER (D43)
+  status AttestationStatus                      // REQUESTED | CONFIRMED | DECLINED
+  createdAt DateTime @default(now()); answeredAt DateTime?
+  @@unique([milestoneId, attesterId])
+}
+// ISRC et UPC (sorties vérifiées par API) : P3-07.
 
 // ─── PROGRESSION ─────────────────────────────────────────────────────────
 

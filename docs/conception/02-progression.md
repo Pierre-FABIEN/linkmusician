@@ -254,7 +254,7 @@ signature).
 | Débloque                                                           | Repose sur                                                                                        |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
 | Quotas (messages à des inconnus, annonces actives, stockage média) | **Confiance**                                                                                     |
-| Corroborer les étapes d'autres acteurs                             | **Confiance** ≥ 2                                                                                 |
+| Corroborer les étapes d'autres acteurs                             | **Confiance** ≥ 1 au lancement (D43, prévu ≥ 2)                                                   |
 | Apparaître dans le flux « projets qui montent » des pros           | **Réputation**, avec une vitesse de franchissement des paliers                                    |
 | Répondre aux appels à projets sélectifs                            | Conditions fixées par l'émetteur (palier, genre, zone), c'est-à-dire des **paliers**, pas de l'XP |
 | Cadres, thèmes, titres affichés                                    | **Niveau de compte** / succès                                                                     |

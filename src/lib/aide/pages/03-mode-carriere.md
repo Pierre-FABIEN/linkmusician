@@ -133,11 +133,33 @@ Chaque étape a un **niveau de preuve**, affiché sur la page du groupe :
 Le groupe reçoit les points, et **chaque membre présent ce jour-là** en
 reçoit un quart.
 
-> 🔜 **Bientôt** : **Prouver** une étape. Une autre personne du groupe
-> confirmera la répétition. Une personne extérieure qui y était
-> confirmera l’enregistrement ou le concert, avec un lien vers
-> l’événement. La modération relira le lien de ta démo. Seule la
-> différence de points sera versée : rien ne compte deux fois.
+#### Prouver une étape {#prouver}
+
+Sous une étape déclarée, **Pour la corroborer** te dit ce qui manque.
+Touche **Prouver** :
+
+| Étape                      | Ce qui la corrobore                                                                          |
+| -------------------------- | -------------------------------------------------------------------------------------------- |
+| **Première répétition**    | Un autre membre présent ce jour-là confirme                                                  |
+| **Premier enregistrement** | Une personne hors du groupe qui y a participé confirme (un lien vers un extrait, si tu veux) |
+| **Première démo publique** | Un lien d’écoute public (Bandcamp, SoundCloud, Spotify…), vérifié par la modération          |
+| **Premier concert**        | Un lien vers l’événement ou l’affiche **et** une personne hors du groupe qui y était         |
+
+1. Ajoute le lien, puis indique l’identifiant de la personne :
+   **Demander de confirmer**.
+2. Elle reçoit une notification, et répond **Je confirme, j’y étais** ou
+   **Je n’y étais pas**.
+3. Dès que tout y est, l’étape passe à **Corroborée** : le groupe reçoit
+   la différence de points (pour un concert : 350 de plus), et chaque
+   membre présent sa part. Rien ne compte deux fois.
+
+Une personne extérieure doit être inscrite depuis au moins une semaine,
+avec un profil complet. Un membre ou ancien membre du groupe ne compte
+jamais comme extérieur.
+
+> 💡 **Astuce** : on te demande de confirmer l’étape d’un groupe ? Réponds
+> seulement si tu y étais. C’est ce qui donne de la valeur aux parcours de
+> tout le monde.
 
 > ⚠️ **Important** : une étape doit être vraie. Une étape inventée pourra
 > être signalée et retirée, avec ses points.

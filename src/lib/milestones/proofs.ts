@@ -177,15 +177,17 @@ export function attesterBlocker(input: {
 	minorUnknown: boolean;
 }): string | null {
 	if (input.self) return 'Demande à quelqu’un d’autre que toi.';
-	if (input.blocked || input.minorUnknown)
-		return 'Cette personne ne peut pas confirmer cette étape.';
+	// Appartenance au groupe d'abord : la gestion connaît ses membres, la
+	// réponse ne révèle rien.
 	if (input.role === 'MEMBER') {
 		if (!input.presentAtDate) return 'Il faut un membre du groupe présent ce jour-là.';
 		if (input.declaredByThem) return 'Il faut un autre membre que celui ou celle qui l’a déclarée.';
-		return null;
+	} else if (input.everMember) {
+		return 'Il faut une personne extérieure au groupe.';
 	}
-	if (input.everMember) return 'Il faut une personne extérieure au groupe.';
-	if (input.trustLevel < MIN_OUTSIDER_TRUST) {
+	if (input.blocked || input.minorUnknown)
+		return 'Cette personne ne peut pas confirmer cette étape.';
+	if (input.role === 'OUTSIDER' && input.trustLevel < MIN_OUTSIDER_TRUST) {
 		return 'Cette personne vient d’arriver : elle pourra confirmer dans quelques jours.';
 	}
 	return null;

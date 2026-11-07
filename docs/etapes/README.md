@@ -1,4 +1,4 @@
-# Étapes de groupe (P3-04)
+# Étapes de groupe (P3-04, P3-05)
 
 Les **étapes** sont les « premières fois » d'un groupe (conception 02 §2.2 et
 §4) : formation, première répétition, premier concert… Chacune a un
@@ -40,7 +40,48 @@ la contestation avec P3-06.
   - carte « Parcours » de `/@handle` du groupe, publique : étapes franchies avec leur niveau de preuve, mois et précision. Elle est masquée tant que seule la formation y figure, déjà dite en tête de page.
 - **RGPD** : l'export liste les étapes que la personne a déclarées ; à
   l'anonymisation, l'étape reste au groupe et `declaredById` est oublié.
+
+## Preuves (P3-05, D43)
+
+- **Ce qui corrobore** (une seule corroboration par étape, règles pures
+  `src/lib/milestones/proofs.ts`, testées) :
+  - _Répétition_ : un autre membre, présent à la date, confirme ;
+  - _Enregistrement_ : une personne hors groupe qui y a participé confirme (un lien vers un extrait est facultatif) ;
+  - _Démo publique_ : un lien d'écoute public (YouTube, SoundCloud, Bandcamp, Spotify, Deezer, Apple Music, Tidal, Audiomack), **relu par la modération** même si la personne est de confiance ;
+  - _Concert_ : un lien vers l'événement ou l'affiche (`https`) **et** une personne hors groupe qui y était.
+- **Personne hors groupe** : confiance TL1 au moins (au lieu de TL2, faute
+  de TL2 au début du pilote, D43), jamais membre ni ancien membre, pas de
+  blocage, un·e mineur·e seulement si la gestion le ou la connaît (règle
+  des invitations, D5). Les conditions se revérifient au moment de
+  confirmer. L'appartenance au groupe est dite d'abord (la gestion connaît
+  ses membres) ; le blocage et l'âge ne le sont jamais.
+- **Modèle** : `MilestoneAttestation` (une par étape et par personne,
+  `role` `MEMBER` ou `OUTSIDER`, `status` `REQUESTED`, `CONFIRMED`,
+  `DECLINED`, `requestedById`) et `MilestoneEvidence` (`kind` `EVENT`,
+  `LISTEN`, `RECORDING`, `status` `PENDING`, `ACCEPTED`, `REJECTED`, revue
+  par qui et pourquoi). 5 demandes en attente et 3 liens au plus par étape.
+- **Service** : `src/lib/server/milestones/proofs.ts`, sous le verrou du
+  groupe : `requestAttestation`, `answerAttestation`, `addEvidence`,
+  `reviewEvidence` (modération), `evaluate` qui passe l'étape à
+  « corroborée » dès que la règle est remplie (`milestone.attested`,
+  différence d'XP : +20 répétition, +150 enregistrement, +250 démo, +350
+  concert, et 25 % aux membres présents).
+- **Cercles fermés** : une confirmation émet
+  `milestone.attestation_confirmed` (sans XP) ; la détection nocturne
+  (`jobs/collusion.ts`) y lit la paire « qui confirme, qui a demandé ».
+- **Écrans** :
+  - panneau « Prouver » sous chaque étape déclarée (`/groupes/[handle]`) : ce qu'il manque, liens et demandes avec leur état, formulaires ;
+  - `/etapes/[id]` : la personne sollicitée voit l'étape, les liens, et répond (**Je confirme, j'y étais** ou **Je n'y étais pas**). 404 pour toute autre personne ;
+  - notification `MILESTONE_ATTEST` (préférence « Étapes de groupe à confirmer ») ;
+  - `/moderation` : « Preuves de démo à vérifier » (accepter, refuser avec un motif, journal d'audit).
+- **RGPD** : l'export liste les confirmations demandées à la personne et
+  les liens qu'elle a joints ; à l'anonymisation, ses demandes en attente
+  sont supprimées, ses réponses restent (l'étape du groupe en dépend),
+  `requestedById` et `addedById` sont oubliés.
+- **Contester** une étape ou une confirmation : P3-06.
 - **Tests** :
   - `src/lib/milestones/rules.test.ts` et `referential.test.ts` ;
   - intégration `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/milestones` ;
-  - e2e `e2e/linkmusician/etapes.spec.ts`.
+  - `src/lib/milestones/proofs.test.ts` ;
+  - intégration `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/milestones` (dont `proofs.integration.test.ts`) ;
+  - e2e `e2e/linkmusician/etapes.spec.ts` (déclarer ; un membre ne corrobore pas le concert, une personne extérieure si).
