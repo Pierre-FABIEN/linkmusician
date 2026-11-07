@@ -628,6 +628,29 @@ actes. Puis LinkMusician s'ouvre au public.
 - **Fin** : la fiche publique ne contient ni XP ni confiance (test du
   payload) ; l'image se génère.
 
+### P3-16 — Carnet de contacts et discussions de groupe
+
+- **Dépend de** : P2-16, P3-05 (fait après, choix du 07/11/2026).
+- **Décisions** : D44, D45.
+- **Idée** : aller à une jam sans connaître personne, en repartir avec des
+  contacts qu'on recontacte par l'app, sans échanger son numéro. À mettre
+  en avant (après-jam, aide du mode jam, présentation du mode jam).
+- **P3-16a — Messagerie à trois messages (D44)** : jusqu'à 3 messages
+  tant que l'autre n'a pas répondu ; la réponse débloque la conversation ;
+  « Refuser » et « Bloquer » restent ; quota de premières demandes et
+  règles des mineur·es inchangés. Mettre à jour `sendPermission`, les
+  écrans, l'aide (`rencontrer`) et les e2e de la messagerie.
+- **P3-16b — Carnet et groupes de contacts (D45)** : page « Contacts » dans
+  la navigation (le réseau musical : comment on s'est rencontrés, projets
+  en cours partagés : groupes, morceaux, collaborations ; « Écrire ») ;
+  groupes de contacts privés (« Projet funk ») ; discussion de groupe
+  ouverte depuis un groupe de contacts (conversations à plusieurs :
+  consentement de chaque personne, blocages, mineur·es à trancher) ;
+  « Garder le contact » mis en avant après la jam ; RGPD.
+- **Fin** : e2e « après une jam, je garde le contact de Malik et Zoé, je
+  crée le groupe « Projet funk » et j'ouvre une discussion à trois » ;
+  e2e « 3 messages puis bloqué jusqu'à la réponse ».
+
 ### P3-15 — Guide des démarches
 
 - **Dépend de** : P2-17, P3-04, P3-11.
