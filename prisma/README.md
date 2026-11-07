@@ -14,6 +14,8 @@ Le seed de démo ajoute 13 profils fictifs et leurs scénarios (groupes,
 collaborations, jams, morceaux, contacts et messages). Il ne crée pas les
 autres données du boilerplate ni les établissements. Ces derniers se chargent
 à part avec `npm run seed:etablissements`.
+Il génère aussi jusqu'à 12 jams à venir, réparties sur les jours restants du
+mois courant, autour de la commune choisie.
 
 Les e-mails sont `handle@demo.linkmusician.test`. Le mot de passe par défaut
 est `DemoPass!2026` pour les 13 comptes, sauf si `SEED_DEMO_PASSWORD` est

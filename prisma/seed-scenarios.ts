@@ -13,6 +13,7 @@
 // |   de morceau, rôle à pourvoir              |   (nora-prod)                                      |
 // | Deux jams passées (une tardive, un atelier | `/jam/carnet`, `/jams/…/presents`, profils         |
 // |   à la MJC avec une mineure), appréciations|   (appréciations, succès Noctambule)               |
+// | Jams de démo réparties sur le mois restant | `/jam` (plusieurs jours marqués)                    |
 // | Deux jams à venir, formation, matériel     | `/jam` (clara-guitare : lead ; ines-chant : invitée)|
 // | « Je suis dispo »                          | `/jam` (zoe, kevin, hugo)                          |
 // | Collaborations confirmées et à confirmer   | `/espace`, conversations (ines, clara, kevin)      |
@@ -31,6 +32,7 @@ import { venueNameKey } from '../src/lib/venues/rules';
 import { JAM_QUALITY_LABELS } from '../src/lib/jam/afterJam';
 import { COLLAB_QUALITY_LABELS } from '../src/lib/collaborations/endorse';
 import { pairKey } from '../src/lib/messaging/rules';
+import { demoJamStartsThisMonth } from '../src/lib/jam/demoJamDates';
 
 const DAY = 24 * 60 * 60 * 1000;
 const BAND = 'les-rats-du-mardi';
@@ -144,6 +146,88 @@ async function jam(ctx: Ctx, spec: JamSpec) {
 		},
 		select: { id: true, startsAt: true, endsAt: true }
 	});
+}
+
+async function seedMonthlyJams(
+	ctx: Ctx,
+	venues: { barId: string; mjcId: string; studioId: string }
+) {
+	const starts = demoJamStartsThisMonth(new Date());
+	const templates: Omit<JamSpec, 'startsAt' | 'endsAt'>[] = [
+		{
+			issuer: 'malik-batterie',
+			lead: 'malik-batterie',
+			venueId: venues.barId,
+			title: 'Bœuf funk de quartier',
+			description: 'Jam de démonstration ouverte : funk, soul et improvisation.',
+			genre: 'funk',
+			spots: [
+				['basse', 1],
+				['chant', 1],
+				['saxophone-tenor', 1]
+			],
+			backline: ['DRUMS', 'BASS_AMP', 'GUITAR_AMP', 'PA_MICS']
+		},
+		{
+			issuer: 'awa-clavier',
+			lead: 'awa-clavier',
+			venueId: venues.mjcId,
+			title: 'Atelier pop à la MJC',
+			description: 'Jam de démonstration tous niveaux, dans une ambiance détendue.',
+			genre: 'pop',
+			spots: [
+				['batterie', 1],
+				['guitare-acoustique', 1],
+				['chant', 1]
+			],
+			backline: ['DRUMS', 'KEYBOARD', 'PA_MICS']
+		},
+		{
+			issuer: 'samir-son',
+			lead: 'samir-son',
+			venueId: venues.studioId,
+			title: 'Jam rock au studio',
+			description:
+				'Jam de démonstration rock : viens jouer et rencontrer les musicien·nes du coin.',
+			genre: 'rock',
+			spots: [
+				['batterie', 1],
+				['basse', 1],
+				['guitare-acoustique', 1]
+			],
+			backline: ['DRUMS', 'GUITAR_AMP', 'CABLES']
+		}
+	];
+	let created = 0;
+
+	for (const [index, startsAt] of starts.entries()) {
+		const template = templates[index % templates.length];
+		const title = `${template.title} · Démo ${String(index + 1).padStart(2, '0')}`;
+		const issuerActorId = id(ctx, template.issuer);
+		const existing = await ctx.prisma.opportunity.findFirst({
+			where: {
+				kind: 'JAM',
+				issuerActorId,
+				venueId: template.venueId,
+				title,
+				startsAt
+			},
+			select: { id: true }
+		});
+		if (existing) continue;
+
+		await jam(ctx, {
+			...template,
+			title,
+			startsAt,
+			endsAt: new Date(startsAt.getTime() + 2 * 60 * 60 * 1000)
+		});
+		created += 1;
+	}
+
+	console.log(
+		`  · jams de démo du mois : ${created} créée(s), ${starts.length} au total autour de ${ctx.commune.nom}`
+	);
 }
 
 /** « J'y étais » : présence, puis l'événement (succès fun, sans XP). */
@@ -473,10 +557,6 @@ export async function seedScenarios(
 	me: { actorId: string; displayName: string } | null,
 	demoHandles: ReadonlyMap<string, string> = new Map()
 ) {
-	if (await prisma.actor.findUnique({ where: { handle: BAND }, select: { id: true } })) {
-		console.log('Scénarios déjà en place (groupe « Les Rats du Mardi ») : rien à refaire.');
-		return;
-	}
 	const cast = await prisma.actor.findMany({
 		where: { person: { user: { email: { endsWith: '@demo.linkmusician.test' } } } },
 		select: {
@@ -510,8 +590,13 @@ export async function seedScenarios(
 	// 1. Lieux de jam (validés).
 	const bar = await venue(ctx, 'Le Bœuf du Mardi', 'BAR', 'malik-batterie');
 	const mjc = await venue(ctx, 'MJC des Arts', 'MJC', 'awa-clavier');
-	await venue(ctx, 'Studio La Cave', 'REHEARSAL_SPACE', 'samir-son');
+	const studio = await venue(ctx, 'Studio La Cave', 'REHEARSAL_SPACE', 'samir-son');
 	console.log('  · lieux : Le Bœuf du Mardi, MJC des Arts, Studio La Cave');
+	await seedMonthlyJams(ctx, { barId: bar.id, mjcId: mjc.id, studioId: studio.id });
+	if (await prisma.actor.findUnique({ where: { handle: BAND }, select: { id: true } })) {
+		console.log('Scénarios déjà en place (groupe « Les Rats du Mardi ») : rien d’autre à refaire.');
+		return;
+	}
 
 	// 2. Jam tardive passée (21 h – 0 h 30) : appréciations, Noctambule.
 	const late = await jam(ctx, {
