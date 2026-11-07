@@ -535,6 +535,9 @@ actes. Puis LinkMusician s'ouvre au public.
 - **Tâches** : signaler une étape (`ReportTarget.MILESTONE`), la geler,
   décision du modérateur ; reprise par transaction négative liée
   (`reversesId`) ; rétrogradation de la confiance de l'attestant.
+- **P3-04** : une étape déclarée par erreur ne se retire pas encore (seules
+  sa date et sa précision se corrigent) ; prévoir son retrait par la gestion
+  du groupe, avec la même reprise liée.
 - **Fin** : une contestation retenue écrit la transaction liée et
   rétrograde l'attestant (intégration).
 

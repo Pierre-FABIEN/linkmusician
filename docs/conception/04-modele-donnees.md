@@ -249,26 +249,31 @@ model CollaborationParticipant {
 
 enum ProofStatus { DECLARED CORROBORATED VERIFIED DISPUTED REJECTED }
 
-model MilestoneDefinition {                     // Phase 3, référentiel versionné
-  id        String @id                          // "band.first_gig"
-  scope     ActorKind
-  orgKind   OrgKind?
+model MilestoneDefinition {                     // P3-04, référentiel versionné (seed rejouable)
+  id        String @id                          // clé du moteur : "FIRST_GIG"
   ordinal   Int
-  xpByStatus Json                               // { DECLARED: 50, CORROBORATED: 400, VERIFIED: 1000 }
-  proofRules Json                               // qui peut corroborer / vérifier
-  repeatable Boolean @default(false)
+  label     String
+  mode      String                              // formation | work | declare | later (D41)
+  version   Int
+  active    Boolean @default(true)
 }
+// Le barème (XP par niveau de preuve) reste dans le moteur
+// (`progression/core/bareme.ts`) : une seule source pour l'XP. Les règles
+// « qui peut corroborer » sont pures (P3-05), pas en JSON.
 
-model Milestone {                               // Phase 3
+model Milestone {                               // P3-04 : une par groupe et par étape
   id           String @id @default(cuid())
   definitionId String
-  actorId      String
-  status       ProofStatus
-  occurredAt   DateTime
-  collaborationId String?                       // ex. le concert
-  evidence     Evidence[]
-  attestations Attestation[]
-  @@index([actorId, definitionId])
+  bandId       String
+  proof        MilestoneProof                   // DECLARED | CORROBORATED | VERIFIED
+  occurredAt   DateTime                         // le jour de l'étape
+  note         String?                          // précision publique (« Au Bikini »)
+  declaredById String?
+  workId       String?                          // « Première composition »
+  definitionVersion Int
+  evidence     Evidence[]                       // P3-05
+  attestations Attestation[]                    // P3-05
+  @@unique([bandId, definitionId])
 }
 
 model Evidence { id String @id @default(cuid()); milestoneId String; kind String; url String?; mediaId String?; externalRef String? } // ISRC, UPC, lien d'événement

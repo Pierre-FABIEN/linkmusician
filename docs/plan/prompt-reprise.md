@@ -1,51 +1,55 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 06/11/2026, après P3-11).
+> Mis à jour à chaque fin de lot (dernière : 07/11/2026, après P3-04).
 
 ---
 
 ```markdown
-On reprend LinkMusician avec le lot **P3-04** (étapes : définitions et
-déclaration). Ne refais pas l'analyse du projet : CLAUDE.md est déjà
-chargé, tout ce qui sert est ci-dessous.
+On reprend LinkMusician avec le lot **P3-05** (preuves et attestations).
+Ne refais pas l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui
+sert est ci-dessous.
 
-## État (06/11/2026)
+## État (07/11/2026)
 
 - **Phase 2 terminée et revue** ([docs/plan/revue-phase-2.md](./revue-phase-2.md)).
   Objectif D28 : lancement public à Toulouse début mars 2027. L'UX simple
   et agréable prime.
-- **P3-01 à P3-03 livrés** ([docs/groupes](../groupes/README.md), D37 à
-  D39) : groupes et adhésions (`src/lib/server/bands/service.ts`, garde
-  `requireManager`, `afterJoin`, `canInviteMinor` exporté), page publique
-  `/@handle` du groupe, recrutement au nom du groupe.
-- **P3-11 livré** ([docs/morceaux](../morceaux/README.md), D35, D40) :
-  `Work`, `WorkContributor`, `WorkRole` (à pourvoir) ; service
-  `src/lib/server/works/service.ts` ; événements `work.composed` et
-  `work.credit_confirmed` (règle `core/rules/workComposed.ts`, compteurs
-  `priorCoWorks` et `creditedOnWork` dans `RuleContext`) ; maquette d'une
-  idée cachée des listes publiques (`notIdeaDemo`) ; pages `/morceaux`,
-  `/morceaux/nouveau`, `/morceaux/[id]` ; carte « Morceaux » sur `/@handle`.
-- **P3-04** : lire sa fiche (docs/plan/phase-2-3.md) et conception 02 §2.2
-  et §4 (étapes, niveaux de preuve). Décision attendue en début de lot :
-  liste finale des étapes et preuves recevables. Pistes :
-  - Le moteur sait déjà tout : `milestone.attested` (from, to, memberIds),
-    règles `milestoneBand` et `milestoneMember`, XP différentielle
-    (`milestoneDelta`), barème `BAREME.milestones`. L'étape `FORMATION`
-    est déjà émise par `afterJoin` (sans table `Milestone`).
-  - Modèle : `MilestoneDefinition` versionnée (seed rejouable) et
-    `Milestone` (groupe, étape, statut de preuve, date) ; reprendre
-    `FORMATION` (déjà vérifiée en événement) dans la table, sans
-    réémettre d'XP.
-  - « Première composition » : `firstComposedWork(bandId)` (works/service)
-    donne le premier morceau composé du groupe et sa preuve (`DECLARED` ou
-    `CORROBORATED`) ; décider si l'étape suit le morceau automatiquement
-    (à `markComposed` et à la corroboration) ou se déclare.
-  - `memberIds` : membres actifs à la date de l'étape (historique
-    `Membership.startedAt`/`endedAt`).
-  - Droits : déclarer une étape = gestion du groupe (`requireManager`).
-- Ordre prévu : P3-04 à P3-09 → P3-12 à P3-14 (tableau §4 bis de
-  docs/plan/README.md).
+- **P3-01 à P3-03 et P3-11 livrés** ([docs/groupes](../groupes/README.md),
+  [docs/morceaux](../morceaux/README.md), D35, D37 à D40).
+- **P3-04 livré** ([docs/etapes](../etapes/README.md), D41) : étapes 1 à 6
+  ouvertes ; `MilestoneDefinition` (seed `prisma/seed-data/milestones.js`,
+  rejoué par `seed:referentiels`) et `Milestone` (une par groupe et par
+  étape, `proof` `MilestoneProof`, `occurredAt`, `note`, `declaredById`,
+  `workId`) ; service `src/lib/server/milestones/service.ts`
+  (`recordFormation`, `syncComposition`, `declareMilestone`,
+  `updateMilestoneDetails`, `bandMilestones`, `attest` privé qui calcule
+  `memberIds` avec `membersAt`/`creditDate`) ; règles pures
+  `src/lib/milestones/rules.ts` (`isUpgrade`, `PROOF_LABELS`, catalogue) ;
+  section « Parcours du groupe » sur `/groupes/[handle]`, carte « Parcours »
+  sur `/@handle`.
+- **P3-05** : lire sa fiche (docs/plan/phase-2-3.md) et conception 02 §2.2
+  (colonne « Preuve attendue ») et §4. Décision attendue en début de lot :
+  pour chaque étape déclarable (répétition, enregistrement, démo publique,
+  concert), ce qui la **corrobore** (attestation d'un membre ? d'un tiers
+  hors groupe TL2 ? lien vérifiable ?) et ce qui la **vérifie** (souvent
+  une organisation vérifiée : pas encore de studios ni de lieux
+  vérifiés, D22). Pistes :
+  - Règle de la fiche : pour les étapes 6 et plus, un membre du groupe ne
+    corrobore jamais (unitaire et e2e « un concert corroboré uniquement par
+    un membre reste `DECLARED` »).
+  - `Evidence` (lien, média, référence externe) et `Attestation`
+    (`@@id([milestoneId, attesterActorId])`, `revokedAt`) : voir
+    conception 04 ; règles « qui peut corroborer quoi » pures dans
+    `src/lib/milestones/`.
+  - Passage de statut : réutiliser `attest(tx, { from, to, … })` du
+    service (XP différentielle déjà calculée par `milestoneDelta`).
+  - Demander une attestation à quelqu'un : notification (nouveau
+    `NotificationType`), lien vers une page d'attestation ; mineur·es (D5).
+  - Les lieux de l'annuaire (`Venue`, P2-14a) peuvent servir de tiers
+    plus tard (P5), pas au lancement.
+- Ordre prévu : P3-05, P3-06, P3-08, P3-09 → P3-12 à P3-14 (tableau §4 bis
+  de docs/plan/README.md). P3-07 après le lancement.
 - Points ouverts hors lots : docs/plan/README.md §5 bis.
 - Le wifi public de l'utilisateur bloque le port 5432 (Neon injoignable) :
   dans ce cas, écrire la migration à la main et la vérifier ensuite avec
@@ -74,8 +78,9 @@ e2e/linkmusician` (sortie redirigée dans le scratchpad, lire la fin).
   `jams.spec.ts`). Blagnac `{ code: '31069', nom: 'Blagnac', dep: '31',
 lat: 43.6459, lng: 1.3785 }` ; a11y : exclure `.cartButton`.
 - Tests d'intégration : `PROGRESSION_INTEGRATION=1 npx vitest --run
-src/lib/server/bands src/lib/server/opportunities src/lib/server/works`
-  pour les groupes, le recrutement et les morceaux (modèle : `vi.mock('#lib/server', () => ({ prisma: db }))`
+src/lib/server/bands src/lib/server/opportunities src/lib/server/works
+src/lib/server/milestones`
+  pour les groupes, le recrutement, les morceaux et les étapes (modèle : `vi.mock('#lib/server', () => ({ prisma: db }))`
   sur le schéma `e2e`). Un test qui passe par du SQL brut (villes,
   PostGIS) doit aussi faire `process.env.DATABASE_URL = url.toString()`
   (voir `recruitment.integration.test.ts`). Nettoyage : retrouver aussi

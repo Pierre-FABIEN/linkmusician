@@ -92,6 +92,15 @@ jamais l'historique, elle s'applique aux nouveaux événements.
 | 9   | Premier album          | —        | —          | 3 000    | Idem                                                                                                                                      |
 | 10  | Signature              | 0        | —          | 3 000    | Seul le label, en organisation vérifiée sur la plateforme, peut valider                                                                   |
 
+**Au lancement (D41, P3-04)** : les étapes 1 à 6 sont ouvertes. La
+formation est automatique, la première composition suit les morceaux du
+groupe (déclarée au premier morceau composé, corroborée dès qu'un morceau
+l'est), les quatre autres se déclarent par la gestion d'un groupe formé.
+Les membres crédités (25 %) sont ceux présents à la date de l'étape, ou à
+la formation pour une étape plus ancienne que le groupe sur la plateforme.
+Les étapes 7 à 10 attendent des preuves externes. Détail :
+[docs/etapes](../etapes/README.md).
+
 La corroboration par **un membre du même groupe** ne suffit pas pour
 les étapes 6 et plus : les membres ont un intérêt commun. Il faut un
 tiers indépendant.
