@@ -16,7 +16,7 @@
 	type Item = (typeof data.conversations)[number];
 	const status = (c: Item) =>
 		c.otherState === 'REQUEST'
-			? 'En attente de réponse'
+			? 'En attente de sa réponse'
 			: c.otherState === 'DECLINED'
 				? 'Demande non acceptée'
 				: null;
@@ -68,7 +68,7 @@
 					Demandes reçues ({data.requests.length})
 				</h2>
 				<ul class="space-y-2">
-					{#each data.requests as c (c.id)}{@render row(c, 'Nouvelle demande')}{/each}
+					{#each data.requests as c (c.id)}{@render row(c, 'Premier message')}{/each}
 				</ul>
 			</section>
 		{/if}

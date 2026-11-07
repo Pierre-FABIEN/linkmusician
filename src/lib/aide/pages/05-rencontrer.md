@@ -6,8 +6,8 @@ _Trouver la bonne personne, lui écrire, et jouer._
 >
 > - **Découvrir** : cherche par instrument, style et distance.
 > - **Annonces** : dis ce que tu cherches, ou réponds à quelqu’un.
-> - **Messages** : ton premier message est une **demande**. Tu pourras
->   continuer quand l’autre l’aura acceptée.
+> - **Messages** : écris à qui tu veux. Tant que l’autre n’a pas répondu,
+>   tu peux envoyer **3 messages** ; sa réponse ouvre la conversation.
 > - Les gens avec qui tu as joué forment ton **réseau musical**. L’app te
 >   les propose en premier.
 
@@ -67,18 +67,23 @@ le mode jam (**Lancer une jam**).
 
 ## 3. Les messages
 
-1. Sur un profil, touche **Écrire à…** et envoie ton message : c’est une
-   **demande**.
-2. L’autre personne l’accepte (ou non). Tant qu’elle n’a pas répondu, tu
-   ne peux pas envoyer d’autre message.
-3. Acceptée : vous échangez librement.
+1. Sur un profil, touche **Écrire à…** et envoie ton message.
+2. Tant que l’autre personne n’a pas répondu, tu peux envoyer jusqu’à
+   **3 messages** : présente-toi, dis ce que tu joues, propose une date.
+   L’écran te dit combien il t’en reste.
+3. Dès qu’elle répond, la conversation est ouverte : vous échangez
+   librement.
+
+Quelqu’un t’écrit pour la première fois ? **Réponds** pour ouvrir la
+conversation, ou **Refuser** : elle se ferme, sans que la personne le
+sache.
 
 Dans une conversation ouverte, après avoir joué ensemble, touche
 **Proposer une collaboration**. C’est ce qui fait avancer vos parcours
 (voir [Le mode carrière](./03-mode-carriere.md#collaborer)).
 
-> ⚠️ **Important** : un compte nouveau peut envoyer 10 premières demandes
-> par jour. Ça monte avec ta confiance. Et un message refusé, ce n’est pas
+> ⚠️ **Important** : un compte nouveau peut écrire à 10 nouvelles
+> personnes par jour. Ça monte avec ta confiance. Et un message refusé, ce n’est pas
 > grave : chacun choisit avec qui il joue.
 
 ## 4. Ton réseau musical

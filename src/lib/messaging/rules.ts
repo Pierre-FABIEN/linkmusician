@@ -2,9 +2,10 @@
  * Messagerie (P2-04) : règles pures, partagées par le serveur et le
  * navigateur.
  *
- * - Le premier message à un inconnu est une **demande** : un seul message,
- *   tant que le destinataire ne l'a pas acceptée.
- * - Une demande refusée ferme la conversation pour l'expéditeur.
+ * - On écrit à qui on veut (D44) : jusqu'à **3 messages** tant que l'autre
+ *   n'a pas répondu. Sa **réponse débloque** la conversation (elle vaut
+ *   acceptation : plus de bouton « Accepter » à part).
+ * - Refuser ferme la conversation pour l'expéditeur, sans le lui dire.
  * - Les 16-17 ans ne reçoivent pas de nouvelle demande (D5) ; le refus ne
  *   dit jamais pourquoi (l'âge n'est jamais révélé).
  */
@@ -39,15 +40,16 @@ export function pairKey(a: string, b: string): string {
 
 export type ParticipantState = 'REQUEST' | 'ACCEPTED' | 'DECLINED';
 
+/** Messages qu'on peut envoyer avant une première réponse (D44). */
+export const MAX_MESSAGES_BEFORE_REPLY = 3;
+
 export type SendPermission =
-	/** Peut écrire. */
+	/** Peut écrire (y compris répondre à un premier message : ça l'accepte). */
 	| 'ok'
-	/** Demande envoyée, en attente d'acceptation. */
+	/** Trois messages envoyés : attendre la réponse de l'autre. */
 	| 'pending'
-	/** Demande refusée par l'autre. */
-	| 'declined'
-	/** Demande reçue : l'accepter avant de répondre. */
-	| 'must_accept';
+	/** Refusée, par l'autre ou par moi. */
+	| 'declined';
 
 export function sendPermission(input: {
 	myState: ParticipantState;
@@ -55,10 +57,17 @@ export function sendPermission(input: {
 	/** Messages déjà envoyés par moi dans cette conversation. */
 	mySentCount: number;
 }): SendPermission {
-	if (input.myState === 'REQUEST') return 'must_accept';
-	if (input.otherState === 'DECLINED') return 'declined';
-	if (input.otherState === 'REQUEST') return input.mySentCount > 0 ? 'pending' : 'ok';
+	if (input.myState === 'DECLINED' || input.otherState === 'DECLINED') return 'declined';
+	if (input.otherState === 'REQUEST') {
+		return input.mySentCount >= MAX_MESSAGES_BEFORE_REPLY ? 'pending' : 'ok';
+	}
 	return 'ok';
+}
+
+/** Messages qu'il me reste avant sa réponse (`null` : il ou elle a répondu). */
+export function messagesLeft(otherState: ParticipantState, mySentCount: number): number | null {
+	if (otherState !== 'REQUEST') return null;
+	return Math.max(0, MAX_MESSAGES_BEFORE_REPLY - mySentCount);
 }
 
 /** Une personne peut-elle recevoir une **nouvelle** demande ? Pas les mineur·es (D5). */

@@ -142,8 +142,6 @@ export const actions: Actions = {
 		const id = String((await request.formData()).get('collaborationId') ?? '');
 		return handle(async () => cancelCollaboration((await me(locals)).actorId, id));
 	},
-	accept: async ({ locals, params }) =>
-		handle(async () => respondToRequest((await me(locals)).actorId, params.id, true)),
 	decline: async ({ locals, params }) =>
 		handle(async () => respondToRequest((await me(locals)).actorId, params.id, false)),
 	/** Signaler la personne (P1-12), depuis la conversation. */

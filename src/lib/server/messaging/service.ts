@@ -18,6 +18,8 @@ import {
 	pairKey,
 	preview,
 	sendPermission,
+	messagesLeft,
+	MAX_MESSAGES_BEFORE_REPLY,
 	type ParticipantState
 } from '#lib/messaging/rules';
 
@@ -121,7 +123,10 @@ async function loadParticipants(actorId: string, conversationId: string) {
 	return { conversation, me, other };
 }
 
-/** Accepter ou refuser une demande reçue. */
+/**
+ * Refuser un premier message reçu (ou l'accepter sans répondre : plus
+ * proposé à l'écran depuis D44, répondre suffit).
+ */
 export async function respondToRequest(actorId: string, conversationId: string, accept: boolean) {
 	const { me, other } = await loadParticipants(actorId, conversationId);
 	if (me.state !== 'REQUEST') return;
@@ -145,9 +150,10 @@ export async function sendMessage(actorId: string, conversationId: string, raw: 
 		otherState: other.state as ParticipantState,
 		mySentCount
 	});
-	if (permission === 'must_accept') throw new MessagingError('Accepte d’abord la demande.');
 	if (permission === 'pending') {
-		throw new MessagingError('Ta demande attend une réponse : un seul message en attendant.');
+		throw new MessagingError(
+			`Tu as envoyé ${MAX_MESSAGES_BEFORE_REPLY} messages : attends sa réponse pour continuer.`
+		);
 	}
 	if (permission === 'declined') throw new MessagingError('Cette conversation est fermée.');
 	const body = checked(raw);
@@ -162,9 +168,10 @@ export async function sendMessage(actorId: string, conversationId: string, raw: 
 			where: { id: conversationId },
 			data: { lastMessageAt: now, ...(firstReply ? { reciprocatedAt: now } : {}) }
 		});
+		// Répondre à un premier message l'accepte (D44).
 		await tx.conversationParticipant.update({
 			where: { conversationId_actorId: { conversationId, actorId } },
-			data: { lastReadAt: now }
+			data: { lastReadAt: now, ...(me.state === 'REQUEST' ? { state: 'ACCEPTED' } : {}) }
 		});
 		if (firstReply) {
 			// Échange réciproque : un événement par personne (la règle crédite
@@ -221,6 +228,8 @@ export async function openConversation(actorId: string, conversationId: string) 
 			displayName: otherActor.displayName
 		},
 		myState: me.state as ParticipantState,
+		/** Messages qu'il me reste avant sa première réponse (D44), ou `null`. */
+		messagesLeft: messagesLeft(other.state as ParticipantState, mySentCount),
 		// Blocage (P2-05) : la conversation reste lisible mais se ferme.
 		permission: blocked
 			? ('declined' as const)

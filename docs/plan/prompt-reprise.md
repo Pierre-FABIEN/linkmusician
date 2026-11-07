@@ -6,9 +6,9 @@
 ---
 
 ```markdown
-On reprend LinkMusician avec le lot **P3-16a** (messagerie à trois
-messages), puis **P3-16b** (carnet et groupes de contacts) : l'utilisateur
-les a placés juste après P3-05. Ne refais pas l'analyse du projet :
+On reprend LinkMusician avec le lot **P3-16b** (carnet et groupes de
+contacts, discussions de groupe) ; P3-16a (messagerie à trois messages)
+est livré. Ne refais pas l'analyse du projet :
 CLAUDE.md est déjà chargé, tout ce qui sert est ci-dessous.
 
 ## État (07/11/2026)

@@ -6,10 +6,14 @@ Module LinkMusician (lot P2-04, décisions D5 et D8). Pages `/messages`,
 
 ## Règles
 
-- **Demande d'abord** : le premier message à quelqu'un est une demande,
-  un seul message tant qu'elle n'est pas acceptée. Le destinataire
-  l'accepte (il peut alors répondre) ou la refuse (la conversation se
-  ferme pour l'expéditeur, sans que le refus lui soit dit).
+- **Trois messages avant une réponse (D44, P3-16a)** : on écrit à qui on
+  veut ; tant que l'autre n'a pas répondu, on envoie **3 messages au plus**
+  (`MAX_MESSAGES_BEFORE_REPLY`, `sendPermission`), avec « encore N
+  messages » à l'écran. Le destinataire **répond**, ce qui accepte la
+  conversation (son état passe à `ACCEPTED` dans la même transaction), ou
+  la **refuse** (elle se ferme pour l'expéditeur, sans que le refus lui
+  soit dit). Il n'y a plus de bouton « Accepter » à part (`respondToRequest`
+  ne sert plus qu'au refus).
 - **Une conversation par paire** (`Conversation.pairKey`) ; réécrire à
   quelqu'un rouvre la conversation existante.
 - **Quota de premiers messages** par jour selon la confiance (TL0 : 10,

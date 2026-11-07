@@ -5,7 +5,8 @@ import {
 	checkMessage,
 	pairKey,
 	preview,
-	sendPermission
+	sendPermission,
+	messagesLeft
 } from './rules';
 
 describe('messages (P2-04)', () => {
@@ -38,15 +39,24 @@ describe('messages (P2-04)', () => {
 	});
 });
 
-describe('qui peut écrire', () => {
+describe('qui peut écrire (D44 : trois messages avant une réponse)', () => {
 	it.each([
 		[{ myState: 'ACCEPTED', otherState: 'REQUEST', mySentCount: 0 }, 'ok'],
-		[{ myState: 'ACCEPTED', otherState: 'REQUEST', mySentCount: 1 }, 'pending'],
+		[{ myState: 'ACCEPTED', otherState: 'REQUEST', mySentCount: 2 }, 'ok'],
+		[{ myState: 'ACCEPTED', otherState: 'REQUEST', mySentCount: 3 }, 'pending'],
 		[{ myState: 'ACCEPTED', otherState: 'DECLINED', mySentCount: 1 }, 'declined'],
-		[{ myState: 'REQUEST', otherState: 'ACCEPTED', mySentCount: 0 }, 'must_accept'],
-		[{ myState: 'ACCEPTED', otherState: 'ACCEPTED', mySentCount: 5 }, 'ok']
+		// Un premier message reçu : répondre suffit (ça l'accepte).
+		[{ myState: 'REQUEST', otherState: 'ACCEPTED', mySentCount: 0 }, 'ok'],
+		[{ myState: 'DECLINED', otherState: 'ACCEPTED', mySentCount: 0 }, 'declined'],
+		[{ myState: 'ACCEPTED', otherState: 'ACCEPTED', mySentCount: 50 }, 'ok']
 	] as const)('%o → %s', (input, expected) => {
 		expect(sendPermission(input)).toBe(expected);
+	});
+
+	it('compte les messages qui restent avant sa réponse', () => {
+		expect(messagesLeft('REQUEST', 1)).toBe(2);
+		expect(messagesLeft('REQUEST', 5)).toBe(0);
+		expect(messagesLeft('ACCEPTED', 5)).toBeNull();
 	});
 });
 

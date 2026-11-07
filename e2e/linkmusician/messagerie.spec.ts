@@ -32,7 +32,11 @@ test.describe('LinkMusician — messagerie', () => {
 		await page.getByRole('button', { name: 'Envoyer la demande' }).click();
 	}
 
-	test('demande, acceptation, échange', async ({ page, account, browser }) => {
+	test('trois messages, puis la réponse ouvre la conversation', async ({
+		page,
+		account,
+		browser
+	}) => {
 		const malikAccount = makeAccount();
 		const malikContext = await browser.newContext();
 		const malikPage = await malikContext.newPage();
@@ -57,7 +61,7 @@ test.describe('LinkMusician — messagerie', () => {
 				});
 			});
 
-			await test.step('2. Léa écrit à Malik depuis son profil : une demande', async () => {
+			await test.step('2. Léa écrit à Malik : trois messages au plus avant sa réponse', async () => {
 				await page.goto(`/@${malik.actor.handle}`);
 				await waitForAppReady(page);
 				await page.getByRole('link', { name: `Écrire à ${malik.actor.displayName}` }).click();
@@ -65,7 +69,14 @@ test.describe('LinkMusician — messagerie', () => {
 				await page.getByRole('button', { name: 'Envoyer la demande' }).click();
 				await expect(page).toHaveURL(/\/messages\/c/);
 				await expect(page.getByText('ça te dit une jam funk ?')).toBeVisible();
-				await expect(page.getByText('Demande envoyée')).toBeVisible();
+				// D44 : jusqu'à 3 messages avant sa réponse.
+				await expect(page.getByText('En attendant sa réponse, encore 2 messages.')).toBeVisible();
+				for (const text of ['Je joue de la basse depuis 10 ans.', 'Dispo jeudi ou vendredi.']) {
+					await page.getByLabel('Ton message').fill(text);
+					await page.getByRole('button', { name: 'Envoyer' }).click();
+					await expect(page.getByRole('list', { name: 'Messages' }).getByText(text)).toBeVisible();
+				}
+				await expect(page.getByText('Tu as envoyé 3 messages.')).toBeVisible();
 				await expect(page.getByRole('button', { name: 'Envoyer' })).toHaveCount(0);
 			});
 
@@ -89,16 +100,21 @@ test.describe('LinkMusician — messagerie', () => {
 				await expect(item).toHaveAttribute('href', /^\/messages\/c/);
 			});
 
-			await test.step('3. Malik voit la demande, l’accepte et répond', async () => {
+			await test.step('3. Malik voit le premier message et répond : ça ouvre la conversation', async () => {
 				await malikPage.goto('/messages');
 				await waitForAppReady(malikPage);
 				await expect(malikPage.getByRole('heading', { name: 'Demandes reçues (1)' })).toBeVisible();
 				await expect(
-					malikPage.getByRole('navigation', { name: 'Espace', exact: true }).getByLabel('1 non lu')
+					malikPage.getByRole('navigation', { name: 'Espace', exact: true }).getByLabel('3 non lus')
 				).toBeVisible();
 				await malikPage.getByRole('link', { name: new RegExp(lea.actor.displayName) }).click();
 				await waitForAppReady(malikPage);
-				await malikPage.getByRole('button', { name: 'Accepter' }).click();
+				await expect(
+					malikPage.getByRole('heading', {
+						name: `${lea.actor.displayName} t’écrit pour la première fois`
+					})
+				).toBeVisible();
+				await expect(malikPage.getByRole('button', { name: 'Accepter' })).toHaveCount(0);
 				await malikPage.getByLabel('Ton message').fill('Carrément, jeudi soir ?');
 				await malikPage.getByRole('button', { name: 'Envoyer' }).click();
 				await expect(

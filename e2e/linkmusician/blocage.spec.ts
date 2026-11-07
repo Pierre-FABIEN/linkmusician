@@ -30,7 +30,7 @@ test.describe('LinkMusician — blocage', () => {
 			const lea = await person(account.email);
 			const malik = await person(malikAccount.email);
 
-			await test.step('1. Malik écrit à Léa, qui accepte', async () => {
+			await test.step('1. Malik écrit à Léa, qui lui répond', async () => {
 				await malikPage.goto(`/messages/nouveau?a=${lea.actor.handle}`);
 				await waitForAppReady(malikPage);
 				await malikPage.getByLabel('Ton message').fill('Salut Léa !');
@@ -39,8 +39,12 @@ test.describe('LinkMusician — blocage', () => {
 				await page.goto('/messages');
 				await waitForAppReady(page);
 				await page.getByRole('link', { name: new RegExp(malik.actor.displayName) }).click();
-				await page.getByRole('button', { name: 'Accepter' }).click();
-				await expect(page.getByLabel('Ton message')).toBeVisible();
+				// D44 : répondre ouvre la conversation.
+				await page.getByLabel('Ton message').fill('Salut Malik !');
+				await page.getByRole('button', { name: 'Envoyer' }).click();
+				await expect(
+					page.getByRole('list', { name: 'Messages' }).getByText('Salut Malik !')
+				).toBeVisible();
 			});
 
 			await test.step('2. Léa bloque Malik depuis son profil', async () => {

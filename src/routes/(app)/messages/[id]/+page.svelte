@@ -52,7 +52,7 @@
 		c.blocked
 			? 'Cette conversation est fermée.'
 			: c.permission === 'pending'
-				? `Demande envoyée. Tu pourras écrire à nouveau quand ${c.other.displayName} l'aura acceptée.`
+				? `Tu as envoyé 3 messages. Tu pourras écrire à nouveau quand ${c.other.displayName} t’aura répondu.`
 				: c.permission === 'declined'
 					? 'Cette demande n’a pas été acceptée. La conversation est fermée.'
 					: null
@@ -85,22 +85,14 @@
 		{#if c.myState === 'REQUEST'}
 			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="request-title">
 				<h2 id="request-title" class="font-semibold">
-					{c.other.displayName} veut échanger avec toi
+					{c.other.displayName} t’écrit pour la première fois
 				</h2>
 				<p class="text-sm text-muted-foreground">
-					Accepte pour lui répondre. Refuser ferme la conversation, sans le lui dire.
+					Réponds pour ouvrir la conversation. Refuser la ferme, sans le lui dire.
 				</p>
-				<div class="flex gap-2">
-					<form method="POST" action="?/accept" use:enhance>
-						<button
-							class="min-h-11 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
-							>Accepter</button
-						>
-					</form>
-					<form method="POST" action="?/decline" use:enhance>
-						<button class="min-h-11 rounded-xl border px-4 font-semibold">Refuser</button>
-					</form>
-				</div>
+				<form method="POST" action="?/decline" use:enhance>
+					<button class="min-h-11 rounded-xl border px-4 font-semibold">Refuser</button>
+				</form>
 			</section>
 		{/if}
 
@@ -278,6 +270,11 @@
 		{#if notice}
 			<p class="rounded-2xl border bg-muted/40 p-3 text-sm">{notice}</p>
 		{:else if c.permission === 'ok'}
+			{#if c.messagesLeft !== null && c.messagesLeft < 3}
+				<p class="text-sm text-muted-foreground">
+					En attendant sa réponse, encore {c.messagesLeft} message{c.messagesLeft > 1 ? 's' : ''}.
+				</p>
+			{/if}
 			<form
 				method="POST"
 				action="?/send"
