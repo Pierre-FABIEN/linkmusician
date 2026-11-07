@@ -5,7 +5,23 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import { MAX_MEMBER_TITLE, ROLE_LABELS, isManager, periodLabel } from '#lib/bands/rules';
 	import { plural } from '#lib/jam/log';
-	import { Music, PartyPopper, UserPlus, UsersRound } from 'lucide-svelte';
+	import {
+		MAX_MILESTONE_NOTE,
+		MILESTONE_CATALOG,
+		MIN_MILESTONE_DATE,
+		PROOF_LABELS,
+		todayInParis,
+		type MilestoneKey
+	} from '#lib/milestones/rules';
+	import {
+		Circle,
+		CircleCheck,
+		Flag,
+		Music,
+		PartyPopper,
+		UserPlus,
+		UsersRound
+	} from 'lucide-svelte';
 
 	let { data, form } = $props();
 
@@ -27,6 +43,27 @@
 		year: 'numeric',
 		timeZone: 'Europe/Paris'
 	});
+
+	// Étapes (P3-04) : 1 à 6 ouvertes, les suivantes annoncées.
+	const openSteps = MILESTONE_CATALOG.filter((d) => d.mode !== 'later');
+	const laterSteps = MILESTONE_CATALOG.filter((d) => d.mode === 'later').map((d) => d.label);
+	const stepOf = (key: MilestoneKey) => data.milestones.find((m) => m.key === key) ?? null;
+	const today = todayInParis();
+	const isoDay = (d: Date | string) => new Date(d).toISOString().slice(0, 10);
+	const NOTE_EXAMPLES: Partial<Record<MilestoneKey, string>> = {
+		FIRST_REHEARSAL: 'Au local de répétition',
+		FIRST_RECORDING: 'Démo maison, trois titres',
+		FIRST_PUBLIC_DEMO: 'Sur Bandcamp',
+		FIRST_GIG: 'Au bar du coin, en première partie'
+	};
+	/** Étape dont le formulaire est ouvert (déclarer ou corriger). */
+	let stepForm = $state<MilestoneKey | null>(null);
+	const closeOnSuccess =
+		() =>
+		async ({ result, update }: { result: { type: string }; update: () => Promise<void> }) => {
+			if (result.type === 'success') stepForm = null;
+			await update();
+		};
 
 	let handle = $state('');
 	let confirmLeave = $state(false);
@@ -197,6 +234,126 @@
 				{/each}
 			</ul>
 		</section>
+
+		{#if member}
+			<section class="space-y-3" aria-labelledby="milestones-title">
+				<h2 id="milestones-title" class="flex items-center gap-2 text-xl font-bold">
+					<Flag class="size-5" aria-hidden="true" /> Parcours du groupe
+				</h2>
+				{#if !band.formedAt}
+					<p class="text-sm text-muted-foreground">
+						Le parcours s’ouvre quand le groupe est formé : invitez un premier membre.
+					</p>
+				{:else}
+					<ol class="space-y-2" aria-label="Étapes du groupe">
+						{#each openSteps as def (def.key)}
+							{@const step = stepOf(def.key)}
+							<li class="space-y-3 rounded-2xl border bg-card p-4">
+								<div class="flex items-start justify-between gap-2">
+									<span class="flex gap-3">
+										{#if step}
+											<CircleCheck class="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
+										{:else}
+											<Circle
+												class="mt-0.5 size-5 shrink-0 text-muted-foreground"
+												aria-hidden="true"
+											/>
+										{/if}
+										<span>
+											<span class="font-semibold">{def.label}</span>
+											{#if step}
+												<span class="ml-1 rounded-full border px-2 py-0.5 text-xs"
+													>{PROOF_LABELS[step.proof]}</span
+												>
+												<span class="block text-sm text-muted-foreground"
+													>{day.format(new Date(step.occurredAt))}{step.note
+														? ` · ${step.note}`
+														: ''}</span
+												>
+											{:else}
+												<span class="block text-sm text-muted-foreground">{def.hint}</span>
+											{/if}
+										</span>
+									</span>
+									{#if manager && !dissolved && def.mode === 'declare' && stepForm !== def.key}
+										<button
+											type="button"
+											class="min-h-11 shrink-0 rounded-full border px-3 text-sm {step
+												? ''
+												: 'font-semibold'}"
+											onclick={() => (stepForm = def.key)}
+											>{step ? 'Modifier' : 'C’est fait'}<span class="sr-only">
+												: {def.label}</span
+											></button
+										>
+									{/if}
+								</div>
+								{#if stepForm === def.key}
+									<form
+										method="POST"
+										action={step ? '?/editMilestone' : '?/declare'}
+										class="space-y-3 border-t pt-3"
+										use:enhance={closeOnSuccess}
+									>
+										{#if step}
+											<input type="hidden" name="milestoneId" value={step.id} />
+										{:else}
+											<input type="hidden" name="key" value={def.key} />
+										{/if}
+										<div class="flex flex-wrap gap-3">
+											<label class="block space-y-1 text-sm font-medium">
+												Date
+												<input
+													type="date"
+													name="day"
+													required
+													min={MIN_MILESTONE_DATE}
+													max={today}
+													value={step ? isoDay(step.occurredAt) : today}
+													class="block rounded-md border bg-background p-2 font-normal"
+												/>
+											</label>
+											<label class="block grow space-y-1 text-sm font-medium">
+												Précision <span class="font-normal text-muted-foreground">(facultatif)</span
+												>
+												<input
+													name="note"
+													autocomplete="off"
+													maxlength={MAX_MILESTONE_NOTE}
+													value={step?.note ?? ''}
+													placeholder={NOTE_EXAMPLES[def.key] ?? ''}
+													class="w-full rounded-md border bg-background p-2 font-normal"
+												/>
+											</label>
+										</div>
+										{#if !step}
+											<p class="text-sm text-muted-foreground">
+												+{data.declaredXp[def.key]} points pour le groupe, et une part pour chaque membre.
+												Avec une preuve (bientôt), l’étape rapportera davantage.
+											</p>
+										{/if}
+										<div class="flex gap-2">
+											<button
+												class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
+												>{step ? 'Enregistrer' : 'Ajouter au parcours'}</button
+											>
+											<button
+												type="button"
+												class="min-h-11 rounded-full border px-4"
+												onclick={() => (stepForm = null)}>Annuler</button
+											>
+										</div>
+									</form>
+								{/if}
+							</li>
+						{/each}
+					</ol>
+					<p class="text-sm text-muted-foreground">
+						Ensuite : {laterSteps.join(', ').toLowerCase()}. Ces étapes demanderont une preuve.
+					</p>
+				{/if}
+			</section>
+		{/if}
 
 		{#if member}
 			<section class="space-y-3" aria-labelledby="works-title">

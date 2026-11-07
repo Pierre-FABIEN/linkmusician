@@ -1,7 +1,8 @@
 // LINKMUSICIAN: un groupe vu par une personne connectée (P3-01) : membres
 // actuels et passés (comme un club), invitations et demandes pour la
 // gestion, « Demander à rejoindre » pour les autres. La page publique
-// `/@handle` du groupe arrive avec P3-02.
+// `/@handle` du groupe arrive avec P3-02. Parcours du groupe (étapes, P3-04)
+// pour ses membres ; la gestion déclare les étapes franchies.
 import { error, fail, redirect } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import {
@@ -20,6 +21,14 @@ import {
 } from '#lib/server/bands/service';
 import { bandSchema, inviteSchema, isManager } from '#lib/bands/rules';
 import { bandWorks } from '#lib/server/works/service';
+import {
+	MilestoneError,
+	bandMilestones,
+	declareMilestone,
+	updateMilestoneDetails
+} from '#lib/server/milestones/service';
+import { DECLARABLE_KEYS, declareSchema, milestoneDetailsSchema } from '#lib/milestones/rules';
+import { BAREME } from '#lib/server/progression/core/bareme';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -36,6 +45,11 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		candidates: manager && !band.dissolvedAt ? await inviteCandidates(band.id, actorId) : [],
 		// Morceaux du groupe (P3-11), idées comprises : pour ses membres actifs.
 		works: band.my?.status === 'ACTIVE' ? await bandWorks(band.id) : [],
+		// Étapes (P3-04) : le parcours, et ce que rapporte une déclaration.
+		milestones: band.my?.status === 'ACTIVE' ? await bandMilestones(band.id) : [],
+		declaredXp: Object.fromEntries(
+			DECLARABLE_KEYS.map((key) => [key, BAREME.milestones[key].DECLARED ?? 0])
+		),
 		created: url.searchParams.has('cree')
 	};
 };
@@ -46,7 +60,9 @@ async function run(action: () => Promise<unknown>, message: string) {
 		await action();
 		return { message };
 	} catch (err) {
-		if (err instanceof BandError) return fail(err.status, { error: err.message });
+		if (err instanceof BandError || err instanceof MilestoneError) {
+			return fail(err.status, { error: err.message });
+		}
 		throw err;
 	}
 }
@@ -116,6 +132,35 @@ export const actions: Actions = {
 		if (!parsed.success)
 			return fail(400, { error: parsed.error.issues[0]?.message ?? 'Trop long.' });
 		return run(() => setMyTitle(band.id, actorId, parsed.data), 'C’est noté.');
+	},
+	declare: async ({ locals, params, request }) => {
+		const { actorId, band, field } = await context(locals, params, request);
+		const parsed = declareSchema().safeParse({
+			key: field('key'),
+			day: field('day'),
+			note: field('note')
+		});
+		if (!parsed.success) {
+			return fail(400, {
+				error: parsed.error.issues[0]?.message ?? 'Vérifie le formulaire.',
+				milestone: field('key')
+			});
+		}
+		return run(
+			() => declareMilestone(band.id, actorId, parsed.data),
+			'C’est dans votre parcours !'
+		);
+	},
+	editMilestone: async ({ locals, params, request }) => {
+		const { actorId, field } = await context(locals, params, request);
+		const parsed = milestoneDetailsSchema().safeParse({ day: field('day'), note: field('note') });
+		if (!parsed.success) {
+			return fail(400, { error: parsed.error.issues[0]?.message ?? 'Vérifie le formulaire.' });
+		}
+		return run(
+			() => updateMilestoneDetails(field('milestoneId'), actorId, parsed.data),
+			'Étape mise à jour.'
+		);
 	},
 	leave: async ({ locals, params, request }) => {
 		const { actorId, band } = await context(locals, params, request);

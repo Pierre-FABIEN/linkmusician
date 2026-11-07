@@ -11,6 +11,7 @@
 import { prisma } from '#lib/server';
 import { notIdeaDemo } from '#lib/server/works/visibility';
 import { publicWorksOf } from '#lib/server/works/service';
+import { bandMilestones } from '#lib/server/milestones/service';
 import { isIndexable } from '#lib/actors/visibility';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { getActorLocation } from '#lib/server/geo/queries';
@@ -72,7 +73,7 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 		}
 	}
 
-	const [visibleRows, genres, location, media, recruiting, works] = await Promise.all([
+	const [visibleRows, genres, location, media, recruiting, works, milestones] = await Promise.all([
 		prisma.actor.findMany({
 			where: { id: { in: org.memberships.map((m) => m.person.id) }, ...publicActorWhere(now) },
 			select: { id: true }
@@ -102,7 +103,9 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 			select: { id: true, title: true, instrument: { select: { name: true } } }
 		}),
 		// Morceaux composés du groupe (P3-11).
-		publicWorksOf(actor.id, now, viewerId)
+		publicWorksOf(actor.id, now, viewerId),
+		// Étapes franchies (P3-04), avec leur niveau de preuve.
+		bandMilestones(actor.id)
 	]);
 	const visible = new Set(visibleRows.map((a) => a.id));
 	const signedIn = Boolean(viewerId);
@@ -157,6 +160,13 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 		past: past.map(card),
 		media,
 		works,
+		milestones: milestones.map((m) => ({
+			key: m.key,
+			label: m.label,
+			proof: m.proof,
+			occurredAt: m.occurredAt,
+			note: m.note
+		})),
 		recruiting: recruiting.map((r) => ({
 			id: r.id,
 			title: r.title,

@@ -8,9 +8,10 @@
 	import * as Card from '#shadcn/card';
 	import * as Avatar from '#shadcn/avatar';
 	import { Badge } from '#shadcn/badge';
-	import { History, MapPin, Megaphone, Music, UserPlus, UsersRound } from 'lucide-svelte';
+	import { Flag, History, MapPin, Megaphone, Music, UserPlus, UsersRound } from 'lucide-svelte';
 	import { initialsOf } from '#lib/actors/display';
 	import { ROLE_LABELS, periodLabel } from '#lib/bands/rules';
+	import { PROOF_LABELS } from '#lib/milestones/rules';
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
 	import { seoConfig } from '#lib/seo.config';
 	import type { PublicBand } from '#lib/server/bands/public';
@@ -209,6 +210,36 @@
 			</div>
 
 			<div class="space-y-6">
+				<!-- Étapes (P3-04) : la formation seule est déjà dite en tête. -->
+				{#if band.milestones.some((m) => m.key !== 'FORMATION')}
+					<Card.Root>
+						<Card.Header>
+							<Card.Title
+								><h2 class="flex items-center gap-2">
+									<Flag class="size-5" aria-hidden="true" /> Parcours
+								</h2></Card.Title
+							>
+						</Card.Header>
+						<Card.Content>
+							<ol class="space-y-3 text-sm" aria-label="Étapes franchies">
+								{#each band.milestones as m (m.key)}
+									<li>
+										<span class="font-semibold">{m.label}</span>
+										<Badge variant={m.proof === 'DECLARED' ? 'outline' : 'secondary'} class="ml-1"
+											>{PROOF_LABELS[m.proof]}</Badge
+										>
+										<span class="block text-muted-foreground"
+											>{monthYear.format(new Date(m.occurredAt))}{m.note
+												? ` · ${m.note}`
+												: ''}</span
+										>
+									</li>
+								{/each}
+							</ol>
+						</Card.Content>
+					</Card.Root>
+				{/if}
+
 				<WorksCard works={band.works} {signedIn} />
 
 				{#if band.recruiting.length > 0}
