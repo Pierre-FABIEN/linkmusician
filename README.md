@@ -32,14 +32,38 @@ npm install
 cp .env.example .env          # une seule URL Neon (pooler), BETTER_AUTH_SECRET…
 npm run db:deploy             # applique les migrations (connexion directe)
 npm run seed:referentiels     # instruments et genres (rejouable, sans risque)
-npm run seed:demo             # 12 musicien·nes fictifs autour de ta commune (rejouable)
+npm run seed:demo             # 13 musicien·nes fictifs et leurs scénarios (rejouable)
 npm run dev                   # http://localhost:2000
 ```
 
 - `npm run seed:demo` est **non destructif** : il ne crée que des comptes
   `<handle>@demo.linkmusician.test` (mot de passe `DemoPass!2026`, ou
-  `SEED_DEMO_PASSWORD`) et ne touche jamais au tien. Commune choisie :
+  `SEED_DEMO_PASSWORD`) et ne touche pas au tien. Commune choisie :
   `npm run seed:demo -- --commune=<code INSEE>`.
+- Il joue ensuite des **scénarios** ([prisma/seed-scenarios.ts](./prisma/seed-scenarios.ts))
+  qui font vivre les fonctionnalités, avec leurs points calculés par le
+  vrai moteur. Pour les voir, connecte-toi avec :
+
+  | Compte                                   | Ce qu'il montre                                                                                                                                                   |
+  | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | `malik-batterie`                         | Responsable des **Rats du Mardi** : étapes vérifiée, corroborées et à prouver, démo en modération, une candidature reçue, contacts et groupe « Projet jazz-funk » |
+  | `theo-basse`                             | Co-gestion du groupe, une confirmation d'enregistrement demandée à Samir, palier et succès bien remplis                                                           |
+  | `samir-son`                              | Une **étape à confirmer** (notification, `/etapes/…`)                                                                                                             |
+  | `clara-guitare`                          | **Lead** d'une jam à venir, une collaboration confirmée et appréciée                                                                                              |
+  | `ines-chant`                             | Invitée sur une place de la jam à venir, un premier message de Kevin à lire                                                                                       |
+  | `zoe-violon`, `lucas-sax`, `kevin-metal` | Carnet de jams (jam tardive : succès **Noctambule**), « Je suis dispo », une collaboration à confirmer (kevin)                                                    |
+  | `hugo-dj`                                | **Trois messages envoyés** à Manon sans réponse (messagerie bloquée), invité dans **Néon Lagune**                                                                 |
+  | `manon-ukulele`                          | Trois messages de Hugo à lire : répondre ouvre la conversation                                                                                                    |
+  | `nora-prod`                              | Groupe **en formation**, idée de morceau avec une voix à pourvoir                                                                                                 |
+  | `awa-clavier`                            | Atelier jam à la MJC, a confirmé le concert des Rats, a postulé, groupe « Remplaçant·es »                                                                         |
+  | `jade-batterie`                          | **Mineure** (16 ans) : jams finies avant 22 h seulement, dispo jamais montrée                                                                                     |
+
+  `npm run seed:demo -- --avec-moi` te mêle aux scénarios (ton compte : la
+  dernière personne réelle avec une commune) : présent·e à la jam et
+  apprécié·e, contacts et groupe « Projet funk », invitation dans les Rats,
+  une étape à confirmer, un message de Zoé. Les scénarios ne se rejouent
+  pas si le groupe « Les Rats du Mardi » existe déjà.
+
 - `npm run seed` **vide toute la base** (jeu de démo du boilerplate) puis
   relance les deux seeds ci-dessus.
 - Tests e2e : **arrêter `npm run dev`** avant (voir [e2e/README.md](./e2e/README.md)).

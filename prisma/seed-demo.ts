@@ -2,13 +2,21 @@
 //
 //   npm run seed:demo                     autour de ta commune
 //   npm run seed:demo -- --commune=69123  autour d'une commune (code INSEE)
+//   npm run seed:demo -- --avec-moi       et te mêle aux scénarios (ton compte)
+//
+// Puis des **scénarios** (`prisma/seed-scenarios.ts`) qui font vivre les
+// fonctionnalités : groupe et étapes prouvées, jams et appréciations,
+// collaborations, morceaux, contacts, messagerie à trois messages. Avec
+// `--avec-moi`, ton compte (la dernière personne réelle avec une commune)
+// est invité dans le groupe, apprécié à une jam, a des contacts, un groupe
+// de contacts, un message à lire et une étape à confirmer.
 //
 // Crée une douzaine de musicien·nes fictifs autour d'une commune, avec profil
 // musical complet, ville, statut, recherche et parfois une démo, pour tester
 // la recherche, le mode jam et le profil public. **Non destructif et
 // rejouable** : seuls les comptes `@demo.linkmusician.test` sont concernés,
 // et un compte déjà présent est laissé tel quel. Ton propre compte n'est
-// jamais touché. Les points passent par le vrai moteur de progression
+// touché qu'avec `--avec-moi`. Les points passent par le vrai moteur de progression
 // (événements, registre, succès), jamais écrits à la main.
 //
 // Commune par défaut : celle de la dernière personne réelle qui en a une
@@ -26,6 +34,7 @@ import { E2E_COMMUNES } from '../src/lib/geo/communes-e2e';
 import { setActorLocation } from '../src/lib/server/geo/queries';
 import { onProfileChanged } from '../src/lib/server/progression/profile';
 import { emitAndProcess } from '../src/lib/server/progression/processor';
+import { seedScenarios } from './seed-scenarios';
 
 dotenv.config({ quiet: true });
 
@@ -308,6 +317,24 @@ const CAST: Demo[] = [
 		looking: ['JAMS', 'LESSONS_TAKE'],
 		practiceSince: 2022,
 		radius: 10
+	},
+	// Mineure (D5) : sa dispo n'est montrée à personne, jams finies avant 22 h,
+	// pas de demande d'inconnu·es, pas de discussion de groupe.
+	{
+		handle: 'jade-batterie',
+		name: 'Jade Martin',
+		born: '2010-05-02',
+		since: 20,
+		near: 0,
+		tracks: ['MUSICIAN'],
+		instruments: [['batterie', 2]],
+		genres: ['rock', 'pop'],
+		influences: ['Meg White', 'Anika Nilles'],
+		bio: '16 ans, batterie depuis trois ans au conservatoire. Je cherche des ateliers jam.',
+		pro: 'AMATEUR',
+		looking: ['JAMS', 'LESSONS_TAKE'],
+		practiceSince: 2023,
+		radius: 10
 	}
 ];
 
@@ -386,6 +413,19 @@ async function nearbyCommunes(): Promise<Commune[]> {
 		`Autour de ${reference.nom} : ${[...new Set(communes.map((c) => c.nom))].join(', ')}.`
 	);
 	return communes;
+}
+
+/** Ton compte (la dernière personne réelle avec une commune), pour `--avec-moi`. */
+async function myself() {
+	const rows = await prisma.$queryRaw<{ actorId: string; displayName: string }[]>`
+		SELECT a.id AS "actorId", a."displayName" FROM actor_locations l
+		JOIN actors a ON a.id = l."actorId"
+		JOIN persons p ON p."actorId" = l."actorId"
+		JOIN users u ON u.id = p."userId"
+		WHERE u.email NOT LIKE ${`%@${DOMAIN}`} AND a."deletedAt" IS NULL
+		ORDER BY l."updatedAt" DESC LIMIT 1`;
+	if (!rows[0]) console.log('--avec-moi : aucun compte réel avec une commune, scénarios sans toi.');
+	return rows[0] ?? null;
 }
 
 const referralCode = () => `DEMO${randomBytes(4).toString('hex').toUpperCase()}`;
@@ -503,6 +543,11 @@ try {
 	}
 	console.log(
 		`Démo LinkMusician : ${created} compte(s) créé(s), ${CAST.length - created} déjà présent(s).`
+	);
+	await seedScenarios(
+		prisma,
+		communes[0],
+		process.argv.includes('--avec-moi') ? await myself() : null
 	);
 	console.log(`Connexion : <handle>@${DOMAIN} / ${PASSWORD}`);
 } catch (error) {
