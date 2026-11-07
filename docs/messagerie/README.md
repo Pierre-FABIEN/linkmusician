@@ -30,7 +30,8 @@ Module LinkMusician (lot P2-04, décisions D5 et D8). Pages `/messages`,
   `conversation.reciprocated` pour chacun des deux ; l'XP n'est versée
   que si la conversation est née d'une annonce (P2-02/P2-03).
 - **Non-lus** : messages de l'autre après ma lecture ; pastille sur
-  l'onglet Messages ; ouvrir une conversation la marque comme lue.
+  l'icône Messages dans l'en-tête (D48) ; ouvrir une conversation la
+  marque comme lue.
 - **Temps réel (D8)** : pas de WebSocket (les fonctions Vercel ne gardent
   pas de connexion). Polling **léger** toutes les 15 s, onglet visible
   seulement : `GET /api/conversations/[id]/nouveaux?apres=…` fait une seule

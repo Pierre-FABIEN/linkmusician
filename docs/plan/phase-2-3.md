@@ -279,14 +279,15 @@ COMPLETED` (ou `CANCELLED`) ; pas d'état « en cours », et une
 - **Présentation en 3 étapes** la première fois qu'on choisit un mode
   (`/jouer/carriere`, `/jouer/jam`), « Passer » possible ; ensuite, accès
   direct (`Person.modeIntrosSeen`).
-- **Onglets selon le mode** (carrière : parcours, découvrir, annonces,
-  messages, profil ; jam : jam, découvrir, messages, profil) et pastille
-  « changer de mode » en haut (`AppShell`).
+- **Coquille actuelle (D48)** : pas de barre d'onglets ; raccourcis
+  Découvrir, Messages et Notifications à droite dans l'en-tête ; Profil
+  dans le menu du compte. Le contrôle de mode bascule directement vers
+  l'autre mode et enregistre la préférence.
 - **« Ta prochaine étape »** : une seule action à la fois, « Étape X sur
   N » (carrière : objectifs du jeu ; jam : ville → dispo → écrire → jam
   confirmée → passer en carrière).
-- La navigation de l'espace reste sur le **profil public** et les
-  **médias** quand on est connecté.
+- La coquille et ses raccourcis restent sur le **profil public** et les
+  **médias** quand on est connecté, sur mobile comme sur ordinateur.
 - E2E `modes.spec.ts`.
 
 ### P2-13 — Mode jam : « Je suis dispo »

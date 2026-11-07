@@ -208,11 +208,11 @@ jusqu'à `fe82121`, et l'historique a été relié (`d24aed5`). Détail dans
 > mobile). Décision D24, conception 03 §2.6.
 
 - **Tâches réalisées** :
-  - espace : barre d'onglets en bas sur téléphone (hors du conteneur de
-    défilement, `portal`), bande du haut avec logo et menu du compte ;
-    la barre flottante du boilerplate est masquée dans l'espace ;
+  - espace : bandeau du haut avec logo, contrôle de mode, raccourcis et
+    menu du compte ; la barre flottante du boilerplate est masquée dans
+    l'espace ; navigation simplifiée et sans barre d'onglets par D48 ;
   - en-têtes du tableau de bord et du profil public empilés sur
-    téléphone ; bandeau cookies au-dessus de la barre d'onglets ;
+    téléphone ; bandeau cookies dans les zones sûres ;
   - `viewport-fit=cover` et zones sûres ; balises d'app installée (iOS) ;
   - manifeste complet (raccourcis, icônes `any` et `maskable`), icônes et
     favicons LinkMusician ;
@@ -223,6 +223,6 @@ jusqu'à `fe82121`, et l'historique a été relié (`d24aed5`). Détail dans
   - **correctif** : la surveillance par scrutation de Vite relisait les
     sorties de build et de test (`.vercel/`…) et saturait le processeur,
     ce qui affamait le serveur e2e (préchauffage de 180 s à 8 s).
-- **Fin** : `e2e/linkmusician/mobile.spec.ts` (390 px) : barre d'onglets,
-  navigation au doigt, aucun débordement sur 8 pages. Le comportement du
+- **Fin** : `e2e/linkmusician/mobile.spec.ts` (390 px) : raccourcis dans
+  l'en-tête, navigation au doigt, aucun débordement sur 8 pages. Le comportement du
   service worker se vérifie après le premier déploiement.

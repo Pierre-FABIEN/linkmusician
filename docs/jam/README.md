@@ -10,8 +10,9 @@ Jouer pour le plaisir et rencontrer, sans projet ni engagement.
   carte disant comment on y avance. Le dernier choix est retenu
   (`Person.preferredMode`, « Reprendre »). La première fois, une
   **présentation en 3 étapes** (`/jouer/carriere`, `/jouer/jam`).
-- **Navigation par mode** : en jam, quatre onglets (Jam, Découvrir,
-  Messages, Profil) ; pastille « changer de mode » en haut de l'écran.
+- **Navigation (D48)** : raccourcis Découvrir, Messages et Notifications
+  dans l'en-tête ; Profil dans le menu du compte. La pastille du mode
+  bascule directement entre Jam et Carrière.
 - **« Ta prochaine étape »** (`src/lib/jam/guide.ts`) : ville → se mettre
   dispo (ou repérer une jam, pour les mineur·es) → écrire à quelqu'un →
   confirmer la jam (points) → passer en mode carrière.

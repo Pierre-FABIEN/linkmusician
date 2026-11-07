@@ -104,9 +104,7 @@ test.describe('LinkMusician — messagerie', () => {
 				await malikPage.goto('/messages');
 				await waitForAppReady(malikPage);
 				await expect(malikPage.getByRole('heading', { name: 'Demandes reçues (1)' })).toBeVisible();
-				await expect(
-					malikPage.getByRole('navigation', { name: 'Espace', exact: true }).getByLabel('3 non lus')
-				).toBeVisible();
+				await expect(malikPage.getByRole('link', { name: 'Messages : 3 non lus' })).toBeVisible();
 				await malikPage.getByRole('link', { name: new RegExp(lea.actor.displayName) }).click();
 				await waitForAppReady(malikPage);
 				await expect(

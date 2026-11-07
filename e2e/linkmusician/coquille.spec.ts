@@ -5,7 +5,7 @@ import { expectNoA11yViolations } from '../support/a11y';
 import { skipOnboarding } from '../support/linkmusician';
 
 /**
- * P0-05b — Coquille de l'espace : navigation à cinq entrées, pages
+ * P0-05b — Coquille de l'espace : actions de l'en-tête, pages
  * « bientôt », accessibilité en clair et en sombre.
  */
 test.describe('LinkMusician — coquille de l’espace', () => {
@@ -19,29 +19,28 @@ test.describe('LinkMusician — coquille de l’espace', () => {
 		await signUpAndVerify(page, account);
 		await skipOnboarding(page, account.email);
 
-		await test.step('1. L’espace a sa navigation', async () => {
+		await test.step('1. Les raccourcis sont dans l’en-tête', async () => {
 			await page.goto('/espace');
 			await waitForAppReady(page);
-			const nav = page.getByRole('navigation', { name: 'Espace', exact: true });
-			await expect(nav.getByRole('link')).toHaveCount(5);
-			await expect(nav.getByRole('link', { name: 'Mon parcours' })).toHaveAttribute(
-				'aria-current',
-				'page'
-			);
+			const header = page.locator('header');
+			await expect(header.getByRole('link', { name: 'Découvrir' })).toBeVisible();
+			await expect(header.getByRole('link', { name: 'Messages' })).toBeVisible();
+			await expect(header.getByRole('link', { name: 'Notifications' })).toBeVisible();
+			await expect(page.getByRole('navigation', { name: 'Espace', exact: true })).toHaveCount(0);
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 		});
 
 		// Les pages « bientôt » sont devenues réelles (P2-01, P2-02, P2-04) : voir leurs specs.
 		await expectNoA11yViolations(page, A11Y_EXCLUDE);
 
-		await test.step('3. Profil actif aussi sur les réglages', async () => {
+		await test.step('3. Le profil est dans le menu du compte', async () => {
 			await page.goto('/reglages');
 			await waitForAppReady(page);
-			await expect(
-				page
-					.getByRole('navigation', { name: 'Espace', exact: true })
-					.getByRole('link', { name: 'Profil' })
-			).toHaveAttribute('aria-current', 'page');
+			await page.getByRole('button', { name: 'Ouvrir le menu du compte' }).click();
+			await expect(page.getByRole('link', { name: 'Mon profil' })).toHaveAttribute(
+				'aria-current',
+				'page'
+			);
 		});
 
 		await test.step('4. Thème sombre : contrastes', async () => {
