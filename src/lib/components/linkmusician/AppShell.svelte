@@ -9,7 +9,15 @@
 	import '#lib/linkmusician/theme.css';
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
-	import { ArrowLeftRight, Bell, Compass, Guitar, MessageCircle, Trophy } from 'lucide-svelte';
+	import {
+		ArrowLeftRight,
+		Bell,
+		Compass,
+		Guitar,
+		Megaphone,
+		MessageCircle,
+		Trophy
+	} from 'lucide-svelte';
 	import { badgeLabel } from '#lib/notifications/types';
 	import { modeFor, PLAY_MODE_INFO, type PlayModeValue } from '#lib/linkmusician/modes';
 	import { BRAND } from '#lib/linkmusician/brand';
@@ -67,6 +75,7 @@
 	const mode = $derived(modeFor(page.url.pathname, preferredMode));
 	const targetMode = $derived(mode === 'JAM' ? 'CAREER' : 'JAM');
 	const ModeIcon = $derived(mode === 'JAM' ? Guitar : Trophy);
+	const showGroupAnnouncements = $derived(page.url.pathname === '/groupes');
 </script>
 
 {#snippet badge()}
@@ -82,8 +91,9 @@
 			<a
 				href="/jouer"
 				aria-label={BRAND.name}
-				class="max-[359px]:hidden shrink-0 bg-[image:var(--lm-gradient)] bg-clip-text text-lg font-black text-transparent italic uppercase sm:text-xl"
-				>{BRAND.name}</a
+				class="shrink-0 bg-[image:var(--lm-gradient)] bg-clip-text text-lg font-black text-transparent italic uppercase {showGroupAnnouncements
+					? 'max-[479px]:hidden'
+					: 'max-[359px]:hidden'} sm:text-xl">{BRAND.name}</a
 			>
 			<form method="POST" action="/jouer?/toggleMode">
 				<input type="hidden" name="mode" value={targetMode} />
@@ -101,6 +111,17 @@
 					<ArrowLeftRight class="size-3.5" aria-hidden="true" />
 				</button>
 			</form>
+			{#if showGroupAnnouncements}
+				<a
+					href="/annonces"
+					class="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full px-2 text-sm text-muted-foreground underline-offset-4 transition hover:bg-muted hover:text-foreground hover:underline sm:gap-1.5 sm:px-3"
+					aria-label="Annonces"
+					title="Voir les annonces"
+				>
+					<Megaphone class="size-4" aria-hidden="true" />
+					<span class="hidden sm:inline">Annonces</span>
+				</a>
+			{/if}
 			<div class="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
 				<a
 					href="/decouvrir"

@@ -93,6 +93,9 @@ ensemble**.
 3. Dès que la première personne accepte, le groupe est **formé** : vous
    gagnez des points tous les deux.
 
+Depuis **Groupes**, le raccourci **Annonces**, à côté du switch de mode,
+ouvre directement les annonces de recrutement et de jam.
+
 Le groupe a sa **page publique** (`/@nom-du-groupe`) : son effectif
 actuel et passé avec les dates (comme un club), sa présentation, ses
 styles, ses morceaux, son parcours. Les personnes qui gèrent le groupe
