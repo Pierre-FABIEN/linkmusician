@@ -13,6 +13,7 @@
 		todayInParis,
 		type MilestoneKey
 	} from '#lib/milestones/rules';
+	import { EVIDENCE_LABELS, proofRule } from '#lib/milestones/proofs';
 	import {
 		Circle,
 		CircleCheck,
@@ -64,6 +65,19 @@
 			if (result.type === 'success') stepForm = null;
 			await update();
 		};
+
+	// Preuves (P3-05) : étape dont le panneau « Prouver » est ouvert.
+	let proofOpen = $state<string | null>(null);
+	const ATTESTATION_STATUS = {
+		REQUESTED: 'en attente',
+		CONFIRMED: 'a confirmé',
+		DECLINED: 'n’y était pas'
+	} as const;
+	const EVIDENCE_STATUS = {
+		PENDING: 'en cours de vérification',
+		ACCEPTED: 'ajouté',
+		REJECTED: 'refusé'
+	} as const;
 
 	let handle = $state('');
 	let confirmLeave = $state(false);
@@ -248,6 +262,8 @@
 					<ol class="space-y-2" aria-label="Étapes du groupe">
 						{#each openSteps as def (def.key)}
 							{@const step = stepOf(def.key)}
+							{@const rule = proofRule(def.key)}
+							{@const proofs = step ? data.proofs[step.id] : undefined}
 							<li class="space-y-3 rounded-2xl border bg-card p-4">
 								<div class="flex items-start justify-between gap-2">
 									<span class="flex gap-3">
@@ -344,6 +360,121 @@
 											>
 										</div>
 									</form>
+								{/if}
+								{#if step && rule && proofs && (step.proof === 'DECLARED' || proofs.attestations.length > 0 || proofs.evidence.length > 0)}
+									<div class="space-y-2 border-t pt-3 text-sm">
+										{#if step.proof === 'DECLARED'}
+											<p class="font-semibold">Pour la corroborer :</p>
+											<ul class="space-y-1" aria-label="Preuves : {def.label}">
+												{#each proofs.checklist as item (item.label)}
+													<li class="flex gap-2">
+														<span aria-hidden="true"
+															>{item.done ? '✅' : item.pending ? '⏳' : '⬜'}</span
+														>
+														<span
+															>{item.label}{item.pending && !item.done ? ' (en attente)' : ''}</span
+														>
+													</li>
+												{/each}
+											</ul>
+										{/if}
+										{#if proofs.attestations.length > 0 || proofs.evidence.length > 0}
+											<ul
+												class="space-y-1 text-muted-foreground"
+												aria-label="Demandes et liens : {def.label}"
+											>
+												{#each proofs.attestations as a, i (i)}
+													<li>{a.name} · {ATTESTATION_STATUS[a.status]}</li>
+												{/each}
+												{#each proofs.evidence as e (e.id)}
+													<li class="break-all">
+														<a
+															href={e.url}
+															class="underline"
+															target="_blank"
+															rel="noopener noreferrer">{EVIDENCE_LABELS[e.kind]}</a
+														>
+														· {EVIDENCE_STATUS[e.status]}{e.status === 'REJECTED' &&
+														e.rejectionReason
+															? ` : ${e.rejectionReason}`
+															: ''}
+													</li>
+												{/each}
+											</ul>
+										{/if}
+										{#if manager && !dissolved && step.proof === 'DECLARED'}
+											{#if proofOpen !== step.id}
+												<button
+													type="button"
+													class="min-h-11 rounded-full border px-3 font-semibold"
+													onclick={() => (proofOpen = step.id)}
+													>Prouver<span class="sr-only"> : {def.label}</span></button
+												>
+											{:else}
+												{#if rule.evidence}
+													<form
+														method="POST"
+														action="?/addLink"
+														class="flex flex-wrap items-end gap-2"
+														use:enhance
+													>
+														<input type="hidden" name="milestoneId" value={step.id} />
+														<label class="block grow space-y-1 font-medium">
+															{EVIDENCE_LABELS[rule.evidence.kind]}{rule.evidence.required
+																? ''
+																: ' (facultatif)'}
+															<input
+																name="url"
+																type="url"
+																required
+																autocomplete="off"
+																placeholder="https://"
+																class="w-full rounded-md border bg-background p-2 font-normal"
+															/>
+														</label>
+														<button class="min-h-11 rounded-full border px-4"
+															>Ajouter le lien</button
+														>
+													</form>
+												{/if}
+												{#if rule.attester}
+													<form
+														method="POST"
+														action="?/askConfirm"
+														class="flex flex-wrap items-end gap-2"
+														use:enhance
+													>
+														<input type="hidden" name="milestoneId" value={step.id} />
+														<label class="block grow space-y-1 font-medium">
+															{rule.attester === 'MEMBER'
+																? 'Un autre membre présent ce jour-là'
+																: 'Une personne hors du groupe qui y était'}
+															<input
+																name="handle"
+																required
+																autocomplete="off"
+																placeholder="@son-identifiant"
+																class="w-full rounded-md border bg-background p-2 font-normal"
+															/>
+														</label>
+														<button
+															class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
+															>Demander de confirmer</button
+														>
+													</form>
+												{/if}
+												<p class="text-muted-foreground">
+													Une fois corroborée, l’étape rapporte bien plus au groupe et à ses
+													membres.
+												</p>
+												<button
+													type="button"
+													class="min-h-11 text-muted-foreground underline"
+													onclick={() => (proofOpen = null)}>Fermer</button
+												>
+											{/if}
+										{/if}
+									</div>
 								{/if}
 							</li>
 						{/each}

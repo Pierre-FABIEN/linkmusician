@@ -143,6 +143,59 @@
 			{/each}
 		</section>
 
+		<section class="space-y-4" aria-labelledby="evidence-title">
+			<h2 id="evidence-title" class="text-lg font-semibold">
+				Preuves de démo à vérifier ({data.pendingEvidence.length})
+			</h2>
+			<p class="text-sm text-muted-foreground">
+				Le lien mène-t-il à une écoute publique, au nom du groupe ?
+			</p>
+			{#if data.pendingEvidence.length === 0}<p class="text-sm text-muted-foreground">
+					Rien en attente.
+				</p>{/if}
+			{#each data.pendingEvidence as e (e.id)}
+				<article
+					class="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-sm"
+					aria-label="Preuve de {e.band.displayName}"
+				>
+					<div class="min-w-0">
+						<p>
+							<a href="/@{e.band.handle}" class="font-medium underline">{e.band.displayName}</a>
+							· {e.label}
+						</p>
+						<a href={e.url} class="break-all underline" target="_blank" rel="noopener noreferrer"
+							>{e.url}</a
+						>
+						<p class="text-muted-foreground">{date(e.createdAt)}</p>
+					</div>
+					<div class="flex flex-wrap items-end gap-2">
+						<form method="POST" action="?/acceptEvidence" use:enhance>
+							<input type="hidden" name="evidenceId" value={e.id} />
+							<button
+								type="submit"
+								class="rounded-md bg-primary px-3 py-1.5 text-primary-foreground">Accepter</button
+							>
+						</form>
+						<form method="POST" action="?/rejectEvidence" use:enhance class="flex items-end gap-2">
+							<input type="hidden" name="evidenceId" value={e.id} />
+							<label>
+								<span class="sr-only">Motif du refus</span>
+								<input
+									name="reason"
+									required
+									placeholder="Motif du refus"
+									class="rounded-md border bg-background p-1.5"
+								/>
+							</label>
+							<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
+								>Refuser</button
+							>
+						</form>
+					</div>
+				</article>
+			{/each}
+		</section>
+
 		<section class="space-y-4" aria-labelledby="venues-title">
 			<h2 id="venues-title" class="text-lg font-semibold">
 				Lieux à valider ({data.pendingVenues.length})

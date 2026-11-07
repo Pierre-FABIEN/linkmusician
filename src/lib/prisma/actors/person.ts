@@ -17,6 +17,7 @@ import { getActorLocation } from '#lib/server/geo/queries';
 import { getProgress } from '#lib/server/progression/read';
 import { worksExport } from '#lib/server/works/service';
 import { milestonesExport } from '#lib/server/milestones/service';
+import { proofsExport } from '#lib/server/milestones/proofs';
 
 export type NewPersonInput = {
 	userId: string;
@@ -140,7 +141,8 @@ export async function exportPersonData(userId: string) {
 		suggestionsDismissed,
 		memberships,
 		works,
-		milestonesDeclared
+		milestonesDeclared,
+		milestoneProofs
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -392,7 +394,9 @@ export async function exportPersonData(userId: string) {
 		// Morceaux (P3-11) : portés et crédits.
 		worksExport(person.actorId),
 		// Étapes de groupe déclarées (P3-04).
-		milestonesExport(person.actorId)
+		milestonesExport(person.actorId),
+		// Preuves d'étapes (P3-05) : confirmations demandées, liens joints.
+		proofsExport(person.actorId)
 	]);
 	const media = await prisma.media.findMany({
 		where: { actorId: person.actorId },
@@ -610,6 +614,8 @@ export async function exportPersonData(userId: string) {
 			}))
 		},
 		etapes_de_groupe_declarees: milestonesDeclared,
+		etapes_de_groupe_confirmations: milestoneProofs.confirmations,
+		etapes_de_groupe_liens: milestoneProofs.liens,
 		suggestions_ecartees: suggestionsDismissed.map((d) => ({
 			nom: d.actor.displayName,
 			le: d.createdAt
@@ -657,6 +663,20 @@ export async function personAnonymizationOps(
 		prisma.milestone.updateMany({
 			where: { declaredById: person.actorId },
 			data: { declaredById: null }
+		}),
+		// Preuves (P3-05) : les demandes en attente disparaissent ; une
+		// confirmation donnée reste (l'étape du groupe en dépend) ; on oublie
+		// qui a demandé et qui a joint un lien.
+		prisma.milestoneAttestation.deleteMany({
+			where: { attesterId: person.actorId, status: 'REQUESTED' }
+		}),
+		prisma.milestoneAttestation.updateMany({
+			where: { requestedById: person.actorId },
+			data: { requestedById: null }
+		}),
+		prisma.milestoneEvidence.updateMany({
+			where: { addedById: person.actorId },
+			data: { addedById: null }
 		}),
 		prisma.influence.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.profileLink.deleteMany({ where: { personId: person.actorId } }),

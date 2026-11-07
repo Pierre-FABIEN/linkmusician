@@ -19,10 +19,16 @@ import {
 	validateVenue
 } from '#lib/server/moderation/service';
 import { VENUE_KIND_LABELS } from '#lib/venues/rules';
+import { MilestoneError } from '#lib/server/milestones/service';
+import { pendingEvidence, reviewEvidence } from '#lib/server/milestones/proofs';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const [queue, collusion] = await Promise.all([moderationQueue(), collusionQueue()]);
+	const [queue, collusion, evidence] = await Promise.all([
+		moderationQueue(),
+		collusionQueue(),
+		pendingEvidence()
+	]);
 	const mediaView = (m: {
 		id: string;
 		kind: string;
@@ -41,6 +47,8 @@ export const load: PageServerLoad = async () => {
 	return {
 		// Cercles fermés repérés la nuit (P2-10), jamais sanctionnés d'office.
 		collusion,
+		// Liens d'écoute joints à une « première démo publique » (P3-05, D43).
+		pendingEvidence: evidence,
 		pendingVenues: queue.pendingVenues.map((v) => ({
 			id: v.id,
 			name: v.name,
@@ -79,7 +87,9 @@ async function run(
 		await fn({ userId: locals.user!.id });
 		return { message: done };
 	} catch (err) {
-		if (err instanceof ModerationError) return fail(400, { error: err.message });
+		if (err instanceof ModerationError || err instanceof MilestoneError) {
+			return fail(400, { error: err.message });
+		}
 		throw err;
 	}
 }
@@ -104,6 +114,23 @@ export const actions: Actions = {
 			locals,
 			(by) => removeOpportunity(field(data, 'opportunityId'), field(data, 'reason'), by),
 			'Annonce retirée.'
+		);
+	},
+	/** Preuve de démo publique (P3-05) : le nom d'artiste correspond-il ? */
+	acceptEvidence: async ({ request, locals }) => {
+		const data = await request.formData();
+		return run(
+			locals,
+			(by) => reviewEvidence(field(data, 'evidenceId'), true, by),
+			'Lien accepté.'
+		);
+	},
+	rejectEvidence: async ({ request, locals }) => {
+		const data = await request.formData();
+		return run(
+			locals,
+			(by) => reviewEvidence(field(data, 'evidenceId'), false, by, field(data, 'reason')),
+			'Lien refusé.'
 		);
 	},
 	/** Valider un lieu ajouté par un compte récent (P2-14c, D26). */

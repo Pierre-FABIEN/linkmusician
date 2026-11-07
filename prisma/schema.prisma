@@ -1462,6 +1462,9 @@ model Actor {
   workCreditsInvited         WorkContributor[]        @relation("WorkContributorInviter")
   milestones                 Milestone[]              @relation("MilestoneBand")
   milestonesDeclared         Milestone[]              @relation("MilestoneDeclarer")
+  milestoneAttestations      MilestoneAttestation[]   @relation("MilestoneAttester")
+  milestoneAttestationsAsked MilestoneAttestation[]   @relation("MilestoneAttestationRequester")
+  milestoneEvidenceAdded     MilestoneEvidence[]      @relation("MilestoneEvidenceAdder")
 
   @@map("actors")
 }
@@ -2524,6 +2527,8 @@ enum NotificationType {
   BAND_JOINED
   /// On te crédite sur un morceau : confirme ton rôle (P3-11).
   WORK_CREDIT
+  /// Un groupe te demande de confirmer une de ses étapes (P3-05).
+  MILESTONE_ATTEST
   /// Préférence d'email seulement (P2-09b) : jamais une ligne de `Notification`.
   MESSAGES
   PROGRESS
@@ -2838,9 +2843,84 @@ model Milestone {
   definitionVersion Int
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
+  attestations      MilestoneAttestation[]
+  evidence          MilestoneEvidence[]
 
   @@unique([bandId, definitionId])
   @@index([declaredById])
   @@index([workId])
   @@map("milestones")
+}
+
+// ─── PREUVES DES ÉTAPES (P3-05, D43) ────────────────────────────────────────
+
+/// Qui confirme : un autre membre présent à la date, ou une personne hors
+/// du groupe (TL1, jamais membre ni ancien membre).
+enum AttesterRole {
+  MEMBER
+  OUTSIDER
+}
+
+enum AttestationStatus {
+  REQUESTED
+  CONFIRMED
+  DECLINED
+}
+
+/// Lien joint à une étape : l'événement ou l'affiche (concert), l'écoute
+/// (démo publique, relue par la modération), un extrait (enregistrement).
+enum EvidenceKind {
+  EVENT
+  LISTEN
+  RECORDING
+}
+
+enum EvidenceStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+/// Une demande de confirmation d'étape, et sa réponse. Une par étape et
+/// par personne. Seul point d'écriture : `src/lib/server/milestones/proofs.ts`.
+model MilestoneAttestation {
+  id            String            @id @default(cuid())
+  milestoneId   String
+  milestone     Milestone         @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  attesterId    String
+  attester      Actor             @relation("MilestoneAttester", fields: [attesterId], references: [id], onDelete: Cascade)
+  /// Personne de la gestion qui a demandé ; vide après RGPD.
+  requestedById String?
+  requestedBy   Actor?            @relation("MilestoneAttestationRequester", fields: [requestedById], references: [id], onDelete: SetNull)
+  role          AttesterRole
+  status        AttestationStatus @default(REQUESTED)
+  createdAt     DateTime          @default(now())
+  answeredAt    DateTime?
+
+  @@unique([milestoneId, attesterId])
+  @@index([attesterId, status])
+  @@index([requestedById])
+  @@map("milestone_attestations")
+}
+
+/// Un lien joint à une étape. Une démo publique attend la modération
+/// (`PENDING`) ; les autres liens sont acceptés tels quels.
+model MilestoneEvidence {
+  id               String         @id @default(cuid())
+  milestoneId      String
+  milestone        Milestone      @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  kind             EvidenceKind
+  url              String
+  addedById        String?
+  addedBy          Actor?         @relation("MilestoneEvidenceAdder", fields: [addedById], references: [id], onDelete: SetNull)
+  status           EvidenceStatus
+  reviewedAt       DateTime?
+  reviewedByUserId String?
+  rejectionReason  String?
+  createdAt        DateTime       @default(now())
+
+  @@index([milestoneId])
+  @@index([status, createdAt])
+  @@index([addedById])
+  @@map("milestone_evidence")
 }

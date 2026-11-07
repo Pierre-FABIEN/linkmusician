@@ -12,7 +12,8 @@
 		Settings,
 		UsersRound,
 		UserPlus,
-		Music
+		Music,
+		Flag
 	} from 'lucide-svelte';
 	import type { NotificationTypeValue } from '#lib/notifications/types';
 
@@ -28,7 +29,8 @@
 		BAND_INVITE: UsersRound,
 		BAND_REQUEST: UserPlus,
 		BAND_JOINED: UsersRound,
-		WORK_CREDIT: Music
+		WORK_CREDIT: Music,
+		MILESTONE_ATTEST: Flag
 	};
 
 	const rtf = new Intl.RelativeTimeFormat('fr-FR', { numeric: 'auto' });

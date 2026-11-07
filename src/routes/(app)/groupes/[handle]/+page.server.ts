@@ -27,6 +27,11 @@ import {
 	declareMilestone,
 	updateMilestoneDetails
 } from '#lib/server/milestones/service';
+import {
+	addEvidence,
+	bandMilestoneProofs,
+	requestAttestation
+} from '#lib/server/milestones/proofs';
 import { DECLARABLE_KEYS, declareSchema, milestoneDetailsSchema } from '#lib/milestones/rules';
 import { BAREME } from '#lib/server/progression/core/bareme';
 import type { Actions, PageServerLoad } from './$types';
@@ -47,6 +52,8 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		works: band.my?.status === 'ACTIVE' ? await bandWorks(band.id) : [],
 		// Étapes (P3-04) : le parcours, et ce que rapporte une déclaration.
 		milestones: band.my?.status === 'ACTIVE' ? await bandMilestones(band.id) : [],
+		// Preuves (P3-05) : demandes, liens et ce qu'il reste à faire.
+		proofs: band.my?.status === 'ACTIVE' ? await bandMilestoneProofs(band.id) : {},
 		declaredXp: Object.fromEntries(
 			DECLARABLE_KEYS.map((key) => [key, BAREME.milestones[key].DECLARED ?? 0])
 		),
@@ -161,6 +168,40 @@ export const actions: Actions = {
 			() => updateMilestoneDetails(field('milestoneId'), actorId, parsed.data),
 			'Étape mise à jour.'
 		);
+	},
+	askConfirm: async ({ locals, params, request }) => {
+		const { actorId, field } = await context(locals, params, request);
+		try {
+			const { displayName } = await requestAttestation(
+				field('milestoneId'),
+				actorId,
+				field('handle')
+			);
+			return { message: `Demande envoyée à ${displayName}.` };
+		} catch (err) {
+			if (err instanceof MilestoneError) return fail(err.status, { error: err.message });
+			throw err;
+		}
+	},
+	addLink: async ({ locals, params, request }) => {
+		const { actorId, field } = await context(locals, params, request);
+		try {
+			const { reviewed, corroborated } = await addEvidence(
+				field('milestoneId'),
+				actorId,
+				field('url')
+			);
+			return {
+				message: corroborated
+					? 'Bravo, l’étape est corroborée !'
+					: reviewed
+						? 'Lien envoyé à la modération : on vérifie le nom d’artiste.'
+						: 'Lien ajouté.'
+			};
+		} catch (err) {
+			if (err instanceof MilestoneError) return fail(err.status, { error: err.message });
+			throw err;
+		}
 	},
 	leave: async ({ locals, params, request }) => {
 		const { actorId, band } = await context(locals, params, request);

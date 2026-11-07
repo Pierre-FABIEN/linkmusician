@@ -12,7 +12,8 @@
  *   (`syncComposition`, appelé par le service des morceaux et à la
  *   formation) ; déclarée, puis corroborée quand un morceau l'est ;
  * - les autres étapes ouvertes se **déclarent** par la gestion du groupe
- *   (`declareMilestone`). Les preuves arrivent avec P3-05.
+ *   (`declareMilestone`). Leurs preuves (confirmations, liens) passent par
+ *   `./proofs.ts` (P3-05).
  *
  * Progression : chaque création ou renforcement de preuve émet
  * `milestone.attested` (XP différentielle au groupe, 25 % aux membres
@@ -56,7 +57,8 @@ type Db = Tx | typeof prisma;
 /** Le traitement d'un événement de progression peut dépasser 5 s (P2-08). */
 const TX = { timeout: 20_000 } as const;
 
-async function lockBand(tx: Tx, bandId: string) {
+/** Verrou du groupe (le même que les adhésions), réentrant dans une transaction. */
+export async function lockBand(tx: Tx, bandId: string) {
 	await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`band:${bandId}`}))`;
 }
 
@@ -74,7 +76,7 @@ async function definitionVersion(tx: Tx, key: MilestoneKey) {
  * Émet l'attestation. Les membres crédités sont ceux présents à la date de
  * l'étape (ou de la formation, pour une étape d'avant la plateforme).
  */
-async function attest(
+export async function attest(
 	tx: Tx,
 	input: {
 		bandId: string;
@@ -191,7 +193,7 @@ export async function syncComposition(
 }
 
 /** Le groupe, vivant, et la gestion de la personne (sinon refus). */
-async function managedBand(tx: Tx, bandId: string, personId: string) {
+export async function managedBand(tx: Tx, bandId: string, personId: string) {
 	const band = await tx.organization.findFirst({
 		where: { actorId: bandId, kind: 'BAND', actor: { deletedAt: null } },
 		select: { formedAt: true, dissolvedAt: true }

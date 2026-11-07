@@ -41,6 +41,8 @@ export function actorIdsOf(event: DomainEvent): string[] {
 			return [event.personId, ...new Set(event.otherIds.filter((id) => id !== event.personId))];
 		case 'milestone.attested':
 			return [event.bandId, ...new Set(event.memberIds)];
+		case 'milestone.attestation_confirmed':
+			return [event.attesterId, event.bandId, ...(event.requesterId ? [event.requesterId] : [])];
 	}
 }
 

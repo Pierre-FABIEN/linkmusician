@@ -4,7 +4,8 @@
  *
  * - Graphe : collaborations confirmées (`collaboration.completed`) et
  *   appréciations non reprises (`endorsement.received` moins
- *   `endorsement.revoked`) des 180 derniers jours.
+ *   `endorsement.revoked`) des 180 derniers jours, morceaux composés à
+ *   plusieurs et étapes de groupe confirmées (P3-05).
  * - Empreinte d'appareil : adresses IP des sessions (boilerplate,
  *   `auth_sessions.ipAddress`) communes à plusieurs membres. Elle fait
  *   remonter le cas dans la file, elle ne décide rien.
@@ -37,7 +38,9 @@ export async function interactionsSince(db: PrismaClient, since: Date): Promise<
 					'endorsement.revoked',
 					// Morceaux composés à plusieurs (P3-11) : crédits confirmés.
 					'work.composed',
-					'work.credit_confirmed'
+					'work.credit_confirmed',
+					// Étapes de groupe confirmées (P3-05) : qui confirme et qui l'a demandé.
+					'milestone.attestation_confirmed'
 				]
 			},
 			occurredAt: { gte: since }
@@ -68,6 +71,9 @@ export async function interactionsSince(db: PrismaClient, since: Date): Promise<
 			for (const other of new Set(p.otherIds.map(String))) {
 				result.push({ a: String(p.personId), b: other });
 			}
+		}
+		if (e.type === 'milestone.attestation_confirmed' && p.requesterId) {
+			result.push({ a: String(p.attesterId), b: String(p.requesterId) });
 		}
 		if (e.type === 'endorsement.received' && !revoked.has(e.id)) {
 			result.push({ a: String(p.actorId), b: String(p.endorserId) });

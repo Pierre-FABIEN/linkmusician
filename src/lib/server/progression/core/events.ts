@@ -131,6 +131,19 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		to: z.enum(PROOF_STATUSES),
 		/** Membres actifs à la date de l'étape (créditent 25 %). */
 		memberIds: z.array(id)
+	}),
+	/**
+	 * Une personne confirme une étape de groupe (P3-05). Ne rapporte rien en
+	 * soi : tracé pour la détection des cercles fermés (P2-10).
+	 */
+	z.object({
+		...base,
+		type: z.literal('milestone.attestation_confirmed'),
+		bandId: id,
+		milestoneId: id,
+		attesterId: id,
+		/** Personne de la gestion qui a demandé (vide après RGPD). */
+		requesterId: id.nullable()
 	})
 ]);
 
