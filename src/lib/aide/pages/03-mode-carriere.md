@@ -6,19 +6,19 @@ _Ta carrière musicale, comme dans un jeu : une étape à la fois, et chaque
 > **En bref**
 >
 > - **Mon parcours** te montre toujours ta prochaine étape et tes quêtes.
-> - Tu avances surtout en **jouant avec d'autres** : une collaboration
+> - Tu avances surtout en **jouant avec d’autres** : une collaboration
 >   confirmée des deux côtés, un groupe, un morceau composé à plusieurs.
 > - Ton groupe a son propre **parcours** : formation, répétition,
 >   composition, enregistrement, démo, concert.
 > - Plus une étape est **prouvée**, plus elle compte. Les points ne
->   s'achètent pas.
+>   s’achètent pas.
 
-## La carrière, en un coup d'œil
+## La carrière, en un coup d’œil
 
 Une carrière dans la musique passe par des grandes étapes. LinkMusician
-les suit dans l'ordre où elles arrivent souvent, sans les imposer :
+les suit dans l’ordre où elles arrivent souvent, sans les imposer :
 
-| Acte                      | Ce qui s'y passe                                  | Dans l'app aujourd'hui                                |
+| Acte                      | Ce qui s’y passe                                  | Dans l’app aujourd’hui                                |
 | ------------------------- | ------------------------------------------------- | ----------------------------------------------------- |
 | **I. La rencontre**       | Trouver avec qui jouer                            | ✅ Annonces, messages, jams, collaborations           |
 | **II. La création**       | Monter un groupe, composer, répéter, une maquette | ✅ Groupes, morceaux, étapes du groupe                |
@@ -35,7 +35,7 @@ les suit dans l'ordre où elles arrivent souvent, sans les imposer :
 
 ## 1. Ton tableau de bord : Mon parcours {#mon-parcours}
 
-C'est ton accueil en mode carrière. L'essentiel y est :
+C’est ton accueil en mode carrière. L’essentiel y est :
 
 - ta **prochaine étape**, avec le bouton pour la faire ;
 - tes **points**, ton **niveau** et ton **palier** ;
@@ -52,35 +52,35 @@ Les quêtes sont tes objectifs du moment, dans cet ordre :
 3. Indique ta ville
 4. Écris ta présentation
 5. Publie ta première démo
-6. Réponds à une annonce et échange avec quelqu'un
+6. Réponds à une annonce et échange avec quelqu’un
 7. Rejoins ou monte un groupe
 8. Termine une première collaboration
 9. Collabore avec 2 personnes différentes (3 collaborations)
 10. Joue 3 concerts corroborés
 
-> 💡 **Astuce** : pas besoin de tout faire d'un coup. Une étape par
-> semaine, c'est déjà une belle progression.
+> 💡 **Astuce** : pas besoin de tout faire d’un coup. Une étape par
+> semaine, c’est déjà une belle progression.
 
 ## 2. Rencontrer et collaborer {#collaborer}
 
-C'est le cœur du mode carrière : **ce qui fait monter, c'est de jouer
+C’est le cœur du mode carrière : **ce qui fait monter, c’est de jouer
 ensemble**.
 
-1. Trouve quelqu'un : **Découvrir**, une **annonce**, une jam (voir
+1. Trouve quelqu’un : **Découvrir**, une **annonce**, une jam (voir
    [Rencontrer](./05-rencontrer.md)).
 2. Échangez par message.
 3. Vous avez joué ensemble (une répétition, une session, un
    enregistrement, un remplacement) ? Dans votre conversation, touche
    **Proposer une collaboration** : le type, un titre, la date.
-4. L'autre personne **confirme**. Si c'est à venir, vous confirmez
+4. L’autre personne **confirme**. Si c’est à venir, vous confirmez
    chacun·e une fois la date passée.
 5. Confirmée des deux côtés : vous gagnez des points tous les deux, et
    vous pouvez vous laisser une **appréciation** (**fiable**,
-   **à l'heure**, **bien préparé·e**, **bonne ambiance**).
+   **à l’heure**, **bien préparé·e**, **bonne ambiance**).
 
 > ⚠️ **Important** : une collaboration rapporte le plus avec des gens
 > différents. Rejouer souvent avec la même personne compte de moins en
-> moins (sur 12 mois) : c'est fait pour récompenser les rencontres, pas
+> moins (sur 12 mois) : c’est fait pour récompenser les rencontres, pas
 > les allers-retours entre ami·es.
 
 ## 3. Ton groupe {#groupe}
@@ -88,7 +88,7 @@ ensemble**.
 ### Monter un groupe
 
 1. **Groupes** → **Monter un groupe** : le nom, ce que tu y fais.
-2. **Invite** quelqu'un avec qui tu as joué (ton réseau et tes
+2. **Invite** quelqu’un avec qui tu as joué (ton réseau et tes
    conversations sont proposés), ou par son identifiant.
 3. Dès que la première personne accepte, le groupe est **formé** : vous
    gagnez des points tous les deux.
@@ -99,7 +99,7 @@ styles, ses morceaux, son parcours. Les personnes qui gèrent le groupe
 peuvent la modifier, publier une **annonce de recrutement** au nom du
 groupe, accepter des demandes pour le rejoindre.
 
-| Rôle            | Ce qu'il peut faire                                                  |
+| Rôle            | Ce qu’il peut faire                                                  |
 | --------------- | -------------------------------------------------------------------- |
 | **Responsable** | Tout, y compris confier la co-gestion et transmettre le groupe       |
 | **Co-gestion**  | Inviter, accepter, retirer un membre, gérer la fiche et les étapes   |
@@ -113,7 +113,7 @@ votre histoire :
 | Étape                      | Comment elle arrive                                            |
 | -------------------------- | -------------------------------------------------------------- |
 | **Formation**              | Toute seule, quand le premier membre vous rejoint              |
-| **Première répétition**    | La gestion la déclare : **C'est fait**, la date, une précision |
+| **Première répétition**    | La gestion la déclare : **C’est fait**, la date, une précision |
 | **Première composition**   | Toute seule, avec votre premier morceau composé                |
 | **Premier enregistrement** | La gestion la déclare                                          |
 | **Première démo publique** | La gestion la déclare                                          |
@@ -126,8 +126,8 @@ Chaque étape a un **niveau de preuve**, affiché sur la page du groupe :
 
 | Niveau         | Ce que ça veut dire                                           | Ce que ça rapporte                 |
 | -------------- | ------------------------------------------------------------- | ---------------------------------- |
-| **Déclarée**   | Le groupe l'affirme                                           | Un peu (30 à 50 points)            |
-| **Corroborée** | Quelqu'un d'autre la confirme, ou une preuve est jointe       | Beaucoup plus (jusqu'à 400 points) |
+| **Déclarée**   | Le groupe l’affirme                                           | Un peu (30 à 50 points)            |
+| **Corroborée** | Quelqu’un d’autre la confirme, ou une preuve est jointe       | Beaucoup plus (jusqu’à 400 points) |
 | **Vérifiée**   | Une organisation officielle la confirme (lieu, studio, label) | Le maximum                         |
 
 Le groupe reçoit les points, et **chaque membre présent ce jour-là** en
@@ -135,8 +135,8 @@ reçoit un quart.
 
 > 🔜 **Bientôt** : **Prouver** une étape. Une autre personne du groupe
 > confirmera la répétition. Une personne extérieure qui y était
-> confirmera l'enregistrement ou le concert, avec un lien vers
-> l'événement. La modération relira le lien de ta démo. Seule la
+> confirmera l’enregistrement ou le concert, avec un lien vers
+> l’événement. La modération relira le lien de ta démo. Seule la
 > différence de points sera versée : rien ne compte deux fois.
 
 > ⚠️ **Important** : une étape doit être vraie. Une étape inventée pourra
@@ -144,15 +144,15 @@ reçoit un quart.
 
 ## 4. Tes morceaux {#morceaux}
 
-1. **Morceaux** → **Nouvelle idée** : à toi, ou au nom d'un groupe que tu
+1. **Morceaux** → **Nouvelle idée** : à toi, ou au nom d’un groupe que tu
    gères.
 2. **Crédite** les personnes qui y ont participé, avec leurs rôles
    (instrument, composition, paroles, arrangement). Chacune **confirme**
-   son crédit : son nom n'apparaît publiquement qu'après.
+   son crédit : son nom n’apparaît publiquement qu’après.
 3. Un rôle manque ? Ouvre un **rôle à pourvoir** et touche **Recruter** :
    une annonce se prépare toute seule.
 4. Joins une **maquette** (un lien ou une de tes démos), puis touche
-   **C'est composé**.
+   **C’est composé**.
 
 | Situation                                         | Statut du morceau | Points                                   |
 | ------------------------------------------------- | ----------------- | ---------------------------------------- |
@@ -163,14 +163,14 @@ Une idée reste entre vous. Un morceau composé apparaît sur ton profil et
 sur la page du groupe.
 
 > 💡 **Astuce** : un morceau écrit à plusieurs ? Notez qui a fait quoi
-> **avant** qu'il soit joué en public. La section **Démarches** t'explique
-> comment le protéger et le déclarer.
+> **avant** qu’il soit joué en public. La section **Démarches**, bientôt,
+> t’expliquera comment le protéger et le déclarer.
 
 ## 5. Tes paliers {#paliers}
 
 Ton palier dit où tu en es, par des faits, jamais par un nombre de points :
 
-| Palier                   | Comment l'atteindre                                                               |
+| Palier                   | Comment l’atteindre                                                               |
 | ------------------------ | --------------------------------------------------------------------------------- |
 | **Premiers pas**         | Un profil complet                                                                 |
 | **En réseau**            | Un échange réciproque, et un groupe, une collaboration ou une appréciation de jam |
@@ -193,7 +193,7 @@ parcours montre ce que tu as prouvé, pas un ordre obligatoire.
 
 <details><summary>Je peux être dans plusieurs groupes ?</summary>
 
-Oui, jusqu'à 10 groupes en même temps. Chaque groupe a son parcours, et tu
+Oui, jusqu’à 10 groupes en même temps. Chaque groupe a son parcours, et tu
 reçois ta part des étapes de chacun.
 
 </details>
@@ -206,9 +206,9 @@ LinkMusician.
 
 </details>
 
-<details><summary>Quelqu'un quitte le groupe, il perd ses points ?</summary>
+<details><summary>Quelqu’un quitte le groupe, il perd ses points ?</summary>
 
-Non. Un départ ne reprend rien, et la personne reste dans l'historique
+Non. Un départ ne reprend rien, et la personne reste dans l’historique
 du groupe, avec ses dates.
 
 </details>

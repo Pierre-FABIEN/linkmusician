@@ -45,6 +45,11 @@
 					<a href="/auth/settings" {...props}>Mes paramètres</a>
 				{/snippet}
 			</DropdownMenu.Item>
+			<DropdownMenu.Item>
+				{#snippet child({ props })}
+					<a href="/aide" {...props}>Aide</a>
+				{/snippet}
+			</DropdownMenu.Item>
 			<!-- ADMIN-PLUGIN ▼ lien vers le back-office, visible aux seuls administrateurs. -->
 			{#if user.role === 'ADMIN'}
 				<DropdownMenu.Item>

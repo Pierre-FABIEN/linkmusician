@@ -61,5 +61,10 @@
 		<p class="text-center text-sm text-muted-foreground">
 			Tu peux changer de mode à tout moment avec la pastille en haut de l'écran.
 		</p>
+		<p class="text-center text-sm">
+			Comment ça marche ?
+			<a href="/aide/mode-jam" class="font-semibold underline">Le mode jam</a> ·
+			<a href="/aide/mode-carriere" class="font-semibold underline">Le mode carrière</a>
+		</p>
 	</div>
 </div>

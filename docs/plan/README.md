@@ -67,6 +67,8 @@ En fin de session, il met à jour le tableau §5. Si un lot déborde, on le
       l'anonymisation RGPD.
 - [ ] Doc mise à jour : conception si une règle a changé, `docs/<domaine>/README.md`
       si un module est créé, décision consignée si une a été prise.
+- [ ] Page d'aide mise à jour si le lot change ce que vit l'utilisateur
+      (`src/lib/aide/pages/`, voir `docs/aide/README.md`).
 - [ ] Tableau §5 mis à jour.
 
 ## 4 bis. Le chemin, pas à pas

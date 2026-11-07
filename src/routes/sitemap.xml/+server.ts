@@ -6,6 +6,8 @@ import { PUBLIC_SHOP_ENABLED } from '$app/env/public';
 import { isShopHref } from '#lib/shop/gate';
 // LINKMUSICIAN: profils publics indexables (P1-11, D19).
 import { indexableProfiles } from '#lib/server/actors/publicProfile';
+// LINKMUSICIAN: pages du centre d'aide (`/aide/[page]`).
+import { HELP_PAGES } from '#lib/aide/catalog';
 
 // Importer toutes les pages Svelte automatiquement
 const pages = import.meta.glob('../**/+page.svelte', { eager: true });
@@ -176,6 +178,10 @@ export const GET: RequestHandler = async () => {
 	const paths = PUBLIC_SHOP_ENABLED
 		? extractPaths()
 		: extractPaths().filter(({ path }) => !isShopHref(path));
+	// LINKMUSICIAN: sous-pages de l'aide (route dynamique, ignorée plus haut).
+	for (const page of HELP_PAGES.filter((p) => p.slug)) {
+		paths.push({ path: `/aide/${page.slug}`, priority: '0.6', changefreq: 'monthly' });
+	}
 	const [blogPosts, products, profiles] = await Promise.all([
 		getBlogPosts(),
 		PUBLIC_SHOP_ENABLED ? getProducts() : Promise.resolve([]),
