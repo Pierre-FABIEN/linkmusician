@@ -653,6 +653,87 @@ actes. Puis LinkMusician s'ouvre au public.
   crée le groupe « Projet funk » et j'ouvre une discussion à trois » ;
   e2e « 3 messages puis bloqué jusqu'à la réponse ».
 
+### P3-17 — Assistant IA de préremplissage de l'inscription
+
+- **Dépend de** : P1-10 (onboarding), P2-17 (conseils en contexte).
+- **Décision** : D47 (Proposée) — périmètre, consentement et garde-fous.
+- **Problème** : les personnes doivent traduire leur situation musicale
+  en plusieurs formulaires successifs. Le jargon ou l'incertitude sur
+  quoi répondre peut les faire abandonner avant le premier résultat.
+- **Objectif** : conserver le parcours actuel, déjà limité à six écrans,
+  et proposer une entrée facultative « Décris ta situation avec tes mots ».
+  La personne écrit librement ; l'IA prépare des suggestions qu'elle
+  peut examiner, modifier ou ignorer avant de continuer.
+- **Périmètre initial** : uniquement les étapes de l'onboarding
+  `/qui-es-tu` et `/demarrer/*` : instruments et rôles, niveau déclaré,
+  genres, commune et intention. Le niveau ne peut être suggéré que si la
+  personne l'énonce explicitement ; une durée de pratique ne suffit pas à
+  l'inférer. Pour la commune, l'IA ne propose qu'un nom à retrouver et à
+  choisir dans le sélecteur existant ; aucune adresse, coordonnée ou
+  position GPS n'est acceptée. Le rayon n'est proposé que s'il est
+  explicitement donné. Ne pas générer de bio ni élargir aux formulaires
+  d'annonce, de groupe ou de profil dans ce lot.
+- **UX et comportement** :
+  - Aide facultative et contournable, accessible au clavier et annoncée
+    aux lecteurs d'écran ; l'inscription manuelle reste toujours
+    utilisable et les six écrans ne sont pas augmentés.
+  - Version initiale en saisie texte ; la dictée éventuellement fournie
+    par le clavier ou le système d'exploitation peut être utilisée sans
+    téléverser d'audio. Pas de capture micro ni de transcription audio
+    côté serveur dans ce lot.
+  - La personne déclenche elle-même l'analyse après avoir lu un avis
+    clair sur le traitement du texte.
+  - Chaque valeur suggérée est présentée comme une proposition,
+    modifiable et supprimable ; la personne confirme chaque champ.
+    Aucun envoi de formulaire, enregistrement de profil ou publication
+    n'est déclenché par l'IA.
+  - Les valeurs confirmées passent ensuite par les formulaires,
+    référentiels, schémas Zod et validations existants. Si l'analyse
+    échoue ou n'est pas disponible, le parcours manuel fonctionne et
+    l'erreur est expliquée sans faire croire que des données ont été
+    enregistrées.
+- **Architecture et sécurité** :
+  - Appel au modèle exclusivement côté serveur, après action explicite ;
+    sortie structurée, taille et durée bornées, et validation Zod stricte.
+    Le modèle ne choisit que des identifiants présents dans les
+    référentiels servis par le serveur ; toute valeur inconnue est
+    écartée et signalée, jamais enregistrée.
+  - N'envoyer ni email, mot de passe, date de naissance, identifiant de
+    compte, données de paiement ou coordonnées précises. Ne pas demander
+    ces données dans le texte ; prévoir une minimisation des coordonnées
+    personnelles évidentes avant transmission.
+  - Le texte original et la réponse brute du modèle ne sont ni stockés,
+    ni journalisés, ni réutilisés pour l'entraînement. Avant de choisir
+    un fournisseur, vérifier ses conditions de conservation, d'usage et
+    de sous-traitance ; ne pas lancer la fonctionnalité si ces garanties
+    ne sont pas établies.
+  - Limiter les appels par compte avec le rate limiter existant et un
+    plafond de taille ; quota précis et fournisseur à décider avant
+    l'implémentation. Le modèle est une source non fiable : il ne peut
+    appeler aucun outil ni agir sur le compte.
+  - Aucun score, classement, recommandation d'autres personnes ou
+    décision de progression n'est produit. L'IA ne remplace pas les
+    intentions exprimées par la personne.
+- **Mesure** : suivre uniquement des compteurs sans texte ni valeurs de
+  profil : usage de l'aide, champs proposés/acceptés/modifiés/ignorés,
+  échecs et coût. Comparer le taux de fin d'inscription et le temps
+  jusqu'au premier résultat au parcours sans aide ; aucun contenu libre
+  dans l'analytique.
+- **Fin** :
+  - tests unitaires des correspondances référentielles, des sorties
+    invalides et des cas où l'information est absente ou ambiguë ;
+  - tests d'intégration avec fournisseur simulé : aucun appel sans
+    consentement, données interdites exclues, limite de débit appliquée,
+    aucune écriture de profil avant confirmation ;
+  - e2e avec sortie déterministe simulée : propositions modifiables,
+    ignorables, puis onboarding achevé par les actions habituelles ;
+  - chemin manuel sans IA toujours fonctionnel ; aucune régression du
+    seuil actuel de six écrans ou de l'objectif « premier résultat en
+    moins de 2 minutes ».
+- **Après le pilote** : étudier séparément l'aide à d'autres formulaires
+  (bio du profil, annonces, création de groupe) à partir des mesures et
+  retours ; aucun élargissement automatique du périmètre.
+
 ### P3-15 — Guide des démarches
 
 - **Dépend de** : P2-17, P3-04, P3-11.
