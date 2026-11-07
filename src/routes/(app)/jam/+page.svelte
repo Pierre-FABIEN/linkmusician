@@ -75,179 +75,219 @@
 
 <SEO title="Mode jam" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-3xl space-y-6">
-		<header
-			class="space-y-3 rounded-3xl bg-gradient-to-br from-orange-600 to-pink-600 p-6 text-white shadow-xl"
-		>
-			<p class="flex items-center gap-2 text-sm font-bold uppercase">
-				<Guitar class="size-5" aria-hidden="true" /> Mode jam
-			</p>
-			<h1 class="text-3xl font-black tracking-tight">Envie de jouer ?</h1>
-			<p class="text-white/90">
-				Pas de projet, pas de pression : des jams{data.commune ? ` autour de ${data.commune}` : ''} et
-				des rencontres musicales.
-			</p>
-			<a
-				href="/jams/nouvelle"
-				class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-white px-4 font-bold text-pink-700"
+<div class="min-h-screen w-full bg-muted/20 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
+	<div class="mx-auto max-w-7xl space-y-8">
+		<div class="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(19rem,0.65fr)]">
+			<header
+				class="relative isolate flex flex-col justify-between gap-8 overflow-hidden rounded-3xl bg-gradient-to-br from-orange-700 via-rose-700 to-pink-700 p-6 text-white shadow-xl sm:p-8 lg:min-h-64 lg:flex-row lg:items-center lg:gap-10 lg:p-10"
 			>
-				<Plus class="size-4" aria-hidden="true" /> Lancer une jam
-			</a>
-			<a href="/jam/carnet" class="block text-sm font-semibold text-white underline"
-				>Mon carnet de jams et mon réseau</a
-			>
-		</header>
-
-		{#if data.invites.length > 0}
-			<section
-				class="space-y-3 rounded-2xl border-2 border-primary bg-card p-4"
-				aria-labelledby="invites-title"
-			>
-				<h2 id="invites-title" class="text-lg font-semibold">
-					On t’invite à jouer ({data.invites.length})
-				</h2>
-				<ul class="space-y-2">
-					{#each data.invites as j (j.id)}
-						<li>
-							<a href="/jams/{j.id}" class="block rounded-xl border p-3 hover:border-primary">
-								<span class="block font-semibold">{j.title}</span>
-								<span class="text-sm text-muted-foreground"
-									>{day.format(new Date(j.startsAt))} · {j.venue.name} · Répondre</span
-								>
-							</a>
-						</li>
-					{/each}
-				</ul>
-			</section>
-		{/if}
-
-		{#if data.recent.length > 0}
-			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="recent-title">
-				<div class="flex flex-wrap items-baseline justify-between gap-2">
-					<h2 id="recent-title" class="text-lg font-semibold">Tes dernières jams</h2>
-					<a href="/jam/carnet" class="text-sm font-semibold underline">Mon carnet de jams</a>
-				</div>
-				<ul class="space-y-2">
-					{#each data.recent as j (j.id)}
-						<li>
-							<a
-								href="/jams/{j.id}/presents"
-								class="flex min-h-11 flex-wrap items-center justify-between gap-2 rounded-xl border p-3 hover:border-primary"
-							>
-								<span>
-									<span class="block font-semibold">{j.title}</span>
-									<span class="text-sm text-muted-foreground"
-										>{day.format(new Date(j.startsAt))} · {j.venue}</span
-									>
-								</span>
-								<span class="text-sm font-semibold text-primary"
-									>{j.attended ? 'Apprécier les présent·es' : 'Tu y étais ?'}</span
-								>
-							</a>
-						</li>
-					{/each}
-				</ul>
-			</section>
-		{/if}
-
-		<NextStep {...data.nextStep} tone="jam" />
-
-		<section
-			id="dispo"
-			class="scroll-mt-24 space-y-3 rounded-2xl border bg-card p-4"
-			aria-labelledby="dispo-title"
-		>
-			<h2 id="dispo-title" class="flex items-center gap-2 text-lg font-semibold">
-				<Radio class="size-5 text-primary" aria-hidden="true" /> Je suis dispo
-			</h2>
-			{#if !data.canBeDispo}
-				<p class="text-sm text-muted-foreground">
-					Pour ta sécurité, ta disponibilité n'est pas affichée aux autres. Tu peux rejoindre les
-					jams ouvertes ci-dessous, dans des lieux publics, qui finissent avant 22 h.
-				</p>
-			{:else if data.mine}
-				<p>
-					<strong>Tu es dispo {SLOT_LABELS[data.mine.slot].toLowerCase()}</strong>, jusqu'à {until.format(
-						new Date(data.mine.endsAt)
-					)}.{#if data.mine.note}
-						« {data.mine.note} »{/if}
-				</p>
-				<form method="POST" action="?/pasDispo" use:enhance>
-					<button class="min-h-11 rounded-xl border px-4 font-semibold"
-						>Je ne suis plus dispo</button
-					>
-				</form>
-			{:else}
-				<p class="text-sm text-muted-foreground">
-					Fais savoir aux musicien·nes autour de toi que tu as envie de jouer. Ça s'éteint tout seul
-					à la fin du créneau.
-				</p>
-				<form method="POST" action="?/dispo" use:enhance class="space-y-3">
-					<fieldset class="flex flex-wrap gap-2">
-						<legend class="sr-only">Quand ?</legend>
-						{#each AVAILABILITY_SLOTS as s, i (s)}
-							<label
-								class="flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-4 has-[:checked]:border-primary has-[:checked]:bg-primary/10"
-							>
-								<input type="radio" name="slot" value={s} checked={i === 0} class="size-4" />
-								{SLOT_LABELS[s]}
-							</label>
-						{/each}
-					</fieldset>
-					<label class="block space-y-1 text-sm font-medium">
-						Ton envie (facultatif)
-						<input
-							name="note"
-							maxlength={MAX_NOTE}
-							placeholder="Envie d'un bœuf funk, j'ai ma basse"
-							class="w-full rounded-md border bg-background p-2"
-						/>
-					</label>
-					<button
-						type="submit"
-						class="min-h-11 rounded-xl bg-primary px-5 font-semibold text-primary-foreground"
-						>Je suis dispo</button
-					>
-				</form>
-			{/if}
-		</section>
-
-		{#if data.commune}
-			<section id="dispos" class="scroll-mt-24 space-y-3" aria-labelledby="available-title">
-				<h2 id="available-title" class="text-lg font-semibold">Dispos autour de toi</h2>
-				{#if data.available.length === 0}
-					<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
-						Personne n'est dispo pour l'instant. Mets-toi dispo : tu seras peut-être le déclic !
+				<div
+					class="pointer-events-none absolute -right-12 -top-20 -z-10 size-72 rounded-full border-[40px] border-white/10"
+					aria-hidden="true"
+				></div>
+				<div class="max-w-2xl space-y-4">
+					<p class="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em]">
+						<Guitar class="size-5" aria-hidden="true" /> Mode jam
 					</p>
+					<h1 class="text-4xl font-black tracking-tight sm:text-5xl">Envie de jouer ?</h1>
+					<p class="max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">
+						Pas de projet, pas de pression : trouve une jam{data.commune
+							? ` près de ${data.commune}`
+							: ''}, rencontre des musicien·nes et joue à ton rythme.
+					</p>
+					{#if data.commune}
+						<p
+							class="inline-flex items-center gap-2 rounded-full bg-black/15 px-3 py-1.5 text-sm font-medium text-white/95"
+						>
+							<MapPin class="size-4" aria-hidden="true" /> Autour de {data.commune}
+						</p>
+					{/if}
+				</div>
+				<div class="flex shrink-0 flex-col items-start gap-3 lg:items-stretch">
+					<a
+						href="#jams"
+						class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 font-bold text-orange-800 shadow-sm transition hover:bg-orange-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+					>
+						<CalendarDays class="size-4" aria-hidden="true" /> Trouver une jam
+					</a>
+					<a
+						href="/jams/nouvelle"
+						class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/35 bg-white/10 px-5 font-semibold text-white transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+					>
+						<Plus class="size-4" aria-hidden="true" /> Lancer une jam
+					</a>
+					<a
+						href="/jam/carnet"
+						class="px-2 text-sm font-semibold text-white/90 underline decoration-white/50 underline-offset-4 hover:text-white"
+						>Mon carnet et mon réseau</a
+					>
+				</div>
+			</header>
+			<NextStep {...data.nextStep} tone="jam" />
+		</div>
+
+		{#if data.invites.length > 0 || data.recent.length > 0}
+			<div class="grid gap-4 xl:grid-cols-2">
+				{#if data.invites.length > 0}
+					<section
+						class="space-y-3 rounded-2xl border-2 border-primary bg-card p-4 sm:p-5"
+						aria-labelledby="invites-title"
+					>
+						<h2 id="invites-title" class="text-lg font-semibold">
+							On t’invite à jouer ({data.invites.length})
+						</h2>
+						<ul class="space-y-2">
+							{#each data.invites as j (j.id)}
+								<li>
+									<a
+										href="/jams/{j.id}"
+										class="block rounded-xl border p-3 transition hover:border-primary"
+									>
+										<span class="block font-semibold">{j.title}</span>
+										<span class="text-sm text-muted-foreground"
+											>{day.format(new Date(j.startsAt))} · {j.venue.name} · Répondre</span
+										>
+									</a>
+								</li>
+							{/each}
+						</ul>
+					</section>
+				{/if}
+
+				{#if data.recent.length > 0}
+					<section
+						class="space-y-3 rounded-2xl border bg-card p-4 sm:p-5"
+						aria-labelledby="recent-title"
+					>
+						<div class="flex flex-wrap items-baseline justify-between gap-2">
+							<h2 id="recent-title" class="text-lg font-semibold">Tes dernières jams</h2>
+							<a href="/jam/carnet" class="text-sm font-semibold underline">Mon carnet de jams</a>
+						</div>
+						<ul class="space-y-2">
+							{#each data.recent as j (j.id)}
+								<li>
+									<a
+										href="/jams/{j.id}/presents"
+										class="flex min-h-11 flex-wrap items-center justify-between gap-2 rounded-xl border p-3 transition hover:border-primary"
+									>
+										<span>
+											<span class="block font-semibold">{j.title}</span>
+											<span class="text-sm text-muted-foreground"
+												>{day.format(new Date(j.startsAt))} · {j.venue}</span
+											>
+										</span>
+										<span class="text-sm font-semibold text-primary"
+											>{j.attended ? 'Apprécier les présent·es' : 'Tu y étais ?'}</span
+										>
+									</a>
+								</li>
+							{/each}
+						</ul>
+					</section>
+				{/if}
+			</div>
+		{/if}
+
+		<div class="grid items-start gap-5 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)]">
+			<section
+				id="dispo"
+				class="scroll-mt-24 space-y-4 rounded-2xl border bg-card p-4 shadow-sm sm:p-5"
+				aria-labelledby="dispo-title"
+			>
+				<h2 id="dispo-title" class="flex items-center gap-2 text-lg font-semibold">
+					<Radio class="size-5 text-primary" aria-hidden="true" /> Je suis dispo
+				</h2>
+				{#if !data.canBeDispo}
+					<p class="text-sm text-muted-foreground">
+						Pour ta sécurité, ta disponibilité n'est pas affichée aux autres. Tu peux rejoindre les
+						jams ouvertes ci-dessous, dans des lieux publics, qui finissent avant 22 h.
+					</p>
+				{:else if data.mine}
+					<p>
+						<strong>Tu es dispo {SLOT_LABELS[data.mine.slot].toLowerCase()}</strong>, jusqu'à {until.format(
+							new Date(data.mine.endsAt)
+						)}.{#if data.mine.note}
+							« {data.mine.note} »{/if}
+					</p>
+					<form method="POST" action="?/pasDispo" use:enhance>
+						<button class="min-h-11 rounded-xl border px-4 font-semibold"
+							>Je ne suis plus dispo</button
+						>
+					</form>
 				{:else}
-					<ul class="grid gap-3 sm:grid-cols-2" aria-label="Musicien·nes dispos">
-						{#each data.available as a (a.handle)}
-							<li class="space-y-2 rounded-2xl border bg-card p-4">
-								<div class="flex items-start justify-between gap-2">
-									<a href="/@{a.handle}" class="font-bold hover:underline">{a.displayName}</a>
-									<Badge variant="secondary">{SLOT_LABELS[a.slot]}</Badge>
-								</div>
-								{#if a.instruments.length > 0}<p class="text-sm">
-										{a.instruments.join(' · ')}
-									</p>{/if}
-								{#if a.note}<p class="text-sm italic">« {a.note} »</p>{/if}
-								<p class="flex items-center gap-1 text-xs text-muted-foreground">
-									<MapPin class="size-3" aria-hidden="true" />{a.distance}{a.commune
-										? ` · ${a.commune}`
-										: ''}
-								</p>
-								<a
-									href="/messages/nouveau?a={a.handle}"
-									class="inline-flex min-h-11 items-center rounded-xl border px-3 text-sm font-semibold"
-									>Lui proposer de jouer</a
+					<p class="text-sm text-muted-foreground">
+						Fais savoir aux musicien·nes autour de toi que tu as envie de jouer. Ça s'éteint tout
+						seul à la fin du créneau.
+					</p>
+					<form method="POST" action="?/dispo" use:enhance class="space-y-3">
+						<fieldset class="flex flex-wrap gap-2">
+							<legend class="sr-only">Quand ?</legend>
+							{#each AVAILABILITY_SLOTS as s, i (s)}
+								<label
+									class="flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-4 has-[:checked]:border-primary has-[:checked]:bg-primary/10"
 								>
-							</li>
-						{/each}
-					</ul>
+									<input type="radio" name="slot" value={s} checked={i === 0} class="size-4" />
+									{SLOT_LABELS[s]}
+								</label>
+							{/each}
+						</fieldset>
+						<label class="block space-y-1 text-sm font-medium">
+							Ton envie (facultatif)
+							<input
+								name="note"
+								maxlength={MAX_NOTE}
+								placeholder="Envie d'un bœuf funk, j'ai ma basse"
+								class="w-full rounded-md border bg-background p-2"
+							/>
+						</label>
+						<button
+							type="submit"
+							class="min-h-11 rounded-xl bg-primary px-5 font-semibold text-primary-foreground"
+							>Je suis dispo</button
+						>
+					</form>
 				{/if}
 			</section>
-		{/if}
+
+			{#if data.commune}
+				<section id="dispos" class="scroll-mt-24 space-y-4" aria-labelledby="available-title">
+					<div>
+						<p class="text-sm font-semibold uppercase tracking-wide text-primary">Rencontres</p>
+						<h2 id="available-title" class="text-xl font-bold">Dispos autour de toi</h2>
+					</div>
+					{#if data.available.length === 0}
+						<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+							Personne n'est dispo pour l'instant. Mets-toi dispo : tu seras peut-être le déclic !
+						</p>
+					{:else}
+						<ul class="grid gap-3 sm:grid-cols-2" aria-label="Musicien·nes dispos">
+							{#each data.available as a (a.handle)}
+								<li class="space-y-2 rounded-2xl border bg-card p-4">
+									<div class="flex items-start justify-between gap-2">
+										<a href="/@{a.handle}" class="font-bold hover:underline">{a.displayName}</a>
+										<Badge variant="secondary">{SLOT_LABELS[a.slot]}</Badge>
+									</div>
+									{#if a.instruments.length > 0}<p class="text-sm">
+											{a.instruments.join(' · ')}
+										</p>{/if}
+									{#if a.note}<p class="text-sm italic">« {a.note} »</p>{/if}
+									<p class="flex items-center gap-1 text-xs text-muted-foreground">
+										<MapPin class="size-3" aria-hidden="true" />{a.distance}{a.commune
+											? ` · ${a.commune}`
+											: ''}
+									</p>
+									<a
+										href="/messages/nouveau?a={a.handle}"
+										class="inline-flex min-h-11 items-center rounded-xl border px-3 text-sm font-semibold"
+										>Lui proposer de jouer</a
+									>
+								</li>
+							{/each}
+						</ul>
+					{/if}
+				</section>
+			{/if}
+		</div>
 
 		<section id="jams" class="scroll-mt-24 space-y-3" aria-labelledby="jams-title">
 			<div class="flex flex-wrap items-end justify-between gap-3">
@@ -269,7 +309,7 @@
 					<a href="/profil/ville" class="block pt-2 font-semibold underline">Indiquer ma ville</a>
 				</p>
 			{:else}
-				<div class="grid gap-4 lg:grid-cols-[minmax(22rem,1.1fr)_minmax(0,1fr)]">
+				<div class="grid gap-4 lg:grid-cols-[minmax(26rem,0.78fr)_minmax(0,1.22fr)]">
 					<div class="min-w-0 space-y-3 rounded-3xl border bg-card p-3 shadow-sm sm:p-5">
 						<div class="flex items-center gap-2 px-1 text-sm text-muted-foreground">
 							<span
