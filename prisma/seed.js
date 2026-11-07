@@ -1045,7 +1045,16 @@ async function main() {
 	await seedReferentials(prisma); // LINKMUSICIAN: instruments et genres (rejouable)
 	// LINKMUSICIAN: musicien·nes fictifs (P0-06), script séparé et rejouable.
 	const demo = spawnSync('npx', ['tsx', 'prisma/seed-demo.ts'], { stdio: 'inherit' });
-	if (demo.status !== 0) console.warn('Seed de démo LinkMusician en échec (voir ci-dessus).');
+	if (demo.error) {
+		throw new Error('Impossible de lancer le seed de démo LinkMusician.', { cause: demo.error });
+	}
+	if (demo.status !== 0) {
+		throw new Error(
+			`Échec du seed de démo LinkMusician (code ${demo.status ?? 'inconnu'}${
+				demo.signal ? `, signal ${demo.signal}` : ''
+			}).`
+		);
+	}
 
 	console.log('\nComptes de démonstration (mot de passe : ' + DEMO_PASSWORD + ')');
 	console.log(`  ${ADMIN_EMAIL}          ADMIN`);

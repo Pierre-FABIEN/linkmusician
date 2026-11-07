@@ -430,64 +430,120 @@ async function myself() {
 
 const referralCode = () => `DEMO${randomBytes(4).toString('hex').toUpperCase()}`;
 
-async function createDemo(demo: Demo, commune: Commune, passwordHash: string) {
-	const email = `${demo.handle}@${DOMAIN}`;
-	if (await prisma.user.findUnique({ where: { email }, select: { id: true } })) return false;
-	const createdAt = new Date(Date.now() - demo.since * DAY);
+async function resolveDemoHandles() {
+	const handles = new Map<string, string>();
+	for (const demo of CAST) {
+		for (let suffix = 0; suffix < 100; suffix++) {
+			const handle =
+				suffix === 0 ? demo.handle : `${demo.handle}-demo${suffix === 1 ? '' : `-${suffix}`}`;
+			const email = `${handle}@${DOMAIN}`;
+			const [actor, user] = await Promise.all([
+				prisma.actor.findUnique({
+					where: { handle },
+					select: { person: { select: { user: { select: { email: true } } } } }
+				}),
+				prisma.user.findUnique({
+					where: { email },
+					select: { person: { select: { actor: { select: { handle: true } } } } }
+				})
+			]);
+			const existingDemo =
+				actor?.person?.user.email === email && user?.person?.actor.handle === handle;
+			if (existingDemo || (!actor && !user)) {
+				handles.set(demo.handle, handle);
+				break;
+			}
+		}
+		if (!handles.has(demo.handle)) {
+			throw new Error(`Impossible de trouver un handle libre pour @${demo.handle}.`);
+		}
+	}
+	return handles;
+}
 
-	const user = await prisma.user.create({
-		data: {
-			email,
-			username: demo.handle,
-			name: demo.name,
-			role: 'CLIENT',
-			emailVerified: true,
-			referralCode: referralCode(),
-			createdAt
+async function createDemo(demo: Demo, handle: string, commune: Commune, passwordHash: string) {
+	const email = `${handle}@${DOMAIN}`;
+	const existingUser = await prisma.user.findUnique({
+		where: { email },
+		select: {
+			id: true,
+			username: true,
+			person: { select: { actor: { select: { handle: true } } } },
+			authAccounts: { where: { providerId: 'credential' }, select: { providerId: true } }
 		}
 	});
-	await prisma.authAccount.create({
-		data: { userId: user.id, providerId: 'credential', accountId: user.id, password: passwordHash }
-	});
+	if (existingUser?.person?.actor?.handle === handle) return false;
+	if (existingUser?.person?.actor || (existingUser && existingUser.username !== handle)) {
+		throw new Error(`Le compte de démo ${email} existe déjà avec un profil différent.`);
+	}
+
+	const createdAt = new Date(Date.now() - demo.since * DAY);
 
 	const [instruments, genres] = await Promise.all([
 		prisma.instrument.findMany({ where: { slug: { in: demo.instruments.map(([s]) => s) } } }),
 		prisma.genre.findMany({ where: { slug: { in: demo.genres } } })
 	]);
-	const actor = await prisma.actor.create({
-		data: {
-			kind: 'PERSON',
-			handle: demo.handle,
-			displayName: demo.name,
-			bio: demo.bio,
-			createdAt,
-			person: {
-				create: {
+	const actor = await prisma.$transaction(async (tx) => {
+		const user =
+			existingUser ??
+			(await tx.user.create({
+				data: {
+					email,
+					username: handle,
+					name: demo.name,
+					role: 'CLIENT',
+					emailVerified: true,
+					referralCode: referralCode(),
+					createdAt
+				},
+				select: { id: true }
+			}));
+		if (!existingUser || existingUser.authAccounts.length === 0) {
+			await tx.authAccount.create({
+				data: {
 					userId: user.id,
-					birthDate: new Date(`${demo.born}T00:00:00Z`),
-					termsAcceptedAt: createdAt,
-					createdAt,
-					onboardedAt: createdAt,
-					proStatus: demo.pro,
-					lookingFor: demo.looking,
-					practiceSince: demo.practiceSince,
-					travelRadiusKm: demo.radius,
-					tracks: {
-						create: demo.tracks.map((track, i) => ({ track, isPrimary: i === 0 }))
-					},
-					instruments: {
-						create: demo.instruments.flatMap(([slug, level], i) => {
-							const instrument = instruments.find((x) => x.slug === slug);
-							return instrument
-								? [{ instrumentId: instrument.id, declaredLevel: level, isPrimary: i === 0 }]
-								: [];
-						})
-					}
+					providerId: 'credential',
+					accountId: user.id,
+					password: passwordHash
 				}
-			},
-			genres: { create: genres.map((g) => ({ genreId: g.id })) },
-			influences: { create: demo.influences.map((label, sortOrder) => ({ label, sortOrder })) }
+			});
 		}
+
+		return tx.actor.create({
+			data: {
+				kind: 'PERSON',
+				handle,
+				displayName: demo.name,
+				bio: demo.bio,
+				createdAt,
+				person: {
+					create: {
+						userId: user.id,
+						birthDate: new Date(`${demo.born}T00:00:00Z`),
+						termsAcceptedAt: createdAt,
+						createdAt,
+						onboardedAt: createdAt,
+						proStatus: demo.pro,
+						lookingFor: demo.looking,
+						practiceSince: demo.practiceSince,
+						travelRadiusKm: demo.radius,
+						tracks: {
+							create: demo.tracks.map((track, i) => ({ track, isPrimary: i === 0 }))
+						},
+						instruments: {
+							create: demo.instruments.flatMap(([slug, level], i) => {
+								const instrument = instruments.find((x) => x.slug === slug);
+								return instrument
+									? [{ instrumentId: instrument.id, declaredLevel: level, isPrimary: i === 0 }]
+									: [];
+							})
+						}
+					}
+				},
+				genres: { create: genres.map((g) => ({ genreId: g.id })) },
+				influences: { create: demo.influences.map((label, sortOrder) => ({ label, sortOrder })) }
+			}
+		});
 	});
 	await setActorLocation(actor.id, commune, { db: prisma });
 
@@ -532,13 +588,16 @@ async function createDemo(demo: Demo, commune: Commune, passwordHash: string) {
 
 try {
 	const communes = await nearbyCommunes();
+	const demoHandles = await resolveDemoHandles();
 	const passwordHash = await hash(PASSWORD, ARGON2);
 	let created = 0;
 	for (const demo of CAST) {
 		const commune = communes[demo.near % communes.length];
-		if (await createDemo(demo, commune, passwordHash)) {
+		const handle = demoHandles.get(demo.handle);
+		if (!handle) throw new Error(`Handle de démo absent pour ${demo.handle}.`);
+		if (await createDemo(demo, handle, commune, passwordHash)) {
 			created += 1;
-			console.log(`  + @${demo.handle} (${commune.nom})`);
+			console.log(`  + @${handle} (${commune.nom})`);
 		}
 	}
 	console.log(
@@ -547,9 +606,11 @@ try {
 	await seedScenarios(
 		prisma,
 		communes[0],
-		process.argv.includes('--avec-moi') ? await myself() : null
+		process.argv.includes('--avec-moi') ? await myself() : null,
+		new Map([...demoHandles].map(([handle, actualHandle]) => [actualHandle, handle]))
 	);
-	console.log(`Connexion : <handle>@${DOMAIN} / ${PASSWORD}`);
+	console.log(`\nComptes de connexion (mot de passe : ${PASSWORD}) :`);
+	for (const handle of demoHandles.values()) console.log(`  ${handle}@${DOMAIN}`);
 } catch (error) {
 	console.error('Échec du seed de démo :', error);
 	process.exitCode = 1;

@@ -470,7 +470,8 @@ async function milestone(
 export async function seedScenarios(
 	prisma: PrismaClient,
 	commune: Commune,
-	me: { actorId: string; displayName: string } | null
+	me: { actorId: string; displayName: string } | null,
+	demoHandles: ReadonlyMap<string, string> = new Map()
 ) {
 	if (await prisma.actor.findUnique({ where: { handle: BAND }, select: { id: true } })) {
 		console.log('Scénarios déjà en place (groupe « Les Rats du Mardi ») : rien à refaire.');
@@ -494,8 +495,13 @@ export async function seedScenarios(
 	const ctx: Ctx = {
 		prisma,
 		commune,
-		who: new Map(cast.map((a) => [a.handle, a.id])),
-		plays: new Map(cast.map((a) => [a.handle, a.person?.instruments[0]?.instrument.slug ?? ''])),
+		who: new Map(cast.map((a) => [demoHandles.get(a.handle) ?? a.handle, a.id])),
+		plays: new Map(
+			cast.map((a) => [
+				demoHandles.get(a.handle) ?? a.handle,
+				a.person?.instruments[0]?.instrument.slug ?? ''
+			])
+		),
 		me
 	};
 	const P = (h: string) => id(ctx, h);

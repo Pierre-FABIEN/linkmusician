@@ -40,6 +40,8 @@ npm run dev                   # http://localhost:2000
   `<handle>@demo.linkmusician.test` (mot de passe `DemoPass!2026`, ou
   `SEED_DEMO_PASSWORD`) et ne touche pas au tien. Commune choisie :
   `npm run seed:demo -- --commune=<code INSEE>`.
+- Si un handle est déjà pris, le seed choisit un handle libre suffixé
+  (`-demo`, puis `-demo-2`, etc.) et affiche les e-mails exacts à utiliser.
 - Il joue ensuite des **scénarios** ([prisma/seed-scenarios.ts](./prisma/seed-scenarios.ts))
   qui font vivre les fonctionnalités, avec leurs points calculés par le
   vrai moteur. Pour les voir, connecte-toi avec :
@@ -66,6 +68,7 @@ npm run dev                   # http://localhost:2000
 
 - `npm run seed` **vide toute la base** (jeu de démo du boilerplate) puis
   relance les deux seeds ci-dessus.
+- Liste des comptes, mot de passe et détails : [prisma/README.md](./prisma/README.md).
 - Tests e2e : **arrêter `npm run dev`** avant (voir [e2e/README.md](./e2e/README.md)).
 
 ---
