@@ -6,7 +6,7 @@
  * Conventions des fichiers (voir `docs/aide/README.md`) :
  * - `# Titre`, puis `_Accroche_` : repris dans l'en-tête de la page ;
  * - `> **En bref**`, `> 💡 **Astuce**`, `> ⚠️ **Important**`,
- *   `> 🔜 **Bientôt**` : des encarts ;
+ *   `> 🔜 **Bientôt**`, `> 📍 **Dans le projet**` : des encarts ;
  * - `## Titre {#ancre}` : ancre stable (sinon dérivée du titre) ;
  * - liens `./02-mode-jam.md#ancre` : réécrits vers `/aide/mode-jam#ancre` ;
  * - le bloc de navigation final (après `---`) est remplacé par celui de
@@ -15,13 +15,13 @@
 import { Marked, type Tokens } from 'marked';
 import { HELP_PAGES, helpHref } from '#lib/aide/catalog';
 
-const sources = import.meta.glob('/src/lib/aide/pages/*.md', {
+const sources = import.meta.glob(['/src/lib/aide/pages/*.md', '/docs/lancement/README.md'], {
 	query: '?raw',
 	import: 'default',
 	eager: true
 }) as Record<string, string>;
 
-export type HelpCallout = 'brief' | 'tip' | 'warning' | 'soon';
+export type HelpCallout = 'brief' | 'tip' | 'warning' | 'soon' | 'project';
 export type RenderedHelp = {
 	title: string;
 	lead: string | null;
@@ -59,6 +59,7 @@ function calloutOf(html: string): HelpCallout | null {
 	if (start.startsWith('<p>💡')) return 'tip';
 	if (start.startsWith('<p>⚠️')) return 'warning';
 	if (start.startsWith('<p>🔜')) return 'soon';
+	if (start.startsWith('<p>📍')) return 'project';
 	return null;
 }
 
@@ -123,9 +124,21 @@ const cache = new Map<string, RenderedHelp>();
 
 /** Page rendue d'après son fichier (`02-mode-jam.md`), ou `null`. */
 export function renderedHelpPage(file: string): RenderedHelp | null {
+	return renderedMarkdown(`/src/lib/aide/pages/${file}`);
+}
+
+/**
+ * Feuille de route de la startup (`docs/lancement/README.md`), rendue pour
+ * l'administration (`/admin/lancement`). Jamais publique.
+ */
+export function renderedLaunchRoadmap(): RenderedHelp {
+	return renderedMarkdown('/docs/lancement/README.md')!;
+}
+
+function renderedMarkdown(file: string): RenderedHelp | null {
 	const cached = cache.get(file);
 	if (cached) return cached;
-	const source = sources[`/src/lib/aide/pages/${file}`];
+	const source = sources[file];
 	if (source === undefined) return null;
 	const rendered = renderHelp(source);
 	cache.set(file, rendered);

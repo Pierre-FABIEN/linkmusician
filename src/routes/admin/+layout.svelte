@@ -39,6 +39,7 @@
 					{ title: 'référentiels', url: '/admin/referentiels' }, // LINKMUSICIAN: instruments et genres
 					{ title: 'modération', url: '/moderation' }, // LINKMUSICIAN: file de modération (P1-12)
 					{ title: 'indicateurs', url: '/admin/indicateurs' }, // LINKMUSICIAN: indicateurs produit (P1-13)
+					{ title: 'lancement', url: '/admin/lancement' }, // LINKMUSICIAN: feuille de route de la startup
 					{ title: 'métriques', url: '/admin/metrics' },
 					{ title: 'exports', url: '/admin/exports' },
 					{ title: 'identité de l’entreprise', url: '/admin/identite' },

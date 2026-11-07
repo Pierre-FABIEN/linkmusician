@@ -80,3 +80,25 @@ describe('centre d’aide : le rendu', () => {
 		expect(slugify('Pour les mineur·es')).toBe('pour-les-mineur-es');
 	});
 });
+
+describe('feuille de route de la startup (/admin/lancement)', () => {
+	it('se rend avec ses six phases, ses encarts et ses principes', async () => {
+		const { renderedLaunchRoadmap } = await import('./render');
+		const roadmap = renderedLaunchRoadmap();
+		expect(roadmap.title).toBe('LinkMusician, de l’idée à la startup');
+		expect(roadmap.toc.map((t) => t.id)).toEqual([
+			'etat',
+			'phase-1',
+			'phase-2',
+			'phase-3',
+			'phase-4',
+			'phase-5',
+			'phase-6',
+			'principes',
+			'vision'
+		]);
+		expect(roadmap.html).toContain('aide-brief');
+		expect(roadmap.html.match(/aide-project/g)?.length).toBeGreaterThanOrEqual(10);
+		expect(roadmap.html).not.toMatch(/href="[^"]*\.md/);
+	});
+});
