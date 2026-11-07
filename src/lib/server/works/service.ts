@@ -11,6 +11,8 @@
  * Progression : créer, créditer, joindre une maquette ne rapportent rien.
  * Déclarer le morceau composé avec ≥2 crédits confirmés émet
  * `work.composed` ; une confirmation après coup émet `work.credit_confirmed`.
+ * Un morceau de groupe fait aussi avancer l'étape « Première composition »
+ * (P3-04, `syncComposition`).
  * Retirer son crédit ne reprend rien (comme un départ de groupe), et le
  * moteur ne paie jamais deux fois une personne pour un même morceau.
  *
@@ -27,6 +29,7 @@ import { emitAndProcess, type ProcessResult } from '#lib/server/progression/proc
 import { summarize } from '#lib/server/progression/profile';
 import { addExternalMedia, MediaError } from '#lib/server/media/service';
 import { canInviteMinor, managedBands } from '#lib/server/bands/service';
+import { syncComposition } from '#lib/server/milestones/service';
 import { isManager, publicMember } from '#lib/bands/rules';
 import {
 	MAX_CONTRIBUTORS,
@@ -159,12 +162,15 @@ async function afterConfirm(tx: Tx, work: WorkHead, personId: string, now: Date)
 	const action = onConfirm({ state: work.state, proof: work.proof, confirmed: ids.length });
 	if (action === 'corroborate') {
 		await tx.work.update({ where: { id: work.id }, data: { proof: 'CORROBORATED' } });
-		return emitAndProcess(tx, {
+		const composed = await emitAndProcess(tx, {
 			type: 'work.composed',
 			workId: work.id,
 			contributorIds: ids,
 			occurredAt: now
 		});
+		// Étape « Première composition » du groupe (P3-04) : corroborée.
+		if (work.owner.kind === 'ORGANIZATION') await syncComposition(tx, work.ownerId, now);
+		return composed;
 	}
 	if (action === 'share') {
 		return emitAndProcess(tx, {
@@ -494,15 +500,25 @@ export async function markComposed(workId: string, managerId: string, now = new 
 			where: { id: workId },
 			data: { state: 'COMPOSED', proof, composedAt: now }
 		});
-		if (proof !== 'CORROBORATED') return null;
-		return emitAndProcess(tx, {
-			type: 'work.composed',
-			workId,
-			contributorIds: ids,
-			occurredAt: now
-		});
+		const results: ProcessResult[] = [];
+		if (proof === 'CORROBORATED') {
+			results.push(
+				await emitAndProcess(tx, {
+					type: 'work.composed',
+					workId,
+					contributorIds: ids,
+					occurredAt: now
+				})
+			);
+		}
+		// Étape « Première composition » du groupe (P3-04, D41).
+		if (work.owner.kind === 'ORGANIZATION') {
+			const step = await syncComposition(tx, work.ownerId, now);
+			if (step) results.push(step);
+		}
+		return results;
 	}, TX);
-	return { progress: result ? summarize(managerId, [result as ProcessResult]) : null };
+	return { progress: result.length > 0 ? summarize(managerId, result) : null };
 }
 
 // ─── Lectures ────────────────────────────────────────────────────────────

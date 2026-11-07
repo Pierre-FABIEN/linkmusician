@@ -6,7 +6,8 @@
  *
  * Progression : créer un groupe ne rapporte rien. À la 2ᵉ adhésion active,
  * le groupe est **formé** : `membership.accepted` pour chaque membre actif
- * et étape `FORMATION` vérifiée (membres présents : 25 %). Ensuite, chaque
+ * et étape `FORMATION` vérifiée (membres présents : 25 %, ligne `Milestone`
+ * écrite par `#lib/server/milestones/service`). Ensuite, chaque
  * nouvelle adhésion active émet `membership.accepted` (rendements
  * décroissants par groupe, gérés par le moteur). Un départ ne reprend rien.
  *
@@ -23,6 +24,7 @@ import { isBlockedBetween } from '#lib/server/blocking/service';
 import { playedTogether } from '#lib/server/network/service';
 import { notify } from '#lib/server/notifications/service';
 import { emitAndProcess } from '#lib/server/progression/processor';
+import { recordFormation, syncComposition } from '#lib/server/milestones/service';
 import { clearActorLocation, setActorLocation } from '#lib/server/geo/queries';
 import type { Commune } from '#lib/geo/fuzz';
 import { addExternalMedia, deleteOwnMedia, MediaError } from '#lib/server/media/service';
@@ -133,15 +135,10 @@ async function afterJoin(
 				occurredAt: now
 			});
 		}
-		await emitAndProcess(tx, {
-			type: 'milestone.attested',
-			bandId,
-			milestone: 'FORMATION',
-			from: null,
-			to: 'VERIFIED',
-			memberIds,
-			occurredAt: now
-		});
+		// Étapes (P3-04) : « Formation » vérifiée, et « Première composition »
+		// si le groupe avait déjà composé seul.
+		await recordFormation(tx, bandId, memberIds, now);
+		await syncComposition(tx, bandId, now);
 	} else if (band.formedAt) {
 		await emitAndProcess(tx, { type: 'membership.accepted', personId, bandId, occurredAt: now });
 	}

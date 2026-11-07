@@ -1460,6 +1460,8 @@ model Actor {
   worksCreated               Work[]                   @relation("WorkCreator")
   workCredits                WorkContributor[]        @relation("WorkContributorPerson")
   workCreditsInvited         WorkContributor[]        @relation("WorkContributorInviter")
+  milestones                 Milestone[]              @relation("MilestoneBand")
+  milestonesDeclared         Milestone[]              @relation("MilestoneDeclarer")
 
   @@map("actors")
 }
@@ -2730,6 +2732,7 @@ model Work {
   genres       WorkGenre[]
   contributors WorkContributor[]
   roles        WorkRole[]
+  milestones   Milestone[]
 
   @@index([ownerId, state])
   @@map("works")
@@ -2781,4 +2784,63 @@ model WorkRole {
   @@index([workId])
   @@index([contributorId])
   @@map("work_roles")
+}
+
+// ─── ÉTAPES DE GROUPE (P3-04, D41) ──────────────────────────────────────────
+
+/// Niveau de preuve d'une étape (conception 02 §4). Le passage de l'un à
+/// l'autre rapporte la différence d'XP (`milestone.attested`).
+enum MilestoneProof {
+  DECLARED
+  CORROBORATED
+  VERIFIED
+}
+
+/// Référentiel des étapes, chargé par `npm run seed:referentiels`
+/// (`prisma/seed-data/milestones.js`, rejouable). Le barème d'XP vit dans le
+/// moteur (`progression/core/bareme.ts`), pas ici.
+model MilestoneDefinition {
+  /// Clé du moteur (`FIRST_GIG`…).
+  id         String      @id
+  ordinal    Int
+  label      String
+  /// formation | work | declare | later (`#lib/milestones/rules`).
+  mode       String
+  /// Version du référentiel qui a écrit la ligne.
+  version    Int
+  active     Boolean     @default(true)
+  updatedAt  DateTime    @updatedAt
+  milestones Milestone[]
+
+  @@map("milestone_definitions")
+}
+
+/// Une étape franchie par un groupe : une seule par groupe et par étape
+/// (« premières fois »). Seul point d'écriture :
+/// `src/lib/server/milestones/service.ts`.
+model Milestone {
+  id                String              @id @default(cuid())
+  definitionId      String
+  definition        MilestoneDefinition @relation(fields: [definitionId], references: [id], onDelete: Restrict)
+  bandId            String
+  band              Actor               @relation("MilestoneBand", fields: [bandId], references: [id], onDelete: Cascade)
+  proof             MilestoneProof
+  /// Date de l'étape (le jour, à midi UTC), pas celle de la déclaration.
+  occurredAt        DateTime
+  /// Précision publique facultative (« Au Bikini »).
+  note              String?
+  /// Qui l'a déclarée ; vide pour une étape automatique ou après RGPD.
+  declaredById      String?
+  declaredBy        Actor?              @relation("MilestoneDeclarer", fields: [declaredById], references: [id], onDelete: SetNull)
+  /// Morceau qui porte « Première composition ».
+  workId            String?
+  work              Work?               @relation(fields: [workId], references: [id], onDelete: SetNull)
+  definitionVersion Int
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@unique([bandId, definitionId])
+  @@index([declaredById])
+  @@index([workId])
+  @@map("milestones")
 }

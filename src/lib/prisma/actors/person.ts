@@ -16,6 +16,7 @@ import { getProfileDetails } from '#lib/prisma/actors/profile';
 import { getActorLocation } from '#lib/server/geo/queries';
 import { getProgress } from '#lib/server/progression/read';
 import { worksExport } from '#lib/server/works/service';
+import { milestonesExport } from '#lib/server/milestones/service';
 
 export type NewPersonInput = {
 	userId: string;
@@ -138,7 +139,8 @@ export async function exportPersonData(userId: string) {
 		collusionCases,
 		suggestionsDismissed,
 		memberships,
-		works
+		works,
+		milestonesDeclared
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -388,7 +390,9 @@ export async function exportPersonData(userId: string) {
 			}
 		}),
 		// Morceaux (P3-11) : portés et crédits.
-		worksExport(person.actorId)
+		worksExport(person.actorId),
+		// Étapes de groupe déclarées (P3-04).
+		milestonesExport(person.actorId)
 	]);
 	const media = await prisma.media.findMany({
 		where: { actorId: person.actorId },
@@ -605,6 +609,7 @@ export async function exportPersonData(userId: string) {
 				cree_le: c.createdAt
 			}))
 		},
+		etapes_de_groupe_declarees: milestonesDeclared,
 		suggestions_ecartees: suggestionsDismissed.map((d) => ({
 			nom: d.actor.displayName,
 			le: d.createdAt
@@ -647,6 +652,12 @@ export async function personAnonymizationOps(
 			data: { invitedById: null }
 		}),
 		prisma.work.updateMany({ where: { createdById: person.actorId }, data: { createdById: null } }),
+		// Étapes de groupe (P3-04) : elles restent au groupe ; on oublie qui
+		// les a déclarées.
+		prisma.milestone.updateMany({
+			where: { declaredById: person.actorId },
+			data: { declaredById: null }
+		}),
 		prisma.influence.deleteMany({ where: { actorId: person.actorId } }),
 		prisma.profileLink.deleteMany({ where: { personId: person.actorId } }),
 		prisma.actorActivityDay.deleteMany({ where: { actorId: person.actorId } }),

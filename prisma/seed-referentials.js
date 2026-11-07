@@ -1,4 +1,5 @@
-// LINKMUSICIAN (P1-04) : chargement des référentiels instruments et genres.
+// LINKMUSICIAN (P1-04) : chargement des référentiels instruments et genres,
+// et des étapes de groupe (P3-04).
 //
 // `npm run seed:referentiels` — rejouable à volonté, y compris en production
 // (ce ne sont pas des données de démo) : chaque entrée est retrouvée par son
@@ -10,6 +11,7 @@ import { pathToFileURL } from 'node:url';
 import dotenv from 'dotenv';
 import { instrumentsByFamily } from './seed-data/instruments.js';
 import { genreTree } from './seed-data/genres.js';
+import { MILESTONES_VERSION, milestoneDefinitions } from './seed-data/milestones.js';
 
 /** @param {PrismaClient} prisma */
 async function seedInstruments(prisma) {
@@ -57,13 +59,34 @@ async function seedGenres(prisma) {
 	return { total: slugs.length, retired: retired.count };
 }
 
-/** Charge les deux référentiels. @param {PrismaClient} prisma */
+/** Étapes de groupe (P3-04, D41). @param {PrismaClient} prisma */
+export async function seedMilestones(prisma) {
+	const ids = [];
+	for (const [id, ordinal, label, mode] of milestoneDefinitions) {
+		ids.push(id);
+		const data = { ordinal, label, mode, version: MILESTONES_VERSION, active: true };
+		await prisma.milestoneDefinition.upsert({
+			where: { id },
+			create: { id, ...data },
+			update: data
+		});
+	}
+	const retired = await prisma.milestoneDefinition.updateMany({
+		where: { id: { notIn: ids }, active: true },
+		data: { active: false }
+	});
+	return { total: ids.length, retired: retired.count };
+}
+
+/** Charge les référentiels. @param {PrismaClient} prisma */
 export async function seedReferentials(prisma) {
 	const instruments = await seedInstruments(prisma);
 	const genres = await seedGenres(prisma);
+	const milestones = await seedMilestones(prisma);
 	console.log(
 		`Référentiels : ${instruments.total} instruments (${instruments.retired} désactivé(s)), ` +
-			`${genres.total} genres (${genres.retired} désactivé(s)).`
+			`${genres.total} genres (${genres.retired} désactivé(s)), ` +
+			`${milestones.total} étapes (${milestones.retired} désactivée(s)).`
 	);
 }
 
