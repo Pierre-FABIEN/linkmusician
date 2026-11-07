@@ -10,6 +10,8 @@ _Jouer pour le plaisir, rencontrer du monde, sans projet ni pression._
 >   répétition**, jamais chez quelqu’un.
 > - Venir ne rapporte pas de points : ce sont les **appréciations** des
 >   autres musicien·nes, après la jam, qui t’en rapportent.
+> - Après la jam, **Garder le contact** : tu retrouves les gens dans tes
+>   contacts et tu leur écris par l’app, sans échanger ton numéro.
 > - Ton **carnet** garde le souvenir de tes jams et des gens rencontrés.
 
 ## Comment ça se passe, en 4 temps
@@ -100,9 +102,10 @@ Puis, avec les gens avec qui le courant est passé :
 
 - **Rejouer ensemble** : une nouvelle jam déjà préremplie (lieu, style,
   horaires, places) ;
-- **Garder le contact** : la personne rejoint ton **réseau musical**, les
-  gens avec qui tu as vraiment joué. L’app te les proposera en premier le
-  jour où tu chercheras quelqu’un pour un projet.
+- **Garder le contact** : la personne rejoint tes **contacts** (Messages,
+  onglet Contacts). Tu pourras lui écrire quand tu veux, **sans échanger
+  ton numéro**, la mettre dans un groupe pour un projet, et l’app te la
+  proposera en premier le jour où tu chercheras quelqu’un.
 
 > 💡 **Astuce** : laisse des appréciations ! C’est ce qui fait vivre le
 > mode jam, et ça ne te coûte rien.
@@ -178,7 +181,7 @@ elle, vient d’une autre personne qui t’a entendu jouer.
 <details><summary>Le mode jam compte-t-il pour ma carrière ?</summary>
 
 Oui. Les appréciations reçues comptent pour tes points et pour le palier
-**En réseau**, et ton réseau musical t’aide à monter un projet. Mais le
+**En réseau**, et tes contacts t’aident à monter un projet. Mais le
 mode jam ne te fixe aucun objectif.
 
 </details>

@@ -135,7 +135,7 @@
 									{/if}
 									{#if p.inNetwork}
 										<p class="flex min-h-11 items-center gap-2 text-sm font-semibold text-primary">
-											<UserCheck class="size-4" aria-hidden="true" />Dans ton réseau
+											<UserCheck class="size-4" aria-hidden="true" />Dans tes contacts
 										</p>
 									{:else if data.iWasThere}
 										<form method="POST" action="?/keep" use:enhance>

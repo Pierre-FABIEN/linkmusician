@@ -8,8 +8,8 @@ _Trouver la bonne personne, lui écrire, et jouer._
 > - **Annonces** : dis ce que tu cherches, ou réponds à quelqu’un.
 > - **Messages** : écris à qui tu veux. Tant que l’autre n’a pas répondu,
 >   tu peux envoyer **3 messages** ; sa réponse ouvre la conversation.
-> - Les gens avec qui tu as joué forment ton **réseau musical**. L’app te
->   les propose en premier.
+> - Les gens avec qui tu as joué ou échangé sont dans tes **contacts**
+>   (Messages, onglet Contacts) : écris-leur sans échanger ton numéro.
 
 ## 1. Découvrir
 
@@ -18,7 +18,7 @@ _Trouver la bonne personne, lui écrire, et jouer._
 3. Ouvre un profil pour écouter ses démos, voir ses groupes et ce que
    d’autres confirment de lui ou d’elle.
 
-Ton réseau musical arrive **en tête** des résultats. Les distances sont
+Les gens que tu as gardés après avoir joué arrivent **en tête** des résultats. Les distances sont
 arrondies par tranches, et seule la commune est affichée.
 
 ### Des musicien·nes pour toi
@@ -86,14 +86,33 @@ Dans une conversation ouverte, après avoir joué ensemble, touche
 > personnes par jour. Ça monte avec ta confiance. Et un message refusé, ce n’est pas
 > grave : chacun choisit avec qui il joue.
 
-## 4. Ton réseau musical
+## 4. Tes contacts {#contacts}
 
-Ton réseau, ce sont les gens avec qui tu as **vraiment joué** : après une
-jam, touche **Garder le contact**. Il est privé. Il sert à :
+Dans **Messages**, l’onglet **Contacts** rassemble :
 
-- te les proposer en premier dans Découvrir, les suggestions et les
-  invitations (jam, groupe) ;
-- les retrouver dans ton **carnet de jams**.
+- les gens avec qui tu as **vraiment joué** et que tu as gardés : après
+  une jam, touche **Garder le contact** ;
+- les personnes avec qui tu as une **conversation ouverte**.
+
+Pour chacun, tu vois comment vous vous êtes rencontrés (« 3 jams
+ensemble »), vos projets en commun (un groupe, des morceaux), et un bouton
+**Écrire**. Pas besoin d’échanger vos numéros : tout passe par l’app.
+
+### Les groupes de contacts
+
+Rassemble des contacts autour d’un projet : « Projet funk »,
+« Remplaçant·es batterie ».
+
+1. Dans **Mes groupes de contacts**, donne un nom et touche **Créer**.
+2. Sous un contact, choisis le groupe et touche **Ajouter**.
+3. **Gérer** permet de renommer le groupe, d’en retirer quelqu’un ou de
+   le supprimer.
+
+Tes groupes sont privés : personne ne sait dans quel groupe tu l’as mis.
+
+> 🔜 **Bientôt** : ouvrir une **discussion de groupe** depuis un groupe de
+> contacts. Chaque personne recevra une invitation, et choisira de
+> rejoindre ou non.
 
 ## Questions fréquentes
 

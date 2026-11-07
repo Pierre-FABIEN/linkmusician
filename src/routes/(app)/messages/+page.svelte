@@ -1,4 +1,5 @@
 <script lang="ts">
+	import MessagesTabs from '#lib/components/linkmusician/MessagesTabs.svelte';
 	// LINKMUSICIAN: messagerie (P2-04), voir +page.server.ts.
 	import TipCard from '#lib/components/linkmusician/TipCard.svelte';
 	import SEO from '#lib/components/SEO.svelte';
@@ -59,6 +60,7 @@
 <div class="min-h-screen w-screen px-4 pt-6 pb-24">
 	<div class="mx-auto max-w-2xl space-y-6">
 		<h1 class="text-3xl font-black tracking-tight">Messages</h1>
+		<MessagesTabs current="conversations" />
 
 		<TipCard tip={data.tip} />
 

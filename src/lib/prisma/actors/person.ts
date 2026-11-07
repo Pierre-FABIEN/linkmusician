@@ -18,6 +18,7 @@ import { getProgress } from '#lib/server/progression/read';
 import { worksExport } from '#lib/server/works/service';
 import { milestonesExport } from '#lib/server/milestones/service';
 import { proofsExport } from '#lib/server/milestones/proofs';
+import { contactGroupsExport } from '#lib/server/contacts/service';
 
 export type NewPersonInput = {
 	userId: string;
@@ -142,7 +143,8 @@ export async function exportPersonData(userId: string) {
 		memberships,
 		works,
 		milestonesDeclared,
-		milestoneProofs
+		milestoneProofs,
+		contactGroups
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -396,7 +398,9 @@ export async function exportPersonData(userId: string) {
 		// Étapes de groupe déclarées (P3-04).
 		milestonesExport(person.actorId),
 		// Preuves d'étapes (P3-05) : confirmations demandées, liens joints.
-		proofsExport(person.actorId)
+		proofsExport(person.actorId),
+		// Groupes de contacts (P3-16b).
+		contactGroupsExport(person.actorId)
 	]);
 	const media = await prisma.media.findMany({
 		where: { actorId: person.actorId },
@@ -616,6 +620,7 @@ export async function exportPersonData(userId: string) {
 		etapes_de_groupe_declarees: milestonesDeclared,
 		etapes_de_groupe_confirmations: milestoneProofs.confirmations,
 		etapes_de_groupe_liens: milestoneProofs.liens,
+		groupes_de_contacts: contactGroups,
 		suggestions_ecartees: suggestionsDismissed.map((d) => ({
 			nom: d.actor.displayName,
 			le: d.createdAt
@@ -711,6 +716,9 @@ export async function personAnonymizationOps(
 			where: { OR: [{ recipientActorId: person.actorId }, { fromActorId: person.actorId }] }
 		}),
 		prisma.notificationPreference.deleteMany({ where: { actorId: person.actorId } }),
+		// Groupes de contacts (P3-16b) : les siens, et sa place dans ceux des autres.
+		prisma.contactGroup.deleteMany({ where: { ownerId: person.actorId } }),
+		prisma.contactGroupMember.deleteMany({ where: { contactId: person.actorId } }),
 		// Réseau musical (P2-16) : supprimé, dans les deux sens.
 		prisma.musicalTie.deleteMany({
 			where: { OR: [{ ownerId: person.actorId }, { contactId: person.actorId }] }

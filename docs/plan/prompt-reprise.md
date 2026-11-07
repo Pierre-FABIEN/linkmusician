@@ -6,9 +6,10 @@
 ---
 
 ```markdown
-On reprend LinkMusician avec le lot **P3-16b** (carnet et groupes de
-contacts, discussions de groupe) ; P3-16a (messagerie à trois messages)
-est livré. Ne refais pas l'analyse du projet :
+On reprend LinkMusician avec le lot **P3-16c** (discussions de groupe sur
+invitation) ; P3-16a (trois messages avant une réponse) et P3-16b (onglet
+Contacts, carnet, groupes de contacts, [docs/contacts](../contacts/README.md))
+sont livrés. Ne refais pas l'analyse du projet :
 CLAUDE.md est déjà chargé, tout ce qui sert est ci-dessous.
 
 ## État (07/11/2026)
@@ -29,17 +30,22 @@ CLAUDE.md est déjà chargé, tout ce qui sert est ci-dessous.
 - **Centre d'aide** livré (`/aide`, contenu dans `src/lib/aide/pages/*.md`,
   voir [docs/aide](../aide/README.md)) : toute fonction qui change un
   parcours met à jour sa page d'aide (Définition de terminé).
-- **P3-16** (fiche dans docs/plan/phase-2-3.md, D44, D45) :
-  - P3-16a : jusqu'à 3 messages tant que l'autre n'a pas répondu ; sa
-    réponse débloque (plus de bouton « Accepter » à part) ; refuser et
-    bloquer restent ; quota de premières demandes et mineur·es (D5)
-    inchangés. Point de départ : `sendPermission`
-    (`src/lib/messaging/rules.ts`), `src/lib/server/messaging/service.ts`,
-    e2e `messagerie.spec.ts`, aide `rencontrer` ;
-  - P3-16b : page « Contacts » (le réseau musical `MusicalTie`, comment on
-    s'est rencontrés, projets partagés), groupes de contacts, discussions
-    de groupe (les conversations sont à deux aujourd'hui : `pairKey`) ;
-    consentement, blocages et mineur·es à trancher en début de lot.
+- **P3-16c** (fiche dans docs/plan/phase-2-3.md, D45, D46) :
+  - une discussion s'ouvre depuis un groupe de contacts (`ContactGroup`,
+    `src/lib/server/contacts/service.ts`) ; chaque personne reçoit une
+    **invitation** (Rejoindre, Non merci) et ne voit rien avant ; on peut
+    quitter ; l'auteur peut inviter d'autres contacts (`isContact`) ;
+  - **mineur·es exclu·es** des discussions de groupe au lancement, sans
+    dire pourquoi (`isIndexable` de la date de naissance) ; pas d'invitation
+    à travers un blocage avec l'auteur, ni de « Rejoindre » si un blocage
+    existe avec un membre déjà présent ;
+  - piste de modèle : tables à part (`GroupDiscussion`,
+    `GroupDiscussionMember`, `GroupDiscussionMessage`) plutôt que
+    `Conversation` (à deux, `pairKey` unique, requêtes qui supposent deux
+    participants) ; ajouter les non-lus au badge (`unreadTotal`) et la
+    liste « Discussions de groupe » dans Messages ; nouvelle notification
+    d'invitation ; RGPD ;
+  - fin de lot : remplacer l'encart « Bientôt » de l'aide `rencontrer`.
 - **Décidé, plus tard** : P3-15 démarches (D42, conception 09).
 - **P3-06** (après P3-16) : lire sa fiche (docs/plan/phase-2-3.md, avec la note P3-04 :
   retirer soi-même une étape déclarée par erreur) et conception 02 §4.

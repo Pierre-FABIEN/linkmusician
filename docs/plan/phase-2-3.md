@@ -640,6 +640,8 @@ actes. Puis LinkMusician s'ouvre au public.
   « Refuser » et « Bloquer » restent ; quota de premières demandes et
   règles des mineur·es inchangés. Mettre à jour `sendPermission`, les
   écrans, l'aide (`rencontrer`) et les e2e de la messagerie.
+- **Découpage (07/11/2026, D46)** : P3-16b = onglet Contacts, carnet et
+  groupes de contacts ; P3-16c = discussions de groupe sur invitation.
 - **P3-16b — Carnet et groupes de contacts (D45)** : page « Contacts » dans
   la navigation (le réseau musical : comment on s'est rencontrés, projets
   en cours partagés : groupes, morceaux, collaborations ; « Écrire ») ;

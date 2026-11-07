@@ -1465,6 +1465,8 @@ model Actor {
   milestoneAttestations      MilestoneAttestation[]   @relation("MilestoneAttester")
   milestoneAttestationsAsked MilestoneAttestation[]   @relation("MilestoneAttestationRequester")
   milestoneEvidenceAdded     MilestoneEvidence[]      @relation("MilestoneEvidenceAdder")
+  contactGroups              ContactGroup[]           @relation("ContactGroupOwner")
+  contactGroupMemberships    ContactGroupMember[]     @relation("ContactGroupContact")
 
   @@map("actors")
 }
@@ -2923,4 +2925,35 @@ model MilestoneEvidence {
   @@index([status, createdAt])
   @@index([addedById])
   @@map("milestone_evidence")
+}
+
+
+// ─── CONTACTS (P3-16b, D45, D46) ────────────────────────────────────────────
+
+/// Groupe de contacts privé (« Projet funk ») : un projet potentiel. Seul
+/// point d'écriture : `src/lib/server/contacts/service.ts`.
+model ContactGroup {
+  id        String               @id @default(cuid())
+  ownerId   String
+  owner     Actor                @relation("ContactGroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  members   ContactGroupMember[]
+
+  @@index([ownerId])
+  @@map("contact_groups")
+}
+
+/// Un contact dans un groupe (toujours un contact de son propriétaire).
+model ContactGroupMember {
+  groupId   String
+  group     ContactGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  contactId String
+  contact   Actor        @relation("ContactGroupContact", fields: [contactId], references: [id], onDelete: Cascade)
+  addedAt   DateTime     @default(now())
+
+  @@id([groupId, contactId])
+  @@index([contactId])
+  @@map("contact_group_members")
 }

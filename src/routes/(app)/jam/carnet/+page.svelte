@@ -73,7 +73,7 @@
 									<li class="rounded-full border px-3 py-1">
 										<a href="/@{o.handle}" class="underline">{o.displayName}</a>{o.instrument
 											? ` · ${o.instrument.toLowerCase()}`
-											: ''}{o.inNetwork ? ' · réseau' : ''}
+											: ''}{o.inNetwork ? ' · dans tes contacts' : ''}
 									</li>
 								{/each}
 							</ul>
@@ -91,11 +91,13 @@
 
 		<section class="space-y-3" aria-labelledby="network-title">
 			<h2 id="network-title" class="flex items-center gap-2 text-xl font-bold">
-				<Users class="size-5" aria-hidden="true" /> Mon réseau musical
+				<Users class="size-5" aria-hidden="true" /> Mes contacts de jam
 			</h2>
 			<p class="text-sm text-muted-foreground">
-				Les gens avec qui tu as vraiment joué et que tu as gardé·es. Ils remontent en premier quand
-				tu cherches quelqu’un ou que tu invites à une jam. Personne d’autre ne voit cette liste.
+				Les gens avec qui tu as vraiment joué et que tu as gardé·es. Écris-leur quand tu veux, sans
+				échanger ton numéro ; ils remontent en premier quand tu cherches quelqu’un. Personne d’autre
+				ne voit cette liste.
+				<a href="/messages/contacts" class="font-semibold underline">Tous mes contacts</a>
 			</p>
 			{#if data.network.length === 0}
 				<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">

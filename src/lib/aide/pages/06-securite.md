@@ -65,7 +65,7 @@ LinkMusician est ouvert aux mineur·es, avec des règles en plus :
 - **Ce qui est public** : ton profil (`/@ton-identifiant`), sauf si tu le
   masques (**Réglages** → **Masquer mon profil public**). Jamais tes
   points, ta date de naissance, ton adresse.
-- **Ce qui reste privé** : tes messages, ton carnet, ton réseau, tes
+- **Ce qui reste privé** : tes messages, ton carnet, tes contacts et leurs groupes, tes
   points, ta confiance.
 - **Télécharger tes données** : **Mes données** → **Télécharger mes
   données** : tout ce que l’app sait de toi, dans un fichier.

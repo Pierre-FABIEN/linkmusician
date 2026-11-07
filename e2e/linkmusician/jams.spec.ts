@@ -413,7 +413,7 @@ test.describe('LinkMusician — jams publiques', () => {
 					.getByText(me.actor.displayName, { exact: true })
 					.click();
 				await malikPage.getByRole('button', { name: 'Garder le contact' }).click();
-				await expect(malikPage.getByText(/rejoint ton réseau musical/)).toBeVisible();
+				await expect(malikPage.getByText(/rejoint tes contacts/)).toBeVisible();
 				expect(
 					await db.musicalTie.count({ where: { ownerId: malik.actorId, contactId: me.actorId } })
 				).toBe(1);
@@ -429,7 +429,7 @@ test.describe('LinkMusician — jams publiques', () => {
 				await expect(log.getByText('On t’a apprécié·e : bon groove')).toBeVisible();
 				await expect(
 					malikPage
-						.getByRole('region', { name: 'Mon réseau musical' })
+						.getByRole('region', { name: 'Mes contacts de jam' })
 						.getByRole('link', { name: me.actor.displayName })
 				).toBeVisible();
 				await expectNoA11yViolations(malikPage, A11Y_EXCLUDE);

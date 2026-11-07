@@ -67,7 +67,9 @@ export const actions: Actions = {
 		const handle = text(await request.formData(), 'handle');
 		try {
 			const contact = await keepInTouch((await me(locals)).actorId, handle);
-			return { message: `${contact.displayName} rejoint ton réseau musical.` };
+			return {
+				message: `${contact.displayName} rejoint tes contacts : tu le ou la retrouves dans Messages, onglet Contacts.`
+			};
 		} catch (err) {
 			if (err instanceof NetworkError) return fail(err.status, { error: err.message });
 			throw err;

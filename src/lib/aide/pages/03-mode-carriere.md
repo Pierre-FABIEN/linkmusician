@@ -88,7 +88,7 @@ ensemble**.
 ### Monter un groupe
 
 1. **Groupes** → **Monter un groupe** : le nom, ce que tu y fais.
-2. **Invite** quelqu’un avec qui tu as joué (ton réseau et tes
+2. **Invite** quelqu’un avec qui tu as joué (tes contacts et tes
    conversations sont proposés), ou par son identifiant.
 3. Dès que la première personne accepte, le groupe est **formé** : vous
    gagnez des points tous les deux.
