@@ -1871,6 +1871,8 @@ enum ReportTarget {
   OPPORTUNITY
   /// Lieu de l'annuaire (P2-14a).
   VENUE
+  /// Étape de groupe contestée (P3-06).
+  MILESTONE
 }
 
 enum ReportReason {
@@ -2848,6 +2850,9 @@ model Milestone {
   workId            String?
   work              Work?               @relation(fields: [workId], references: [id], onDelete: SetNull)
   definitionVersion Int
+  /// Contestée (P3-06) : gelée jusqu'à la décision de la modération. Elle ne
+  /// s'affiche plus comme prouvée et ne reçoit plus de preuve.
+  frozenAt          DateTime?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   attestations      MilestoneAttestation[]

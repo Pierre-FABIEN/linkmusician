@@ -1,13 +1,13 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 08/11/2026, après P3-16c).
+> Mis à jour à chaque fin de lot (dernière : 08/11/2026, après P3-06).
 
 ---
 
 ```markdown
-On reprend LinkMusician avec le lot **P3-06** (contestation et reprise
-d'XP). **D'abord** : lancer `npm run test:e2e -- e2e/linkmusician/discussions.spec.ts`
+On reprend LinkMusician avec le lot **P3-08** (paliers de groupe et part
+des membres) ; P3-06 est livré (D49, [docs/etapes](../etapes/README.md)). **D'abord** : lancer `npm run test:e2e -- e2e/linkmusician/discussions.spec.ts`
 (P3-16c, écrit mais pas encore lancé : Chromium manquait de `libnspr4`,
 `sudo npx playwright install-deps chromium`), puis passer P3-16c à ✅ dans
 le tableau §5. Ne refais pas l'analyse du projet :
@@ -37,21 +37,11 @@ CLAUDE.md est déjà chargé, tout ce qui sert est ci-dessous.
   service `src/lib/server/discussions/service.ts`, règles
   `src/lib/discussions/rules.ts`, page `/messages/groupes/[id]`.
 - **Décidé, plus tard** : P3-15 démarches (D42, conception 09).
-- **P3-06** : lire sa fiche (docs/plan/phase-2-3.md, avec la note P3-04 :
-  retirer soi-même une étape déclarée par erreur) et conception 02 §4.
-  Pistes :
-  - `ReportTarget.MILESTONE` (enum à étendre) ; signaler depuis la page
-    publique du groupe (carte « Parcours ») et depuis `/etapes/[id]` ;
-  - geler l'étape (statut ou champ `frozenAt`) : elle ne s'affiche plus
-    comme corroborée, aucune nouvelle preuve tant que c'est gelé ;
-  - décision du modérateur (`/moderation`) : retenue → reprise de chaque
-    gain lié par `reverseGain` (`progression/processor.ts`, transaction
-    négative `reversesId`), retrouver les transactions par
-    `sourceEventId` des événements `milestone.attested` de l'étape ;
-    avertissement de confiance pour qui a déclaré et pour qui a confirmé ;
-    rejetée → dégel ;
-  - mêmes règles pour une confirmation mensongère (`MilestoneAttestation`).
-- Ordre prévu : P3-06, P3-08, P3-09 → P3-12 à P3-14 → P3-15
+- **P3-06 livré** : `src/lib/server/milestones/disputes.ts`
+  (`contestMilestone`, `upholdContest`, `dismissContest`,
+  `retractMilestone`, `disputeQueue`), `Milestone.frozenAt`, événement
+  `milestone.revoked` (sans XP, retiré des paliers dans `musicianSummary`).
+- Ordre prévu : P3-08, P3-09 → P3-12 à P3-14 → P3-15
   (tableau §4 bis de docs/plan/README.md). P3-07 après le lancement.
 - Points ouverts hors lots : docs/plan/README.md §5 bis (dont l'e2e
   « quota TL0 » instable en suite complète, les tests d'intégration qui

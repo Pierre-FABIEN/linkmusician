@@ -164,6 +164,8 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 			key: m.key,
 			label: m.label,
 			proof: m.proof,
+			/** Contestée (P3-06) : « En vérification » à la place du niveau de preuve. */
+			frozen: m.frozen,
 			occurredAt: m.occurredAt,
 			note: m.note
 		})),

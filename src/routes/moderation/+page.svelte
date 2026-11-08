@@ -143,6 +143,87 @@
 			{/each}
 		</section>
 
+		<section class="space-y-4" aria-labelledby="disputes-title">
+			<h2 id="disputes-title" class="text-lg font-semibold">
+				Étapes contestées ({data.disputes.length})
+			</h2>
+			<p class="text-sm text-muted-foreground">
+				Retenir reprend les points de l’étape (transactions liées), la retire du parcours et avertit
+				qui l’a déclarée et qui l’a confirmée. Rejeter la dégèle.
+			</p>
+			{#if data.disputes.length === 0}<p class="text-sm text-muted-foreground">
+					Rien en attente.
+				</p>{/if}
+			{#each data.disputes as d (d.id)}
+				<article
+					class="space-y-3 rounded-lg border p-4 text-sm"
+					aria-label="Étape contestée : {d.label}, {d.band.displayName}"
+				>
+					<div>
+						<p>
+							<a href="/@{d.band.handle}" class="font-medium underline">{d.band.displayName}</a>
+							· {d.label} · {d.proof}{d.frozen ? ' · gelée' : ''}
+						</p>
+						<p class="text-muted-foreground">
+							{date(d.occurredAt)}{d.note ? ` · ${d.note}` : ''} · déclarée par {d.declaredBy
+								?.displayName ?? 'le groupe'}
+						</p>
+						{#if d.confirmedBy.length > 0}
+							<p>
+								Confirmée par {d.confirmedBy
+									.map(
+										(c) => `${c.displayName} (${c.role === 'MEMBER' ? 'membre' : 'hors groupe'})`
+									)
+									.join(', ')}
+							</p>
+						{/if}
+						{#each d.evidence as e (e.url)}
+							<a
+								href={e.url}
+								class="block break-all underline"
+								target="_blank"
+								rel="noopener noreferrer">{e.url}</a
+							>
+						{/each}
+					</div>
+					<ul class="space-y-1 border-l-2 pl-3" aria-label="Signalements">
+						{#each d.reports as r (r.id)}
+							<li>
+								<span class="text-muted-foreground"
+									>@{r.reporter} (palier {r.reporterTrust}) · {date(r.createdAt)} :</span
+								>
+								{r.details}
+							</li>
+						{/each}
+					</ul>
+					<div class="flex flex-wrap items-end gap-2">
+						<form method="POST" action="?/upholdMilestone" use:enhance class="flex items-end gap-2">
+							<input type="hidden" name="milestoneId" value={d.id} />
+							<label>
+								<span class="sr-only">Motif de la décision</span>
+								<input
+									name="note"
+									required
+									placeholder="Pourquoi la retenir"
+									class="rounded-md border bg-background p-1.5"
+								/>
+							</label>
+							<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
+								>Retenir</button
+							>
+						</form>
+						<form method="POST" action="?/dismissMilestone" use:enhance>
+							<input type="hidden" name="milestoneId" value={d.id} />
+							<button
+								type="submit"
+								class="rounded-md bg-primary px-3 py-1.5 text-primary-foreground">Rejeter</button
+							>
+						</form>
+					</div>
+				</article>
+			{/each}
+		</section>
+
 		<section class="space-y-4" aria-labelledby="evidence-title">
 			<h2 id="evidence-title" class="text-lg font-semibold">
 				Preuves de démo à vérifier ({data.pendingEvidence.length})

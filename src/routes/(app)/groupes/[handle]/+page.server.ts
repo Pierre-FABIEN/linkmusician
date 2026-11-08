@@ -27,6 +27,7 @@ import {
 	declareMilestone,
 	updateMilestoneDetails
 } from '#lib/server/milestones/service';
+import { retractMilestone } from '#lib/server/milestones/disputes';
 import {
 	addEvidence,
 	bandMilestoneProofs,
@@ -167,6 +168,14 @@ export const actions: Actions = {
 		return run(
 			() => updateMilestoneDetails(field('milestoneId'), actorId, parsed.data),
 			'Étape mise à jour.'
+		);
+	},
+	/** Retirer une étape déclarée par erreur (P3-06) : XP reprise par transactions liées. */
+	retractMilestone: async ({ locals, params, request }) => {
+		const { actorId, field } = await context(locals, params, request);
+		return run(
+			() => retractMilestone(field('milestoneId'), actorId),
+			'Étape retirée de votre parcours.'
 		);
 	},
 	askConfirm: async ({ locals, params, request }) => {

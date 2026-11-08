@@ -193,9 +193,12 @@ Trois statuts pour toute étape ou réalisation :
 
 Le passage d'un statut à l'autre rapporte la **différence** d'XP, ce
 qui évite de compter deux fois. Une contestation (signalement « faux
-concert ») gèle l'étape. Si la contestation est retenue, l'XP est
-annulée, l'acteur reçoit un avertissement de confiance, et le
-corroborateur aussi.
+concert ») gèle l'étape quand elle vient d'une personne de confiance
+≥ 1 (un compte neuf signale sans geler, D49). Si la contestation est
+retenue, l'XP est annulée (transactions négatives liées), l'étape est
+retirée, l'acteur reçoit un avertissement de confiance, et le
+corroborateur aussi. La gestion d'un groupe peut aussi retirer elle-même
+une étape déclarée par erreur, avec la même reprise.
 
 **Organisation vérifiée** : un studio, un organisateur ou un label
 fournit un SIRET (ou équivalent) et une adresse web ou un réseau social

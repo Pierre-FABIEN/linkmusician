@@ -35,7 +35,7 @@ const reportBucket = new RefillingTokenBucket<string>(
 export async function fileReport(
 	reporterActorId: string,
 	input: {
-		targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY' | 'VENUE';
+		targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY' | 'VENUE' | 'MILESTONE';
 		targetId: string;
 		reason: string;
 		details?: string;
@@ -66,6 +66,14 @@ export async function fileReport(
 			select: { createdById: true }
 		});
 		targetActorId = venue?.createdById ?? null;
+	} else if (input.targetType === 'MILESTONE') {
+		// Étape de groupe (P3-06) : la personne qui l'a déclarée, sinon le groupe.
+		// Passe par `contestMilestone` (gel, règles), jamais directement.
+		const milestone = await prisma.milestone.findUnique({
+			where: { id: input.targetId },
+			select: { declaredById: true, bandId: true }
+		});
+		targetActorId = milestone ? (milestone.declaredById ?? milestone.bandId) : null;
 	} else {
 		const actor = await prisma.actor.findFirst({
 			where: { id: input.targetId, deletedAt: null },
@@ -115,8 +123,9 @@ export async function moderationQueue() {
 			take: 50,
 			include: { actor: { select: { handle: true, displayName: true } } }
 		}),
+		// Les étapes contestées ont leur section (P3-06, `disputeQueue`).
 		prisma.report.findMany({
-			where: { status: 'OPEN' },
+			where: { status: 'OPEN', targetType: { not: 'MILESTONE' } },
 			orderBy: { createdAt: 'asc' },
 			take: 50,
 			include: {

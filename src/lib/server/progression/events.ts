@@ -40,6 +40,7 @@ export function actorIdsOf(event: DomainEvent): string[] {
 		case 'work.credit_confirmed':
 			return [event.personId, ...new Set(event.otherIds.filter((id) => id !== event.personId))];
 		case 'milestone.attested':
+		case 'milestone.revoked':
 			return [event.bandId, ...new Set(event.memberIds)];
 		case 'milestone.attestation_confirmed':
 			return [event.attesterId, event.bandId, ...(event.requesterId ? [event.requesterId] : [])];

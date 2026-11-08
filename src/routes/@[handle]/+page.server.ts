@@ -12,6 +12,8 @@ import { suggestMusicians } from '#lib/server/discovery/suggestions';
 import { prisma } from '#lib/server';
 import { getPublicBand } from '#lib/server/bands/public';
 import { BandError, requestToJoin } from '#lib/server/bands/service';
+import { MilestoneError } from '#lib/server/milestones/service';
+import { contestMilestone } from '#lib/server/milestones/disputes';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -107,6 +109,35 @@ export const actions: Actions = {
 			return { joined: 'Demande envoyée : le groupe te répondra.' };
 		} catch (err) {
 			if (err instanceof BandError) return fail(err.status, { error: err.message });
+			throw err;
+		}
+	},
+	/** Contester une étape du groupe (P3-06) : signalement, gel si la personne est de confiance. */
+	contestMilestone: async ({ params, locals, request }) => {
+		if (!locals.user) return fail(401, { error: 'Connecte-toi pour contester une étape.' });
+		const me = await getPersonByUserId(locals.user.id);
+		if (!me?.onboardedAt) return fail(403, { error: 'Complète ton profil pour contester.' });
+		const band = await getPublicBand(params.handle.toLowerCase(), new Date(), me.actorId);
+		if (!band) error(404, 'Profil introuvable');
+		const data = await request.formData();
+		const milestone = await prisma.milestone.findFirst({
+			where: { bandId: band.id, definitionId: String(data.get('key') ?? '') },
+			select: { id: true }
+		});
+		if (!milestone) return fail(404, { error: 'Cette étape n’existe plus.' });
+		try {
+			const result = await contestMilestone(
+				me.actorId,
+				milestone.id,
+				String(data.get('details') ?? '')
+			);
+			return {
+				reported: result.alreadyReported
+					? 'Tu as déjà contesté cette étape : elle est en cours d’examen.'
+					: 'Merci : la modération va vérifier cette étape.'
+			};
+		} catch (err) {
+			if (err instanceof MilestoneError) return fail(err.status, { error: err.message });
 			throw err;
 		}
 	},

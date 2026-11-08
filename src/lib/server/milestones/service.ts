@@ -19,7 +19,7 @@
  * `milestone.attested` (XP différentielle au groupe, 25 % aux membres
  * présents à la date de l'étape, `membersAt`). Corriger la date ou la
  * précision d'une étape ne change pas l'XP déjà versée (registre en ajout
- * seul) ; une étape fausse se contestera (P3-06).
+ * seul) ; une étape fausse se conteste (P3-06, `./disputes.ts`).
  *
  * Imports : ni le service des groupes ni celui des morceaux (ils appellent
  * celui-ci).
@@ -268,12 +268,15 @@ export async function updateMilestoneDetails(
 	await prisma.$transaction(async (tx) => {
 		const row = await tx.milestone.findUnique({
 			where: { id: milestoneId },
-			select: { bandId: true, definitionId: true }
+			select: { bandId: true, definitionId: true, frozenAt: true }
 		});
 		if (!row) throw new MilestoneError('Cette étape n’existe plus.', 404);
 		await lockBand(tx, row.bandId);
 		const band = await managedBand(tx, row.bandId, managerId);
 		if (band.dissolvedAt) throw new MilestoneError('Ce groupe est dissous.');
+		if (row.frozenAt) {
+			throw new MilestoneError('Cette étape est en vérification : la modération va trancher.');
+		}
 		if (milestoneDef(row.definitionId as MilestoneKey).mode !== 'declare') {
 			throw new MilestoneError('Cette étape se met à jour toute seule.');
 		}
@@ -295,7 +298,14 @@ const ORDER = new Map(MILESTONE_CATALOG.map((d) => [d.key, d.ordinal]));
 export async function bandMilestones(bandId: string, db: Db = prisma) {
 	const rows = await db.milestone.findMany({
 		where: { bandId, definition: { active: true } },
-		select: { id: true, definitionId: true, proof: true, occurredAt: true, note: true }
+		select: {
+			id: true,
+			definitionId: true,
+			proof: true,
+			occurredAt: true,
+			note: true,
+			frozenAt: true
+		}
 	});
 	return rows
 		.map((r) => ({
@@ -303,6 +313,8 @@ export async function bandMilestones(bandId: string, db: Db = prisma) {
 			key: r.definitionId as MilestoneKey,
 			label: milestoneDef(r.definitionId as MilestoneKey).label,
 			proof: r.proof,
+			/** Contestée (P3-06) : affichée « En vérification », sans niveau de preuve. */
+			frozen: r.frozenAt !== null,
 			occurredAt: r.occurredAt,
 			note: r.note
 		}))

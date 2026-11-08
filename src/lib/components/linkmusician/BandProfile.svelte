@@ -12,6 +12,7 @@
 	import { initialsOf } from '#lib/actors/display';
 	import { ROLE_LABELS, periodLabel } from '#lib/bands/rules';
 	import { PROOF_LABELS } from '#lib/milestones/rules';
+	import { FROZEN_LABEL, MIN_CONTEST_DETAILS, isContestable } from '#lib/milestones/disputes';
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
 	import { seoConfig } from '#lib/seo.config';
 	import type { PublicBand } from '#lib/server/bands/public';
@@ -29,6 +30,8 @@
 		memberShell: boolean;
 	} = $props();
 
+	/** Étapes déclarées par le groupe, encore en ligne (P3-06). */
+	const contestable = $derived(band.milestones.filter((m) => isContestable(m.key) && !m.frozen));
 	const plural = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`;
 	const date = (d: Date | string | null) => (d ? new Date(d) : null);
 	const period = (m: { startedAt: Date | string | null; endedAt: Date | string | null }) =>
@@ -225,9 +228,13 @@
 								{#each band.milestones as m (m.key)}
 									<li>
 										<span class="font-semibold">{m.label}</span>
-										<Badge variant={m.proof === 'DECLARED' ? 'outline' : 'secondary'} class="ml-1"
-											>{PROOF_LABELS[m.proof]}</Badge
-										>
+										{#if m.frozen}
+											<Badge variant="outline" class="ml-1">{FROZEN_LABEL}</Badge>
+										{:else}
+											<Badge variant={m.proof === 'DECLARED' ? 'outline' : 'secondary'} class="ml-1"
+												>{PROOF_LABELS[m.proof]}</Badge
+											>
+										{/if}
 										<span class="block text-muted-foreground"
 											>{monthYear.format(new Date(m.occurredAt))}{m.note
 												? ` · ${m.note}`
@@ -236,6 +243,54 @@
 									</li>
 								{/each}
 							</ol>
+							{#if canReport && band.viewer.status !== 'ACTIVE' && contestable.length > 0}
+								<details class="mt-4 rounded-lg border p-3 text-sm">
+									<summary class="cursor-pointer text-muted-foreground"
+										>Une étape te semble fausse ?</summary
+									>
+									<p class="mt-2 text-muted-foreground">
+										Dis à la modération ce qui ne va pas. L’étape peut être mise en vérification le
+										temps de trancher. Le groupe ne sait pas qui l’a contestée.
+									</p>
+									<form
+										method="POST"
+										action="?/contestMilestone"
+										use:enhance
+										class="mt-3 space-y-3"
+									>
+										<div class="space-y-1">
+											<label for="contest-key" class="block font-medium">Étape</label>
+											<select
+												id="contest-key"
+												name="key"
+												required
+												class="w-full rounded-md border bg-background p-2"
+											>
+												{#each contestable as m (m.key)}
+													<option value={m.key}>{m.label}</option>
+												{/each}
+											</select>
+										</div>
+										<div class="space-y-1">
+											<label for="contest-details" class="block font-medium">Ce qui ne va pas</label
+											>
+											<textarea
+												id="contest-details"
+												name="details"
+												rows="3"
+												required
+												minlength={MIN_CONTEST_DETAILS}
+												maxlength={MAX_REPORT_DETAILS}
+												placeholder="J’y étais, ce soir-là il n’y a pas eu de concert."
+												class="w-full rounded-md border bg-background p-2"
+											></textarea>
+										</div>
+										<button type="submit" class="rounded-md border px-3 py-1.5"
+											>Contester l’étape</button
+										>
+									</form>
+								</details>
+							{/if}
 						</Card.Content>
 					</Card.Root>
 				{/if}

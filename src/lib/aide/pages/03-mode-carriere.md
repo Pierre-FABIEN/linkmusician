@@ -164,8 +164,23 @@ jamais comme extérieur.
 > seulement si tu y étais. C’est ce qui donne de la valeur aux parcours de
 > tout le monde.
 
-> ⚠️ **Important** : une étape doit être vraie. Une étape inventée pourra
-> être signalée et retirée, avec ses points.
+#### Une étape fausse, ou déclarée par erreur {#contester}
+
+- **Erreur de ton groupe** : dans la gestion du groupe, ouvre l’étape
+  (**Modifier**) et touche **Retirer l’étape**. Les points qu’elle a
+  rapportés au groupe et aux membres sont repris. Tu pourras la redéclarer.
+- **Une étape d’un autre groupe te semble fausse** (tu y étais, et il n’y a
+  pas eu de concert) : sur la page publique du groupe, sous **Parcours**,
+  touche **Une étape te semble fausse ?** et explique en quelques mots. Le
+  groupe ne sait pas qui l’a contestée.
+- L’étape peut passer **En vérification** : elle n’apparaît plus comme
+  prouvée et ne reçoit plus de preuve le temps que la modération tranche.
+- Si la contestation est retenue, l’étape est retirée avec ses points, et
+  qui l’a déclarée comme qui l’a confirmée reçoit un **avertissement**
+  (confiance en baisse pendant 30 jours). Sinon, elle revient comme avant.
+
+> ⚠️ **Important** : une étape doit être vraie, et on ne confirme que ce
+> qu’on a vu.
 
 ## 4. Tes morceaux {#morceaux}
 

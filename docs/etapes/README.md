@@ -33,7 +33,7 @@ la contestation avec P3-06.
   - Le groupe reçoit la différence d'XP du barème. Une étape déclarée rapporte 30 à 50 XP.
   - Chaque membre présent à la date de l'étape reçoit 25 % (`milestone.member`).
   - Une étape antérieure à la formation sur la plateforme (un groupe qui existait avant) est créditée à l'effectif de la formation : l'historique d'avant est inconnu (`creditDate`).
-  - Corriger la date ne change pas l'XP déjà versée (registre en ajout seul). Une étape fausse se contestera (P3-06).
+  - Corriger la date ne change pas l'XP déjà versée (registre en ajout seul). Une étape fausse se conteste (P3-06).
   - Les groupes formés avant P3-04 ont reçu leur ligne « Formation » par la migration, sans nouvel événement ni XP.
 - **Pages** :
   - section « Parcours du groupe » de `/groupes/[handle]` (membres actifs) : étapes 1 à 6, « C'est fait » pour déclarer (date, précision, XP annoncée), « Modifier » pour corriger, étapes suivantes citées ;
@@ -78,10 +78,43 @@ la contestation avec P3-06.
   les liens qu'elle a joints ; à l'anonymisation, ses demandes en attente
   sont supprimées, ses réponses restent (l'étape du groupe en dépend),
   `requestedById` et `addedById` sont oubliés.
-- **Contester** une étape ou une confirmation : P3-06.
+- **Contester** une étape : voir ci-dessous (P3-06).
 - **Tests** :
   - `src/lib/milestones/rules.test.ts` et `referential.test.ts` ;
   - intégration `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/milestones` ;
   - `src/lib/milestones/proofs.test.ts` ;
   - intégration `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/milestones` (dont `proofs.integration.test.ts`) ;
   - e2e `e2e/linkmusician/etapes.spec.ts` (déclarer ; un membre ne corrobore pas le concert, une personne extérieure si).
+
+## Contestation et retrait (P3-06, D49)
+
+- **Qui se conteste** : les étapes déclarées par le groupe (mode
+  `declare`) ; ni la formation ni la composition. Règles pures
+  `src/lib/milestones/disputes.ts` (testées).
+- **Contester** : sur `/@handle` du groupe, carte « Parcours », « Une étape
+  te semble fausse ? » (personne connectée, pas membre actif, explication
+  de 10 caractères au moins). Signalement `ReportTarget.MILESTONE`
+  (`reason` `OTHER`, l'explication en `details`), anonyme pour le groupe.
+- **Gel** (`Milestone.frozenAt`) : seulement si la personne a la confiance 1
+  au moins. Gelée, l'étape s'affiche « En vérification » (page publique et
+  gestion), ne reçoit plus ni demande, ni confirmation, ni lien, ne se
+  corrige ni ne se retire ; `evaluate` ne la corrobore pas.
+- **Modération** (`/moderation`, « Étapes contestées », `disputeQueue`) :
+  - **Retenir** (`upholdContest`, motif obligatoire) : chaque gain des
+    événements `milestone.attested` de l'étape est repris (`reverseGain`,
+    `reversesId`), `milestone.revoked` (`reason: contested`) la retire des
+    paliers (`musicianSummary`), la ligne est supprimée avec ses preuves ;
+    avertissement (`sanction` WARNING, 30 jours, confiance recalculée) pour
+    qui l'a déclarée et chaque personne qui l'a confirmée ; signalements
+    `ACTIONED` ; journal d'audit ;
+  - **Rejeter** (`dismissContest`) : signalements `DISMISSED`, dégel,
+    réévaluation des preuves acceptées entre-temps.
+- **Retrait par la gestion** (`retractMilestone`) : « Retirer l'étape »
+  dans le formulaire « Modifier » ; même reprise (`reason: retracted`),
+  sans avertissement ; l'étape peut être redéclarée.
+- **Limites** : une confirmation mensongère se juge avec l'étape qu'elle
+  corrobore (pas de signalement séparé) ; le groupe n'est pas notifié du gel
+  ni de la décision (à ajouter avec les notifications de modération).
+- **Tests** : `src/lib/milestones/disputes.test.ts`, résumé
+  `progression/core/summary.test.ts`, intégration
+  `src/lib/server/milestones/disputes.integration.test.ts`.

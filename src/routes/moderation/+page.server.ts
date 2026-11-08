@@ -21,13 +21,15 @@ import {
 import { VENUE_KIND_LABELS } from '#lib/venues/rules';
 import { MilestoneError } from '#lib/server/milestones/service';
 import { pendingEvidence, reviewEvidence } from '#lib/server/milestones/proofs';
+import { disputeQueue, dismissContest, upholdContest } from '#lib/server/milestones/disputes';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const [queue, collusion, evidence] = await Promise.all([
+	const [queue, collusion, evidence, disputes] = await Promise.all([
 		moderationQueue(),
 		collusionQueue(),
-		pendingEvidence()
+		pendingEvidence(),
+		disputeQueue()
 	]);
 	const mediaView = (m: {
 		id: string;
@@ -47,6 +49,8 @@ export const load: PageServerLoad = async () => {
 	return {
 		// Cercles fermés repérés la nuit (P2-10), jamais sanctionnés d'office.
 		collusion,
+		// Étapes de groupe contestées (P3-06), gelées ou non.
+		disputes,
 		// Liens d'écoute joints à une « première démo publique » (P3-05, D43).
 		pendingEvidence: evidence,
 		pendingVenues: queue.pendingVenues.map((v) => ({
@@ -131,6 +135,23 @@ export const actions: Actions = {
 			locals,
 			(by) => reviewEvidence(field(data, 'evidenceId'), false, by, field(data, 'reason')),
 			'Lien refusé.'
+		);
+	},
+	/** Étape contestée (P3-06) : retenue (XP reprise, avertissements) ou rejetée (dégel). */
+	upholdMilestone: async ({ request, locals }) => {
+		const data = await request.formData();
+		return run(
+			locals,
+			(by) => upholdContest(field(data, 'milestoneId'), field(data, 'note'), by),
+			'Contestation retenue : étape retirée, points repris, avertissements envoyés.'
+		);
+	},
+	dismissMilestone: async ({ request, locals }) => {
+		const data = await request.formData();
+		return run(
+			locals,
+			(by) => dismissContest(field(data, 'milestoneId'), field(data, 'note'), by),
+			'Contestation rejetée : l’étape est dégelée.'
 		);
 	},
 	/** Valider un lieu ajouté par un compte récent (P2-14c, D26). */

@@ -532,6 +532,13 @@ actes. Puis LinkMusician s'ouvre au public.
 
 ### P3-06 — Contestation et reprise d'XP
 
+> **Réalisé le 08/11/2026** (D49). Écarts : le gel n'a lieu que pour un
+> signalement d'une personne de confiance ≥ 1 ; une étape retenue est
+> supprimée (redéclarable) après la reprise liée de son XP ; la
+> confirmation mensongère se juge avec l'étape (pas de signalement
+> séparé) ; seules les étapes déclarées se contestent. Retrait par la
+> gestion du groupe livré. Voir [docs/etapes](../etapes/README.md).
+
 - **Dépend de** : P3-05.
 - **Tâches** : signaler une étape (`ReportTarget.MILESTONE`), la geler,
   décision du modérateur ; reprise par transaction négative liée

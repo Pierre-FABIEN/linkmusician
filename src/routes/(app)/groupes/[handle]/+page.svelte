@@ -14,6 +14,7 @@
 		type MilestoneKey
 	} from '#lib/milestones/rules';
 	import { EVIDENCE_LABELS, proofRule } from '#lib/milestones/proofs';
+	import { FROZEN_LABEL } from '#lib/milestones/disputes';
 	import {
 		Circle,
 		CircleCheck,
@@ -279,7 +280,7 @@
 											<span class="font-semibold">{def.label}</span>
 											{#if step}
 												<span class="ml-1 rounded-full border px-2 py-0.5 text-xs"
-													>{PROOF_LABELS[step.proof]}</span
+													>{step.frozen ? FROZEN_LABEL : PROOF_LABELS[step.proof]}</span
 												>
 												<span class="block text-sm text-muted-foreground"
 													>{day.format(new Date(step.occurredAt))}{step.note
@@ -291,7 +292,7 @@
 											{/if}
 										</span>
 									</span>
-									{#if manager && !dissolved && def.mode === 'declare' && stepForm !== def.key}
+									{#if manager && !dissolved && def.mode === 'declare' && stepForm !== def.key && !step?.frozen}
 										<button
 											type="button"
 											class="min-h-11 shrink-0 rounded-full border px-3 text-sm {step
@@ -360,8 +361,32 @@
 											>
 										</div>
 									</form>
+									{#if step}
+										<!-- Retirer une étape déclarée par erreur (P3-06) : ses points sont repris. -->
+										<form
+											method="POST"
+											action="?/retractMilestone"
+											use:enhance={closeOnSuccess}
+											class="border-t pt-3 text-sm"
+										>
+											<input type="hidden" name="milestoneId" value={step.id} />
+											<p class="text-muted-foreground">
+												Déclarée par erreur ? La retirer reprend les points qu’elle a rapportés au
+												groupe et à ses membres.
+											</p>
+											<button class="mt-2 min-h-11 text-destructive underline"
+												>Retirer l’étape « {def.label} »</button
+											>
+										</form>
+									{/if}
 								{/if}
-								{#if step && rule && proofs && (step.proof === 'DECLARED' || proofs.attestations.length > 0 || proofs.evidence.length > 0)}
+								{#if step?.frozen}
+									<p class="border-t pt-3 text-sm" role="status">
+										Quelqu’un a signalé cette étape : la modération vérifie. En attendant, elle
+										n’apparaît plus comme prouvée et ne reçoit plus de preuve.
+									</p>
+								{/if}
+								{#if step && !step.frozen && rule && proofs && (step.proof === 'DECLARED' || proofs.attestations.length > 0 || proofs.evidence.length > 0)}
 									<div class="space-y-2 border-t pt-3 text-sm">
 										{#if step.proof === 'DECLARED'}
 											<p class="font-semibold">Pour la corroborer :</p>

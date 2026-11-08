@@ -37,7 +37,8 @@ export const REPUTATION_EVENTS: ReadonlySet<DomainEventType> = new Set<DomainEve
 	'collaboration.completed',
 	'endorsement.received',
 	'endorsement.revoked',
-	'milestone.attested'
+	'milestone.attested',
+	'milestone.revoked'
 ]);
 
 const HOUR_MS = 3_600_000;
