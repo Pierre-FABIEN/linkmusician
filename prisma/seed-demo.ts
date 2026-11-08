@@ -25,6 +25,7 @@
 //
 // Mot de passe des comptes : SEED_DEMO_PASSWORD, ou celui de `seed.js`.
 // Jamais en production (VERCEL_ENV=production refusé).
+import { seedJamLife } from './seed-jam-life';
 import dotenv from 'dotenv';
 import { PrismaClient, type LookingFor, type ProStatus, type TrackKind } from '@prisma/client';
 import { hash } from '@node-rs/argon2';
@@ -609,6 +610,11 @@ try {
 		process.argv.includes('--avec-moi') ? await myself() : null,
 		new Map([...demoHandles].map(([handle, actualHandle]) => [actualHandle, handle]))
 	);
+	// Vie de jam : jams passées et à venir, appréciations, carnets, discussions.
+	const handleMap = new Map(
+		[...demoHandles].map(([handle, actualHandle]) => [actualHandle, handle])
+	);
+	await seedJamLife(prisma, communes[0], handleMap);
 	// Organisateurs de jams (D51) : les personnes qui en ont publié une.
 	const hosts = await prisma.opportunity.findMany({
 		where: { kind: 'JAM' },

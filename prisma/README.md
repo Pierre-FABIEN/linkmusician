@@ -17,6 +17,25 @@ autres données du boilerplate ni les établissements. Ces derniers se chargent
 Il génère aussi jusqu'à 12 jams à venir, réparties sur les jours restants du
 mois courant, autour de la commune choisie.
 
+Puis la **vie de jam** (`seed-jam-life.ts`), avec les mêmes profils :
+
+- 3 lieux de plus (Le Comptoir Jazz, Café des Sons, Scène ouverte du Canal) ;
+- une vingtaine de **jams passées** sur deux mois (6 séries : jazz, scène
+  ouverte, funk, atelier de l'après-midi, folk, rock), avec présences,
+  « J'y étais » et près de 300 **appréciations** ; celles des 7 derniers
+  jours ne sont qu'à moitié appréciées (`/jam/apprecier`) ;
+- une **jam en cours** au Café des Sons, et 6 « **Je suis dispo** »,
+  rafraîchies à chaque lancement ;
+- une dizaine de **jams à venir** avec des « Je viens » et une **invitation
+  du lead** en attente chacune ;
+- des **carnets** remplis (« Garder le contact » après chaque jam), une
+  douzaine de **conversations**, 5 **groupes de contacts** et leurs
+  **discussions de groupe** (deux membres actifs, les autres invités).
+
+Jade (mineure) ne va qu'aux jams qui finissent avant 22 h, n'est jamais
+affichée dispo ni dans une discussion de groupe. Les jams passées et à venir
+ne se refont pas si « Jeudi jazz au Comptoir » existe.
+
 Le mot de passe par défaut est `DemoPass!2026` pour les 13 comptes, sauf si
 `SEED_DEMO_PASSWORD` est défini dans `.env`. Le seed peut ajouter un suffixe
 au handle si l'adresse habituelle est déjà prise.
