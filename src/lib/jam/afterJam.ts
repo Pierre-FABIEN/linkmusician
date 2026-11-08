@@ -92,3 +92,41 @@ export function initials(displayName: string): string {
 			.join('') || '?'
 	);
 }
+
+/** Une jam où l'on a croisé des musicien·nes, vue depuis « Apprécier ». */
+export type CrossedJam = {
+	startsAt: Date;
+	endsAt: Date;
+	/** A dit « J'y étais ». */
+	attended: boolean;
+	/** Autres présent·es (« J'y étais », pas retiré·es). */
+	others: number;
+	/** Appréciations déjà laissées dans cette jam. */
+	given: number;
+};
+
+/** Où en est-on dans cette jam : en cours, à apprécier, à confirmer, ou fait. */
+export function crossedStatus(
+	jam: CrossedJam,
+	now = new Date()
+): { live: boolean; left: number; label: string } {
+	const live = now >= jam.startsAt && now <= jam.endsAt;
+	const left = Math.max(0, jam.others - jam.given);
+	const label = !jam.attended
+		? 'Dis « J’y étais » pour apprécier'
+		: jam.others === 0
+			? 'Personne d’autre n’a encore dit « J’y étais »'
+			: left === 0
+				? 'Tu as apprécié tout le monde'
+				: `${left} musicien·ne${left > 1 ? 's' : ''} à apprécier`;
+	return { live, left, label };
+}
+
+/** Badge du menu : la jam en cours, sinon le nombre de personnes à apprécier. */
+export function appreciateBadge(jams: CrossedJam[], now = new Date()): string | null {
+	if (jams.some((j) => crossedStatus(j, now).live)) return 'Jam en cours';
+	const left = jams
+		.filter((j) => j.attended)
+		.reduce((sum, j) => sum + crossedStatus(j, now).left, 0);
+	return left > 0 ? `${left} à apprécier` : null;
+}

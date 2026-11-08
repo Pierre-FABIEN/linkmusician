@@ -16,7 +16,11 @@ Jouer pour le plaisir et rencontrer, sans projet ni engagement.
 - **« Ta prochaine étape »** (`src/lib/jam/guide.ts`) : ville → se mettre
   dispo (ou repérer une jam, pour les mineur·es) → écrire à quelqu'un →
   confirmer la jam (points) → passer en mode carrière.
-- **`/jam`** : page-menu (D50) : « Ta prochaine étape », puis Les musicos
+- **`/jam`** : page-menu (D50) : « Ta prochaine étape », puis, mise en
+  avant, Apprécier les musicos croisés (`/jam/apprecier` : jam en cours et
+  jams des 7 derniers jours, autres présent·es et appréciations laissées,
+  `crossedJams`, `crossedStatus`, badge « Jam en cours » ou « N à
+  apprécier », chaque jam menant à « Qui était là ? »), Les musicos
   dispo autour de moi (`/jam/dispos` : « Je suis dispo » et les dispos),
   Jams à venir (`/jam/agenda` : calendrier mensuel et lieux), Mes jams
   (`/jam/mes-jams` : invitations du lead, dernières jams), Lancer une jam

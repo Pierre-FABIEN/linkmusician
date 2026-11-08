@@ -4,12 +4,24 @@
 	import NextStep from '#lib/components/linkmusician/NextStep.svelte';
 	import MenuList, { type MenuItem } from '#lib/components/linkmusician/MenuList.svelte';
 	import { SLOT_LABELS } from '#lib/jam/availability';
-	import { BookUser, CalendarDays, Guitar, MapPin, Music, Plus, Radio } from 'lucide-svelte';
+	import { BookUser, CalendarDays, Guitar, Heart, MapPin, Music, Plus, Radio } from 'lucide-svelte';
 
 	let { data } = $props();
 	const plural = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`;
 
 	const items = $derived<MenuItem[]>([
+		// Mis en avant en tête : apprécier les gens croisés en jam (P2-15).
+		{
+			href: '/jam/apprecier',
+			icon: Heart,
+			title: 'Apprécier les musicos croisés',
+			text:
+				data.crossedCount > 0
+					? 'Dans ta jam en cours ou celles de la semaine : dis ce que tu as aimé.'
+					: 'Pendant une jam et la semaine d’après, dis ce que tu as aimé chez les autres.',
+			badge: data.appreciate,
+			highlight: data.appreciate !== null
+		},
 		{
 			href: '/jam/dispos',
 			icon: Radio,

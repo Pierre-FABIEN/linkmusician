@@ -8,21 +8,24 @@ import { prisma } from '#lib/server';
 import { jamNextStep } from '#lib/jam/guide';
 import { venuesNear } from '#lib/server/venues/service';
 import { isJamOrganizer, myJamInvites, upcomingJamsNear } from '#lib/server/jam/publicJams';
-import { myRecentJams } from '#lib/server/jam/afterJam';
+import { crossedJams, myRecentJams } from '#lib/server/jam/afterJam';
+import { appreciateBadge } from '#lib/jam/afterJam';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const person = (await getPersonByUserId(locals.user!.id))!;
 	const location = await getActorLocation(person.actorId);
-	const [mine, canBeDispo, available, jams, invites, recent, organizer] = await Promise.all([
-		myAvailability(person.actorId),
-		canBeAvailable(person.actorId),
-		location ? listAvailableNearby(person.actorId) : Promise.resolve([]),
-		location ? upcomingJamsNear(person.actorId) : Promise.resolve([]),
-		myJamInvites(person.actorId),
-		myRecentJams(person.actorId),
-		isJamOrganizer(person.actorId)
-	]);
+	const [mine, canBeDispo, available, jams, invites, recent, organizer, crossed] =
+		await Promise.all([
+			myAvailability(person.actorId),
+			canBeAvailable(person.actorId),
+			location ? listAvailableNearby(person.actorId) : Promise.resolve([]),
+			location ? upcomingJamsNear(person.actorId) : Promise.resolve([]),
+			myJamInvites(person.actorId),
+			myRecentJams(person.actorId),
+			isJamOrganizer(person.actorId),
+			crossedJams(person.actorId)
+		]);
 	// Guide « Ta prochaine étape » (P2-12b).
 	const [conversations, playedTogether, venuesAdded, nearbyVenues] = await Promise.all([
 		prisma.conversationParticipant.count({
@@ -52,6 +55,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		inviteCount: invites.length,
 		/** Jams passées où dire « J'y étais » ou apprécier. */
 		recentCount: recent.length,
+		/** « Apprécier les musicos croisés » : jam en cours ou personnes à apprécier. */
+		appreciate: appreciateBadge(crossed),
+		crossedCount: crossed.length,
 		nextStep: jamNextStep({
 			hasCity: Boolean(location),
 			canBeDispo,

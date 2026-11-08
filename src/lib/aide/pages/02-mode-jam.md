@@ -27,6 +27,8 @@ passe au mode carrière.
 
 En dessous, un **menu** court mène chacun à son écran :
 
+- **Apprécier les musicos croisés**, en tête : ta jam en cours et celles
+  de la semaine, avec combien de musicien·nes il te reste à apprécier ;
 - **Les musicos dispo autour de moi** : te mettre dispo, et voir qui l’est ;
 - **Jams à venir** : le calendrier des jams et les lieux du coin ;
 - **Mes jams** : les jams où l’on t’invite, et celles où tu es allé·e ;
@@ -108,7 +110,8 @@ On joue ! L’app s’efface : rien à faire sur ton téléphone.
 
 ## 3. Après la jam {#apres-la-jam}
 
-Pendant **7 jours** après la jam :
+Dès le début de la jam et pendant **7 jours** après (le plus simple :
+**Apprécier les musicos croisés**, en tête du mode jam) :
 
 1. Touche **J’y étais** sur la fiche de la jam.
 2. **Qui était là ?** te montre les présent·es en grille (photo ou
