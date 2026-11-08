@@ -58,6 +58,10 @@ localement.
   **son écran** (`MenuList.svelte`). Un écran ne fait qu'une chose et
   revient au menu (`SubPageHeader.svelte`). On n'empile jamais formulaires,
   listes, calendrier et lieux sur une même page. Exemple : `/jam`.
+- **LINKMUSICIAN : fil d'Ariane (D52).** Toute nouvelle page de l'espace
+  déclare son parent logique et son libellé dans
+  `src/lib/linkmusician/breadcrumbs.ts` (le test `breadcrumbs.test.ts`
+  échoue sinon). Les badges s'affichent tout seuls dans la coquille.
 - Un commit qui touche à un module documenté dans `docs/` (auth, commerce,
   blog, products, promo, contact, admin) doit mettre à jour le
   `README.md`/`retrait.md` correspondant si le comportement change.

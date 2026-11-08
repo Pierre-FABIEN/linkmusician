@@ -18,8 +18,6 @@
 <div class="min-h-screen w-full bg-muted/20 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
 	<div class="mx-auto max-w-7xl space-y-6">
 		<SubPageHeader
-			backHref="/jam"
-			backLabel="Mode jam"
 			title="Mes jams"
 			intro="Les jams où l’on t’invite, et celles où tu es allé·e : dis si tu y étais, apprécie les présent·es."
 		/>

@@ -19,8 +19,6 @@
 <div class="min-h-screen w-full bg-muted/20 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
 	<div class="mx-auto max-w-3xl space-y-6">
 		<SubPageHeader
-			backHref="/jam"
-			backLabel="Mode jam"
 			title="Apprécier les musicos croisés"
 			intro="Tu joues en ce moment, ou tu as joué cette semaine ? Dis ce que tu as aimé chez les autres : bon groove, à l’écoute, belle impro… C’est ce qui fait monter leurs points."
 		/>

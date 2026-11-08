@@ -20,6 +20,8 @@
 	} from 'lucide-svelte';
 	import { badgeLabel } from '#lib/notifications/types';
 	import { modeFor, PLAY_MODE_INFO, type PlayModeValue } from '#lib/linkmusician/modes';
+	import { breadcrumbs } from '#lib/linkmusician/breadcrumbs';
+	import Breadcrumbs from './Breadcrumbs.svelte';
 	import { BRAND } from '#lib/linkmusician/brand';
 	import AccountMenu from './AccountMenu.svelte';
 
@@ -73,6 +75,16 @@
 	});
 
 	const mode = $derived(modeFor(page.url.pathname, preferredMode));
+	// Fil d'Ariane (D52), sur toutes les pages de la coquille.
+	const crumbs = $derived(
+		breadcrumbs({
+			routeId: page.route.id,
+			pathname: page.url.pathname,
+			params: page.params as Record<string, string>,
+			data: page.data as Record<string, unknown>,
+			preferredMode
+		})
+	);
 	const targetMode = $derived(mode === 'JAM' ? 'CAREER' : 'JAM');
 	const ModeIcon = $derived(mode === 'JAM' ? Guitar : Trophy);
 	const showGroupAnnouncements = $derived(page.url.pathname === '/groupes');
@@ -161,5 +173,6 @@
 		</div>
 	</header>
 
+	<Breadcrumbs {crumbs} />
 	{@render children()}
 </div>

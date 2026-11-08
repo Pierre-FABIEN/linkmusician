@@ -66,8 +66,6 @@
 <div class="min-h-screen w-full bg-muted/20 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
 	<div class="mx-auto max-w-7xl space-y-6">
 		<SubPageHeader
-			backHref="/jam"
-			backLabel="Mode jam"
 			title="Jams à venir"
 			intro="Choisis une date dans le calendrier, puis la jam qui te tente. Les lieux de jam du coin sont en dessous."
 		/>

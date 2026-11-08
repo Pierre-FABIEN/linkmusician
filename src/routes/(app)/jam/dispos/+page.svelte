@@ -25,8 +25,6 @@
 <div class="min-h-screen w-full bg-muted/20 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
 	<div class="mx-auto max-w-7xl space-y-6">
 		<SubPageHeader
-			backHref="/jam"
-			backLabel="Mode jam"
 			title="Les musicos dispo autour de moi"
 			intro={data.commune
 				? `Qui a envie de jouer près de ${data.commune}, et dis-le si c’est ton cas.`
