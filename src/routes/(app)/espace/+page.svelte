@@ -10,6 +10,7 @@
 		CircleCheck,
 		Compass,
 		EyeOff,
+		Map as MapIcon,
 		Music,
 		Sparkles,
 		Trophy,
@@ -49,6 +50,18 @@
 					}
 				]
 			: []),
+		{
+			href: '/espace/carte',
+			icon: MapIcon,
+			title: 'Ma carte de carrière',
+			text: data.act
+				? `Acte ${data.act.roman} · ${data.act.name} : ${data.act.trial}`
+				: 'Les actes I à III sont franchis : la suite arrive bientôt.',
+			badge:
+				data.actsPassed > 0
+					? `${data.actsPassed} épreuve${data.actsPassed > 1 ? 's' : ''} franchie${data.actsPassed > 1 ? 's' : ''}`
+					: 'Acte I'
+		},
 		{
 			href: '/espace/ambition',
 			icon: Compass,

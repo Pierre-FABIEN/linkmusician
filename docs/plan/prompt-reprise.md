@@ -1,16 +1,15 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 08/11/2026, après P3-09).
+> Mis à jour à chaque fin de lot (dernière : 08/11/2026, après P3-13).
 
 ---
 
 ```markdown
-On reprend LinkMusician avec le lot **P3-12** (ambition et écran de
-carrière, puis P3-13 et P3-14) ; P3-06 (D49), P3-08 et P3-09 sont livrés
-([docs/etapes](../etapes/README.md), [docs/moderation](../moderation/README.md)).
-Revoir au passage l'accueil carrière `/espace` en page-menu (D50) et le
-vocabulaire « projet » (§5 bis).
+On reprend LinkMusician avec le lot **P3-14** (fiche de carrière et cartes
+souvenirs) ; P3-12 (écran de carrière en page-menu, ambition) et P3-13
+(carte, D53) sont livrés ([docs/carriere](../carriere/README.md)). Reste à
+revoir le vocabulaire « projet » (§5 bis).
 Navigation : pages-menus (D50) et fil d'Ariane en badges (D52) à respecter
 sur toute nouvelle page ; organisateurs de jams (D51). **D'abord** : lancer `npm run test:e2e -- e2e/linkmusician/discussions.spec.ts`
 (P3-16c, écrit mais pas encore lancé : Chromium manquait de `libnspr4`,
@@ -46,7 +45,7 @@ CLAUDE.md est déjà chargé, tout ce qui sert est ci-dessous.
   (`contestMilestone`, `upholdContest`, `dismissContest`,
   `retractMilestone`, `disputeQueue`), `Milestone.frozenAt`, événement
   `milestone.revoked` (sans XP, retiré des paliers dans `musicianSummary`).
-- Ordre prévu : P3-12 à P3-14 → P3-15
+- Ordre prévu : P3-14 → P3-15
   (tableau §4 bis de docs/plan/README.md). P3-07 après le lancement.
 - Points ouverts hors lots : docs/plan/README.md §5 bis (dont l'e2e
   « quota TL0 » instable en suite complète, les tests d'intégration qui

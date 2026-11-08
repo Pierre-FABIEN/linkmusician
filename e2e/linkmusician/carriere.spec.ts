@@ -61,4 +61,45 @@ test.describe('LinkMusician — écran de carrière', () => {
 			).toBe('RECORD');
 		});
 	});
+
+	test('carte : un morceau composé à plusieurs franchit l’acte II, pas seul·e', async ({
+		page,
+		account
+	}) => {
+		await signUpAndVerify(page, account);
+		await skipOnboarding(page, account.email);
+		const person = await db.person.findUniqueOrThrow({
+			where: { userId: (await requireUser(account.email)).id }
+		});
+		const work = (title: string, proof: 'DECLARED' | 'CORROBORATED') =>
+			db.work.create({
+				data: {
+					ownerId: person.actorId,
+					createdById: person.actorId,
+					title,
+					state: 'COMPOSED',
+					proof,
+					composedAt: new Date(),
+					contributors: { create: [{ personId: person.actorId, confirmedAt: new Date() }] }
+				}
+			});
+		const acts = page.getByRole('list', { name: 'Actes de la carrière' });
+
+		await test.step('1. Composé seul·e : l’acte II reste à franchir', async () => {
+			await work('Ma compo solo', 'DECLARED');
+			await page.goto('/espace/carte');
+			await waitForAppReady(page);
+			await expect(page.getByText(/Tu as composé seul·e/)).toBeVisible();
+			await expect(acts.locator('li').nth(1)).toContainText('Ouvert');
+			await expectNoA11yViolations(page, A11Y_EXCLUDE);
+		});
+
+		await test.step('2. Composé à plusieurs : épreuve franchie', async () => {
+			await work('Notre compo', 'CORROBORATED');
+			await page.reload();
+			await waitForAppReady(page);
+			await expect(acts.locator('li').nth(1)).toContainText('Épreuve franchie');
+			await expect(acts.locator('li').first()).toContainText('Acte en cours');
+		});
+	});
 });

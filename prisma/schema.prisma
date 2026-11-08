@@ -1507,6 +1507,9 @@ model Person {
   /// Ambition du mode carrière (P3-12, conception 07 §4.1) : met en avant des
   /// objectifs, modifiable, jamais d'échec. `null` : pas encore choisie.
   ambition           CareerAmbition?
+  /// Épreuves de la carte de carrière déjà fêtées (P3-13) : une célébration
+  /// par acte franchi, une seule fois.
+  actsCelebrated     Int[]            @default([])
   /// Dernier digest email (P2-09b) : au plus un par jour.
   digestSentAt       DateTime?
   /// Conseils en contexte masqués (« J'ai compris », P2-17) : identifiants du

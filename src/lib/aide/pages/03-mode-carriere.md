@@ -29,9 +29,20 @@ les suit dans l’ordre où elles arrivent souvent, sans les imposer :
 | **VII. Le développement** | Manager, booker, éditeur, label                   | 🔜                                                    |
 | **VIII. La carrière**     | Album, tournées, en vivre                         | 🔜                                                    |
 
-> 🔜 **Bientôt** : une **carte de carrière** te montrera ces actes, ce que
-> tu as prouvé et la suite. Tu pourras aussi choisir ton **ambition**
-> (jouer pour le plaisir, faire des concerts, en vivre…).
+Ta **carte de carrière** (dans l’écran de carrière, **Ma carte de
+carrière**) montre ces actes : ceux que tu as franchis, celui en cours, et
+la suite dans le brouillard. Chaque acte finit par une **épreuve** prouvée
+par quelqu’un d’autre, jamais par tes points :
+
+- **I · La rencontre** : quelqu’un t’apprécie après une jam, ou une
+  collaboration est confirmée des deux côtés ;
+- **II · La création** : un morceau composé **à plusieurs**, chaque rôle
+  confirmé, avec une maquette (seul·e, ça ne suffit pas) ;
+- **III · Le studio** : le premier enregistrement de ton groupe, confirmé
+  par une personne extérieure qui y était.
+
+Pas d’ordre imposé : tu peux franchir l’acte II avant l’acte I. Quand tu
+franchis une épreuve, on la fête, et la carte te montre ce qui s’ouvre.
 
 ## 1. Ton écran de carrière {#mon-parcours}
 

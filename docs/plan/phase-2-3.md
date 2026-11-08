@@ -634,6 +634,11 @@ actes. Puis LinkMusician s'ouvre au public.
 
 ### P3-13 — Carte de carrière (actes I à III)
 
+> **Réalisé le 08/11/2026** (D53). Acte III au MVP : enregistrement de
+> groupe corroboré par une personne extérieure (vérifié par le studio en
+> phase 4). Déblocages affichés avec leurs liens, sans verrou. Célébration
+> d'épreuve une seule fois. Voir [docs/carriere](../carriere/README.md).
+
 - **Dépend de** : P3-05, P3-12.
 - **Décisions** : liste des déblocages par épreuve (07 §4.5).
 - **Tâches** : règles pures de la carte (acte en cours, épreuves

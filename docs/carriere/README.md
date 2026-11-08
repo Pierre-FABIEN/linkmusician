@@ -21,7 +21,6 @@ Conception : [07 §4.1 et §4.2](../conception/07-modes-de-jeu.md#41-choisir-son
   - `journal` : historique des gains (privé, D1) ;
   - `progression` : confiance et ce qu'il manque, succès ;
   - `a-confirmer` : collaborations, crédits, invitations de groupe.
-- La **carte de carrière** (actes I à III) arrive avec P3-13.
 
 ## Ambition
 
@@ -43,3 +42,25 @@ Conception : [07 §4.1 et §4.2](../conception/07-modes-de-jeu.md#41-choisir-son
   `agenda`, `linkable`).
 - Tests : `src/lib/career/ambition.test.ts`, quêtes
   `progression/core/core.test.ts` ; e2e `e2e/linkmusician/carriere.spec.ts`.
+
+## Carte de carrière (P3-13, D53)
+
+- `/espace/carte`, entrée « Ma carte de carrière » en tête du menu (acte en
+  cours et son épreuve, nombre d'épreuves franchies).
+- Règle pure `src/lib/career/map.ts` (`careerMap`) : huit actes, I à III
+  jouables, la suite dans le brouillard (contenu visible) ; statut
+  `passed`, `current` (premier jouable non franchi), `open`, `fog` ;
+  l'ambition met des actes en avant sans changer leur état.
+- Faits (`src/lib/server/career/map.ts`, `careerFacts`), jamais l'XP :
+  appréciations de jam reçues et collaborations (résumé des événements),
+  morceaux composés à plusieurs (`Work.proof = CORROBORATED`) ou seul·e
+  (`DECLARED`, rappel « compose à plusieurs »), premier enregistrement de
+  groupe corroboré dont on était membre à la date (étape toujours là, non
+  gelée).
+- Déblocages affichés avec leurs liens, sans verrou au MVP (D53).
+- Célébration d'épreuve : `pendingActCelebrations`, appelée par le layout
+  de l'espace quand il y a du neuf ; une fois par acte
+  (`Person.actsCelebrated`), carte « Épreuve franchie » en tête.
+- Tests : `src/lib/career/map.test.ts`, intégration
+  `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/career`, e2e
+  `carriere.spec.ts` (carte).

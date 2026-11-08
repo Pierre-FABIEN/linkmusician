@@ -13,6 +13,7 @@ import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { currentSuspension } from '#lib/server/moderation/service';
 import { recordActivity } from '#lib/server/indicators/activity';
 import { getPendingCelebrations } from '#lib/server/progression/celebrations';
+import { pendingActCelebrations } from '#lib/server/career/map';
 import { unreadTotal } from '#lib/server/messaging/service';
 import { unreadNotifications } from '#lib/server/notifications/service';
 import { prisma } from '#lib/server';
@@ -41,13 +42,16 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		unreadNotifications(person.actorId)
 	]);
 
+	// Épreuves de la carte franchies (P3-13), fêtées une fois, en tête.
+	const acts = await pendingActCelebrations(person.actorId, celebrations.items.length > 0);
+
 	return {
 		person: {
 			handle: person.actor.handle,
 			displayName: person.actor.displayName,
 			tracks: person.tracks.map((t) => ({ track: t.track, isPrimary: t.isPrimary }))
 		},
-		celebrations,
+		celebrations: { ...celebrations, items: [...acts, ...celebrations.items] },
 		unread,
 		notifications,
 		// Mode de jeu (P2-12b) : il choisit les onglets.
