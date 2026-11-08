@@ -61,6 +61,11 @@ jusqu'à `fe82121`, et l'historique a été relié (`d24aed5`). Détail dans
 
 ## P0-02 — Trancher les décisions de lancement
 
+> **Réalisé le 08/11/2026.** D2 (niveau de compte cosmétique et paliers
+> par métier), D3 (pas de compétition au MVP), D4 (Toulouse, conformément
+> à D28), D7 (Prisma) et D8 (polling au MVP) acceptées. D1, D5, D6 et D9
+> étaient déjà tranchées.
+
 - **Objectif** : fermer les décisions qui conditionnent la phase 0 et la
   phase 1.
 - **Décisions** : D1 à D9 (D6 et D10 sont déjà tranchées). Voir le

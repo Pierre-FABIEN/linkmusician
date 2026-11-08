@@ -17,6 +17,19 @@ git merge boilerplate/main`.
 | `npx vite build`             | ✅ (adapter Vercel)                       |
 | `npm run test:e2e`           | ⏸ toujours non mesuré (pas de base)       |
 
+### Mise à jour du 08/11/2026
+
+| Vérification                 | Résultat                                              |
+| ---------------------------- | ----------------------------------------------------- |
+| `npm run check`              | ✅ 0 erreur, 0 avertissement                          |
+| `npm run lint`               | ✅ 0 erreur, 12 avertissements                        |
+| `npm run test:unit -- --run` | ✅ 888 passés, 105 ignorés                            |
+| `npm run test:e2e`           | ⏸ non lancé : `.env.test` absent, cible non confirmée |
+
+P0-01 reste bloqué sur la mesure e2e. Aucun test e2e ni migration n'a été
+lancé : sans `.env.test`, la cible dérivée de `.env` n'a pas été confirmée
+comme base de test dédiée.
+
 Le reste de ce document est l'**historique** du diagnostic initial.
 
 ---
