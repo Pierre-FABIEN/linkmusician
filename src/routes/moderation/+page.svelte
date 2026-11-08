@@ -21,7 +21,78 @@
 
 <div class="min-h-screen w-screen px-4 py-24">
 	<div class="mx-auto max-w-3xl space-y-10">
-		<h1 class="text-2xl font-bold">Modération</h1>
+		<div class="flex flex-wrap items-center justify-between gap-3">
+			<h1 class="text-2xl font-bold">Modération</h1>
+			<a
+				href="/moderation/journal"
+				class="inline-flex min-h-10 items-center rounded-full border px-4 text-sm font-semibold"
+				>Journal des décisions</a
+			>
+		</div>
+
+		<section class="space-y-4" aria-labelledby="orgs-title">
+			<h2 id="orgs-title" class="text-lg font-semibold">
+				Organisations à vérifier ({data.verifications.length})
+			</h2>
+			<p class="text-sm text-muted-foreground">
+				Le SIRET est-il actif, au nom de l’organisation ? Le lien officiel est-il le sien ?
+			</p>
+			{#if data.verifications.length === 0}<p class="text-sm text-muted-foreground">
+					Rien en attente.
+				</p>{/if}
+			{#each data.verifications as v (v.id)}
+				<article
+					class="space-y-3 rounded-lg border p-4 text-sm"
+					aria-label="Vérification de {v.org.displayName}"
+				>
+					<div>
+						<p>
+							<a href="/@{v.org.handle}" class="font-medium underline">{v.org.displayName}</a>
+							· {v.members} membre{v.members > 1 ? 's' : ''} · demandé par {v.requestedBy
+								?.displayName ?? 'un compte supprimé'} le {date(v.createdAt)}
+						</p>
+						<p>
+							SIRET
+							<a href={v.annuaire} class="underline" target="_blank" rel="noopener noreferrer"
+								>{v.siret}</a
+							>
+						</p>
+						<a
+							href={v.officialUrl}
+							class="break-all underline"
+							target="_blank"
+							rel="noopener noreferrer">{v.officialUrl}</a
+						>
+					</div>
+					<div class="flex flex-wrap items-end gap-2">
+						<form method="POST" action="?/approveOrganization" use:enhance>
+							<input type="hidden" name="requestId" value={v.id} />
+							<button class="rounded-md bg-primary px-3 py-1.5 text-primary-foreground"
+								>Vérifier</button
+							>
+						</form>
+						<form
+							method="POST"
+							action="?/rejectOrganization"
+							use:enhance
+							class="flex items-end gap-2"
+						>
+							<input type="hidden" name="requestId" value={v.id} />
+							<label>
+								<span class="sr-only">Motif du refus</span>
+								<input
+									name="reason"
+									required
+									placeholder="Motif du refus"
+									class="rounded-md border bg-background p-1.5"
+								/>
+							</label>
+							<button class="rounded-md border px-3 py-1.5 text-destructive">Refuser</button>
+						</form>
+					</div>
+				</article>
+			{/each}
+		</section>
 
 		<section class="space-y-4" aria-labelledby="pending-title">
 			<h2 id="pending-title" class="text-lg font-semibold">

@@ -8,7 +8,16 @@
 	import * as Card from '#shadcn/card';
 	import * as Avatar from '#shadcn/avatar';
 	import { Badge } from '#shadcn/badge';
-	import { Flag, History, MapPin, Megaphone, Music, UserPlus, UsersRound } from 'lucide-svelte';
+	import {
+		BadgeCheck,
+		Flag,
+		History,
+		MapPin,
+		Megaphone,
+		Music,
+		UserPlus,
+		UsersRound
+	} from 'lucide-svelte';
 	import { initialsOf } from '#lib/actors/display';
 	import { ROLE_LABELS, periodLabel } from '#lib/bands/rules';
 	import { PROOF_LABELS } from '#lib/milestones/rules';
@@ -123,7 +132,19 @@
 								>
 							</Avatar.Root>
 							<div class="min-w-0 flex-1">
-								<h1 class="text-3xl font-black tracking-tight">{band.displayName}</h1>
+								<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight">
+									{band.displayName}
+									{#if band.verified}
+										<!-- Organisation vérifiée à la main (P3-09). -->
+										<BadgeCheck class="size-6 shrink-0 text-sky-600" aria-hidden="true" />
+										<span class="sr-only">(groupe vérifié)</span>
+									{/if}
+								</h1>
+								{#if band.verified}
+									<p class="text-sm font-medium text-sky-700 dark:text-sky-300">
+										Groupe vérifié par l’équipe LinkMusician
+									</p>
+								{/if}
 								<p class="text-muted-foreground">@{band.handle} · {status}</p>
 								{#if band.tier}
 									<!-- Rang (P3-08) : dernière étape prouvée du parcours. -->

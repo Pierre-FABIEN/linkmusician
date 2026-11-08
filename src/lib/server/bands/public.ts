@@ -37,6 +37,7 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 			organization: {
 				select: {
 					formedAt: true,
+					verifiedAt: true,
 					dissolvedAt: true,
 					memberships: {
 						where: { status: { in: [...OPEN_STATUSES, 'LEFT', 'REMOVED'] } },
@@ -160,6 +161,8 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 		past: past.map(card),
 		media,
 		works,
+		/** Organisation vérifiée à la main (P3-09) : badge, sans le SIRET. */
+		verified: org.verifiedAt !== null,
 		/** Rang du groupe (P3-08) : dernière étape corroborée, non gelée. */
 		tier: await bandTierOf(actor.id),
 		milestones: milestones.map((m) => ({

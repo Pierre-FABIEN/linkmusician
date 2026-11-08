@@ -577,6 +577,13 @@ actes. Puis LinkMusician s'ouvre au public.
 
 ### P3-09 — Modération étendue
 
+> **Réalisé le 08/11/2026.** File des contestations livrée avec P3-06.
+> Vérification manuelle des organisations (groupes au MVP : SIRET et lien
+> officiel, badge « Groupe vérifié ») ; journal `/moderation/journal`
+> (filtre par type de décision) ; un test exige un libellé pour chaque
+> action `moderation.*` écrite dans le code. Voir
+> [docs/moderation](../moderation/README.md).
+
 - **Dépend de** : P3-06.
 - **Tâches** : file des contestations ; vérification manuelle
   d'organisations (préparation de la phase 5) ; journal d'audit

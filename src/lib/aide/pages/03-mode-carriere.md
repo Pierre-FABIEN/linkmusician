@@ -108,6 +108,16 @@ groupe, accepter des demandes pour le rejoindre.
 | **Co-gestion**  | Inviter, accepter, retirer un membre, gérer la fiche et les étapes   |
 | **Membre**      | Voir les morceaux et le parcours du groupe, le quitter quand il veut |
 
+### Faire vérifier ton groupe {#verifier}
+
+Ton groupe est déclaré (association, entreprise) ? Dans la gestion du
+groupe, section **Groupe vérifié**, donne son **SIRET** et son site ou
+réseau officiel, puis **Demander la vérification**. L’équipe contrôle à la
+main. Si c’est bon, un badge **Groupe vérifié** s’affiche sur sa page
+publique (le SIRET, lui, n’est jamais montré) ; sinon, tu vois pourquoi et
+tu peux refaire une demande. Ça ne rapporte pas de points : ça rassure les
+lieux et les organisateurs.
+
 ### Le parcours du groupe : les étapes {#etapes}
 
 Sur la page du groupe, **Parcours du groupe** montre les premières fois de

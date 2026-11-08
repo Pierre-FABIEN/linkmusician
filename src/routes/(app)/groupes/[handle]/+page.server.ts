@@ -30,6 +30,11 @@ import {
 } from '#lib/server/milestones/service';
 import { retractMilestone } from '#lib/server/milestones/disputes';
 import {
+	VerificationError,
+	requestVerification,
+	verificationState
+} from '#lib/server/organizations/verification';
+import {
 	addEvidence,
 	bandMilestoneProofs,
 	requestAttestation
@@ -56,6 +61,8 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		milestones: band.my?.status === 'ACTIVE' ? await bandMilestones(band.id) : [],
 		// Rang du groupe (P3-08).
 		tier: await bandTierOf(band.id),
+		// Vérification de l'organisation (P3-09), pour sa gestion.
+		verification: band.my?.status === 'ACTIVE' ? await verificationState(band.id) : null,
 		// Preuves (P3-05) : demandes, liens et ce qu'il reste à faire.
 		proofs: band.my?.status === 'ACTIVE' ? await bandMilestoneProofs(band.id) : {},
 		declaredXp: Object.fromEntries(
@@ -71,7 +78,11 @@ async function run(action: () => Promise<unknown>, message: string) {
 		await action();
 		return { message };
 	} catch (err) {
-		if (err instanceof BandError || err instanceof MilestoneError) {
+		if (
+			err instanceof BandError ||
+			err instanceof MilestoneError ||
+			err instanceof VerificationError
+		) {
 			return fail(err.status, { error: err.message });
 		}
 		throw err;
@@ -171,6 +182,18 @@ export const actions: Actions = {
 		return run(
 			() => updateMilestoneDetails(field('milestoneId'), actorId, parsed.data),
 			'Étape mise à jour.'
+		);
+	},
+	/** Demander la vérification du groupe (P3-09). */
+	requestVerification: async ({ locals, params, request }) => {
+		const { actorId, band, field } = await context(locals, params, request);
+		return run(
+			() =>
+				requestVerification(band.id, actorId, {
+					siret: field('siret'),
+					officialUrl: field('officialUrl')
+				}),
+			'Demande envoyée : l’équipe vérifie et vous répond ici.'
 		);
 	},
 	/** Retirer une étape déclarée par erreur (P3-06) : XP reprise par transactions liées. */

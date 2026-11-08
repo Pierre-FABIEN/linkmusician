@@ -29,8 +29,23 @@ Module LinkMusician (lot P1-12).
   obligatoire). **Aucune sanction automatique** : avertir ou suspendre se
   fait à part, membre par membre. Un cas tranché n'est pas rouvert pour le
   même groupe.
+- **Étapes contestées** (P3-06, D49) : voir [docs/etapes](../etapes/README.md).
+- **Organisations à vérifier** (P3-09) : la gestion d'un groupe envoie un
+  SIRET (clé de Luhn) et un lien officiel en https depuis
+  `/groupes/[handle]` ; la modération ouvre la fiche de l'établissement
+  (annuaire des entreprises) et le lien, puis **Vérifier**
+  (`Organization.verifiedAt`, badge « Groupe vérifié » sur la page
+  publique, le SIRET n'est jamais affiché) ou **Refuser** avec un motif,
+  montré à la gestion. Une demande en attente à la fois, trois par 30
+  jours ; un SIRET accordé ne sert qu'à une organisation. Aucune XP,
+  aucune confiance : un statut accordé (conception 02 §4). Préparation de
+  la phase 5 : studios, lieux et labels passeront par la même file.
 - Chaque décision est inscrite au journal d'audit du boilerplate
-  (`admin_audit_logs`, actions `moderation.*`).
+  (`admin_audit_logs`, actions `moderation.*`) et se relit dans
+  **`/moderation/journal`** (P3-09) : qui, quoi, sur quelle cible, le
+  motif, filtre par type de décision, pages de 50. Libellés dans
+  `src/lib/moderation/audit.ts` : un test parcourt le code serveur et exige
+  un libellé pour chaque action `moderation.*` écrite.
 
 ## Effets
 
@@ -43,10 +58,12 @@ Module LinkMusician (lot P1-12).
 
 ## RGPD
 
-Export : signalements faits, sanctions reçues, registre d'XP, vérifications
+Export : signalements faits, sanctions reçues, vérifications d'organisation
+demandées, registre d'XP, vérifications
 de cercle fermé qui concernent la personne (date et issue, jamais les autres
 membres). Anonymisation : le texte libre des signalements faits est effacé ;
-signalements et sanctions restent pour l'historique de modération ; les cas
+signalements et sanctions restent pour l'historique de modération ; les
+demandes de vérification restent au groupe, sans leur auteur ; les cas
 de cercle fermé qui la citent sont supprimés.
 
 ## Code
@@ -57,6 +74,10 @@ de cercle fermé qui la citent sont supprimés.
 | `src/lib/server/moderation/service.ts` | Signalements, file, décisions         |
 | `src/lib/server/moderation/guards.ts`  | `assertModerator`, `requireModerator` |
 | `src/routes/moderation/`               | File de modération                    |
+| `src/routes/moderation/journal/`       | Journal des décisions (P3-09)         |
+| `src/lib/moderation/audit.ts`          | Libellés du journal (testés)          |
+| `src/lib/server/moderation/journal.ts` | Lecture du journal                    |
+| `src/lib/server/organizations/`        | Vérification des organisations        |
 | `src/routes/suspendu/`                 | Page d'un compte suspendu             |
 
 Tests d'intégration : `MODERATION_INTEGRATION=1 npx vitest --run src/lib/server/moderation`.

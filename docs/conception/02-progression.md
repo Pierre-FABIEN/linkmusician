@@ -203,7 +203,9 @@ une étape déclarée par erreur, avec la même reprise.
 **Organisation vérifiée** : un studio, un organisateur ou un label
 fournit un SIRET (ou équivalent) et une adresse web ou un réseau social
 officiel, et l'équipe le contrôle à la main. C'est un statut accordé, pas
-un niveau gagné.
+un niveau gagné. Au MVP (P3-09), les groupes le demandent depuis leur
+gestion et la modération l'accorde (badge public, sans le SIRET) ; les
+autres organisations suivront en phase 5.
 
 ## 5. Paliers par métier
 

@@ -1470,6 +1470,7 @@ model Actor {
   groupDiscussionsCreated    GroupDiscussion[]        @relation("GroupDiscussionCreator")
   groupDiscussionSeats       GroupDiscussionMember[]  @relation("GroupDiscussionMemberActor")
   groupDiscussionMessages    GroupDiscussionMessage[] @relation("GroupDiscussionMessageSender")
+  orgVerificationsRequested  OrganizationVerification[] @relation("OrgVerificationRequester")
 
   @@map("actors")
 }
@@ -2667,7 +2668,11 @@ model Organization {
   /// Dissous par sa dernière personne : l'historique reste lisible.
   dissolvedAt DateTime?
   createdAt   DateTime     @default(now())
+  /// Organisation vérifiée à la main (P3-09, conception 02 §4) : SIRET et lien
+  /// officiel contrôlés par la modération. Un statut accordé, pas gagné.
+  verifiedAt  DateTime?
   memberships Membership[]
+  verifications OrganizationVerification[]
 
   @@map("organizations")
 }
@@ -3034,4 +3039,38 @@ model GroupDiscussionMessage {
   @@index([discussionId, createdAt])
   @@index([senderActorId])
   @@map("group_discussion_messages")
+}
+
+// ─── VÉRIFICATION DES ORGANISATIONS (P3-09) ─────────────────────────────────
+
+enum OrgVerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Demande de vérification d'une organisation (groupe au MVP ; studios,
+/// lieux, labels en phase 5). La modération contrôle le SIRET et le lien
+/// officiel. Seul point d'écriture : `src/lib/server/organizations/verification.ts`.
+model OrganizationVerification {
+  id               String                @id @default(cuid())
+  orgId            String
+  org              Organization          @relation(fields: [orgId], references: [actorId], onDelete: Cascade)
+  /// Personne de la gestion qui a demandé ; vide après RGPD.
+  requestedById    String?
+  requestedBy      Actor?                @relation("OrgVerificationRequester", fields: [requestedById], references: [id], onDelete: SetNull)
+  siret            String
+  /// Site ou réseau social officiel (https).
+  officialUrl      String
+  status           OrgVerificationStatus @default(PENDING)
+  createdAt        DateTime              @default(now())
+  reviewedAt       DateTime?
+  reviewedByUserId String?
+  /// Motif d'un refus, montré à la gestion du groupe.
+  reason           String?
+
+  @@index([status, createdAt])
+  @@index([orgId, createdAt])
+  @@index([siret])
+  @@map("organization_verifications")
 }

@@ -22,14 +22,22 @@ import { VENUE_KIND_LABELS } from '#lib/venues/rules';
 import { MilestoneError } from '#lib/server/milestones/service';
 import { pendingEvidence, reviewEvidence } from '#lib/server/milestones/proofs';
 import { disputeQueue, dismissContest, upholdContest } from '#lib/server/milestones/disputes';
+import {
+	VerificationError,
+	approveVerification,
+	pendingVerifications,
+	rejectVerification
+} from '#lib/server/organizations/verification';
+import { annuaireUrl } from '#lib/organizations/verification';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const [queue, collusion, evidence, disputes] = await Promise.all([
+	const [queue, collusion, evidence, disputes, verifications] = await Promise.all([
 		moderationQueue(),
 		collusionQueue(),
 		pendingEvidence(),
-		disputeQueue()
+		disputeQueue(),
+		pendingVerifications()
 	]);
 	const mediaView = (m: {
 		id: string;
@@ -51,6 +59,8 @@ export const load: PageServerLoad = async () => {
 		collusion,
 		// Étapes de groupe contestées (P3-06), gelées ou non.
 		disputes,
+		// Organisations à vérifier à la main (P3-09) : SIRET et lien officiel.
+		verifications: verifications.map((v) => ({ ...v, annuaire: annuaireUrl(v.siret) })),
 		// Liens d'écoute joints à une « première démo publique » (P3-05, D43).
 		pendingEvidence: evidence,
 		pendingVenues: queue.pendingVenues.map((v) => ({
@@ -91,7 +101,11 @@ async function run(
 		await fn({ userId: locals.user!.id });
 		return { message: done };
 	} catch (err) {
-		if (err instanceof ModerationError || err instanceof MilestoneError) {
+		if (
+			err instanceof ModerationError ||
+			err instanceof MilestoneError ||
+			err instanceof VerificationError
+		) {
 			return fail(400, { error: err.message });
 		}
 		throw err;
@@ -135,6 +149,23 @@ export const actions: Actions = {
 			locals,
 			(by) => reviewEvidence(field(data, 'evidenceId'), false, by, field(data, 'reason')),
 			'Lien refusé.'
+		);
+	},
+	/** Vérification d'une organisation (P3-09). */
+	approveOrganization: async ({ request, locals }) => {
+		const data = await request.formData();
+		return run(
+			locals,
+			(by) => approveVerification(field(data, 'requestId'), by),
+			'Organisation vérifiée.'
+		);
+	},
+	rejectOrganization: async ({ request, locals }) => {
+		const data = await request.formData();
+		return run(
+			locals,
+			(by) => rejectVerification(field(data, 'requestId'), field(data, 'reason'), by),
+			'Demande refusée : le motif est montré au groupe.'
 		);
 	},
 	/** Étape contestée (P3-06) : retenue (XP reprise, avertissements) ou rejetée (dégel). */
