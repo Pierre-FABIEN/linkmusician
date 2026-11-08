@@ -6,6 +6,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { getPublicProfile } from '#lib/server/actors/publicProfile';
+import { publicCareerSheet } from '#lib/server/career/sheet';
 import { fileReport, ModerationError } from '#lib/server/moderation/service';
 import { blockActor, BlockingError } from '#lib/server/blocking/service';
 import { suggestMusicians } from '#lib/server/discovery/suggestions';
@@ -34,6 +35,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		return {
 			profile: null,
 			band: publicBand,
+			careerSheet: null,
 			suggestions: [],
 			isOwner: false,
 			signedIn: Boolean(viewer?.onboardedAt),
@@ -46,9 +48,9 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const isOwner = viewer?.actorId === actorId;
 	// Suggestions (P2-18), pour un membre seulement : les siennes sur son
 	// profil, « Dans le même style » sur celui d'un autre.
-	const suggestions =
+	const [suggestions, careerSheet] = await Promise.all([
 		viewer?.onboardedAt && profile.kind === 'PERSON'
-			? await suggestMusicians(
+			? suggestMusicians(
 					viewer.actorId,
 					{ db: prisma },
 					{
@@ -56,10 +58,13 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 						limit: 3
 					}
 				)
-			: [];
+			: [],
+		profile.kind === 'PERSON' ? publicCareerSheet(actorId, viewer?.actorId) : null
+	]);
 	return {
 		profile: publicProfile,
 		band: null,
+		careerSheet,
 		signedIn: Boolean(viewer?.onboardedAt),
 		suggestions,
 		isOwner,

@@ -22,6 +22,7 @@ const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
 vi.mock('#lib/server', () => ({ prisma: db }));
 
 const map = await import('./map');
+const sheetService = await import('./sheet');
 const { careerMap } = await import('#lib/career/map');
 const { emitAndProcess } = await import('#lib/server/progression/processor');
 
@@ -123,5 +124,24 @@ describe.skipIf(!enabled)('carte de carrière (schéma e2e)', { timeout: 90_000 
 		expect(m.passed).toEqual([1, 2]);
 		expect(m.current).toBe(3);
 		expect((await map.pendingActCelebrations(ids.lea, true)).map((c) => c.id)).toEqual(['act-2']);
+	});
+
+	it('la fiche publique renvoie uniquement des faits confirmés', async () => {
+		const sheet = await sheetService.publicCareerSheet(ids.lea);
+		expect(Object.keys(sheet).sort()).toEqual(
+			[
+				'appreciatedBy',
+				'actsPassed',
+				'bands',
+				'cities',
+				'collaborations',
+				'credits',
+				'gigs',
+				'jamsAppreciated',
+				'peopleMet',
+				'worksTogether'
+			].sort()
+		);
+		expect(JSON.stringify(sheet)).not.toMatch(/xp|level|trust|jamsAttended|worksSolo/i);
 	});
 });

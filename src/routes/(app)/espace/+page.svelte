@@ -10,6 +10,7 @@
 		CircleCheck,
 		Compass,
 		EyeOff,
+		FileText,
 		Map as MapIcon,
 		Music,
 		Sparkles,
@@ -61,6 +62,13 @@
 				data.actsPassed > 0
 					? `${data.actsPassed} épreuve${data.actsPassed > 1 ? 's' : ''} franchie${data.actsPassed > 1 ? 's' : ''}`
 					: 'Acte I'
+		},
+		{
+			href: '/espace/fiche',
+			icon: FileText,
+			title: 'Ma fiche de carrière',
+			text: 'Tes rencontres, tes collaborations et les épreuves franchies.',
+			badge: 'À partager'
 		},
 		{
 			href: '/espace/ambition',

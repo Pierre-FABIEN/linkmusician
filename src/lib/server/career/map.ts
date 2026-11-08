@@ -18,7 +18,7 @@ import { getMusicianTier } from '#lib/server/progression/read';
 import { actTitle, actsToCelebrate, careerMap, type CareerFacts } from '#lib/career/map';
 import type { AmbitionValue } from '#lib/career/ambition';
 
-export async function careerFacts(actorId: string): Promise<CareerFacts> {
+async function careerEvidence(actorId: string) {
 	const [tier, together, solo, recordingEvents] = await Promise.all([
 		getMusicianTier(actorId, prisma),
 		prisma.workContributor.count({
@@ -63,12 +63,23 @@ export async function careerFacts(actorId: string): Promise<CareerFacts> {
 			})
 		: 0;
 	return {
-		jamAppreciations: tier.summary.jamAppreciations,
-		collaborations: tier.summary.collaborations,
-		worksTogether: together,
-		worksSolo: solo,
-		recordings
+		tier,
+		facts: {
+			jamAppreciations: tier.summary.jamAppreciations,
+			collaborations: tier.summary.collaborations,
+			worksTogether: together,
+			worksSolo: solo,
+			recordings
+		} satisfies CareerFacts
 	};
+}
+
+export async function careerFacts(actorId: string): Promise<CareerFacts> {
+	return (await careerEvidence(actorId)).facts;
+}
+
+export async function careerEvidenceForSheet(actorId: string) {
+	return careerEvidence(actorId);
 }
 
 export async function careerMapFor(actorId: string, ambition: AmbitionValue | null) {

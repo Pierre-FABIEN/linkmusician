@@ -102,4 +102,72 @@ test.describe('LinkMusician — écran de carrière', () => {
 			await expect(acts.locator('li').first()).toContainText('Acte en cours');
 		});
 	});
+
+	test('fiche : les données privées restent privées, une carte souvenir se partage', async ({
+		page,
+		account
+	}) => {
+		await signUpAndVerify(page, account);
+		await skipOnboarding(page, account.email);
+		const person = await db.person.findUniqueOrThrow({
+			where: { userId: (await requireUser(account.email)).id },
+			include: { actor: true }
+		});
+		const peer = await db.actor.create({
+			data: {
+				kind: 'PERSON',
+				handle: `fiche-peer-${Math.random().toString(36).slice(2, 9)}`,
+				displayName: 'Fiche Peer'
+			}
+		});
+		try {
+			await db.work.create({
+				data: {
+					ownerId: person.actorId,
+					createdById: person.actorId,
+					title: 'Morceau à plusieurs',
+					state: 'COMPOSED',
+					proof: 'CORROBORATED',
+					composedAt: new Date(),
+					contributors: {
+						create: [
+							{ personId: person.actorId, confirmedAt: new Date() },
+							{ personId: peer.id, confirmedAt: new Date() }
+						]
+					}
+				}
+			});
+
+			await test.step('1. La fiche privée montre les détails personnels', async () => {
+				await page.goto('/espace/fiche');
+				await waitForAppReady(page);
+				await expect(page.getByRole('heading', { name: 'Ma fiche de carrière' })).toBeVisible();
+				await expect(page.getByText('Rien que pour toi')).toBeVisible();
+				await expect(page.getByText('XP', { exact: true })).toBeVisible();
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+			});
+
+			await test.step('2. La fiche publique ne présente que les faits confirmés', async () => {
+				await page.goto(`/@${person.actor.handle}`);
+				await waitForAppReady(page);
+				const sheet = page.locator('section[aria-labelledby="career-sheet-title"]');
+				await expect(sheet).toContainText('Morceaux à plusieurs');
+				await expect(sheet).not.toContainText('XP');
+				await expect(sheet).not.toContainText('Rien que pour toi');
+				await expect(
+					page.getByRole('link', { name: /Télécharger · Acte II · La création/ })
+				).toBeVisible();
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+
+				const response = await page.request.get(
+					`/api/carriere/souvenir/${person.actor.handle}/2.png`
+				);
+				expect(response.status()).toBe(200);
+				expect(response.headers()['content-type']).toBe('image/png');
+				expect((await response.body()).subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a');
+			});
+		} finally {
+			await db.actor.delete({ where: { id: peer.id } });
+		}
+	});
 });

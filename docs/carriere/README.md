@@ -64,3 +64,18 @@ Conception : [07 §4.1 et §4.2](../conception/07-modes-de-jeu.md#41-choisir-son
 - Tests : `src/lib/career/map.test.ts`, intégration
   `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/career`, e2e
   `carriere.spec.ts` (carte).
+
+## Fiche de carrière et cartes souvenirs (P3-14)
+
+- `/espace/fiche` : fiche privée avec les statistiques confirmées et les
+  données privées (présences déclarées, morceaux solo, XP et niveau).
+- Le profil `@handle` ne reçoit que des faits confirmés ; aucune XP ni
+  confiance n'entre dans la fiche publique.
+- Une carte PNG 1200 × 630 peut être téléchargée pour chaque acte
+  effectivement franchi : `/api/carriere/souvenir/[handle]/[act].png`.
+  L'image n'est rendue que pour un profil public et une épreuve encore
+  franchie ; elle ne contient que le nom public, l'acte, son épreuve et le
+  mois de création de la carte. Le profil utilise la dernière carte comme
+  image Open Graph.
+- Rendu serveur par Satori et resvg, police Open Sans embarquée ; tests
+  purs de séparation public/privé et de signature/dimensions PNG.

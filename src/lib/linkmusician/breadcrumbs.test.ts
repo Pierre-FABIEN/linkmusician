@@ -75,6 +75,13 @@ describe('breadcrumbs', () => {
 		).toEqual(['/espace', '/groupes', '/groupes/les-loups', '/groupes/les-loups/modifier']);
 	});
 
+	it('la fiche de carrière remonte à l’espace', () => {
+		expect(crumbs('/(app)/espace/fiche', '/espace/fiche')).toEqual([
+			{ label: 'Mode carrière', href: '/espace' },
+			{ label: 'Ma fiche de carrière', href: '/espace/fiche' }
+		]);
+	});
+
 	it('rien à remonter sur un accueil de mode ou une page inconnue', () => {
 		expect(crumbs('/(app)/jam', '/jam')).toEqual([]);
 		expect(crumbs('/(app)/espace', '/espace')).toEqual([]);
