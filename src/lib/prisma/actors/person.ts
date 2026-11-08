@@ -447,6 +447,7 @@ export async function exportPersonData(userId: string) {
 		joue_depuis: details.practiceSince,
 		rayon_de_deplacement_km: details.travelRadiusKm,
 		pret_a_organiser_des_jams: details.organizesJams,
+		ambition_de_carriere: person.ambition,
 		liens: details.links.map((l) => ({ type: l.kind, url: l.url })),
 		// Seule la commune est stockée (jamais d'adresse ni de point précis).
 		commune: location ? `${location.communeName} (${location.departmentCode})` : null,
@@ -795,6 +796,7 @@ export async function personAnonymizationOps(
 				practiceSince: null,
 				travelRadiusKm: null,
 				organizesJams: false,
+				ambition: null,
 				tipsDismissed: []
 			}
 		}),

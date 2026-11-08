@@ -1,49 +1,41 @@
-// LINKMUSICIAN: tableau de bord de progression (P1-11), calculé côté serveur
-// (`#lib/server/progression/dashboard`).
+// LINKMUSICIAN: écran de carrière (P3-12, conception 07 §4.2), page-menu
+// (D50) : identité et progression, « Ta prochaine étape » selon l'ambition,
+// puis une entrée par écran. Seulement des compteurs, aucun contenu.
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { getActorLocation } from '#lib/server/geo/queries';
 import { getDashboard } from '#lib/server/progression/dashboard';
 import { pendingForMe } from '#lib/server/collaborations/service';
 import { bandCounts } from '#lib/server/bands/service';
 import { pendingCredits } from '#lib/server/works/service';
+import { agenda, campaigns, linkable } from '#lib/server/career/service';
+import { ambitionPriorities } from '#lib/career/ambition';
 import type { PageServerLoad } from './$types';
-
-/** Écrans déjà construits : un objectif qui mène ailleurs est affiché « bientôt ». */
-const AVAILABLE = [
-	'/profil',
-	'/profil/musical',
-	'/profil/ville',
-	'/profil/medias',
-	'/annonces',
-	'/groupes',
-	'/morceaux'
-];
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// La garde de `(app)/+layout.server.ts` a déjà vérifié compte et personne.
 	const person = (await getPersonByUserId(locals.user!.id))!;
-	const [dashboard, location, toConfirm, bands, workCredits] = await Promise.all([
-		getDashboard(person.actorId),
+	const [dashboard, location, toConfirm, bands, workCredits, works, upcoming] = await Promise.all([
+		getDashboard(person.actorId, ambitionPriorities(person.ambition)),
 		getActorLocation(person.actorId),
-		// Collaborations qui attendent ma réponse ou ma confirmation (P2-06).
 		pendingForMe(person.actorId),
-		// Mes groupes (P3-01) : nombre de groupes et invitations reçues.
 		bandCounts(person.actorId),
-		// Mes morceaux (P3-11) : crédits qui attendent ma confirmation.
-		pendingCredits(person.actorId)
+		pendingCredits(person.actorId),
+		campaigns(person.actorId),
+		agenda(person.actorId)
 	]);
+	const inProgress = works.works.filter((w) => w.state === 'IDEA');
 	return {
-		dashboard: {
-			...dashboard,
-			objectives: dashboard.objectives.map((o) => ({
-				...o,
-				href: AVAILABLE.includes(o.href) ? o.href : null
-			}))
-		},
+		dashboard: { ...dashboard, objectives: linkable(dashboard.objectives) },
 		commune: location?.communeName ?? null,
-		toConfirm,
-		bands,
-		workCredits,
+		ambition: person.ambition,
+		counts: {
+			toConfirm: toConfirm.length + workCredits + bands.invitations,
+			bands: bands.active,
+			campaigns: inProgress.length,
+			openRoles: inProgress.reduce((n, w) => n + w.openRoles, 0),
+			agenda: upcoming.length,
+			gains: dashboard.history.length
+		},
 		hidden: person.actor.hidden
 	};
 };

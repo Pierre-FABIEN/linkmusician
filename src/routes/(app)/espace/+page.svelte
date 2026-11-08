@@ -1,250 +1,172 @@
 <script lang="ts">
-	// LINKMUSICIAN: tableau de bord de progression (P1-11), d'après la maquette
-	// validée `/_lab/tableau-de-bord`. Les valeurs viennent toutes du serveur.
+	// LINKMUSICIAN: écran de carrière (P3-12), page-menu (D50), voir
+	// +page.server.ts. Les valeurs viennent toutes du serveur.
 	import SEO from '#lib/components/SEO.svelte';
 	import * as Card from '#shadcn/card';
 	import * as Avatar from '#shadcn/avatar';
-	import { Sparkles, ShieldCheck, EyeOff, UsersRound, Music, Search } from 'lucide-svelte';
+	import {
+		BookOpen,
+		CalendarDays,
+		CircleCheck,
+		Compass,
+		EyeOff,
+		Music,
+		Sparkles,
+		Trophy,
+		UsersRound
+	} from 'lucide-svelte';
 	import { plural } from '#lib/jam/log';
 	import XpBar from '#lib/components/linkmusician/progress/XpBar.svelte';
 	import LevelBadge from '#lib/components/linkmusician/progress/LevelBadge.svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
-	import QuestCard from '#lib/components/linkmusician/progress/QuestCard.svelte';
-	import AchievementBadge from '#lib/components/linkmusician/progress/AchievementBadge.svelte';
+	import NextStep from '#lib/components/linkmusician/NextStep.svelte';
+	import MenuList, { type MenuItem } from '#lib/components/linkmusician/MenuList.svelte';
 	import { TRACKS } from '#lib/actors/tracks';
 	import { initialsOf } from '#lib/actors/display';
-	import NextStep from '#lib/components/linkmusician/NextStep.svelte';
+	import { AMBITION_INFO } from '#lib/career/ambition';
 
 	let { data } = $props();
 	const d = $derived(data.dashboard);
+	const c = $derived(data.counts);
 	const primary = $derived(data.person.tracks.find((t) => t.isPrimary) ?? data.person.tracks[0]);
 	const subtitle = $derived(
 		[`@${data.person.handle}`, primary ? TRACKS[primary.track].label : null, data.commune]
 			.filter(Boolean)
 			.join(' · ')
 	);
-	const dateFormat = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
 	const firstName = $derived(data.person.displayName.split(' ')[0]);
+
+	const items = $derived<MenuItem[]>([
+		...(c.toConfirm > 0
+			? [
+					{
+						href: '/espace/a-confirmer',
+						icon: CircleCheck,
+						title: 'À confirmer',
+						text: 'Des collaborations, crédits ou invitations attendent ta réponse.',
+						badge: String(c.toConfirm),
+						highlight: true
+					}
+				]
+			: []),
+		{
+			href: '/espace/ambition',
+			icon: Compass,
+			title: 'Mon ambition',
+			text: data.ambition
+				? AMBITION_INFO[data.ambition].pitch
+				: 'Ce que tu vises : on met en avant les bons objectifs. Tu peux en changer.',
+			badge: data.ambition ? AMBITION_INFO[data.ambition].label : 'À choisir',
+			highlight: data.ambition === null
+		},
+		{
+			href: '/espace/objectifs',
+			icon: Sparkles,
+			title: 'Mes objectifs',
+			text: 'Les trois prochaines étapes atteignables maintenant.',
+			badge: `${Math.min(d.questProgress.done + 1, d.questProgress.total)} sur ${d.questProgress.total}`
+		},
+		{
+			href: '/espace/campagnes',
+			icon: Music,
+			title: 'Campagnes en cours',
+			text: 'Chaque morceau est une aventure : son état et ses places libres.',
+			badge:
+				c.campaigns > 0
+					? c.openRoles > 0
+						? plural(c.openRoles, 'place libre', 'places libres')
+						: plural(c.campaigns, 'morceau', 'morceaux')
+					: null
+		},
+		{
+			href: '/espace/equipe',
+			icon: UsersRound,
+			title: 'Mon équipe',
+			text: 'Tes groupes et les personnes avec qui tu joues le plus.',
+			badge: c.bands > 0 ? plural(c.bands, 'groupe') : null
+		},
+		{
+			href: '/espace/agenda',
+			icon: CalendarDays,
+			title: 'Agenda',
+			text: 'Jams et collaborations à venir.',
+			badge: c.agenda > 0 ? `${c.agenda} à venir` : null
+		},
+		{
+			href: '/espace/journal',
+			icon: BookOpen,
+			title: 'Journal de bord',
+			text: 'Tes derniers gains, et d’où ils viennent.',
+			badge: null
+		},
+		{
+			href: '/espace/progression',
+			icon: Trophy,
+			title: 'Points, succès et confiance',
+			text: 'Tes succès, ton palier de confiance et ce qu’il permet.',
+			badge: d.trust.name
+		}
+	]);
 </script>
 
 <SEO title="Mon espace" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
-		<div class="grid items-stretch gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
-			{#if d.objectives[0]}
-				{@const o = d.objectives[0]}
-				<NextStep
-					index={Math.min(d.questProgress.done + 1, d.questProgress.total)}
-					total={d.questProgress.total}
-					title={o.label}
-					text={o.xp
-						? `Une étape réelle de ta carrière : environ ${o.xp} XP à la clé.`
-						: 'Une étape réelle de ta carrière, à franchir avec d’autres.'}
-					href={o.href ?? '/annonces'}
-					cta={o.href ? 'J’y vais' : 'Bientôt disponible'}
-				/>
-			{/if}
+	<div class="mx-auto max-w-3xl space-y-6">
+		<!-- En-tête : identité et progression -->
+		<Card.Root class="overflow-hidden pt-0">
+			<div class="h-20 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500"></div>
+			<Card.Content class="-mt-10 space-y-4">
+				<div class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
+					<Avatar.Root class="size-20 border-4 border-background shadow-lg">
+						<Avatar.Fallback class="bg-violet-100 text-2xl font-bold text-violet-800"
+							>{initialsOf(data.person.displayName)}</Avatar.Fallback
+						>
+					</Avatar.Root>
+					<div class="min-w-0 flex-1">
+						<h1 class="text-2xl font-black tracking-tight">Salut {firstName} !</h1>
+						<p class="text-sm text-muted-foreground">{subtitle}</p>
+					</div>
+					{#if d.tier}<TierBadge {...d.tier} />{/if}
+				</div>
+				<div class="flex items-center gap-4">
+					<LevelBadge level={d.level} />
+					<div class="flex-1">
+						<XpBar
+							level={d.level}
+							xp={d.xp}
+							xpIntoLevel={d.xpIntoLevel}
+							xpForNextLevel={d.xpForNextLevel}
+						/>
+					</div>
+				</div>
+				<div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+					{#if data.hidden}
+						<span class="flex items-center gap-1 text-muted-foreground"
+							><EyeOff class="size-4" aria-hidden="true" /> Profil public masqué</span
+						>
+					{:else}
+						<a href="/@{data.person.handle}" class="underline">Voir mon profil public</a>
+					{/if}
+					<a href="/profil" class="underline">Mon profil</a>
+				</div>
+			</Card.Content>
+		</Card.Root>
 
-			<!-- En-tête : identité et progression -->
-			<Card.Root class="overflow-hidden pt-0 {d.objectives[0] ? '' : 'lg:col-span-2'}">
-				<div class="h-24 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500"></div>
-				<Card.Content class="-mt-10 space-y-5">
-					<div
-						class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4"
-					>
-						<Avatar.Root class="size-20 border-4 border-background shadow-lg">
-							<Avatar.Fallback class="bg-violet-100 text-2xl font-bold text-violet-800"
-								>{initialsOf(data.person.displayName)}</Avatar.Fallback
-							>
-						</Avatar.Root>
-						<div class="min-w-0 flex-1">
-							<h1 class="text-2xl font-black tracking-tight">Salut {firstName} !</h1>
-							<p class="text-sm text-muted-foreground">{subtitle}</p>
-						</div>
-						{#if d.tier}<TierBadge {...d.tier} />{/if}
-					</div>
-					<div class="flex items-center gap-4">
-						<LevelBadge level={d.level} />
-						<div class="flex-1">
-							<XpBar
-								level={d.level}
-								xp={d.xp}
-								xpIntoLevel={d.xpIntoLevel}
-								xpForNextLevel={d.xpForNextLevel}
-							/>
-						</div>
-					</div>
-					<div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-						{#if data.hidden}
-							<span class="flex items-center gap-1 text-muted-foreground"
-								><EyeOff class="size-4" aria-hidden="true" /> Profil public masqué</span
-							>
-						{:else}
-							<a href="/@{data.person.handle}" class="underline">Voir mon profil public</a>
-						{/if}
-						<a href="/profil" class="underline">Mon profil</a>
-						<a href="/profil/musical" class="underline">Mon profil musical</a>
-						<a href="/profil/medias" class="underline">Mes médias</a>
-						<a href="/reglages" class="underline">Réglages</a>
-					</div>
-				</Card.Content>
-			</Card.Root>
-		</div>
-
-		{#if data.toConfirm.length > 0}
-			<section
-				class="space-y-2 rounded-2xl border-2 border-primary/40 bg-card p-4"
-				aria-labelledby="to-confirm-title"
-			>
-				<h2 id="to-confirm-title" class="font-semibold">À confirmer</h2>
-				<ul class="space-y-2" aria-label="Collaborations à confirmer">
-					{#each data.toConfirm as k (k.id)}
-						<li>
-							<a
-								href="/messages/{k.conversationId}"
-								class="flex min-h-11 items-center justify-between gap-3 rounded-xl border p-3 text-sm hover:border-primary"
-							>
-								<span class="truncate">{k.title} · avec {k.with}</span>
-								<span class="shrink-0 font-semibold text-primary">Confirmer →</span>
-							</a>
-						</li>
-					{/each}
-				</ul>
-			</section>
+		{#if d.objectives[0]}
+			{@const o = d.objectives[0]}
+			<NextStep
+				index={Math.min(d.questProgress.done + 1, d.questProgress.total)}
+				total={d.questProgress.total}
+				title={o.label}
+				text={o.xp
+					? `Une étape réelle de ta carrière : environ ${o.xp} XP à la clé.`
+					: 'Une étape réelle de ta carrière, à franchir avec d’autres.'}
+				href={o.href ?? '/annonces'}
+				cta={o.href ? 'J’y vais' : 'Bientôt disponible'}
+			/>
 		{/if}
 
-		<div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-			<a
-				href="/groupes"
-				class="flex min-h-24 flex-col items-start justify-between gap-3 rounded-2xl border bg-card p-5 transition hover:-translate-y-0.5 hover:border-primary hover:bg-muted hover:shadow-sm"
-			>
-				<span class="flex items-center gap-2 font-semibold">
-					<UsersRound class="size-5" aria-hidden="true" /> Mes groupes
-				</span>
-				<span class="text-sm text-muted-foreground">
-					{#if data.bands.invitations > 0}
-						<span class="font-semibold text-primary"
-							>{plural(data.bands.invitations, 'invitation', 'invitations')} à voir</span
-						>
-					{:else if data.bands.active > 0}
-						{plural(data.bands.active, 'groupe')}
-					{:else}
-						Monter ou rejoindre un groupe
-					{/if}
-				</span>
-			</a>
-
-			<a
-				href="/morceaux"
-				class="flex min-h-24 flex-col items-start justify-between gap-3 rounded-2xl border bg-card p-5 transition hover:-translate-y-0.5 hover:border-primary hover:bg-muted hover:shadow-sm"
-			>
-				<span class="flex items-center gap-2 font-semibold">
-					<Music class="size-5" aria-hidden="true" /> Mes morceaux
-				</span>
-				<span class="text-sm text-muted-foreground">
-					{#if data.workCredits > 0}
-						<span class="font-semibold text-primary"
-							>{plural(data.workCredits, 'crédit', 'crédits')} à confirmer</span
-						>
-					{:else}
-						Noter une idée de morceau
-					{/if}
-				</span>
-			</a>
-
-			<a
-				href="/decouvrir"
-				class="flex min-h-24 flex-col items-start justify-between gap-3 rounded-2xl border bg-card p-5 transition hover:-translate-y-0.5 hover:border-primary hover:bg-muted hover:shadow-sm"
-			>
-				<span class="flex items-center gap-2 font-semibold">
-					<Search class="size-5" aria-hidden="true" /> Trouver des musicien·nes
-				</span>
-				<span class="text-sm text-muted-foreground">Près de chez toi, à ton niveau</span>
-			</a>
-		</div>
-
-		<div class="grid gap-6 lg:grid-cols-3">
-			<!-- Objectifs -->
-			<Card.Root class="lg:col-span-2">
-				<Card.Header>
-					<Card.Title
-						><h2 class="flex items-center gap-2">
-							<Sparkles class="size-5 text-fuchsia-500" aria-hidden="true" /> Tes prochains objectifs
-						</h2></Card.Title
-					>
-					<Card.Description>Les trois étapes atteignables maintenant.</Card.Description>
-				</Card.Header>
-				<Card.Content class="space-y-3">
-					{#each d.objectives as q (q.id)}<QuestCard {...q} />{:else}
-						<p class="text-sm text-muted-foreground">Tu as tout débloqué pour l'instant. Bravo !</p>
-					{/each}
-				</Card.Content>
-			</Card.Root>
-
-			<!-- Confiance -->
-			<Card.Root>
-				<Card.Header>
-					<Card.Title
-						><h2 class="flex items-center gap-2">
-							<ShieldCheck class="size-5 text-emerald-600" aria-hidden="true" /> Confiance
-						</h2></Card.Title
-					>
-					<Card.Description>Grandit avec les échanges réels, jamais avec l'XP.</Card.Description>
-				</Card.Header>
-				<Card.Content class="space-y-3 text-sm">
-					<p class="text-xl font-bold">{d.trust.name}</p>
-					<p class="text-muted-foreground">
-						Jusqu'à {d.trust.dailyFirstMessages} premiers messages par jour.
-					</p>
-					{#if d.trust.nextName}
-						<p class="font-medium">Pour passer {d.trust.nextName}</p>
-						<ul class="space-y-1 text-muted-foreground">
-							{#each d.trust.requirements as r (r.label)}
-								<li>
-									<span aria-hidden="true">{r.met ? '✅' : '⬜'}</span>
-									{r.label}<span class="sr-only">{r.met ? ' : fait' : ' : à faire'}</span>
-								</li>
-							{/each}
-						</ul>
-					{/if}
-					<a href="/reglages" class="block underline">Détail et limites</a>
-				</Card.Content>
-			</Card.Root>
-
-			<!-- Succès -->
-			<Card.Root class="lg:col-span-3">
-				<Card.Header><Card.Title><h2>Succès</h2></Card.Title></Card.Header>
-				<Card.Content class="space-y-3">
-					{#each d.achievements as a (a.id)}<AchievementBadge {...a} />{/each}
-				</Card.Content>
-			</Card.Root>
-		</div>
-
-		<!-- Historique des points : replié, pour qui veut savoir d'où vient chaque point. -->
-		<details class="text-sm">
-			<summary class="min-h-11 cursor-pointer content-center text-muted-foreground">
-				D’où viennent mes points ?
-			</summary>
-			{#if d.history.length === 0}
-				<p class="py-2 text-muted-foreground">
-					Aucun point pour l’instant : ton premier objectif t’en rapportera.
-				</p>
-			{:else}
-				<ul aria-label="Historique des gains" class="mt-1">
-					{#each d.history as g (g.id)}
-						<li class="flex items-center justify-between gap-3 py-1.5">
-							<span>{g.reason}</span>
-							<span class="shrink-0 text-muted-foreground">
-								{g.amount >= 0 ? '+' : '−'}{Math.abs(g.amount)} XP ·
-								<time datetime={new Date(g.createdAt).toISOString()}
-									>{dateFormat.format(new Date(g.createdAt))}</time
-								>
-							</span>
-						</li>
-					{/each}
-				</ul>
-			{/if}
-		</details>
+		<MenuList label="Mode carrière" {items} />
 	</div>
 </div>

@@ -47,6 +47,14 @@ const ROUTES: Record<string, Node> = {
 	'/lieux/[id]': { label: 'Lieu', parent: '/lieux', name: at('venue', 'name') },
 
 	// Mode carrière
+	'/espace/ambition': { label: 'Mon ambition', parent: '/espace' },
+	'/espace/objectifs': { label: 'Mes objectifs', parent: '/espace' },
+	'/espace/campagnes': { label: 'Campagnes', parent: '/espace' },
+	'/espace/equipe': { label: 'Mon équipe', parent: '/espace' },
+	'/espace/agenda': { label: 'Agenda', parent: '/espace' },
+	'/espace/journal': { label: 'Journal de bord', parent: '/espace' },
+	'/espace/progression': { label: 'Points et succès', parent: '/espace' },
+	'/espace/a-confirmer': { label: 'À confirmer', parent: '/espace' },
 	'/annonces': { label: 'Annonces', parent: '/espace' },
 	'/annonces/nouvelle': { label: 'Nouvelle annonce', parent: '/annonces' },
 	'/annonces/[id]': { label: 'Annonce', parent: '/annonces', name: at('opportunity', 'title') },

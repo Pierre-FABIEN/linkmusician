@@ -20,12 +20,16 @@ export async function questStateFor(
 	actorId: string,
 	summary: MusicianSummary
 ): Promise<QuestState> {
-	const [instruments, genres, location, actor, demos] = await Promise.all([
+	const [instruments, genres, location, actor, demos, works] = await Promise.all([
 		prisma.personInstrument.count({ where: { personId: actorId } }),
 		prisma.actorGenre.count({ where: { actorId } }),
 		prisma.actorLocation.count({ where: { actorId } }),
 		prisma.actor.findUniqueOrThrow({ where: { id: actorId }, select: { bio: true } }),
-		prisma.media.count({ where: { actorId, status: 'PUBLISHED', isDemo: true } })
+		prisma.media.count({ where: { actorId, status: 'PUBLISHED', isDemo: true } }),
+		// Morceaux composés où l'on est crédité·e et confirmé·e (P3-11).
+		prisma.workContributor.count({
+			where: { personId: actorId, confirmedAt: { not: null }, work: { state: 'COMPOSED' } }
+		})
 	]);
 	return {
 		...summary,
@@ -33,11 +37,16 @@ export async function questStateFor(
 		hasGenre: genres > 0,
 		hasZone: location > 0,
 		hasBio: Boolean(actor.bio?.trim()),
-		demos
+		demos,
+		works
 	};
 }
 
-export async function getDashboard(actorId: string) {
+/**
+ * Tableau de bord. `priorities` : objectifs mis en avant par l'ambition
+ * (P3-12, `ambitionPriorities`) ; elle réordonne sans rien retirer.
+ */
+export async function getDashboard(actorId: string, priorities: readonly string[] = []) {
 	const [progress, tier, history, trustSummary] = await Promise.all([
 		getProgress(actorId, prisma),
 		getMusicianTier(actorId, prisma),
@@ -45,7 +54,7 @@ export async function getDashboard(actorId: string) {
 		trustSummaryFor(prisma, actorId)
 	]);
 	const questState = await questStateFor(actorId, tier.summary);
-	const objectives = nextObjectives(questState);
+	const objectives = nextObjectives(questState, 3, priorities);
 	// Confiance recalculée à la volée, comme dans `/reglages`.
 	const trustLevel = trustSummary ? computeTrustLevel(trustSummary) : 0;
 	const nextTrust = trustSummary

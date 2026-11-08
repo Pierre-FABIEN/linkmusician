@@ -12,6 +12,8 @@ export type QuestState = MusicianSummary & {
 	hasZone: boolean;
 	hasBio: boolean;
 	demos: number;
+	/** Morceaux composés où l'on est crédité·e et confirmé·e (P3-11). */
+	works: number;
 };
 
 export type Objective = {
@@ -76,6 +78,13 @@ const CANDIDATES: readonly Candidate[] = [
 		done: (s) => s.collaborations >= 1
 	},
 	{
+		id: 'work.first',
+		label: 'Compose un premier morceau',
+		href: '/morceaux',
+		xp: BAREME.workComposed,
+		done: (s) => s.works >= 1
+	},
+	{
 		id: 'tier.collaborator',
 		label: 'Collabore avec 2 personnes différentes (3 collaborations)',
 		href: '/annonces',
@@ -95,10 +104,29 @@ function progressOf(id: string, s: QuestState): Objective['progress'] {
 	return undefined;
 }
 
-export function nextObjectives(state: QuestState, limit = 3): Objective[] {
-	return CANDIDATES.filter((c) => !c.done(state))
+/** Les bases du profil passent toujours d'abord : sans elles, rien ne se joue. */
+const BASICS = ['profile.instrument', 'profile.genre', 'profile.zone'];
+
+/**
+ * Les prochains objectifs atteignables. `priorities` (l'ambition, P3-12) met
+ * certains objectifs en avant, juste après les bases du profil, sans en
+ * retirer aucun : seul l'ordre change.
+ */
+export function nextObjectives(
+	state: QuestState,
+	limit = 3,
+	priorities: readonly string[] = []
+): Objective[] {
+	const rank = (id: string) => {
+		if (BASICS.includes(id)) return -1;
+		const i = priorities.indexOf(id);
+		return i === -1 ? priorities.length : i;
+	};
+	return CANDIDATES.map((c, order) => ({ c, order }))
+		.filter(({ c }) => !c.done(state))
+		.sort((a, b) => rank(a.c.id) - rank(b.c.id) || a.order - b.order)
 		.slice(0, limit)
-		.map(({ done: _done, ...objective }) => {
+		.map(({ c: { done: _done, ...objective } }) => {
 			const progress = progressOf(objective.id, state);
 			return progress ? { ...objective, progress } : objective;
 		});

@@ -617,6 +617,12 @@ actes. Puis LinkMusician s'ouvre au public.
 
 ### P3-12 — Ambition et écran de carrière
 
+> **Réalisé le 08/11/2026.** `/espace` devient l'écran de carrière en
+> page-menu (D50), chaque partie a son écran (`/espace/…`) ; la carte
+> arrive avec P3-13. Ambition à cinq choix (dont « Accompagner les
+> autres ») ; nouvel objectif « Compose un premier morceau ». Voir
+> [docs/carriere](../carriere/README.md).
+
 - **Dépend de** : P2-12, P3-11.
 - **Tâches** : choix de l'ambition (jouer en groupe, scène,
   enregistrer et sortir, devenir pro), modifiable, sans échec ; écran

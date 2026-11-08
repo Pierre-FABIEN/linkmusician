@@ -28,6 +28,7 @@ export const load: PageServerLoad = async ({ parent }) => {
 		hasZone: data.state.hasZone,
 		hasBio: Boolean(bio.bio?.trim()),
 		demos,
+		works: 0,
 		profileComplete: false,
 		reciprocalConversations: 0,
 		bands: 0,

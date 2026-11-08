@@ -218,6 +218,25 @@ export async function seedJamLife(
 		data: { organizesJams: true }
 	});
 
+	// Ambitions de carrière (P3-12), si elles ne sont pas déjà choisies.
+	const ambitions: [string, 'PLAY_BAND' | 'STAGE' | 'RECORD' | 'PRO' | 'SUPPORT'][] = [
+		['malik-batterie', 'STAGE'],
+		['ines-chant', 'RECORD'],
+		['clara-guitare', 'STAGE'],
+		['nora-prod', 'RECORD'],
+		['samir-son', 'SUPPORT'],
+		['lucas-sax', 'PRO'],
+		['awa-clavier', 'PLAY_BAND'],
+		['kevin-metal', 'PLAY_BAND']
+	];
+	for (const [h, ambition] of ambitions) {
+		if (!handles.includes(h)) continue;
+		await prisma.person.updateMany({
+			where: { actorId: P(h), ambition: null },
+			data: { ambition }
+		});
+	}
+
 	await refreshLive(ctx, venues.cafe, handles, adult);
 	await refreshDispos(ctx, handles, adult);
 

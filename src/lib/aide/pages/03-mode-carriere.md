@@ -33,19 +33,35 @@ les suit dans l’ordre où elles arrivent souvent, sans les imposer :
 > tu as prouvé et la suite. Tu pourras aussi choisir ton **ambition**
 > (jouer pour le plaisir, faire des concerts, en vivre…).
 
-## 1. Ton tableau de bord : Mon parcours {#mon-parcours}
+## 1. Ton écran de carrière {#mon-parcours}
 
-C’est ton accueil en mode carrière. L’essentiel y est :
+C’est ton accueil en mode carrière : ton niveau, tes points et ton palier
+en haut, ta **prochaine étape**, puis un **menu** qui mène chacun à son
+écran :
 
-- ta **prochaine étape**, avec le bouton pour la faire ;
-- tes **points**, ton **niveau** et ton **palier** ;
-- ce qui **attend ta confirmation** (une collaboration, un crédit) ;
-- des **musicien·nes pour toi**, choisi·es selon tes styles, ton
-  instrument et ton niveau.
+- **À confirmer** (quand quelque chose t’attend) : collaborations, crédits
+  de morceaux, invitations de groupe ;
+- **Mon ambition** : ce que tu vises (voir ci-dessous) ;
+- **Mes objectifs** : les trois prochaines étapes atteignables ;
+- **Campagnes en cours** : tes morceaux, leur état et leurs places libres ;
+- **Mon équipe** : tes groupes et tes partenaires réguliers ;
+- **Agenda** : tes jams et collaborations à venir ;
+- **Journal de bord** : chaque gain et sa raison ;
+- **Points, succès et confiance**.
+
+### Ton ambition {#ambition}
+
+Choisis ce que tu vises : **jouer en groupe pour le plaisir**, **monter sur
+scène**, **enregistrer et sortir ta musique**, **devenir pro** ou
+**accompagner les autres**. Tes objectifs mis en avant suivent ce choix
+(pour la scène : un groupe et un morceau d’abord). Tu en changes quand tu
+veux : il n’y a jamais d’échec, et aucun objectif n’est retiré, seul
+l’ordre change.
 
 ### Les quêtes
 
-Les quêtes sont tes objectifs du moment, dans cet ordre :
+Les quêtes sont tes objectifs du moment. Les bases du profil passent
+toujours d’abord, puis ceux de ton ambition, puis les autres :
 
 1. Ajoute ton premier instrument
 2. Choisis tes genres
@@ -55,8 +71,9 @@ Les quêtes sont tes objectifs du moment, dans cet ordre :
 6. Réponds à une annonce et échange avec quelqu’un
 7. Rejoins ou monte un groupe
 8. Termine une première collaboration
-9. Collabore avec 2 personnes différentes (3 collaborations)
-10. Joue 3 concerts corroborés
+9. Compose un premier morceau
+10. Collabore avec 2 personnes différentes (3 collaborations)
+11. Joue 3 concerts corroborés
 
 > 💡 **Astuce** : pas besoin de tout faire d’un coup. Une étape par
 > semaine, c’est déjà une belle progression.

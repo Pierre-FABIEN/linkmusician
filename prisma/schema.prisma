@@ -1504,6 +1504,9 @@ model Person {
   preferredMode      PlayMode?
   /// Modes dont la présentation pas à pas a été vue (P2-12b).
   modeIntrosSeen     PlayMode[]       @default([])
+  /// Ambition du mode carrière (P3-12, conception 07 §4.1) : met en avant des
+  /// objectifs, modifiable, jamais d'échec. `null` : pas encore choisie.
+  ambition           CareerAmbition?
   /// Dernier digest email (P2-09b) : au plus un par jour.
   digestSentAt       DateTime?
   /// Conseils en contexte masqués (« J'ai compris », P2-17) : identifiants du
@@ -3039,6 +3042,21 @@ model GroupDiscussionMessage {
   @@index([discussionId, createdAt])
   @@index([senderActorId])
   @@map("group_discussion_messages")
+}
+
+// ─── CARRIÈRE (P3-12) ───────────────────────────────────────────────────────
+
+enum CareerAmbition {
+  /// Jouer en groupe pour le plaisir (actes I et II).
+  PLAY_BAND
+  /// Monter sur scène (actes II et V).
+  STAGE
+  /// Enregistrer et sortir sa musique (actes III, IV et VI).
+  RECORD
+  /// Devenir pro (toute la carte).
+  PRO
+  /// Accompagner les autres (autres métiers).
+  SUPPORT
 }
 
 // ─── VÉRIFICATION DES ORGANISATIONS (P3-09) ─────────────────────────────────

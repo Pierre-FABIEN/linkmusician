@@ -482,7 +482,8 @@ describe('quêtes (§8)', () => {
 		hasGenre: false,
 		hasZone: false,
 		hasBio: false,
-		demos: 0
+		demos: 0,
+		works: 0
 	};
 
 	it('propose les trois prochains objectifs, dans l’ordre', () => {
@@ -520,7 +521,8 @@ describe('quêtes (§8)', () => {
 			reciprocalConversations: 1,
 			bands: 1,
 			collaborations: 2,
-			distinctCollaborators: 1
+			distinctCollaborators: 1,
+			works: 1
 		};
 		expect(nextObjectives(state, 2)).toEqual([
 			expect.objectContaining({ id: 'tier.collaborator', progress: { current: 2, target: 3 } }),
@@ -540,7 +542,8 @@ describe('quêtes (§8)', () => {
 			bands: 1,
 			collaborations: 3,
 			distinctCollaborators: 2,
-			corroboratedGigs: 3
+			corroboratedGigs: 3,
+			works: 1
 		};
 		expect(nextObjectives(all)).toEqual([]);
 	});
@@ -562,9 +565,10 @@ describe('avancement des objectifs (P2-12b)', () => {
 			hasGenre: true,
 			hasZone: false,
 			hasBio: false,
-			demos: 0
+			demos: 0,
+			works: 0
 		} satisfies QuestState;
-		expect(questProgress(state)).toEqual({ done: 2, total: 10 });
+		expect(questProgress(state)).toEqual({ done: 2, total: 11 });
 	});
 });
 
