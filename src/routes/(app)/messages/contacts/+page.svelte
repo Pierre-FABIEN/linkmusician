@@ -5,7 +5,7 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import MessagesTabs from '#lib/components/linkmusician/MessagesTabs.svelte';
 	import { MAX_GROUP_NAME } from '#lib/contacts/rules';
-	import { BookUser, MessageCircle, UsersRound } from 'lucide-svelte';
+	import { BookUser, MessageCircle, MessagesSquare, UsersRound } from 'lucide-svelte';
 
 	let { data, form } = $props();
 
@@ -56,7 +56,8 @@
 			</h2>
 			<p class="text-sm text-muted-foreground">
 				Rassemble des contacts autour d’un projet : « Projet funk », « Remplaçant·es batterie ».
-				Bientôt, tu pourras ouvrir une discussion avec tout le groupe.
+				Puis ouvre une discussion avec tout le groupe : chacun·e reçoit une invitation et choisit de
+				la rejoindre.
 			</p>
 			{#if data.groups.length > 0}
 				<ul class="grid gap-3 md:grid-cols-2" aria-label="Groupes de contacts">
@@ -79,6 +80,19 @@
 									>Gérer<span class="sr-only"> {g.name}</span></button
 								>
 							</div>
+							{#if g.members.length > 0}
+								<form method="POST" action="?/openDiscussion" use:enhance>
+									<input type="hidden" name="groupId" value={g.id} />
+									<button
+										class="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
+										><MessagesSquare class="size-4" aria-hidden="true" />Ouvrir une discussion<span
+											class="sr-only"
+										>
+											avec {g.name}</span
+										></button
+									>
+								</form>
+							{/if}
 							{#if managing === g.id}
 								<div class="space-y-3 border-t pt-3 text-sm">
 									<form

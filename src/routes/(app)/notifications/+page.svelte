@@ -13,7 +13,8 @@
 		UsersRound,
 		UserPlus,
 		Music,
-		Flag
+		Flag,
+		MessagesSquare
 	} from 'lucide-svelte';
 	import type { NotificationTypeValue } from '#lib/notifications/types';
 
@@ -30,7 +31,8 @@
 		BAND_REQUEST: UserPlus,
 		BAND_JOINED: UsersRound,
 		WORK_CREDIT: Music,
-		MILESTONE_ATTEST: Flag
+		MILESTONE_ATTEST: Flag,
+		GROUP_DISCUSSION_INVITE: MessagesSquare
 	};
 
 	const rtf = new Intl.RelativeTimeFormat('fr-FR', { numeric: 'auto' });

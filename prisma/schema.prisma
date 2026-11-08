@@ -1467,6 +1467,9 @@ model Actor {
   milestoneEvidenceAdded     MilestoneEvidence[]      @relation("MilestoneEvidenceAdder")
   contactGroups              ContactGroup[]           @relation("ContactGroupOwner")
   contactGroupMemberships    ContactGroupMember[]     @relation("ContactGroupContact")
+  groupDiscussionsCreated    GroupDiscussion[]        @relation("GroupDiscussionCreator")
+  groupDiscussionSeats       GroupDiscussionMember[]  @relation("GroupDiscussionMemberActor")
+  groupDiscussionMessages    GroupDiscussionMessage[] @relation("GroupDiscussionMessageSender")
 
   @@map("actors")
 }
@@ -2531,6 +2534,8 @@ enum NotificationType {
   WORK_CREDIT
   /// Un groupe te demande de confirmer une de ses étapes (P3-05).
   MILESTONE_ATTEST
+  /// Invitation à une discussion de groupe (P3-16c).
+  GROUP_DISCUSSION_INVITE
   /// Préférence d'email seulement (P2-09b) : jamais une ligne de `Notification`.
   MESSAGES
   PROGRESS
@@ -2956,4 +2961,69 @@ model ContactGroupMember {
   @@id([groupId, contactId])
   @@index([contactId])
   @@map("contact_group_members")
+}
+
+// ─── DISCUSSIONS DE GROUPE (P3-16c, D46) ────────────────────────────────────
+
+enum GroupDiscussionMemberState {
+  /// Invitation reçue : la personne ne voit encore rien de la discussion.
+  INVITED
+  ACTIVE
+  /// « Non merci » : pas de nouvelle invitation dans cette discussion.
+  DECLINED
+  LEFT
+}
+
+/// Discussion à plusieurs, ouverte depuis un groupe de contacts. Chaque
+/// personne y entre sur invitation acceptée. Seul point d'écriture :
+/// `src/lib/server/discussions/service.ts`.
+model GroupDiscussion {
+  id             String                   @id @default(cuid())
+  title          String
+  /// Auteur : seule personne qui invite.
+  creatorId      String
+  creator        Actor                    @relation("GroupDiscussionCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  /// Groupe de contacts d'origine (privé à l'auteur, jamais montré aux autres).
+  contactGroupId String?
+  lastMessageAt  DateTime                 @default(now())
+  createdAt      DateTime                 @default(now())
+
+  members  GroupDiscussionMember[]
+  messages GroupDiscussionMessage[]
+
+  @@index([creatorId])
+  @@map("group_discussions")
+}
+
+model GroupDiscussionMember {
+  discussionId String
+  discussion   GroupDiscussion            @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  actorId      String
+  actor        Actor                      @relation("GroupDiscussionMemberActor", fields: [actorId], references: [id], onDelete: Cascade)
+  state        GroupDiscussionMemberState
+  invitedAt    DateTime                   @default(now())
+  /// Entrée dans la discussion : les messages d'avant restent visibles.
+  joinedAt     DateTime?
+  leftAt       DateTime?
+  lastReadAt   DateTime?
+
+  @@id([discussionId, actorId])
+  @@index([actorId, state])
+  @@map("group_discussion_members")
+}
+
+/// Message en texte brut. Anonymisation : le texte est effacé, le message
+/// reste pour l'historique des autres.
+model GroupDiscussionMessage {
+  id            String          @id @default(cuid())
+  discussionId  String
+  discussion    GroupDiscussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  senderActorId String
+  sender        Actor           @relation("GroupDiscussionMessageSender", fields: [senderActorId], references: [id], onDelete: Cascade)
+  body          String
+  createdAt     DateTime        @default(now())
+
+  @@index([discussionId, createdAt])
+  @@index([senderActorId])
+  @@map("group_discussion_messages")
 }

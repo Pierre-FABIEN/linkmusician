@@ -653,6 +653,13 @@ actes. Puis LinkMusician s'ouvre au public.
 - **Fin** : e2e « après une jam, je garde le contact de Malik et Zoé, je
   crée le groupe « Projet funk » et j'ouvre une discussion à trois » ;
   e2e « 3 messages puis bloqué jusqu'à la réponse ».
+- **P3-16c — Discussions de groupe** (réalisé le 08/11/2026, D46) : ouverte
+  depuis un groupe de contacts, invitation (Rejoindre, Non merci) sans rien
+  voir avant, quitter ; seul l'auteur invite ses contacts ; mineur·es
+  exclu·es sans dire pourquoi ; blocages vérifiés à l'invitation et au
+  « Rejoindre ». Écarts : « Non merci » et « Quitter » sont définitifs (pas
+  de réinvitation) ; un blocage posé après coup ne ferme pas la discussion.
+  Voir [docs/contacts](../contacts/README.md#discussions-de-groupe-p3-16c-d46).
 
 ### P3-17 — Assistant IA de préremplissage de l'inscription
 

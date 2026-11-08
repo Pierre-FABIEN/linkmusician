@@ -11,6 +11,7 @@ import { emitAndProcess } from '#lib/server/progression/processor';
 import { isBlockedBetween } from '#lib/server/blocking/service';
 import { recomputeTrust } from '#lib/server/progression/trust';
 import { notify } from '#lib/server/notifications/service';
+import { discussionsUnreadTotal } from '#lib/server/discussions/service';
 import {
 	MESSAGE_ERRORS,
 	canReceiveRequest,
@@ -312,10 +313,16 @@ async function unreadByConversation(actorId: string) {
 	return new Map(rows.map((r) => [r.conversationId, r.n]));
 }
 
-/** Total pour le badge de la navigation : messages non lus et demandes reçues. */
+/**
+ * Total pour la pastille de Messages : messages non lus (conversations et
+ * discussions de groupe, P3-16c) et invitations à une discussion.
+ */
 export async function unreadTotal(actorId: string): Promise<number> {
-	const byConversation = await unreadByConversation(actorId);
-	return [...byConversation.values()].reduce((sum, n) => sum + n, 0);
+	const [byConversation, discussions] = await Promise.all([
+		unreadByConversation(actorId),
+		discussionsUnreadTotal(actorId)
+	]);
+	return [...byConversation.values()].reduce((sum, n) => sum + n, 0) + discussions;
 }
 
 /**

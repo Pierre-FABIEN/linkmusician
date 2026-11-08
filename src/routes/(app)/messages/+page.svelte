@@ -4,7 +4,7 @@
 	import TipCard from '#lib/components/linkmusician/TipCard.svelte';
 	import SEO from '#lib/components/SEO.svelte';
 	import * as Avatar from '#shadcn/avatar';
-	import { MessageCircle } from 'lucide-svelte';
+	import { MessageCircle, MessagesSquare } from 'lucide-svelte';
 	import { initialsOf } from '#lib/actors/display';
 
 	let { data } = $props();
@@ -15,6 +15,7 @@
 		minute: '2-digit'
 	});
 	type Item = (typeof data.conversations)[number];
+	type Group = (typeof data.discussions)[number];
 	const status = (c: Item) =>
 		c.otherState === 'REQUEST'
 			? 'En attente de sa réponse'
@@ -57,6 +58,40 @@
 	</li>
 {/snippet}
 
+{#snippet groupRow(g: Group)}
+	<li>
+		<a
+			href="/messages/groupes/{g.id}"
+			class="flex min-h-16 items-center gap-3 rounded-2xl border bg-card p-3 transition hover:border-primary"
+		>
+			<span
+				class="grid size-11 shrink-0 place-items-center rounded-full bg-amber-100 text-amber-800"
+			>
+				<MessagesSquare class="size-5" aria-hidden="true" />
+			</span>
+			<span class="min-w-0 flex-1">
+				<span class="flex items-baseline justify-between gap-2">
+					<span class="truncate font-semibold">{g.title}</span>
+					<span class="shrink-0 text-xs text-muted-foreground"
+						>{dateFormat.format(new Date(g.lastMessageAt))}</span
+					>
+				</span>
+				<span class="block truncate text-sm text-muted-foreground">
+					{g.invitation
+						? `${g.creator} t’invite · Rejoindre ou non`
+						: g.preview || `Avec ${g.summary}`}
+				</span>
+			</span>
+			{#if g.unread > 0}
+				<span
+					class="grid min-w-6 place-items-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground"
+					aria-label="{g.unread} non lu{g.unread > 1 ? 's' : ''}">{g.unread}</span
+				>
+			{/if}
+		</a>
+	</li>
+{/snippet}
+
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
 		<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Messages</h1>
@@ -72,6 +107,26 @@
 					</h2>
 					<ul class="space-y-2">
 						{#each data.requests as c (c.id)}{@render row(c, 'Premier message')}{/each}
+					</ul>
+				</section>
+			{/if}
+
+			{#if data.invitations.length > 0}
+				<section class="space-y-2" aria-labelledby="invitations-title">
+					<h2 id="invitations-title" class="font-semibold">
+						Invitations à une discussion ({data.invitations.length})
+					</h2>
+					<ul class="space-y-2">
+						{#each data.invitations as g (g.id)}{@render groupRow(g)}{/each}
+					</ul>
+				</section>
+			{/if}
+
+			{#if data.discussions.length > 0}
+				<section class="space-y-2" aria-labelledby="discussions-title">
+					<h2 id="discussions-title" class="font-semibold">Discussions de groupe</h2>
+					<ul class="space-y-2">
+						{#each data.discussions as g (g.id)}{@render groupRow(g)}{/each}
 					</ul>
 				</section>
 			{/if}

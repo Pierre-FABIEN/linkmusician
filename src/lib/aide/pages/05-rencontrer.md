@@ -110,9 +110,21 @@ Rassemble des contacts autour d’un projet : « Projet funk »,
 
 Tes groupes sont privés : personne ne sait dans quel groupe tu l’as mis.
 
-> 🔜 **Bientôt** : ouvrir une **discussion de groupe** depuis un groupe de
-> contacts. Chaque personne recevra une invitation, et choisira de
-> rejoindre ou non.
+### Les discussions de groupe
+
+Pour parler à tout le groupe d’un coup (une date de répète, un morceau à
+travailler) :
+
+1. Sous ton groupe de contacts, touche **Ouvrir une discussion**.
+2. Chaque personne du groupe reçoit une **invitation**. Elle ne voit rien
+   de la discussion tant qu’elle ne l’a pas rejointe, et choisit
+   **Rejoindre** ou **Non merci** (personne n’est prévenu).
+3. Tu peux inviter d’autres contacts depuis **Qui est là**.
+
+Tes discussions et invitations sont dans **Messages**. Chacun·e peut
+**quitter** une discussion quand il ou elle veut ; ses messages restent
+pour les autres. Si tu as bloqué quelqu’un, vous ne vous retrouvez pas dans
+la même discussion.
 
 ## Questions fréquentes
 
