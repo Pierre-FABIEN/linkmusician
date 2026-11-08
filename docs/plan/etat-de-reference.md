@@ -1,6 +1,6 @@
 # État de référence du boilerplate (lot P0-01)
 
-## Situation actuelle (03/11/2026, après synchro amont) ✅
+## Situation au 03/11/2026 (après synchro amont) ✅
 
 Les quatre causes décrites plus bas ont été corrigées **en amont**, dans
 `Boilerplate-Ecommerce` (PR `fix/sveltekit3-migration`). Le correctif a
@@ -19,16 +19,19 @@ git merge boilerplate/main`.
 
 ### Mise à jour du 08/11/2026
 
-| Vérification                 | Résultat                                              |
-| ---------------------------- | ----------------------------------------------------- |
-| `npm run check`              | ✅ 0 erreur, 0 avertissement                          |
-| `npm run lint`               | ✅ 0 erreur, 12 avertissements                        |
-| `npm run test:unit -- --run` | ✅ 888 passés, 105 ignorés                            |
-| `npm run test:e2e`           | ⏸ non lancé : `.env.test` absent, cible non confirmée |
+| Vérification                 | Résultat                                                      |
+| ---------------------------- | ------------------------------------------------------------- |
+| `npm run check`              | ✅ 0 erreur, 0 avertissement                                  |
+| `npm run lint`               | ✅ 0 erreur, 12 avertissements                                |
+| `npm run test:unit -- --run` | ✅ 888 passés, 105 ignorés                                    |
+| E2E ciblé P3-14              | ✅ 1 passé                                                    |
+| `npm run test:e2e`           | ⏸ suite interrompue après plusieurs échecs d'authentification |
 
-P0-01 reste bloqué sur la mesure e2e. Aucun test e2e ni migration n'a été
-lancé : sans `.env.test`, la cible dérivée de `.env` n'a pas été confirmée
-comme base de test dédiée.
+P0-01 reste bloqué : la suite e2e complète n'est pas verte. `.env.test` a
+été créé localement depuis `.env.test.example` (non suivi par Git) pour
+activer la boutique et garder le SMTP sur le puits local. Le run complet
+a été interrompu après plusieurs échecs d'authentification ; il faut les
+diagnostiquer avant de conclure l'état de référence.
 
 Le reste de ce document est l'**historique** du diagnostic initial.
 

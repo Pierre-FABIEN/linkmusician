@@ -652,11 +652,11 @@ actes. Puis LinkMusician s'ouvre au public.
 
 ### P3-14 — Fiche de carrière et cartes souvenirs
 
-> **Implémenté le 08/11/2026.** Fiche privée `/espace/fiche`, statistiques
+> **Réalisé le 08/11/2026.** Fiche privée `/espace/fiche`, statistiques
 > confirmées sur le profil public et cartes PNG téléchargeables par acte
 > franchi. Le service public ne lit pas les données privées. `check`, lint,
-> tests unitaires et intégration au vert ; E2E ajouté mais non validé, car
-> Chromium ne démarre pas sans `libnspr4.so`. Voir [docs/carriere](../carriere/README.md).
+> tests unitaires et intégration au vert ; le parcours e2e fiche privée →
+> profil public → carte PNG passe. Voir [docs/carriere](../carriere/README.md).
 
 - **Dépend de** : P2-08, P3-13.
 - **Tâches** : fiche façon joueur (jams, rencontres, collaborations,
