@@ -159,9 +159,11 @@
 						{/each}
 					</ul>
 				{/if}
-				<a href="/jams/nouvelle?lieu={data.venue.id}" class="inline-block font-semibold underline"
-					>Publier une jam ici</a
-				>
+				{#if data.organizer}
+					<a href="/jams/nouvelle?lieu={data.venue.id}" class="inline-block font-semibold underline"
+						>Publier une jam ici</a
+					>
+				{/if}
 			</section>
 		{/if}
 

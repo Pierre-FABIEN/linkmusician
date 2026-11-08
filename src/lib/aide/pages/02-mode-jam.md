@@ -30,7 +30,7 @@ En dessous, un **menu** court mène chacun à son écran :
 - **Les musicos dispo autour de moi** : te mettre dispo, et voir qui l’est ;
 - **Jams à venir** : le calendrier des jams et les lieux du coin ;
 - **Mes jams** : les jams où l’on t’invite, et celles où tu es allé·e ;
-- **Lancer une jam** ;
+- **Lancer une jam** (si tu es prêt·e à organiser, voir plus bas) ;
 - **Mon carnet et mon réseau**.
 
 ## 1. Avant la jam {#avant-la-jam}
@@ -74,6 +74,12 @@ parcourir les jours au clavier avec les flèches du clavier.
 ### Organiser une jam
 
 Tu tiens une scène ouverte, ou tu veux réunir quelques musicien·nes ?
+
+D’abord, dans **Mon profil**, coche **Je suis prêt·e à organiser des
+jams** et enregistre. C’est ce qui fait apparaître **Lancer une jam** dans
+le mode jam, et les lieux et organisateurs pourront te proposer d’en
+animer. Tu n’as pas envie d’organiser ? Pas besoin : écris aux musicos
+dispos, et jouez ensemble.
 
 1. Touche **Lancer une jam**.
 2. Choisis le **lieu** dans l’annuaire (ou ajoute-le : nom, type,

@@ -167,12 +167,14 @@
 			{/if}
 		</section>
 
-		<a
-			href="/jams/nouvelle?rejouer={data.jam.id}&lieu={data.jam.venue.id}"
-			class="inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 font-semibold"
-		>
-			<Repeat class="size-4" aria-hidden="true" /> Rejouer ensemble
-		</a>
+		{#if data.organizer}
+			<a
+				href="/jams/nouvelle?rejouer={data.jam.id}&lieu={data.jam.venue.id}"
+				class="inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 font-semibold"
+			>
+				<Repeat class="size-4" aria-hidden="true" /> Rejouer ensemble
+			</a>
+		{/if}
 
 		{#if data.iWasThere}
 			<form method="POST" action="?/notThere" use:enhance>

@@ -16,8 +16,21 @@ Jouer pour le plaisir et rencontrer, sans projet ni engagement.
 - **« Ta prochaine étape »** (`src/lib/jam/guide.ts`) : ville → se mettre
   dispo (ou repérer une jam, pour les mineur·es) → écrire à quelqu'un →
   confirmer la jam (points) → passer en mode carrière.
-- **`/jam`** : « Je suis dispo », les dispos autour de soi, les jams
-  ouvertes dans un calendrier mensuel, « Lancer une jam ».
+- **`/jam`** : page-menu (D50) : « Ta prochaine étape », puis Les musicos
+  dispo autour de moi (`/jam/dispos` : « Je suis dispo » et les dispos),
+  Jams à venir (`/jam/agenda` : calendrier mensuel et lieux), Mes jams
+  (`/jam/mes-jams` : invitations du lead, dernières jams), Lancer une jam
+  (organisateurs seulement, D51), Mon carnet et mon réseau.
+- **Organisateurs (D51)** : `Person.organizesJams`, case « Je suis prêt·e
+  à organiser des jams » de `/profil`, offerte aux adultes seulement
+  (`#lib/jam/organizer`). Seul·es ces profils lancent une jam
+  (`createJam` refuse sinon, `/jams/nouvelle` renvoie vers
+  `/profil?organiser=1#organiser`) ; « Lancer une jam », « Publier une jam
+  ici » et « Rejouer ensemble » ne s'affichent qu'à eux. Les autres
+  s'écrivent par la messagerie et peuvent déclarer une collaboration. Ces
+  profils seront proposés aux structures (phase 5). Migration : les
+  personnes qui avaient déjà publié une jam ont été cochées. RGPD : export
+  `pret_a_organiser_des_jams`, remis à faux à l'anonymisation.
 
 ## « Je suis dispo » (P2-13)
 

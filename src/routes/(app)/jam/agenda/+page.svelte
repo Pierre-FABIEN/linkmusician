@@ -181,7 +181,8 @@
 								{#if data.jams.length === 0}
 									<p class="font-semibold">Pas encore de jam près de chez toi</p>
 									<p class="mt-1 text-sm text-muted-foreground">
-										Publie la première : les dates apparaîtront dans ce calendrier.
+										Les dates apparaîtront dans ce calendrier. En attendant, écris aux musicos
+										dispos pour jouer ensemble.
 									</p>
 								{:else}
 									<p class="font-semibold">Pas de jam ce jour-là</p>

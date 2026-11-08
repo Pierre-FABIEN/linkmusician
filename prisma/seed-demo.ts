@@ -609,6 +609,16 @@ try {
 		process.argv.includes('--avec-moi') ? await myself() : null,
 		new Map([...demoHandles].map(([handle, actualHandle]) => [actualHandle, handle]))
 	);
+	// Organisateurs de jams (D51) : les personnes qui en ont publié une.
+	const hosts = await prisma.opportunity.findMany({
+		where: { kind: 'JAM' },
+		select: { issuerActorId: true },
+		distinct: ['issuerActorId']
+	});
+	await prisma.person.updateMany({
+		where: { actorId: { in: hosts.map((h) => h.issuerActorId) } },
+		data: { organizesJams: true }
+	});
 	console.log(`\nComptes de connexion (mot de passe : ${PASSWORD}) :`);
 	for (const handle of demoHandles.values()) console.log(`  ${handle}@${DOMAIN}`);
 } catch (error) {

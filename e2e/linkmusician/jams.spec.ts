@@ -58,8 +58,10 @@ test.describe('LinkMusician — jams publiques', () => {
 			await skipOnboarding(page, account.email);
 			await setCity(page);
 			myActorId = (
-				await db.person.findUniqueOrThrow({
-					where: { userId: (await requireUser(account.email)).id }
+				await db.person.update({
+					where: { userId: (await requireUser(account.email)).id },
+					// Prêt·e à organiser des jams (D51) : publie une jam à l'étape 3.
+					data: { organizesJams: true }
 				})
 			).actorId;
 
@@ -291,6 +293,8 @@ test.describe('LinkMusician — jams publiques', () => {
 			hostId = me.actorId;
 			// L'hôte a un peu d'ancienneté : il peut apprécier (TL1).
 			await db.actor.update({ where: { id: me.actorId }, data: { trustLevel: 1 } });
+			// Organisateur (D51) : « Rejouer ensemble » à l'étape 5.
+			await db.person.update({ where: { actorId: me.actorId }, data: { organizesJams: true } });
 			const venue = await db.venue.create({
 				data: {
 					name: 'E2E Le Bœuf Café',

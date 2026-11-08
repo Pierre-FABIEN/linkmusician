@@ -43,12 +43,17 @@
 						: null,
 			highlight: data.inviteCount > 0
 		},
-		{
-			href: '/jams/nouvelle',
-			icon: Plus,
-			title: 'Lancer une jam',
-			text: 'Choisis un lieu, une date, les places par instrument.'
-		},
+		// Organisateurs seulement (D51) ; les autres s'écrivent pour jouer ensemble.
+		...(data.organizer
+			? [
+					{
+						href: '/jams/nouvelle',
+						icon: Plus,
+						title: 'Lancer une jam',
+						text: 'Choisis un lieu, une date, les places par instrument.'
+					}
+				]
+			: []),
 		{
 			href: '/jam/carnet',
 			icon: BookUser,

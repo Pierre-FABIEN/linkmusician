@@ -122,6 +122,39 @@
 				</div>
 			</fieldset>
 
+			{#if data.mayOrganize}
+				<!-- Organiser des jams (D51) : seul·es ces profils lancent une jam. -->
+				<fieldset
+					id="organiser"
+					class="scroll-mt-24 space-y-2 rounded-2xl border p-4 {data.askOrganize
+						? 'border-primary bg-primary/5'
+						: ''}"
+				>
+					<legend class="px-1 text-lg font-semibold">Organiser des jams</legend>
+					{#if data.askOrganize}
+						<p class="text-sm font-medium">
+							Pour lancer une jam, coche cette case puis enregistre ton profil.
+						</p>
+					{/if}
+					<label class="flex cursor-pointer items-start gap-3 text-sm">
+						<input
+							type="checkbox"
+							name="organizesJams"
+							class="mt-0.5 size-4"
+							bind:checked={$form.organizesJams}
+						/>
+						<span>
+							<span class="font-semibold">Je suis prêt·e à organiser des jams</span>
+							<span class="block text-muted-foreground">
+								Tu pourras lancer des jams dans les lieux de l’annuaire. Les lieux et les
+								organisateurs pourront te proposer d’en animer. Sans cocher, tu peux toujours écrire
+								aux musicien·nes pour jouer ensemble.
+							</span>
+						</span>
+					</label>
+				</fieldset>
+			{/if}
+
 			<fieldset class="space-y-2">
 				<legend class="text-lg font-semibold">Matériel à disposition</legend>
 				<div class="grid gap-2 sm:grid-cols-2">

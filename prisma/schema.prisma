@@ -1517,6 +1517,9 @@ model Person {
   practiceSince  Int?
   /// Rayon de déplacement accepté, par tranches (10, 25, 50, 100 km).
   travelRadiusKm Int?
+  /// « Prêt·e à organiser des jams » (D51) : seul·es ces adultes lancent une
+  /// jam ; profils proposés plus tard aux lieux et organisateurs.
+  organizesJams  Boolean          @default(false)
   links          ProfileLink[]
 
   @@map("persons")

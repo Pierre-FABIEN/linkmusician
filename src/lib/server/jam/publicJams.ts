@@ -10,6 +10,7 @@
  * Mineur·es (D5) : ils ne voient, ne rejoignent et ne publient que des jams
  * finies le jour même avant 22 h.
  */
+import { canOrganizeJams, NOT_ORGANIZER_ERROR } from '#lib/jam/organizer';
 import { prisma } from '#lib/server';
 import { isIndexable } from '#lib/actors/visibility';
 import { publicActorWhere } from '#lib/server/actors/visibility';
@@ -46,7 +47,17 @@ export async function isAdult(actorId: string) {
 	return isIndexable(person?.birthDate);
 }
 
+/** A coché « Prêt·e à organiser des jams » (D51), et est adulte. */
+export async function isJamOrganizer(actorId: string, now = new Date()) {
+	const person = await prisma.person.findUnique({
+		where: { actorId },
+		select: { organizesJams: true, birthDate: true }
+	});
+	return !!person && canOrganizeJams(person, now);
+}
+
 export async function createJam(actorId: string, form: JamForm, now = new Date()) {
+	if (!(await isJamOrganizer(actorId, now))) throw new JamError(NOT_ORGANIZER_ERROR, 403);
 	const window = checkJamWindow(form, now);
 	if (!window.ok) throw new JamError(window.error);
 	const { startsAt, endsAt } = window;
