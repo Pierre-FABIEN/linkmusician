@@ -560,6 +560,12 @@ actes. Puis LinkMusician s'ouvre au public.
 
 ### P3-08 — Rangs de groupe et part des membres
 
+> **Réalisé le 08/11/2026.** La part des membres présents à la date était
+> déjà versée par `attest` (P3-04) ; le lot ajoute le rang (`bandTierOf`,
+> sans les étapes gelées), son badge (page publique, gestion, « Mes
+> groupes ») et le test du membre arrivé après. Voir
+> [docs/etapes](../etapes/README.md).
+
 - **Dépend de** : P3-05.
 - **Tâches** : rang de groupe = dernière étape corroborée (Projet →
   Signé) ; 25 % de l'XP aux membres **présents à la date** de l'étape ;

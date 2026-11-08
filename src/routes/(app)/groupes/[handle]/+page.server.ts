@@ -24,6 +24,7 @@ import { bandWorks } from '#lib/server/works/service';
 import {
 	MilestoneError,
 	bandMilestones,
+	bandTierOf,
 	declareMilestone,
 	updateMilestoneDetails
 } from '#lib/server/milestones/service';
@@ -53,6 +54,8 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		works: band.my?.status === 'ACTIVE' ? await bandWorks(band.id) : [],
 		// Étapes (P3-04) : le parcours, et ce que rapporte une déclaration.
 		milestones: band.my?.status === 'ACTIVE' ? await bandMilestones(band.id) : [],
+		// Rang du groupe (P3-08).
+		tier: await bandTierOf(band.id),
 		// Preuves (P3-05) : demandes, liens et ce qu'il reste à faire.
 		proofs: band.my?.status === 'ACTIVE' ? await bandMilestoneProofs(band.id) : {},
 		declaredXp: Object.fromEntries(

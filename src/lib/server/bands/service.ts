@@ -24,7 +24,7 @@ import { isBlockedBetween } from '#lib/server/blocking/service';
 import { playedTogether } from '#lib/server/network/service';
 import { notify } from '#lib/server/notifications/service';
 import { emitAndProcess } from '#lib/server/progression/processor';
-import { recordFormation, syncComposition } from '#lib/server/milestones/service';
+import { bandTierOf, recordFormation, syncComposition } from '#lib/server/milestones/service';
 import { clearActorLocation, setActorLocation } from '#lib/server/geo/queries';
 import type { Commune } from '#lib/geo/fuzz';
 import { addExternalMedia, deleteOwnMedia, MediaError } from '#lib/server/media/service';
@@ -686,6 +686,7 @@ export async function myBands(personId: string) {
 			invitedBy: { select: { displayName: true, deletedAt: true } },
 			org: {
 				select: {
+					actorId: true,
 					formedAt: true,
 					actor: { select: { handle: true, displayName: true } },
 					_count: { select: { memberships: { where: { status: 'ACTIVE' } } } }
@@ -704,8 +705,14 @@ export async function myBands(personId: string) {
 		since: r.startedAt,
 		invitedBy: r.invitedBy && !r.invitedBy.deletedAt ? r.invitedBy.displayName : null
 	});
+	// Rang de chaque groupe actif (P3-08).
+	const active = await Promise.all(
+		rows
+			.filter((r) => r.status === 'ACTIVE')
+			.map(async (r) => ({ ...toBand(r), tier: await bandTierOf(r.org.actorId) }))
+	);
 	return {
-		active: rows.filter((r) => r.status === 'ACTIVE').map(toBand),
+		active,
 		invitations: rows.filter((r) => r.status === 'INVITED').map(toBand),
 		requests: rows.filter((r) => r.status === 'REQUESTED').map(toBand)
 	};

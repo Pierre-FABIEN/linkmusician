@@ -28,6 +28,7 @@ import type { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { emitAndProcess, type ProcessResult } from '#lib/server/progression/processor';
 import { isManager } from '#lib/bands/rules';
+import { bandTier } from '#lib/server/progression/core/tiers';
 import {
 	compositionProof,
 	creditDate,
@@ -321,6 +322,19 @@ export async function bandMilestones(bandId: string, db: Db = prisma) {
 		.sort((a, b) => ORDER.get(a.key)! - ORDER.get(b.key)!);
 }
 export type BandMilestone = Awaited<ReturnType<typeof bandMilestones>>[number];
+
+/**
+ * Rang du groupe (P3-08) : la dernière étape du parcours au moins corroborée
+ * (la formation compte toujours), jamais une étape gelée par une
+ * contestation (D49). Public : un fait prouvé, ni XP ni confiance.
+ */
+export async function bandTierOf(bandId: string, db: Db = prisma) {
+	const steps = await bandMilestones(bandId, db);
+	const tier = bandTier(
+		Object.fromEntries(steps.filter((s) => !s.frozen).map((s) => [s.key, s.proof]))
+	);
+	return tier ? { id: tier.milestone, label: tier.label } : null;
+}
 
 /** Export RGPD : étapes que la personne a déclarées pour un groupe. */
 export async function milestonesExport(personId: string) {

@@ -118,3 +118,19 @@ la contestation avec P3-06.
 - **Tests** : `src/lib/milestones/disputes.test.ts`, résumé
   `progression/core/summary.test.ts`, intégration
   `src/lib/server/milestones/disputes.integration.test.ts`.
+
+## Rangs de groupe et part des membres (P3-08)
+
+- **Rang** (`bandTierOf`, `src/lib/server/milestones/service.ts`) : la
+  dernière étape du parcours au niveau corroboré ou plus (la formation
+  compte toujours), règle pure `bandTier` (`progression/core/tiers.ts`) ;
+  une étape gelée (D49) ne compte pas. Libellés : Projet, Répète, Compose,
+  Enregistre, Démo, Live, Tournée, EP, Album, Signé. Public (un fait
+  prouvé) : badge `TierBadge` sur `/@handle` du groupe, `/groupes/[handle]`
+  et `/groupes`.
+- **Part des membres** : déjà fixée par `attest` (P3-04) à chaque
+  `milestone.attested` : `memberIds` = membres présents à la date de l'étape
+  (`membersAt`, `creditDate` pour une étape d'avant la formation), 25 % de
+  l'XP du groupe (`milestone.member`). Un membre arrivé après l'étape n'en
+  reçoit rien, même quand elle se corrobore plus tard.
+- **Tests** : `src/lib/server/milestones/tiers.integration.test.ts`.

@@ -1,13 +1,16 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 08/11/2026, après P3-06).
+> Mis à jour à chaque fin de lot (dernière : 08/11/2026, après P3-08).
 
 ---
 
 ```markdown
-On reprend LinkMusician avec le lot **P3-08** (paliers de groupe et part
-des membres) ; P3-06 est livré (D49, [docs/etapes](../etapes/README.md)). **D'abord** : lancer `npm run test:e2e -- e2e/linkmusician/discussions.spec.ts`
+On reprend LinkMusician avec le lot **P3-09** (modération étendue :
+file des contestations, vérification manuelle d'organisations, journal
+d'audit) ; P3-06 (D49) et P3-08 sont livrés ([docs/etapes](../etapes/README.md)).
+Navigation : pages-menus (D50) et fil d'Ariane en badges (D52) à respecter
+sur toute nouvelle page ; organisateurs de jams (D51). **D'abord** : lancer `npm run test:e2e -- e2e/linkmusician/discussions.spec.ts`
 (P3-16c, écrit mais pas encore lancé : Chromium manquait de `libnspr4`,
 `sudo npx playwright install-deps chromium`), puis passer P3-16c à ✅ dans
 le tableau §5. Ne refais pas l'analyse du projet :
@@ -41,7 +44,7 @@ CLAUDE.md est déjà chargé, tout ce qui sert est ci-dessous.
   (`contestMilestone`, `upholdContest`, `dismissContest`,
   `retractMilestone`, `disputeQueue`), `Milestone.frozenAt`, événement
   `milestone.revoked` (sans XP, retiré des paliers dans `musicianSummary`).
-- Ordre prévu : P3-08, P3-09 → P3-12 à P3-14 → P3-15
+- Ordre prévu : P3-09 → P3-12 à P3-14 → P3-15
   (tableau §4 bis de docs/plan/README.md). P3-07 après le lancement.
 - Points ouverts hors lots : docs/plan/README.md §5 bis (dont l'e2e
   « quota TL0 » instable en suite complète, les tests d'intégration qui

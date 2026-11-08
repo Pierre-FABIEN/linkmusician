@@ -173,7 +173,7 @@ describe.skipIf(!enabled)('contestation des étapes (schéma e2e)', { timeout: 1
 		const gig = await db.milestone.findFirstOrThrow({
 			where: { bandId, definitionId: 'FIRST_GIG' }
 		});
-				await expect(disputes.upholdContest(gig.id, '  ', moderator)).rejects.toThrow(/Explique/);
+		await expect(disputes.upholdContest(gig.id, '  ', moderator)).rejects.toThrow(/Explique/);
 		const { warned, reversals } = await disputes.upholdContest(
 			gig.id,
 			'Le lieu confirme qu’il n’y a pas eu de concert',

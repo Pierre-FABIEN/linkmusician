@@ -17,6 +17,7 @@
 	import { seoConfig } from '#lib/seo.config';
 	import type { PublicBand } from '#lib/server/bands/public';
 	import WorksCard from './works/WorksCard.svelte';
+	import TierBadge from './progress/TierBadge.svelte';
 
 	let {
 		band,
@@ -124,6 +125,10 @@
 							<div class="min-w-0 flex-1">
 								<h1 class="text-3xl font-black tracking-tight">{band.displayName}</h1>
 								<p class="text-muted-foreground">@{band.handle} · {status}</p>
+								{#if band.tier}
+									<!-- Rang (P3-08) : dernière étape prouvée du parcours. -->
+									<div class="pt-2"><TierBadge {...band.tier} prefix="Rang du groupe :" /></div>
+								{/if}
 							</div>
 						</div>
 						<div class="flex flex-wrap items-center gap-2">

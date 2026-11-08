@@ -1,4 +1,5 @@
 <script lang="ts">
+	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
 	// LINKMUSICIAN: mes groupes (P3-01), voir +page.server.ts.
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
@@ -99,7 +100,10 @@
 								href="/groupes/{b.handle}"
 								class="block min-h-11 space-y-1 rounded-2xl border bg-card p-4 hover:bg-muted"
 							>
-								<span class="block text-lg font-bold">{b.name}</span>
+								<span class="flex flex-wrap items-center gap-2">
+									<span class="text-lg font-bold">{b.name}</span>
+									{#if b.tier}<TierBadge {...b.tier} prefix="Rang du groupe :" />{/if}
+								</span>
 								<span class="block text-sm text-muted-foreground"
 									>{b.formed
 										? plural(b.members, 'membre')

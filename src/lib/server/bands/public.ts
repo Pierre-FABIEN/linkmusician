@@ -11,7 +11,7 @@
 import { prisma } from '#lib/server';
 import { notIdeaDemo } from '#lib/server/works/visibility';
 import { publicWorksOf } from '#lib/server/works/service';
-import { bandMilestones } from '#lib/server/milestones/service';
+import { bandMilestones, bandTierOf } from '#lib/server/milestones/service';
 import { isIndexable } from '#lib/actors/visibility';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { getActorLocation } from '#lib/server/geo/queries';
@@ -160,6 +160,8 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 		past: past.map(card),
 		media,
 		works,
+		/** Rang du groupe (P3-08) : dernière étape corroborée, non gelée. */
+		tier: await bandTierOf(actor.id),
 		milestones: milestones.map((m) => ({
 			key: m.key,
 			label: m.label,

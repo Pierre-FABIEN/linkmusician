@@ -219,6 +219,20 @@ Ton palier dit où tu en es, par des faits, jamais par un nombre de points :
 | **Pilier local**         | 10 collaborations avec 5 personnes, et 10 concerts corroborés                     |
 | **Référence**            | Une sortie vérifiée et 10 personnes qui te recommandent                           |
 
+### Le rang de ton groupe {#rang-du-groupe}
+
+Un groupe a aussi un **rang**, affiché en badge sur sa page publique, sa
+page de gestion et dans **Mes groupes** : c’est la dernière étape de son
+parcours **corroborée** (prouvée par quelqu’un d’autre ou par un lien).
+
+**Projet** (formé) → **Répète** → **Compose** → **Enregistre** → **Démo**
+→ **Live** → **Tournée** → **EP** → **Album** → **Signé**.
+
+Une étape seulement déclarée ne change pas le rang, ni une étape en
+vérification. Quand une étape rapporte des points, chaque membre **présent
+à la date de l’étape** reçoit sa part (un quart) : quelqu’un qui rejoint le
+groupe après ne touche rien pour ce qui s’est passé avant lui.
+
 Plus de détails sur les points, les niveaux et les succès :
 [Points et progression](./04-points-et-progression.md).
 
