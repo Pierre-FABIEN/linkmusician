@@ -65,7 +65,7 @@ test.describe('LinkMusician — jams publiques', () => {
 
 			await test.step('1. La jam du lieu voisin est dans le mode jam', async () => {
 				const viewport = page.viewportSize();
-				await page.goto('/jam');
+				await page.goto('/jam/agenda');
 				await waitForAppReady(page);
 				await expect(page.getByRole('button', { name: 'Mois précédent' })).toBeVisible();
 				await expect(page.getByRole('button', { name: 'Mois suivant' })).toBeVisible();
@@ -219,7 +219,7 @@ test.describe('LinkMusician — jams publiques', () => {
 			});
 
 			await test.step('3. La batteuse voit l’invitation et accepte', async () => {
-				await drummerPage.goto('/jam');
+				await drummerPage.goto('/jam/mes-jams');
 				await waitForAppReady(drummerPage);
 				const invites = drummerPage.getByRole('region', { name: /On t’invite à jouer/ });
 				await invites.getByRole('link', { name: /E2E Jam du Taquin/ }).click();
@@ -328,7 +328,7 @@ test.describe('LinkMusician — jams publiques', () => {
 					.amount ?? 0;
 
 			await test.step('1. L’hôte dit « J’y étais » : rien ne rapporte', async () => {
-				await page.goto('/jam');
+				await page.goto('/jam/mes-jams');
 				await waitForAppReady(page);
 				const recent = page.getByRole('region', { name: 'Tes dernières jams' });
 				await recent.getByRole('link', { name: /E2E Bœuf du mardi/ }).click();

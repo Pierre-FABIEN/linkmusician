@@ -25,11 +25,20 @@ indique ta ville, mets-toi dispo (ou repère une jam), écris à un·e
 musicien·ne, trouve un lieu, jouez ensemble… puis, si l’envie vient,
 passe au mode carrière.
 
+En dessous, un **menu** court mène chacun à son écran :
+
+- **Les musicos dispo autour de moi** : te mettre dispo, et voir qui l’est ;
+- **Jams à venir** : le calendrier des jams et les lieux du coin ;
+- **Mes jams** : les jams où l’on t’invite, et celles où tu es allé·e ;
+- **Lancer une jam** ;
+- **Mon carnet et mon réseau**.
+
 ## 1. Avant la jam {#avant-la-jam}
 
 ### Te mettre dispo
 
-1. Sur l’accueil du mode jam, touche **Je suis dispo**.
+1. Dans le mode jam, ouvre **Les musicos dispo autour de moi**, puis
+   touche **Je suis dispo**.
 2. Choisis ton créneau : **ce soir**, **demain** ou **ce week-end**.
 3. Ajoute une note si tu veux (« plutôt funk, j’ai mon ampli »).
 
@@ -44,7 +53,7 @@ dispos en premier. Touche **Lui proposer de jouer** pour lui écrire.
 
 ### Rejoindre une jam
 
-Les **jams à venir** autour de toi s’affichent sur l’accueil : le lieu,
+Ouvre **Jams à venir** : chaque jam autour de toi montre le lieu,
 le jour, l’heure, le style, et les **places** encore ouvertes (« il
 manque une batterie et une voix »).
 

@@ -46,7 +46,7 @@
 		{#if data.entries.length === 0}
 			<p class="rounded-2xl border bg-card p-6 text-center text-sm text-muted-foreground">
 				Ton carnet se remplit quand tu dis « J’y étais » après une jam.
-				<a href="/jam#jams" class="block pt-2 font-semibold underline">Trouver une jam</a>
+				<a href="/jam/agenda" class="block pt-2 font-semibold underline">Trouver une jam</a>
 			</p>
 		{:else}
 			<ul class="flex flex-wrap gap-2" aria-label="Résumé du carnet">

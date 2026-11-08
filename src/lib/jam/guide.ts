@@ -47,13 +47,13 @@ export function jamNextStep(s: JamState): JamStep {
 			? step(2, {
 					title: 'Mets-toi dispo',
 					text: 'Dis aux musicien·nes du coin que tu as envie de jouer ce soir, demain ou ce week-end.',
-					href: '#dispo',
+					href: '/jam/dispos',
 					cta: 'Je suis dispo'
 				})
 			: step(2, {
 					title: 'Repère une jam',
 					text: 'Regarde les jams ouvertes près de chez toi, dans des lieux publics.',
-					href: '#jams',
+					href: '/jam/agenda',
 					cta: 'Voir les jams'
 				});
 	}
@@ -61,7 +61,7 @@ export function jamNextStep(s: JamState): JamStep {
 		return step(3, {
 			title: 'Écris à un·e musicien·ne',
 			text: 'Propose de jouer à quelqu’un de dispo, ou réponds à une jam ouverte.',
-			href: '#dispos',
+			href: '/jam/dispos',
 			cta: 'Voir qui est dispo'
 		});
 	}

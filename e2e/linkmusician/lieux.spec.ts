@@ -69,7 +69,7 @@ test.describe('LinkMusician — annuaire des lieux', () => {
 			).actorId;
 
 			await test.step('1. Les lieux autour de moi, pas les lointains', async () => {
-				await page.goto('/jam');
+				await page.goto('/jam/agenda');
 				await waitForAppReady(page);
 				const nearby = page.getByRole('list', { name: 'Lieux de jam autour de toi' });
 				await expect(nearby.getByText('E2E Le Préau')).toBeVisible();

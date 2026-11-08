@@ -42,7 +42,7 @@ test.describe('LinkMusician — je suis dispo', () => {
 			});
 
 			await test.step('1. Les dispos adultes autour de moi, pas les autres', async () => {
-				await page.goto('/jam');
+				await page.goto('/jam/dispos');
 				await waitForAppReady(page);
 				const list = page.getByRole('list', { name: 'Musicien·nes dispos' });
 				await expect(list.getByText(adult.displayName)).toBeVisible();
