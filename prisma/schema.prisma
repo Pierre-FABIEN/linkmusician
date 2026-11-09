@@ -1868,6 +1868,8 @@ enum ReportTarget {
   OPPORTUNITY
   /// Lieu de l'annuaire (P2-14a).
   VENUE
+  /// Étape d'un groupe contestée par la modération (P3-06).
+  MILESTONE
 }
 
 enum ReportReason {
@@ -2842,6 +2844,13 @@ model Milestone {
   /// Morceau qui porte « Première composition ».
   workId            String?
   work              Work?               @relation(fields: [workId], references: [id], onDelete: SetNull)
+  /// Référence d'une sortie vérifiée par MusicBrainz (P3-07).
+  releaseReferenceKind String?
+  releaseReference     String?
+  releaseUrl           String?
+  /// Gel de la preuve tant qu'une contestation est ouverte (P3-06).
+  frozenAt          DateTime?
+  frozenByUserId    String?
   definitionVersion Int
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
@@ -2881,6 +2890,7 @@ enum EvidenceStatus {
   PENDING
   ACCEPTED
   REJECTED
+  VERIFIED
 }
 
 /// Une demande de confirmation d'étape, et sa réponse. Une par étape et
@@ -2896,6 +2906,8 @@ model MilestoneAttestation {
   requestedBy   Actor?            @relation("MilestoneAttestationRequester", fields: [requestedById], references: [id], onDelete: SetNull)
   role          AttesterRole
   status        AttestationStatus @default(REQUESTED)
+  /// Gel de la confirmation tant qu'une contestation est ouverte (P3-06).
+  frozenAt      DateTime?
   createdAt     DateTime          @default(now())
   answeredAt    DateTime?
 

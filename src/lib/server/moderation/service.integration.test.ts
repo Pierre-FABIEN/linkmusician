@@ -183,4 +183,40 @@ describe.skipIf(!enabled)('modération (schéma e2e)', () => {
 			/déjà traité/
 		);
 	}, 120_000);
+
+	it('un signalement d’étape de groupe gelé par la modération clôt le dossier', async () => {
+		const definition = await db.milestoneDefinition.findFirstOrThrow();
+		const band = await db.actor.create({
+			data: {
+				kind: 'ORGANIZATION',
+				handle: `${PREFIX}band-${Date.now()}`,
+				displayName: 'Groupe contesté',
+				organization: { create: { kind: 'BAND' } }
+			}
+		});
+		const milestone = await db.milestone.create({
+			data: {
+				definitionId: definition.id,
+				bandId: band.id,
+				proof: 'CORROBORATED',
+				occurredAt: new Date(),
+				definitionVersion: definition.version
+			}
+		});
+		await expect(
+			svc.fileReport(reporter, {
+				targetType: 'MILESTONE',
+				targetId: milestone.id,
+				reason: 'INAPPROPRIATE'
+			})
+		).resolves.toEqual({ alreadyReported: false });
+		await expect(
+			svc.reviewMilestoneContest(milestone.id, true, { userId: moderatorUserId }, 'preuve douteuse')
+		).resolves.toEqual({ accepted: true });
+		const updated = await db.milestone.findUniqueOrThrow({ where: { id: milestone.id } });
+		expect(updated.frozenAt).not.toBeNull();
+		expect(await db.report.findFirst({ where: { targetType: 'MILESTONE', targetId: milestone.id } })).toMatchObject({
+			status: 'ACTIONED'
+		});
+	}, 120_000);
 });

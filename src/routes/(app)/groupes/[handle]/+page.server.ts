@@ -25,14 +25,21 @@ import {
 	MilestoneError,
 	bandMilestones,
 	declareMilestone,
-	updateMilestoneDetails
+	updateMilestoneDetails,
+	verifyReleaseMilestone
 } from '#lib/server/milestones/service';
 import {
 	addEvidence,
 	bandMilestoneProofs,
 	requestAttestation
 } from '#lib/server/milestones/proofs';
-import { DECLARABLE_KEYS, declareSchema, milestoneDetailsSchema } from '#lib/milestones/rules';
+import {
+	DECLARABLE_KEYS,
+	declareSchema,
+	dayToDate,
+	milestoneDetailsSchema
+} from '#lib/milestones/rules';
+import { releaseReferenceSchema } from '#lib/milestones/verification';
 import { BAREME } from '#lib/server/progression/core/bareme';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -186,18 +193,52 @@ export const actions: Actions = {
 	addLink: async ({ locals, params, request }) => {
 		const { actorId, field } = await context(locals, params, request);
 		try {
-			const { reviewed, corroborated } = await addEvidence(
+			const { reviewed, corroborated, verified, title } = await addEvidence(
 				field('milestoneId'),
 				actorId,
 				field('url')
 			);
 			return {
-				message: corroborated
-					? 'Bravo, l’étape est corroborée !'
-					: reviewed
-						? 'Lien envoyé à la modération : on vérifie le nom d’artiste.'
-						: 'Lien ajouté.'
+				message: verified
+					? `« ${title} » vérifiée par MusicBrainz, bravo !`
+					: corroborated
+						? 'Bravo, l’étape est corroborée !'
+						: reviewed
+							? 'Lien envoyé à la modération : on vérifie le nom d’artiste.'
+							: 'Lien ajouté.'
 			};
+		} catch (err) {
+			if (err instanceof MilestoneError) return fail(err.status, { error: err.message });
+			throw err;
+		}
+	},
+	verifyRelease: async ({ locals, params, request }) => {
+		const { actorId, band, field } = await context(locals, params, request);
+		const key = field('key');
+		if (key !== 'FIRST_EP' && key !== 'FIRST_ALBUM') {
+			return fail(400, { error: 'Choisis un EP ou un album.' });
+		}
+		const details = milestoneDetailsSchema().safeParse({ day: field('day'), note: '' });
+		if (!details.success) {
+			return fail(400, { error: details.error.issues[0]?.message ?? 'Vérifie la date.' });
+		}
+		const reference = releaseReferenceSchema.safeParse({
+			kind: field('kind'),
+			value: field('value')
+		});
+		if (!reference.success) {
+			return fail(400, {
+				error: reference.error.issues[0]?.message ?? 'Vérifie la référence de sortie.'
+			});
+		}
+		try {
+			const release = await verifyReleaseMilestone(band.id, actorId, {
+				key,
+				kind: reference.data.kind,
+				value: reference.data.value,
+				occurredAt: dayToDate(details.data.day)
+			});
+			return { message: `« ${release.title} » est vérifié et ajouté au parcours.` };
 		} catch (err) {
 			if (err instanceof MilestoneError) return fail(err.status, { error: err.message });
 			throw err;

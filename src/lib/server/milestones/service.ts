@@ -28,6 +28,8 @@ import type { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { emitAndProcess, type ProcessResult } from '#lib/server/progression/processor';
 import { isManager } from '#lib/bands/rules';
+import { checkReleaseReference, type ReleaseReferenceKind } from '#lib/milestones/verification';
+import { verifyMusicBrainzRelease, type ReleaseMilestoneKey } from './release-verification';
 import {
 	compositionProof,
 	creditDate,
@@ -256,6 +258,89 @@ export async function declareMilestone(
 	}, TX);
 }
 
+/** Vérifier une sortie par MusicBrainz, puis l'inscrire comme étape vérifiée. */
+export async function verifyReleaseMilestone(
+	bandId: string,
+	managerId: string,
+	input: {
+		key: ReleaseMilestoneKey;
+		kind: ReleaseReferenceKind;
+		value: string;
+		occurredAt: Date;
+	},
+	now = new Date()
+) {
+	const reference = checkReleaseReference(input.kind, input.value);
+	if (!reference.ok) throw new MilestoneError(reference.error);
+
+	const bandName = await prisma.$transaction(async (tx) => {
+		await lockBand(tx, bandId);
+		const band = await managedBand(tx, bandId, managerId);
+		if (band.dissolvedAt) throw new MilestoneError('Ce groupe est dissous.');
+		if (!band.formedAt) throw new MilestoneError('Les étapes s’ouvrent quand le groupe est formé.');
+		const existing = await tx.milestone.count({ where: { bandId, definitionId: input.key } });
+		if (existing) throw new MilestoneError('Cette étape est déjà dans votre parcours.');
+		const actor = await tx.actor.findUniqueOrThrow({
+			where: { id: bandId },
+			select: { displayName: true }
+		});
+		return actor.displayName;
+	}, TX);
+
+	const result = await verifyMusicBrainzRelease({
+		kind: input.kind,
+		value: reference.normalized,
+		artistName: bandName,
+		key: input.key
+	});
+	if (result.status === 'not_found') {
+		throw new MilestoneError('Cette référence n’a pas été trouvée dans MusicBrainz.');
+	}
+	if (result.status === 'mismatch') {
+		throw new MilestoneError('La sortie ne correspond pas au nom du groupe ou au type demandé.');
+	}
+	if (result.status === 'unavailable') {
+		throw new MilestoneError(
+			'La vérification est momentanément indisponible. Réessaie plus tard.',
+			503
+		);
+	}
+
+	await prisma.$transaction(async (tx) => {
+		await lockBand(tx, bandId);
+		const band = await managedBand(tx, bandId, managerId);
+		if (band.dissolvedAt || !band.formedAt) {
+			throw new MilestoneError('Ce groupe ne peut plus ajouter cette étape.');
+		}
+		const existing = await tx.milestone.count({ where: { bandId, definitionId: input.key } });
+		if (existing) throw new MilestoneError('Cette étape est déjà dans votre parcours.');
+		await tx.milestone.create({
+			data: {
+				definitionId: input.key,
+				bandId,
+				proof: 'VERIFIED',
+				occurredAt: input.occurredAt,
+				declaredById: managerId,
+				releaseReferenceKind: input.kind,
+				releaseReference: reference.normalized,
+				releaseUrl: result.url,
+				definitionVersion: await definitionVersion(tx, input.key)
+			}
+		});
+		await attest(tx, {
+			bandId,
+			key: input.key,
+			from: null,
+			to: 'VERIFIED',
+			occurredAt: input.occurredAt,
+			formedAt: band.formedAt,
+			now
+		});
+	}, TX);
+
+	return { title: result.title, url: result.url };
+}
+
 /**
  * Corriger la date ou la précision d'une étape déclarée. L'XP déjà versée
  * ne bouge pas.
@@ -295,7 +380,16 @@ const ORDER = new Map(MILESTONE_CATALOG.map((d) => [d.key, d.ordinal]));
 export async function bandMilestones(bandId: string, db: Db = prisma) {
 	const rows = await db.milestone.findMany({
 		where: { bandId, definition: { active: true } },
-		select: { id: true, definitionId: true, proof: true, occurredAt: true, note: true }
+		select: {
+			id: true,
+			definitionId: true,
+			proof: true,
+			occurredAt: true,
+			note: true,
+			releaseReferenceKind: true,
+			releaseReference: true,
+			releaseUrl: true
+		}
 	});
 	return rows
 		.map((r) => ({
@@ -304,7 +398,8 @@ export async function bandMilestones(bandId: string, db: Db = prisma) {
 			label: milestoneDef(r.definitionId as MilestoneKey).label,
 			proof: r.proof,
 			occurredAt: r.occurredAt,
-			note: r.note
+			note: r.note,
+			releaseUrl: r.releaseUrl
 		}))
 		.sort((a, b) => ORDER.get(a.key)! - ORDER.get(b.key)!);
 }
@@ -320,6 +415,9 @@ export async function milestonesExport(personId: string) {
 			proof: true,
 			occurredAt: true,
 			note: true,
+			releaseReferenceKind: true,
+			releaseReference: true,
+			releaseUrl: true,
 			createdAt: true,
 			band: { select: { displayName: true } }
 		}
@@ -330,6 +428,9 @@ export async function milestonesExport(personId: string) {
 		preuve: r.proof,
 		date: r.occurredAt,
 		precision: r.note,
+		reference_type: r.releaseReferenceKind,
+		reference: r.releaseReference,
+		source_url: r.releaseUrl,
 		declaree_le: r.createdAt
 	}));
 }

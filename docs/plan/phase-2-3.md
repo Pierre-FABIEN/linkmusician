@@ -546,7 +546,11 @@ actes. Puis LinkMusician s'ouvre au public.
 - **Dépend de** : P3-05.
 - **Tâches** : vérification d'une démo publique et d'un EP via l'API
   Spotify ou MusicBrainz (ISRC, UPC, nom d'artiste) ; gestion des faux
-  positifs ; mock en e2e ; disjoncteur (`circuit-breaker.ts`).
+  positifs ; mock en e2e ; disjoncteur (`circuit-breaker.ts`). La
+  vérification MusicBrainz des EP/albums par UPC ou ISRC et des démos
+  publiques reliées à un enregistrement sont implémentées ; les résultats
+  non reliés ou indisponibles restent en revue manuelle. Reste à appliquer
+  la migration et valider le scénario d'intégration DB.
 - **Fin** : une sortie connue passe `VERIFIED` (mock) ; un nom qui ne
   correspond pas est refusé.
 

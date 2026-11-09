@@ -17,7 +17,7 @@ import type { MilestoneKey } from './rules';
 
 export const EVIDENCE_KINDS = ['EVENT', 'LISTEN', 'RECORDING'] as const;
 export type EvidenceKind = (typeof EVIDENCE_KINDS)[number];
-export type EvidenceStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+export type EvidenceStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'VERIFIED';
 export type AttesterRole = 'MEMBER' | 'OUTSIDER';
 export type AttestationStatus = 'REQUESTED' | 'CONFIRMED' | 'DECLINED';
 
@@ -118,7 +118,9 @@ function hasConfirmed(state: ProofState, role: AttesterRole) {
 }
 
 function hasEvidence(state: ProofState, kind: EvidenceKind) {
-	return state.evidence.some((e) => e.kind === kind && e.status === 'ACCEPTED');
+	return state.evidence.some(
+		(e) => e.kind === kind && (e.status === 'ACCEPTED' || e.status === 'VERIFIED')
+	);
 }
 
 /** L'étape est-elle corroborée par ce qui a été confirmé et joint ? */

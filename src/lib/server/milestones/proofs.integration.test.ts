@@ -20,9 +20,16 @@ const url = new URL(
 );
 url.searchParams.set('schema', 'e2e');
 const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
+const { verifyMusicBrainzDemoMock } = vi.hoisted(() => ({
+	verifyMusicBrainzDemoMock: vi.fn()
+}));
 
 vi.mock('#lib/server', () => ({ prisma: db }));
 vi.mock('#lib/server/audit-log', () => ({ logAdminAction: async () => {} }));
+vi.mock('./release-verification', async (importOriginal) => ({
+	...(await importOriginal<typeof import('./release-verification')>()),
+	verifyMusicBrainzDemo: verifyMusicBrainzDemoMock
+}));
 
 const milestones = await import('./service');
 const proofs = await import('./proofs');
@@ -75,6 +82,7 @@ describe.skipIf(!enabled)('preuves des étapes (schéma e2e)', { timeout: 90_000
 
 	beforeAll(async () => {
 		await cleanup();
+		verifyMusicBrainzDemoMock.mockResolvedValue({ status: 'not_found' });
 		await seedMilestones(db);
 		for (const name of ['lea', 'malik', 'sam', 'neo']) {
 			const user = await db.user.create({
@@ -232,6 +240,42 @@ describe.skipIf(!enabled)('preuves des étapes (schéma e2e)', { timeout: 90_000
 		await expect(proofs.reviewEvidence(queued[0].id, false, { userId: users.lea })).rejects.toThrow(
 			/plus en attente/
 		);
+	});
+
+	it('démo liée par MusicBrainz au groupe : étape vérifiée et XP complète', async () => {
+		const band = await bands.createBand(ids.lea, {
+			name: 'Proofs Test Demo Verified',
+			title: null
+		});
+		await bands.inviteToBand(band.id, ids.lea, { handle: PREFIX + 'sam', title: null });
+		const invite = await db.membership.findFirstOrThrow({
+			where: { orgId: band.id, personId: ids.sam, status: 'INVITED' }
+		});
+		await bands.answerInvite(invite.id, ids.sam, true);
+		const demo = await milestones.declareMilestone(band.id, ids.lea, {
+			key: 'FIRST_PUBLIC_DEMO',
+			day: '2026-10-02',
+			note: null
+		});
+		verifyMusicBrainzDemoMock.mockResolvedValueOnce({
+			status: 'verified',
+			title: 'Premier morceau'
+		});
+		const before = await xp(band.id);
+
+		await expect(
+			proofs.addEvidence(demo.id, ids.lea, 'https://open.spotify.com/track/proofs-test-demo')
+		).resolves.toEqual({
+			reviewed: false,
+			corroborated: true,
+			verified: true,
+			title: 'Premier morceau'
+		});
+		expect(await proofOf(demo.id)).toBe('VERIFIED');
+		expect(await xp(band.id)).toBe(before + 450); // 500 − 50
+		expect(
+			await db.milestoneEvidence.findFirstOrThrow({ where: { milestoneId: demo.id } })
+		).toMatchObject({ status: 'VERIFIED', url: 'https://open.spotify.com/track/proofs-test-demo' });
 	});
 
 	it('la gestion voit ce qu’il reste à faire', async () => {

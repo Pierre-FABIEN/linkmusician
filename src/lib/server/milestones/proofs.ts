@@ -36,6 +36,7 @@ import {
 	proofRule
 } from '#lib/milestones/proofs';
 import { attest, lockBand, managedBand, MilestoneError } from './service';
+import { verifyMusicBrainzDemo } from './release-verification';
 
 type Tx = Prisma.TransactionClient;
 const TX = { timeout: 20_000 } as const;
@@ -243,10 +244,11 @@ export async function addEvidence(
 	rawUrl: string,
 	now = new Date()
 ) {
-	return prisma.$transaction(async (tx) => {
-		const { rule } = await provableMilestone(tx, milestoneId, managerId);
+	const candidate = await prisma.$transaction(async (tx) => {
+		const { row, rule } = await provableMilestone(tx, milestoneId, managerId);
 		if (!rule.evidence) throw new MilestoneError('Cette étape se prouve par une personne.');
-		const checked = checkEvidenceUrl(rule.evidence.kind, rawUrl);
+		const evidenceRule = rule.evidence;
+		const checked = checkEvidenceUrl(evidenceRule.kind, rawUrl);
 		if (!checked.ok) throw new MilestoneError(checked.error);
 		const count = await tx.milestoneEvidence.count({
 			where: { milestoneId, status: { not: 'REJECTED' } }
@@ -254,18 +256,66 @@ export async function addEvidence(
 		if (count >= MAX_EVIDENCE) {
 			throw new MilestoneError(`${MAX_EVIDENCE} liens au plus par étape.`);
 		}
-		const status = rule.evidence.reviewed ? 'PENDING' : 'ACCEPTED';
+		return {
+			bandId: row.bandId,
+			key: row.key,
+			kind: evidenceRule.kind,
+			artistName: row.band.displayName,
+			url: checked.url
+		};
+	}, TX);
+
+	const verification =
+		candidate.key === 'FIRST_PUBLIC_DEMO'
+			? await verifyMusicBrainzDemo({ url: candidate.url, artistName: candidate.artistName })
+			: null;
+
+	return prisma.$transaction(async (tx) => {
+		const { row, rule, formedAt } = await provableMilestone(tx, milestoneId, managerId);
+		if (row.bandId !== candidate.bandId || row.key !== candidate.key) {
+			throw new MilestoneError('Cette étape a changé, recharge la page.');
+		}
+		const count = await tx.milestoneEvidence.count({
+			where: { milestoneId, status: { not: 'REJECTED' } }
+		});
+		if (count >= MAX_EVIDENCE) {
+			throw new MilestoneError(`${MAX_EVIDENCE} liens au plus par étape.`);
+		}
+		if (!rule.evidence) throw new MilestoneError('Cette étape ne se prouve plus par un lien.');
+		const evidenceRule = rule.evidence;
+		const verified = verification?.status === 'verified';
+		const status = verified ? 'VERIFIED' : evidenceRule.reviewed ? 'PENDING' : 'ACCEPTED';
 		await tx.milestoneEvidence.create({
 			data: {
 				milestoneId,
-				kind: rule.evidence.kind,
-				url: checked.url,
+				kind: candidate.kind,
+				url: candidate.url,
 				addedById: managerId,
 				status
 			}
 		});
-		const result = status === 'ACCEPTED' ? await evaluate(tx, milestoneId, now) : null;
-		return { reviewed: status === 'PENDING', corroborated: result !== null };
+		let corroborated = false;
+		if (verified) {
+			await tx.milestone.update({ where: { id: milestoneId }, data: { proof: 'VERIFIED' } });
+			await attest(tx, {
+				bandId: row.bandId,
+				key: row.key,
+				from: 'DECLARED',
+				to: 'VERIFIED',
+				occurredAt: row.occurredAt,
+				formedAt,
+				now
+			});
+			corroborated = true;
+		} else if (status === 'ACCEPTED') {
+			corroborated = (await evaluate(tx, milestoneId, now)) !== null;
+		}
+		return {
+			reviewed: status === 'PENDING',
+			corroborated,
+			verified,
+			title: verification?.status === 'verified' ? verification.title : null
+		};
 	}, TX);
 }
 

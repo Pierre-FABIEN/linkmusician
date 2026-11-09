@@ -7,6 +7,7 @@ import { prisma } from '#lib/server';
 import { logAdminAction } from '#lib/server/audit-log';
 import { RefillingTokenBucket } from '#lib/server/rate-limit';
 import { recomputeTrust } from '#lib/server/progression/trust';
+import { reverseGain } from '#lib/server/progression/processor';
 import { publishMedia } from '#lib/server/media/service';
 import { destroyAsset } from '#lib/server/media/cloudinary';
 import type { UploadKind } from '#lib/media/upload';
@@ -35,7 +36,7 @@ const reportBucket = new RefillingTokenBucket<string>(
 export async function fileReport(
 	reporterActorId: string,
 	input: {
-		targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY' | 'VENUE';
+		targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY' | 'VENUE' | 'MILESTONE';
 		targetId: string;
 		reason: string;
 		details?: string;
@@ -66,6 +67,14 @@ export async function fileReport(
 			select: { createdById: true }
 		});
 		targetActorId = venue?.createdById ?? null;
+	} else if (input.targetType === 'MILESTONE') {
+		// Étape contestée (P3-06) : le groupe est l'acteur visé, ou la personne
+		// qui l'a déclarée si elle est plus directement concernée.
+		const milestone = await prisma.milestone.findUnique({
+			where: { id: input.targetId },
+			select: { bandId: true, declaredById: true }
+		});
+		targetActorId = milestone?.bandId ?? milestone?.declaredById ?? null;
 	} else {
 		const actor = await prisma.actor.findFirst({
 			where: { id: input.targetId, deletedAt: null },
@@ -144,7 +153,10 @@ export async function moderationQueue() {
 		.filter((r) => r.targetType === 'OPPORTUNITY')
 		.map((r) => r.targetId);
 	const venueIds = openReports.filter((r) => r.targetType === 'VENUE').map((r) => r.targetId);
-	const [reportedMedia, reportedOpportunities, reportedVenues] = await Promise.all([
+	const milestoneIds = openReports
+		.filter((r) => r.targetType === 'MILESTONE')
+		.map((r) => r.targetId);
+	const [reportedMedia, reportedOpportunities, reportedVenues, reportedMilestones] = await Promise.all([
 		prisma.media.findMany({ where: { id: { in: mediaIds } } }),
 		prisma.opportunity.findMany({
 			where: { id: { in: opportunityIds } },
@@ -153,11 +165,22 @@ export async function moderationQueue() {
 		prisma.venue.findMany({
 			where: { id: { in: venueIds } },
 			select: { id: true, name: true, kind: true, communeName: true, removedAt: true }
+		}),
+		prisma.milestone.findMany({
+			where: { id: { in: milestoneIds } },
+			select: {
+				id: true,
+				definitionId: true,
+				proof: true,
+				occurredAt: true,
+				band: { select: { handle: true, displayName: true } }
+			}
 		})
 	]);
 	const venueById = new Map(reportedVenues.map((v) => [v.id, v]));
 	const byId = new Map(reportedMedia.map((m) => [m.id, m]));
 	const opportunityById = new Map(reportedOpportunities.map((o) => [o.id, o]));
+	const milestoneById = new Map(reportedMilestones.map((m) => [m.id, m]));
 	return {
 		pendingMedia,
 		pendingVenues,
@@ -166,7 +189,9 @@ export async function moderationQueue() {
 			media: r.targetType === 'MEDIA' ? (byId.get(r.targetId) ?? null) : null,
 			opportunity:
 				r.targetType === 'OPPORTUNITY' ? (opportunityById.get(r.targetId) ?? null) : null,
-			venue: r.targetType === 'VENUE' ? (venueById.get(r.targetId) ?? null) : null
+			venue: r.targetType === 'VENUE' ? (venueById.get(r.targetId) ?? null) : null,
+			milestone:
+				r.targetType === 'MILESTONE' ? (milestoneById.get(r.targetId) ?? null) : null
 		}))
 	};
 }
@@ -182,7 +207,7 @@ async function refreshTrust(actorId: string) {
 }
 
 async function closeReports(
-	where: { targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY' | 'VENUE'; targetId: string },
+	where: { targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY' | 'VENUE' | 'MILESTONE'; targetId: string },
 	by: Moderator,
 	note: string,
 	status: 'ACTIONED' | 'DISMISSED'
@@ -250,6 +275,89 @@ export async function dismissReport(reportId: string, note: string, by: Moderato
 		targetType: 'Report',
 		targetId: reportId
 	});
+}
+
+/** Une étape de groupe est contestée : on la gèle et on annule les gains liés si la modération la juge invalide. */
+export async function reviewMilestoneContest(
+	milestoneId: string,
+	accepted: boolean,
+	by: Moderator,
+	note = 'Décision de modération.'
+) {
+	const milestoneRow = await prisma.milestone.findUnique({
+		where: { id: milestoneId },
+		select: { id: true, bandId: true, declaredById: true, proof: true, definitionId: true }
+	});
+	if (!milestoneRow) throw new ModerationError('Étape introuvable.');
+	const when = new Date();
+	await prisma.$transaction(async (tx) => {
+		if (accepted) {
+			await tx.milestone.update({
+				where: { id: milestoneId },
+				data: { frozenAt: when, frozenByUserId: by.userId }
+			});
+			await tx.milestoneAttestation.updateMany({
+				where: { milestoneId },
+				data: { frozenAt: when }
+			});
+			const events = await tx.domainEvent.findMany({
+				where: {
+					type: 'milestone.attested',
+					payload: { path: ['bandId'], equals: milestoneRow.bandId }
+				},
+				select: { id: true, payload: true }
+			});
+			for (const event of events) {
+				const payload = event.payload as { milestone?: string; bandId?: string } | null;
+				if (payload?.milestone !== milestoneRow.definitionId) continue;
+				const transactions = await tx.xpTransaction.findMany({
+					where: { sourceEventId: event.id, reversedBy: null, reversesId: null },
+					select: { id: true }
+				});
+				for (const row of transactions) {
+					await reverseGain(tx, row.id, note || 'Étape contestée et invalidée.');
+				}
+			}
+			await closeReports(
+				{ targetType: 'MILESTONE', targetId: milestoneId },
+				by,
+				`Étape invalidée : ${note}`,
+				'ACTIONED'
+			);
+			await logAdminAction({
+				actorId: by.userId,
+				action: 'moderation.milestone.reject',
+				targetType: 'Milestone',
+				targetId: milestoneId,
+				metadata: { reason: note }
+			});
+			return;
+		}
+		await tx.milestone.update({
+			where: { id: milestoneId },
+			data: { frozenAt: null, frozenByUserId: null }
+		});
+		await tx.milestoneAttestation.updateMany({
+			where: { milestoneId },
+			data: { frozenAt: null }
+		});
+		await closeReports(
+			{ targetType: 'MILESTONE', targetId: milestoneId },
+			by,
+			`Étape dégelée : ${note}`,
+			'DISMISSED'
+		);
+		await logAdminAction({
+			actorId: by.userId,
+			action: 'moderation.milestone.dismiss',
+			targetType: 'Milestone',
+			targetId: milestoneId,
+			metadata: { reason: note }
+		});
+	});
+	await refreshTrust(milestoneRow.bandId);
+	if (milestoneRow.declaredById) await refreshTrust(milestoneRow.declaredById);
+	return { accepted };
 }
 
 /** Avertit ou suspend un acteur ; clôt le signalement d'origine s'il y en a un. */

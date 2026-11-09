@@ -72,7 +72,8 @@ export const load: PageServerLoad = async () => {
 			targetActor: r.targetActor,
 			media: r.media ? mediaView(r.media) : null,
 			opportunity: r.opportunity,
-			venue: r.venue
+			venue: r.venue,
+			milestone: r.milestone
 		}))
 	};
 };

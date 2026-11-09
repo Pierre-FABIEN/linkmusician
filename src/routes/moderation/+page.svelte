@@ -263,8 +263,10 @@
 									? 'annonce'
 									: r.targetType === 'VENUE'
 										? 'lieu ajouté par'
-										: 'profil'}
-							{r.targetType === 'VENUE' ? '' : 'de '}@{r.targetActor.handle}
+										: r.targetType === 'MILESTONE'
+											? 'étape de groupe'
+											: 'profil'}
+							{r.targetType === 'VENUE' || r.targetType === 'MILESTONE' ? '' : 'de '}@{r.targetActor.handle}
 						</span>
 						<span class="text-muted-foreground">par @{r.reporter} · {date(r.createdAt)}</span>
 					</div>
@@ -280,6 +282,12 @@
 						<div class="rounded-md border p-3 text-sm">
 							<p class="font-medium">{r.venue.name}</p>
 							<p class="text-muted-foreground">{r.venue.communeName}</p>
+						</div>
+					{/if}
+					{#if r.milestone}
+						<div class="rounded-md border p-3 text-sm">
+							<p class="font-medium">{r.milestone.definitionId}</p>
+							<p class="text-muted-foreground">Preuve : {r.milestone.proof}</p>
 						</div>
 					{/if}
 

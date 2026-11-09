@@ -1,3 +1,5 @@
+enum EvidenceStatus { PENDING ACCEPTED REJECTED VERIFIED }
+
 # 04 — Modèle de données
 
 Ce schéma Prisma est une **cible de conception**, pas une migration. Il
@@ -270,6 +272,9 @@ model Milestone {                               // P3-04 : une par groupe et par
   note         String?                          // précision publique (« Au Bikini »)
   declaredById String?
   workId       String?                          // « Première composition »
+  releaseReferenceKind String?                   // UPC | ISRC (P3-07)
+  releaseReference String?                       // vérifiée par MusicBrainz
+  releaseUrl   String?                           // fiche de sortie vérifiée
   definitionVersion Int
   evidence     Evidence[]                       // P3-05
   attestations Attestation[]                    // P3-05
@@ -290,8 +295,6 @@ model MilestoneAttestation {                    // P3-05 : demande de confirmati
   createdAt DateTime @default(now()); answeredAt DateTime?
   @@unique([milestoneId, attesterId])
 }
-// ISRC et UPC (sorties vérifiées par API) : P3-07.
-
 // ─── PROGRESSION ─────────────────────────────────────────────────────────
 
 model DomainEvent {                             // Phase 1, outbox ajout seul

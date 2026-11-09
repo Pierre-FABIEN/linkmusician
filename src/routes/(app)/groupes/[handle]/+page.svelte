@@ -47,6 +47,9 @@
 
 	// Étapes (P3-04) : 1 à 6 ouvertes, les suivantes annoncées.
 	const openSteps = MILESTONE_CATALOG.filter((d) => d.mode !== 'later');
+	const releaseSteps = MILESTONE_CATALOG.filter(
+		(d) => d.key === 'FIRST_EP' || d.key === 'FIRST_ALBUM'
+	);
 	const laterSteps = MILESTONE_CATALOG.filter((d) => d.mode === 'later').map((d) => d.label);
 	const stepOf = (key: MilestoneKey) => data.milestones.find((m) => m.key === key) ?? null;
 	const today = todayInParis();
@@ -76,7 +79,8 @@
 	const EVIDENCE_STATUS = {
 		PENDING: 'en cours de vérification',
 		ACCEPTED: 'ajouté',
-		REJECTED: 'refusé'
+		REJECTED: 'refusé',
+		VERIFIED: 'vérifié par MusicBrainz'
 	} as const;
 
 	let handle = $state('');
@@ -286,6 +290,14 @@
 														? ` · ${step.note}`
 														: ''}</span
 												>
+												{#if step.releaseUrl}
+													<a
+														href={step.releaseUrl}
+														target="_blank"
+														rel="noopener noreferrer"
+														class="text-sm underline">Voir la sortie vérifiée</a
+													>
+												{/if}
 											{:else}
 												<span class="block text-sm text-muted-foreground">{def.hint}</span>
 											{/if}
@@ -479,6 +491,62 @@
 							</li>
 						{/each}
 					</ol>
+					{#if manager && !dissolved}
+						<div class="space-y-3 border-t pt-3">
+							{#each releaseSteps as def (def.key)}
+								{@const step = stepOf(def.key)}
+								{#if !step}
+									<form
+										method="POST"
+										action="?/verifyRelease"
+										class="flex flex-wrap items-end gap-3"
+										use:enhance
+									>
+										<input type="hidden" name="key" value={def.key} />
+										<label class="block space-y-1 text-sm font-medium">
+											<span>{def.label} · date de sortie</span>
+											<input
+												type="date"
+												name="day"
+												required
+												min={MIN_MILESTONE_DATE}
+												max={today}
+												value={today}
+												class="block rounded-md border bg-background p-2 font-normal"
+											/>
+										</label>
+										<label class="block space-y-1 text-sm font-medium">
+											<span>Identifiant</span>
+											<select
+												name="kind"
+												class="block rounded-md border bg-background p-2 font-normal"
+											>
+												<option value="UPC">UPC</option>
+												<option value="ISRC">ISRC</option>
+											</select>
+										</label>
+										<label class="block min-w-56 grow space-y-1 text-sm font-medium">
+											<span>UPC ou ISRC</span>
+											<input
+												name="value"
+												required
+												autocomplete="off"
+												class="w-full rounded-md border bg-background p-2 font-normal"
+											/>
+										</label>
+										<button
+											class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
+											>Vérifier {def.label.toLowerCase()}</button
+										>
+									</form>
+								{/if}
+							{/each}
+							<p class="text-sm text-muted-foreground">
+								La vérification compare le code, le nom du groupe et le type de sortie dans
+								MusicBrainz.
+							</p>
+						</div>
+					{/if}
 					<p class="text-sm text-muted-foreground">
 						Ensuite : {laterSteps.join(', ').toLowerCase()}. Ces étapes demanderont une preuve.
 					</p>

@@ -24,6 +24,8 @@ const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
 
 vi.mock('#lib/server', () => ({ prisma: db }));
 
+const releaseVerifier = await import('./release-verification');
+const verifyRelease = vi.spyOn(releaseVerifier, 'verifyMusicBrainzRelease');
 const service = await import('./service');
 const bands = await import('#lib/server/bands/service');
 const works = await import('#lib/server/works/service');
@@ -251,6 +253,48 @@ describe.skipIf(!enabled)('étapes de groupe (schéma e2e)', { timeout: 60_000 }
 			'FIRST_COMPOSITION'
 		]);
 		expect(await xp(band.id)).toBe(150);
+	});
+
+	it('une sortie MusicBrainz correspondante est vérifiée et ne peut pas être ajoutée deux fois', async () => {
+		const band = await formBand('lea', 'malik', 'Milestones Test EP');
+		verifyRelease.mockResolvedValue({
+			status: 'verified',
+			releaseId: 'musicbrainz-release-test',
+			title: 'Premier EP',
+			url: 'https://musicbrainz.org/release/musicbrainz-release-test'
+		});
+		const occurredAt = new Date('2025-03-14T12:00:00.000Z');
+
+		const result = await service.verifyReleaseMilestone(band.id, ids.lea, {
+			key: 'FIRST_EP',
+			kind: 'UPC',
+			value: '012345678901',
+			occurredAt
+		});
+
+		expect(result.title).toBe('Premier EP');
+		expect(
+			await db.milestone.findUniqueOrThrow({
+				where: { bandId_definitionId: { bandId: band.id, definitionId: 'FIRST_EP' } }
+			})
+		).toMatchObject({
+			proof: 'VERIFIED',
+			occurredAt,
+			releaseReferenceKind: 'UPC',
+			releaseReference: '012345678901',
+			releaseUrl: 'https://musicbrainz.org/release/musicbrainz-release-test'
+		});
+		expect(await xp(band.id)).toBe(1600);
+		await expect(
+			service.verifyReleaseMilestone(band.id, ids.lea, {
+				key: 'FIRST_EP',
+				kind: 'UPC',
+				value: '012345678901',
+				occurredAt
+			})
+		).rejects.toThrow(/déjà/);
+		expect(verifyRelease).toHaveBeenCalledTimes(1);
+		verifyRelease.mockReset();
 	});
 
 	it('RGPD : étapes déclarées exportées, puis on oublie qui les a déclarées', async () => {

@@ -45,14 +45,15 @@ describe('ce qui corrobore une étape (D43)', () => {
 		expect(corroborationMet('FIRST_RECORDING', { ...none, attestations: [outsider] })).toBe(true);
 	});
 
-	it('démo : un lien d’écoute accepté par la modération', () => {
-		const listen = (status: 'PENDING' | 'ACCEPTED' | 'REJECTED') => ({
+	it('démo : lien accepté par modération ou vérifié par MusicBrainz', () => {
+		const listen = (status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'VERIFIED') => ({
 			...none,
 			evidence: [{ kind: 'LISTEN' as const, status }]
 		});
 		expect(corroborationMet('FIRST_PUBLIC_DEMO', listen('PENDING'))).toBe(false);
 		expect(corroborationMet('FIRST_PUBLIC_DEMO', listen('REJECTED'))).toBe(false);
 		expect(corroborationMet('FIRST_PUBLIC_DEMO', listen('ACCEPTED'))).toBe(true);
+		expect(corroborationMet('FIRST_PUBLIC_DEMO', listen('VERIFIED'))).toBe(true);
 	});
 
 	it('formation et composition ne se prouvent pas ici', () => {
