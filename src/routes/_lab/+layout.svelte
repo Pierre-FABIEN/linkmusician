@@ -17,7 +17,7 @@
 
 <SEO title="Maquettes" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-24 pb-16">
+<div class="min-h-screen w-screen pt-24 pb-16">
 	<div class="mx-auto space-y-8">
 		<header class="space-y-3">
 			<p class="text-xs font-semibold tracking-widest text-fuchsia-600 uppercase">

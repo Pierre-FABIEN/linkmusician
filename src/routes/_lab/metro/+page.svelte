@@ -51,7 +51,7 @@
 		'oklch(0.85 0.16 85)'
 	]}
 	fade={true}
-	class="min-h-screen w-full"
+	class="lm-metro min-h-screen w-full"
 >
 	<div class="relative z-10 mx-auto   ">
 		<div class="space-y-12 rounded-3xl p-4 pb-10 sm:p-8 sm:pb-12 w-full">
