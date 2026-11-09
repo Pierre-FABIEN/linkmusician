@@ -300,7 +300,8 @@ describe.skipIf(!enabled)('étapes de groupe (schéma e2e)', { timeout: 60_000 }
 	it('RGPD : étapes déclarées exportées, puis on oublie qui les a déclarées', async () => {
 		const exported = await exportPersonData(users.lea);
 		expect(exported?.etapes_de_groupe_declarees).toMatchObject([
-			{ groupe: 'Milestones Test Band', etape: 'Premier concert', preuve: 'DECLARED' }
+			{ groupe: 'Milestones Test Band', etape: 'Premier concert', preuve: 'DECLARED' },
+			{ groupe: 'Milestones Test EP', etape: 'Premier EP', preuve: 'VERIFIED' }
 		]);
 		await db.$transaction(await personAnonymizationOps(users.lea));
 		expect(await db.milestone.count({ where: { declaredById: ids.lea } })).toBe(0);

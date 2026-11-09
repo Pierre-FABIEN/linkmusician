@@ -173,7 +173,7 @@ describe.skipIf(!enabled)('preuves des étapes (schéma e2e)', { timeout: 90_000
 		await expect(proofs.addEvidence(gig.id, ids.lea, 'pas un lien')).rejects.toThrow(/valide/);
 		expect(
 			await proofs.addEvidence(gig.id, ids.lea, 'https://www.instagram.com/p/affiche/')
-		).toEqual({
+		).toMatchObject({
 			reviewed: false,
 			corroborated: true
 		});
@@ -228,7 +228,7 @@ describe.skipIf(!enabled)('preuves des étapes (schéma e2e)', { timeout: 90_000
 		);
 		expect(
 			await proofs.addEvidence(demo.id, ids.lea, 'https://proofs-test.bandcamp.com/track/premier')
-		).toEqual({ reviewed: true, corroborated: false });
+		).toMatchObject({ reviewed: true, corroborated: false, verified: false });
 		const queued = (await proofs.pendingEvidence()).filter(
 			(e) => e.band.handle === 'proofs-test-band'
 		);

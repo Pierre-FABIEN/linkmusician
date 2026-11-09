@@ -551,14 +551,20 @@ actes. Puis LinkMusician s'ouvre au public.
 
 ### P3-07 — Vérification de sortie par API
 
+> **Réalisé le 09/11/2026** : MusicBrainz vérifie les sorties EP/album par
+> UPC ou ISRC et les démos par URL exacte reliée à un enregistrement dont le
+> crédit correspond au groupe. Une correspondance passe l'étape à `VERIFIED`
+> et calcule l'XP côté serveur ; absence ou indisponibilité conserve la revue
+> manuelle. Tests mockés et intégration DB validés sur le schéma `e2e`. La
+> migration du schéma `public` reste à appliquer au déploiement.
+
 - **Dépend de** : P3-05.
 - **Tâches** : vérification d'une démo publique et d'un EP via l'API
   Spotify ou MusicBrainz (ISRC, UPC, nom d'artiste) ; gestion des faux
   positifs ; mock en e2e ; disjoncteur (`circuit-breaker.ts`). La
   vérification MusicBrainz des EP/albums par UPC ou ISRC et des démos
   publiques reliées à un enregistrement sont implémentées ; les résultats
-  non reliés ou indisponibles restent en revue manuelle. Reste à appliquer
-  la migration et valider le scénario d'intégration DB.
+  non reliés ou indisponibles restent en revue manuelle.
 - **Fin** : une sortie connue passe `VERIFIED` (mock) ; un nom qui ne
   correspond pas est refusé.
 
