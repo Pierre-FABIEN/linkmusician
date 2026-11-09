@@ -53,7 +53,7 @@
 	fade={true}
 	class="min-h-screen w-full py-8 px-4 sm:py-12 sm:px-6"
 >
-	<div class="relative z-10 mx-auto">
+	<div class="relative z-10 mx-auto   ">
 		<div class="space-y-12 rounded-3xl p-4 pb-10 sm:p-8 sm:pb-12 w-full">
 			<header class="flex flex-wrap items-start justify-between gap-4">
 				<div class="space-y-2">
