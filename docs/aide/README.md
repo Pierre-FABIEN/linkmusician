@@ -1,7 +1,7 @@
 # Centre d'aide — contenu des pages de l'app
 
-> Le centre d'aide de LinkMusician (`/aide`), rédigé et mis en ligne le
-> 07/11/2026 (état de l'app après P3-04). Les pages s'adressent aux
+> Le centre d'aide de LinkMusician (`/aide`), mis à jour le 09/11/2026
+> (état de l'app pendant P3-07). Les pages s'adressent aux
 > **utilisateur·rices** (tutoiement, comme dans l'app).
 
 ## Comment c'est fait
@@ -12,8 +12,9 @@
   résumé, icône). Ajouter une page : un fichier et une entrée.
 - **Rendu** : `src/lib/server/aide/render.ts` (`marked`, côté serveur, mis
   en cache) : en-tête, encarts, ancres, liens entre pages réécrits,
-  tableaux défilants sur mobile. Testé (`render.test.ts`) : chaque lien
-  interne mène à une page et une ancre qui existent.
+  tableaux défilants horizontalement sur mobile. Testé
+  (`render.test.ts`) : chaque lien interne mène à une page et une ancre
+  qui existent.
 - **Pages** : `src/routes/aide` (accueil) et `src/routes/aide/[page]`,
   composant `HelpArticle.svelte`. Publiques et indexées (sitemap) ; une
   personne connectée garde la navigation de son espace.
@@ -40,23 +41,25 @@ les pages d'aide y renvoient.
 
 ## Mise en page
 
-Chaque page suit le même gabarit, pensé pour le mobile d'abord :
+Le gabarit recommandé est pensé pour le mobile d'abord ; les pages
+existantes ne suivent pas toutes encore chaque convention :
 
 1. **En-tête** : titre, une phrase d'accroche, icône du thème.
-2. **Encart « En bref »** : 3 à 4 puces, ce qu'il faut retenir si on ne
+2. **Encart « En bref »** : généralement 3 à 4 puces, ce qu'il faut retenir si on ne
    lit rien d'autre.
-3. **Sections numérotées** : une par moment du parcours, avec des étapes
+3. **Sections** : une par moment du parcours, souvent numérotée, avec des étapes
    courtes (1, 2, 3…), le nom exact des boutons en **gras**.
 4. **Encarts**, notés ainsi dans les fichiers :
    - `> 💡 Astuce` : un conseil pour mieux jouer le jeu ;
    - `> ⚠️ Important` : une règle de sécurité ou une limite ;
    - `> 🔜 Bientôt` : une fonction prévue mais pas encore là. Une phrase,
      jamais de date promise.
-5. **Tableaux** pour les comparaisons et les barèmes (sur mobile : une
-   carte par ligne).
+5. **Tableaux** pour les comparaisons et les barèmes (sur mobile :
+   défilement horizontal).
 6. **Questions fréquentes** en bas, en accordéon (`<details>`).
-7. **Pied de page** : « Page suivante », et les liens vers les pages
-   liées.
+7. **Navigation de page** : liens précédent/suivant selon l'ordre du
+   catalogue ; elle est générée par `HelpArticle`, pas définie dans le
+   Markdown.
 
 Repères visuels : les mêmes icônes que l'app (Lucide), aucune capture
 d'écran (elles vieillissent vite). Sur ordinateur, la liste des pages est
@@ -67,8 +70,9 @@ d'écran (elles vieillissent vite). Sur ordinateur, la liste des pages est
 - Un lien **« Aide »** dans le menu du compte et en pied de page.
 - **« Comment ça marche ? »** sous le choix du mode (`/jouer`), vers
   `/aide/mode-jam` et `/aide/mode-carriere`.
-- À venir : les conseils en contexte (P2-17) pourront pointer vers la
-  section exacte (`/aide/mode-jam#apres-la-jam`).
+- Les conseils en contexte (P2-17) sont actifs sur les écrans clés. Leurs
+  liens mènent actuellement aux écrans de l'app ; ils ne pointent pas
+  encore vers des sections précises de l'aide.
 - Pages publiques (lisibles sans compte), indexées : elles expliquent
   aussi l'app aux personnes qui hésitent à s'inscrire.
 

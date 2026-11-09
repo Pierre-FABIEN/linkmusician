@@ -53,13 +53,13 @@ en haut de l’écran (« **Mode jam** » ou « **Mode carrière** »).
 
 ## 4. Te repérer dans l’app
 
-| Onglet                                 | Ce que tu y trouves                                                  |
-| -------------------------------------- | -------------------------------------------------------------------- |
-| **Mon parcours** (carrière) ou **Jam** | Ton accueil, avec ta prochaine étape                                 |
-| **Découvrir**                          | Les musicien·nes près de chez toi, par instrument, style et distance |
-| **Annonces**                           | Les recherches de musicien·nes, de sessions, de groupes (carrière)   |
-| **Messages**                           | Tes conversations et les demandes reçues                             |
-| **Profil**                             | Ton profil, tes médias, tes groupes                                  |
+| Onglet                               | Ce que tu y trouves                                                  |
+| ------------------------------------ | -------------------------------------------------------------------- |
+| **Mon espace** (carrière) ou **Jam** | Ton accueil, avec ta prochaine étape                                 |
+| **Découvrir**                        | Les musicien·nes près de chez toi, par instrument, style et distance |
+| **Annonces**                         | Les recherches de musicien·nes, de sessions, de groupes (carrière)   |
+| **Messages**                         | Tes conversations et les demandes reçues                             |
+| **Profil**                           | Ton profil, tes médias, tes groupes                                  |
 
 La **cloche** en haut te prévient quand quelqu’un t’écrit, t’invite ou
 attend une confirmation de ta part.

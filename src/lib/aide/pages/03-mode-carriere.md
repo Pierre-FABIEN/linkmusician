@@ -5,7 +5,7 @@ _Ta carrière musicale, comme dans un jeu : une étape à la fois, et chaque
 
 > **En bref**
 >
-> - **Mon parcours** te montre toujours ta prochaine étape et tes quêtes.
+> - **Mon espace** en mode carrière te montre ta prochaine étape et tes quêtes.
 > - Tu avances surtout en **jouant avec d’autres** : une collaboration
 >   confirmée des deux côtés, un groupe, un morceau composé à plusieurs.
 > - Ton groupe a son propre **parcours** : formation, répétition,
@@ -25,7 +25,7 @@ les suit dans l’ordre où elles arrivent souvent, sans les imposer :
 | **III. Le studio**        | Enregistrer, mixer                                | Étape « Premier enregistrement » ; 🔜 studios         |
 | **IV. La production**     | Arranger, produire                                | 🔜                                                    |
 | **V. La scène**           | Premiers concerts, puis une tournée               | Étape « Premier concert » ; 🔜 lieux et organisateurs |
-| **VI. La sortie**         | Sortir un titre, un EP                            | 🔜                                                    |
+| **VI. La sortie**         | Sortir un titre, un EP                            | ✅ Étapes EP/album vérifiées par UPC ou ISRC          |
 | **VII. Le développement** | Manager, booker, éditeur, label                   | 🔜                                                    |
 | **VIII. La carrière**     | Album, tournées, en vivre                         | 🔜                                                    |
 
@@ -33,9 +33,10 @@ les suit dans l’ordre où elles arrivent souvent, sans les imposer :
 > tu as prouvé et la suite. Tu pourras aussi choisir ton **ambition**
 > (jouer pour le plaisir, faire des concerts, en vivre…).
 
-## 1. Ton tableau de bord : Mon parcours {#mon-parcours}
+## 1. Ton espace en mode carrière {#mon-parcours}
 
-C’est ton accueil en mode carrière. L’essentiel y est :
+C’est ton accueil en mode carrière, intitulé **Mon espace** dans le menu
+du compte. Le bloc **Ta prochaine étape** te guide ; l’essentiel y est :
 
 - ta **prochaine étape**, avec le bouton pour la faire ;
 - tes **points**, ton **niveau** et ton **palier** ;
@@ -119,16 +120,18 @@ votre histoire :
 | **Première démo publique** | La gestion la déclare                                          |
 | **Premier concert**        | La gestion la déclare (« Au bar du coin, en première partie ») |
 
-Ensuite viendront la première tournée, le premier EP, le premier album, la
-signature.
+La première tournée et la signature viendront plus tard. Pour un EP ou un
+album, la gestion du groupe peut déjà soumettre sa date et un UPC ou un
+ISRC : MusicBrainz vérifie la référence, le type de sortie et le nom du
+groupe. Une correspondance valide l’étape automatiquement.
 
 Chaque étape a un **niveau de preuve**, affiché sur la page du groupe :
 
-| Niveau         | Ce que ça veut dire                                           | Ce que ça rapporte                 |
-| -------------- | ------------------------------------------------------------- | ---------------------------------- |
-| **Déclarée**   | Le groupe l’affirme                                           | Un peu (30 à 50 points)            |
-| **Corroborée** | Quelqu’un d’autre la confirme, ou une preuve est jointe       | Beaucoup plus (jusqu’à 400 points) |
-| **Vérifiée**   | Une organisation officielle la confirme (lieu, studio, label) | Le maximum                         |
+| Niveau         | Ce que ça veut dire                                         | Ce que ça rapporte                 |
+| -------------- | ----------------------------------------------------------- | ---------------------------------- |
+| **Déclarée**   | Le groupe l’affirme                                         | Un peu (30 à 50 points)            |
+| **Corroborée** | Quelqu’un d’autre la confirme, ou une preuve est jointe     | Beaucoup plus (jusqu’à 400 points) |
+| **Vérifiée**   | Une source externe fiable la confirme (API ou organisation) | Le maximum                         |
 
 Le groupe reçoit les points, et **chaque membre présent ce jour-là** en
 reçoit un quart.
@@ -138,18 +141,20 @@ reçoit un quart.
 Sous une étape déclarée, **Pour la corroborer** te dit ce qui manque.
 Touche **Prouver** :
 
-| Étape                      | Ce qui la corrobore                                                                          |
-| -------------------------- | -------------------------------------------------------------------------------------------- |
-| **Première répétition**    | Un autre membre présent ce jour-là confirme                                                  |
-| **Premier enregistrement** | Une personne hors du groupe qui y a participé confirme (un lien vers un extrait, si tu veux) |
-| **Première démo publique** | Un lien d’écoute public (Bandcamp, SoundCloud, Spotify…), vérifié par la modération          |
-| **Premier concert**        | Un lien vers l’événement ou l’affiche **et** une personne hors du groupe qui y était         |
+| Étape                      | Ce qui la corrobore                                                                                                    |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Première répétition**    | Un autre membre présent ce jour-là confirme                                                                            |
+| **Premier enregistrement** | Une personne hors du groupe qui y a participé confirme (un lien vers un extrait, si tu veux)                           |
+| **Première démo publique** | Un lien d’écoute public relié par MusicBrainz à un enregistrement créditant le groupe ; sinon, revue par la modération |
+| **Premier concert**        | Un lien vers l’événement ou l’affiche **et** une personne hors du groupe qui y était                                   |
 
 1. Ajoute le lien, puis indique l’identifiant de la personne :
    **Demander de confirmer**.
 2. Elle reçoit une notification, et répond **Je confirme, j’y étais** ou
    **Je n’y étais pas**.
-3. Dès que tout y est, l’étape passe à **Corroborée** : le groupe reçoit
+3. Une démo reconnue par MusicBrainz passe directement à **Vérifiée**.
+   Sinon, elle reste en attente de la modération. Pour les autres preuves,
+   dès que tout y est, l’étape passe à **Corroborée** : le groupe reçoit
    la différence de points (pour un concert : 350 de plus), et chaque
    membre présent sa part. Rien ne compte deux fois.
 

@@ -119,7 +119,7 @@ te bloquent, te ramènent au début.
 
 <details><summary>Où vois-je mes points ?</summary>
 
-Sur **Mon parcours** (mode carrière), avec l’historique de tes gains et
+Dans **Mon espace** (mode carrière), avec l’historique de tes gains et
 leur raison. Ton profil public ne les montre jamais.
 
 </details>
