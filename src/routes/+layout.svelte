@@ -215,7 +215,7 @@
 		<ModeWatcher />
 		<!-- LINKMUSICIAN: l'espace `(app)`, et les pages publiques vues par un
 		     membre, ont leur propre navigation (P0-07, P2-12b). -->
-		{#if !page.route.id?.startsWith('/(app)') && !page.data.memberShell}
+		{#if !page.route.id?.startsWith('/(app)') && !page.data.memberShell && page.url.pathname !== '/_lab/metro'}
 			<Navigation {data} />
 		{/if}
 		<div class="ccc relative m-0 h-screen w-screen max-w-none overflow-hidden p-0">

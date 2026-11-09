@@ -30,8 +30,21 @@
 					ratios[e.target.id] = e.intersectionRatio;
 					if (e.intersectionRatio > 0.35) (e.target as HTMLElement).setAttribute('data-seen', '');
 				}
-				const best = Object.entries(ratios).sort((a, b) => b[1] - a[1])[0];
-				if (best && best[1] > 0) active = best[0];
+				const style = getComputedStyle(rail);
+				const railRect = rail.getBoundingClientRect();
+				const anchor = railRect.left + (parseFloat(style.paddingLeft) || 0);
+				const best = nodes
+					.map((node) => {
+						const rect = node.getBoundingClientRect();
+						return {
+							id: node.id,
+							ratio: ratios[node.id] ?? 0,
+							distance: Math.abs(rect.left - anchor)
+						};
+					})
+					.filter((node) => node.ratio > 0)
+					.sort((a, b) => b.ratio - a.ratio || a.distance - b.distance)[0];
+				if (best) active = best.id;
 			},
 			{ root: rail, threshold: [0, 0.25, 0.5, 0.75, 1] }
 		);
@@ -46,9 +59,12 @@
 	function go(id: string) {
 		const target = nodes.find((n) => n.id === id);
 		if (!rail || !target) return;
-		const pad = parseFloat(getComputedStyle(rail).paddingLeft) || 0;
+		active = id;
+		const style = getComputedStyle(rail);
 		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		rail.scrollTo({ left: target.offsetLeft - pad, behavior: reduced ? 'auto' : 'smooth' });
+		const pad = parseFloat(style.paddingLeft) || 0;
+		const left = target.offsetLeft - pad;
+		rail.scrollTo({ left, behavior: reduced ? 'auto' : 'smooth' });
 	}
 </script>
 

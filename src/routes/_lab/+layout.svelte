@@ -13,13 +13,16 @@
 		{ href: '/_lab/etats-vides', label: 'États vides' },
 		{ href: '/_lab/metro', label: 'Metro' }
 	];
+	const isMetro = $derived(page.url.pathname === '/_lab/metro');
 </script>
 
 <SEO title="Maquettes" noindex nofollow />
 
-<div class="min-h-screen w-screen pt-24 pb-16">
-	<div class="mx-auto space-y-8">
-		<header class="space-y-3">
+
+<div class="min-h-screen w-screen {isMetro ? 'pb-16' : 'pt-24 pb-16'}">
+	<div class="mx-auto {isMetro ? '' : 'space-y-8'}">
+		{#if !isMetro}
+			<header class="space-y-3">
 			<p class="text-xs font-semibold tracking-widest text-fuchsia-600 uppercase">
 				Maquettes · données fictives · P1-02
 			</p>
@@ -33,7 +36,8 @@
 					>
 				{/each}
 			</nav>
-		</header>
+			</header>
+		{/if}
 		{@render children()}
 	</div>
 </div>
