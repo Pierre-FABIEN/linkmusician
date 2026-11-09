@@ -19,7 +19,7 @@
  * `milestone.attested` (XP différentielle au groupe, 25 % aux membres
  * présents à la date de l'étape, `membersAt`). Corriger la date ou la
  * précision d'une étape ne change pas l'XP déjà versée (registre en ajout
- * seul) ; une étape fausse se contestera (P3-06).
+ * seul) ; une étape fausse se conteste (P3-06, `./disputes.ts`).
  *
  * Imports : ni le service des groupes ni celui des morceaux (ils appellent
  * celui-ci).
@@ -28,6 +28,7 @@ import type { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { emitAndProcess, type ProcessResult } from '#lib/server/progression/processor';
 import { isManager } from '#lib/bands/rules';
+import { bandTier } from '#lib/server/progression/core/tiers';
 import { checkReleaseReference, type ReleaseReferenceKind } from '#lib/milestones/verification';
 import { verifyMusicBrainzRelease, type ReleaseMilestoneKey } from './release-verification';
 import {
@@ -353,12 +354,15 @@ export async function updateMilestoneDetails(
 	await prisma.$transaction(async (tx) => {
 		const row = await tx.milestone.findUnique({
 			where: { id: milestoneId },
-			select: { bandId: true, definitionId: true }
+			select: { bandId: true, definitionId: true, frozenAt: true }
 		});
 		if (!row) throw new MilestoneError('Cette étape n’existe plus.', 404);
 		await lockBand(tx, row.bandId);
 		const band = await managedBand(tx, row.bandId, managerId);
 		if (band.dissolvedAt) throw new MilestoneError('Ce groupe est dissous.');
+		if (row.frozenAt) {
+			throw new MilestoneError('Cette étape est en vérification : la modération va trancher.');
+		}
 		if (milestoneDef(row.definitionId as MilestoneKey).mode !== 'declare') {
 			throw new MilestoneError('Cette étape se met à jour toute seule.');
 		}
@@ -388,7 +392,8 @@ export async function bandMilestones(bandId: string, db: Db = prisma) {
 			note: true,
 			releaseReferenceKind: true,
 			releaseReference: true,
-			releaseUrl: true
+			releaseUrl: true,
+			frozenAt: true
 		}
 	});
 	return rows
@@ -397,6 +402,8 @@ export async function bandMilestones(bandId: string, db: Db = prisma) {
 			key: r.definitionId as MilestoneKey,
 			label: milestoneDef(r.definitionId as MilestoneKey).label,
 			proof: r.proof,
+			/** Contestée (P3-06) : affichée « En vérification », sans niveau de preuve. */
+			frozen: r.frozenAt !== null,
 			occurredAt: r.occurredAt,
 			note: r.note,
 			releaseUrl: r.releaseUrl
@@ -404,6 +411,19 @@ export async function bandMilestones(bandId: string, db: Db = prisma) {
 		.sort((a, b) => ORDER.get(a.key)! - ORDER.get(b.key)!);
 }
 export type BandMilestone = Awaited<ReturnType<typeof bandMilestones>>[number];
+
+/**
+ * Rang du groupe (P3-08) : la dernière étape du parcours au moins corroborée
+ * (la formation compte toujours), jamais une étape gelée par une
+ * contestation (D49). Public : un fait prouvé, ni XP ni confiance.
+ */
+export async function bandTierOf(bandId: string, db: Db = prisma) {
+	const steps = await bandMilestones(bandId, db);
+	const tier = bandTier(
+		Object.fromEntries(steps.filter((s) => !s.frozen).map((s) => [s.key, s.proof]))
+	);
+	return tier ? { id: tier.milestone, label: tier.label } : null;
+}
 
 /** Export RGPD : étapes que la personne a déclarées pour un groupe. */
 export async function milestonesExport(personId: string) {

@@ -1,18 +1,23 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 07/11/2026, après P3-05).
+> Mis à jour à chaque fin de lot (dernière : 08/11/2026, après P3-13).
 
 ---
 
 ```markdown
-On reprend LinkMusician avec le lot **P3-16c** (discussions de groupe sur
-invitation) ; P3-16a (trois messages avant une réponse) et P3-16b (onglet
-Contacts, carnet, groupes de contacts, [docs/contacts](../contacts/README.md))
-sont livrés. Ne refais pas l'analyse du projet :
+On reprend LinkMusician avec le lot **P3-14** (fiche de carrière et cartes
+souvenirs) ; P3-12 (écran de carrière en page-menu, ambition) et P3-13
+(carte, D53) sont livrés ([docs/carriere](../carriere/README.md)). Reste à
+revoir le vocabulaire « projet » (§5 bis).
+Navigation : pages-menus (D50) et fil d'Ariane en badges (D52) à respecter
+sur toute nouvelle page ; organisateurs de jams (D51). **D'abord** : lancer `npm run test:e2e -- e2e/linkmusician/discussions.spec.ts`
+(P3-16c, écrit mais pas encore lancé : Chromium manquait de `libnspr4`,
+`sudo npx playwright install-deps chromium`), puis passer P3-16c à ✅ dans
+le tableau §5. Ne refais pas l'analyse du projet :
 CLAUDE.md est déjà chargé, tout ce qui sert est ci-dessous.
 
-## État (07/11/2026)
+## État (08/11/2026)
 
 - **Phase 2 terminée et revue** ([docs/plan/revue-phase-2.md](./revue-phase-2.md)).
   Objectif D28 : lancement public à Toulouse début mars 2027. L'UX simple
@@ -30,38 +35,17 @@ CLAUDE.md est déjà chargé, tout ce qui sert est ci-dessous.
 - **Centre d'aide** livré (`/aide`, contenu dans `src/lib/aide/pages/*.md`,
   voir [docs/aide](../aide/README.md)) : toute fonction qui change un
   parcours met à jour sa page d'aide (Définition de terminé).
-- **P3-16c** (fiche dans docs/plan/phase-2-3.md, D45, D46) :
-  - une discussion s'ouvre depuis un groupe de contacts (`ContactGroup`,
-    `src/lib/server/contacts/service.ts`) ; chaque personne reçoit une
-    **invitation** (Rejoindre, Non merci) et ne voit rien avant ; on peut
-    quitter ; l'auteur peut inviter d'autres contacts (`isContact`) ;
-  - **mineur·es exclu·es** des discussions de groupe au lancement, sans
-    dire pourquoi (`isIndexable` de la date de naissance) ; pas d'invitation
-    à travers un blocage avec l'auteur, ni de « Rejoindre » si un blocage
-    existe avec un membre déjà présent ;
-  - piste de modèle : tables à part (`GroupDiscussion`,
-    `GroupDiscussionMember`, `GroupDiscussionMessage`) plutôt que
-    `Conversation` (à deux, `pairKey` unique, requêtes qui supposent deux
-    participants) ; ajouter les non-lus au badge (`unreadTotal`) et la
-    liste « Discussions de groupe » dans Messages ; nouvelle notification
-    d'invitation ; RGPD ;
-  - fin de lot : remplacer l'encart « Bientôt » de l'aide `rencontrer`.
+- **P3-16 livré** (a, b, c ; [docs/contacts](../contacts/README.md)) :
+  discussions de groupe = `GroupDiscussion`, `GroupDiscussionMember`
+  (`INVITED`, `ACTIVE`, `DECLINED`, `LEFT`), `GroupDiscussionMessage` ;
+  service `src/lib/server/discussions/service.ts`, règles
+  `src/lib/discussions/rules.ts`, page `/messages/groupes/[id]`.
 - **Décidé, plus tard** : P3-15 démarches (D42, conception 09).
-- **P3-06** (après P3-16) : lire sa fiche (docs/plan/phase-2-3.md, avec la note P3-04 :
-  retirer soi-même une étape déclarée par erreur) et conception 02 §4.
-  Pistes :
-  - `ReportTarget.MILESTONE` (enum à étendre) ; signaler depuis la page
-    publique du groupe (carte « Parcours ») et depuis `/etapes/[id]` ;
-  - geler l'étape (statut ou champ `frozenAt`) : elle ne s'affiche plus
-    comme corroborée, aucune nouvelle preuve tant que c'est gelé ;
-  - décision du modérateur (`/moderation`) : retenue → reprise de chaque
-    gain lié par `reverseGain` (`progression/processor.ts`, transaction
-    négative `reversesId`), retrouver les transactions par
-    `sourceEventId` des événements `milestone.attested` de l'étape ;
-    avertissement de confiance pour qui a déclaré et pour qui a confirmé ;
-    rejetée → dégel ;
-  - mêmes règles pour une confirmation mensongère (`MilestoneAttestation`).
-- Ordre prévu : P3-16 → P3-06, P3-08, P3-09 → P3-12 à P3-14 → P3-15
+- **P3-06 livré** : `src/lib/server/milestones/disputes.ts`
+  (`contestMilestone`, `upholdContest`, `dismissContest`,
+  `retractMilestone`, `disputeQueue`), `Milestone.frozenAt`, événement
+  `milestone.revoked` (sans XP, retiré des paliers dans `musicianSummary`).
+- Ordre prévu : P3-14 → P3-15
   (tableau §4 bis de docs/plan/README.md). P3-07 après le lancement.
 - Points ouverts hors lots : docs/plan/README.md §5 bis (dont l'e2e
   « quota TL0 » instable en suite complète, les tests d'intégration qui
@@ -94,7 +78,7 @@ e2e/linkmusician` (sortie redirigée dans le scratchpad, lire la fin).
 lat: 43.6459, lng: 1.3785 }` ; a11y : exclure `.cartButton`.
 - Tests d'intégration : `PROGRESSION_INTEGRATION=1 npx vitest --run
 src/lib/server/bands src/lib/server/opportunities src/lib/server/works
-src/lib/server/milestones`
+src/lib/server/milestones src/lib/server/contacts src/lib/server/discussions`
   pour les groupes, le recrutement, les morceaux et les étapes (modèle : `vi.mock('#lib/server', () => ({ prisma: db }))`
   sur le schéma `e2e`). Un test qui passe par du SQL brut (villes,
   PostGIS) doit aussi faire `process.env.DATABASE_URL = url.toString()`

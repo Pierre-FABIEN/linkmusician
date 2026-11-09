@@ -15,11 +15,11 @@
 
 <SEO title="Mes morceaux" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-8">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-7xl space-y-8">
 		<div class="space-y-2">
 			<a href="/espace" class="text-sm text-muted-foreground underline">← Mon parcours</a>
-			<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight">
+			<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight sm:text-4xl">
 				<Music class="size-7" aria-hidden="true" /> Mes morceaux
 			</h1>
 			<p class="text-sm text-muted-foreground">
@@ -37,7 +37,7 @@
 		{#if data.toConfirm.length > 0}
 			<section class="space-y-3" aria-labelledby="confirm-title">
 				<h2 id="confirm-title" class="text-xl font-bold">On te crédite</h2>
-				<ul class="space-y-2">
+				<ul class="grid gap-2 md:grid-cols-2">
 					{#each data.toConfirm as w (w.id)}
 						<li class="space-y-3 rounded-2xl border border-primary bg-card p-4">
 							<p class="text-sm">
@@ -82,7 +82,7 @@
 					celles et ceux qui la jouent avec toi.
 				</p>
 			{:else}
-				<ul class="space-y-2">
+				<ul class="grid gap-2 sm:grid-cols-2">
 					{#each data.works as w (w.id)}
 						<li>
 							<a

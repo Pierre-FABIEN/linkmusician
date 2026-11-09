@@ -51,11 +51,19 @@ async function milestoneHead(tx: Tx, milestoneId: string) {
 			proof: true,
 			occurredAt: true,
 			declaredById: true,
+			frozenAt: true,
 			band: { select: { displayName: true, organization: { select: { formedAt: true } } } }
 		}
 	});
 	if (!row) throw new MilestoneError('Cette étape n’existe plus.', 404);
 	return { ...row, key: row.definitionId as MilestoneKey };
+}
+
+/** Une étape contestée (P3-06) ne reçoit plus de preuve avant la décision. */
+function assertNotFrozen(row: { frozenAt: Date | null }) {
+	if (row.frozenAt) {
+		throw new MilestoneError('Cette étape est en vérification : la modération va trancher.');
+	}
 }
 
 async function bandPeriods(tx: Tx, bandId: string) {
@@ -68,8 +76,9 @@ async function bandPeriods(tx: Tx, bandId: string) {
 /**
  * La règle de l'étape est-elle remplie ? Si oui, l'étape déclarée devient
  * corroborée (XP différentielle). Renvoie le résultat du moteur, ou `null`.
+ * Rien tant qu'elle est gelée (P3-06) : réévaluée au dégel.
  */
-async function evaluate(tx: Tx, milestoneId: string, now: Date) {
+export async function evaluate(tx: Tx, milestoneId: string, now: Date) {
 	const row = await tx.milestone.findUnique({
 		where: { id: milestoneId },
 		select: {
@@ -77,13 +86,14 @@ async function evaluate(tx: Tx, milestoneId: string, now: Date) {
 			definitionId: true,
 			proof: true,
 			occurredAt: true,
+			frozenAt: true,
 			band: { select: { organization: { select: { formedAt: true } } } },
 			attestations: { select: { role: true, status: true } },
 			evidence: { select: { kind: true, status: true } }
 		}
 	});
 	const formedAt = row?.band.organization?.formedAt;
-	if (!row || row.proof !== 'DECLARED' || !formedAt) return null;
+	if (!row || row.proof !== 'DECLARED' || !formedAt || row.frozenAt) return null;
 	const key = row.definitionId as MilestoneKey;
 	if (!corroborationMet(key, row)) return null;
 	await tx.milestone.update({ where: { id: milestoneId }, data: { proof: 'CORROBORATED' } });
@@ -104,6 +114,7 @@ async function provableMilestone(tx: Tx, milestoneId: string, managerId: string)
 	await lockBand(tx, row.bandId);
 	const band = await managedBand(tx, row.bandId, managerId);
 	if (band.dissolvedAt) throw new MilestoneError('Ce groupe est dissous.');
+	assertNotFrozen(row);
 	const rule = proofRule(row.key);
 	if (!rule) throw new MilestoneError('Cette étape ne se prouve pas ainsi.');
 	if (row.proof !== 'DECLARED') throw new MilestoneError('Cette étape est déjà corroborée.');
@@ -193,6 +204,7 @@ export async function answerAttestation(
 		if (!asked || asked.status !== 'REQUESTED') {
 			throw new MilestoneError('Rien à confirmer pour cette étape.', 404);
 		}
+		if (confirm) assertNotFrozen(head);
 		if (!confirm) {
 			await tx.milestoneAttestation.update({
 				where: { id: asked.id },

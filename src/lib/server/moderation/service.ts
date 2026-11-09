@@ -68,13 +68,13 @@ export async function fileReport(
 		});
 		targetActorId = venue?.createdById ?? null;
 	} else if (input.targetType === 'MILESTONE') {
-		// Étape contestée (P3-06) : le groupe est l'acteur visé, ou la personne
-		// qui l'a déclarée si elle est plus directement concernée.
+		// Étape de groupe (P3-06) : la personne qui l'a déclarée, sinon le groupe.
+		// Passe par `contestMilestone` (gel, règles), jamais directement.
 		const milestone = await prisma.milestone.findUnique({
 			where: { id: input.targetId },
-			select: { bandId: true, declaredById: true }
+			select: { declaredById: true, bandId: true }
 		});
-		targetActorId = milestone?.bandId ?? milestone?.declaredById ?? null;
+		targetActorId = milestone ? (milestone.declaredById ?? milestone.bandId) : null;
 	} else {
 		const actor = await prisma.actor.findFirst({
 			where: { id: input.targetId, deletedAt: null },
@@ -124,8 +124,9 @@ export async function moderationQueue() {
 			take: 50,
 			include: { actor: { select: { handle: true, displayName: true } } }
 		}),
+		// Les étapes contestées ont leur section (P3-06, `disputeQueue`).
 		prisma.report.findMany({
-			where: { status: 'OPEN' },
+			where: { status: 'OPEN', targetType: { not: 'MILESTONE' } },
 			orderBy: { createdAt: 'asc' },
 			take: 50,
 			include: {

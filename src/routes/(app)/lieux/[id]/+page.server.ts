@@ -10,7 +10,7 @@ import {
 	verifyVenueSiret
 } from '#lib/server/venues/service';
 import { siretSchema } from '#lib/venues/siret';
-import { upcomingJamsAt } from '#lib/server/jam/publicJams';
+import { isJamOrganizer, upcomingJamsAt } from '#lib/server/jam/publicJams';
 import { ModerationError, fileReport } from '#lib/server/moderation/service';
 import { BACKLINE_ITEMS, BACKLINE_LABELS, backlineSchema } from '#lib/jam/lineup';
 import type { Actions, PageServerLoad } from './$types';
@@ -41,6 +41,8 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		},
 		backlineOptions: BACKLINE_ITEMS.map((value) => ({ value, label: BACKLINE_LABELS[value] })),
 		jams,
+		/** « Publier une jam ici » : organisateurs seulement (D51). */
+		organizer: await isJamOrganizer(person.actorId),
 		added: url.searchParams.has('ajoute')
 	};
 };

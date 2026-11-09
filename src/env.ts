@@ -3,6 +3,7 @@ import { defineEnvVars } from '@sveltejs/kit/env';
 import { parseShopEnabled } from './lib/shop/gate.ts';
 
 export const variables = defineEnvVars({
+	DATABASE_URL: {},
 	BETTER_AUTH_SECRET: { static: true },
 	GOOGLE_CLIENT_ID: { static: true },
 	GOOGLE_CLIENT_SECRET: { static: true },

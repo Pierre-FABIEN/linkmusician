@@ -33,9 +33,9 @@
 
 <SEO title="Publier une annonce" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-4">
-		<h1 class="text-3xl font-black tracking-tight">Publier une annonce</h1>
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-6xl space-y-5">
+		<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Publier une annonce</h1>
 		{#if !data.commune && data.bands.length === 0}
 			<p class="rounded-2xl border bg-card p-6 text-center">
 				Une annonce se diffuse autour de ta ville : indique-la d'abord.
@@ -70,7 +70,7 @@
 			{/if}
 			<form
 				method="POST"
-				class="space-y-4"
+				class="space-y-5 rounded-3xl border bg-card p-4 sm:p-6 lg:p-8"
 				use:enhance={() => {
 					sending = true;
 					return async ({ update }) => {
@@ -142,7 +142,7 @@
 						class={field}>{v.description ?? ''}</textarea
 					>
 				</label>
-				<div class="grid gap-3 sm:grid-cols-2">
+				<div class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
 					<label class="block space-y-1 text-sm font-medium">
 						Instrument recherché
 						<select name="instrument" class={field}>

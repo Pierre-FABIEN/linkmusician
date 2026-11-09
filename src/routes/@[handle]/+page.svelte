@@ -4,6 +4,7 @@
 	import Suggestions from '#lib/components/linkmusician/Suggestions.svelte';
 	import BandProfile from '#lib/components/linkmusician/BandProfile.svelte';
 	import WorksCard from '#lib/components/linkmusician/works/WorksCard.svelte';
+	import CareerSheetCard from '#lib/components/linkmusician/CareerSheetCard.svelte';
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
@@ -103,6 +104,10 @@
 		(p.bio?.trim() || `${p.displayName} sur LinkMusician : ${summary}.`).slice(0, 160)
 	);
 	const url = $derived(`${seoConfig.site.url}/@${p.handle}`);
+	const latestPassedAct = $derived(data.careerSheet?.actsPassed.slice(-1)[0]);
+	const souvenirImage = $derived(
+		latestPassedAct ? `/api/carriere/souvenir/${p.handle}/${latestPassedAct}.png` : undefined
+	);
 
 	/** Données structurées : `Person` pour une personne, `MusicGroup` pour un groupe. */
 	const structured = $derived(
@@ -153,7 +158,13 @@
 		memberShell={Boolean(data.memberShell)}
 	/>
 {:else}
-	<SEO title="{p.displayName} (@{p.handle})" {description} {url} noindex={!p.indexable} />
+	<SEO
+		title="{p.displayName} (@{p.handle})"
+		{description}
+		{url}
+		image={souvenirImage}
+		noindex={!p.indexable}
+	/>
 	<StructuredData type={structured.type} data={structured.data} />
 
 	<div class="min-h-screen w-screen px-4 {data.memberShell ? 'pt-6 pb-24' : 'py-24'}">
@@ -255,6 +266,10 @@
 				</div>
 
 				<div class="space-y-6">
+					{#if data.careerSheet}
+						<CareerSheetCard sheet={data.careerSheet} handle={p.handle} shareable />
+					{/if}
+
 					<Card.Root>
 						<Card.Header>
 							<Card.Title><h2>Ce que d'autres confirment</h2></Card.Title>

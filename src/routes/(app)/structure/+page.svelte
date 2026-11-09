@@ -8,9 +8,11 @@
 
 <SEO title="Ta structure" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-lg rounded-lg border p-6 shadow-lg backdrop-blur-3xl">
-		<h1 class="mb-2 text-2xl font-bold">Tu fais partie d'une structure&nbsp;?</h1>
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-4xl rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+		<h1 class="mb-2 text-3xl font-black tracking-tight sm:text-4xl">
+			Tu fais partie d'une structure&nbsp;?
+		</h1>
 		<p class="mb-6 text-sm text-muted-foreground">
 			Groupe, studio, label… Tu pourras bientôt la rattacher à ton profil. On te prévient dès que
 			c'est prêt.

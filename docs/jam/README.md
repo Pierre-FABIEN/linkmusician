@@ -10,13 +10,31 @@ Jouer pour le plaisir et rencontrer, sans projet ni engagement.
   carte disant comment on y avance. Le dernier choix est retenu
   (`Person.preferredMode`, « Reprendre »). La première fois, une
   **présentation en 3 étapes** (`/jouer/carriere`, `/jouer/jam`).
-- **Navigation par mode** : en jam, quatre onglets (Jam, Découvrir,
-  Messages, Profil) ; pastille « changer de mode » en haut de l'écran.
+- **Navigation (D48)** : raccourcis Découvrir, Messages et Notifications
+  dans l'en-tête ; Profil dans le menu du compte. La pastille du mode
+  bascule directement entre Jam et Carrière.
 - **« Ta prochaine étape »** (`src/lib/jam/guide.ts`) : ville → se mettre
   dispo (ou repérer une jam, pour les mineur·es) → écrire à quelqu'un →
   confirmer la jam (points) → passer en mode carrière.
-- **`/jam`** : « Je suis dispo », les dispos autour de soi, les jams
-  ouvertes (annonces de type jam), « Lancer une jam ».
+- **`/jam`** : page-menu (D50) : « Ta prochaine étape », puis, mise en
+  avant, Apprécier les musicos croisés (`/jam/apprecier` : jam en cours et
+  jams des 7 derniers jours, autres présent·es et appréciations laissées,
+  `crossedJams`, `crossedStatus`, badge « Jam en cours » ou « N à
+  apprécier », chaque jam menant à « Qui était là ? »), Les musicos
+  dispo autour de moi (`/jam/dispos` : « Je suis dispo » et les dispos),
+  Jams à venir (`/jam/agenda` : calendrier mensuel et lieux), Mes jams
+  (`/jam/mes-jams` : invitations du lead, dernières jams), Lancer une jam
+  (organisateurs seulement, D51), Mon carnet et mon réseau.
+- **Organisateurs (D51)** : `Person.organizesJams`, case « Je suis prêt·e
+  à organiser des jams » de `/profil`, offerte aux adultes seulement
+  (`#lib/jam/organizer`). Seul·es ces profils lancent une jam
+  (`createJam` refuse sinon, `/jams/nouvelle` renvoie vers
+  `/profil?organiser=1#organiser`) ; « Lancer une jam », « Publier une jam
+  ici » et « Rejouer ensemble » ne s'affichent qu'à eux. Les autres
+  s'écrivent par la messagerie et peuvent déclarer une collaboration. Ces
+  profils seront proposés aux structures (phase 5). Migration : les
+  personnes qui avaient déjà publié une jam ont été cochées. RGPD : export
+  `pret_a_organiser_des_jams`, remis à faux à l'anonymisation.
 
 ## « Je suis dispo » (P2-13)
 
@@ -91,6 +109,9 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   style, places), `/jams/[id]` (« Je viens »), jams à venir sur `/jam` et
   sur la fiche du lieu (« Publier une jam ici »). Les annonces ne
   proposent plus le type Jam (`/annonces/nouvelle?type=JAM` redirige).
+- **Calendrier** : le calendrier accessible sur `/jam` repère les jours
+  contenant des jams dans le fuseau de Paris. Sélectionner une date affiche
+  ses événements ; les jours marqués sont aussi annoncés par lecteur d'écran.
 - **RGPD** : « Je viens » dans l'export (`jams_je_viens`), supprimés à
   l'anonymisation.
 

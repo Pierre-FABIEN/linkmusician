@@ -1,41 +1,31 @@
-// LINKMUSICIAN: mode jam (P2-12, P2-13) : « Je suis dispo », les dispos et
-// les jams ouvertes autour de moi, « Lancer une jam ».
-import { fail } from '@sveltejs/kit';
+// LINKMUSICIAN: accueil du mode jam (P2-12), page-menu (D50) : « Ta
+// prochaine étape », puis une entrée par écran (dispos, jams à venir, mes
+// jams, lancer une jam, carnet). Seulement des compteurs, aucun contenu.
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { getActorLocation } from '#lib/server/geo/queries';
-import {
-	AvailabilityError,
-	canBeAvailable,
-	clearAvailability,
-	listAvailableNearby,
-	myAvailability,
-	setAvailability
-} from '#lib/server/jam/availability';
-import { AVAILABILITY_SLOTS, type AvailabilitySlotValue } from '#lib/jam/availability';
+import { canBeAvailable, listAvailableNearby, myAvailability } from '#lib/server/jam/availability';
 import { prisma } from '#lib/server';
 import { jamNextStep } from '#lib/jam/guide';
 import { venuesNear } from '#lib/server/venues/service';
-import { myJamInvites, upcomingJamsNear } from '#lib/server/jam/publicJams';
-import { myRecentJams } from '#lib/server/jam/afterJam';
-import type { Actions, PageServerLoad } from './$types';
-
-async function me(locals: App.Locals) {
-	return (await getPersonByUserId(locals.user!.id))!;
-}
+import { isJamOrganizer, myJamInvites, upcomingJamsNear } from '#lib/server/jam/publicJams';
+import { crossedJams, myRecentJams } from '#lib/server/jam/afterJam';
+import { appreciateBadge } from '#lib/jam/afterJam';
+import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const person = await me(locals);
+	const person = (await getPersonByUserId(locals.user!.id))!;
 	const location = await getActorLocation(person.actorId);
-	const [mine, canBeDispo, available, jams, invites, recent] = await Promise.all([
-		myAvailability(person.actorId),
-		canBeAvailable(person.actorId),
-		location ? listAvailableNearby(person.actorId) : Promise.resolve([]),
-		location ? upcomingJamsNear(person.actorId) : Promise.resolve([]),
-		// Invitations du lead en attente de réponse (P2-14c).
-		myJamInvites(person.actorId),
-		// Après la jam (P2-15) : « Tu y étais ? », « Qui était là ? ».
-		myRecentJams(person.actorId)
-	]);
+	const [mine, canBeDispo, available, jams, invites, recent, organizer, crossed] =
+		await Promise.all([
+			myAvailability(person.actorId),
+			canBeAvailable(person.actorId),
+			location ? listAvailableNearby(person.actorId) : Promise.resolve([]),
+			location ? upcomingJamsNear(person.actorId) : Promise.resolve([]),
+			myJamInvites(person.actorId),
+			myRecentJams(person.actorId),
+			isJamOrganizer(person.actorId),
+			crossedJams(person.actorId)
+		]);
 	// Guide « Ta prochaine étape » (P2-12b).
 	const [conversations, playedTogether, venuesAdded, nearbyVenues] = await Promise.all([
 		prisma.conversationParticipant.count({
@@ -52,50 +42,29 @@ export const load: PageServerLoad = async ({ locals }) => {
 			}
 		}),
 		prisma.venue.count({ where: { createdById: person.actorId } }),
-		location ? venuesNear(person.actorId, { limit: 3 }) : Promise.resolve([])
+		location ? venuesNear(person.actorId, { limit: 1 }) : Promise.resolve([])
 	]);
-	const nextStep = jamNextStep({
-		hasCity: Boolean(location),
-		canBeDispo,
-		isDispo: Boolean(mine),
-		hasConversation: conversations > 0,
-		knowsVenues: venuesAdded > 0 || nearbyVenues.length > 0,
-		playedTogether
-	});
 	return {
 		commune: location?.communeName ?? null,
-		mine,
 		canBeDispo,
-		available,
-		jams,
-		invites,
-		recent,
-		venues: nearbyVenues,
-		nextStep
+		/** « Lancer une jam » : seulement si « prêt·e à organiser des jams » (D51). */
+		organizer,
+		mySlot: mine?.slot ?? null,
+		availableCount: available.length,
+		jamCount: jams.length,
+		inviteCount: invites.length,
+		/** Jams passées où dire « J'y étais » ou apprécier. */
+		recentCount: recent.length,
+		/** « Apprécier les musicos croisés » : jam en cours ou personnes à apprécier. */
+		appreciate: appreciateBadge(crossed),
+		crossedCount: crossed.length,
+		nextStep: jamNextStep({
+			hasCity: Boolean(location),
+			canBeDispo,
+			isDispo: Boolean(mine),
+			hasConversation: conversations > 0,
+			knowsVenues: venuesAdded > 0 || nearbyVenues.length > 0,
+			playedTogether
+		})
 	};
-};
-
-export const actions: Actions = {
-	dispo: async ({ locals, request }) => {
-		const data = await request.formData();
-		const slot = String(data.get('slot') ?? '');
-		if (!(AVAILABILITY_SLOTS as readonly string[]).includes(slot)) {
-			return fail(400, { error: 'Choisis un créneau.' });
-		}
-		try {
-			await setAvailability(
-				(await me(locals)).actorId,
-				slot as AvailabilitySlotValue,
-				String(data.get('note') ?? '')
-			);
-			return { message: 'C’est noté : les musicien·nes du coin savent que tu veux jouer.' };
-		} catch (err) {
-			if (err instanceof AvailabilityError) return fail(err.status, { error: err.message });
-			throw err;
-		}
-	},
-	pasDispo: async ({ locals }) => {
-		await clearAvailability((await me(locals)).actorId);
-		return { message: 'Tu n’es plus affiché·e comme dispo.' };
-	}
 };

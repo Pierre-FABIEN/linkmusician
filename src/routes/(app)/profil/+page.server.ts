@@ -19,11 +19,14 @@ import { onProfileChanged } from '#lib/server/progression/profile';
 import { currentTip } from '#lib/server/guide/service';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	const person = await requirePerson(locals);
 	const details = await getProfileDetails(person);
 	return {
 		form: await superValidate(profileFormValues(details), zod(profileSchema), { errors: false }),
+		mayOrganize: details.mayOrganize,
+		/** Arrivé·e depuis « Lancer une jam » sans avoir coché (D51). */
+		askOrganize: url.searchParams.has('organiser'),
 		// Conseil en contexte (P2-17).
 		tip: await currentTip('profil', person)
 	};

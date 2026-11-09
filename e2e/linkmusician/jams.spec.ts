@@ -58,14 +58,27 @@ test.describe('LinkMusician — jams publiques', () => {
 			await skipOnboarding(page, account.email);
 			await setCity(page);
 			myActorId = (
-				await db.person.findUniqueOrThrow({
-					where: { userId: (await requireUser(account.email)).id }
+				await db.person.update({
+					where: { userId: (await requireUser(account.email)).id },
+					// Prêt·e à organiser des jams (D51) : publie une jam à l'étape 3.
+					data: { organizesJams: true }
 				})
 			).actorId;
 
 			await test.step('1. La jam du lieu voisin est dans le mode jam', async () => {
-				await page.goto('/jam');
+				const viewport = page.viewportSize();
+				await page.goto('/jam/agenda');
 				await waitForAppReady(page);
+				await expect(page.getByRole('button', { name: 'Mois précédent' })).toBeVisible();
+				await expect(page.getByRole('button', { name: 'Mois suivant' })).toBeVisible();
+				const calendarPanel = page.locator('#jams > .grid > div').first();
+				for (const width of [320, 1440]) {
+					await page.setViewportSize({ width, height: 800 });
+					expect(
+						await calendarPanel.evaluate((element) => element.scrollWidth <= element.clientWidth)
+					).toBe(true);
+				}
+				if (viewport) await page.setViewportSize(viewport);
 				const list = page.getByRole('list', { name: 'Jams à venir' });
 				await list.getByRole('link', { name: /E2E Bœuf du Préau/ }).click();
 				await expect(page.getByRole('heading', { name: 'E2E Bœuf du Préau' })).toBeVisible();
@@ -208,7 +221,7 @@ test.describe('LinkMusician — jams publiques', () => {
 			});
 
 			await test.step('3. La batteuse voit l’invitation et accepte', async () => {
-				await drummerPage.goto('/jam');
+				await drummerPage.goto('/jam/mes-jams');
 				await waitForAppReady(drummerPage);
 				const invites = drummerPage.getByRole('region', { name: /On t’invite à jouer/ });
 				await invites.getByRole('link', { name: /E2E Jam du Taquin/ }).click();
@@ -280,6 +293,8 @@ test.describe('LinkMusician — jams publiques', () => {
 			hostId = me.actorId;
 			// L'hôte a un peu d'ancienneté : il peut apprécier (TL1).
 			await db.actor.update({ where: { id: me.actorId }, data: { trustLevel: 1 } });
+			// Organisateur (D51) : « Rejouer ensemble » à l'étape 5.
+			await db.person.update({ where: { actorId: me.actorId }, data: { organizesJams: true } });
 			const venue = await db.venue.create({
 				data: {
 					name: 'E2E Le Bœuf Café',
@@ -317,7 +332,7 @@ test.describe('LinkMusician — jams publiques', () => {
 					.amount ?? 0;
 
 			await test.step('1. L’hôte dit « J’y étais » : rien ne rapporte', async () => {
-				await page.goto('/jam');
+				await page.goto('/jam/mes-jams');
 				await waitForAppReady(page);
 				const recent = page.getByRole('region', { name: 'Tes dernières jams' });
 				await recent.getByRole('link', { name: /E2E Bœuf du mardi/ }).click();

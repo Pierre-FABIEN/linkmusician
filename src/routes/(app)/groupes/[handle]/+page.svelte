@@ -1,4 +1,6 @@
 <script lang="ts">
+	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
+	import { BadgeCheck } from 'lucide-svelte';
 	// LINKMUSICIAN: un groupe (P3-01), voir +page.server.ts.
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
@@ -14,6 +16,7 @@
 		type MilestoneKey
 	} from '#lib/milestones/rules';
 	import { EVIDENCE_LABELS, proofRule } from '#lib/milestones/proofs';
+	import { FROZEN_LABEL } from '#lib/milestones/disputes';
 	import {
 		Circle,
 		CircleCheck,
@@ -91,14 +94,15 @@
 
 <SEO title={band.name} noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-8">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-7xl space-y-8">
 		<div class="space-y-2">
 			<a href="/groupes" class="text-sm text-muted-foreground underline">← Mes groupes</a>
-			<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight">
+			<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight sm:text-4xl">
 				<UsersRound class="size-7" aria-hidden="true" />
 				{band.name}
 			</h1>
+			{#if data.tier}<TierBadge {...data.tier} prefix="Rang du groupe :" />{/if}
 			<p class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
 				<a href="/@{band.handle}" class="underline">Voir la page publique</a>
 				{#if manager && !dissolved}
@@ -159,7 +163,7 @@
 		{#if manager && band.requests.length > 0}
 			<section class="space-y-3" aria-labelledby="requests-title">
 				<h2 id="requests-title" class="text-xl font-bold">Demandes pour rejoindre</h2>
-				<ul class="space-y-2">
+				<ul class="grid gap-2 md:grid-cols-2">
 					{#each band.requests as r (r.membershipId)}
 						<li
 							class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border bg-card p-4"
@@ -190,7 +194,7 @@
 
 		<section class="space-y-3" aria-labelledby="members-title">
 			<h2 id="members-title" class="text-xl font-bold">Membres</h2>
-			<ul class="space-y-2" aria-label="Membres actuels">
+			<ul class="grid gap-3 md:grid-cols-2" aria-label="Membres actuels">
 				{#each band.members as m (m.membershipId)}
 					<li class="space-y-2 rounded-2xl border bg-card p-4">
 						<div class="flex flex-wrap items-start justify-between gap-2">
@@ -263,7 +267,7 @@
 						Le parcours s’ouvre quand le groupe est formé : invitez un premier membre.
 					</p>
 				{:else}
-					<ol class="space-y-2" aria-label="Étapes du groupe">
+					<ol class="grid gap-3 xl:grid-cols-2" aria-label="Étapes du groupe">
 						{#each openSteps as def (def.key)}
 							{@const step = stepOf(def.key)}
 							{@const rule = proofRule(def.key)}
@@ -283,7 +287,7 @@
 											<span class="font-semibold">{def.label}</span>
 											{#if step}
 												<span class="ml-1 rounded-full border px-2 py-0.5 text-xs"
-													>{PROOF_LABELS[step.proof]}</span
+													>{step.frozen ? FROZEN_LABEL : PROOF_LABELS[step.proof]}</span
 												>
 												<span class="block text-sm text-muted-foreground"
 													>{day.format(new Date(step.occurredAt))}{step.note
@@ -303,7 +307,7 @@
 											{/if}
 										</span>
 									</span>
-									{#if manager && !dissolved && def.mode === 'declare' && stepForm !== def.key}
+									{#if manager && !dissolved && def.mode === 'declare' && stepForm !== def.key && !step?.frozen}
 										<button
 											type="button"
 											class="min-h-11 shrink-0 rounded-full border px-3 text-sm {step
@@ -372,8 +376,32 @@
 											>
 										</div>
 									</form>
+									{#if step}
+										<!-- Retirer une étape déclarée par erreur (P3-06) : ses points sont repris. -->
+										<form
+											method="POST"
+											action="?/retractMilestone"
+											use:enhance={closeOnSuccess}
+											class="border-t pt-3 text-sm"
+										>
+											<input type="hidden" name="milestoneId" value={step.id} />
+											<p class="text-muted-foreground">
+												Déclarée par erreur ? La retirer reprend les points qu’elle a rapportés au
+												groupe et à ses membres.
+											</p>
+											<button class="mt-2 min-h-11 text-destructive underline"
+												>Retirer l’étape « {def.label} »</button
+											>
+										</form>
+									{/if}
 								{/if}
-								{#if step && rule && proofs && (step.proof === 'DECLARED' || proofs.attestations.length > 0 || proofs.evidence.length > 0)}
+								{#if step?.frozen}
+									<p class="border-t pt-3 text-sm" role="status">
+										Quelqu’un a signalé cette étape : la modération vérifie. En attendant, elle
+										n’apparaît plus comme prouvée et ne reçoit plus de preuve.
+									</p>
+								{/if}
+								{#if step && !step.frozen && rule && proofs && (step.proof === 'DECLARED' || proofs.attestations.length > 0 || proofs.evidence.length > 0)}
 									<div class="space-y-2 border-t pt-3 text-sm">
 										{#if step.proof === 'DECLARED'}
 											<p class="font-semibold">Pour la corroborer :</p>
@@ -574,7 +602,7 @@
 						elle apparaît sur la page du groupe.
 					</p>
 				{:else}
-					<ul class="space-y-2">
+					<ul class="grid gap-3 sm:grid-cols-2">
 						{#each data.works as w (w.id)}
 							<li>
 								<a
@@ -638,7 +666,7 @@
 					>
 				</form>
 				{#if band.invitations.length > 0}
-					<ul class="space-y-2" aria-label="Invitations en attente">
+					<ul class="grid gap-2 sm:grid-cols-2" aria-label="Invitations en attente">
 						{#each band.invitations as i (i.membershipId)}
 							<li
 								class="flex items-center justify-between gap-2 rounded-2xl border bg-card px-4 py-2 text-sm"
@@ -658,7 +686,7 @@
 		{#if band.past.length > 0}
 			<section class="space-y-3" aria-labelledby="past-title">
 				<h2 id="past-title" class="text-xl font-bold">Ils et elles y ont joué</h2>
-				<ul class="space-y-1 text-sm" aria-label="Anciens membres">
+				<ul class="grid gap-x-6 gap-y-1 text-sm md:grid-cols-2" aria-label="Anciens membres">
 					{#each band.past as m (m.membershipId)}
 						<li>
 							{#if m.handle}
@@ -672,6 +700,68 @@
 						</li>
 					{/each}
 				</ul>
+			</section>
+		{/if}
+
+		{#if manager && data.verification}
+			<!-- Organisation vérifiée (P3-09) : SIRET et lien officiel, contrôlés à la main. -->
+			<section class="space-y-3" aria-labelledby="verify-title">
+				<h2 id="verify-title" class="flex items-center gap-2 text-xl font-bold">
+					<BadgeCheck class="size-5" aria-hidden="true" /> Groupe vérifié
+				</h2>
+				{#if data.verification.verifiedAt}
+					<p class="text-sm">Votre groupe est vérifié : le badge s’affiche sur sa page publique.</p>
+				{:else if data.verification.last?.status === 'PENDING'}
+					<p class="text-sm" role="status">
+						Votre demande est en cours d’examen par l’équipe. Le badge apparaîtra dès qu’elle sera
+						acceptée.
+					</p>
+				{:else if !dissolved}
+					<p class="text-sm text-muted-foreground">
+						Votre groupe est déclaré (association, entreprise) ? Donnez son SIRET et son site ou
+						réseau officiel : l’équipe vérifie à la main, et un badge « vérifié » rassure les lieux
+						et les organisateurs. Ça ne rapporte pas de points.
+					</p>
+					{#if data.verification.last?.status === 'REJECTED'}
+						<p class="rounded-md border border-destructive/50 p-3 text-sm">
+							Dernière demande refusée{data.verification.last.reason
+								? ` : ${data.verification.last.reason}`
+								: '.'}
+						</p>
+					{/if}
+					<form
+						method="POST"
+						action="?/requestVerification"
+						class="grid gap-3 sm:grid-cols-2"
+						use:enhance
+					>
+						<label class="block space-y-1 text-sm font-medium">
+							SIRET
+							<input
+								name="siret"
+								required
+								inputmode="numeric"
+								autocomplete="off"
+								placeholder="123 456 789 00012"
+								class="w-full rounded-md border bg-background p-2 font-normal"
+							/>
+						</label>
+						<label class="block space-y-1 text-sm font-medium">
+							Site ou réseau officiel
+							<input
+								name="officialUrl"
+								type="url"
+								required
+								placeholder="https://www.instagram.com/…"
+								class="w-full rounded-md border bg-background p-2 font-normal"
+							/>
+						</label>
+						<button
+							class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground sm:w-fit"
+							>Demander la vérification</button
+						>
+					</form>
+				{/if}
 			</section>
 		{/if}
 

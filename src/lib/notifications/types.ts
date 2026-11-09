@@ -17,7 +17,8 @@ export const NOTIFICATION_TYPES = [
 	'BAND_REQUEST',
 	'BAND_JOINED',
 	'WORK_CREDIT',
-	'MILESTONE_ATTEST'
+	'MILESTONE_ATTEST',
+	'GROUP_DISCUSSION_INVITE'
 ] as const;
 export type NotificationTypeValue = (typeof NOTIFICATION_TYPES)[number];
 
@@ -37,7 +38,8 @@ export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, st
 	BAND_REQUEST: 'Demandes pour rejoindre mes groupes',
 	BAND_JOINED: 'Nouveaux membres de mes groupes',
 	WORK_CREDIT: 'Crédits sur un morceau à confirmer',
-	MILESTONE_ATTEST: 'Étapes de groupe à confirmer'
+	MILESTONE_ATTEST: 'Étapes de groupe à confirmer',
+	GROUP_DISCUSSION_INVITE: 'Invitations à une discussion de groupe'
 };
 
 /**
@@ -89,6 +91,8 @@ export function notificationText(
 			return `${who} te crédite sur le morceau${what}. Confirme ton rôle si c’est bien toi.`;
 		case 'MILESTONE_ATTEST':
 			return `${who} te demande de confirmer${title ? ` : ${title}` : ' une étape de son groupe'}. Réponds seulement si tu y étais.`;
+		case 'GROUP_DISCUSSION_INVITE':
+			return `${who} t’invite à la discussion de groupe${what}. Rejoins-la si tu veux.`;
 	}
 }
 

@@ -3,6 +3,7 @@
  * recherche, matériel, pratique, mobilité, liens. Règles pures dans
  * `#lib/actors/profile`.
  */
+import { mayOfferToOrganize } from '#lib/jam/organizer';
 import type { Equipment, LinkKind, LookingFor, ProStatus } from '@prisma/client';
 import { prisma } from '#lib/server';
 import {
@@ -34,6 +35,8 @@ export async function getProfileDetails(person: { actorId: string }) {
 			equipment: true,
 			practiceSince: true,
 			travelRadiusKm: true,
+			organizesJams: true,
+			birthDate: true,
 			links: { select: { kind: true, url: true } },
 			actor: { select: { bio: true } }
 		}
@@ -45,6 +48,9 @@ export async function getProfileDetails(person: { actorId: string }) {
 		equipment: data.equipment,
 		practiceSince: data.practiceSince,
 		travelRadiusKm: data.travelRadiusKm,
+		organizesJams: data.organizesJams,
+		/** La case « organiser des jams » ne s'offre qu'aux adultes (D51). */
+		mayOrganize: mayOfferToOrganize(data.birthDate),
 		links: data.links
 	};
 }
@@ -62,6 +68,7 @@ export function profileFormValues(
 		equipment: details.equipment,
 		practiceSince: details.practiceSince,
 		travelRadiusKm: details.travelRadiusKm ?? 0,
+		organizesJams: details.organizesJams,
 		links
 	};
 }
@@ -73,6 +80,12 @@ export function profileFormValues(
  */
 export async function saveProfileDetails(person: { actorId: string }, form: ProfileForm) {
 	const bio = normalizeBio(form.bio);
+	// Adultes seulement (D51) : une case cochée par un·e mineur·e est ignorée.
+	const { birthDate } = await prisma.person.findUniqueOrThrow({
+		where: { actorId: person.actorId },
+		select: { birthDate: true }
+	});
+	const organizesJams = form.organizesJams && mayOfferToOrganize(birthDate);
 	const links = LINK_KINDS.flatMap((kind) => {
 		const raw = form.links[kind].trim();
 		if (raw === '') return [];
@@ -89,7 +102,8 @@ export async function saveProfileDetails(person: { actorId: string }, form: Prof
 				lookingFor: [...new Set(form.lookingFor)],
 				equipment: [...new Set(form.equipment)],
 				practiceSince: form.practiceSince,
-				travelRadiusKm: form.travelRadiusKm === 0 ? null : form.travelRadiusKm
+				travelRadiusKm: form.travelRadiusKm === 0 ? null : form.travelRadiusKm,
+				organizesJams
 			}
 		}),
 		prisma.profileLink.deleteMany({ where: { personId: person.actorId } }),

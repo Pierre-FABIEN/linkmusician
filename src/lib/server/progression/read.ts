@@ -51,7 +51,8 @@ export const SUMMARY_EVENTS: readonly DomainEventType[] = [
 	'collaboration.completed',
 	'endorsement.received',
 	'endorsement.revoked',
-	'milestone.attested'
+	'milestone.attested',
+	'milestone.revoked'
 ];
 
 /** Résumé musicien lu dans les événements de domaine, et palier qui en découle. */

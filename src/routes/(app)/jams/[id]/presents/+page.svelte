@@ -32,11 +32,11 @@
 
 <SEO title="Qui était là ? · {data.jam.title}" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<article class="mx-auto max-w-2xl space-y-6">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<article class="mx-auto max-w-6xl space-y-6 lg:space-y-8">
 		<div class="space-y-2">
 			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
-			<h1 class="text-3xl font-black tracking-tight">Qui était là ?</h1>
+			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Qui était là ?</h1>
 			<p class="font-semibold">{data.jam.title}</p>
 			<p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
 				<span class="inline-flex items-center gap-1"
@@ -90,7 +90,7 @@
 					Personne d’autre n’a encore dit qu’il ou elle y était. Reviens dans quelques jours !
 				</p>
 			{:else}
-				<ul class="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label="Présent·es">
+				<ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4" aria-label="Présent·es">
 					{#each others as p (p.handle)}
 						<li class="rounded-2xl border bg-card">
 							<details class="group">
@@ -167,12 +167,14 @@
 			{/if}
 		</section>
 
-		<a
-			href="/jams/nouvelle?rejouer={data.jam.id}&lieu={data.jam.venue.id}"
-			class="inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 font-semibold"
-		>
-			<Repeat class="size-4" aria-hidden="true" /> Rejouer ensemble
-		</a>
+		{#if data.organizer}
+			<a
+				href="/jams/nouvelle?rejouer={data.jam.id}&lieu={data.jam.venue.id}"
+				class="inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 font-semibold"
+			>
+				<Repeat class="size-4" aria-hidden="true" /> Rejouer ensemble
+			</a>
+		{/if}
 
 		{#if data.iWasThere}
 			<form method="POST" action="?/notThere" use:enhance>

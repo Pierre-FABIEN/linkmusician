@@ -343,6 +343,61 @@ export async function myRecentJams(viewerId: string, now = new Date()) {
 	}));
 }
 
+/**
+ * « Apprécier les musicos croisés » (D50) : la jam en cours et celles de la
+ * période d'après-jam où la personne était, avec le nombre d'autres
+ * présent·es et d'appréciations déjà laissées. Seulement des compteurs : les
+ * visages sont sur « Qui était là ? ».
+ */
+export async function crossedJams(viewerId: string, now = new Date()) {
+	const rows = await prisma.opportunity.findMany({
+		where: {
+			kind: 'JAM',
+			status: { in: ['OPEN', 'FILLED', 'EXPIRED'] },
+			venue: { removedAt: null, validatedAt: { not: null } },
+			startsAt: { lte: now },
+			endsAt: { gte: new Date(now.getTime() - AFTER_JAM_DAYS * DAY_MS) },
+			OR: [
+				{ issuerActorId: viewerId },
+				{ attendances: { some: { actorId: viewerId, removedAt: null } } },
+				{ jamInvites: { some: { actorId: viewerId, status: 'ACCEPTED' } } }
+			]
+		},
+		orderBy: { startsAt: 'desc' },
+		take: 10,
+		select: {
+			id: true,
+			title: true,
+			startsAt: true,
+			endsAt: true,
+			venue: { select: { name: true } },
+			attendances: {
+				where: { ...presentWhere, actor: publicActorWhere(now, viewerId) },
+				select: { actorId: true }
+			},
+			endorsements: {
+				where: { fromActorId: viewerId, revokedAt: null },
+				select: { toActorId: true }
+			}
+		}
+	});
+	return rows.map((j) => {
+		const present = j.attendances.map((a) => a.actorId);
+		const others = new Set(present.filter((id) => id !== viewerId));
+		return {
+			id: j.id,
+			title: j.title,
+			startsAt: j.startsAt!,
+			endsAt: j.endsAt!,
+			venue: j.venue?.name ?? '',
+			attended: present.includes(viewerId),
+			others: others.size,
+			given: j.endorsements.filter((e) => others.has(e.toActorId)).length
+		};
+	});
+}
+export type CrossedJamRow = Awaited<ReturnType<typeof crossedJams>>[number];
+
 const hhmm = (minutes: number) =>
 	`${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
 

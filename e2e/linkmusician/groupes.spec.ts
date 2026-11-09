@@ -46,6 +46,12 @@ test.describe('LinkMusician — groupes', () => {
 			await test.step('1. Je monte un groupe : il est en formation, sans point', async () => {
 				await page.goto('/groupes');
 				await waitForAppReady(page);
+				const announcementsLink = page.locator('header').getByRole('link', { name: 'Annonces' });
+				await expect(announcementsLink).toBeVisible();
+				await announcementsLink.click();
+				await expect(page).toHaveURL(/\/annonces$/);
+				await page.goBack();
+				await waitForAppReady(page);
 				await expect(page.getByText('Tu n’as pas encore de groupe.')).toBeVisible();
 				await page.getByRole('link', { name: 'Monter un groupe' }).click();
 				await page.getByLabel('Nom du groupe').fill(bandName);

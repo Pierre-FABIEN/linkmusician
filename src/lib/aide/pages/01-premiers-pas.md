@@ -48,21 +48,18 @@ présentation en trois écrans t’explique chacun la première fois.
 - **Mode jam** : pour jouer bientôt, sans projet. [Voir le mode jam](./02-mode-jam.md)
 - **Mode carrière** : pour monter un projet. [Voir le mode carrière](./03-mode-carriere.md)
 
-L’app retient ton dernier choix. Pour changer, touche la pastille du mode
-en haut de l’écran (« **Mode jam** » ou « **Mode carrière** »).
+L’app retient ton dernier choix. Pour basculer, touche la pastille du
+mode en haut de l’écran : elle t’emmène directement vers l’autre mode.
 
 ## 4. Te repérer dans l’app
 
-| Onglet                               | Ce que tu y trouves                                                  |
-| ------------------------------------ | -------------------------------------------------------------------- |
-| **Mon espace** (carrière) ou **Jam** | Ton accueil, avec ta prochaine étape                                 |
-| **Découvrir**                        | Les musicien·nes près de chez toi, par instrument, style et distance |
-| **Annonces**                         | Les recherches de musicien·nes, de sessions, de groupes (carrière)   |
-| **Messages**                         | Tes conversations et les demandes reçues                             |
-| **Profil**                           | Ton profil, tes médias, tes groupes                                  |
+Dans l’en-tête, tu retrouves les raccourcis **Découvrir**, **Messages**
+et **Notifications** dans les deux modes. Le menu du compte contient ton
+profil, tes paramètres et l’aide. L’accueil du mode sélectionné est
+accessible depuis `/espace` (carrière) ou `/jam`.
 
-La **cloche** en haut te prévient quand quelqu’un t’écrit, t’invite ou
-attend une confirmation de ta part.
+La **cloche** te prévient quand quelqu’un t’invite ou attend une
+confirmation ; l’icône **Messages** affiche les conversations non lues.
 
 ## Questions fréquentes
 

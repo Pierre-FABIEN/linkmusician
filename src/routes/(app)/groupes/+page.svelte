@@ -1,4 +1,5 @@
 <script lang="ts">
+	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
 	// LINKMUSICIAN: mes groupes (P3-01), voir +page.server.ts.
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
@@ -19,12 +20,12 @@
 
 <SEO title="Mes groupes" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-8">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-7xl space-y-8">
 		<div class="space-y-2">
 			<a href="/espace" class="text-sm text-muted-foreground underline">← Mon parcours</a>
 			<div class="flex flex-wrap items-center justify-between gap-3">
-				<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight">
+				<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight sm:text-4xl">
 					<UsersRound class="size-7" aria-hidden="true" /> Mes groupes
 				</h1>
 				<a
@@ -48,7 +49,7 @@
 		{#if data.invitations.length > 0}
 			<section class="space-y-3" aria-labelledby="invites-title">
 				<h2 id="invites-title" class="text-xl font-bold">Invitations reçues</h2>
-				<ul class="space-y-3">
+				<ul class="grid gap-3 md:grid-cols-2">
 					{#each data.invitations as b (b.membershipId)}
 						<li class="space-y-3 rounded-2xl border border-primary bg-card p-4">
 							<p>
@@ -92,14 +93,17 @@
 		{#if data.active.length > 0}
 			<section class="space-y-3" aria-labelledby="bands-title">
 				<h2 id="bands-title" class="text-xl font-bold">Où je joue</h2>
-				<ul class="grid gap-3 sm:grid-cols-2">
+				<ul class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
 					{#each data.active as b (b.membershipId)}
 						<li>
 							<a
 								href="/groupes/{b.handle}"
 								class="block min-h-11 space-y-1 rounded-2xl border bg-card p-4 hover:bg-muted"
 							>
-								<span class="block text-lg font-bold">{b.name}</span>
+								<span class="flex flex-wrap items-center gap-2">
+									<span class="text-lg font-bold">{b.name}</span>
+									{#if b.tier}<TierBadge {...b.tier} prefix="Rang du groupe :" />{/if}
+								</span>
 								<span class="block text-sm text-muted-foreground"
 									>{b.formed
 										? plural(b.members, 'membre')
@@ -120,7 +124,7 @@
 		{#if data.requests.length > 0}
 			<section class="space-y-3" aria-labelledby="requests-title">
 				<h2 id="requests-title" class="text-xl font-bold">Mes demandes en attente</h2>
-				<ul class="space-y-2">
+				<ul class="grid gap-2 sm:grid-cols-2">
 					{#each data.requests as b (b.membershipId)}
 						<li class="flex items-center justify-between gap-2 rounded-2xl border bg-card p-4">
 							<a href="/groupes/{b.handle}" class="font-semibold underline">{b.name}</a>

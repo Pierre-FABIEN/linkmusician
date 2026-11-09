@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isPlayMode, orderedModes } from './modes';
+import { isPlayMode, modeFor, orderedModes } from './modes';
 
 describe('modes de jeu (P2-12)', () => {
 	it('sans préférence : carrière puis jam, rien à reprendre', () => {
@@ -19,6 +19,18 @@ describe('modes de jeu (P2-12)', () => {
 	it('reconnaît un mode valide', () => {
 		expect(isPlayMode('JAM')).toBe(true);
 		expect(isPlayMode('BATTLE')).toBe(false);
+	});
+
+	it.each([
+		['/jam', 'CAREER', 'JAM'],
+		['/lieux/abc', 'CAREER', 'JAM'],
+		['/lieuxdits', null, 'CAREER'],
+		['/espace', 'JAM', 'CAREER'],
+		['/groupes/les-rats', 'JAM', 'CAREER'],
+		['/messages', 'JAM', 'JAM'],
+		['/messages', null, 'CAREER']
+	] as const)('mode sur %s (préférence %s) : %s', (path, preferred, mode) => {
+		expect(modeFor(path, preferred)).toBe(mode);
 	});
 });
 

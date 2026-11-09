@@ -12,7 +12,7 @@
 	{#if venues.length === 0}
 		<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">{empty}</p>
 	{:else}
-		<ul class="grid gap-3 sm:grid-cols-2">
+		<ul class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
 			{#each venues as v (v.id)}
 				<li>
 					<a
@@ -33,11 +33,11 @@
 	{/if}
 {/snippet}
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-3xl space-y-6">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
 		<div class="space-y-2">
 			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
-			<h1 class="text-2xl font-bold">Lieux de jam</h1>
+			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Lieux de jam</h1>
 			<p class="text-sm text-muted-foreground">
 				Bars, cafés-concerts, salles, MJC, locaux de répète, studios : une jam se tient toujours
 				dans un lieu public ou professionnel, jamais chez quelqu'un.

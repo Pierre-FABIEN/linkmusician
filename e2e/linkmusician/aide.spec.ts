@@ -67,8 +67,8 @@ test.describe('LinkMusician — centre d’aide', () => {
 		await page.getByRole('link', { name: 'Le mode carrière' }).click();
 		await expect(page).toHaveURL(/\/aide\/mode-carriere$/);
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Le mode carrière');
-		// Membre connecté : la navigation de son espace reste là.
-		await expect(page.getByRole('navigation', { name: 'Espace' })).toBeVisible();
+		// Membre connecté : les raccourcis de la coquille restent visibles.
+		await expect(page.locator('header').getByRole('link', { name: 'Découvrir' })).toBeVisible();
 		await expectNoA11yViolations(page, A11Y_EXCLUDE);
 	});
 });

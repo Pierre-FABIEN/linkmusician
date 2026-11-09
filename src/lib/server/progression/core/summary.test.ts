@@ -149,4 +149,30 @@ describe('résumé musicien (P1-11)', () => {
 		expect(t.corroboratedGigs).toBe(1);
 		expect(t.verifiedReleases).toBe(1);
 	});
+
+	it('une étape retirée ne compte plus, sauf attestation postérieure (P3-06)', () => {
+		const day = (d: number) => new Date(Date.UTC(2026, 2, d, 12));
+		const gig = (d: number) =>
+			ev({
+				type: 'milestone.attested',
+				bandId: 'b1',
+				milestone: 'FIRST_GIG',
+				from: 'DECLARED',
+				to: 'CORROBORATED',
+				memberIds: [ME],
+				occurredAt: day(d)
+			});
+		const revoked = (d: number) =>
+			ev({
+				type: 'milestone.revoked',
+				bandId: 'b1',
+				milestone: 'FIRST_GIG',
+				memberIds: [ME],
+				reason: 'contested',
+				occurredAt: day(d)
+			});
+		// L'ordre de lecture est quelconque : seule la chronologie compte.
+		expect(musicianSummary(ME, [revoked(5), gig(1)]).corroboratedGigs).toBe(0);
+		expect(musicianSummary(ME, [gig(9), revoked(5), gig(1)]).corroboratedGigs).toBe(1);
+	});
 });

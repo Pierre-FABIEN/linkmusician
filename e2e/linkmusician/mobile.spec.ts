@@ -7,8 +7,8 @@ import { skipOnboarding } from '../support/linkmusician';
 import type { Page } from '@playwright/test';
 
 /**
- * P0-07 — Mobile d'abord : sur un écran de téléphone, l'espace a sa barre
- * d'onglets en bas, et aucune page ne déborde en largeur.
+ * P0-07 — Mobile : les raccourcis restent dans l'en-tête et aucune page ne
+ * déborde en largeur.
  */
 test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 
@@ -64,22 +64,21 @@ test.describe('LinkMusician — mobile', () => {
 			include: { actor: true }
 		});
 
-		await test.step('2. Barre d’onglets en bas, pas d’onglets en haut', async () => {
+		await test.step('2. Les raccourcis de l’en-tête sont visibles', async () => {
 			await visit(page, '/espace', 'espace');
-			const bottom = page.getByRole('navigation', { name: 'Espace (mobile)' });
-			await expect(bottom.getByRole('link')).toHaveCount(5);
-			await expect(bottom).toBeInViewport();
-			await expect(page.getByRole('navigation', { name: 'Espace', exact: true })).toBeHidden();
+			await expect(page.getByRole('navigation', { name: 'Espace', exact: true })).toHaveCount(0);
+			await expect(page.getByRole('navigation', { name: 'Espace (mobile)' })).toHaveCount(0);
+			const header = page.locator('header');
+			await expect(header.getByRole('link', { name: 'Découvrir' })).toBeInViewport();
+			await expect(header.getByRole('link', { name: 'Messages' })).toBeInViewport();
+			await expect(header.getByRole('link', { name: 'Notifications' })).toBeInViewport();
 			await expect(page.getByRole('button', { name: 'Ouvrir le menu du compte' })).toBeVisible();
 			// Bouton panier du boilerplate (boutique active en e2e), remontée n° 14.
 			await expectNoA11yViolations(page, ['.cartButton']);
 		});
 
 		await test.step('3. Navigation au doigt', async () => {
-			await page
-				.getByRole('navigation', { name: 'Espace (mobile)' })
-				.getByRole('link', { name: 'Découvrir' })
-				.tap();
+			await page.locator('header').getByRole('link', { name: 'Découvrir' }).tap();
 			await expect(page).toHaveURL(/\/decouvrir$/);
 			await expect(page.getByRole('heading', { level: 1, name: 'Découvrir' })).toBeVisible();
 		});

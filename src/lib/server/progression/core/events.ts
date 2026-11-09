@@ -133,6 +133,20 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		memberIds: z.array(id)
 	}),
 	/**
+	 * Une étape est retirée (P3-06) : contestation retenue par la modération,
+	 * ou retrait par la gestion du groupe. L'XP est reprise à part, par
+	 * transactions négatives liées ; l'événement retire l'étape du palier.
+	 */
+	z.object({
+		...base,
+		type: z.literal('milestone.revoked'),
+		bandId: id,
+		milestone: z.enum(MILESTONES),
+		/** Membres crédités par les attestations de l'étape. */
+		memberIds: z.array(id),
+		reason: z.enum(['contested', 'retracted'])
+	}),
+	/**
 	 * Une personne confirme une étape de groupe (P3-05). Ne rapporte rien en
 	 * soi : tracé pour la détection des cercles fermés (P2-10).
 	 */

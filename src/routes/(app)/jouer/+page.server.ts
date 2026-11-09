@@ -24,5 +24,15 @@ export const actions: Actions = {
 			data: { preferredMode: mode }
 		});
 		redirect(303, destinationFor(mode, person.modeIntrosSeen));
+	},
+	toggleMode: async ({ locals, request }) => {
+		const mode = (await request.formData()).get('mode');
+		if (!isPlayMode(mode)) return fail(400, { error: 'Mode inconnu.' });
+		const person = (await getPersonByUserId(locals.user!.id))!;
+		await prisma.person.update({
+			where: { actorId: person.actorId },
+			data: { preferredMode: mode }
+		});
+		redirect(303, mode === 'JAM' ? '/jam' : '/espace');
 	}
 };

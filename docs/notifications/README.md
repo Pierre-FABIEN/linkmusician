@@ -15,7 +15,8 @@
   | `JAM_INVITE`           | Le lead m'invite sur une place        | la jam            |
 
 - **Ce qui n'y entre pas** : les gains, niveaux et succès (annoncés par les
-  célébrations, P2-11) et les messages (pastille de l'onglet Messages).
+  célébrations, P2-11) et les messages (pastille de l'icône Messages dans
+  l'en-tête, D48).
   Pas de doublon ; ils serviront au digest email (P2-09b).
 - **Émission** : `notify()` (`src/lib/server/notifications/service.ts`),
   dans la transaction du fait quand il y en a une. Jamais pour soi-même,

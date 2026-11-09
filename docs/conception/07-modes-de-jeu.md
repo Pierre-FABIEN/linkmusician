@@ -457,6 +457,17 @@ ne fait rien perdre. Concrètement :
   le réseau musical d'abord. Jamais trié par l'XP. Un·e mineur·e n'est
   jamais suggéré·e à un adulte inconnu (fait en P2-18, voir
   [docs/recherche](../recherche/README.md#suggestions-de-musiciennes-p2-18)).
+- **Ne pas confondre compatibilité et admissibilité** : un niveau proche
+  aide à classer les suggestions, mais ne doit pas empêcher une personne
+  débutante de découvrir ou de contacter une personne très expérimentée.
+  Les intentions peuvent être différentes : rencontrer des pairs,
+  recruter pour un projet ou apprendre/transmettre. À terme, rendre les
+  attentes explicites et réciproques (niveau requis ou préféré, ouverture
+  à accompagner ou à apprendre) afin que chacun·e puisse décider si la
+  rencontre lui convient. Ne jamais utiliser l'XP comme preuve de
+  compétence ; les années d'expérience restent un indice facultatif, pas
+  un critère unique de classement ou d'exclusion. Cette évolution est à
+  valider avec les retours du pilote.
 
 ## 8. Ce qu'il faudra construire
 

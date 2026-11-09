@@ -29,10 +29,12 @@ test.describe('LinkMusician — profil public et tableau de bord', () => {
 		const handle = person.actor.handle;
 
 		await test.step('1. Tableau de bord vide : objectifs, aucun gain', async () => {
-			await page.goto('/espace');
+			// Écran de carrière (P3-12) : objectifs et journal de bord ont leur écran.
+			await page.goto('/espace/objectifs');
 			await waitForAppReady(page);
 			await expect(page.getByRole('heading', { name: 'Tes prochains objectifs' })).toBeVisible();
-			await page.getByText('D’où viennent mes points ?').click();
+			await page.goto('/espace/journal');
+			await waitForAppReady(page);
 			await expect(page.getByText(/Aucun point pour l.instant/)).toBeVisible();
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 		});
@@ -47,14 +49,14 @@ test.describe('LinkMusician — profil public et tableau de bord', () => {
 			await page.getByRole('button', { name: 'Ajouter' }).click();
 			await expect(page.getByText('+100 XP').first()).toBeVisible();
 
-			await page.goto('/espace');
+			await page.goto('/espace/journal');
 			await waitForAppReady(page);
-			// L'historique des points est replié en bas de Mon parcours.
-			await page.getByText('D’où viennent mes points ?').click();
 			const history = page.getByRole('list', { name: 'Historique des gains' });
 			await expect(history.getByText('Première démo publiée')).toBeVisible();
 			await expect(history.getByText('+100 XP')).toBeVisible();
 			// L'objectif « Publie ta première démo » n'est plus proposé.
+			await page.goto('/espace/objectifs');
+			await waitForAppReady(page);
 			await expect(page.getByText('Publie ta première démo')).toHaveCount(0);
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 		});

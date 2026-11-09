@@ -30,6 +30,8 @@ export const profileSchema = z
 		practiceSince: z.number().int().nullable().default(null),
 		/** `0` : non précisé. */
 		travelRadiusKm: z.number().int().default(0),
+		/** « Prêt·e à organiser des jams » (D51), adultes seulement. */
+		organizesJams: z.boolean().default(false),
 		links: z.object(linksShape)
 	})
 	.superRefine((value, ctx) => {

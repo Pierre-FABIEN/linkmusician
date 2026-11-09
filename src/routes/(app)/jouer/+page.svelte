@@ -13,13 +13,13 @@
 
 <SEO title="Jouer" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-3xl space-y-6">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-6xl space-y-8">
 		<header class="flex items-center gap-4">
 			<LevelBadge level={data.level} />
 			<div>
 				<p class="text-sm text-muted-foreground">Salut {firstName} !</p>
-				<h1 class="text-3xl font-black tracking-tight">Choisis ton mode</h1>
+				<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Choisis ton mode</h1>
 			</div>
 		</header>
 
@@ -30,13 +30,13 @@
 					type="submit"
 					name="mode"
 					value={m.mode}
-					class="group relative flex min-h-56 flex-col justify-between gap-4 overflow-hidden rounded-3xl p-6 text-left text-white shadow-xl transition hover:-translate-y-1 hover:shadow-2xl focus-visible:outline-4 {m.mode ===
+					class="group relative flex min-h-56 flex-col justify-between gap-5 overflow-hidden rounded-3xl p-6 text-left text-white shadow-xl transition hover:-translate-y-1 hover:shadow-2xl focus-visible:outline-4 sm:min-h-64 sm:p-8 lg:min-h-80 lg:p-10 {m.mode ===
 					'CAREER'
 						? 'bg-gradient-to-br from-violet-700 to-fuchsia-600'
 						: 'bg-gradient-to-br from-orange-600 to-pink-600'}"
 				>
 					<span class="flex items-center justify-between">
-						<Icon class="size-10" aria-hidden="true" />
+						<Icon class="size-10 lg:size-12" aria-hidden="true" />
 						{#if m.resume}
 							<span class="rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase"
 								>Reprendre</span
@@ -44,9 +44,10 @@
 						{/if}
 					</span>
 					<span class="space-y-2">
-						<span class="block text-2xl font-black uppercase italic">{m.label}</span>
-						<span class="block text-sm text-white/90">{m.pitch}</span>
-						<span class="block rounded-xl bg-black/15 px-3 py-2 text-sm font-semibold">{m.how}</span
+						<span class="block text-2xl font-black uppercase italic lg:text-3xl">{m.label}</span>
+						<span class="block max-w-xl text-sm text-white/90 lg:text-base">{m.pitch}</span>
+						<span class="block rounded-xl bg-black/15 px-3 py-2 text-sm font-semibold lg:p-4"
+							>{m.how}</span
 						>
 					</span>
 					<span class="flex items-center justify-end gap-1 text-sm font-bold">
@@ -58,7 +59,7 @@
 				</button>
 			{/each}
 		</form>
-		<p class="text-center text-sm text-muted-foreground">
+		<p class="text-center text-sm text-muted-foreground lg:text-base">
 			Tu peux changer de mode à tout moment avec la pastille en haut de l'écran.
 		</p>
 		<p class="text-center text-sm">

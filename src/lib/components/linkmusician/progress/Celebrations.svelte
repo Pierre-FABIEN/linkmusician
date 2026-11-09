@@ -5,13 +5,13 @@
 	 * seules. Tout le contenu vient du serveur ; au premier affichage, le
 	 * client renvoie le repère `upTo` reçu (« vu jusqu'ici »), rien d'autre.
 	 */
-	import { Award, ShieldCheck, Sparkles, Star, X } from 'lucide-svelte';
+	import { Award, Map as MapIcon, ShieldCheck, Sparkles, Star, X } from 'lucide-svelte';
 	import { portal } from '#lib/linkmusician/portal';
 	import { untrack } from 'svelte';
 
 	type Item = {
 		id: string;
-		kind: 'gain' | 'level' | 'achievement' | 'trust';
+		kind: 'gain' | 'level' | 'achievement' | 'trust' | 'act';
 		title: string;
 		detail: string;
 	};
@@ -56,6 +56,8 @@
 			class:
 				'border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-50'
 		},
+		// Épreuve de la carte franchie (P3-13).
+		act: { icon: MapIcon, class: 'border-transparent bg-[image:var(--lm-gradient)] text-white' },
 		trust: {
 			icon: ShieldCheck,
 			class:

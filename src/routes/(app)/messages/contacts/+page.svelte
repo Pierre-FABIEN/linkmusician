@@ -5,7 +5,7 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import MessagesTabs from '#lib/components/linkmusician/MessagesTabs.svelte';
 	import { MAX_GROUP_NAME } from '#lib/contacts/rules';
-	import { BookUser, MessageCircle, UsersRound } from 'lucide-svelte';
+	import { BookUser, MessageCircle, MessagesSquare, UsersRound } from 'lucide-svelte';
 
 	let { data, form } = $props();
 
@@ -22,9 +22,9 @@
 
 <SEO title="Contacts" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-6">
-		<h1 class="text-3xl font-black tracking-tight">Messages</h1>
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
+		<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Messages</h1>
 		<MessagesTabs current="contacts" />
 
 		{#if form?.error}
@@ -56,10 +56,11 @@
 			</h2>
 			<p class="text-sm text-muted-foreground">
 				Rassemble des contacts autour d’un projet : « Projet funk », « Remplaçant·es batterie ».
-				Bientôt, tu pourras ouvrir une discussion avec tout le groupe.
+				Puis ouvre une discussion avec tout le groupe : chacun·e reçoit une invitation et choisit de
+				la rejoindre.
 			</p>
 			{#if data.groups.length > 0}
-				<ul class="space-y-2" aria-label="Groupes de contacts">
+				<ul class="grid gap-3 md:grid-cols-2" aria-label="Groupes de contacts">
 					{#each data.groups as g (g.id)}
 						<li class="space-y-2 rounded-2xl border bg-card p-4">
 							<div class="flex items-start justify-between gap-2">
@@ -79,6 +80,19 @@
 									>Gérer<span class="sr-only"> {g.name}</span></button
 								>
 							</div>
+							{#if g.members.length > 0}
+								<form method="POST" action="?/openDiscussion" use:enhance>
+									<input type="hidden" name="groupId" value={g.id} />
+									<button
+										class="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
+										><MessagesSquare class="size-4" aria-hidden="true" />Ouvrir une discussion<span
+											class="sr-only"
+										>
+											avec {g.name}</span
+										></button
+									>
+								</form>
+							{/if}
 							{#if managing === g.id}
 								<div class="space-y-3 border-t pt-3 text-sm">
 									<form
@@ -159,7 +173,7 @@
 				<h2 id="carnet-title" class="flex items-center gap-2 text-xl font-bold">
 					<BookUser class="size-5" aria-hidden="true" /> Mon carnet ({data.contacts.length})
 				</h2>
-				<ul class="space-y-2" aria-label="Mon carnet">
+				<ul class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="Mon carnet">
 					{#each data.contacts as c (c.id)}
 						<li class="space-y-3 rounded-2xl border bg-card p-4">
 							<div class="flex flex-wrap items-start justify-between gap-2">

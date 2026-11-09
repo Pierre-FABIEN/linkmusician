@@ -11,11 +11,11 @@
 
 <SEO title="Nouvelle idée de morceau" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-2xl space-y-6">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-4xl space-y-6">
 		<div class="space-y-2">
 			<a href="/morceaux" class="text-sm text-muted-foreground underline">← Mes morceaux</a>
-			<h1 class="text-3xl font-black tracking-tight">Nouvelle idée</h1>
+			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Nouvelle idée</h1>
 			<p class="text-sm text-muted-foreground">
 				Elle ne se voit que de ton équipe tant qu’elle n’est pas composée.
 			</p>
@@ -29,7 +29,7 @@
 
 		<form
 			method="POST"
-			class="space-y-6"
+			class="space-y-6 rounded-3xl border bg-card p-5 sm:p-8 lg:p-10"
 			use:enhance={() => {
 				sending = true;
 				return async ({ update }) => {

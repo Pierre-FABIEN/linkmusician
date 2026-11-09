@@ -34,11 +34,11 @@
 
 <SEO title={data.venue.name} noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<article class="mx-auto max-w-2xl space-y-6">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<article class="mx-auto max-w-5xl space-y-6 lg:space-y-8">
 		<div class="space-y-2">
 			<a href="/lieux" class="text-sm text-muted-foreground underline">← Lieux de jam</a>
-			<h1 class="text-3xl font-black tracking-tight">{data.venue.name}</h1>
+			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{data.venue.name}</h1>
 			<p class="flex items-center gap-1 text-muted-foreground">
 				<MapPin class="size-4" aria-hidden="true" />
 				{data.venue.kindLabel} · {data.venue.communeName} ({data.venue.departmentCode})
@@ -144,7 +144,7 @@
 				{#if data.jams.length === 0}
 					<p class="text-sm text-muted-foreground">Pas de jam prévue ici pour l’instant.</p>
 				{:else}
-					<ul class="space-y-2">
+					<ul class="grid gap-2 sm:grid-cols-2">
 						{#each data.jams as j (j.id)}
 							<li>
 								<a href="/jams/{j.id}" class="block rounded-xl border p-3 hover:border-primary">
@@ -159,9 +159,11 @@
 						{/each}
 					</ul>
 				{/if}
-				<a href="/jams/nouvelle?lieu={data.venue.id}" class="inline-block font-semibold underline"
-					>Publier une jam ici</a
-				>
+				{#if data.organizer}
+					<a href="/jams/nouvelle?lieu={data.venue.id}" class="inline-block font-semibold underline"
+						>Publier une jam ici</a
+					>
+				{/if}
 			</section>
 		{/if}
 

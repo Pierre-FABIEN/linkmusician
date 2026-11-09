@@ -13,6 +13,7 @@
 // |   de morceau, rôle à pourvoir              |   (nora-prod)                                      |
 // | Deux jams passées (une tardive, un atelier | `/jam/carnet`, `/jams/…/presents`, profils         |
 // |   à la MJC avec une mineure), appréciations|   (appréciations, succès Noctambule)               |
+// | Jams de démo réparties sur le mois restant | `/jam` (plusieurs jours marqués)                    |
 // | Deux jams à venir, formation, matériel     | `/jam` (clara-guitare : lead ; ines-chant : invitée)|
 // | « Je suis dispo »                          | `/jam` (zoe, kevin, hugo)                          |
 // | Collaborations confirmées et à confirmer   | `/espace`, conversations (ines, clara, kevin)      |
@@ -31,19 +32,20 @@ import { venueNameKey } from '../src/lib/venues/rules';
 import { JAM_QUALITY_LABELS } from '../src/lib/jam/afterJam';
 import { COLLAB_QUALITY_LABELS } from '../src/lib/collaborations/endorse';
 import { pairKey } from '../src/lib/messaging/rules';
+import { demoJamStartsThisMonth } from '../src/lib/jam/demoJamDates';
 
-const DAY = 24 * 60 * 60 * 1000;
+export const DAY = 24 * 60 * 60 * 1000;
 const BAND = 'les-rats-du-mardi';
 
 /** Il y a `days` jours, à `hour` h (UTC) ; jamais dans le futur pour un passé. */
-function ago(days: number, hour = 12, minute = 0) {
+export function ago(days: number, hour = 12, minute = 0) {
 	const now = Date.now();
 	const d = new Date(now - days * DAY);
 	d.setUTCHours(hour, minute, 0, 0);
 	if (days >= 0 && d.getTime() > now) return new Date(now - 60 * 60 * 1000);
 	return d;
 }
-const inDays = (days: number, hour = 12, minute = 0) => ago(-days, hour, minute);
+export const inDays = (days: number, hour = 12, minute = 0) => ago(-days, hour, minute);
 
 export type Ctx = {
 	prisma: PrismaClient;
@@ -55,23 +57,28 @@ export type Ctx = {
 	me: { actorId: string; displayName: string } | null;
 };
 
-async function emit(prisma: PrismaClient, event: NewDomainEvent) {
+export async function emit(prisma: PrismaClient, event: NewDomainEvent) {
 	return prisma.$transaction((tx) => emitAndProcess(tx, event), { timeout: 30_000 });
 }
 
-function id(ctx: Ctx, handle: string) {
+export function id(ctx: Ctx, handle: string) {
 	const actorId = ctx.who.get(handle);
 	if (!actorId) throw new Error(`Personnage absent : ${handle}`);
 	return actorId;
 }
 
-async function instrumentId(prisma: PrismaClient, slug: string) {
+export async function instrumentId(prisma: PrismaClient, slug: string) {
 	return (await prisma.instrument.findUniqueOrThrow({ where: { slug }, select: { id: true } })).id;
 }
 
 // ─── Lieux ───────────────────────────────────────────────────────────────
 
-async function venue(ctx: Ctx, name: string, kind: Prisma.VenueCreateInput['kind'], by: string) {
+export async function venue(
+	ctx: Ctx,
+	name: string,
+	kind: Prisma.VenueCreateInput['kind'],
+	by: string
+) {
 	const { commune } = ctx;
 	const { lat, lng } = commune.centre;
 	const data = {
@@ -102,7 +109,7 @@ async function venue(ctx: Ctx, name: string, kind: Prisma.VenueCreateInput['kind
 
 // ─── Jams ────────────────────────────────────────────────────────────────
 
-type JamSpec = {
+export type JamSpec = {
 	issuer: string;
 	lead?: string;
 	venueId: string;
@@ -115,7 +122,7 @@ type JamSpec = {
 	backline: ('DRUMS' | 'BASS_AMP' | 'GUITAR_AMP' | 'KEYBOARD' | 'PA_MICS' | 'CABLES')[];
 };
 
-async function jam(ctx: Ctx, spec: JamSpec) {
+export async function jam(ctx: Ctx, spec: JamSpec) {
 	const { prisma } = ctx;
 	const spots = await Promise.all(
 		spec.spots.map(async ([slug, count]) => ({
@@ -146,8 +153,90 @@ async function jam(ctx: Ctx, spec: JamSpec) {
 	});
 }
 
+async function seedMonthlyJams(
+	ctx: Ctx,
+	venues: { barId: string; mjcId: string; studioId: string }
+) {
+	const starts = demoJamStartsThisMonth(new Date());
+	const templates: Omit<JamSpec, 'startsAt' | 'endsAt'>[] = [
+		{
+			issuer: 'malik-batterie',
+			lead: 'malik-batterie',
+			venueId: venues.barId,
+			title: 'Bœuf funk de quartier',
+			description: 'Jam de démonstration ouverte : funk, soul et improvisation.',
+			genre: 'funk',
+			spots: [
+				['basse', 1],
+				['chant', 1],
+				['saxophone-tenor', 1]
+			],
+			backline: ['DRUMS', 'BASS_AMP', 'GUITAR_AMP', 'PA_MICS']
+		},
+		{
+			issuer: 'awa-clavier',
+			lead: 'awa-clavier',
+			venueId: venues.mjcId,
+			title: 'Atelier pop à la MJC',
+			description: 'Jam de démonstration tous niveaux, dans une ambiance détendue.',
+			genre: 'pop',
+			spots: [
+				['batterie', 1],
+				['guitare-acoustique', 1],
+				['chant', 1]
+			],
+			backline: ['DRUMS', 'KEYBOARD', 'PA_MICS']
+		},
+		{
+			issuer: 'samir-son',
+			lead: 'samir-son',
+			venueId: venues.studioId,
+			title: 'Jam rock au studio',
+			description:
+				'Jam de démonstration rock : viens jouer et rencontrer les musicien·nes du coin.',
+			genre: 'rock',
+			spots: [
+				['batterie', 1],
+				['basse', 1],
+				['guitare-acoustique', 1]
+			],
+			backline: ['DRUMS', 'GUITAR_AMP', 'CABLES']
+		}
+	];
+	let created = 0;
+
+	for (const [index, startsAt] of starts.entries()) {
+		const template = templates[index % templates.length];
+		const title = `${template.title} · Démo ${String(index + 1).padStart(2, '0')}`;
+		const issuerActorId = id(ctx, template.issuer);
+		const existing = await ctx.prisma.opportunity.findFirst({
+			where: {
+				kind: 'JAM',
+				issuerActorId,
+				venueId: template.venueId,
+				title,
+				startsAt
+			},
+			select: { id: true }
+		});
+		if (existing) continue;
+
+		await jam(ctx, {
+			...template,
+			title,
+			startsAt,
+			endsAt: new Date(startsAt.getTime() + 2 * 60 * 60 * 1000)
+		});
+		created += 1;
+	}
+
+	console.log(
+		`  · jams de démo du mois : ${created} créée(s), ${starts.length} au total autour de ${ctx.commune.nom}`
+	);
+}
+
 /** « J'y étais » : présence, puis l'événement (succès fun, sans XP). */
-async function attended(
+export async function attended(
 	ctx: Ctx,
 	jamRow: { id: string; endsAt: Date | null },
 	actorId: string,
@@ -181,7 +270,7 @@ async function attended(
 }
 
 /** Appréciation après une jam (≈ 40 XP, par le moteur). */
-async function appreciate(
+export async function appreciate(
 	ctx: Ctx,
 	jamId: string,
 	from: string,
@@ -206,7 +295,7 @@ async function appreciate(
 	});
 }
 
-async function keep(ctx: Ctx, owner: string, contact: string, at: Date) {
+export async function keep(ctx: Ctx, owner: string, contact: string, at: Date) {
 	await ctx.prisma.musicalTie.upsert({
 		where: { ownerId_contactId: { ownerId: owner, contactId: contact } },
 		create: { ownerId: owner, contactId: contact, createdAt: at },
@@ -220,7 +309,7 @@ async function keep(ctx: Ctx, owner: string, contact: string, at: Date) {
  * Une conversation à deux. `answered` : l'autre a répondu (ouverte des deux
  * côtés) ; sinon c'est un premier contact en attente (D44).
  */
-async function talk(
+export async function talk(
 	ctx: Ctx,
 	from: string,
 	to: string,
@@ -467,15 +556,13 @@ async function milestone(
 
 // ─── Les scénarios ───────────────────────────────────────────────────────
 
-export async function seedScenarios(
+/** Contexte des scénarios : chaque personnage de démo, son acteur et son instrument. */
+export async function demoContext(
 	prisma: PrismaClient,
 	commune: Commune,
-	me: { actorId: string; displayName: string } | null
-) {
-	if (await prisma.actor.findUnique({ where: { handle: BAND }, select: { id: true } })) {
-		console.log('Scénarios déjà en place (groupe « Les Rats du Mardi ») : rien à refaire.');
-		return;
-	}
+	me: { actorId: string; displayName: string } | null,
+	demoHandles: ReadonlyMap<string, string> = new Map()
+): Promise<Ctx> {
 	const cast = await prisma.actor.findMany({
 		where: { person: { user: { email: { endsWith: '@demo.linkmusician.test' } } } },
 		select: {
@@ -491,21 +578,40 @@ export async function seedScenarios(
 			}
 		}
 	});
-	const ctx: Ctx = {
+	return {
 		prisma,
 		commune,
-		who: new Map(cast.map((a) => [a.handle, a.id])),
-		plays: new Map(cast.map((a) => [a.handle, a.person?.instruments[0]?.instrument.slug ?? ''])),
+		who: new Map(cast.map((a) => [demoHandles.get(a.handle) ?? a.handle, a.id])),
+		plays: new Map(
+			cast.map((a) => [
+				demoHandles.get(a.handle) ?? a.handle,
+				a.person?.instruments[0]?.instrument.slug ?? ''
+			])
+		),
 		me
 	};
+}
+
+export async function seedScenarios(
+	prisma: PrismaClient,
+	commune: Commune,
+	me: { actorId: string; displayName: string } | null,
+	demoHandles: ReadonlyMap<string, string> = new Map()
+) {
+	const ctx = await demoContext(prisma, commune, me, demoHandles);
 	const P = (h: string) => id(ctx, h);
 	const play = (h: string) => ctx.plays.get(h) || 'chant';
 
 	// 1. Lieux de jam (validés).
 	const bar = await venue(ctx, 'Le Bœuf du Mardi', 'BAR', 'malik-batterie');
 	const mjc = await venue(ctx, 'MJC des Arts', 'MJC', 'awa-clavier');
-	await venue(ctx, 'Studio La Cave', 'REHEARSAL_SPACE', 'samir-son');
+	const studio = await venue(ctx, 'Studio La Cave', 'REHEARSAL_SPACE', 'samir-son');
 	console.log('  · lieux : Le Bœuf du Mardi, MJC des Arts, Studio La Cave');
+	await seedMonthlyJams(ctx, { barId: bar.id, mjcId: mjc.id, studioId: studio.id });
+	if (await prisma.actor.findUnique({ where: { handle: BAND }, select: { id: true } })) {
+		console.log('Scénarios déjà en place (groupe « Les Rats du Mardi ») : rien d’autre à refaire.');
+		return;
+	}
 
 	// 2. Jam tardive passée (21 h – 0 h 30) : appréciations, Noctambule.
 	const late = await jam(ctx, {

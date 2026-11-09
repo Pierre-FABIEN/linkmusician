@@ -78,3 +78,17 @@ Lus dans l'URL (partageable), validés par `src/lib/search/filters.ts`
   trouvable par la recherche.
 - **RGPD** : suggestions écartées dans l'export ; supprimées dans les deux
   sens à l'anonymisation.
+
+### Piste d'évolution après le pilote
+
+La compatibilité sert à classer, pas à décider qui a le droit de se
+rencontrer : ne pas exclure une personne débutante des profils plus
+expérimentés. Distinguer les contextes « rencontrer des pairs »,
+« recruter pour un projet » et « apprendre/transmettre ». À terme, les
+attentes pourront être explicitées des deux côtés — niveau requis ou
+préféré, ouverture à accompagner ou à apprendre — pour que chaque
+personne choisisse si la rencontre lui convient. Ne pas utiliser l'XP
+comme preuve de compétence ; les années d'expérience peuvent être un
+indice facultatif, jamais le seul critère de classement ou d'exclusion.
+Cette piste reste à valider à partir des retours du pilote ; elle ne
+change pas le fonctionnement actuel des suggestions.

@@ -3,7 +3,7 @@
 // présent par l'hôte.
 import { error, fail } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
-import { JamError } from '#lib/server/jam/publicJams';
+import { JamError, isJamOrganizer } from '#lib/server/jam/publicJams';
 import { endorse, iWasThere, notThere, removeFromJam, whoWasThere } from '#lib/server/jam/afterJam';
 import { NetworkError, keepInTouch } from '#lib/server/network/service';
 import { JAM_QUALITIES, JAM_QUALITY_LABELS, endorseSchema } from '#lib/jam/afterJam';
@@ -14,10 +14,13 @@ async function me(locals: App.Locals) {
 }
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-	const data = await whoWasThere(params.id, (await me(locals)).actorId);
+	const { actorId } = await me(locals);
+	const data = await whoWasThere(params.id, actorId);
 	if (!data) error(404, 'Jam introuvable ou trop ancienne');
 	return {
 		...data,
+		/** « Rejouer ensemble » relance une jam : organisateurs seulement (D51). */
+		organizer: await isJamOrganizer(actorId),
 		qualities: JAM_QUALITIES.map((value) => ({ value, label: JAM_QUALITY_LABELS[value] }))
 	};
 };

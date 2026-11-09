@@ -22,11 +22,13 @@
 
 <SEO title="Publier une jam" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-lg space-y-6 rounded-lg border p-6 shadow-lg">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-5xl space-y-6 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
 		<div class="space-y-2">
 			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
-			<h1 class="text-2xl font-bold">{again ? 'Rejouer ensemble' : 'Publier une jam'}</h1>
+			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">
+				{again ? 'Rejouer ensemble' : 'Publier une jam'}
+			</h1>
 			{#if again}
 				<p class="rounded-md border border-primary/50 bg-primary/5 p-3 text-sm">
 					Tout est repris de « {again.title} » : choisis juste le jour. Une fois la jam publiée, invite
@@ -82,8 +84,8 @@
 						class="w-full rounded-md border bg-background p-2 text-sm font-normal"
 					/>
 				</label>
-				<div class="grid grid-cols-3 gap-2">
-					<label class="col-span-3 block space-y-1 font-medium sm:col-span-1">
+				<div class="grid gap-3 sm:grid-cols-3">
+					<label class="col-span-full block space-y-1 font-medium sm:col-span-1">
 						Jour
 						<input
 							type="date"

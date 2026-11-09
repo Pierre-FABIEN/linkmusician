@@ -5,7 +5,7 @@ import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { listGenreTree, listInstrumentsByFamily } from '#lib/prisma/skills/referentials';
 import { getActorLocation } from '#lib/server/geo/queries';
 import { getVenue, venuesNear } from '#lib/server/venues/service';
-import { JamError, createJam } from '#lib/server/jam/publicJams';
+import { JamError, createJam, isJamOrganizer } from '#lib/server/jam/publicJams';
 import { replayDraft } from '#lib/server/jam/afterJam';
 import { jamSchema } from '#lib/jam/publicJam';
 import { parisDay } from '#lib/metrics/indicators';
@@ -13,6 +13,8 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const person = (await getPersonByUserId(locals.user!.id))!;
+	// Réservé aux personnes « prêtes à organiser des jams » (D51).
+	if (!(await isJamOrganizer(person.actorId))) redirect(303, '/profil?organiser=1#organiser');
 	const location = await getActorLocation(person.actorId);
 	// « Rejouer ensemble » (P2-15b) : reprend une jam où l'on était.
 	const againId = url.searchParams.get('rejouer');

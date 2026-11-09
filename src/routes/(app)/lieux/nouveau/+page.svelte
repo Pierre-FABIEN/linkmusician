@@ -63,11 +63,11 @@
 
 <SEO title="Ajouter un lieu" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-lg space-y-6 rounded-lg border p-6 shadow-lg">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-4xl space-y-6 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
 		<div class="space-y-2">
 			<a href="/lieux" class="text-sm text-muted-foreground underline">← Lieux de jam</a>
-			<h1 class="text-2xl font-bold">Ajouter un lieu</h1>
+			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Ajouter un lieu</h1>
 			<p class="text-sm text-muted-foreground">
 				Un lieu public ou professionnel : bar, café-concert, salle, MJC, local de répète, studio…
 				Jamais un domicile. On n'enregistre que la commune, pas l'adresse.

@@ -61,7 +61,7 @@ export async function signUpAndVerify(page: Page, account: Account, refCode?: st
 
 	const code = await waitForEmailCode(account.email);
 	await submitCode(page, code);
-	await waitForPath(page, '/auth');
+	await page.waitForURL((url) => ['/auth', '/qui-es-tu'].includes(url.pathname));
 }
 
 /** Origine courante, pour les POST same-origin (contrôle CSRF de SvelteKit). */

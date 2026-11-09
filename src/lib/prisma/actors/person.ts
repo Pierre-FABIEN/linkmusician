@@ -19,6 +19,8 @@ import { worksExport } from '#lib/server/works/service';
 import { milestonesExport } from '#lib/server/milestones/service';
 import { proofsExport } from '#lib/server/milestones/proofs';
 import { contactGroupsExport } from '#lib/server/contacts/service';
+import { discussionsExport } from '#lib/server/discussions/service';
+import { verificationsExport } from '#lib/server/organizations/verification';
 
 export type NewPersonInput = {
 	userId: string;
@@ -144,7 +146,9 @@ export async function exportPersonData(userId: string) {
 		works,
 		milestonesDeclared,
 		milestoneProofs,
-		contactGroups
+		contactGroups,
+		groupDiscussions,
+		orgVerifications
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -400,7 +404,11 @@ export async function exportPersonData(userId: string) {
 		// Preuves d'étapes (P3-05) : confirmations demandées, liens joints.
 		proofsExport(person.actorId),
 		// Groupes de contacts (P3-16b).
-		contactGroupsExport(person.actorId)
+		contactGroupsExport(person.actorId),
+		// Discussions de groupe (P3-16c) : les siennes et ses messages.
+		discussionsExport(person.actorId),
+		// Vérifications d'organisation demandées (P3-09).
+		verificationsExport(person.actorId)
 	]);
 	const media = await prisma.media.findMany({
 		where: { actorId: person.actorId },
@@ -438,6 +446,8 @@ export async function exportPersonData(userId: string) {
 		materiel: details.equipment,
 		joue_depuis: details.practiceSince,
 		rayon_de_deplacement_km: details.travelRadiusKm,
+		pret_a_organiser_des_jams: details.organizesJams,
+		ambition_de_carriere: person.ambition,
 		liens: details.links.map((l) => ({ type: l.kind, url: l.url })),
 		// Seule la commune est stockée (jamais d'adresse ni de point précis).
 		commune: location ? `${location.communeName} (${location.departmentCode})` : null,
@@ -621,6 +631,9 @@ export async function exportPersonData(userId: string) {
 		etapes_de_groupe_confirmations: milestoneProofs.confirmations,
 		etapes_de_groupe_liens: milestoneProofs.liens,
 		groupes_de_contacts: contactGroups,
+		discussions_de_groupe: groupDiscussions.discussions,
+		messages_de_groupe_envoyes: groupDiscussions.messages,
+		verifications_d_organisation_demandees: orgVerifications,
 		suggestions_ecartees: suggestionsDismissed.map((d) => ({
 			nom: d.actor.displayName,
 			le: d.createdAt
@@ -719,6 +732,25 @@ export async function personAnonymizationOps(
 		// Groupes de contacts (P3-16b) : les siens, et sa place dans ceux des autres.
 		prisma.contactGroup.deleteMany({ where: { ownerId: person.actorId } }),
 		prisma.contactGroupMember.deleteMany({ where: { contactId: person.actorId } }),
+		// Discussions de groupe (P3-16c) : on la sort de chacune (les invitations
+		// disparaissent) ; ses messages restent, sans le texte.
+		prisma.groupDiscussionMember.deleteMany({
+			where: { actorId: person.actorId, state: { not: 'ACTIVE' } }
+		}),
+		prisma.groupDiscussionMember.updateMany({
+			where: { actorId: person.actorId },
+			data: { state: 'LEFT', leftAt: new Date() }
+		}),
+		prisma.groupDiscussionMessage.updateMany({
+			where: { senderActorId: person.actorId },
+			data: { body: 'Message supprimé' }
+		}),
+		// Vérifications d'organisation (P3-09) : la demande reste au groupe,
+		// on oublie qui l'a faite.
+		prisma.organizationVerification.updateMany({
+			where: { requestedById: person.actorId },
+			data: { requestedById: null }
+		}),
 		// Réseau musical (P2-16) : supprimé, dans les deux sens.
 		prisma.musicalTie.deleteMany({
 			where: { OR: [{ ownerId: person.actorId }, { contactId: person.actorId }] }
@@ -763,6 +795,8 @@ export async function personAnonymizationOps(
 				equipment: [],
 				practiceSince: null,
 				travelRadiusKm: null,
+				organizesJams: false,
+				ambition: null,
 				tipsDismissed: []
 			}
 		}),

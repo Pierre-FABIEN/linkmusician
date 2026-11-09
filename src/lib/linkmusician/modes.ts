@@ -89,3 +89,16 @@ export function destinationFor(mode: PlayModeValue, introsSeen: readonly PlayMod
 	const info = PLAY_MODE_INFO[mode];
 	return introsSeen.includes(mode) ? info.href : `/jouer/${info.slug}`;
 }
+
+/**
+ * Mode affiché par la coquille : les pages de chaque mode priment sur la
+ * préférence sauvegardée ; les pages communes suivent cette préférence.
+ */
+export function modeFor(
+	pathname: string,
+	preferred: PlayModeValue | null | undefined
+): PlayModeValue {
+	if (/^\/(jams?|lieux)(\/|$)/.test(pathname)) return 'JAM';
+	if (/^\/(espace|groupes)(\/|$)/.test(pathname)) return 'CAREER';
+	return preferred ?? 'CAREER';
+}

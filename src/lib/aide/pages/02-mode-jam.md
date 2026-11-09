@@ -25,11 +25,22 @@ indique ta ville, mets-toi dispo (ou repère une jam), écris à un·e
 musicien·ne, trouve un lieu, jouez ensemble… puis, si l’envie vient,
 passe au mode carrière.
 
+En dessous, un **menu** court mène chacun à son écran :
+
+- **Apprécier les musicos croisés**, en tête : ta jam en cours et celles
+  de la semaine, avec combien de musicien·nes il te reste à apprécier ;
+- **Les musicos dispo autour de moi** : te mettre dispo, et voir qui l’est ;
+- **Jams à venir** : le calendrier des jams et les lieux du coin ;
+- **Mes jams** : les jams où l’on t’invite, et celles où tu es allé·e ;
+- **Lancer une jam** (si tu es prêt·e à organiser, voir plus bas) ;
+- **Mon carnet et mon réseau**.
+
 ## 1. Avant la jam {#avant-la-jam}
 
 ### Te mettre dispo
 
-1. Sur l’accueil du mode jam, touche **Je suis dispo**.
+1. Dans le mode jam, ouvre **Les musicos dispo autour de moi**, puis
+   touche **Je suis dispo**.
 2. Choisis ton créneau : **ce soir**, **demain** ou **ce week-end**.
 3. Ajoute une note si tu veux (« plutôt funk, j’ai mon ampli »).
 
@@ -44,9 +55,13 @@ dispos en premier. Touche **Lui proposer de jouer** pour lui écrire.
 
 ### Rejoindre une jam
 
-Les **jams à venir** autour de toi s’affichent sur l’accueil : le lieu,
+Ouvre **Jams à venir** : chaque jam autour de toi montre le lieu,
 le jour, l’heure, le style, et les **places** encore ouvertes (« il
 manque une batterie et une voix »).
+
+Le **calendrier** met un point sous les jours où une jam est prévue. Choisis
+un jour pour afficher ses jams ; les flèches changent de mois. Tu peux aussi
+parcourir les jours au clavier avec les flèches du clavier.
 
 1. Ouvre une jam pour voir sa fiche : la formation, et **ce que tu dois
    apporter** selon ton instrument (« Apporte ta basse et tes câbles. Sur
@@ -61,6 +76,12 @@ manque une batterie et une voix »).
 ### Organiser une jam
 
 Tu tiens une scène ouverte, ou tu veux réunir quelques musicien·nes ?
+
+D’abord, dans **Mon profil**, coche **Je suis prêt·e à organiser des
+jams** et enregistre. C’est ce qui fait apparaître **Lancer une jam** dans
+le mode jam, et les lieux et organisateurs pourront te proposer d’en
+animer. Tu n’as pas envie d’organiser ? Pas besoin : écris aux musicos
+dispos, et jouez ensemble.
 
 1. Touche **Lancer une jam**.
 2. Choisis le **lieu** dans l’annuaire (ou ajoute-le : nom, type,
@@ -89,7 +110,8 @@ On joue ! L’app s’efface : rien à faire sur ton téléphone.
 
 ## 3. Après la jam {#apres-la-jam}
 
-Pendant **7 jours** après la jam :
+Dès le début de la jam et pendant **7 jours** après (le plus simple :
+**Apprécier les musicos croisés**, en tête du mode jam) :
 
 1. Touche **J’y étais** sur la fiche de la jam.
 2. **Qui était là ?** te montre les présent·es en grille (photo ou

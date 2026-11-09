@@ -24,13 +24,13 @@
 
 <SEO title="Confirmer une étape" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<div class="mx-auto max-w-xl space-y-6">
+<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<div class="mx-auto max-w-4xl space-y-6">
 		<div class="space-y-2">
 			<p class="flex items-center gap-2 text-sm text-muted-foreground">
 				<Flag class="size-4" aria-hidden="true" /> Étape de groupe à confirmer
 			</p>
-			<h1 class="text-3xl font-black tracking-tight">{step.label}</h1>
+			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{step.label}</h1>
 			<p>
 				<a href="/@{step.band.handle}" class="font-semibold underline">{step.band.name}</a>
 				· {day.format(new Date(step.occurredAt))}{step.note ? ` · ${step.note}` : ''}
