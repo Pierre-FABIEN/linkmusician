@@ -31,6 +31,12 @@
 	inherits: true;
 	initial-value: transparent;
 }
+/* Animated tile border angle */
+@property --lm-tile-angle {
+	syntax: "<angle>";
+	inherits: false;
+	initial-value: 0deg;
+}
 
 /* ── Jetons ─────────────────────────────────────────────────────────────── */
 .lm-metro {
@@ -151,7 +157,7 @@
 	flex-direction: column;
 	justify-content: space-between;
 	gap: 0.6rem;
-	min-width: 0;
+	min-width: 0;	
 	padding: 1.1rem 1.2rem;
 	border: 1px solid color-mix(in oklch, var(--t-bg) 35%, transparent);
 	border-radius: 1.25rem;
@@ -161,29 +167,33 @@
 	font: inherit;
 	color: var(--t-fg);
 
-	/* Glassmorphism classique : translucide + blur fort */
-	background: color-mix(in oklch, var(--t-bg) 8%, transparent);
-	backdrop-filter: var(--lm-blur-lg);
-	-webkit-backdrop-filter: var(--lm-blur-lg);
+
+	background: color-mix(
+		in oklch,
+		var(--t-bg) 12%,
+		transparent
+	);
+
+	-webkit-backdrop-filter: blur(120px) saturate(160%);
+	backdrop-filter: blur(120px) saturate(160%);
 
 	/* Ombres multiples pour la profondeur */
 	box-shadow:
 		inset 0 1px 0 oklch(1 0 0 / 0.04),
 		0 4px 30px oklch(0 0 0 / 0.1),
 		0 20px 48px -16px oklch(0.2 0.1 290 / 0.45);
-
-	transition:
-		transform 0.35s var(--lm-ease),
-		box-shadow 0.35s var(--lm-ease),
-		border-color 0.35s var(--lm-ease),
-		background 0.35s var(--lm-ease),
-		--t-bg 0.45s,
-		--t-bg2 0.45s,
-		--t-fg 0.45s,
-		--t-fg2 0.45s,
-		opacity 0.5s calc(var(--i, 0) * 50ms),
-		translate 0.6s var(--lm-ease) calc(var(--i, 0) * 50ms),
-		filter 0.35s var(--lm-ease);
+transition:
+	transform 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+	box-shadow 1s var(--lm-ease),
+	border-color 0.9s var(--lm-ease),
+	background 0.9s var(--lm-ease),
+	--t-bg 0.65s,
+	--t-bg2 0.65s,
+	--t-fg 0.65s,
+	--t-fg2 0.65s,
+	opacity 0.6s calc(var(--i, 0) * 50ms),
+	translate 0.8s var(--lm-ease) calc(var(--i, 0) * 50ms),
+	filter 1s var(--lm-ease);
 }
 .dark .lm-tile {
 	/* En mode sombre, augmenter la saturation visible */
@@ -192,23 +202,70 @@
 }
 
 /* Reflet lumineux supérieur (coin haut-droit) et matière (grain). */
+
 .lm-tile::before,
 .lm-tile::after {
 	content: '';
 	position: absolute;
 	inset: 0;
-	z-index: -1;
+	border-radius: inherit;
 	pointer-events: none;
 }
+
+/* Animated gradient border */
 .lm-tile::before {
-	background: radial-gradient(60% 50% at 100% 0%, oklch(1 0 0 / 0.08), transparent 60%);
-	opacity: 1;
-	transition: opacity 0.35s var(--lm-ease);
+	z-index: 2;
+	padding: 1.25px;
+	opacity: 0;
+
+	background: conic-gradient(
+		from var(--lm-tile-angle),
+		transparent 0deg,
+		color-mix(in oklch, var(--t-bg) 70%, white) 55deg,
+		white 90deg,
+		color-mix(in oklch, var(--t-bg2) 80%, transparent) 145deg,
+		transparent 190deg,
+		color-mix(in oklch, var(--t-bg) 65%, white) 280deg,
+		transparent 360deg
+	);
+
+	-webkit-mask:
+		linear-gradient(#fff 0 0) content-box,
+		linear-gradient(#fff 0 0);
+	-webkit-mask-composite: xor;
+
+	mask:
+		linear-gradient(#fff 0 0) content-box,
+		linear-gradient(#fff 0 0);
+	mask-composite: exclude;
+
+	transition: opacity 0.5s var(--lm-ease);
 }
+
+/* Glass reflection + original noise texture */
 .lm-tile::after {
+	z-index: -1;
 	opacity: 0.1;
-	background-size: 160px 160px;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+	background-image:
+		radial-gradient(
+			70% 65% at 100% 0%,
+			oklch(1 0 0 / 0.14),
+			transparent 70%
+		),
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+	background-size:
+		100% 100%,
+		160px 160px;
+
+	background-position:
+		100% 0,
+		0 0;
+
+	transition:
+		opacity 0.5s var(--lm-ease),
+		transform 0.7s var(--lm-ease);
 }
 
 /* Tons : une couleur franche par usage, texte clair ou encre selon le contraste. */
@@ -426,7 +483,7 @@
 	width: var(--v, 0%);
 	border-radius: inherit;
 	background: currentColor;
-	transition: width 0.9s var(--lm-ease);
+	transition: width 1.5s var(--lm-ease);
 }
 
 /* Profondeur au survol, bascule 3D à l'appui (la signature des tuiles Lumia). */
@@ -449,7 +506,7 @@
 a.lm-tile:active,
 button.lm-tile:active {
 	transform: perspective(700px) rotateX(3deg) scale(0.975);
-	transition-duration: 0.08s;
+	transition-duration: 0.2s;
 }
 .lm-tile:focus-visible,
 .lm-btn:focus-visible {
@@ -479,7 +536,7 @@ button.lm-tile:active {
 	text-transform: uppercase;
 	color: var(--muted-foreground);
 	cursor: pointer;
-	transition: color 0.2s;
+	transition: color 0.4s;
 }
 .lm-panorama__nav button[aria-current='true'] {
 	color: var(--foreground);
@@ -517,7 +574,7 @@ button.lm-tile:active {
 	margin: 0 0 1.25rem -0.04em;
 	font-size: clamp(3rem, 12vw, 5.5rem);
 	white-space: nowrap;
-	transition: opacity 0.3s;
+	transition: opacity 0.5s;
 }
 /* Le titre voisin dépasse à droite, en retrait, comme dans un pivot Lumia. */
 .lm-panorama[data-ready] .lm-pivot:not([data-active]) .lm-pivot__title {
@@ -624,12 +681,62 @@ button.lm-tile:active {
 		border-radius: 1.75rem;
 	}
 }
-@keyframes lm-sheet-in {
-	from {
-		opacity: 0;
-		transform: translateY(2rem);
+
+
+/* ── Premium tile interactions ─────────────────────────────── */
+
+/* Animated border */
+@keyframes lm-tile-border-spin {
+	to {
+		--lm-tile-angle: 360deg;
 	}
 }
+
+/* Mouse interaction */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	a.lm-tile:hover,
+	button.lm-tile:hover {
+		transform: translate3d(0, -4px, 0) scale(1.012);
+
+		border-color: transparent;
+
+		box-shadow:
+			inset 0 1px 0 oklch(1 0 0 / 0.18),
+			0 12px 30px oklch(0 0 0 / 0.12),
+			0 24px 55px -18px
+				color-mix(in oklch, var(--t-bg) 65%, transparent),
+			0 0 28px -12px
+				color-mix(in oklch, var(--t-bg) 80%, transparent);
+
+		filter: brightness(1.05) saturate(1.15);
+	}
+
+	a.lm-tile:hover::before,
+	button.lm-tile:hover::before {
+		opacity: 1;
+		animation: lm-tile-border-spin 9s linear infinite;
+	}
+
+	a.lm-tile:hover::after,
+	button.lm-tile:hover::after {
+		opacity: 0.5;
+		transform: translate3d(0, -2px, 0) scale(1.01);
+	}
+}
+
+/* Keyboard interaction */
+.lm-tile:focus-visible::before {
+	opacity: 1;
+}
+
+.lm-tile:focus-visible {
+	border-color: transparent;
+}
+
+.lm-tile:focus-visible::after {
+	opacity: 0.2;
+}
+
 
 /* ── Mouvement : tout se coupe si l'appareil le demande ─────────────────── */
 @media (prefers-reduced-motion: reduce) {

@@ -51,7 +51,7 @@
 		'oklch(0.85 0.16 85)'
 	]}
 	fade={true}
-	class="min-h-screen w-full py-8 px-4 sm:py-12 sm:px-6"
+	class="min-h-screen w-full"
 >
 	<div class="relative z-10 mx-auto   ">
 		<div class="space-y-12 rounded-3xl p-4 pb-10 sm:p-8 sm:pb-12 w-full">
@@ -60,7 +60,7 @@
 					<p class="lm-kicker text-[color:var(--muted-foreground)]">
 						direction visuelle · maquette
 					</p>
-					<h1 class="lm-display">metro</h1>
+					<h1 class="lm-display">LinkMusician</h1>
 				</div>
 				<button
 					type="button"
