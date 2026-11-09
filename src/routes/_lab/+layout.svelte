@@ -10,14 +10,15 @@
 		{ href: '/_lab/premier-resultat', label: 'Premier résultat' },
 		{ href: '/_lab/tableau-de-bord', label: 'Tableau de bord' },
 		{ href: '/_lab/profil', label: 'Profil public' },
-		{ href: '/_lab/etats-vides', label: 'États vides' }
+		{ href: '/_lab/etats-vides', label: 'États vides' },
+		{ href: '/_lab/metro', label: 'Metro' }
 	];
 </script>
 
 <SEO title="Maquettes" noindex nofollow />
 
 <div class="min-h-screen w-screen px-4 pt-24 pb-16">
-	<div class="mx-auto max-w-5xl space-y-8">
+	<div class="mx-auto space-y-8">
 		<header class="space-y-3">
 			<p class="text-xs font-semibold tracking-widest text-fuchsia-600 uppercase">
 				Maquettes · données fictives · P1-02

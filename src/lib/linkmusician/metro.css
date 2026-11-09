@@ -1,0 +1,688 @@
+/*
+ * LINKMUSICIAN: système de design « Metro » (refonte). Opt-in : rien ne change
+ * tant qu'une page n'est pas enveloppée dans `.lm-metro`, ce qui permet de
+ * migrer page par page. Ordre de lecture : jetons, typographie, tuile, rail
+ * panoramique, boutons et champs, panneau, mouvement.
+ *
+ * Contrastes mesurés (WCAG) : texte blanc sur violet, rose, bleu ≥ 5,1:1 ;
+ * encre sur orange, ambre, citron, cyan ≥ 5,3:1, aux deux bouts du dégradé.
+ * Le reflet ne touche que le coin haut-droit : jamais de texte dessous.
+ */
+
+/* Les tons se fondent d'un état à l'autre (« Je viens » → « Tu viens »). Ils doivent
+   s'hériter : le texte secondaire est dans des enfants de la tuile. */
+@property --t-bg {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+@property --t-bg2 {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+@property --t-fg {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+@property --t-fg2 {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+
+/* ── Jetons ─────────────────────────────────────────────────────────────── */
+.lm-metro {
+	--lm-font-display: 'Raleway Variable', 'Open Sans Variable', system-ui, sans-serif;
+	--lm-font-body: 'Open Sans Variable', system-ui, sans-serif;
+	--lm-ink: oklch(0.2 0.02 290);
+	--lm-paper: oklch(0.975 0.006 85);
+	--lm-line: oklch(0.62 0.02 290);
+	--lm-solid: oklch(0.5 0.25 295);
+	--lm-solid-fg: oklch(0.995 0 0);
+	--lm-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+	/* Glassmorphism et premium UI */
+	--lm-blur-sm: blur(8px);
+	--lm-blur-md: blur(16px);
+	--lm-blur-lg: blur(28px);
+	--lm-backdrop-alpha: 0.7;
+	--lm-shine: radial-gradient(
+		100% 80% at 50% -20%,
+		oklch(1 0 0 / 0.15) 0%,
+		oklch(1 0 0 / 0.03) 40%,
+		transparent 70%
+	);
+	--lm-shadow-sm: 0 2px 6px oklch(0 0 0 / 0.12);
+	--lm-shadow-md: 0 8px 20px oklch(0 0 0 / 0.18);
+	--lm-shadow-lg: 0 20px 48px -16px oklch(0.2 0.1 290 / 0.65);
+	--lm-shine-top: radial-gradient(70% 55% at 100% 0%, oklch(1 0 0 / 0.12), transparent 70%);
+
+	/* Les composants shadcn posés dans la page héritent de la même matière. */
+	--background: var(--lm-paper);
+	--foreground: var(--lm-ink);
+	--card: oklch(1 0.002 85);
+	--card-foreground: var(--lm-ink);
+	--muted: oklch(0.94 0.008 85);
+	--muted-foreground: oklch(0.45 0.02 290);
+	--border: oklch(0.88 0.01 85);
+
+	font-family: var(--lm-font-body);
+	color: var(--lm-ink);
+	background: var(--lm-paper);
+}
+
+/* ── Conteneur : utilise Aurora en arrière-plan animé ─────────────────── */
+.lm-app.lm-metro {
+	position: relative;
+}
+
+.dark .lm-metro {
+	--lm-ink: oklch(0.96 0.005 85);
+	--lm-paper: oklch(0.18 0.02 290);
+	--lm-line: oklch(0.66 0.02 290);
+	--lm-solid: oklch(0.74 0.16 295);
+	--lm-solid-fg: oklch(0.2 0.02 290);
+	--card: oklch(0.23 0.025 290);
+	--muted: oklch(0.27 0.03 290);
+	--muted-foreground: oklch(0.74 0.015 290);
+	--border: oklch(1 0 0 / 14%);
+
+	/* Shader en mode sombre : reflets plus subtils */
+	--lm-shine: radial-gradient(
+		100% 80% at 50% -20%,
+		oklch(0.4 0.05 290 / 0.04) 0%,
+		oklch(0.4 0.05 290 / 0.01) 40%,
+		transparent 70%
+	);
+	--lm-shine-top: radial-gradient(70% 55% at 100% 0%, oklch(0.4 0.05 290 / 0.04), transparent 70%);
+}
+
+/* ── Typographie : titres monumentaux, informations en retrait ─────────── */
+/* Pas de marge ici : l'espacement appartient au conteneur (`space-y-*`, `gap-*`). */
+.lm-display,
+.lm-title,
+.lm-figure {
+	font-variant-numeric: lining-nums tabular-nums;
+}
+.lm-display {
+	font-family: var(--lm-font-display);
+	font-weight: 200;
+	font-size: clamp(3.25rem, 11vw, 8.5rem);
+	line-height: 0.9;
+	letter-spacing: -0.045em;
+}
+.lm-title {
+	font-family: var(--lm-font-display);
+	font-weight: 300;
+	font-size: clamp(1.9rem, 4.6vw, 3.25rem);
+	line-height: 1;
+	letter-spacing: -0.03em;
+}
+/* Gros chiffres : Open Sans, dont les chiffres sont alignés par défaut. */
+.lm-figure {
+	font-family: var(--lm-font-body);
+	font-weight: 300;
+	font-size: clamp(3rem, 8vw, 5rem);
+	line-height: 0.95;
+	letter-spacing: -0.05em;
+}
+/* Version compacte, pour une tuile : ce CSS n'est pas dans une couche Tailwind, il prime sur ses utilitaires. */
+.lm-figure--md {
+	font-size: clamp(2.5rem, 6vw, 3.75rem);
+}
+.lm-kicker {
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+/* ── Tuile ──────────────────────────────────────────────────────────────── */
+.lm-tile {
+	--t-bg: var(--card);
+	--t-bg2: var(--card);
+	--t-fg: var(--foreground);
+	--t-fg2: var(--muted-foreground);
+	position: relative;
+	isolation: isolate;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 0.6rem;
+	min-width: 0;
+	padding: 1.1rem 1.2rem;
+	border: 1px solid color-mix(in oklch, var(--t-bg) 35%, transparent);
+	border-radius: 1.25rem;
+	overflow: hidden;
+	text-align: left;
+	text-decoration: none;
+	font: inherit;
+	color: var(--t-fg);
+
+	/* Glassmorphism classique : translucide + blur fort */
+	background: color-mix(in oklch, var(--t-bg) 8%, transparent);
+	backdrop-filter: var(--lm-blur-lg);
+	-webkit-backdrop-filter: var(--lm-blur-lg);
+
+	/* Ombres multiples pour la profondeur */
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.04),
+		0 4px 30px oklch(0 0 0 / 0.1),
+		0 20px 48px -16px oklch(0.2 0.1 290 / 0.45);
+
+	transition:
+		transform 0.35s var(--lm-ease),
+		box-shadow 0.35s var(--lm-ease),
+		border-color 0.35s var(--lm-ease),
+		background 0.35s var(--lm-ease),
+		--t-bg 0.45s,
+		--t-bg2 0.45s,
+		--t-fg 0.45s,
+		--t-fg2 0.45s,
+		opacity 0.5s calc(var(--i, 0) * 50ms),
+		translate 0.6s var(--lm-ease) calc(var(--i, 0) * 50ms),
+		filter 0.35s var(--lm-ease);
+}
+.dark .lm-tile {
+	/* En mode sombre, augmenter la saturation visible */
+	border-color: color-mix(in oklch, var(--t-bg) 50%, transparent);
+	background: color-mix(in oklch, var(--t-bg) 12%, transparent);
+}
+
+/* Reflet lumineux supérieur (coin haut-droit) et matière (grain). */
+.lm-tile::before,
+.lm-tile::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+}
+.lm-tile::before {
+	background: radial-gradient(60% 50% at 100% 0%, oklch(1 0 0 / 0.08), transparent 60%);
+	opacity: 1;
+	transition: opacity 0.35s var(--lm-ease);
+}
+.lm-tile::after {
+	opacity: 0.1;
+	background-size: 160px 160px;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Tons : une couleur franche par usage, texte clair ou encre selon le contraste. */
+.lm-tile[data-tone='violet'] {
+	--t-bg: oklch(0.5 0.25 295);
+	--t-bg2: oklch(0.4 0.23 300);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='violet'] {
+	--t-bg: oklch(0.55 0.22 295);
+	--t-bg2: oklch(0.48 0.21 300);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 295);
+}
+.lm-tile[data-tone='rose'] {
+	--t-bg: oklch(0.52 0.23 355);
+	--t-bg2: oklch(0.43 0.21 355);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='rose'] {
+	--t-bg: oklch(0.57 0.21 355);
+	--t-bg2: oklch(0.5 0.2 355);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 355);
+}
+.lm-tile[data-tone='blue'] {
+	--t-bg: oklch(0.5 0.2 255);
+	--t-bg2: oklch(0.4 0.18 262);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='blue'] {
+	--t-bg: oklch(0.55 0.19 255);
+	--t-bg2: oklch(0.48 0.17 262);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 255);
+}
+.lm-tile[data-tone='orange'] {
+	--t-bg: oklch(0.76 0.17 55);
+	--t-bg2: oklch(0.7 0.18 48);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='orange'] {
+	--t-bg: oklch(0.72 0.18 55);
+	--t-bg2: oklch(0.66 0.19 48);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 55);
+}
+.lm-tile[data-tone='amber'] {
+	--t-bg: oklch(0.85 0.16 85);
+	--t-bg2: oklch(0.79 0.16 78);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='amber'] {
+	--t-bg: oklch(0.81 0.17 85);
+	--t-bg2: oklch(0.75 0.17 78);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 85);
+}
+.lm-tile[data-tone='lime'] {
+	--t-bg: oklch(0.83 0.2 130);
+	--t-bg2: oklch(0.76 0.19 135);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='lime'] {
+	--t-bg: oklch(0.79 0.21 130);
+	--t-bg2: oklch(0.72 0.2 135);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 130);
+}
+.lm-tile[data-tone='cyan'] {
+	--t-bg: oklch(0.81 0.12 205);
+	--t-bg2: oklch(0.74 0.13 213);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='cyan'] {
+	--t-bg: oklch(0.77 0.13 205);
+	--t-bg2: oklch(0.7 0.14 213);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 205);
+}
+.lm-tile[data-tone='ink'] {
+	--t-bg: oklch(0.2 0.02 290);
+	--t-bg2: oklch(0.27 0.035 295);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.86 0.02 290);
+}
+.dark .lm-tile[data-tone='ink'] {
+	--t-bg: oklch(0.27 0.03 290);
+	--t-bg2: oklch(0.33 0.04 295);
+}
+.lm-tile[data-tone='paper'] {
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.06),
+		0 2px 6px oklch(0 0 0 / 0.12),
+		0 20px 48px -16px oklch(0.2 0.1 290 / 0.65);
+}
+
+/* Tailles de la mosaïque (grille de 4 colonnes) : petite, moyenne, large, haute, grande. */
+.lm-mosaic {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	grid-auto-rows: var(--lm-unit, 7.9rem);
+	gap: var(--lm-gap, 0.75rem);
+}
+.lm-tile[data-size='sm'] {
+	grid-column: span 2;
+	padding: 0.85rem;
+}
+.lm-tile[data-size='md'] {
+	grid-column: span 2;
+	grid-row: span 2;
+}
+.lm-tile[data-size='wide'] {
+	grid-column: span 4;
+	grid-row: span 2;
+}
+.lm-tile[data-size='band'] {
+	grid-column: span 4;
+}
+.lm-tile[data-size='big'] {
+	grid-column: span 4;
+	grid-row: span 3;
+}
+.lm-tile[data-size='tall'] {
+	grid-column: span 2;
+	grid-row: span 3;
+}
+
+.lm-tile__kicker {
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--t-fg2);
+}
+.lm-tile__title {
+	font-family: var(--lm-font-display);
+	font-weight: 300;
+	font-size: 1.65rem;
+	line-height: 1.02;
+	letter-spacing: -0.03em;
+}
+.lm-tile[data-size='sm'] .lm-tile__title {
+	font-size: 1.05rem;
+	font-weight: 500;
+	letter-spacing: -0.01em;
+}
+.lm-tile__text {
+	font-size: 0.875rem;
+	line-height: 1.35;
+	color: var(--t-fg2);
+}
+/* Grande icône en filigrane, décorative. */
+.lm-tile__mark {
+	position: absolute;
+	right: -0.8rem;
+	bottom: -1rem;
+	z-index: -1;
+	width: 6.5rem;
+	height: 6.5rem;
+	opacity: 0.1;
+	rotate: -12deg;
+	stroke-width: 1.25;
+}
+.lm-tile[data-size='sm'] .lm-tile__mark {
+	width: 4.2rem;
+	height: 4.2rem;
+}
+.lm-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.1rem 0.55rem;
+	border-radius: 999px;
+	font-size: 0.72rem;
+	font-weight: 700;
+	background: oklch(0 0 0 / 0.22);
+	color: oklch(0.2 0.02 290);
+}
+.dark .lm-pill {
+	color: oklch(0.995 0 0);
+}
+.lm-tile[data-tone='orange'] .lm-pill,
+.lm-tile[data-tone='amber'] .lm-pill,
+.lm-tile[data-tone='lime'] .lm-pill,
+.lm-tile[data-tone='cyan'] .lm-pill {
+	background: oklch(0 0 0 / 0.22);
+	color: oklch(0.2 0.02 290);
+}
+.dark .lm-tile[data-tone='orange'] .lm-pill,
+.dark .lm-tile[data-tone='amber'] .lm-pill,
+.dark .lm-tile[data-tone='lime'] .lm-pill,
+.dark .lm-tile[data-tone='cyan'] .lm-pill {
+	background: oklch(1 0 0 / 0.55);
+	color: oklch(0.995 0 0);
+}
+
+/* Barre de progression : la couleur suit le texte de la tuile. */
+.lm-bar {
+	height: 0.5rem;
+	border-radius: 999px;
+	overflow: hidden;
+	background: color-mix(in oklch, currentColor 24%, transparent);
+}
+.lm-bar > i {
+	display: block;
+	height: 100%;
+	width: var(--v, 0%);
+	border-radius: inherit;
+	background: currentColor;
+	transition: width 0.9s var(--lm-ease);
+}
+
+/* Profondeur au survol, bascule 3D à l'appui (la signature des tuiles Lumia). */
+@media (hover: hover) {
+	a.lm-tile:hover,
+	button.lm-tile:hover {
+		transform: translateY(-4px);
+		border-color: oklch(1 0 0 / 0.16);
+		box-shadow:
+			inset 0 1px 0 oklch(1 0 0 / 0.2),
+			var(--lm-shadow-sm),
+			var(--lm-shadow-lg);
+		filter: brightness(1.06) saturate(1.08);
+	}
+	a.lm-tile:hover::before,
+	button.lm-tile:hover::before {
+		opacity: 1;
+	}
+}
+a.lm-tile:active,
+button.lm-tile:active {
+	transform: perspective(700px) rotateX(3deg) scale(0.975);
+	transition-duration: 0.08s;
+}
+.lm-tile:focus-visible,
+.lm-btn:focus-visible {
+	outline: 3px solid var(--foreground);
+	outline-offset: 3px;
+}
+
+/* ── Rail panoramique : tout le défilement reste natif et local ─────────── */
+.lm-panorama {
+	position: relative;
+}
+.lm-panorama__nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 1.25rem;
+	padding: 0 1rem 0.75rem;
+}
+.lm-panorama__nav button {
+	min-height: 2.75rem;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--muted-foreground);
+	cursor: pointer;
+	transition: color 0.2s;
+}
+.lm-panorama__nav button[aria-current='true'] {
+	color: var(--foreground);
+	box-shadow: 0 2px 0 0 var(--lm-solid);
+}
+.lm-rail {
+	--lm-gap: 0.75rem;
+	--lm-pivot-w: min(88vw, 34rem);
+	--lm-unit: max(calc((var(--lm-pivot-w) - 3 * var(--lm-gap)) / 4), 5.5rem);
+	position: relative;
+	display: grid;
+	grid-auto-flow: column;
+	grid-auto-columns: var(--lm-pivot-w);
+	gap: 2rem;
+	padding: 0.5rem 1rem 2.5rem;
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	scroll-snap-type: x mandatory;
+	scroll-padding-inline: 1rem;
+	scrollbar-width: none;
+}
+.lm-rail::-webkit-scrollbar {
+	display: none;
+}
+.lm-rail:focus-visible {
+	outline: 3px solid var(--foreground);
+	outline-offset: -3px;
+	border-radius: 1.25rem;
+}
+.lm-pivot {
+	min-width: 0;
+	scroll-snap-align: start;
+}
+.lm-pivot__title {
+	margin: 0 0 1.25rem -0.04em;
+	font-size: clamp(3rem, 12vw, 5.5rem);
+	white-space: nowrap;
+	transition: opacity 0.3s;
+}
+/* Le titre voisin dépasse à droite, en retrait, comme dans un pivot Lumia. */
+.lm-panorama[data-ready] .lm-pivot:not([data-active]) .lm-pivot__title {
+	opacity: 0.3;
+}
+/* Entrée des tuiles à la première vue du pivot ; sans script, tout reste visible. */
+.lm-panorama[data-ready] .lm-pivot:not([data-seen]) .lm-tile {
+	opacity: 0;
+	translate: 2rem 0;
+}
+
+/* ── Boutons et champs ──────────────────────────────────────────────────── */
+.lm-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	min-height: 2.75rem;
+	padding: 0 1.25rem;
+	border: 2px solid transparent;
+	border-radius: 0.9rem;
+	font: inherit;
+	font-weight: 700;
+	text-decoration: none;
+	color: var(--lm-solid-fg);
+	background: linear-gradient(135deg, var(--lm-solid), oklch(0.45 0.24 290));
+	backdrop-filter: var(--lm-blur-sm);
+	cursor: pointer;
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.12),
+		var(--lm-shadow-md);
+	transition:
+		transform 0.15s var(--lm-ease),
+		filter 0.2s,
+		box-shadow 0.2s;
+}
+.lm-btn[data-variant='ghost'] {
+	color: var(--foreground);
+	background: transparent;
+	border-color: currentColor;
+	box-shadow: none;
+}
+@media (hover: hover) {
+	.lm-btn:hover {
+		filter: brightness(1.12) drop-shadow(0 8px 16px oklch(0.2 0.1 290 / 0.25));
+		transform: translateY(-2px);
+	}
+}
+.lm-btn:active {
+	transform: scale(0.96);
+}
+.lm-field {
+	width: 100%;
+	min-height: 2.75rem;
+	padding: 0.6rem 0.9rem;
+	border: 2px solid var(--lm-line);
+	border-radius: 0.9rem;
+	font: inherit;
+	color: inherit;
+	background: color-mix(in oklch, var(--card) 12%, var(--lm-paper));
+	backdrop-filter: var(--lm-blur-md);
+	box-shadow: inset 0 1px 2px oklch(0 0 0 / 0.04);
+	transition:
+		border-color 0.2s,
+		box-shadow 0.2s,
+		background 0.2s;
+}
+.lm-field:focus-visible {
+	outline: none;
+	border-color: var(--lm-solid);
+	box-shadow:
+		inset 0 1px 2px oklch(0 0 0 / 0.04),
+		0 0 0 4px color-mix(in oklch, var(--lm-solid) 28%, transparent),
+		0 0 16px -4px color-mix(in oklch, var(--lm-solid) 35%, transparent);
+}
+
+/* ── Panneau contextuel : feuille en bas sur mobile, centrée sur grand écran ── */
+.lm-sheet {
+	width: 100%;
+	max-width: 40rem;
+	margin: auto auto 0;
+	padding: 1.5rem;
+	border: 1px solid color-mix(in oklch, var(--card) 60%, transparent);
+	border-radius: 1.75rem 1.75rem 0 0;
+	color: var(--foreground);
+	background: color-mix(in oklch, var(--card) 18%, var(--lm-paper));
+	backdrop-filter: var(--lm-blur-lg);
+	box-shadow:
+		inset 0 1px 1px oklch(1 0 0 / 0.05),
+		0 -20px 60px -20px oklch(0 0 0 / 0.5);
+	transition: all 0.35s var(--lm-ease);
+}
+.lm-sheet::backdrop {
+	background: oklch(0.12 0.03 290 / 0.55);
+	backdrop-filter: var(--lm-blur-md);
+	transition: backdrop-filter 0.35s var(--lm-ease);
+}
+.lm-sheet[open] {
+	animation: lm-sheet-in 0.35s var(--lm-ease);
+}
+@media (min-width: 40rem) {
+	.lm-sheet {
+		margin: auto;
+		border-radius: 1.75rem;
+	}
+}
+@keyframes lm-sheet-in {
+	from {
+		opacity: 0;
+		transform: translateY(2rem);
+	}
+}
+
+/* ── Mouvement : tout se coupe si l'appareil le demande ─────────────────── */
+@media (prefers-reduced-motion: reduce) {
+	.lm-tile,
+	.lm-btn,
+	.lm-field,
+	.lm-bar > i,
+	.lm-pivot__title,
+	.lm-panorama__nav button {
+		transition: none;
+	}
+	.lm-sheet[open] {
+		animation: none;
+	}
+	a.lm-tile:hover,
+	button.lm-tile:hover,
+	a.lm-tile:active,
+	button.lm-tile:active,
+	.lm-btn:active,
+	.lm-btn:hover {
+		transform: none;
+		filter: none;
+	}
+	.lm-panorama[data-ready] .lm-pivot:not([data-seen]) .lm-tile {
+		opacity: 1;
+		translate: none;
+	}
+}
+
+/* Mode contraste forcé : les aplats de couleur disparaissent, on garde un cadre. */
+@media (forced-colors: active) {
+	.lm-tile {
+		border: 1.5px solid CanvasText;
+		background: Canvas;
+		backdrop-filter: none;
+	}
+	.lm-tile::before,
+	.lm-tile::after {
+		display: none;
+	}
+	.lm-btn {
+		background: ButtonFace;
+		border: 2px solid ButtonBorder;
+		backdrop-filter: none;
+	}
+	.lm-field {
+		background: Field;
+		border: 2px solid FieldBorder;
+		backdrop-filter: none;
+	}
+	.lm-sheet {
+		background: Canvas;
+		border: 1.5px solid CanvasText;
+		backdrop-filter: none;
+	}
+}
