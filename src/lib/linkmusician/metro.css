@@ -314,15 +314,15 @@
 }
 .lm-jam-board > .lm-tile-frame.lm-jam-next {
 	grid-column: span 10;
-	grid-row: span 4;
+	grid-row: span 5;
 }
 .lm-jam-board > .lm-tile-frame.lm-jam-availability {
 	grid-column: span 5;
-	grid-row: span 4;
+	grid-row: span 5;
 }
 .lm-jam-board > .lm-tile-frame.lm-profile-tile {
 	grid-column: span 5;
-	grid-row: span 4;
+	grid-row: span 5;
 }
 .lm-jam-board > .lm-tile-frame.lm-event-tile {
 	grid-column: 13 / span 8;
