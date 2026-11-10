@@ -24,6 +24,13 @@
 	} = $props();
 
 	const filled = $derived(references.filter((r) => r.url.trim()).length);
+
+	// Réassigner le tableau, pas muter une ligne : le parent lie `$form.references`
+	// (store superforms), qu'une mutation en place ne prévient pas. Sans cela, les
+	// travaux saisis n'étaient pas envoyés (constaté en e2e le 10/11/2026).
+	function update(i: number, field: keyof Row, value: string) {
+		references = references.map((r, k) => (k === i ? { ...r, [field]: value } : r));
+	}
 </script>
 
 <section class="space-y-3" aria-labelledby="references-title">
@@ -33,14 +40,15 @@
 	</h2>
 	<p class="text-sm text-muted-foreground">{hint}</p>
 	<ul class="space-y-3">
-		{#each references as _, i (i)}
+		{#each references as row, i (i)}
 			<li class="grid gap-2 rounded-xl border p-3 sm:grid-cols-[1fr_1.4fr_auto]">
 				<label class="space-y-1 text-sm">
 					<span class="font-medium">Titre</span>
 					<input
 						class="w-full rounded-md border bg-background p-2"
 						placeholder={titlePlaceholder}
-						bind:value={references[i].title}
+						value={row.title}
+						oninput={(e) => update(i, 'title', e.currentTarget.value)}
 					/>
 					{#if errors?.[i]?.title}
 						<span class="block text-destructive">{errors[i]?.title?.[0]}</span>
@@ -53,7 +61,8 @@
 						inputmode="url"
 						class="w-full rounded-md border bg-background p-2"
 						placeholder="soundcloud.com/…"
-						bind:value={references[i].url}
+						value={row.url}
+						oninput={(e) => update(i, 'url', e.currentTarget.value)}
 					/>
 					{#if errors?.[i]?.url}
 						<span class="block text-destructive">{errors[i]?.url?.[0]}</span>

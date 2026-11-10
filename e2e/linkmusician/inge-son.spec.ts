@@ -63,8 +63,11 @@ test.describe('LinkMusician — ingé son', () => {
 				await page.getByLabel(/Façade/).check();
 				await page.getByLabel(/À distance/).check();
 				await page.getByLabel('Mon matériel').fill('Pro Tools\nYamaha CL5');
-				await page.getByLabel('Titre').first().fill('Mix de « Nuit blanche »');
-				await page.getByLabel('Lien').first().fill('soundcloud.com/e2e/nuit-blanche');
+				await page.getByLabel('Titre', { exact: true }).first().fill('Mix de « Nuit blanche »');
+				await page
+					.getByLabel('Lien', { exact: true })
+					.first()
+					.fill('soundcloud.com/e2e/nuit-blanche');
 				await page.getByRole('button', { name: 'Enregistrer' }).click();
 				await expect(page.getByText(/on te trouve dans la recherche/).first()).toBeVisible();
 				await expectNoA11yViolations(page, ['.cartButton']);

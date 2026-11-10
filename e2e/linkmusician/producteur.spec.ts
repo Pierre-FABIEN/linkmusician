@@ -47,8 +47,8 @@ test.describe('LinkMusician — producteur·rice', () => {
 				await page.getByLabel('Funk', { exact: true }).check();
 				await page.getByLabel('Mes logiciels').fill('Ableton Live');
 				await page.getByLabel('Mes tarifs indicatifs').fill('À partir de 150 € le titre');
-				await page.getByLabel('Titre').first().fill('« Lumière »');
-				await page.getByLabel('Lien').first().fill('soundcloud.com/e2e/lumiere');
+				await page.getByLabel('Titre', { exact: true }).first().fill('« Lumière »');
+				await page.getByLabel('Lien', { exact: true }).first().fill('soundcloud.com/e2e/lumiere');
 				await page.getByRole('button', { name: 'Enregistrer' }).click();
 				await expect(page.getByText(/on te trouve dans la recherche/).first()).toBeVisible();
 				await expectNoA11yViolations(page, ['.cartButton']);
