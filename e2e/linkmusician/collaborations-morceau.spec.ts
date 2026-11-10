@@ -84,6 +84,9 @@ test.describe('LinkMusician — collaborations liées au morceau', () => {
 				await page.goto(`/messages/${conversation.id}`);
 				await waitForAppReady(page);
 				await page.getByRole('button', { name: 'Confirmer' }).click();
+				// La réponse est enregistrée quand les boutons de réponse disparaissent
+				// (« Prestation : … » s'affiche déjà avant).
+				await expect(page.getByRole('button', { name: "Ce n'est pas exact" })).toBeHidden();
 				await expect(page.getByText(`Prestation : ${sam.actor.displayName}`)).toBeVisible();
 				await page.goto(`/morceaux/${work.id}`);
 				await waitForAppReady(page);
