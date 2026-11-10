@@ -168,7 +168,7 @@
 							aria-valuemax="5"
 							aria-valuenow="1"
 						>
-							<i style="--v:20%"></i>
+							<i style="--progress:0.2"></i>
 						</div>
 						<div class="flex flex-wrap items-center justify-between gap-3">
 							<p class="lm-tile__text">

@@ -240,7 +240,7 @@
 										aria-valuemax={lea.xpForNextLevel}
 										aria-valuenow={lea.xpIntoLevel}
 									>
-										<i style:--v="{percent}%"></i>
+										<i style:--progress={percent / 100}></i>
 									</div>
 									<p class="lm-tile__text">{lea.xp.toLocaleString('fr-FR')} XP</p>
 								</div>

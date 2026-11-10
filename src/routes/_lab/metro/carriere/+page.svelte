@@ -95,7 +95,7 @@
 							aria-valuemax={lea.xpForNextLevel}
 							aria-valuenow={lea.xpIntoLevel}
 						>
-							<i style:--v="{percent}%"></i>
+							<i style:--progress={percent / 100}></i>
 						</div>
 						<div class="flex flex-wrap items-center justify-between gap-3">
 							<p class="lm-tile__text">Acte {currentAct.roman} · {currentAct.name}</p>

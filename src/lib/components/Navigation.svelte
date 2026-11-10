@@ -124,11 +124,12 @@
 		}
 
 		nav {
-			transition: all 0.3s ease;
+			transition:
+				transform 0.3s ease,
+				background-color 0.3s ease;
 
 			&:hover {
 				transform: translateY(-5px);
-				box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 				background: rgba(255, 255, 255, 0.05);
 			}
 		}

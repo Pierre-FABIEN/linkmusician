@@ -164,7 +164,7 @@
 							aria-valuemax="2000"
 							aria-valuenow="1565"
 						>
-							<i style="--v:78.25%"></i>
+							<i style="--progress:0.7825"></i>
 						</div>
 						<p class="lm-tile__text">1 565 / 2 000 XP</p>
 					</div>

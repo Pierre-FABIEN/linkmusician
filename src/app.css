@@ -166,7 +166,11 @@
 	text-align: justify;
 	text-transform: uppercase;
 	color: #2b2b2b;
-	transition: all 0.25s;
+	transition:
+		color 0.25s,
+		background-color 0.25s,
+		border-color 0.25s,
+		transform 0.25s;
 }
 
 .rts {
