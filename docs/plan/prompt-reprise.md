@@ -16,7 +16,7 @@ ne crée pas de commit pendant cet audit.**
    ordre conseillé (§4 bis), tableau des statuts (§5) et points ouverts
    (§5 bis).
 3. La fiche de la phase contenant les lots en cours ou à faire, en
-   particulier `docs/plan/phase-2-3.md` pour la phase 3.
+   particulier `docs/plan/phase-4-6.md` pour les phases 4 à 6.
 4. `docs/decisions/README.md` et les décisions référencées par les lots
    candidats.
 5. L'état local Git (`git status`, branche, derniers commits) et les
@@ -42,18 +42,17 @@ ne crée pas de commit pendant cet audit.**
 
 ## Vérifications d'attention
 
-Les derniers documents consultés contenaient une divergence à revalider :
-P3-14 est indiqué ✅ dans le tableau et réalisé dans sa fiche, tandis que
-P3-16c est indiqué 🟡 dans le tableau (E2E `discussions.spec.ts` à lancer)
-mais décrit comme réalisé le 08/11 dans `phase-2-3.md`. L'ancien prompt de
-reprise affirmait aussi que P3-14 était le prochain lot. Vérifie ces trois
-points dans l'état actuel du dépôt et des tests; n'en déduis pas que P3-16c
-est terminé sur la seule base de son implémentation.
+État au 10/11/2026 : les lots 🟡 (P3-15a, P3-15b, P3-17, P4-02a,
+P4-02b, P4-04, P4-05, P4-06) attendaient surtout leur e2e, que Chromium
+ne pouvait pas lancer jusque-là. Vérifie dans le tableau §5 lesquels sont
+passés ✅ ; un lot 🟡 dont le seul manque est l'e2e se ferme en le
+lançant, pas en commençant un lot suivant. P4-07 (crédits) dépend de
+P4-06 : ne le recommande pas tant que P4-06 n'est pas ✅.
 
-P3-15a apparaît comme candidat possible après P3-14 : vérifie ses
-dépendances (P2-17, P3-04, P3-11) et D42 avant de le recommander. Si
-P3-16c reste incomplet selon ses critères, explique s'il faut d'abord
-terminer ce lot ou si le plan autorise P3-15a en parallèle.
+Avant de lancer des e2e : compare `.env.test` à `.env.test.example` (une
+variable ajoutée par un lot peut manquer) et ne lance pas `npm run check`
+en même temps (mémoire de WSL ; voir `e2e/README.md`, section
+LinkMusician).
 
 ## Réponse attendue
 

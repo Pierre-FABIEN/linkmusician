@@ -256,7 +256,7 @@ que seules ces personnes voient. Ensuite, dans votre conversation,
 proposez une collaboration (enregistrement, mixage, mastering, production)
 **reliée au morceau**, en disant qui assure la prestation.
 
-Quand chacun·e l’a confirmée, le morceau passe **Enregistré**, **Mixé**,
+Une fois la date passée et la collaboration confirmée par chacun·e, le morceau passe **Enregistré**, **Mixé**,
 **Masterisé** ou **Produit**. L’ingé son ou la productrice gagne sur sa
 piste. Toi, tu gagnes la collaboration quand tu joues : un enregistrement,
 une production. Sur un mixage ou un mastering, où tu ne joues pas, seule

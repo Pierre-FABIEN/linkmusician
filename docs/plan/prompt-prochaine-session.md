@@ -1,5 +1,9 @@
 # Prompt de reprise — état au 04/11/2026 (soir)
 
+> **Périmé** (état au 04/11/2026, phase 1). Pour reprendre une session,
+> utiliser [prompt-reprise.md](./prompt-reprise.md), qui fait établir l'état
+> réel du plan à partir du tableau §5.
+
 > À coller au début de la prochaine session Claude Code, dans le dépôt
 > `linkmusician`. Il complète `CLAUDE.md` (lu automatiquement) avec l'état
 > exact laissé en fin de session.

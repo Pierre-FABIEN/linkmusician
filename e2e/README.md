@@ -29,6 +29,70 @@ worker) :
   (`e2e/live/sendcloud.spec.ts`) et Cloudinary (`e2e/live/cloudinary.spec.ts`),
   ignorés si les clés sont factices.
 
+<!-- LINKMUSICIAN ▼ -->
+
+## LinkMusician — `e2e/linkmusician/`
+
+Un spec par lot ou par décision. Le détail des étapes est dans la doc du
+domaine (dernière colonne) ; lancer un seul spec :
+`npx playwright test e2e/linkmusician/<nom>.spec.ts`.
+
+| Spec                     | Lot          | Ce qui est joué                                                        | Doc                                  |
+| ------------------------ | ------------ | ---------------------------------------------------------------------- | ------------------------------------ |
+| `coquille`               | P0-05b       | Actions de l'en-tête, pages « bientôt », accessibilité clair et sombre | —                                    |
+| `mobile`                 | P0-07        | Raccourcis dans l'en-tête, aucune page ne déborde en largeur           | `docs/conception/03-architecture.md` |
+| `metiers`                | P1-03b       | « Qui es-tu ? » : choix des métiers, un seul principal (D15)           | `docs/onboarding/`                   |
+| `profil-musical`         | P1-06        | Instruments et niveaux, genres, influences ; export RGPD               | —                                    |
+| `profil`                 | P1-06b       | Bio, statut pro, matériel, mobilité, liens (D17, D18)                  | —                                    |
+| `medias`                 | P1-08a       | Lien en attente pour un compte neuf, publié d'office ensuite           | `docs/media/`                        |
+| `onboarding`             | P1-10        | De l'email vérifié au tableau de bord, reprise, accessibilité          | `docs/onboarding/`                   |
+| `profil-public`          | P1-11        | Tableau de bord, profil public sans XP, profil masqué en 404           | `docs/profil-public/`                |
+| `moderation`             | P1-12, P2-10 | Signalement, validation et retrait d'un média                          | `docs/moderation/`                   |
+| `indicateurs`            | P1-13        | Visite relevée, `/admin/indicateurs` réservé aux admins                | `docs/indicateurs/`                  |
+| `recherche`              | P2-01        | Distances par tranches, filtres dans l'URL                             | `docs/recherche/`                    |
+| `annonces`               | P2-02        | Annonces autour de soi, quota de confiance, clôture, signalement       | `docs/annonces/`                     |
+| `candidatures`           | P2-03        | Candidature, conversation liée, appréciation                           | `docs/collaborations/`               |
+| `messagerie`             | P2-04        | Demande, échange, mineur·es protégé·es, limite TL0                     | `docs/messagerie/`                   |
+| `blocage`                | P2-05        | Blocage dans les deux sens, déblocage                                  | `docs/messagerie/`                   |
+| `notifications`          | P2-09b       | Préférences, digest email, désinscription                              | —                                    |
+| `celebrations`           | P2-11        | Une démo publiée se fête une seule fois                                | `docs/progression/`                  |
+| `modes`                  | P2-12        | Menu du jeu, « Ta prochaine étape », mode préféré                      | `docs/jam/`                          |
+| `dispo`                  | P2-13        | « Je suis dispo », jamais un·e mineur·e                                | `docs/jam/`                          |
+| `lieux`                  | P2-14a, c    | Annuaire des lieux, commune seulement, validation (D26)                | `docs/jam/`                          |
+| `jams`                   | P2-14b, c    | Jam publique, « Je viens », places réservées, matériel                 | `docs/jam/`                          |
+| `conseils`               | P2-17        | Un conseil par écran clé, masquable                                    | `docs/guide/`                        |
+| `suggestions`            | P2-18        | « Des musicien·nes pour toi », « Pas intéressé·e »                     | —                                    |
+| `groupes`                | P3-01        | Groupe formé, adhésions et historique                                  | `docs/groupes/`                      |
+| `recrutement`            | P3-03        | Annonce de groupe, candidature acceptée, entrée dans le groupe         | `docs/annonces/`                     |
+| `etapes`                 | P3-04        | Premier concert déclaré, XP du groupe et part individuelle             | `docs/etapes/`                       |
+| `morceaux`               | P3-11        | Idée, crédits, maquette, morceau composé (D35)                         | `docs/morceaux/`                     |
+| `carriere`               | P3-12        | Page-menu de carrière, ambition (D50)                                  | `docs/carriere/`                     |
+| `demarches`              | P3-15a, b    | Fiches, sources officielles ; bulletin de partage en PDF               | `docs/demarches/`                    |
+| `contacts`               | P3-16b       | Carnet de contacts et groupes de contacts (D45, D46)                   | `docs/contacts/`                     |
+| `discussions`            | P3-16c       | Discussions de groupe sur invitation (D46)                             | `docs/contacts/`                     |
+| `assistant-inscription`  | P3-17        | Assistant d'inscription, fournisseur factice (D47)                     | `docs/onboarding/assistant.md`       |
+| `inge-son`               | P4-02a, b    | Profil d'ingé son, recherche par métier, rang, objectifs               | `docs/metiers-du-son/`               |
+| `producteur`             | P4-04        | Profil de producteur·rice, recherche par spécialité et style           | `docs/metiers-du-son/`               |
+| `annonces-metier`        | P4-05        | Annonce « cherche ingé son », visible du seul métier visé              | `docs/metiers-du-son/`               |
+| `collaborations-morceau` | P4-06        | Session d'enregistrement confirmée, le morceau passe « Enregistré »    | `docs/collaborations/`               |
+| `aide`                   | —            | Centre d'aide : sommaire, ancres, navigation conservée                 | `docs/aide/`                         |
+| `fil-ariane`             | D52          | Fil d'Ariane en badges dans le mode jam                                | —                                    |
+| `organiser`              | D51          | « Lancer une jam » après « prêt·e à organiser »                        | `docs/jam/`                          |
+| `lancement`              | —            | Feuille de route réservée à l'administration                           | `docs/lancement/`                    |
+
+Deux pièges constatés le 10/11/2026 :
+
+- **`.env.test` en retard sur `.env.test.example`** : une variable ajoutée
+  par un lot (par exemple `ONBOARDING_ASSISTANT_FAKE=1`, P3-17) manque, et
+  le spec échoue sans erreur explicite. Comparer les deux fichiers avant
+  de lancer un nouveau spec.
+- **Mémoire** : WSL a 8 Go par défaut. Le serveur de dev, le serveur e2e
+  (1,2 à 1,4 Go chacun), VS Code et `npm run check` en même temps
+  remplissent la mémoire : Chromium plante (« Page crashed »). Ne pas
+  lancer `check` pendant les e2e ; voir `docs/plan/a-trancher.md` (M1).
+
+<!-- LINKMUSICIAN ▲ -->
+
 ## Authentification
 
 Un seul scénario, `e2e/auth/journey.spec.ts`, joue tout le cycle de vie d'un

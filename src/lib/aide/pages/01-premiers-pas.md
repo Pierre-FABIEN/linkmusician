@@ -22,7 +22,7 @@ _Ton compte, ton profil et ton mode de jeu, en cinq minutes._
 
 ### Décrire ta situation avec tes mots {#assistant}
 
-Sur « Qui es-tu ? », l’aide **facultative** « Décris ta situation avec tes
+Quand elle est proposée sur « Qui es-tu ? », l’aide **facultative** « Décris ta situation avec tes
 mots » te fait gagner du temps : tu écris quelques phrases (ce que tu
 joues, tes styles, ta ville, ce que tu cherches), et elle prépare des
 **propositions** pour les écrans suivants.

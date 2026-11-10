@@ -1,7 +1,7 @@
 # Centre d'aide — contenu des pages de l'app
 
-> Le centre d'aide de LinkMusician (`/aide`), mis à jour le 09/11/2026
-> (état de l'app pendant P3-07). Les pages s'adressent aux
+> Le centre d'aide de LinkMusician (`/aide`), mis à jour le 10/11/2026
+> (état de l'app après P4-06 : métiers du son, démarches, assistant d'inscription). Les pages s'adressent aux
 > **utilisateur·rices** (tutoiement, comme dans l'app).
 
 ## Comment c'est fait
