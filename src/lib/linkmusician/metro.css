@@ -1802,7 +1802,7 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
 	.lm-tile:not(.lm-tile-frame > *):hover {
 		z-index: 2;
-		transform: translate3d(0, -8px, 0) scale(1.16);
+		transform: translate3d(0, -10px, 0) scale(1.36);
 		border-color: transparent;
 		box-shadow:
 			inset 0 1px 0 oklch(1 0 0 / 0.16),
@@ -1824,13 +1824,13 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 	   légèrement. */
 	.lm-tile-frame:hover {
 		z-index: 2;
-		transform: translate3d(0, -8px, 0) scale(1.16);
+		transform: translate3d(0, -10px, 0) scale(1.36);
 	}
-	/* L'ombre est dans le cadre qui monte de 8px : 24px ici la posent 16px sous
+	/* L'ombre est dans le cadre qui monte de 10px : 30px ici la posent 20px sous
 	   sa place de repos. */
 	.lm-tile-frame:hover::before {
 		opacity: 0.85;
-		transform: translate3d(0, 24px, 0) scale(1.18);
+		transform: translate3d(0, 30px, 0) scale(1.38);
 	}
 	.lm-tile-frame > .lm-tile:hover::before {
 		animation: lm-tile-frame-pulse 1.4s ease-in-out infinite alternate;
