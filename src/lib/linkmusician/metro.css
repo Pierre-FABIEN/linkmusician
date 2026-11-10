@@ -1288,7 +1288,7 @@
 /* Liseré conique : présent mais quasi invisible, pour que son calque existe
    déjà au survol (opacity 0 pourrait le faire retirer). */
 .lm-tile-frame > .lm-tile::before {
-	padding: 2px;
+	padding: 1px;
 	opacity: 0.001;
 	will-change: opacity;
 	transition: none;
@@ -1354,12 +1354,13 @@
 		0 6px 18px oklch(0 0 0 / 0.2);
 }
 
+/* Pulsation discrète : le liseré respire sans paraître s'épaissir. */
 @keyframes lm-tile-frame-pulse {
 	from {
-		opacity: 0.55;
+		opacity: 0.35;
 	}
 	to {
-		opacity: 1;
+		opacity: 0.7;
 	}
 }
 
@@ -1797,7 +1798,7 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 		transform: translate3d(0, 12px, 0) scale(1.04);
 	}
 	.lm-tile-frame > .lm-tile:hover::before {
-		animation: lm-tile-frame-pulse 1.2s ease-in-out infinite alternate;
+		animation: lm-tile-frame-pulse 1.8s ease-in-out infinite alternate;
 	}
 	.lm-tile-frame > .lm-tile:hover::after {
 		opacity: 0.2;
