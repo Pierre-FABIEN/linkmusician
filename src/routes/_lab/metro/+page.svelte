@@ -53,7 +53,7 @@
 	fade={true}
 	class="lm-metro min-h-screen w-full"
 >
-	<div class="relative z-10 mx-auto   ">
+	<div class="relative z-10 mx-auto">
 		<div class="space-y-12 rounded-3xl p-4 pb-10 sm:p-8 sm:pb-12 w-full">
 			<header class="flex flex-wrap items-start justify-between gap-4">
 				<div class="space-y-2">
@@ -62,19 +62,23 @@
 					</p>
 					<h1 class="lm-display">LinkMusician</h1>
 				</div>
-				<button
-					type="button"
-					class="lm-btn"
-					data-variant="ghost"
-					aria-pressed={dark}
-					onclick={() => setMode(dark ? 'light' : 'dark')}
-				>
-					{#if dark}<Sun class="size-4" aria-hidden="true" />{:else}<Moon
-							class="size-4"
-							aria-hidden="true"
-						/>{/if}
-					{dark ? 'Mode clair' : 'Mode sombre'}
-				</button>
+				<div class="flex flex-wrap gap-2">
+					<a class="lm-btn" data-variant="ghost" href="/_lab/metro/texte">Typographie</a>
+					<a class="lm-btn" data-variant="ghost" href="/_lab/metro/jam">Mode Jam</a>
+					<button
+						type="button"
+						class="lm-btn"
+						data-variant="ghost"
+						aria-pressed={dark}
+						onclick={() => setMode(dark ? 'light' : 'dark')}
+					>
+						{#if dark}<Sun class="size-4" aria-hidden="true" />{:else}<Moon
+								class="size-4"
+								aria-hidden="true"
+							/>{/if}
+						{dark ? 'Mode clair' : 'Mode sombre'}
+					</button>
+				</div>
 			</header>
 
 			<!-- Panorama : le rail horizontal déborde du cadre, comme l'écran d'accueil d'un Lumia. -->
@@ -82,7 +86,7 @@
 				<Panorama label="l'application">
 					<Pivot id="jouer" title="jouer">
 						<div class="lm-mosaic">
-							<Tile tone="violet" size="wide" href="/_lab" icon={Trophy} index={0}>
+							<Tile tone="violet" size="wide" href="/_lab/metro/carriere" icon={Trophy} index={0}>
 								<p class="lm-tile__kicker">mode</p>
 								<div class="space-y-1">
 									<h3 class="lm-tile__title">carrière</h3>
@@ -298,6 +302,7 @@
 						<p class="lm-kicker">boutons et champs</p>
 						<div class="flex flex-wrap gap-3">
 							<button type="button" class="lm-btn">Enregistrer</button>
+							<a class="lm-btn" data-variant="ghost" href="/_lab/metro/jam">Dashboard Jam</a>
 							<button type="button" class="lm-btn" data-variant="ghost">Annuler</button>
 						</div>
 						<div class="space-y-1">

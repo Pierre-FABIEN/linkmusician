@@ -215,7 +215,7 @@
 		<ModeWatcher />
 		<!-- LINKMUSICIAN: l'espace `(app)`, et les pages publiques vues par un
 		     membre, ont leur propre navigation (P0-07, P2-12b). -->
-		{#if !page.route.id?.startsWith('/(app)') && !page.data.memberShell && page.url.pathname !== '/_lab/metro'}
+		{#if !page.route.id?.startsWith('/(app)') && !page.data.memberShell && !page.url.pathname.startsWith('/_lab/metro')}
 			<Navigation {data} />
 		{/if}
 		<div class="ccc relative m-0 h-screen w-screen max-w-none overflow-hidden p-0">
@@ -224,7 +224,9 @@
 					<main id="main-content" class="max-w-[100vw] overflow-hidden">
 						<div class="ccc absolute z-[1] w-full pb-15" bind:this={contentRef}>
 							{@render children()}
-							<Footer companyName={data.companyName} />
+							{#if !page.url.pathname.startsWith('/_lab/metro')}
+								<Footer companyName={data.companyName} />
+							{/if}
 						</div>
 					</main>
 				</SmoothScrollBar>

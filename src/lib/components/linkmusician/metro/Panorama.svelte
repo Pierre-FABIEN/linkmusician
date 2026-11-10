@@ -18,7 +18,8 @@
 
 	$effect(() => {
 		if (!rail) return;
-		nodes = [...rail.querySelectorAll<HTMLElement>('[data-pivot]')];
+		const railElement = rail;
+		nodes = [...railElement.querySelectorAll<HTMLElement>('[data-pivot]')];
 		pivots = nodes.map((n) => ({ id: n.id, title: n.dataset.title ?? n.id }));
 		active = nodes[0]?.id ?? '';
 		ready = true;
@@ -30,8 +31,8 @@
 					ratios[e.target.id] = e.intersectionRatio;
 					if (e.intersectionRatio > 0.35) (e.target as HTMLElement).setAttribute('data-seen', '');
 				}
-				const style = getComputedStyle(rail);
-				const railRect = rail.getBoundingClientRect();
+				const style = getComputedStyle(railElement);
+				const railRect = railElement.getBoundingClientRect();
 				const anchor = railRect.left + (parseFloat(style.paddingLeft) || 0);
 				const best = nodes
 					.map((node) => {
@@ -46,7 +47,7 @@
 					.sort((a, b) => b.ratio - a.ratio || a.distance - b.distance)[0];
 				if (best) active = best.id;
 			},
-			{ root: rail, threshold: [0, 0.25, 0.5, 0.75, 1] }
+			{ root: railElement, threshold: [0, 0.25, 0.5, 0.75, 1] }
 		);
 		for (const n of nodes) io.observe(n);
 		return () => io.disconnect();
