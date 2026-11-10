@@ -113,6 +113,6 @@ export class MemoryLedger {
 
 	/** Niveau de compte : somme de toutes les pistes de la personne (§3). */
 	level(actorId: string): number {
-		return levelFromXp(this.xp(actorId, 'MUSICIAN'));
+		return levelFromXp(this.xp(actorId));
 	}
 }

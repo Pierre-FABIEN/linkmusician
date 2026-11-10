@@ -162,7 +162,7 @@ une annonce « cherche ingé son » · première session d'enregistrement ·
 premier mixage · premier mastering · première date en façade ·
 travailler avec 3 artistes différents.
 
-**Gains** _(proposé)_ : session d'enregistrement ou de mixage confirmée
+**Gains** _(calibrés en P4-01, 02 §2.2)_ : session d'enregistrement ou de mixage confirmée
 300 · mastering confirmé 150 · date de sonorisation confirmée par le
 groupe 150 · crédit sur une sortie vérifiée 300 · endossement reçu 40.
 
@@ -220,7 +220,7 @@ production.
 des propositions · première production confirmée · produire 3 artistes
 différents · une production sortie et vérifiée.
 
-**Gains** _(proposé)_ : production confirmée 400 · arrangement confirmé
+**Gains** _(calibrés en P4-01, 02 §2.2)_ : production confirmée 400 · arrangement confirmé
 200 · crédit sur une sortie vérifiée 300 · endossement reçu 40.
 
 **Épreuves qu'il valide** : la production d'un morceau (acte IV) et

@@ -90,3 +90,91 @@ export function bandTier(milestones: Partial<Record<Milestone, ProofStatus>>) {
 	const last = [...MILESTONES].reverse().find((m) => counts(milestones[m], m));
 	return last ? { milestone: last, label: BAND_TIER_LABELS[last] } : null;
 }
+
+/**
+ * Ingé son et producteur·rice (P4-01, conception 02 §5 et 08 §5, §7) : mêmes
+ * rangs, comptés sur les prestations de la piste (sessions, mixages,
+ * mastering, sonorisations pour l'ingé son ; productions, arrangements pour
+ * le producteur ou la productrice). Un projet n'existe que confirmé par
+ * l'artiste ; un crédit, que sur une sortie vérifiée.
+ */
+export type CraftSummary = {
+	/** Travaux en écoute crédités sur le profil (avant / après, productions). */
+	listeningWorks: number;
+	/** Prestations confirmées par les artistes. */
+	projects: number;
+	/** Artistes distincts (personnes ou groupes) de ces prestations. */
+	distinctArtists: number;
+	/** Sorties vérifiées (ISRC, UPC) qui créditent la personne. */
+	verifiedReleaseCredits: number;
+};
+
+export const CRAFT_TIERS = [
+	{ id: 'HOME_STUDIO', label: 'Home studio', reached: (s: CraftSummary) => s.listeningWorks >= 1 },
+	{
+		id: 'FIRST_PROJECTS',
+		label: 'Premiers projets',
+		reached: (s: CraftSummary) => s.projects >= 1
+	},
+	{
+		id: 'PORTFOLIO',
+		label: 'Portfolio',
+		reached: (s: CraftSummary) => s.projects >= 5 && s.distinctArtists >= 3
+	},
+	{
+		id: 'ESTABLISHED',
+		label: 'Établi·e',
+		reached: (s: CraftSummary) => s.projects >= 15 && s.verifiedReleaseCredits >= 1
+	},
+	{
+		id: 'REFERENCE',
+		label: 'Référence',
+		reached: (s: CraftSummary) => s.verifiedReleaseCredits >= 5 && s.distinctArtists >= 10
+	}
+] as const;
+
+export type CraftTierId = (typeof CRAFT_TIERS)[number]['id'];
+
+/** Rang affiché d'un·e ingé son ou d'un·e producteur·rice : le plus haut atteint. */
+export function craftTier(summary: CraftSummary) {
+	const reached = CRAFT_TIERS.filter((tier) => tier.reached(summary));
+	const top = reached.at(-1);
+	return { tier: top ? { id: top.id, label: top.label } : null, reached: reached.map((t) => t.id) };
+}
+
+/**
+ * Studio (P4-01, conception 02 §5 et 08 §6) : le rang va à l'organisation,
+ * les points aux personnes qui ont travaillé. Une session ne compte que
+ * confirmée par le client.
+ */
+export type StudioSummary = {
+	/** Fiche publiée (salles, matériel, tarifs). */
+	published: boolean;
+	sessions: number;
+	distinctClients: number;
+	/** Sorties vérifiées enregistrées sur place. */
+	verifiedReleases: number;
+};
+
+export const STUDIO_TIERS = [
+	{ id: 'OPEN', label: 'Ouvert', reached: (s: StudioSummary) => s.published },
+	{ id: 'ACTIVE', label: 'Actif', reached: (s: StudioSummary) => s.sessions >= 5 },
+	{
+		id: 'RECOGNIZED',
+		label: 'Reconnu',
+		reached: (s: StudioSummary) => s.sessions >= 20 && s.distinctClients >= 10
+	},
+	{
+		id: 'ESSENTIAL',
+		label: 'Incontournable',
+		reached: (s: StudioSummary) => s.verifiedReleases >= 5
+	}
+] as const;
+
+export type StudioTierId = (typeof STUDIO_TIERS)[number]['id'];
+
+export function studioTier(summary: StudioSummary) {
+	const reached = STUDIO_TIERS.filter((tier) => tier.reached(summary));
+	const top = reached.at(-1);
+	return { tier: top ? { id: top.id, label: top.label } : null, reached: reached.map((t) => t.id) };
+}

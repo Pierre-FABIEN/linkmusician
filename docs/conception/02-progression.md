@@ -77,6 +77,28 @@ jamais l'historique, elle s'applique aux nouveaux événements.
 | Morceau composé à plusieurs, rôle confirmé (D35, phase 3)        | 150 × multiplicateurs (§6) | une fois par morceau et par personne ; seul·e, un morceau composé ne rapporte rien     |
 | Participer à une étape de groupe (comme membre présent)          | 25 % de l'XP du groupe     | —                                                                                      |
 
+**Ingé son et producteur·rice** (phase 4, calibré en P4-01). Une
+prestation compte quand l'artiste confirme la collaboration. Elle
+rapporte sur la piste du métier exercé (D20), avec les mêmes
+multiplicateurs qu'une collaboration (§6) : rendement décroissant **par
+artiste** sur 12 mois, et confiance de l'artiste. Les musicien·nes de la
+même collaboration gagnent, eux, sur la piste musicien.
+
+| Événement                                            | XP                         | Piste                                        |
+| ---------------------------------------------------- | -------------------------- | -------------------------------------------- |
+| Session d'enregistrement confirmée                   | 300 × multiplicateurs (§6) | Ingé son                                     |
+| Mixage confirmé                                      | 300 × multiplicateurs (§6) | Ingé son                                     |
+| Mastering confirmé                                   | 150 × multiplicateurs (§6) | Ingé son                                     |
+| Sonorisation d'une date (façade, retours), confirmée | 150 × multiplicateurs (§6) | Ingé son                                     |
+| Production confirmée                                 | 400 × multiplicateurs (§6) | Producteur·rice                              |
+| Arrangement confirmé                                 | 200 × multiplicateurs (§6) | Producteur·rice                              |
+| Crédit sur une sortie vérifiée (ISRC, UPC)           | 300                        | Piste créditée                               |
+| Appréciation reçue                                   | 40                         | Musicien au MVP ; piste du métier avec P4-02 |
+
+Un devis, une prise de contact ou une réservation annulée ne rapportent
+rien. Pour le studio, la réservation honorée (100, 08 §6) viendra avec
+la réservation en ligne (P5-10).
+
 **Groupe**, avec les étapes du brief et leur niveau de preuve (§4) :
 
 | #   | Étape                  | Déclarée | Corroborée | Vérifiée | Preuve attendue                                                                                                                           |
@@ -163,6 +185,34 @@ Les valeurs des étapes de groupe sont inchangées. Le barème vit dans
 `src/lib/server/progression/core/bareme.ts`, et les personas dans
 `personas.test.ts`.
 
+**Métiers du son (P4-01, 10/11/2026).** Les gains proposés en 08 §5 et
+§7 sont repris tels quels. Simulation sur 6 mois (`personas-son.test.ts`),
+avec des artistes TL1 le premier mois puis TL2 :
+
+| Persona                                                               | Niveau à 1 / 3 / 6 mois            | Portfolio  | Établi·e                    |
+| --------------------------------------------------------------------- | ---------------------------------- | ---------- | --------------------------- |
+| Ingé son de studio (un client toutes les 2 semaines, prise et mixage) | 3 / 7 / 11                         | 4 semaines | 21 semaines, avec la sortie |
+| Productrice urbaine (2 productions par mois, 6 artistes)              | 3 / 7 / 8                          | 7 semaines | pas sans sortie vérifiée    |
+| Ingé son live (2 dates en façade par mois)                            | 2 / 4 / 6                          | 9 semaines | —                           |
+| Home studio (un mixage par mois pour deux ami·es)                     | 2 / 4 / 4                          | jamais     | —                           |
+| Farmeur du son (40 sessions avec 2 comptes TL0)                       | 106 XP, niveau 2                   | —          | —                           |
+| Studio associatif (2 sessions par semaine, 14 clients)                | Actif en 3 semaines, Reconnu en 10 | —          | —                           |
+
+Le barème tient. Un·e pro actif·ve suit la courbe des musicien·nes
+(niveau 5 en 1 à 3 mois, le lead est à 6 / 9 / 11), et le farmeur reste
+sous le Curieux. Deux ami·es ne suffisent pas pour un portfolio : il
+faut trois artistes. « Établi·e » demande une sortie vérifiée, même avec
+trente projets. Les rendements par artiste plafonnent le travail répété
+avec un même client : un EP en quatre sessions rapporte 300, 150, 75,
+puis 0. La progression vient des nouveaux clients, comme pour qui joue.
+
+Le niveau de compte additionne toutes les pistes de la personne :
+c'était déjà le cas en base (`projector.ts`), et le registre en mémoire
+des tests est maintenant aligné. Un point reste à trancher en P4-06 :
+les musicien·nes d'une collaboration de mixage ou de mastering, où ils
+ne jouent pas, doivent-ils gagner la collaboration sur la piste
+musicien ?
+
 ## 3. Niveau de compte
 
 Un niveau global, volontairement sobre, calculé à partir de la somme
@@ -229,15 +279,16 @@ local » plutôt que « Expert »).
 corroboré ou au-delà (Projet → Répète → Compose → Enregistre → Démo →
 Live → Tournée → EP → Album → Signé).
 
-**Producteur / ingé son** (phase 4)
+**Producteur·rice / ingé son** (phase 4, `craftTier`, P4-01), comptés
+sur les prestations confirmées de la piste
 
-| Palier            | Conditions                                             |
-| ----------------- | ------------------------------------------------------ |
-| Home studio       | Profil avec ≥1 production en écoute                    |
-| Premiers projets  | ≥1 collaboration de production confirmée               |
-| Portfolio         | ≥5 projets confirmés, ≥3 artistes distincts            |
-| Producteur établi | ≥15 projets, ≥1 sortie vérifiée créditée               |
-| Référence         | ≥5 sorties vérifiées créditées, ≥10 artistes distincts |
+| Palier           | Conditions                                             |
+| ---------------- | ------------------------------------------------------ |
+| Home studio      | Profil avec ≥1 production en écoute                    |
+| Premiers projets | ≥1 collaboration de production confirmée               |
+| Portfolio        | ≥5 projets confirmés, ≥3 artistes distincts            |
+| Établi·e         | ≥15 projets, ≥1 sortie vérifiée créditée               |
+| Référence        | ≥5 sorties vérifiées créditées, ≥10 artistes distincts |
 
 **Studio** (phase 4) : Ouvert → Actif (≥5 sessions confirmées) → Reconnu
 (≥20 sessions, ≥10 clients distincts) → Incontournable (≥5 sorties

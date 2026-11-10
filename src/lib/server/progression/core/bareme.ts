@@ -8,6 +8,7 @@
  * échoue. Écarts avec la première version de la conception, motivés par ce
  * calibrage : voir `docs/conception/02-progression.md` §2.2.
  */
+import type { CraftService } from './crafts';
 import type { Milestone, ProofStatus } from './events';
 
 type MilestoneValues = Readonly<Record<ProofStatus, number | null>>;
@@ -29,6 +30,20 @@ export const BAREME = {
 	workComposed: 150,
 	/** Part de l'XP d'une étape de groupe versée à chaque membre présent. */
 	memberShare: 0.25,
+
+	// Métiers du son (P4-01, conception 08 §5 et §7) : prestation confirmée
+	// par l'artiste, sur la piste du métier, × les mêmes multiplicateurs
+	// qu'une collaboration (rendement par artiste, confiance de l'artiste).
+	services: {
+		RECORDING: 300,
+		MIXING: 300,
+		MASTERING: 150,
+		LIVE_SOUND: 150,
+		PRODUCTION: 400,
+		ARRANGEMENT: 200
+	} satisfies Record<CraftService, number>,
+	/** Crédit d'une personne du son sur une sortie vérifiée. */
+	releaseCreditVerified: 300,
 
 	// Anti-abus (§6)
 	/** k-ième occurrence avec la même contrepartie : 1, 0,5, 0,25, puis 0. */

@@ -8,6 +8,7 @@ import { collaborationCompleted } from './collaborationCompleted';
 import { endorsementReceived } from './endorsementReceived';
 import { milestoneBand, milestoneMember } from './milestoneAttested';
 import { workComposed, workCreditConfirmed } from './workComposed';
+import { releaseCreditVerified } from './releaseCreditVerified';
 
 export const RULES: readonly Rule[] = [
 	profileCompleted,
@@ -20,5 +21,6 @@ export const RULES: readonly Rule[] = [
 	milestoneBand,
 	milestoneMember,
 	workComposed,
-	workCreditConfirmed
+	workCreditConfirmed,
+	releaseCreditVerified
 ] as Rule[];

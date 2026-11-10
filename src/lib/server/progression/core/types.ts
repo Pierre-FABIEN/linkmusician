@@ -1,11 +1,15 @@
 /**
  * Types communs au noyau de progression.
  */
+import type { CraftTrack } from './crafts';
 import type { DomainEventType, EventOf } from './events';
 import type { TrustLevel } from './trust';
 
-/** Piste qui reçoit l'XP. Les autres métiers arriveront avec leurs phases. */
-export type Track = 'MUSICIAN' | 'BAND';
+/**
+ * Piste qui reçoit l'XP. Les métiers du son (P4-01) ont la leur ; les
+ * autres métiers arriveront avec leurs phases.
+ */
+export type Track = 'MUSICIAN' | 'BAND' | CraftTrack;
 
 /** Gain calculé par une règle, avant inscription au registre. */
 export type XpGain = {

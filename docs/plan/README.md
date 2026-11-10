@@ -246,21 +246,21 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 Entrée au tableau à la [revue de fin de phase 3](./revue-phase-3.md)
 (10/11/2026). « Lancement » : lot nécessaire à l'ouverture de Toulouse (§4 ter).
 
-| Lot   | Intitulé                              | Dépend de    | Statut | PR                                       |
-| ----- | ------------------------------------- | ------------ | ------ | ---------------------------------------- |
-| P4-01 | Personas et barème des métiers du son | —            | ⬜     | Lancement                                |
-| P4-02 | Ingé son                              | P4-01        | ⬜     | Lancement                                |
-| P4-03 | Studio                                | P4-02        | ⬜     | Lancement                                |
-| P4-04 | Producteur·rice                       | P4-01        | ⬜     | Lancement                                |
-| P4-05 | Annonces par métier                   | P2-02, P4-02 | ⬜     | Lancement                                |
-| P4-06 | Collaborations liées au morceau       | P3-11, P2-06 | ⬜     | Lancement                                |
-| P4-07 | Crédits                               | P4-06        | ⬜     | Lancement                                |
-| P4-08 | Vitrine des propositions              | P4-07        | ⬜     | Après le lancement ; gratuité à trancher |
-| P4-09 | Étapes vérifiées par les pros         | P3-05, P4-06 | ⬜     | Lancement ; la répétition passe à P5-10  |
-| P4-10 | Carte : actes III et IV               | P3-13, P4-09 | ⬜     | Lancement                                |
-| P4-11 | Radar des pros                        | P2-08        | ⬜     | Après le lancement                       |
-| P4-12 | Messagerie temps réel                 | P2-04 ; D8   | ⬜     | Après le lancement                       |
-| P4-13 | Coups de pouce et parrainage          | P2-16, P3-12 | ⬜     | Lancement                                |
+| Lot   | Intitulé                              | Dépend de    | Statut | PR                                                                                                                                                                                                                                                    |
+| ----- | ------------------------------------- | ------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P4-01 | Personas et barème des métiers du son | —            | ✅     | Barème ingé son et producteur·rice (02 §2.2), rangs `craftTier` et `studioTier`, `services` sur `collaboration.completed`, `release.credit_verified` ; 6 personas sur 6 mois (`personas-son.test.ts`, 02 §2.3). `check` et e2e non relancés (mémoire) |
+| P4-02 | Ingé son                              | P4-01        | ⬜     | Lancement                                                                                                                                                                                                                                             |
+| P4-03 | Studio                                | P4-02        | ⬜     | Lancement                                                                                                                                                                                                                                             |
+| P4-04 | Producteur·rice                       | P4-01        | ⬜     | Lancement                                                                                                                                                                                                                                             |
+| P4-05 | Annonces par métier                   | P2-02, P4-02 | ⬜     | Lancement                                                                                                                                                                                                                                             |
+| P4-06 | Collaborations liées au morceau       | P3-11, P2-06 | ⬜     | Lancement                                                                                                                                                                                                                                             |
+| P4-07 | Crédits                               | P4-06        | ⬜     | Lancement                                                                                                                                                                                                                                             |
+| P4-08 | Vitrine des propositions              | P4-07        | ⬜     | Après le lancement ; gratuité à trancher                                                                                                                                                                                                              |
+| P4-09 | Étapes vérifiées par les pros         | P3-05, P4-06 | ⬜     | Lancement ; la répétition passe à P5-10                                                                                                                                                                                                               |
+| P4-10 | Carte : actes III et IV               | P3-13, P4-09 | ⬜     | Lancement                                                                                                                                                                                                                                             |
+| P4-11 | Radar des pros                        | P2-08        | ⬜     | Après le lancement                                                                                                                                                                                                                                    |
+| P4-12 | Messagerie temps réel                 | P2-04 ; D8   | ⬜     | Après le lancement                                                                                                                                                                                                                                    |
+| P4-13 | Coups de pouce et parrainage          | P2-16, P3-12 | ⬜     | Lancement                                                                                                                                                                                                                                             |
 
 ### Phases 5 et 6 → [phase-4-6.md](./phase-4-6.md)
 

@@ -73,6 +73,10 @@ propose aux producteurs et se fait produire ; chacun gagne sur sa piste.
   ajouter à `WorkState` après `COMPOSED`) avancés par les collaborations
   terminées ;
   XP de chacun **sur la piste du métier exercé**.
+  Le noyau est prêt depuis P4-01 : `services` sur
+  `collaboration.completed` (prestation par personne). À trancher :
+  les musicien·nes d'un mixage ou d'un mastering, où ils ne jouent pas,
+  gagnent-ils la collaboration (02 §2.3) ?
 - **Fin** : une session confirmée fait passer le morceau « enregistré »
   et crédite la piste ingé son de Sam et la piste musicien de Léa
   (intégration, e2e).

@@ -5,6 +5,7 @@
  * font, côté serveur, après avoir écrit l'état.
  */
 import { z } from 'zod';
+import { CRAFT_SERVICES, CRAFT_TRACKS } from './crafts';
 
 const id = z.string().min(1);
 const base = { id, occurredAt: z.coerce.date() };
@@ -53,7 +54,23 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		type: z.literal('collaboration.completed'),
 		collaborationId: id,
 		/** Personnes ayant confirmé, des deux côtés (au moins deux). */
-		participantIds: z.array(id).min(2)
+		participantIds: z.array(id).min(2),
+		/**
+		 * Prestation de chaque participant·e qui exerce un métier du son
+		 * (P4-01, D20) : ingé son, producteur·rice. Absent pour qui joue.
+		 */
+		services: z.record(id, z.enum(CRAFT_SERVICES)).optional()
+	}),
+	/**
+	 * Une sortie vérifiée (ISRC, UPC) crédite une personne d'un métier du son
+	 * (P4-01, conception 08 §5 et §7). Une fois par sortie et par personne.
+	 */
+	z.object({
+		...base,
+		type: z.literal('release.credit_verified'),
+		actorId: id,
+		releaseId: id,
+		track: z.enum(CRAFT_TRACKS)
 	}),
 	/**
 	 * Morceau composé à plusieurs, corroboré (D35) : au moins deux personnes
