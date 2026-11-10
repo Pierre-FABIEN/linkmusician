@@ -1,9 +1,8 @@
 # Guide des démarches
 
-> Lot P3-15a, livré le 10/11/2026. Décision D42, conception
-> [09-demarches.md](../conception/09-demarches.md). Les documents
-> préremplis (bulletin de partage, programme des œuvres) arrivent avec
-> P3-15b.
+> Lots P3-15a (fiches et déclencheurs) et P3-15b (documents préremplis),
+> livrés le 10/11/2026. Décision D42, conception
+> [09-demarches.md](../conception/09-demarches.md).
 
 LinkMusician explique les démarches de la musique **au moment où elles se
 posent** : une phrase et un lien dans l'écran concerné, et une fiche claire
@@ -80,6 +79,34 @@ Règles pures dans `src/lib/demarches/triggers.ts`, testées
 « concert » (pas de déclencheur « mineur·e sur une annonce de concert »),
 et une annonce n'a pas de champ « rémunérée » : toute annonce de session
 déclenche « Être payé·e pour jouer ».
+
+## Les documents préremplis (P3-15b)
+
+L'app remplit ce qu'elle sait, le reste se complète et se signe à la main.
+Télécharger ne rapporte rien et n'enregistre rien (aucune donnée nouvelle).
+
+| Document             | Adresse                       | Pour qui                                                                   | Contenu                                                                                                                                               |
+| -------------------- | ----------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bulletin de partage  | `/morceaux/[id]/bulletin`     | Équipe du morceau (porteur, membres actifs du groupe, personnes créditées) | Crédits **confirmés** (comptes supprimés exclus), paroles / musique / arrangement cochés d'après `WorkRole`, **parts vides**, signatures, total 100 % |
+| Programme des œuvres | `/groupes/[handle]/programme` | Membres actifs d'un groupe non dissous                                     | Morceaux **composés** et leurs auteur·rices et compositeur·rices confirmés (rôles paroles ou musique) ; date, lieu, durées, reprises à compléter      |
+
+- **Code** : contenu pur dans `src/lib/demarches/documents.ts`
+  (`splitSheetView`, `programView`), lecture et accès dans
+  `src/lib/server/demarches/documents.ts` (passe par `workPage` et
+  `bandPage` : rien de plus que ce que la page montre), PDF A4 jsPDF dans
+  `src/lib/server/demarches/pdf.ts` (polices standard, texte passé par
+  `printable`). Réponse en pièce jointe, `cache-control: private, no-store`.
+- **Accès** : 401 sans connexion, 403 hors équipe ou hors groupe, 404
+  inconnu, 409 pour une idée (pas encore composée).
+- **Dans l'écran** : liens permanents « Bulletin de partage (PDF) » sous
+  les crédits et « Programme des œuvres (PDF) » dans les morceaux du
+  groupe ; la démarche « écrit à plusieurs » et celle du premier concert
+  proposent aussi le document en premier lien.
+- **Mineur·es** : le document ne dit pas qui est mineur·e ; une note
+  générale demande la signature d'un parent pour une personne mineure.
+- **Tests** : `documents.test.ts`, `pdf.test.ts`, intégration
+  `documents.integration.test.ts` (accès, contenu) ; e2e « je télécharge
+  le bulletin de partage de notre morceau » (`demarches.spec.ts`).
 
 ## Fiabilité du contenu
 

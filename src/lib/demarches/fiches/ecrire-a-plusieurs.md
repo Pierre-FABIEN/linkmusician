@@ -44,9 +44,10 @@ Une même personne peut avoir plusieurs rôles.
 5. **Reportez les mêmes parts** quand vous déclarerez le morceau à la
    Sacem.
 
-> 🔜 **Bientôt** : LinkMusician préparera le bulletin de partage avec les
-> crédits confirmés du morceau. Les parts resteront à saisir et à signer
-> à la main : l’app ne fixe rien.
+> 💡 **Astuce** : sur la fiche du morceau, **Bulletin de partage (PDF)**
+> prépare le document avec les crédits confirmés et leurs rôles (paroles,
+> musique, arrangement déjà cochés). Les parts restent à saisir et à
+> signer à la main : l’app ne fixe rien.
 
 ## La répartition par défaut
 

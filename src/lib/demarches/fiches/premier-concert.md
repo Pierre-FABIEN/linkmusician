@@ -30,8 +30,10 @@ remet la liste de ses morceaux._
 4. **Si vous êtes payés**, ce n’est pas une facture : c’est un cachet
    (voir [Être payé·e pour jouer](/demarches/etre-paye-pour-jouer)).
 
-> 🔜 **Bientôt** : LinkMusician préparera le programme des œuvres avec les
-> morceaux composés de votre groupe.
+> 💡 **Astuce** : sur la page de votre groupe, **Programme des œuvres
+> (PDF)** prépare la liste avec vos morceaux composés et leurs
+> auteur·rices. Il reste la date, le lieu, les durées et les reprises à
+> compléter.
 
 ## Les reprises
 

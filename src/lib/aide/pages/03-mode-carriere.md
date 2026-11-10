@@ -271,6 +271,23 @@ officielles et la date de sa dernière vérification. C’est une information
 générale, pas un conseil personnalisé. Lire une fiche ne rapporte pas de
 points.
 
+### Les documents préparés pour vous {#documents}
+
+L’app remplit ce qu’elle sait déjà ; vous complétez et signez à la main :
+
+- **Bulletin de partage (PDF)**, sur la fiche d’un morceau composé (pour
+  son équipe) : les crédits confirmés, avec paroles, musique et
+  arrangement déjà cochés d’après leurs rôles. **Les parts restent
+  vides** : elles se décident entre vous, LinkMusician ne fixe rien.
+  Chacun·e date et signe ; pour une personne mineure, un parent signe
+  aussi.
+- **Programme des œuvres (PDF)**, sur la page du groupe dès un morceau
+  composé (pour ses membres) : vos morceaux et leurs auteur·rices. Il
+  reste la date, le lieu, les durées et les reprises, puis vous le
+  remettez à l’organisateur du concert.
+
+Télécharger un document ne rapporte pas de points.
+
 ## 6. Tes paliers {#paliers}
 
 Ton palier dit où tu en es, par des faits, jamais par un nombre de points :

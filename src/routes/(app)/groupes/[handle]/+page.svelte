@@ -21,6 +21,7 @@
 	import {
 		Circle,
 		CircleCheck,
+		FileDown,
 		Flag,
 		Music,
 		PartyPopper,
@@ -599,6 +600,21 @@
 						>
 					{/if}
 				</div>
+				{#if data.programHref}
+					<p class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+						<a
+							href={data.programHref}
+							download
+							data-sveltekit-reload
+							class="inline-flex min-h-11 items-center gap-1 font-semibold text-primary underline"
+						>
+							<FileDown class="size-4" aria-hidden="true" /> Programme des œuvres (PDF)
+						</a>
+						<span class="text-muted-foreground"
+							>À remettre à l’organisateur d’un concert, avec vos morceaux composés.</span
+						>
+					</p>
+				{/if}
 				{#if data.works.length === 0}
 					<p class="text-sm text-muted-foreground">
 						Pas encore de morceau. Une idée reste entre vous ; une fois composée avec une maquette,

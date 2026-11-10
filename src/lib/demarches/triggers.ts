@@ -23,6 +23,8 @@ export type DemarcheContext =
 			composed: boolean;
 			/** Crédits confirmés (P3-11) : 2 ou plus = écrit à plusieurs. */
 			confirmedCredits: number;
+			/** Adresse du bulletin de partage (P3-15b), si l'écran le propose. */
+			documentHref?: string;
 	  }
 	| {
 			screen: 'groupe';
@@ -32,6 +34,8 @@ export type DemarcheContext =
 			milestones: readonly MilestoneKey[];
 			/** Au moins un·e membre actif·ve mineur·e (D5), sans dire qui. */
 			hasMinor: boolean;
+			/** Adresse du programme des œuvres (P3-15b), si le groupe a des morceaux composés. */
+			documentHref?: string;
 	  }
 	| {
 			screen: 'annonce';
@@ -45,6 +49,8 @@ export type DemarcheTrigger = {
 	text: string;
 	/** La fiche principale, puis au plus une fiche voisine. */
 	fiches: readonly [FicheSlug, ...FicheSlug[]];
+	/** Document prérempli proposé en premier (P3-15b), quand l'écran en donne l'adresse. */
+	document?: string;
 	when: (ctx: DemarcheContext) => boolean;
 };
 
@@ -66,6 +72,7 @@ export const DEMARCHE_TRIGGERS: readonly DemarcheTrigger[] = [
 		screen: 'morceau',
 		text: 'Vous l’avez écrit à plusieurs : notez qui a fait quoi, et à quelle part, avant que l’argent arrive.',
 		fiches: ['ecrire-a-plusieurs', 'proteger-un-morceau'],
+		document: 'Télécharger le bulletin de partage',
 		when: on('morceau', (c) => c.composed && c.confirmedCredits >= 2)
 	},
 	{
@@ -87,6 +94,7 @@ export const DEMARCHE_TRIGGERS: readonly DemarcheTrigger[] = [
 		screen: 'groupe',
 		text: 'Premier concert : remettez la liste de vos morceaux au lieu, et si vous êtes payés, c’est un cachet.',
 		fiches: ['premier-concert', 'etre-paye-pour-jouer'],
+		document: 'Télécharger le programme des œuvres',
 		when: on('groupe', (c) => c.milestones.includes('FIRST_GIG'))
 	},
 	{
@@ -126,7 +134,8 @@ export function isTriggerId(value: unknown): value is string {
 export type DemarcheNudge = {
 	id: string;
 	text: string;
-	links: { href: string; label: string }[];
+	/** `download` : un document prérempli (PDF), pas une page. */
+	links: { href: string; label: string; download?: boolean }[];
 };
 
 /** La démarche à annoncer sur l'écran, ou `null` (rien à dire, ou tout masqué). */
@@ -139,9 +148,15 @@ export function demarcheFor(
 		(t) => t.screen === ctx.screen && !hidden.has(dismissKey(t.id)) && t.when(ctx)
 	);
 	if (!trigger) return null;
+	const documentHref = 'documentHref' in ctx ? ctx.documentHref : undefined;
 	return {
 		id: trigger.id,
 		text: trigger.text,
-		links: trigger.fiches.map((slug) => ({ href: demarcheHref(slug), label: fiche(slug)!.nav }))
+		links: [
+			...(trigger.document && documentHref
+				? [{ href: documentHref, label: trigger.document, download: true }]
+				: []),
+			...trigger.fiches.map((slug) => ({ href: demarcheHref(slug), label: fiche(slug)!.nav }))
+		]
 	};
 }

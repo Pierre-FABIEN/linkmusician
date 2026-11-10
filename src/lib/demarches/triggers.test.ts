@@ -80,4 +80,40 @@ describe('déclencheurs des démarches (09 §3)', () => {
 		expect(isTriggerId('demarche:groupe-association')).toBe(false);
 		expect(isTriggerId(42)).toBe(false);
 	});
+
+	it('document prérempli en premier quand l’écran en donne l’adresse (P3-15b)', () => {
+		const n = demarcheFor(
+			{
+				screen: 'morceau',
+				composed: true,
+				confirmedCredits: 2,
+				documentHref: '/morceaux/w1/bulletin'
+			},
+			[]
+		);
+		expect(n?.links[0]).toEqual({
+			href: '/morceaux/w1/bulletin',
+			label: 'Télécharger le bulletin de partage',
+			download: true
+		});
+		// Composé seul·e : pas de bulletin proposé dans la phrase.
+		const solo = demarcheFor(
+			{
+				screen: 'morceau',
+				composed: true,
+				confirmedCredits: 1,
+				documentHref: '/morceaux/w1/bulletin'
+			},
+			[]
+		);
+		expect(solo?.links.some((l) => l.download)).toBe(false);
+		const gig = demarcheFor(
+			groupe({ milestones: ['FIRST_GIG'], documentHref: '/groupes/g/programme' }),
+			[]
+		);
+		expect(gig?.links[0]?.href).toBe('/groupes/g/programme');
+		expect(
+			demarcheFor(groupe({ milestones: ['FIRST_GIG'] }), [])?.links.some((l) => l.download)
+		).toBe(false);
+	});
 });

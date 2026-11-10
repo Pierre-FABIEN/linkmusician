@@ -1,6 +1,10 @@
+import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/fixtures';
+import { signUpAndVerify } from '../support/admin';
+import { db, requireUser } from '../support/db';
 import { waitForAppReady } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
+import { skipOnboarding } from '../support/linkmusician';
 
 /**
  * Guide des démarches (P3-15a) : un visiteur ouvre la page-menu, lit la
@@ -56,6 +60,69 @@ test.describe('LinkMusician — démarches', () => {
 			expect(missing?.status()).toBe(404);
 		} finally {
 			await visitor.close();
+		}
+	});
+
+	test('je télécharge le bulletin de partage de notre morceau', async ({ page, account }) => {
+		await signUpAndVerify(page, account);
+		await skipOnboarding(page, account.email);
+		const person = await db.person.findUniqueOrThrow({
+			where: { userId: (await requireUser(account.email)).id }
+		});
+		const peer = await db.actor.create({
+			data: {
+				kind: 'PERSON',
+				handle: `bulletin-peer-${Math.random().toString(36).slice(2, 9)}`,
+				displayName: 'Bulletin Peer'
+			}
+		});
+		try {
+			const work = await db.work.create({
+				data: {
+					ownerId: person.actorId,
+					createdById: person.actorId,
+					title: 'Notre morceau',
+					state: 'COMPOSED',
+					proof: 'CORROBORATED',
+					composedAt: new Date()
+				}
+			});
+			for (const [personId, kind] of [
+				[person.actorId, 'LYRICS'],
+				[peer.id, 'COMPOSITION']
+			] as const) {
+				const credit = await db.workContributor.create({
+					data: { workId: work.id, personId, confirmedAt: new Date() }
+				});
+				await db.workRole.create({ data: { workId: work.id, kind, contributorId: credit.id } });
+			}
+
+			await page.goto(`/morceaux/${work.id}`);
+			await waitForAppReady(page);
+			const nudge = page.getByRole('complementary', { name: 'Démarche' });
+			await expect(nudge).toContainText('Vous l’avez écrit à plusieurs');
+			await expectNoA11yViolations(page, A11Y_EXCLUDE);
+
+			const [download] = await Promise.all([
+				page.waitForEvent('download'),
+				nudge.getByRole('link', { name: 'Télécharger le bulletin de partage' }).click()
+			]);
+			expect(download.suggestedFilename()).toBe('bulletin-de-partage-Notre-morceau.pdf');
+			const pdf = await readFile((await download.path())!);
+			expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
+
+			// « J'ai compris » : la démarche suivante prend la place, le lien permanent reste.
+			await nudge.getByRole('button', { name: 'J’ai compris' }).click();
+			await expect(nudge).toBeHidden();
+			await page.reload();
+			await waitForAppReady(page);
+			await expect(nudge).toContainText('Garde une preuve de la date');
+			await expect(page.getByRole('link', { name: /Bulletin de partage \(PDF\)/ })).toBeVisible();
+			expect(
+				(await db.person.findUniqueOrThrow({ where: { actorId: person.actorId } })).tipsDismissed
+			).toContain('demarche:morceau-a-plusieurs');
+		} finally {
+			await db.actor.delete({ where: { id: peer.id } });
 		}
 	});
 });

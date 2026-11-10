@@ -62,11 +62,18 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const manager = isManager(band.my?.role);
 	const active = band.my?.status === 'ACTIVE';
 	const milestones = active ? await bandMilestones(band.id) : [];
+	const works = active ? await bandWorks(band.id) : [];
+	// Programme des œuvres (P3-15b) : dès un morceau composé.
+	const programHref =
+		active && !band.dissolvedAt && works.some((w) => w.state === 'COMPOSED')
+			? `/groupes/${band.handle}/programme`
+			: null;
 	return {
 		band,
 		candidates: manager && !band.dissolvedAt ? await inviteCandidates(band.id, actorId) : [],
 		// Morceaux du groupe (P3-11), idées comprises : pour ses membres actifs.
-		works: band.my?.status === 'ACTIVE' ? await bandWorks(band.id) : [],
+		works,
+		programHref,
 		// Étapes (P3-04) : le parcours, et ce que rapporte une déclaration.
 		milestones,
 		// Rang du groupe (P3-08).
@@ -82,7 +89,10 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		// Démarche en contexte (P3-15a, 09 §3) : pour les membres actifs.
 		demarche:
 			active && !band.dissolvedAt
-				? await demarcheNudge(actorId, await bandDemarcheContext(band, milestones))
+				? await demarcheNudge(actorId, {
+						...(await bandDemarcheContext(band, milestones)),
+						...(programHref ? { documentHref: programHref } : {})
+					})
 				: null
 	};
 };

@@ -52,7 +52,8 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 			? await demarcheNudge(actorId, {
 					screen: 'morceau',
 					composed: work.state === 'COMPOSED',
-					confirmedCredits: work.credits.filter((c) => c.confirmed).length
+					confirmedCredits: work.credits.filter((c) => c.confirmed).length,
+					...(work.state === 'COMPOSED' ? { documentHref: `/morceaux/${work.id}/bulletin` } : {})
 				})
 			: null
 	};

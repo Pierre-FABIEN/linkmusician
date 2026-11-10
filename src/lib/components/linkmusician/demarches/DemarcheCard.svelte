@@ -5,7 +5,7 @@
 	 * compris »). Elle disparaît aussitôt ; le serveur retient qu'elle ne doit
 	 * plus revenir.
 	 */
-	import { Scale } from 'lucide-svelte';
+	import { FileDown, Scale } from 'lucide-svelte';
 	import type { DemarcheNudge } from '#lib/demarches/triggers';
 
 	let { nudge }: { nudge: DemarcheNudge | null } = $props();
@@ -36,11 +36,22 @@
 			<p>{nudge.text}</p>
 			<div class="flex flex-wrap items-center gap-x-4 gap-y-1">
 				{#each nudge.links as link (link.href)}
-					<a
-						href={link.href}
-						class="inline-flex min-h-11 items-center font-medium text-primary underline"
-						>{link.label}</a
-					>
+					{#if link.download}
+						<a
+							href={link.href}
+							download
+							data-sveltekit-reload
+							class="inline-flex min-h-11 items-center gap-1 font-semibold text-primary underline"
+						>
+							<FileDown class="size-4" aria-hidden="true" />{link.label}
+						</a>
+					{:else}
+						<a
+							href={link.href}
+							class="inline-flex min-h-11 items-center font-medium text-primary underline"
+							>{link.label}</a
+						>
+					{/if}
 				{/each}
 				<button
 					type="button"
