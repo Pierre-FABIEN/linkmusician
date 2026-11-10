@@ -115,6 +115,11 @@ fiche :
 - ton **matériel**, une ligne par élément ;
 - tes **horaires d’ouverture**, ou « sur rendez-vous ».
 
+Ajoute jusqu’à huit **photos** (les salles, la régie, le matériel). Pour
+gérer le studio à plusieurs, invite une autre personne avec son nom
+d’utilisateur, dans **Gestion** : elle doit être ingé son ou
+producteur·rice, et accepte l’invitation dans **Mes studios**.
+
 Tant que tu ne la publies pas, la fiche n’est visible que de toi. Une fois
 complète, touche **Publier la fiche** : ton studio a sa page, que tout le
 monde peut lire, et il est **Ouvert**. Les rangs suivants (_Actif_,

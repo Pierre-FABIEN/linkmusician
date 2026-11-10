@@ -143,3 +143,21 @@ barème en [02 §2.2](../conception/02-progression.md#22-barème-première-versi
   groupe.
 - **Tests** : `rules.test.ts`, `service.integration.test.ts`, e2e
   `e2e/linkmusician/studio.spec.ts`.
+
+## Photos et co-gestion du studio (P4-03b)
+
+- **Photos** : des `Media` de type `IMAGE` portés par le studio, envoyés
+  par une personne qui le gère (`/api/media/sign` avec `forHandle`,
+  `studioForPhotoUpload`). `Media.uploadedById` garde qui a envoyé :
+  validation et quota suivent **sa** confiance, même quand c'est le
+  webhook qui termine l'envoi. 8 photos au plus (`MAX_STUDIO_PHOTOS`),
+  aucune XP. Galerie sur la fiche (statut, retrait) et sur la page
+  publique (la première en grand).
+- **Co-gestion** : inviter par nom d'utilisateur une personne ingé son ou
+  producteur·rice (`ADMIN`, notification `STUDIO_INVITE`, 5 invitations
+  en attente au plus) ; elle accepte ou décline dans « Mes studios ». La
+  ou le responsable retire quelqu'un ; tout le monde peut annuler une
+  invitation ou quitter la gestion. Qui part en étant responsable
+  transmet le studio (`successorOf`) ; seul·e, on ne part pas.
+- **Tests** : cas « photos » et « co-gestion » de
+  `service.integration.test.ts` (Cloudinary simulé).
