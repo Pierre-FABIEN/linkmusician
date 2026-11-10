@@ -86,33 +86,40 @@
 				<Panorama label="l'application">
 					<Pivot id="jouer" title="jouer">
 						<div class="lm-mosaic">
-							<Tile tone="violet" size="wide" href="/_lab/metro/carriere" icon={Trophy} index={0}>
+							<Tile
+								framed
+								tone="violet"
+								size="wide"
+								href="/_lab/metro/carriere"
+								icon={Trophy}
+								index={0}
+							>
 								<p class="lm-tile__kicker">mode</p>
 								<div class="space-y-1">
 									<h3 class="lm-tile__title">carrière</h3>
 									<p class="lm-tile__text">Monte un projet : groupe, morceaux, concerts.</p>
 								</div>
 							</Tile>
-							<Tile tone="orange" size="wide" href="/_lab" icon={Guitar} index={1}>
+							<Tile framed tone="orange" size="wide" href="/_lab" icon={Guitar} index={1}>
 								<p class="lm-tile__kicker">mode</p>
 								<div class="space-y-1">
 									<h3 class="lm-tile__title">jam</h3>
 									<p class="lm-tile__text">Joue ce soir, rencontre du monde, sans pression.</p>
 								</div>
 							</Tile>
-							<Tile tone="cyan" size="sm" href="/_lab" icon={Compass} index={2}>
+							<Tile framed tone="cyan" size="sm" href="/_lab" icon={Compass} index={2}>
 								<Compass class="size-6" aria-hidden="true" />
 								<h3 class="lm-tile__title">découvrir</h3>
 							</Tile>
-							<Tile tone="blue" size="sm" href="/_lab" icon={MessageCircle} index={3}>
+							<Tile framed tone="blue" size="sm" href="/_lab" icon={MessageCircle} index={3}>
 								<span class="lm-pill self-start">3</span>
 								<h3 class="lm-tile__title">messages</h3>
 							</Tile>
-							<Tile tone="rose" size="sm" href="/_lab" icon={Bell} index={4}>
+							<Tile framed tone="rose" size="sm" href="/_lab" icon={Bell} index={4}>
 								<span class="lm-pill self-start">1</span>
 								<h3 class="lm-tile__title">cloche</h3>
 							</Tile>
-							<Tile tone="lime" size="sm" href="/_lab" icon={LifeBuoy} index={5}>
+							<Tile framed tone="lime" size="sm" href="/_lab" icon={LifeBuoy} index={5}>
 								<LifeBuoy class="size-6" aria-hidden="true" />
 								<h3 class="lm-tile__title">aide</h3>
 							</Tile>
@@ -121,7 +128,7 @@
 
 					<Pivot id="musiciens" title="musiciens">
 						<div class="lm-mosaic">
-							<Tile tone="violet" size="wide" href="/_lab" index={0}>
+							<Tile framed tone="violet" size="wide" href="/_lab" index={0}>
 								<div class="flex items-start justify-between gap-3">
 									<p class="lm-tile__kicker">{malik.role}</p>
 									<span class="lm-pill">{distanceBand(malik.meters)}</span>
@@ -132,21 +139,21 @@
 									{#if malik.tier}<TierBadge id={malik.tier.id} label={malik.tier.label} />{/if}
 								</div>
 							</Tile>
-							<Tile tone="rose" size="md" href="/_lab" index={1}>
+							<Tile framed tone="rose" size="md" href="/_lab" index={1}>
 								<p class="lm-tile__kicker">{volts.role}</p>
 								<div class="space-y-1">
 									<h3 class="lm-tile__title">{volts.name}</h3>
 									<p class="lm-tile__text">{volts.genres.join(' · ')}</p>
 								</div>
 							</Tile>
-							<Tile tone="cyan" size="md" href="/_lab" index={2}>
+							<Tile framed tone="cyan" size="md" href="/_lab" index={2}>
 								<p class="lm-tile__kicker">{ines.role}</p>
 								<div class="space-y-1">
 									<h3 class="lm-tile__title">{ines.name}</h3>
 									<p class="lm-tile__text">{ines.genres.join(' · ')}</p>
 								</div>
 							</Tile>
-							<Tile tone="paper" size="wide" href="/_lab" index={3}>
+							<Tile framed tone="paper" size="wide" href="/_lab" index={3}>
 								<div class="flex items-start justify-between gap-3">
 									<p class="lm-tile__kicker">{tom.role}</p>
 									<span class="lm-pill">{distanceBand(tom.meters)}</span>
@@ -161,7 +168,7 @@
 
 					<Pivot id="annonces" title="annonces">
 						<div class="lm-mosaic">
-							<Tile tone="orange" size="tall" href="/_lab" icon={Megaphone} index={0}>
+							<Tile framed tone="orange" size="tall" href="/_lab" icon={Megaphone} index={0}>
 								<p class="lm-tile__kicker">recrutement</p>
 								<div class="space-y-2">
 									<h3 class="lm-tile__title">cherche batteur·se funk</h3>
@@ -171,15 +178,15 @@
 									<span class="lm-pill">{distanceBand(4_500)} · Toulouse</span>
 								</div>
 							</Tile>
-							<Tile tone="blue" size="md" href="/_lab" index={1}>
+							<Tile framed tone="blue" size="md" href="/_lab" index={1}>
 								<p class="lm-tile__kicker">session</p>
 								<h3 class="lm-tile__title">studio, samedi</h3>
 							</Tile>
-							<Tile tone="amber" size="md" href="/_lab" index={2}>
+							<Tile framed tone="amber" size="md" href="/_lab" index={2}>
 								<p class="lm-tile__kicker">jam ouverte</p>
 								<h3 class="lm-tile__title">dimanche, 17 h</h3>
 							</Tile>
-							<Tile tone="paper" size="wide" href="/_lab" index={3}>
+							<Tile framed tone="paper" size="wide" href="/_lab" index={3}>
 								<p class="lm-tile__kicker">remplacement</p>
 								<div class="space-y-1">
 									<h3 class="lm-tile__title">basse, concert samedi</h3>
@@ -192,6 +199,7 @@
 					<Pivot id="jam" title="jam">
 						<div class="lm-mosaic">
 							<Tile
+								framed
 								tone={comes ? 'lime' : 'orange'}
 								size="md"
 								aria-pressed={comes}
@@ -208,14 +216,14 @@
 									<p class="lm-tile__text">{comes ? 'Tu viens. Retirer ?' : 'Je viens'}</p>
 								</div>
 							</Tile>
-							<Tile tone="cyan" size="md" href="/_lab" index={1}>
+							<Tile framed tone="cyan" size="md" href="/_lab" index={1}>
 								<p class="lm-figure lm-figure--md">16</p>
 								<div class="space-y-1">
 									<p class="lm-tile__kicker">nov. · samedi</p>
 									<h3 class="lm-tile__title">scène ouverte du canal</h3>
 								</div>
 							</Tile>
-							<Tile tone="ink" size="band" icon={Music} index={2}>
+							<Tile framed tone="ink" size="band" icon={Music} index={2}>
 								<p class="lm-tile__kicker">il manque encore</p>
 								<div class="flex flex-wrap gap-2">
 									<span class="lm-pill">batterie</span><span class="lm-pill">voix</span><span
@@ -228,7 +236,7 @@
 
 					<Pivot id="progres" title="progrès">
 						<div class="lm-mosaic">
-							<Tile tone="ink" size="md" index={0}>
+							<Tile framed tone="ink" size="md" index={0}>
 								<p class="lm-tile__kicker">niveau</p>
 								<div class="space-y-2">
 									<p class="lm-figure lm-figure--md">{lea.level}</p>
@@ -245,7 +253,7 @@
 									<p class="lm-tile__text">{lea.xp.toLocaleString('fr-FR')} XP</p>
 								</div>
 							</Tile>
-							<Tile tone="amber" size="md" href="/_lab" icon={Target} index={1}>
+							<Tile framed tone="amber" size="md" href="/_lab" icon={Target} index={1}>
 								<p class="lm-tile__kicker">ta prochaine étape</p>
 								<div class="space-y-1">
 									<h3 class="lm-tile__title">{quests[0].label}</h3>
@@ -255,7 +263,7 @@
 								</div>
 							</Tile>
 							{#each achievements.slice(1, 5) as a, i (a.name)}
-								<Tile tone={a.unlockedAt ? 'amber' : 'paper'} size="sm" index={2 + i}>
+								<Tile framed tone={a.unlockedAt ? 'amber' : 'paper'} size="sm" index={2 + i}>
 									{#if a.unlockedAt}<Award class="size-6" aria-hidden="true" />{:else}<Lock
 											class="size-5"
 											aria-hidden="true"
@@ -288,7 +296,7 @@
 						<p class="lm-kicker">couleurs</p>
 						<div class="lm-mosaic" style:--lm-unit="5.4rem">
 							{#each tones as t (t)}
-								<Tile tone={t} size="sm" index={0}>
+								<Tile framed tone={t} size="sm" index={0}>
 									<span></span>
 									<h3 class="lm-tile__title">{t}</h3>
 								</Tile>

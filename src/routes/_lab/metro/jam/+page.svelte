@@ -6,7 +6,7 @@
 	import Aurora from '#lib/components/linkmusician/metro/Aurora.svelte';
 	import ActionTile from '#lib/components/linkmusician/metro/ActionTile.svelte';
 	import EventTile from '#lib/components/linkmusician/metro/EventTile.svelte';
-	import JamTileFrame from '#lib/components/linkmusician/metro/JamTileFrame.svelte';
+	import TileFrame from '#lib/components/linkmusician/metro/TileFrame.svelte';
 	import ProfileTile from '#lib/components/linkmusician/metro/ProfileTile.svelte';
 	import Tile from '#lib/components/linkmusician/metro/Tile.svelte';
 	import * as Calendar from '#shadcn/calendar';
@@ -145,272 +145,273 @@
 
 		<div class="lm-jam-board-wrap mt-6">
 			<div class="lm-jam-board lm-mosaic" aria-label="Tableau de bord du mode Jam">
-				<JamTileFrame class="lm-jam-next" size="big">
-				<Tile tone="orange" size="big" class="lm-pattern-tile lm-jam-next">
-					<Music2 class="lm-jam-hero-symbol" aria-hidden="true" />
-					<div class="flex items-start justify-between gap-4 lm-jam-next__header">
+				<TileFrame class="lm-jam-next" size="big">
+					<Tile tone="orange" size="big" class="lm-pattern-tile lm-jam-next">
+						<Music2 class="lm-jam-hero-symbol" aria-hidden="true" />
+						<div class="flex items-start justify-between gap-4 lm-jam-next__header">
+							<div class="space-y-2">
+								<p class="lm-tile__kicker">
+									<Guitar class="mr-1 inline size-4" aria-hidden="true" />Mode Jam · Toulouse
+								</p>
+								<h1 class="lm-jam-title">Envie de jouer ce week-end ?</h1>
+								<p class="lm-pattern-copy">
+									Ta prochaine étape : signale tes disponibilités pour rencontrer les musicien·nes
+									du coin.
+								</p>
+							</div>
+							<p class="lm-jam-step">Étape <strong>2</strong><span>sur 5</span></p>
+						</div>
+						<div class="space-y-3">
+							<div
+								class="lm-bar"
+								role="progressbar"
+								aria-label="Avancement du mode Jam"
+								aria-valuemin="0"
+								aria-valuemax="5"
+								aria-valuenow="1"
+							>
+								<i style="--progress:0.2"></i>
+							</div>
+							<div class="flex flex-wrap items-center justify-between gap-3">
+								<p class="lm-tile__text">
+									Après ça : écrire à un·e musicien·ne et choisir un lieu pour jouer.
+								</p>
+								<a class="lm-btn" href="#jam-disponibilites">
+									<Radio class="size-4" aria-hidden="true" />Choisir mes dispos
+								</a>
+							</div>
+						</div>
+					</Tile>
+				</TileFrame>
+
+				<TileFrame class="lm-jam-availability" size="md">
+					<Tile
+						id="jam-disponibilites"
+						tone="cyan"
+						size="md"
+						class="lm-pattern-tile lm-jam-availability"
+					>
 						<div class="space-y-2">
 							<p class="lm-tile__kicker">
-								<Guitar class="mr-1 inline size-4" aria-hidden="true" />Mode Jam · Toulouse
+								<Radio class="mr-1 inline size-4" aria-hidden="true" />Mes disponibilités
 							</p>
-							<h1 class="lm-jam-title">Envie de jouer ce week-end ?</h1>
+							<h2 class="lm-pattern-title">Quand as-tu envie de jouer ?</h2>
+						</div>
+						<div class="lm-jam-slots" role="group" aria-label="Choisir un créneau de disponibilité">
+							{#each slots as slot (slot.id)}
+								<button
+									type="button"
+									aria-pressed={selectedSlot === slot.id}
+									onclick={() => (selectedSlot = selectedSlot === slot.id ? null : slot.id)}
+									>{#if selectedSlot === slot.id}<Check
+											class="size-4"
+											aria-hidden="true"
+										/>{/if}{slot.label}</button
+								>
+							{/each}
+						</div>
+						<p class="lm-tile__text" aria-live="polite">
+							{#if slotSummary}
+								Tu es dispo : {slotSummary.toLowerCase()}.
+							{:else}
+								Tu n’as pas indiqué de disponibilité.
+							{/if}
+						</p>
+						<a class="lm-pattern-action" href="/_lab/metro"
+							>Gérer mes créneaux <ArrowRight class="size-4" aria-hidden="true" /></a
+						>
+					</Tile>
+				</TileFrame>
+
+				<TileFrame class="lm-profile-tile">
+					<ProfileTile
+						tone="lime"
+						href="/_lab/metro"
+						initials="MB"
+						name="Malik B."
+						instrument="Batterie · confirmé"
+						genres={['Funk', 'Hip-hop']}
+						location="Toulouse"
+						distance="à moins de 5 km"
+					/>
+				</TileFrame>
+
+				<TileFrame class="lm-action-tile" size="band">
+					<ActionTile
+						tone="amber"
+						size="band"
+						eyebrow="Organisateur·rice · optionnel"
+						title="Une jam manque dans l’agenda ?"
+						detail="Propose un lieu, une date et les places par instrument."
+						actionLabel="Lancer une jam"
+						href="/_lab/metro"
+					/>
+				</TileFrame>
+
+				<TileFrame class="lm-jam-appreciation" size="md">
+					<Tile tone="rose" size="md" class="lm-pattern-tile lm-jam-appreciation">
+						<div class="flex items-start justify-between gap-3">
+							<p class="lm-tile__kicker">
+								<Heart class="mr-1 inline size-4" aria-hidden="true" />Après la jam
+							</p>
+							<span class="lm-pill">2 à apprécier</span>
+						</div>
+						<div class="space-y-3">
+							<h2 class="lm-pattern-title lm-pattern-title--large">Garde le bon contact.</h2>
 							<p class="lm-pattern-copy">
-								Ta prochaine étape : signale tes disponibilités pour rencontrer les musicien·nes du
-								coin.
+								Dis ce que tu as aimé chez les personnes avec qui tu as joué.
 							</p>
 						</div>
-						<p class="lm-jam-step">Étape <strong>2</strong><span>sur 5</span></p>
-					</div>
-					<div class="space-y-3">
-						<div
-							class="lm-bar"
-							role="progressbar"
-							aria-label="Avancement du mode Jam"
-							aria-valuemin="0"
-							aria-valuemax="5"
-							aria-valuenow="1"
+						<a class="lm-pattern-action" href="/_lab/metro"
+							>Apprécier les musicos <ArrowRight class="size-4" aria-hidden="true" /></a
 						>
-							<i style="--progress:0.2"></i>
-						</div>
-						<div class="flex flex-wrap items-center justify-between gap-3">
-							<p class="lm-tile__text">
-								Après ça : écrire à un·e musicien·ne et choisir un lieu pour jouer.
-							</p>
-							<a class="lm-btn" href="#jam-disponibilites">
-								<Radio class="size-4" aria-hidden="true" />Choisir mes dispos
-							</a>
-						</div>
-					</div>
-				</Tile>
-				</JamTileFrame>
+					</Tile>
+				</TileFrame>
 
-				<JamTileFrame class="lm-jam-availability" size="md">
-				<Tile
-					id="jam-disponibilites"
-					tone="cyan"
-					size="md"
-					class="lm-pattern-tile lm-jam-availability"
-				>
-					<div class="space-y-2">
-						<p class="lm-tile__kicker">
-							<Radio class="mr-1 inline size-4" aria-hidden="true" />Mes disponibilités
-						</p>
-						<h2 class="lm-pattern-title">Quand as-tu envie de jouer ?</h2>
-					</div>
-					<div class="lm-jam-slots" role="group" aria-label="Choisir un créneau de disponibilité">
-						{#each slots as slot (slot.id)}
-							<button
-								type="button"
-								aria-pressed={selectedSlot === slot.id}
-								onclick={() => (selectedSlot = selectedSlot === slot.id ? null : slot.id)}
-								>{#if selectedSlot === slot.id}<Check
-										class="size-4"
-										aria-hidden="true"
-									/>{/if}{slot.label}</button
+				<TileFrame class="lm-event-tile" size="wide">
+					<EventTile
+						month="nov."
+						day="14"
+						time="samedi · 20 h 30"
+						title="Jazz au comptoir"
+						description="Jam ouverte, scène accueillante. Viens avec ton instrument ou simplement écouter."
+						place="Toulouse"
+						attendees="8 participant·es"
+						availability="3 places recherchées"
+						joined={joinedJam}
+						onJoin={() => (joinedJam = !joinedJam)}
+					/>
+				</TileFrame>
+
+				<TileFrame class="lm-jam-calendar" size="wide">
+					<Tile tone="violet" size="wide" class="lm-pattern-tile lm-jam-calendar">
+						<div class="flex items-center justify-between gap-3">
+							<div>
+								<p class="lm-tile__kicker">Agenda Jam</p>
+								<h2 class="lm-pattern-title">Le calendrier des jams</h2>
+							</div>
+							<span class="lm-pill">{upcomingJamCount} jams à venir</span>
+						</div>
+						<div class="lm-jam-calendar__content">
+							<CalendarPrimitive.Root
+								type="single"
+								bind:value={selectedDate}
+								bind:placeholder={calendarPlaceholder}
+								locale="fr-FR"
+								weekStartsOn={1}
+								weekdayFormat="short"
+								calendarLabel="Calendrier des jams à venir"
+								class="lm-jam-calendar__picker"
 							>
-						{/each}
-					</div>
-					<p class="lm-tile__text" aria-live="polite">
-						{#if slotSummary}
-							Tu es dispo : {slotSummary.toLowerCase()}.
-						{:else}
-							Tu n’as pas indiqué de disponibilité.
-						{/if}
-					</p>
-					<a class="lm-pattern-action" href="/_lab/metro"
-						>Gérer mes créneaux <ArrowRight class="size-4" aria-hidden="true" /></a
-					>
-				</Tile>
-				</JamTileFrame>
-
-				<JamTileFrame class="lm-profile-tile">
-				<ProfileTile
-					tone="lime"
-					href="/_lab/metro"
-					initials="MB"
-					name="Malik B."
-					instrument="Batterie · confirmé"
-					genres={['Funk', 'Hip-hop']}
-					location="Toulouse"
-					distance="à moins de 5 km"
-				/>
-				</JamTileFrame>
-
-				<JamTileFrame class="lm-action-tile" size="band">
-				<ActionTile
-					tone="amber"
-					size="band"
-					eyebrow="Organisateur·rice · optionnel"
-					title="Une jam manque dans l’agenda ?"
-					detail="Propose un lieu, une date et les places par instrument."
-					actionLabel="Lancer une jam"
-					href="/_lab/metro"
-				/>
-				</JamTileFrame>
-
-				<JamTileFrame class="lm-jam-appreciation" size="md">
-				<Tile tone="rose" size="md" class="lm-pattern-tile lm-jam-appreciation">
-					<div class="flex items-start justify-between gap-3">
-						<p class="lm-tile__kicker">
-							<Heart class="mr-1 inline size-4" aria-hidden="true" />Après la jam
-						</p>
-						<span class="lm-pill">2 à apprécier</span>
-					</div>
-					<div class="space-y-3">
-						<h2 class="lm-pattern-title lm-pattern-title--large">Garde le bon contact.</h2>
-						<p class="lm-pattern-copy">
-							Dis ce que tu as aimé chez les personnes avec qui tu as joué.
-						</p>
-					</div>
-					<a class="lm-pattern-action" href="/_lab/metro"
-						>Apprécier les musicos <ArrowRight class="size-4" aria-hidden="true" /></a
-					>
-				</Tile>
-				</JamTileFrame>
-
-				<JamTileFrame class="lm-event-tile" size="wide">
-				<EventTile
-					month="nov."
-					day="14"
-					time="samedi · 20 h 30"
-					title="Jazz au comptoir"
-					description="Jam ouverte, scène accueillante. Viens avec ton instrument ou simplement écouter."
-					place="Toulouse"
-					attendees="8 participant·es"
-					availability="3 places recherchées"
-					joined={joinedJam}
-					onJoin={() => (joinedJam = !joinedJam)}
-				/>
-				</JamTileFrame>
-
-				<JamTileFrame class="lm-jam-calendar" size="wide">
-				<Tile tone="violet" size="wide" class="lm-pattern-tile lm-jam-calendar">
-					<div class="flex items-center justify-between gap-3">
-						<div>
-							<p class="lm-tile__kicker">Agenda Jam</p>
-							<h2 class="lm-pattern-title">Le calendrier des jams</h2>
-						</div>
-						<span class="lm-pill">{upcomingJamCount} jams à venir</span>
-					</div>
-					<div class="lm-jam-calendar__content">
-						<CalendarPrimitive.Root
-							type="single"
-							bind:value={selectedDate}
-							bind:placeholder={calendarPlaceholder}
-							locale="fr-FR"
-							weekStartsOn={1}
-							weekdayFormat="short"
-							calendarLabel="Calendrier des jams à venir"
-							class="lm-jam-calendar__picker"
-						>
-							{#snippet children({ months, weekdays })}
-								<Calendar.Header class="pb-2">
-									<Calendar.PrevButton aria-label="Mois précédent" class="size-9 opacity-100" />
-									<Calendar.Heading class="text-base font-bold capitalize" />
-									<Calendar.NextButton aria-label="Mois suivant" class="size-9 opacity-100" />
-								</Calendar.Header>
-								<Calendar.Months>
-									{#each months as month (month)}
-										<Calendar.Grid>
-											<Calendar.GridHead>
-												<Calendar.GridRow class="justify-around">
-													{#each weekdays as weekday (weekday)}
-														<Calendar.HeadCell class="w-8 text-center">
-															<span aria-hidden="true">{weekday.slice(0, 2)}</span>
-															<span class="sr-only">{weekday}</span>
-														</Calendar.HeadCell>
-													{/each}
-												</Calendar.GridRow>
-											</Calendar.GridHead>
-											<Calendar.GridBody>
-												{#each month.weeks as weekDates (weekDates)}
-													<Calendar.GridRow class="mt-1 justify-around">
-														{#each weekDates as date (date)}
-															<Calendar.Cell {date} month={month.value} class="size-8">
-																{@const dateJams = jamsOn(date)}
-																<Calendar.Day
-																	aria-label={calendarDayLabel(date)}
-																	data-jam-color={dateJams[0]?.color}
-																	style={dateJams[0]
-																		? `--jam-color: ${dateJams[0].color}`
-																		: undefined}
-																	class="relative size-8 rounded-xl font-semibold focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-																>
-																	{date.day}
-																	{#if dateJams.length > 0}
-																		<span
-																			aria-hidden="true"
-																			class="lm-jam-calendar__day-mark absolute bottom-1 left-1/2 size-1.5 -translate-x-1/2 rounded-full"
-																		></span>
-																	{/if}
-																</Calendar.Day>
-															</Calendar.Cell>
+								{#snippet children({ months, weekdays })}
+									<Calendar.Header class="pb-2">
+										<Calendar.PrevButton aria-label="Mois précédent" class="size-9 opacity-100" />
+										<Calendar.Heading class="text-base font-bold capitalize" />
+										<Calendar.NextButton aria-label="Mois suivant" class="size-9 opacity-100" />
+									</Calendar.Header>
+									<Calendar.Months>
+										{#each months as month (month)}
+											<Calendar.Grid>
+												<Calendar.GridHead>
+													<Calendar.GridRow class="justify-around">
+														{#each weekdays as weekday (weekday)}
+															<Calendar.HeadCell class="w-8 text-center">
+																<span aria-hidden="true">{weekday.slice(0, 2)}</span>
+																<span class="sr-only">{weekday}</span>
+															</Calendar.HeadCell>
 														{/each}
 													</Calendar.GridRow>
-												{/each}
-											</Calendar.GridBody>
-										</Calendar.Grid>
-									{/each}
-								</Calendar.Months>
-							{/snippet}
-						</CalendarPrimitive.Root>
-						<div class="lm-jam-calendar__selection" aria-live="polite">
-							<p class="lm-tile__kicker">{calendarJams.length} jams à venir</p>
-							{#if calendarJams.length > 0}
-								<ul class="lm-jam-calendar__event-list" aria-label="Toutes les jams à venir">
-									{#each calendarJams as jam (jam.date + jam.title)}
-										<li>
-											<button
-												type="button"
-												class="lm-jam-calendar__event"
-												class:lm-jam-calendar__event--selected={activeDate.toString() === jam.date}
-												data-jam-color={jam.color}
-												style={`--jam-color: ${jam.color}`}
-												aria-pressed={activeDate.toString() === jam.date}
-												onclick={() => selectJam(jam)}
-											>
-												<span class="lm-jam-calendar__event-date">
-													{jamListDate.format(new Date(`${jam.date}T12:00:00.000Z`))}
-												</span>
-												<span class="lm-jam-calendar__event-info">
-													<strong>{jam.title}</strong>
-													<span>{jam.time} · {jam.place}</span>
-													<span>{jam.description}</span>
-												</span>
-											</button>
-										</li>
-									{/each}
-								</ul>
-							{:else}
-								<div class="space-y-2">
-									<CalendarDays class="size-6" aria-hidden="true" />
-									<p class="lm-tile__text">Aucune jam à venir.</p>
-								</div>
-							{/if}
+												</Calendar.GridHead>
+												<Calendar.GridBody>
+													{#each month.weeks as weekDates (weekDates)}
+														<Calendar.GridRow class="mt-1 justify-around">
+															{#each weekDates as date (date)}
+																<Calendar.Cell {date} month={month.value} class="size-8">
+																	{@const dateJams = jamsOn(date)}
+																	<Calendar.Day
+																		aria-label={calendarDayLabel(date)}
+																		data-jam-color={dateJams[0]?.color}
+																		style={dateJams[0]
+																			? `--jam-color: ${dateJams[0].color}`
+																			: undefined}
+																		class="relative size-8 rounded-xl font-semibold focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+																	>
+																		{date.day}
+																		{#if dateJams.length > 0}
+																			<span
+																				aria-hidden="true"
+																				class="lm-jam-calendar__day-mark absolute bottom-1 left-1/2 size-1.5 -translate-x-1/2 rounded-full"
+																			></span>
+																		{/if}
+																	</Calendar.Day>
+																</Calendar.Cell>
+															{/each}
+														</Calendar.GridRow>
+													{/each}
+												</Calendar.GridBody>
+											</Calendar.Grid>
+										{/each}
+									</Calendar.Months>
+								{/snippet}
+							</CalendarPrimitive.Root>
+							<div class="lm-jam-calendar__selection" aria-live="polite">
+								<p class="lm-tile__kicker">{calendarJams.length} jams à venir</p>
+								{#if calendarJams.length > 0}
+									<ul class="lm-jam-calendar__event-list" aria-label="Toutes les jams à venir">
+										{#each calendarJams as jam (jam.date + jam.title)}
+											<li>
+												<button
+													type="button"
+													class="lm-jam-calendar__event"
+													class:lm-jam-calendar__event--selected={activeDate.toString() ===
+														jam.date}
+													data-jam-color={jam.color}
+													style={`--jam-color: ${jam.color}`}
+													aria-pressed={activeDate.toString() === jam.date}
+													onclick={() => selectJam(jam)}
+												>
+													<span class="lm-jam-calendar__event-date">
+														{jamListDate.format(new Date(`${jam.date}T12:00:00.000Z`))}
+													</span>
+													<span class="lm-jam-calendar__event-info">
+														<strong>{jam.title}</strong>
+														<span>{jam.time} · {jam.place}</span>
+														<span>{jam.description}</span>
+													</span>
+												</button>
+											</li>
+										{/each}
+									</ul>
+								{:else}
+									<div class="space-y-2">
+										<CalendarDays class="size-6" aria-hidden="true" />
+										<p class="lm-tile__text">Aucune jam à venir.</p>
+									</div>
+								{/if}
+							</div>
 						</div>
-					</div>
-				</Tile>
-				</JamTileFrame>
+					</Tile>
+				</TileFrame>
 
-				<JamTileFrame class="lm-jam-network" size="wide">
-				<Tile tone="ink" size="wide" class="lm-pattern-tile lm-jam-network">
-					<div class="flex items-start gap-4">
-						<div class="lm-pattern-icon"><BookUser class="size-5" aria-hidden="true" /></div>
-						<div class="min-w-0 flex-1 space-y-2">
-							<p class="lm-tile__kicker">Mon carnet et mon réseau</p>
-							<h2 class="lm-pattern-title lm-pattern-title--large">
-								Les personnes avec qui tu as joué.
-							</h2>
-							<p class="lm-pattern-copy">
-								Retrouve tes souvenirs de jam et les musicien·nes croisés en chemin.
-							</p>
+				<TileFrame class="lm-jam-network" size="wide">
+					<Tile tone="blue" size="wide" class="lm-pattern-tile lm-jam-network">
+						<div class="flex items-start gap-4">
+							<div class="lm-pattern-icon"><BookUser class="size-5" aria-hidden="true" /></div>
+							<div class="min-w-0 flex-1 space-y-2">
+								<p class="lm-tile__kicker">Mon carnet et mon réseau</p>
+								<h2 class="lm-pattern-title lm-pattern-title--large">
+									Les personnes avec qui tu as joué.
+								</h2>
+								<p class="lm-pattern-copy">
+									Retrouve tes souvenirs de jam et les musicien·nes croisés en chemin.
+								</p>
+							</div>
 						</div>
-					</div>
-					<a class="lm-pattern-action" href="/_lab/metro"
-						>Ouvrir mon carnet <ArrowRight class="size-4" aria-hidden="true" /></a
-					>
-				</Tile>
-				</JamTileFrame>
+						<a class="lm-pattern-action" href="/_lab/metro"
+							>Ouvrir mon carnet <ArrowRight class="size-4" aria-hidden="true" /></a
+						>
+					</Tile>
+				</TileFrame>
 			</div>
 		</div>
 	</main>

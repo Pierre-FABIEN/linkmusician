@@ -304,42 +304,6 @@
 	container: lm-jam-board / inline-size;
 	width: 100%;
 }
-.lm-jam-shadow-frame {
-	position: relative;
-	isolation: isolate;
-	display: grid;
-	min-width: 0;
-	min-height: 0;
-	overflow: visible;
-}
-.lm-jam-shadow-frame::before {
-	content: '';
-	position: absolute;
-	inset: 0.75rem 0.5rem 0.25rem;
-	z-index: 0;
-	border-radius: 1.25rem;
-	background: oklch(0 0 0 / 0.58);
-	filter: blur(14px);
-	opacity: 0.48;
-	transform: translate3d(0, 5px, 0) scale(0.92);
-	transform-origin: center;
-	transition:
-		transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
-		opacity 260ms ease;
-	will-change: transform, opacity;
-	pointer-events: none;
-}
-.lm-jam-shadow-frame > .lm-tile {
-	grid-area: 1 / 1;
-	position: relative;
-	z-index: 1;
-	min-width: 0;
-	min-height: 0;
-}
-.lm-jam-shadow-frame:hover::before {
-	opacity: 0.78;
-	transform: translate3d(0, 9px, 0) scale(1.04);
-}
 .lm-jam-board {
 	--lm-gap: 0.75rem;
 	--lm-unit: clamp(5rem, 5cqw, 7rem);
@@ -348,31 +312,31 @@
 .lm-jam-board.lm-mosaic {
 	grid-template-columns: repeat(20, minmax(0, 1fr));
 }
-.lm-jam-board > .lm-jam-shadow-frame.lm-jam-next {
+.lm-jam-board > .lm-tile-frame.lm-jam-next {
 	grid-column: span 10;
 	grid-row: span 4;
 }
-.lm-jam-board > .lm-jam-shadow-frame.lm-jam-availability {
+.lm-jam-board > .lm-tile-frame.lm-jam-availability {
 	grid-column: span 5;
 	grid-row: span 4;
 }
-.lm-jam-board > .lm-jam-shadow-frame.lm-profile-tile {
+.lm-jam-board > .lm-tile-frame.lm-profile-tile {
 	grid-column: span 5;
 	grid-row: span 4;
 }
-.lm-jam-board > .lm-jam-shadow-frame.lm-event-tile {
+.lm-jam-board > .lm-tile-frame.lm-event-tile {
 	grid-column: 13 / span 8;
 	grid-row: span 3;
 }
-.lm-jam-board > .lm-jam-shadow-frame.lm-action-tile {
+.lm-jam-board > .lm-tile-frame.lm-action-tile {
 	grid-column: 1 / span 6;
 	grid-row: span 3;
 }
-.lm-jam-board > .lm-jam-shadow-frame.lm-jam-appreciation {
+.lm-jam-board > .lm-tile-frame.lm-jam-appreciation {
 	grid-column: 7 / span 6;
 	grid-row: span 3;
 }
-.lm-jam-board > .lm-jam-shadow-frame.lm-jam-calendar {
+.lm-jam-board > .lm-tile-frame.lm-jam-calendar {
 	grid-column: 1 / span 14;
 	grid-row: span 5;
 }
@@ -480,7 +444,7 @@
 	font-size: 0.78rem;
 	line-height: 1.35;
 }
-.lm-jam-board > .lm-jam-shadow-frame.lm-jam-network {
+.lm-jam-board > .lm-tile-frame.lm-jam-network {
 	grid-column: 15 / span 6;
 	grid-row: span 4;
 }
@@ -488,12 +452,12 @@
 	grid-template-columns: minmax(0, 1fr);
 }
 @container lm-jam-board (min-width: 56.01rem) {
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-availability,
-	.lm-jam-board > .lm-jam-shadow-frame.lm-profile-tile {
+	.lm-jam-board > .lm-tile-frame.lm-jam-availability,
+	.lm-jam-board > .lm-tile-frame.lm-profile-tile {
 		padding-block: 0.75rem;
 		gap: 0.4rem;
 	}
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-availability {
+	.lm-jam-board > .lm-tile-frame.lm-jam-availability {
 		gap: 0.75rem;
 	}
 }
@@ -717,41 +681,9 @@
 	box-shadow: none;
 }
 .lm-jam-slots button:focus-visible,
-.lm-jam-calendar__event:focus-visible,
-.lm-jam-board .lm-btn:focus-visible,
-.lm-jam-board .lm-pattern-action:focus-visible {
+.lm-jam-calendar__event:focus-visible {
 	outline: 2px solid var(--t-fg);
 	outline-offset: 3px;
-}
-.lm-jam-board .lm-btn {
-	min-height: 2.75rem;
-	border: 1px solid color-mix(in oklch, var(--t-fg) 72%, transparent);
-	border-radius: 0.7rem;
-	background: transparent;
-	color: var(--t-fg);
-	transition: none;
-}
-.lm-jam-board .lm-btn:hover {
-	background: transparent;
-	transform: none;
-}
-.lm-jam-board .lm-btn[aria-pressed='true'] {
-	border-color: var(--t-fg);
-	background: transparent;
-}
-.lm-jam-board .lm-pattern-action {
-	min-height: 2.5rem;
-	padding: 0.45rem 0.75rem;
-	border: 1px solid color-mix(in oklch, var(--t-fg) 58%, transparent);
-	border-radius: 0.7rem;
-	background: transparent;
-	color: var(--t-fg);
-	text-decoration: none;
-	transition: none;
-}
-.lm-jam-board .lm-pattern-action:hover {
-	background: transparent;
-	transform: none;
 }
 .lm-jam-number {
 	font-family: var(--lm-font-body);
@@ -889,29 +821,29 @@
 		--lm-unit: 7rem;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-next,
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-availability,
-	.lm-jam-board > .lm-jam-shadow-frame.lm-event-tile,
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-calendar,
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-network,
-	.lm-jam-board > .lm-jam-shadow-frame.lm-action-tile {
+	.lm-jam-board > .lm-tile-frame.lm-jam-next,
+	.lm-jam-board > .lm-tile-frame.lm-jam-availability,
+	.lm-jam-board > .lm-tile-frame.lm-event-tile,
+	.lm-jam-board > .lm-tile-frame.lm-jam-calendar,
+	.lm-jam-board > .lm-tile-frame.lm-jam-network,
+	.lm-jam-board > .lm-tile-frame.lm-action-tile {
 		grid-column: span 2;
 	}
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-next,
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-availability,
-	.lm-jam-board > .lm-jam-shadow-frame.lm-event-tile {
+	.lm-jam-board > .lm-tile-frame.lm-jam-next,
+	.lm-jam-board > .lm-tile-frame.lm-jam-availability,
+	.lm-jam-board > .lm-tile-frame.lm-event-tile {
 		grid-row: span 4;
 	}
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-network,
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-calendar,
-	.lm-jam-board > .lm-jam-shadow-frame.lm-action-tile {
+	.lm-jam-board > .lm-tile-frame.lm-jam-network,
+	.lm-jam-board > .lm-tile-frame.lm-jam-calendar,
+	.lm-jam-board > .lm-tile-frame.lm-action-tile {
 		grid-row: span 3;
 	}
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-calendar {
+	.lm-jam-board > .lm-tile-frame.lm-jam-calendar {
 		grid-row: span 5;
 	}
-	.lm-jam-board > .lm-jam-shadow-frame.lm-profile-tile,
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-appreciation {
+	.lm-jam-board > .lm-tile-frame.lm-profile-tile,
+	.lm-jam-board > .lm-tile-frame.lm-jam-appreciation {
 		grid-column: span 2;
 		grid-row: span 2;
 	}
@@ -949,8 +881,8 @@
 	}
 }
 @container lm-jam-board (min-width: 40.01rem) and (max-width: 56rem) {
-	.lm-jam-board > .lm-jam-shadow-frame.lm-profile-tile,
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-appreciation {
+	.lm-jam-board > .lm-tile-frame.lm-profile-tile,
+	.lm-jam-board > .lm-tile-frame.lm-jam-appreciation {
 		grid-column: span 1;
 		grid-row: span 3;
 	}
@@ -960,25 +892,25 @@
 		--lm-unit: 10rem;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
-	.lm-jam-board > .lm-jam-shadow-frame[data-size='big'] {
+	.lm-jam-board > .lm-tile-frame[data-size='big'] {
 		grid-column: span 2;
 		grid-row: span 3;
 	}
-	.lm-jam-board > .lm-jam-shadow-frame[data-size='md'] {
+	.lm-jam-board > .lm-tile-frame[data-size='md'] {
 		grid-column: span 2;
 		grid-row: span 2;
 	}
-	.lm-jam-board > .lm-jam-shadow-frame[data-size='wide'] {
+	.lm-jam-board > .lm-tile-frame[data-size='wide'] {
 		grid-column: span 2;
 		grid-row: span 2;
 	}
-	.lm-jam-board > .lm-jam-shadow-frame.lm-jam-calendar {
+	.lm-jam-board > .lm-tile-frame.lm-jam-calendar {
 		grid-row: span 5;
 	}
-	.lm-jam-board > .lm-jam-shadow-frame.lm-event-tile[data-size='wide'] {
+	.lm-jam-board > .lm-tile-frame.lm-event-tile[data-size='wide'] {
 		grid-row: span 3;
 	}
-	.lm-jam-board > .lm-jam-shadow-frame[data-size='band'] {
+	.lm-jam-board > .lm-tile-frame[data-size='band'] {
 		grid-column: span 2;
 		grid-row: span 2;
 	}
@@ -1233,39 +1165,103 @@
 		0 20px 48px -16px oklch(0.2 0.1 290 / 0.65);
 }
 
-/* LINKMUSICIAN: les accents Jam restent sur les bordures et la typographie. */
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-next {
-	--t-bg: #fb923c;
+/* ── Tuile encadrée (design « Jam ») ──────────────────────────────────────
+ * Opt-in : `<Tile framed>` ou `<TileFrame>` autour d'une tuile. Verre sombre,
+ * accent du ton sur la bordure et le texte, ombre portée sous le cadre.
+ *
+ * Règle de performance (mesurée sous Chrome, trace « Paint » au survol) :
+ * rien ne doit repeindre une tuile quand on la survole.
+ *  - Le mouvement se fait sur le cadre, jamais sur la tuile : la tuile est en
+ *    `overflow: hidden`, et un `transform` animé sur un élément qui découpe son
+ *    contenu repeint toute la tuile à chaque image (51 Paint pour 6 tuiles,
+ *    contre 2 une fois le mouvement porté par le cadre).
+ *  - Reste un seul Paint par cadre, au tout premier survol, quand Chrome met
+ *    en place l'animation sur le compositeur ; les survols suivants n'en ont
+ *    aucun. Sur la page Jam, l'animation d'entrée le fait dès le chargement.
+ *  - Au survol, seuls `transform` et `opacity` changent, sur des calques déjà
+ *    promus (`will-change`) : cadre, ombre, liseré (::before), voile (::after).
+ *    Retirer un de ces `will-change` fait revenir les repeintes.
+ *  - Aucun `backdrop-filter` : l'Aurora animée derrière forcerait à recalculer
+ *    le flou à chaque image, survol ou non.
+ *  - Bordure, ombre interne et fond restent identiques au survol : les changer
+ *    repeindrait la tuile. */
+.lm-tile-frame {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	min-width: 0;
+	min-height: 0;
+	overflow: visible;
+	will-change: transform;
+	transition:
+		transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+		opacity 0.6s calc(var(--i, 0) * 50ms),
+		translate 0.6s var(--lm-ease) calc(var(--i, 0) * 50ms);
 }
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-availability {
-	--t-bg: #38bdf8;
+/* Ombre portée : un aplat flou rastérisé une fois, puis seulement déplacé. */
+.lm-tile-frame::before {
+	content: '';
+	position: absolute;
+	inset: 0.75rem 0.5rem 0.25rem;
+	z-index: 0;
+	border-radius: 1.25rem;
+	background: oklch(0 0 0 / 0.58);
+	filter: blur(14px);
+	opacity: 0.48;
+	transform: translate3d(0, 5px, 0) scale(0.92);
+	transform-origin: center;
+	transition:
+		transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+		opacity 260ms ease;
+	will-change: transform, opacity;
+	pointer-events: none;
 }
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-profile-tile {
-	--t-bg: #a3e635;
+/* La tuile remplit la case unique du cadre, quelle que soit sa taille. */
+.lm-tile-frame > .lm-tile,
+.lm-tile-frame > .lm-tile[data-size] {
+	grid-area: 1 / 1;
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+	min-width: 0;
+	min-height: 0;
 }
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-action-tile {
-	--t-bg: #facc15;
-}
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-appreciation {
-	--t-bg: #fb7185;
-}
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-event-tile {
-	--t-bg: #2dd4bf;
-}
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-calendar {
+
+/* Accents : une couleur vive par ton, portée par la bordure et le texte. */
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='violet'] {
 	--t-bg: #c4b5fd;
 }
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-network {
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='rose'] {
+	--t-bg: #fb7185;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='blue'] {
 	--t-bg: #60a5fa;
 }
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-next,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-availability,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-profile-tile,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-action-tile,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-appreciation,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-event-tile,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-calendar,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-network {
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='orange'] {
+	--t-bg: #fb923c;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='amber'] {
+	--t-bg: #facc15;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='lime'] {
+	--t-bg: #a3e635;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='cyan'] {
+	--t-bg: #38bdf8;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='ink'] {
+	--t-bg: #cbd5e1;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='paper'] {
+	--t-bg: #f5f5f4;
+}
+/* L'événement de la page Jam garde son turquoise, hors palette des tons. */
+.lm-metro .lm-jam-board .lm-tile-frame > .lm-tile.lm-event-tile[data-tone] {
+	--t-bg: #2dd4bf;
+}
+
+.lm-metro .lm-tile-frame > .lm-tile[data-tone] {
 	--t-bg2: var(--t-bg);
 	--t-fg: var(--t-bg);
 	--t-fg2: color-mix(in oklch, var(--t-bg) 78%, white);
@@ -1281,25 +1277,69 @@
 	box-shadow:
 		inset 0 1px 0 oklch(1 0 0 / 0.2),
 		inset 0 0 0 1px oklch(1 0 0 / 0.05);
+	/* Tout le mouvement appartient au cadre ; un changement de ton est immédiat. */
+	transition: none;
 }
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-next::after,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-availability::after,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-profile-tile::after,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-action-tile::after,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-appreciation::after,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-event-tile::after,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-calendar::after,
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile.lm-jam-network::after {
-	opacity: 0;
+.lm-metro .lm-tile-frame > .lm-tile,
+.lm-metro .lm-tile-frame > .lm-tile * {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
 }
-
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile::after {
+/* Liseré conique : présent mais quasi invisible, pour que son calque existe
+   déjà au survol (opacity 0 pourrait le faire retirer). */
+.lm-tile-frame > .lm-tile::before {
+	padding: 2px;
+	opacity: 0.001;
+	will-change: opacity;
+	transition: none;
+}
+/* Voile sombre au survol, sous le contenu. */
+.lm-tile-frame > .lm-tile::after {
 	background-color: oklch(0 0 0);
 	background-image: none;
 	opacity: 0;
 	will-change: opacity;
 	transition: opacity 180ms ease;
 }
+
+/* Commandes posées dans une tuile encadrée : contour à l'accent, aucun
+   mouvement propre (il serait découpé par la tuile, donc repeint). */
+.lm-tile-frame .lm-btn:focus-visible,
+.lm-tile-frame .lm-pattern-action:focus-visible {
+	outline: 2px solid var(--t-fg);
+	outline-offset: 3px;
+}
+.lm-tile-frame .lm-btn {
+	min-height: 2.75rem;
+	border: 1px solid color-mix(in oklch, var(--t-fg) 72%, transparent);
+	border-radius: 0.7rem;
+	background: transparent;
+	color: var(--t-fg);
+	transition: none;
+}
+.lm-tile-frame .lm-btn:hover {
+	background: transparent;
+	transform: none;
+}
+.lm-tile-frame .lm-btn[aria-pressed='true'] {
+	border-color: var(--t-fg);
+	background: transparent;
+}
+.lm-tile-frame .lm-pattern-action {
+	min-height: 2.5rem;
+	padding: 0.45rem 0.75rem;
+	border: 1px solid color-mix(in oklch, var(--t-fg) 58%, transparent);
+	border-radius: 0.7rem;
+	background: transparent;
+	color: var(--t-fg);
+	text-decoration: none;
+	transition: none;
+}
+.lm-tile-frame .lm-pattern-action:hover {
+	background: transparent;
+	transform: none;
+}
+
 .lm-jam-step,
 .lm-jam-appreciation .lm-pill {
 	background-image: linear-gradient(
@@ -1313,14 +1353,8 @@
 		inset 0 0 0 1px oklch(1 0 0 / 0.07),
 		0 6px 18px oklch(0 0 0 / 0.2);
 }
-.lm-jam-board > .lm-jam-shadow-frame > .lm-tile::before {
-	padding: 2px;
-	opacity: 0.001;
-	will-change: opacity;
-	transition: none;
-}
 
-@keyframes lm-jam-border-pulse {
+@keyframes lm-tile-frame-pulse {
 	from {
 		opacity: 0.55;
 	}
@@ -1329,33 +1363,42 @@
 	}
 }
 
-/* Tailles de la mosaïque (grille de 4 colonnes) : petite, moyenne, large, haute, grande. */
+/* Tailles de la mosaïque (grille de 4 colonnes) : petite, moyenne, large, haute, grande.
+   Une tuile encadrée laisse la case à son cadre. */
 .lm-mosaic {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 	grid-auto-rows: var(--lm-unit, 7.9rem);
 	gap: var(--lm-gap, 0.75rem);
 }
-.lm-tile[data-size='sm'] {
+.lm-tile[data-size='sm'],
+.lm-tile-frame[data-size='sm'] {
 	grid-column: span 2;
+}
+.lm-tile[data-size='sm'] {
 	padding: 0.85rem;
 }
-.lm-tile[data-size='md'] {
+.lm-tile[data-size='md'],
+.lm-tile-frame[data-size='md'] {
 	grid-column: span 2;
 	grid-row: span 2;
 }
-.lm-tile[data-size='wide'] {
+.lm-tile[data-size='wide'],
+.lm-tile-frame[data-size='wide'] {
 	grid-column: span 4;
 	grid-row: span 2;
 }
-.lm-tile[data-size='band'] {
+.lm-tile[data-size='band'],
+.lm-tile-frame[data-size='band'] {
 	grid-column: span 4;
 }
-.lm-tile[data-size='big'] {
+.lm-tile[data-size='big'],
+.lm-tile-frame[data-size='big'] {
 	grid-column: span 4;
 	grid-row: span 3;
 }
-.lm-tile[data-size='tall'] {
+.lm-tile[data-size='tall'],
+.lm-tile-frame[data-size='tall'] {
 	grid-column: span 2;
 	grid-row: span 3;
 }
@@ -1454,8 +1497,8 @@
 }
 
 /* Profondeur au survol, bascule 3D à l'appui (la signature des tuiles Lumia). */
-a.lm-tile:active,
-button.lm-tile:active {
+a.lm-tile:not(.lm-tile-frame > *):active,
+button.lm-tile:not(.lm-tile-frame > *):active {
 	transform: perspective(700px) rotateX(3deg) scale(0.975);
 	transition-duration: 0.2s;
 }
@@ -1533,8 +1576,11 @@ button.lm-tile:active {
 .lm-panorama[data-ready] .lm-pivot:not([data-active]) .lm-pivot__title {
 	opacity: 0.3;
 }
-/* Entrée des tuiles à la première vue du pivot ; sans script, tout reste visible. */
-.lm-panorama[data-ready] .lm-pivot:not([data-seen]) .lm-tile {
+/* Entrée des tuiles à la première vue du pivot ; sans script, tout reste visible.
+   Une tuile encadrée entre avec son cadre, pour que l'ombre ne la précède pas. */
+.lm-panorama[data-ready]
+	.lm-pivot:not([data-seen])
+	:is(.lm-tile:not(.lm-tile-frame > *), .lm-tile-frame) {
 	opacity: 0;
 	translate: 2rem 0;
 }
@@ -1645,11 +1691,12 @@ button.lm-tile:active {
 	}
 }
 
-/* ── Premium tile interactions ─────────────────────────────── */
+/* ── Survol des tuiles ──────────────────────────────────────────────────── */
 
-/* Même retour visuel pour les tuiles informatives et les commandes. */
+/* Tuile libre : relief, liseré et reflet. Une tuile encadrée en est exclue :
+   son survol est plus bas, sans repeinte. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-	.lm-tile:hover {
+	.lm-tile:not(.lm-tile-frame > *):hover {
 		transform: translate3d(0, -3px, 0) scale(1.005);
 		border-color: transparent;
 		box-shadow:
@@ -1658,50 +1705,35 @@ button.lm-tile:active {
 			0 20px 42px -18px color-mix(in oklch, var(--t-bg) 55%, transparent);
 		filter: brightness(1.035) saturate(1.06);
 	}
-
-	.lm-jam-board .lm-tile:hover {
-		box-shadow:
-			inset 0 1px 0 oklch(1 0 0 / 0.2),
-			inset 0 0 0 1px oklch(1 0 0 / 0.05);
-		filter: none;
-	}
-
-	.lm-jam-board .lm-tile:hover::after {
-		opacity: 0.28;
-	}
-
-	.lm-jam-board .lm-tile:hover::before {
-		animation: none;
-	}
-
-	.lm-tile:hover::before {
+	.lm-tile:not(.lm-tile-frame > *):hover::before {
 		opacity: 1;
 	}
-
-	.lm-tile:hover::after {
+	.lm-tile:not(.lm-tile-frame > *):hover::after {
 		opacity: 0.32;
 	}
+}
 
-	.lm-jam-board .lm-tile:hover {
-		border-color: color-mix(in oklch, var(--t-bg) 78%, transparent);
-		box-shadow:
-			inset 0 1px 0 oklch(1 0 0 / 0.2),
-			inset 0 0 0 1px oklch(1 0 0 / 0.05);
-		filter: none;
+/* Tuile encadrée : uniquement transform et opacity, sur des calques promus. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	.lm-tile-frame:hover {
+		transform: translate3d(0, -3px, 0) scale(1.005);
 	}
-
-	.lm-jam-board .lm-tile:hover::before,
-	.lm-jam-board .lm-tile:hover::after {
-		opacity: 0;
-		animation: none;
+	/* L'ombre est dans le cadre qui monte de 3px : 12px ici la posent 9px sous
+	   sa place de repos. */
+	.lm-tile-frame:hover::before {
+		opacity: 0.78;
+		transform: translate3d(0, 12px, 0) scale(1.04);
 	}
-
-	.lm-jam-board .lm-tile:hover::before {
-		animation: lm-jam-border-pulse 1.2s ease-in-out infinite alternate;
+	.lm-tile-frame > .lm-tile:hover::before {
+		animation: lm-tile-frame-pulse 1.2s ease-in-out infinite alternate;
 	}
-
-	.lm-jam-board .lm-tile:hover::after {
+	.lm-tile-frame > .lm-tile:hover::after {
 		opacity: 0.2;
+	}
+	/* Bascule à l'appui, elle aussi portée par le cadre. */
+	.lm-tile-frame:has(> :is(a, button).lm-tile:active) {
+		transform: perspective(700px) rotateX(3deg) scale(0.975);
+		transition-duration: 0.2s;
 	}
 }
 
@@ -1718,34 +1750,22 @@ button.lm-tile:active {
 	opacity: 0.2;
 }
 
-/* LINKMUSICIAN: le hover des tuiles Jam n'anime que transform et opacity. */
-@media (hover: hover) {
-	.lm-jam-board > .lm-jam-shadow-frame > .lm-tile {
-		will-change: transform;
-		transition:
-			transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
-			translate 260ms cubic-bezier(0.16, 1, 0.3, 1);
-		grid-column: 1;
-		grid-row: 1;
-		width: 100%;
-		height: 100%;
-	}
-	.lm-jam-board > .lm-jam-shadow-frame > .lm-tile,
-	.lm-jam-board > .lm-jam-shadow-frame > .lm-tile * {
-		-webkit-backdrop-filter: none;
-		backdrop-filter: none;
-	}
-}
-
 /* ── Mouvement : tout se coupe si l'appareil le demande ─────────────────── */
 @media (prefers-reduced-motion: reduce) {
-	.lm-jam-shadow-frame::before {
+	/* Rien ne bouge : inutile de garder des calques promus. */
+	.lm-tile-frame,
+	.lm-tile-frame > .lm-tile::before,
+	.lm-tile-frame > .lm-tile::after {
+		will-change: auto;
+		transition: none;
+	}
+	.lm-tile-frame::before {
 		will-change: auto;
 		transition: none;
 		transform: none;
 	}
-	.lm-jam-shadow-frame:hover::before,
-	.lm-jam-shadow-frame:focus-within::before {
+	.lm-tile-frame:hover::before,
+	.lm-tile-frame:focus-within::before {
 		opacity: 0.48;
 		transform: none;
 	}
@@ -1770,7 +1790,9 @@ button.lm-tile:active {
 	.lm-btn:hover {
 		transform: none;
 	}
-	.lm-panorama[data-ready] .lm-pivot:not([data-seen]) .lm-tile {
+	.lm-panorama[data-ready]
+		.lm-pivot:not([data-seen])
+		:is(.lm-tile:not(.lm-tile-frame > *), .lm-tile-frame) {
 		opacity: 1;
 		translate: none;
 	}

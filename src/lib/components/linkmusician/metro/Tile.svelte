@@ -8,6 +8,7 @@
 	import type { Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import type { Bell } from 'lucide-svelte';
+	import TileFrame from './TileFrame.svelte';
 
 	type Tone = 'violet' | 'rose' | 'blue' | 'orange' | 'amber' | 'lime' | 'cyan' | 'ink' | 'paper';
 	type Size = 'sm' | 'md' | 'wide' | 'band' | 'tall' | 'big';
@@ -18,6 +19,7 @@
 		href,
 		index = 0,
 		icon,
+		framed = false,
 		class: className = '',
 		children,
 		...rest
@@ -30,6 +32,8 @@
 		index?: number;
 		/** Grande icône décorative en filigrane. */
 		icon?: typeof Bell;
+		/** Design « Jam » : la tuile se pose dans un `TileFrame` (ombre, survol sans repeinte). */
+		framed?: boolean;
 		children: Snippet;
 	} & HTMLAttributes<HTMLElement> = $props();
 
@@ -37,16 +41,24 @@
 	const Icon = $derived(icon);
 </script>
 
-<svelte:element
-	this={tag}
-	{...rest}
-	href={href ?? undefined}
-	type={tag === 'button' ? 'button' : undefined}
-	class="lm-tile {className}"
-	data-tone={tone}
-	data-size={size}
-	style:--i={index}
->
-	{#if Icon}<Icon class="lm-tile__mark" aria-hidden="true" />{/if}
-	{@render children()}
-</svelte:element>
+{#snippet tile()}
+	<svelte:element
+		this={tag}
+		{...rest}
+		href={href ?? undefined}
+		type={tag === 'button' ? 'button' : undefined}
+		class="lm-tile {className}"
+		data-tone={tone}
+		data-size={size}
+		style:--i={framed ? undefined : index}
+	>
+		{#if Icon}<Icon class="lm-tile__mark" aria-hidden="true" />{/if}
+		{@render children()}
+	</svelte:element>
+{/snippet}
+
+{#if framed}
+	<TileFrame {size} {index}>{@render tile()}</TileFrame>
+{:else}
+	{@render tile()}
+{/if}
