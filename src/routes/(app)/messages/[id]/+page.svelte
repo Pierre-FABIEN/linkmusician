@@ -15,6 +15,7 @@
 		KIND_SERVICE,
 		MAX_COLLAB_TITLE
 	} from '#lib/collaborations/rules';
+	import { isStudioSessionKind } from '#lib/studios/rules';
 
 	let { data, form } = $props();
 	const c = $derived(data.conversation);
@@ -309,6 +310,23 @@
 								</p>
 							{/if}
 						</fieldset>
+					{/if}
+					{#if data.collabForm && data.collabForm.studios.length > 0 && isStudioSessionKind(collabKind)}
+						<!-- Au studio (P4-03c) : une session, une fois confirmée par le ou la client·e. -->
+						<label class="block space-y-1 font-medium sm:col-span-2">
+							Au studio (facultatif)
+							<select name="studio" class="w-full rounded-md border bg-background p-2">
+								<option value="">Ailleurs</option>
+								{#each data.collabForm.studios as s (s.handle)}
+									<option value={s.handle} selected={data.collabForm.studios.length === 1}
+										>{s.name}{s.mine ? '' : ` · ${c.other.displayName}`}</option
+									>
+								{/each}
+							</select>
+							<span class="block text-sm font-normal text-muted-foreground"
+								>Confirmée par le ou la client·e, elle compte comme une session du studio.</span
+							>
+						</label>
 					{/if}
 					{#if data.collabForm && data.collabForm.works.length > 0}
 						<label class="block space-y-1 font-medium sm:col-span-2">

@@ -3,7 +3,7 @@
 	// part en JSON (champ `payload`) : salles et horaires sont des listes.
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
-	import { Plus, Trash2 } from 'lucide-svelte';
+	import { Circle, CircleCheck, Plus, Trash2 } from 'lucide-svelte';
 	import SEO from '#lib/components/SEO.svelte';
 	import CommunePicker, {
 		type CommuneChoice
@@ -96,6 +96,13 @@
 	const hoursError = (weekday: number) =>
 		fieldError(`hours.${hours.filter((h) => h.open).findIndex((h) => h.weekday === weekday)}`);
 
+	const plural = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`;
+	/** Ce qu'il faut pour le rang suivant (conception 02 §5). */
+	const NEXT_RANK_HINT: Record<string, string> = {
+		ACTIVE: '5 sessions confirmées',
+		RECOGNIZED: '20 sessions et 10 client·es différent·es',
+		ESSENTIAL: '5 sorties vérifiées enregistrées sur place'
+	};
 	const PHOTO_STATUS: Record<string, string> = {
 		PUBLISHED: 'En ligne',
 		PENDING_REVIEW: 'En attente de validation',
@@ -136,9 +143,12 @@
 							Visible de tous sur <a href="/@{data.studio.handle}" class="underline"
 								>la page du studio</a
 							>.
+							{plural(data.studio.stats.sessions, 'session confirmée', 'sessions confirmées')}
+							avec {plural(data.studio.stats.distinctClients, 'client·e', 'client·es')}.
 							{#if data.studio.rank.next}
-								Prochain rang : {data.studio.rank.next.label}, avec les sessions confirmées par tes
-								client·es (bientôt).
+								Prochain rang : {data.studio.rank.next.label} ({NEXT_RANK_HINT[
+									data.studio.rank.next.id
+								] ?? ''}).
 							{/if}
 						</p>
 					</div>
@@ -168,6 +178,30 @@
 					</form>
 				{/if}
 			{/if}
+		</section>
+
+		<!-- Objectifs du studio (P4-03c, conception 08 §6). -->
+		<section aria-labelledby="objectifs" class="space-y-3">
+			<h2 id="objectifs" class="text-xl font-bold">Objectifs du studio</h2>
+			<ol class="space-y-2">
+				{#each data.studio.quests as quest (quest.id)}
+					<li
+						class="flex items-center gap-3 rounded-xl border p-3 {quest.done ? 'opacity-70' : ''}"
+					>
+						{#if quest.done}
+							<CircleCheck class="size-5 shrink-0 text-emerald-600" aria-hidden="true" />
+						{:else}
+							<Circle class="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+						{/if}
+						<span class={quest.done ? 'line-through' : ''}>{quest.label}</span>
+						<span class="sr-only">{quest.done ? '(fait)' : '(à faire)'}</span>
+					</li>
+				{/each}
+			</ol>
+			<p class="text-sm text-muted-foreground">
+				Une session, c’est une collaboration (répétition, enregistrement, mixage…) que tu proposes
+				dans une conversation en choisissant ce studio, et que ton ou ta client·e confirme.
+			</p>
 		</section>
 
 		{#if form?.error}

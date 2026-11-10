@@ -97,6 +97,12 @@
 										label={studio.rank.tier.label}
 										prefix="Rang du studio :"
 									/>
+									{#if studio.sessions > 0}
+										<span class="ml-2 text-sm text-muted-foreground"
+											>{studio.sessions}
+											{studio.sessions > 1 ? 'sessions confirmées' : 'session confirmée'}</span
+										>
+									{/if}
 								{/if}
 							</div>
 						</div>

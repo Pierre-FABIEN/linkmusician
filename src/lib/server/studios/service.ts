@@ -28,6 +28,8 @@ import {
 	MAX_PENDING_STUDIO_INVITES,
 	MAX_STUDIO_PHOTOS,
 	publicationGaps,
+	studioQuests,
+	type StudioSessionStats,
 	STUDIO_TRACKS,
 	type StudioForm,
 	type StudioProfileData
@@ -207,10 +209,7 @@ export async function inviteStudioManager(studioId: string, managerId: string, h
 		select: { id: true, displayName: true }
 	});
 	if (!invitee || !(await canOpenStudio(invitee.id))) {
-		throw new StudioError(
-			'Aucun·e ingé son ou producteur·rice n’a ce nom d’utilisateur.',
-			404
-		);
+		throw new StudioError('Aucun·e ingé son ou producteur·rice n’a ce nom d’utilisateur.', 404);
 	}
 	if (invitee.id === managerId) throw new StudioError('Tu gères déjà ce studio.');
 	if (await isBlockedBetween(managerId, invitee.id)) {
@@ -395,14 +394,57 @@ const ficheSelect = {
 } as const satisfies Prisma.StudioProfileSelect;
 
 /**
- * Rang du studio. Les sessions confirmées et les sorties enregistrées sur
- * place arrivent avec P4-03c : en attendant, seul « Ouvert » est atteignable.
+ * Sessions du studio (P4-03c) : collaborations terminées qui s'y sont
+ * tenues, confirmées par au moins un·e client·e, c'est-à-dire une personne
+ * qui ne gère pas le studio. Sans cela, une équipe pourrait gonfler le rang
+ * de son propre studio. Lu dans les faits, jamais dans l'XP.
  */
-function rankOf(publishedAt: Date | null) {
-	const summary = {
-		published: publishedAt !== null,
+export async function studioSessionStats(studioId: string): Promise<StudioSessionStats> {
+	const [collabs, managers] = await Promise.all([
+		prisma.collaboration.findMany({
+			where: { studioId, status: 'COMPLETED' },
+			select: {
+				kind: true,
+				workId: true,
+				participants: { select: { actorId: true, confirmedCompletionAt: true } }
+			}
+		}),
+		prisma.membership.findMany({
+			where: { orgId: studioId, status: 'ACTIVE', role: { in: ['OWNER', 'ADMIN'] } },
+			select: { personId: true }
+		})
+	]);
+	const team = new Set(managers.map((m) => m.personId));
+	const clients = new Set<string>();
+	const stats: StudioSessionStats = {
 		sessions: 0,
 		distinctClients: 0,
+		rehearsals: 0,
+		creditedRecordings: 0
+	};
+	for (const c of collabs) {
+		const confirmedBy = c.participants.filter(
+			(p) => !team.has(p.actorId) && p.confirmedCompletionAt !== null
+		);
+		if (confirmedBy.length === 0) continue;
+		stats.sessions += 1;
+		for (const p of confirmedBy) clients.add(p.actorId);
+		if (c.kind === 'REHEARSAL') stats.rehearsals += 1;
+		if (c.kind === 'RECORDING' && c.workId) stats.creditedRecordings += 1;
+	}
+	stats.distinctClients = clients.size;
+	return stats;
+}
+
+/**
+ * Rang du studio. Les sorties vérifiées enregistrées sur place
+ * (Incontournable) attendent les sorties créditées (P4-09) : 0 d'ici là.
+ */
+function rankOf(publishedAt: Date | null, stats: StudioSessionStats) {
+	const summary = {
+		published: publishedAt !== null,
+		sessions: stats.sessions,
+		distinctClients: stats.distinctClients,
 		verifiedReleases: 0
 	};
 	const { tier } = studioTier(summary);
@@ -481,8 +523,9 @@ export async function studioForManager(handle: string, personId: string) {
 	const role = team.find((m) => m.person.id === personId && m.status === 'ACTIVE')?.role;
 	const studio = actor?.organization?.studio;
 	if (!actor || !studio || !isManager(role)) return null;
-	const [location, photos] = await Promise.all([
+	const [location, stats, photos] = await Promise.all([
 		getActorLocation(actor.id),
+		studioSessionStats(actor.id),
 		prisma.media.findMany({
 			where: { actorId: actor.id, kind: 'IMAGE', status: { not: 'UPLOADING' } },
 			orderBy: { createdAt: 'asc' },
@@ -513,7 +556,13 @@ export async function studioForManager(handle: string, personId: string) {
 			: null,
 		...studio,
 		gaps: publicationGaps({ ...studio, hasCommune: location !== null }),
-		rank: rankOf(studio.publishedAt)
+		stats,
+		quests: studioQuests({
+			published: studio.publishedAt !== null,
+			hasHours: studio.hours.length > 0 || studio.byAppointment,
+			stats
+		}),
+		rank: rankOf(studio.publishedAt, stats)
 	};
 }
 
@@ -561,8 +610,9 @@ export async function getPublicStudio(handle: string, now = new Date(), viewerId
 		select: { id: true }
 	});
 	const shown = new Set(visible.map((a) => a.id));
-	const [location, photos] = await Promise.all([
+	const [location, stats, photos] = await Promise.all([
 		getActorLocation(actor.id),
+		studioSessionStats(actor.id),
 		prisma.media.findMany({
 			where: { actorId: actor.id, kind: 'IMAGE', status: 'PUBLISHED', fileUrl: { not: null } },
 			orderBy: { createdAt: 'asc' },
@@ -579,7 +629,8 @@ export async function getPublicStudio(handle: string, now = new Date(), viewerId
 		commune: location?.communeName ?? null,
 		...fiche,
 		photos: photos.map((p) => ({ id: p.id, title: p.title, url: p.fileUrl! })),
-		rank: rankOf(publishedAt),
+		sessions: stats.sessions,
+		rank: rankOf(publishedAt, stats),
 		managers: org.memberships
 			.filter((m) => shown.has(m.person.id))
 			.map((m) => ({ handle: m.person.handle, displayName: m.person.displayName })),

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
 	displayTime,
+	isStudioSessionKind,
+	studioQuests,
 	formatTime,
 	parseTime,
 	publicationGaps,
@@ -127,5 +129,30 @@ describe('studio : publication', () => {
 
 	it('sur rendez-vous remplace les horaires', () => {
 		expect(publicationGaps({ ...complete, hours: [], byAppointment: true })).toEqual([]);
+	});
+});
+
+describe('studio : sessions et quêtes (P4-03c)', () => {
+	it('seules certaines collaborations se tiennent au studio', () => {
+		expect(isStudioSessionKind('REHEARSAL')).toBe(true);
+		expect(isStudioSessionKind('MIXING')).toBe(true);
+		expect(isStudioSessionKind('GIG')).toBe(false);
+		expect(isStudioSessionKind('JAM')).toBe(false);
+	});
+
+	it('les quêtes suivent la fiche et les sessions', () => {
+		const none = { sessions: 0, distinctClients: 0, rehearsals: 0, creditedRecordings: 0 };
+		const done = (input: Parameters<typeof studioQuests>[0]) =>
+			studioQuests(input)
+				.filter((q) => q.done)
+				.map((q) => q.id);
+		expect(done({ published: false, hasHours: false, stats: none })).toEqual([]);
+		expect(
+			done({
+				published: true,
+				hasHours: true,
+				stats: { sessions: 2, distinctClients: 1, rehearsals: 0, creditedRecordings: 1 }
+			})
+		).toEqual(['fiche', 'hours', 'firstSession', 'firstRecording']);
 	});
 });

@@ -243,3 +243,62 @@ export function publicationGaps(fiche: {
 	if (fiche.hours.length === 0 && !fiche.byAppointment) gaps.push('hours');
 	return gaps;
 }
+
+// ─── Sessions et quêtes (P4-03c) ─────────────────────────────────────────
+
+/**
+ * Collaborations qui peuvent se tenir dans un studio. Terminée et confirmée
+ * par un·e client·e (une personne qui ne gère pas le studio), c'est une
+ * **session** : elle compte pour le rang du studio (`studioTier`).
+ */
+export const STUDIO_SESSION_KINDS = [
+	'REHEARSAL',
+	'RECORDING',
+	'MIXING',
+	'MASTERING',
+	'PRODUCTION'
+] as const;
+
+export function isStudioSessionKind(kind: string): boolean {
+	return (STUDIO_SESSION_KINDS as readonly string[]).includes(kind);
+}
+
+/** Ce que l'on sait des sessions d'un studio, lu dans ses collaborations. */
+export type StudioSessionStats = {
+	sessions: number;
+	distinctClients: number;
+	/** Répétitions accueillies. */
+	rehearsals: number;
+	/** Enregistrements reliés à un morceau (les crédits suivent, P4-07). */
+	creditedRecordings: number;
+};
+
+export type StudioQuestId =
+	'fiche' | 'hours' | 'firstSession' | 'firstRehearsal' | 'firstRecording';
+
+/** Quêtes du studio (conception 08 §6), dans l'ordre où elles se font. */
+export function studioQuests(input: {
+	published: boolean;
+	hasHours: boolean;
+	stats: StudioSessionStats;
+}): { id: StudioQuestId; label: string; done: boolean }[] {
+	return [
+		{ id: 'fiche', label: 'Compléter et publier sa fiche', done: input.published },
+		{ id: 'hours', label: 'Donner ses horaires d’ouverture', done: input.hasHours },
+		{
+			id: 'firstSession',
+			label: 'Une première session confirmée par un·e client·e',
+			done: input.stats.sessions > 0
+		},
+		{
+			id: 'firstRehearsal',
+			label: 'Accueillir la répétition d’un groupe',
+			done: input.stats.rehearsals > 0
+		},
+		{
+			id: 'firstRecording',
+			label: 'Un premier enregistrement crédité sur un morceau',
+			done: input.stats.creditedRecordings > 0
+		}
+	];
+}

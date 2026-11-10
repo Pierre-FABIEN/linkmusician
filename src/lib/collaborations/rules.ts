@@ -139,6 +139,12 @@ export function collaborationSchema(today: string) {
 			.enum(['me', 'other'])
 			.optional()
 			.or(z.literal('').transform(() => undefined)),
+		/** Studio où elle a lieu (P4-03c), par son nom d'utilisateur, relu côté serveur. */
+		studio: z
+			.string()
+			.regex(/^[a-z0-9][a-z0-9_-]{1,59}$/)
+			.optional()
+			.or(z.literal('').transform(() => undefined)),
 		/** Morceau concerné (P4-06), relu côté serveur. */
 		work: z
 			.string()

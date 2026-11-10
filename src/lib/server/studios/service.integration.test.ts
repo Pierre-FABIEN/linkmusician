@@ -57,6 +57,7 @@ vi.mock('#lib/server/media/cloudinary', () => ({
 
 const service = await import('./service');
 const { finalizeUpload, startUpload } = await import('#lib/server/media/service');
+const collabs = await import('#lib/server/collaborations/service');
 const { bandCounts } = await import('#lib/server/bands/service');
 const { exportPersonData, personAnonymizationOps } = await import('#lib/prisma/actors/person');
 
@@ -258,6 +259,108 @@ describe.skipIf(!enabled)('studio (schéma e2e)', { timeout: 60_000 }, () => {
 		});
 		await service.deleteStudioPhoto(studio.id, ids.sam, mediaId);
 		expect(await db.media.count({ where: { id: mediaId } })).toBe(0);
+	});
+
+	it('sessions : une collaboration au studio, confirmée par un·e client·e', async () => {
+		const { id: conversationId } = await db.conversation.create({
+			data: {
+				pairKey: [ids.lea, ids.sam].sort().join(':'),
+				initiatorId: ids.lea,
+				participants: {
+					create: [
+						{ actorId: ids.lea, state: 'ACCEPTED' },
+						{ actorId: ids.sam, state: 'ACCEPTED' }
+					]
+				}
+			},
+			select: { id: true }
+		});
+		const today = new Date().toISOString().slice(0, 10);
+		// Un concert ne se tient pas au studio ; un studio inconnu est refusé.
+		await expect(
+			collabs.proposeCollaboration(ids.lea, conversationId, {
+				kind: 'GIG',
+				title: 'Concert',
+				happenedOn: today,
+				studio: studio.handle
+			})
+		).rejects.toThrow('ne se tient pas');
+		await expect(
+			collabs.proposeCollaboration(ids.lea, conversationId, {
+				kind: 'REHEARSAL',
+				title: 'Répète',
+				happenedOn: today,
+				studio: `${PREFIX}ailleurs`
+			})
+		).rejects.toMatchObject({ status: 403 });
+
+		// La cliente propose sa répétition au studio de Sam, qui confirme.
+		const form = await collabs.collabFormContext(ids.lea, conversationId);
+		expect(form?.studios).toEqual([
+			{ handle: studio.handle, name: 'Studio du Canal', mine: false }
+		]);
+		const { id } = await collabs.proposeCollaboration(ids.lea, conversationId, {
+			kind: 'REHEARSAL',
+			title: 'Répète du jeudi',
+			happenedOn: today,
+			studio: studio.handle
+		});
+		expect((await service.studioSessionStats(studio.id)).sessions).toBe(0);
+		// Déjà passée : accepter vaut confirmer.
+		await collabs.respondToCollaboration(ids.sam, id, true);
+		expect(await service.studioSessionStats(studio.id)).toEqual({
+			sessions: 1,
+			distinctClients: 1,
+			rehearsals: 1,
+			creditedRecordings: 0
+		});
+		const fiche = await service.studioForManager(studio.handle, ids.sam);
+		expect(fiche?.quests.filter((q) => q.done).map((q) => q.id)).toEqual([
+			'fiche',
+			'hours',
+			'firstSession',
+			'firstRehearsal'
+		]);
+		expect(fiche?.rank).toMatchObject({ tier: { id: 'OPEN' }, next: { id: 'ACTIVE' } });
+		expect((await service.getPublicStudio(studio.handle))?.sessions).toBe(1);
+
+		// Quatre sessions de plus avec la même cliente : le studio est Actif.
+		for (let i = 1; i <= 4; i++) {
+			await db.collaboration.create({
+				data: {
+					kind: 'RECORDING',
+					status: 'COMPLETED',
+					title: `Prise ${i}`,
+					happenedOn: new Date(`2026-10-0${i}T00:00:00Z`),
+					proposedById: ids.sam,
+					studioId: studio.id,
+					completedAt: new Date(),
+					participants: {
+						create: [
+							{ actorId: ids.sam, acceptedAt: new Date(), confirmedCompletionAt: new Date() },
+							{ actorId: ids.lea, acceptedAt: new Date(), confirmedCompletionAt: new Date() }
+						]
+					}
+				}
+			});
+		}
+		// Une « session » entre gens du studio seulement ne compte pas.
+		await db.collaboration.create({
+			data: {
+				kind: 'RECORDING',
+				status: 'COMPLETED',
+				title: 'Entre nous',
+				happenedOn: new Date('2026-10-09T00:00:00Z'),
+				proposedById: ids.sam,
+				studioId: studio.id,
+				completedAt: new Date(),
+				participants: {
+					create: [{ actorId: ids.sam, acceptedAt: new Date(), confirmedCompletionAt: new Date() }]
+				}
+			}
+		});
+		expect((await service.studioSessionStats(studio.id)).sessions).toBe(5);
+		expect((await service.studioForManager(studio.handle, ids.sam))?.rank.tier?.id).toBe('ACTIVE');
 	});
 
 	it('co-gestion : inviter, accepter, retirer ; on ne part pas seul·e', async () => {

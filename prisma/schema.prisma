@@ -2232,6 +2232,9 @@ model Collaboration {
   /// Morceau sur lequel on a travaillé (P4-06).
   workId         String?
   work           Work?                      @relation(fields: [workId], references: [id], onDelete: SetNull)
+  /// Studio où elle a eu lieu (P4-03c) : une session, si un·e client·e la confirme.
+  studioId       String?
+  studio         Organization?              @relation(fields: [studioId], references: [actorId], onDelete: SetNull)
   completedAt    DateTime?
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
@@ -2240,6 +2243,7 @@ model Collaboration {
   endorsements CollabEndorsement[]
 
   @@index([conversationId])
+  @@index([studioId])
   @@map("collaborations")
 }
 
@@ -2725,6 +2729,8 @@ model Organization {
   verifications OrganizationVerification[]
   /// Fiche du studio (P4-03), pour une organisation STUDIO.
   studio      StudioProfile?
+  /// Sessions tenues au studio (P4-03c).
+  studioSessions Collaboration[]
 
   @@map("organizations")
 }

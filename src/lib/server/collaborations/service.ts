@@ -10,6 +10,10 @@
  * mixage, mastering, sonorisation, production) assurée par l'une d'elles, qui
  * en a le métier. Terminée, elle fait avancer le morceau (enregistré, mixé,
  * masterisé, produit) et crédite chacun·e sur sa piste.
+ *
+ * Au studio (P4-03c) : une répétition, un enregistrement… peut se tenir dans
+ * un studio que gère l'une des deux personnes. Confirmée par un·e client·e,
+ * c'est une session du studio (`#lib/server/studios/service`).
  */
 import { prisma } from '#lib/server';
 import { isBlockedBetween } from '#lib/server/blocking/service';
@@ -28,6 +32,53 @@ import {
 	type CollabStatusValue
 } from '#lib/collaborations/rules';
 import { creditFromCollaboration, manageableWorks } from '#lib/server/works/service';
+import { isStudioSessionKind } from '#lib/studios/rules';
+
+/**
+ * Studios publiés que gère l'une des deux personnes (P4-03c), pour y
+ * rattacher une collaboration. `handle` : un seul, s'il en fait partie.
+ */
+async function studiosOfPair(meId: string, otherId: string, handle?: string) {
+	const rows = await prisma.actor.findMany({
+		where: {
+			...(handle ? { handle } : {}),
+			kind: 'ORGANIZATION',
+			deletedAt: null,
+			organization: {
+				kind: 'STUDIO',
+				dissolvedAt: null,
+				studio: { publishedAt: { not: null } },
+				memberships: {
+					some: {
+						personId: { in: [meId, otherId] },
+						status: 'ACTIVE',
+						role: { in: ['OWNER', 'ADMIN'] }
+					}
+				}
+			}
+		},
+		orderBy: { displayName: 'asc' },
+		select: {
+			id: true,
+			handle: true,
+			displayName: true,
+			organization: {
+				select: {
+					memberships: {
+						where: { personId: meId, status: 'ACTIVE', role: { in: ['OWNER', 'ADMIN'] } },
+						select: { personId: true }
+					}
+				}
+			}
+		}
+	});
+	return rows.map((r) => ({
+		id: r.id,
+		handle: r.handle,
+		name: r.displayName,
+		mine: (r.organization?.memberships.length ?? 0) > 0
+	}));
+}
 
 export class CollaborationError extends Error {
 	constructor(
@@ -51,6 +102,8 @@ export async function proposeCollaboration(
 		provider?: 'me' | 'other';
 		/** Morceau concerné (P4-06). */
 		work?: string;
+		/** Studio où elle a lieu (P4-03c), par son nom d'utilisateur. */
+		studio?: string;
 	},
 	now = new Date()
 ) {
@@ -103,6 +156,18 @@ export async function proposeCollaboration(
 			throw new CollaborationError('Ce morceau n’est pas à l’un de vous deux.', 403);
 		}
 	}
+	// Studio (P4-03c) : géré par l'une des deux personnes, pour une
+	// collaboration qui s'y tient (répétition, enregistrement…).
+	let studioId: string | null = null;
+	if (input.studio) {
+		if (!isStudioSessionKind(input.kind)) {
+			throw new CollaborationError('Ce type de collaboration ne se tient pas dans un studio.');
+		}
+		const [studio] = await studiosOfPair(proposerId, other.actorId, input.studio);
+		if (!studio)
+			throw new CollaborationError('Ce studio n’est pas géré par l’un de vous deux.', 403);
+		studioId = studio.id;
+	}
 	const happened = hasHappened(input.happenedOn, now);
 	const created = await prisma.collaboration.create({
 		data: {
@@ -113,6 +178,7 @@ export async function proposeCollaboration(
 			conversationId,
 			opportunityId: conversation.opportunityId,
 			workId: input.work ?? null,
+			studioId,
 			participants: {
 				create: [
 					// Proposer vaut accord, et confirmation si c'est déjà passé.
@@ -344,7 +410,7 @@ export async function collabFormContext(actorId: string, conversationId: string)
 		(await prisma.personTrack.findMany({ where: { personId: id }, select: { track: true } })).map(
 			(t) => t.track as string
 		);
-	const [myTracks, otherTracks, mine, theirs, opportunity] = await Promise.all([
+	const [myTracks, otherTracks, mine, theirs, opportunity, studios] = await Promise.all([
 		tracksOf(actorId),
 		tracksOf(otherId),
 		manageableWorks(actorId),
@@ -354,7 +420,8 @@ export async function collabFormContext(actorId: string, conversationId: string)
 					where: { id: conversation.opportunityId },
 					select: { workId: true }
 				})
-			: null
+			: null,
+		studiosOfPair(actorId, otherId)
 	]);
 	const composed = new Set(
 		(
@@ -371,7 +438,13 @@ export async function collabFormContext(actorId: string, conversationId: string)
 			.map((w) => ({ id: w.id, title: w.title, band: w.band, mine: false }))
 	];
 	const defaultWork = works.some((w) => w.id === opportunity?.workId) ? opportunity!.workId : null;
-	return { tracks: { me: myTracks, other: otherTracks }, works, defaultWork };
+	return {
+		tracks: { me: myTracks, other: otherTracks },
+		works,
+		defaultWork,
+		// Studios où la tenir (P4-03c) : le nom d'utilisateur, jamais l'identifiant.
+		studios: studios.map(({ handle, name, mine }) => ({ handle, name, mine }))
+	};
 }
 
 /** Ce qui attend ma réponse ou ma confirmation (tableau de bord). */
