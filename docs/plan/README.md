@@ -99,6 +99,7 @@ indiquées : on les tranche en début de session.
 | 17     | P3-12 à P3-14 Carrière                  | Ambition, écran de carrière, carte (actes I-III), fiche de carrière                                       | Liste des déblocages (07 §4.5)          |
 | 17 bis | P3-15 Guide des démarches               | Protéger un morceau, être payé·e pour un concert, l'association du groupe ; bulletin de partage prérempli | **D42** (périmètre et relecture)        |
 | 17 ter | P3-17 Assistant IA d'inscription        | Décrire son parcours musical librement et vérifier les propositions de préremplissage                     | **D47** (Proposée)                      |
+| 17 qua | Revue de fin de phase 3 ✅              | Critères vérifiés, fiches de phase 4 relues, lots P4 au tableau, [bilan et démo](./revue-phase-3.md)      | —                                       |
 | 18     | P3-10 Ouverture publique                | Production, pages légales, sécurité ; app ouverte à tous (pas de bêta, D23)                               | Pages légales                           |
 | 19     | P4-01 à P4-13 Métiers du son            | Ingé son, studio, producteur, crédits, vitrine, actes III-IV, temps réel, coups de pouce                  | Gratuité de la vitrine                  |
 | 20     | P5-01 à P5-10 La scène                  | Lieux et jams publiques, organisateurs, concerts vérifiés, bookers, managers, offre pro, réservation      | `VENUE_HOST`                            |
@@ -240,15 +241,34 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 | P3-10a | Audit de sécurité avant production (bloquant)        | Lots du lancement         | ⬜     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | P3-10  | Ouverture publique (pas de bêta, D23)                | P3-10a, tout le reste     | ⬜     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
-### Phases 4 à 6 — Les autres métiers et la carrière complète → [phase-4-6.md](./phase-4-6.md)
+### Phase 4 — Studio, ingé son, producteur : actes III et IV → [phase-4-6.md](./phase-4-6.md)
 
-Lots P4-01 à P4-13 (studio, ingé son, producteur, crédits, vitrine des
-propositions, actes III-IV, temps réel, coups de pouce), P5-01 à P5-10
-(lieux, organisateurs, bookers, managers, concerts vérifiés, acte V),
-P6-01 à P6-07 (label, éditeur, communication, actes VI-VIII, défis
-collectifs, autres rôles). Fiches complètes dans
-[phase-4-6.md](./phase-4-6.md) ; ils entrent dans ce tableau à la revue
-de fin de la phase précédente.
+Entrée au tableau à la [revue de fin de phase 3](./revue-phase-3.md)
+(10/11/2026). « Lancement » : lot nécessaire à l'ouverture de Toulouse (§4 ter).
+
+| Lot   | Intitulé                              | Dépend de    | Statut | PR                                       |
+| ----- | ------------------------------------- | ------------ | ------ | ---------------------------------------- |
+| P4-01 | Personas et barème des métiers du son | —            | ⬜     | Lancement                                |
+| P4-02 | Ingé son                              | P4-01        | ⬜     | Lancement                                |
+| P4-03 | Studio                                | P4-02        | ⬜     | Lancement                                |
+| P4-04 | Producteur·rice                       | P4-01        | ⬜     | Lancement                                |
+| P4-05 | Annonces par métier                   | P2-02, P4-02 | ⬜     | Lancement                                |
+| P4-06 | Collaborations liées au morceau       | P3-11, P2-06 | ⬜     | Lancement                                |
+| P4-07 | Crédits                               | P4-06        | ⬜     | Lancement                                |
+| P4-08 | Vitrine des propositions              | P4-07        | ⬜     | Après le lancement ; gratuité à trancher |
+| P4-09 | Étapes vérifiées par les pros         | P3-05, P4-06 | ⬜     | Lancement ; la répétition passe à P5-10  |
+| P4-10 | Carte : actes III et IV               | P3-13, P4-09 | ⬜     | Lancement                                |
+| P4-11 | Radar des pros                        | P2-08        | ⬜     | Après le lancement                       |
+| P4-12 | Messagerie temps réel                 | P2-04 ; D8   | ⬜     | Après le lancement                       |
+| P4-13 | Coups de pouce et parrainage          | P2-16, P3-12 | ⬜     | Lancement                                |
+
+### Phases 5 et 6 → [phase-4-6.md](./phase-4-6.md)
+
+Lots P5-00 à P5-11 (lieux, organisateurs, bookers, managers, concerts
+vérifiés, acte V, écoles) et P6-01 à P6-07 (label, éditeur,
+communication, actes VI-VIII, défis collectifs, autres rôles). Fiches
+complètes dans [phase-4-6.md](./phase-4-6.md) ; ils entrent dans ce
+tableau à la revue de fin de la phase précédente.
 
 ## 5 bis. Points ouverts (hors lots)
 

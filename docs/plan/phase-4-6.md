@@ -67,9 +67,11 @@ propose aux producteurs et se fait produire ; chacun gagne sur sa piste.
 ### P4-06 — Collaborations liées au morceau
 
 - **Dépend de** : P3-11, P2-06.
-- **Tâches** : `Collaboration.workId` ; types `RECORDING`, mixage,
-  mastering, `PRODUCTION`, `SESSION_WORK` ; états du morceau
-  (enregistré, mixé, produit) avancés par les collaborations terminées ;
+- **Tâches** : `Collaboration.workId` ; types mixage et mastering à
+  ajouter (`RECORDING`, `PRODUCTION` et `SESSION_WORK` existent déjà
+  dans `CollabKind`) ; états du morceau (enregistré, mixé, produit, à
+  ajouter à `WorkState` après `COMPOSED`) avancés par les collaborations
+  terminées ;
   XP de chacun **sur la piste du métier exercé**.
 - **Fin** : une session confirmée fait passer le morceau « enregistré »
   et crédite la piste ingé son de Sam et la piste musicien de Léa
@@ -78,9 +80,11 @@ propose aux producteurs et se fait produire ; chacun gagne sur sa piste.
 ### P4-07 — Crédits
 
 - **Dépend de** : P4-06.
-- **Tâches** : crédit confirmé des deux côtés (contributeur du morceau
-  et personne créditée) ; affichage sur le morceau, le profil et la
-  carte de réputation ; remplacement progressif de `MediaCredit`.
+- **Tâches** : le crédit confirmé des deux côtés existe depuis P3-11
+  (`WorkContributor.confirmedAt`) ; l'étendre aux rôles du son
+  (`WorkRoleKind` : prise de son, mixage, mastering, production) ;
+  affichage sur le morceau, le profil et la carte de réputation ;
+  remplacement progressif de `MediaCredit`.
 - **Fin** : un crédit non confirmé n'apparaît nulle part (test).
 
 ### P4-08 — Vitrine des propositions
@@ -101,8 +105,10 @@ propose aux producteurs et se fait produire ; chacun gagne sur sa piste.
 - **Dépend de** : P3-05, P4-06.
 - **Tâches** : la collaboration d'enregistrement avec un ingé son ou un
   studio de la plateforme **vérifie** l'étape « Premier enregistrement »
-  du groupe ; une réservation honorée vérifie « Première répétition ».
-- **Fin** : intégration des deux vérifications.
+  du groupe. La vérification de « Première répétition » par une
+  réservation honorée passe à P5-10, qui vient après le lancement
+  (revue de phase 3).
+- **Fin** : intégration de la vérification de l'enregistrement.
 
 ### P4-10 — Carte : actes III et IV
 
@@ -247,7 +253,8 @@ mode jam.
 
 - **Dépend de** : P4-03.
 - **Tâches** : agenda et réservation, paiement avec Stripe Connect
-  (commission) ; réservation honorée = preuve (P4-09).
+  (commission) ; une réservation honorée **vérifie** l'étape « Première
+  répétition » du groupe (repris de P4-09 à la revue de phase 3).
 - **Fin** : e2e « je réserve et paie un créneau » (Stripe en mode test).
 
 ### P5-11 — Écoles, MJC, conservatoires (D29)
