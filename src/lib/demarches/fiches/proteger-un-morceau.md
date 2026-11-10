@@ -2,7 +2,7 @@
 verifie: 2026-11-10
 relue: non
 sources:
-  - INPI, « e-Soleau : protégez votre création » | https://www.inpi.fr/realiser-demarches/propriete-intellectuelle/deposer-une-e-soleau-ou-un-entiercement
+  - INPI, « e-Soleau : protégez votre création » | https://www.inpi.fr/realiser-demarches/propriete-intellectuelle/deposer-une-e-soleau-ou-un-entiercement
   - INPI, « Quand proroger une e-Soleau ? » | https://www.inpi.fr/realiser-demarches/propriete-intellectuelle/proroger-une-e-soleau
   - Sacem, créateurs et éditeurs | https://www.sacem.fr
 ---
