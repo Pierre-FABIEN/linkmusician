@@ -27,7 +27,16 @@ export type NudgeContext = {
 	hasMinor?: boolean;
 	/** Annonce : son type (P2-02). */
 	opportunityKind?: string;
+	/** Documents préremplis disponibles sur l'écran (P3-15b), par clé. */
+	documents?: Partial<Record<DocumentKey, string>>;
 };
+
+/** Documents préremplis (P3-15b). */
+export const DOCUMENT_LABELS = {
+	bulletin: 'Préparer le bulletin de partage',
+	programme: 'Préparer le programme des œuvres'
+} as const;
+export type DocumentKey = keyof typeof DOCUMENT_LABELS;
 
 type Nudge = {
 	id: string;
@@ -35,6 +44,8 @@ type Nudge = {
 	text: string;
 	/** Fiches liées, la première est le lien principal. */
 	fiches: readonly string[];
+	/** Document prérempli proposé en premier lien, s'il est disponible. */
+	document?: DocumentKey;
 	when: (ctx: NudgeContext) => boolean;
 };
 
@@ -47,7 +58,8 @@ export const NUDGES: readonly Nudge[] = [
 		screen: 'morceau',
 		when: (c) => Boolean(c.composed) && (c.confirmedCredits ?? 0) >= 2,
 		text: 'Vous l’avez écrit à plusieurs : notez qui a fait quoi et à quel pourcentage, avant que le morceau rapporte.',
-		fiches: ['ecrire-a-plusieurs', 'proteger-un-morceau']
+		fiches: ['ecrire-a-plusieurs', 'proteger-un-morceau'],
+		document: 'bulletin'
 	},
 	{
 		id: `${NUDGE_PREFIX}morceau-proteger`,
@@ -61,7 +73,8 @@ export const NUDGES: readonly Nudge[] = [
 		screen: 'groupe',
 		when: (c) => has(c, 'FIRST_GIG'),
 		text: 'Un concert ? Remettez la liste des morceaux joués à l’organisateur, et s’il vous paie, demandez comment il vous déclare.',
-		fiches: ['premier-concert', 'etre-paye-pour-un-concert']
+		fiches: ['premier-concert', 'etre-paye-pour-un-concert'],
+		document: 'programme'
 	},
 	{
 		id: `${NUDGE_PREFIX}groupe-mineurs`,
@@ -114,9 +127,15 @@ export function nudgeFor(
 	const hidden = new Set(dismissed);
 	const nudge = NUDGES.find((n) => n.screen === screen && !hidden.has(n.id) && n.when(ctx));
 	if (!nudge) return null;
+	const documentHref = nudge.document ? ctx.documents?.[nudge.document] : undefined;
 	return {
 		id: nudge.id,
 		text: nudge.text,
-		links: nudge.fiches.map((slug) => ({ href: ficheHref(slug), label: ficheBySlug(slug)!.title }))
+		links: [
+			...(documentHref && nudge.document
+				? [{ href: documentHref, label: DOCUMENT_LABELS[nudge.document] }]
+				: []),
+			...nudge.fiches.map((slug) => ({ href: ficheHref(slug), label: ficheBySlug(slug)!.title }))
+		]
 	};
 }

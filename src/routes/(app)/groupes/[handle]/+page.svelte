@@ -264,6 +264,16 @@
 					<Flag class="size-5" aria-hidden="true" /> Parcours du groupe
 				</h2>
 				<DemarcheCard nudge={data.nudge} />
+				{#if band.formedAt && !dissolved}
+					<p class="text-sm">
+						<a
+							href="/groupes/{band.handle}/programme"
+							class="inline-flex min-h-11 items-center font-medium text-primary underline"
+							>Programme des œuvres</a
+						>
+						<span class="text-muted-foreground">· la liste des morceaux à remettre au lieu</span>
+					</p>
+				{/if}
 				{#if !band.formedAt}
 					<p class="text-sm text-muted-foreground">
 						Le parcours s’ouvre quand le groupe est formé : invitez un premier membre.

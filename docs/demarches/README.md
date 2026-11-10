@@ -30,6 +30,22 @@ Règles produit : [conception/09](../conception/09-demarches.md).
   professionnel·le en cours ». À remplir avant l'ouverture publique (P3-10).
 - **Aucun logo**, ni « officiel », ni partenariat suggéré (testé).
 
+## Documents préremplis (P3-15b)
+
+- **Bulletin de partage** (équipe du morceau) : les crédits **confirmés**
+  qui ont un rôle d'écriture (paroles, musique, arrangement), une colonne
+  de parts par rôle présent, laissée vide ; état civil et signatures à la
+  main ; interprètes listés à part, « pour mémoire ». Un crédit en attente
+  n'y figure pas (la page le signale).
+- **Programme des œuvres** (membres actifs du groupe) : les morceaux
+  composés du groupe, avec paroles et musique confirmées, et des lignes
+  vides pour les reprises.
+- Rien n'est enregistré, rien ne rapporte d'XP. Pas de PDF généré côté
+  serveur : « Imprimer ou enregistrer en PDF » passe par le navigateur
+  (page sans la navigation de l'espace, styles `print:`).
+- Groupe de routes `(document)` : même exigence de compte que `(app)`,
+  sans la coquille.
+
 ## Ajouter ou revérifier une fiche
 
 1. Écrire ou corriger `fiches/<slug>.md` : `# Titre` (identique au

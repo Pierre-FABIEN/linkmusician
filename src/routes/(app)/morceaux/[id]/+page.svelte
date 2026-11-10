@@ -100,6 +100,17 @@
 
 		<DemarcheCard nudge={data.nudge} />
 
+		{#if work.team && composed}
+			<p class="text-sm">
+				<a
+					href="/morceaux/{work.id}/bulletin"
+					class="inline-flex min-h-11 items-center font-medium text-primary underline"
+					>Bulletin de partage</a
+				>
+				<span class="text-muted-foreground">· qui a écrit quoi, parts à signer ensemble</span>
+			</p>
+		{/if}
+
 		{#if work.myCredit && !work.myCredit.confirmed}
 			<div class="space-y-3 rounded-2xl border border-primary bg-card p-4">
 				<p class="text-sm">

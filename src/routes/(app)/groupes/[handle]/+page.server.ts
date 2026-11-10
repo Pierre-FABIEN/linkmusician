@@ -71,7 +71,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		// Étapes (P3-04) : le parcours, et ce que rapporte une déclaration.
 		milestones,
 		// Démarches au bon moment (P3-15a) : association, démo, concert, mineur·es.
-		nudge: active && !band.dissolvedAt ? await bandNudge(band.id, milestones, person) : null,
+		nudge: active && !band.dissolvedAt ? await bandNudge(band, milestones, person) : null,
 		// Rang du groupe (P3-08).
 		tier: await bandTierOf(band.id),
 		// Vérification de l'organisation (P3-09), pour sa gestion.

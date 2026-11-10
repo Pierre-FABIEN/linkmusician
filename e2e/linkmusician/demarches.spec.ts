@@ -42,7 +42,8 @@ test.describe('LinkMusician — démarches', () => {
 		await signUpAndVerify(page, account);
 		await skipOnboarding(page, account.email);
 		const me = await db.person.findUniqueOrThrow({
-			where: { userId: (await requireUser(account.email)).id }
+			where: { userId: (await requireUser(account.email)).id },
+			include: { actor: true }
 		});
 		const work = await db.work.create({
 			data: {
@@ -91,6 +92,26 @@ test.describe('LinkMusician — démarches', () => {
 			await page.reload();
 			await waitForAppReady(page);
 			await expect(page.getByTestId('demarche')).toHaveCount(0);
+		});
+
+		await test.step('4. Je prépare le bulletin de partage de notre morceau (P3-15b)', async () => {
+			const credit = await db.workContributor.findFirstOrThrow({ where: { workId: work.id } });
+			await db.workRole.createMany({
+				data: [
+					{ workId: work.id, kind: 'LYRICS', contributorId: credit.id },
+					{ workId: work.id, kind: 'COMPOSITION', contributorId: credit.id }
+				]
+			});
+			await page.getByRole('link', { name: 'Bulletin de partage' }).click();
+			await expect(page).toHaveURL(new RegExp(`/morceaux/${work.id}/bulletin$`));
+			await expect(page.getByRole('heading', { level: 1, name: work.title })).toBeVisible();
+			const row = page.getByRole('row', { name: new RegExp(me.actor.displayName) });
+			await expect(row.first()).toContainText('Paroles, Musique');
+			await expect(page.getByRole('columnheader', { name: 'Part paroles (%)' })).toBeVisible();
+			await expect(
+				page.getByRole('button', { name: 'Imprimer ou enregistrer en PDF' })
+			).toBeVisible();
+			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 		});
 	});
 });

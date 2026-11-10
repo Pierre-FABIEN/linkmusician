@@ -11,7 +11,7 @@ type Viewer = { tipsDismissed: string[] };
 
 /** Fiche d'un morceau : seulement pour son équipe, une fois composé. */
 export function workNudge(
-	work: { state: string; team: boolean; credits: { confirmed: boolean }[] },
+	work: { id: string; state: string; team: boolean; credits: { confirmed: boolean }[] },
 	viewer: Viewer
 ): ShownNudge | null {
 	if (!work.team) return null;
@@ -19,7 +19,8 @@ export function workNudge(
 		'morceau',
 		{
 			composed: work.state === 'COMPOSED',
-			confirmedCredits: work.credits.filter((c) => c.confirmed).length
+			confirmedCredits: work.credits.filter((c) => c.confirmed).length,
+			documents: { bulletin: `/morceaux/${work.id}/bulletin` }
 		},
 		viewer.tipsDismissed
 	);
@@ -27,21 +28,25 @@ export function workNudge(
 
 /** Page d'un groupe : pour ses membres actifs. */
 export async function bandNudge(
-	bandId: string,
+	band: { id: string; handle: string },
 	milestones: readonly { key: string }[],
 	viewer: Viewer,
 	now = new Date()
 ): Promise<ShownNudge | null> {
 	const minors = await prisma.membership.count({
 		where: {
-			orgId: bandId,
+			orgId: band.id,
 			status: 'ACTIVE',
 			person: { person: { birthDate: { gt: adultBirthCutoff(now) } } }
 		}
 	});
 	return nudgeFor(
 		'groupe',
-		{ milestones: milestones.map((m) => m.key), hasMinor: minors > 0 },
+		{
+			milestones: milestones.map((m) => m.key),
+			hasMinor: minors > 0,
+			documents: { programme: `/groupes/${band.handle}/programme` }
+		},
 		viewer.tipsDismissed
 	);
 }

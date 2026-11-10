@@ -258,6 +258,17 @@ fiches sont réunies sur la page [Démarches](/demarches). Elles donnent une
 information générale, datée et sourcée ; les lire ne rapporte pas de
 points.
 
+Deux documents se préparent tout seuls, à imprimer ou à enregistrer en
+PDF :
+
+- le **bulletin de partage** d’un morceau (lien sur sa fiche, une fois
+  composé) : qui a écrit les paroles, la musique, l’arrangement, d’après
+  les crédits confirmés. Les parts, vous les écrivez et signez ensemble :
+  LinkMusician ne fixe rien ;
+- le **programme des œuvres** du groupe (lien dans son parcours) : vos
+  morceaux composés, à remettre à l’organisateur d’un concert, avec de la
+  place pour les reprises.
+
 ## 5. Tes paliers {#paliers}
 
 Ton palier dit où tu en es, par des faits, jamais par un nombre de points :

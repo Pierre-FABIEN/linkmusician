@@ -21,6 +21,15 @@ describe('démarches au bon moment (09 §3)', () => {
 			'/demarches/ecrire-a-plusieurs',
 			'/demarches/proteger-un-morceau'
 		]);
+		const withDoc = nudgeFor(
+			'morceau',
+			{ composed: true, confirmedCredits: 2, documents: { bulletin: '/morceaux/w1/bulletin' } },
+			[]
+		);
+		expect(withDoc?.links[0]).toEqual({
+			href: '/morceaux/w1/bulletin',
+			label: 'Préparer le bulletin de partage'
+		});
 		expect(nudgeFor('morceau', { composed: true, confirmedCredits: 1 }, [])?.id).toBe(
 			'demarche-morceau-proteger'
 		);
