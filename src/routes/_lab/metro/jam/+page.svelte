@@ -20,7 +20,9 @@
 		Guitar,
 		Heart,
 		Moon,
+		Music,
 		Music2,
+		Music4,
 		Radio,
 		Sun
 	} from 'lucide-svelte';
@@ -155,7 +157,16 @@
 			<div class="lm-jam-board lm-mosaic" aria-label="Tableau de bord du mode Jam">
 				<TileFrame class="lm-jam-next" size="big">
 					<Tile tone="orange" size="big" class="lm-pattern-tile lm-jam-next">
-						<Music2 class="lm-jam-hero-symbol" aria-hidden="true" />
+						<!-- La croche groove au survol : battue swing, ondes sur chaque temps,
+						     petites notes qui s'échappent. Purement décoratif. -->
+						<span class="lm-jam-hero" aria-hidden="true">
+							<span class="lm-jam-hero__ring"></span>
+							<span class="lm-jam-hero__ring"></span>
+							<Music class="lm-jam-hero__note" />
+							<Music4 class="lm-jam-hero__note" />
+							<Music class="lm-jam-hero__note" />
+							<Music2 class="lm-jam-hero-symbol" />
+						</span>
 						<div class="flex items-start justify-between gap-4 lm-jam-next__header">
 							<div class="space-y-2">
 								<p class="lm-tile__kicker">
