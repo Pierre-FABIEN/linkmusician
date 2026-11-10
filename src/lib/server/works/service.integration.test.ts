@@ -64,6 +64,14 @@ describe.skipIf(!enabled)('morceaux (schéma e2e)', { timeout: 60_000 }, () => {
 			})
 		)._sum.amount ?? 0;
 
+	const badges = async (actor: string) =>
+		(
+			await db.actorAchievement.findMany({
+				where: { actorId: actor },
+				select: { achievementId: true }
+			})
+		).map((a) => a.achievementId);
+
 	/** La confiance est recalculée après chaque événement : on la remet avant d'agir. */
 	const trust = (...names: string[]) =>
 		db.actor.updateMany({
@@ -157,6 +165,9 @@ describe.skipIf(!enabled)('morceaux (schéma e2e)', { timeout: 60_000 }, () => {
 		const stored = await db.work.findUniqueOrThrow({ where: { id: work.id } });
 		expect(stored).toMatchObject({ state: 'COMPOSED', proof: 'DECLARED' });
 		expect(await xp(ids.lea)).toBe(0);
+		// Sans XP, mais « Fait maison » (P4-07b).
+		expect(await badges(ids.lea)).toContain('home-made');
+		expect(await badges(ids.lea)).not.toContain('one-person-band');
 
 		const page = await service.workPage(work.id, null);
 		expect(page?.credits.map((c) => c.roles)).toEqual([['Guitare électrique', 'Paroles']]);
@@ -321,12 +332,27 @@ describe.skipIf(!enabled)('morceaux (schéma e2e)', { timeout: 60_000 }, () => {
 			proof: 'DECLARED'
 		});
 		expect(await xp(ids.sam)).toBe(before);
+		// Mais un succès (P4-07b).
+		expect(await badges(ids.sam)).toContain('first-mixing-credit');
 		const mine = (await service.publicWorksOf(ids.sam)).find((w) => w.title === 'Works Test mixé');
 		expect(mine).toMatchObject({ roles: ['Mixage'], soundRoles: ['MIXING'] });
 
 		// Le bulletin de partage ne liste que les auteur·rices.
 		const sheet = await splitSheetFor(work.id, ids.lea);
 		expect(sheet.rows.map((r) => r.name)).toEqual(['Works Test lea']);
+
+		// Léa compose seule et masterise elle-même : « Orchestre à soi seul·e »,
+		// mais pas « Premier mastering » (se créditer soi-même ne compte pas).
+		const solo = await service.createWork(ids.lea, {
+			title: 'Works Test orchestre',
+			genreIds: [],
+			band: null,
+			roles: [guitar, { kind: 'MASTERING', instrumentSlug: null }]
+		});
+		await service.setDemo(solo.id, ids.lea, { mediaId: (await demo(ids.lea, 'Orchestre')).id });
+		await service.markComposed(solo.id, ids.lea);
+		expect(await badges(ids.lea)).toContain('one-person-band');
+		expect(await badges(ids.lea)).not.toContain('first-mastering-credit');
 	});
 
 	it('RGPD : morceaux portés supprimés, crédits confirmés « Compte supprimé »', async () => {

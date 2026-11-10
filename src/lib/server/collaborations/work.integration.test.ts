@@ -235,6 +235,15 @@ describe.skipIf(!enabled)(
 				where: { actorId: ids.sam, ruleId: { startsWith: 'work.' } }
 			});
 			expect(workXp).toBe(0);
+			// Mais des succès, un par rôle (P4-07b).
+			const badges = await db.actorAchievement.findMany({
+				where: { actorId: ids.sam, achievementId: { endsWith: '-credit' } },
+				select: { achievementId: true }
+			});
+			expect(badges.map((b) => b.achievementId).sort()).toEqual([
+				'first-mixing-credit',
+				'first-recording-credit'
+			]);
 			const work = await db.work.findUniqueOrThrow({ where: { id: workId } });
 			expect(work.proof).not.toBe('CORROBORATED');
 		});

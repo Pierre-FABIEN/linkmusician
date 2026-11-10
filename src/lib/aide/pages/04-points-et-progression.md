@@ -79,8 +79,10 @@ corroborée (ou mieux) donne le rang du groupe.
 
 ## Les succès
 
-Des badges pour marquer tes premières fois. Ils ne rapportent pas de
-points.
+Les points disent que tu es actif·ve ; les succès disent **ce que tu
+fais**. Sur ton profil, ils montrent ta direction : on voit d’un coup
+d’œil que tu mixes, que tu produis ou que tu composes seul·e. Ils ne
+rapportent pas de points.
 
 | Succès                     | Comment                                                                                    |
 | -------------------------- | ------------------------------------------------------------------------------------------ |
@@ -89,6 +91,9 @@ points.
 | **Premier contact abouti** | Un premier échange réciproque né d’une annonce                                             |
 | **Première collaboration** | Une collaboration confirmée des deux côtés                                                 |
 | **Fondateur·rice**         | Membre d’un groupe au moment de sa formation                                               |
+| **Fait maison**            | Un morceau composé seul·e, maquette jointe                                                 |
+| **Orchestre à soi seul·e** | Composé seul·e, et la prise de son, le mixage ou la production aussi                       |
+| **Premier mixage**…        | Crédité·e à la prise de son, au mixage, au mastering ou à la production d’un morceau       |
 | Les succès du mode jam     | Noctambule, Touche-à-tout, Brise-glace, Chef d’orchestre ([voir](./02-mode-jam.md#carnet)) |
 
 ## Les célébrations

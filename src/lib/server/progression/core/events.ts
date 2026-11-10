@@ -96,6 +96,33 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		/** Autres contributeurs déjà confirmés (au moins un). */
 		otherIds: z.array(id).min(1)
 	}),
+	/**
+	 * Rôles du son confirmés sur un morceau (P4-07b) : par une collaboration
+	 * terminée, ou par la personne créditée. Aucune XP, des succès seulement.
+	 */
+	z.object({
+		...base,
+		type: z.literal('work.sound_credited'),
+		workId: id,
+		personId: id,
+		kinds: z.array(z.enum(['RECORDING', 'MIXING', 'MASTERING', 'PRODUCTION'])).min(1),
+		/** Son propre morceau : déclaré par soi, pas de succès de rôle. */
+		ownWork: z.boolean(),
+		/** Son propre morceau, composé seul·e (« Orchestre à soi seul·e »). */
+		ownSoloWork: z.boolean()
+	}),
+	/**
+	 * Morceau composé seul·e, maquette jointe (P4-07b) : déclaré, sans XP
+	 * (D35), mais un succès pour soutenir qui fait tout seul·e.
+	 */
+	z.object({
+		...base,
+		type: z.literal('work.composed_solo'),
+		workId: id,
+		personId: id,
+		/** La personne s'est aussi créditée un rôle du son sur ce morceau. */
+		withSoundRole: z.boolean()
+	}),
 	z.object({
 		...base,
 		type: z.literal('endorsement.received'),

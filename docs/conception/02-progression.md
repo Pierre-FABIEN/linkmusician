@@ -373,6 +373,12 @@ rejoint le groupe et que les deux parties l'ont confirmé.
 
 ## 9. Succès (achievements)
 
+**Principe (D54)** : l'XP confirme l'**activité** ; les succès montrent
+la **direction**. Un profil se lit à ses badges : ce que la personne fait
+concrètement (elle mixe, elle produit, elle compose seule), pas un
+chiffre. Un geste qui ne doit pas rapporter d'XP (déclaratif, unilatéral,
+ou déjà payé par une collaboration) peut débloquer un succès.
+
 Badges ponctuels, déclenchés par les mêmes événements que l'XP, et
 distincts des paliers. Une rareté est calculée (« 4 % des musiciens »).
 Exemples : _Premier contact abouti_, _Multi-instrumentiste_ (3
@@ -386,3 +392,12 @@ appréciation : _Noctambule_ (jam finie après minuit), _Touche-à-tout_
 (trois instruments différents joués en jam), _Brise-glace_ (première
 appréciation laissée), _Chef d'orchestre_ (lead d'une jam dont toute la
 formation invitée, deux personnes au moins, a accepté).
+
+Succès des morceaux et du son (P4-07b, D54), **sans XP** :
+_Première prise de son_, _Premier mixage_, _Premier mastering_,
+_Première production_ (premier crédit confirmé de ce rôle sur le morceau
+de quelqu'un d'autre, par une collaboration terminée ou par confirmation ;
+se créditer soi-même ne compte pas) ; _Fait maison_ (un morceau composé
+seul·e, maquette jointe : déclaré, sans XP, D35) ; _Orchestre à soi
+seul·e_ (composé seul·e, et un rôle du son tenu sur ce morceau).
+Événements `work.sound_credited` et `work.composed_solo`.

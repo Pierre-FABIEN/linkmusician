@@ -77,6 +77,12 @@ production et sortie viendront en phase 4.
     carte « Ingé son » ou « Producteur·rice » (« Crédits confirmés »,
     `CraftCredits`) et dans « Crédits confirmés » de la fiche de carrière,
     où un rôle du son compte dès sa confirmation ;
+  - **succès sans XP (P4-07b, D54)** : un crédit du son confirmé émet
+    `work.sound_credited`, qui débloque _Première prise de son_, _Premier
+    mixage_, _Premier mastering_ ou _Première production_ (jamais en se
+    créditant soi-même sur son propre morceau) ; un morceau composé seul·e
+    émet `work.composed_solo` : _Fait maison_, et _Orchestre à soi seul·e_
+    si la personne y tient aussi un rôle du son ;
   - un crédit **non confirmé n'apparaît nulle part** hors de l'équipe du
     morceau (test d'intégration) ;
   - `MediaCredit`, cité par la conception, n'a jamais été créé : il n'y a

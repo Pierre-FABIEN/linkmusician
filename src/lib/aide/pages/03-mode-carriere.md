@@ -269,7 +269,10 @@ une prise de son, un mixage, un mastering ou une production faits ailleurs
 (rubrique « Son » des rôles) : la personne confirme, comme pour tout
 crédit. Ce crédit apparaît sur le morceau et sur son profil. Il reconnaît
 un travail, pas une part d’auteur·rice : il ne compte pas pour un morceau
-« composé à plusieurs » et n’apparaît pas dans le bulletin de partage.
+« composé à plusieurs » et n’apparaît pas dans le bulletin de partage. Il ne
+rapporte pas de points, mais un succès (« Premier mixage »…) sur le
+profil de la personne créditée. Et si tu fais tout seul·e, ton morceau
+composé seul·e te vaut « Fait maison ».
 
 ## 5. Les démarches {#demarches}
 

@@ -117,6 +117,8 @@ test.describe('LinkMusician — collaborations liées au morceau', () => {
 					await expect(link).toHaveAttribute('href', `/morceaux/${work.id}`);
 				}
 				await expect(samPage.getByText('Prise de son').first()).toBeVisible();
+				// Succès sans XP (P4-07b, D54).
+				await expect(samPage.getByText('Première prise de son').first()).toBeVisible();
 			});
 		} finally {
 			await samContext.close();

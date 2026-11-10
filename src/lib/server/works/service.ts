@@ -43,6 +43,7 @@ import {
 	roleLabel,
 	hasCreativeRole,
 	isSoundRole,
+	SOUND_ROLE_KINDS,
 	type NewWorkInput,
 	type SoundRoleKind,
 	type RoleInput
@@ -171,9 +172,10 @@ async function confirmedAuthors(db: Db, workId: string): Promise<string[]> {
 		.map((c) => c.personId);
 }
 
-async function afterConfirm(tx: Tx, work: WorkHead, personId: string, now: Date) {
+/** Part d'auteur·rice quand une personne confirme (corroboration ou part). */
+async function authorProgress(tx: Tx, work: WorkHead, personId: string, now: Date) {
 	const ids = await confirmedAuthors(tx, work.id);
-	// Confirmer un crédit du son seulement : rien pour la progression.
+	// Confirmer un crédit du son seulement : pas de part d'auteur·rice.
 	if (!ids.includes(personId)) return null;
 	const action = onConfirm({ state: work.state, proof: work.proof, confirmed: ids.length });
 	if (action === 'corroborate') {
@@ -198,6 +200,57 @@ async function afterConfirm(tx: Tx, work: WorkHead, personId: string, now: Date)
 		});
 	}
 	return null;
+}
+
+/**
+ * Rôles du son confirmés (P4-07b) : un événement sans XP, pour les succès
+ * (« Premier mixage »…, « Orchestre à soi seul·e » sur son propre morceau
+ * composé seul·e).
+ */
+async function soundCredited(
+	tx: Tx,
+	work: { id: string; ownerId: string; state: string; proof: string | null },
+	personId: string,
+	kinds: SoundRoleKind[],
+	now: Date
+) {
+	if (kinds.length === 0) return null;
+	return emitAndProcess(tx, {
+		type: 'work.sound_credited',
+		workId: work.id,
+		personId,
+		kinds: [...new Set(kinds)],
+		ownWork: work.ownerId === personId,
+		ownSoloWork:
+			work.ownerId === personId && work.state === 'COMPOSED' && work.proof === 'DECLARED',
+		occurredAt: now
+	});
+}
+
+/** Ce que déclenche une confirmation : part d'auteur·rice, crédits du son. */
+async function afterConfirm(
+	tx: Tx,
+	work: WorkHead,
+	personId: string,
+	now: Date
+): Promise<ProcessResult[]> {
+	const author = await authorProgress(tx, work, personId, now);
+	const fresh = await tx.work.findUniqueOrThrow({
+		where: { id: work.id },
+		select: { id: true, ownerId: true, state: true, proof: true }
+	});
+	const roles = await tx.workRole.findMany({
+		where: { workId: work.id, contributor: { personId } },
+		select: { kind: true }
+	});
+	const sound = await soundCredited(
+		tx,
+		fresh,
+		personId,
+		roles.map((r) => r.kind).filter(isSoundRole),
+		now
+	);
+	return [author, sound].filter((r): r is ProcessResult => r !== null);
 }
 
 // ─── Écritures ───────────────────────────────────────────────────────────
@@ -274,16 +327,17 @@ export async function creditFromCollaboration(
 ): Promise<void> {
 	const { workId, personId, kind } = input;
 	await lockWork(tx, workId);
+	const select = { id: true, confirmedAt: true, roles: { select: { kind: true } } } as const;
 	let credit = await tx.workContributor.findUnique({
 		where: { workId_personId: { workId, personId } },
-		select: { id: true, roles: { select: { kind: true } } }
+		select
 	});
 	if (credit?.roles.some((r) => r.kind === kind)) return;
 	if (!credit) {
 		if ((await tx.workContributor.count({ where: { workId } })) >= MAX_CONTRIBUTORS) return;
 		credit = await tx.workContributor.create({
 			data: { workId, personId, confirmedAt: now },
-			select: { id: true, roles: { select: { kind: true } } }
+			select
 		});
 	}
 	const open = await tx.workRole.findFirst({
@@ -292,10 +346,18 @@ export async function creditFromCollaboration(
 	});
 	if (open) {
 		await tx.workRole.update({ where: { id: open.id }, data: { contributorId: credit.id } });
-		return;
+	} else {
+		if ((await tx.workRole.count({ where: { workId } })) >= MAX_ROLES) return;
+		await tx.workRole.create({ data: { workId, kind, contributorId: credit.id } });
 	}
-	if ((await tx.workRole.count({ where: { workId } })) >= MAX_ROLES) return;
-	await tx.workRole.create({ data: { workId, kind, contributorId: credit.id } });
+	// Succès du son (P4-07b), sans XP ; un crédit encore en attente attendra.
+	if (credit.confirmedAt) {
+		const work = await tx.work.findUniqueOrThrow({
+			where: { id: workId },
+			select: { id: true, ownerId: true, state: true, proof: true }
+		});
+		await soundCredited(tx, work, personId, [kind], now);
+	}
 }
 
 export async function deleteWork(workId: string, managerId: string) {
@@ -431,7 +493,7 @@ export async function creditPerson(
 		});
 		return null;
 	}, TX);
-	return { person, progress: result ? summarize(managerId, [result]) : null };
+	return { person, progress: result && result.length > 0 ? summarize(managerId, result) : null };
 }
 
 /** Confirmer son rôle : consentement au crédit, et sa part si le morceau est composé. */
@@ -446,7 +508,7 @@ export async function confirmCredit(workId: string, personId: string, now = new 
 		if (count === 0) throw new WorkError('Rien à confirmer sur ce morceau.', 404);
 		return afterConfirm(tx, work, personId, now);
 	}, TX);
-	return result ? summarize(personId, [result]) : null;
+	return result.length > 0 ? summarize(personId, result) : null;
 }
 
 /**
@@ -559,6 +621,29 @@ export async function markComposed(workId: string, managerId: string, now = new 
 					type: 'work.composed',
 					workId,
 					contributorIds: ids,
+					occurredAt: now
+				})
+			);
+		}
+		// Composé seul·e (P4-07b) : déclaré, sans XP, mais « Fait maison ».
+		if (
+			proof === 'DECLARED' &&
+			work.owner.kind === 'PERSON' &&
+			ids.every((id) => id === work.ownerId)
+		) {
+			const soundRoles = await tx.workRole.count({
+				where: {
+					workId,
+					kind: { in: [...SOUND_ROLE_KINDS] },
+					contributor: { personId: work.ownerId, confirmedAt: { not: null } }
+				}
+			});
+			results.push(
+				await emitAndProcess(tx, {
+					type: 'work.composed_solo',
+					workId,
+					personId: work.ownerId,
+					withSoundRole: soundRoles > 0,
 					occurredAt: now
 				})
 			);

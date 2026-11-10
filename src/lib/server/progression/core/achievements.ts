@@ -73,6 +73,58 @@ export const ACHIEVEMENTS: readonly AchievementDefinition[] = [
 		unlockedBy: (event) =>
 			event.type === 'jam.attended' && event.ledFullLineup ? [event.actorId] : []
 	},
+	// Crédits du son (P4-07b) : un succès par rôle, au premier crédit confirmé
+	// sur le morceau de quelqu'un d'autre (se créditer soi-même ne compte pas).
+	// Aucune XP : la collaboration en rapporte déjà, un crédit ajouté à la main non.
+	...(
+		[
+			[
+				'RECORDING',
+				'first-recording-credit',
+				'Première prise de son',
+				'Crédité·e à la prise de son d’un morceau.'
+			],
+			['MIXING', 'first-mixing-credit', 'Premier mixage', 'Crédité·e au mixage d’un morceau.'],
+			[
+				'MASTERING',
+				'first-mastering-credit',
+				'Premier mastering',
+				'Crédité·e au mastering d’un morceau.'
+			],
+			[
+				'PRODUCTION',
+				'first-production-credit',
+				'Première production',
+				'Crédité·e à la production d’un morceau.'
+			]
+		] as const
+	).map(([kind, id, name, description]): AchievementDefinition => ({
+		id,
+		name,
+		description,
+		unlockedBy: (event) =>
+			event.type === 'work.sound_credited' && !event.ownWork && event.kinds.includes(kind)
+				? [event.personId]
+				: []
+	})),
+	// Qui fait tout seul·e (P4-07b) : un morceau composé seul·e reste
+	// « déclaré » et sans XP (D35), mais il est reconnu.
+	{
+		id: 'home-made',
+		name: 'Fait maison',
+		description: 'Un morceau composé seul·e, maquette jointe.',
+		unlockedBy: (event) => (event.type === 'work.composed_solo' ? [event.personId] : [])
+	},
+	{
+		id: 'one-person-band',
+		name: 'Orchestre à soi seul·e',
+		description: 'Composé seul·e, et la prise de son, le mixage ou la production aussi.',
+		unlockedBy: (event) =>
+			(event.type === 'work.composed_solo' && event.withSoundRole) ||
+			(event.type === 'work.sound_credited' && event.ownSoloWork)
+				? [event.personId]
+				: []
+	},
 	{
 		id: 'founder',
 		name: 'Fondateur·rice',
