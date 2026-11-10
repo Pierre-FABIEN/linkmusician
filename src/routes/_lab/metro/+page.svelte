@@ -12,12 +12,14 @@
 	import { distanceBand } from '#lib/geo/distance';
 	import {
 		Award,
+		Beer,
 		Check,
 		Guitar,
 		Lock,
 		Megaphone,
 		Moon,
 		Music,
+		Rocket,
 		Sun,
 		Target,
 		Trophy
@@ -164,7 +166,15 @@
 
 					<Pivot id="annonces" title="annonces">
 						<div class="lm-mosaic">
-							<Tile framed tone="orange" size="tall" href="/_lab" icon={Megaphone} index={0}>
+							<Tile
+								framed
+								tone="orange"
+								size="tall"
+								href="/_lab"
+								icon={Megaphone}
+								fx="shout"
+								index={0}
+							>
 								<p class="lm-tile__kicker">recrutement</p>
 								<div class="space-y-2">
 									<h3 class="lm-tile__title">cherche batteur·se funk</h3>
@@ -200,6 +210,8 @@
 								size="md"
 								aria-pressed={comes}
 								onclick={() => (comes = !comes)}
+								icon={Beer}
+								fx="cheers"
 								index={0}
 							>
 								<div class="flex items-start justify-between gap-2">
@@ -232,7 +244,7 @@
 
 					<Pivot id="progres" title="progrès">
 						<div class="lm-mosaic">
-							<Tile framed tone="ink" size="md" index={0}>
+							<Tile framed tone="ink" size="md" icon={Rocket} fx="rocket" index={0}>
 								<p class="lm-tile__kicker">niveau</p>
 								<div class="space-y-2">
 									<p class="lm-figure lm-figure--md">{lea.level}</p>
@@ -249,7 +261,7 @@
 									<p class="lm-tile__text">{lea.xp.toLocaleString('fr-FR')} XP</p>
 								</div>
 							</Tile>
-							<Tile framed tone="amber" size="md" href="/_lab" icon={Target} index={1}>
+							<Tile framed tone="amber" size="md" href="/_lab" icon={Target} fx="target" index={1}>
 								<p class="lm-tile__kicker">ta prochaine étape</p>
 								<div class="space-y-1">
 									<h3 class="lm-tile__title">{quests[0].label}</h3>

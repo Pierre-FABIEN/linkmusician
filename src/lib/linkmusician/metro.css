@@ -1918,6 +1918,352 @@
 			infinite;
 	}
 }
+
+/* Effets à un temps (shout, target, rocket, cheers) : chaque cycle a un
+   « moment » (le cri, l'impact, le trinquer) ; ondes et particules partent
+   avec un délai calé dessus. Au repos le cycle est lent, au survol il
+   s'emballe. Point de départ des particules et des ondes propre à chacun. */
+.lm-tile-fx[data-fx='shout'] .lm-tile-fx__icon {
+	transform: scaleX(-1) rotate(12deg);
+}
+.lm-tile-fx[data-fx='shout'] .lm-tile-fx__bit {
+	left: 2%;
+	top: 32%;
+}
+.lm-tile-fx[data-fx='shout'] .lm-tile-fx__ring {
+	left: -18%;
+	top: 22%;
+}
+.lm-tile-fx[data-fx='target'] .lm-tile-fx__bit {
+	left: 22%;
+	top: 33%;
+	transform-origin: 85% 50%;
+}
+.lm-tile-fx[data-fx='rocket'] .lm-tile-fx__bit {
+	left: 2%;
+	top: 62%;
+}
+.lm-tile-fx[data-fx='cheers'] .lm-tile-fx__bit {
+	left: 32%;
+	top: 30%;
+}
+.lm-tile-fx[data-fx='cheers'] .lm-tile-fx__ring {
+	left: 5%;
+	top: -8%;
+}
+.lm-tile-fx[data-fx='rocket'] .lm-tile-fx__ring,
+.lm-tile-fx:is([data-fx='target'], [data-fx='cheers']) .lm-tile-fx__ring + .lm-tile-fx__ring {
+	display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	/* Une onde brève, puis rien jusqu'au cycle suivant. */
+	@keyframes lm-fx-ring-burst {
+		0% {
+			opacity: 0.7;
+			transform: scale(0.3);
+		}
+		30%,
+		100% {
+			opacity: 0;
+			transform: scale(2.2);
+		}
+	}
+	/* Particule projetée vite, puis absente jusqu'au cycle suivant. */
+	@keyframes lm-fx-blast {
+		0% {
+			opacity: 0;
+			transform: translate3d(0, 0, 0) rotate(0deg) scale(0.4);
+		}
+		5% {
+			opacity: 1;
+			transform: translate3d(calc(var(--dx) * 0.1), calc(var(--dy) * 0.1), 0) scale(1.15);
+		}
+		30% {
+			opacity: 1;
+		}
+		50%,
+		100% {
+			opacity: 0;
+			transform: translate3d(var(--dx), var(--dy), 0) rotate(var(--r)) scale(0.7);
+		}
+	}
+
+	/* Mégaphone : inspire, crie, recule sous le choc en tremblant. */
+	@keyframes lm-fx-shout {
+		0%,
+		55% {
+			transform: translate3d(0, 0, 0) scaleX(-1) rotate(12deg) scale(1);
+		}
+		63% {
+			transform: translate3d(-3%, 1%, 0) scaleX(-1) rotate(20deg) scale(0.9);
+		}
+		70% {
+			transform: translate3d(12%, -2%, 0) scaleX(-1) rotate(2deg) scale(1.16);
+		}
+		74% {
+			transform: translate3d(9%, 0, 0) scaleX(-1) rotate(8deg) scale(1.12);
+		}
+		78% {
+			transform: translate3d(11%, -1%, 0) scaleX(-1) rotate(3deg) scale(1.14);
+		}
+		82% {
+			transform: translate3d(9%, 0, 0) scaleX(-1) rotate(7deg) scale(1.12);
+		}
+		100% {
+			transform: translate3d(0, 0, 0) scaleX(-1) rotate(12deg) scale(1);
+		}
+	}
+	.lm-tile-fx[data-fx='shout'] {
+		--cycle: 3s;
+	}
+	.lm-tile-fx[data-fx='shout'] .lm-tile-fx__icon {
+		animation: lm-fx-shout var(--cycle) ease-in-out infinite;
+	}
+	.lm-tile-fx[data-fx='shout'] .lm-tile-fx__ring {
+		animation: lm-fx-ring-burst var(--cycle) ease-out calc(var(--cycle) * 0.7) infinite;
+	}
+	.lm-tile-fx[data-fx='shout'] .lm-tile-fx__ring + .lm-tile-fx__ring {
+		animation-delay: calc(var(--cycle) * 0.76);
+	}
+	.lm-tile-fx[data-fx='shout'] .lm-tile-fx__bit[data-idle] {
+		animation: lm-fx-blast var(--cycle) ease-out calc(var(--cycle) * 0.7) infinite;
+	}
+
+	/* Cible : encaisse l'impact d'une flèche. */
+	@keyframes lm-fx-target-hit {
+		0%,
+		39% {
+			transform: translate3d(0, 0, 0) rotate(-12deg) scale(1);
+		}
+		41% {
+			transform: translate3d(4%, 0, 0) rotate(-6deg) scale(0.94);
+		}
+		46% {
+			transform: translate3d(-1%, 0, 0) rotate(-14deg) scale(1.03);
+		}
+		52%,
+		100% {
+			transform: translate3d(0, 0, 0) rotate(-12deg) scale(1);
+		}
+	}
+	/* Flèche qui se plante au centre, vibre, reste un moment. */
+	@keyframes lm-fx-arrow-hit {
+		0% {
+			opacity: 0;
+			transform: translate3d(-330%, -35%, 0) rotate(8deg);
+		}
+		8% {
+			opacity: 1;
+		}
+		40% {
+			transform: translate3d(0, 0, 0) rotate(0deg);
+		}
+		43% {
+			transform: translate3d(0, 0, 0) rotate(-10deg);
+		}
+		46% {
+			transform: translate3d(0, 0, 0) rotate(8deg);
+		}
+		49% {
+			transform: translate3d(0, 0, 0) rotate(-4deg);
+		}
+		53% {
+			transform: translate3d(0, 0, 0) rotate(0deg);
+		}
+		85% {
+			opacity: 1;
+			transform: translate3d(0, 0, 0);
+		}
+		100% {
+			opacity: 0;
+			transform: translate3d(0, 0, 0);
+		}
+	}
+	/* Flèche qui passe au-dessus et file hors champ. */
+	@keyframes lm-fx-arrow-miss {
+		0% {
+			opacity: 0;
+			transform: translate3d(-330%, -35%, 0) rotate(6deg);
+		}
+		8% {
+			opacity: 1;
+		}
+		40% {
+			transform: translate3d(0, -120%, 0) rotate(-12deg);
+		}
+		60% {
+			opacity: 1;
+			transform: translate3d(260%, -230%, 0) rotate(-28deg);
+		}
+		61%,
+		100% {
+			opacity: 0;
+			transform: translate3d(260%, -230%, 0) rotate(-28deg);
+		}
+	}
+	.lm-tile-fx[data-fx='target'] {
+		--cycle: 3.5s;
+	}
+	.lm-tile-fx[data-fx='target'] .lm-tile-fx__icon {
+		animation: lm-fx-target-hit var(--cycle) ease-out infinite;
+	}
+	.lm-tile-fx[data-fx='target'] .lm-tile-fx__ring {
+		top: 25%;
+		animation: lm-fx-ring-burst var(--cycle) ease-out calc(var(--cycle) * 0.4) infinite;
+	}
+	.lm-tile-fx[data-fx='target'] .lm-tile-fx__bit[data-idle] {
+		animation: lm-fx-arrow-hit var(--cycle) cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
+
+	/* Fusée : au repos elle flotte et fume. */
+	@keyframes lm-fx-puff {
+		0% {
+			opacity: 0;
+			transform: translate3d(0, 0, 0) rotate(0deg) scale(0.3);
+		}
+		15% {
+			opacity: 0.9;
+			transform: translate3d(calc(var(--dx) * 0.15), calc(var(--dy) * 0.15), 0) scale(0.8);
+		}
+		100% {
+			opacity: 0;
+			transform: translate3d(var(--dx), var(--dy), 0) rotate(var(--r)) scale(1.7);
+		}
+	}
+	/* Survol : tremble, s'écrase, décolle hors de la tuile… et revient par
+	   le bas comme si elle avait fait le tour. */
+	@keyframes lm-fx-launch {
+		0% {
+			transform: translate3d(0, 0, 0) rotate(-12deg) scale(1);
+		}
+		5% {
+			transform: translate3d(2%, -1%, 0) rotate(-15deg) scale(1);
+		}
+		10% {
+			transform: translate3d(-2%, 1%, 0) rotate(-9deg) scale(1);
+		}
+		15% {
+			transform: translate3d(2%, 0, 0) rotate(-15deg) scale(1);
+		}
+		20% {
+			transform: translate3d(-1%, 1%, 0) rotate(-10deg) scale(1);
+		}
+		24% {
+			transform: translate3d(0, 4%, 0) rotate(-12deg) scale(1.06, 0.9);
+		}
+		40% {
+			transform: translate3d(260%, -320%, 0) rotate(-12deg) scale(0.9, 1.15);
+		}
+		40.1% {
+			transform: translate3d(-220%, 260%, 0) rotate(-12deg) scale(1);
+		}
+		68% {
+			transform: translate3d(0, -6%, 0) rotate(-16deg) scale(1);
+		}
+		76% {
+			transform: translate3d(0, 2%, 0) rotate(-10deg) scale(1);
+		}
+		84%,
+		100% {
+			transform: translate3d(0, 0, 0) rotate(-12deg) scale(1);
+		}
+	}
+	.lm-tile-fx[data-fx='rocket'] .lm-tile-fx__icon {
+		animation: lm-fx-float 2s ease-in-out infinite alternate;
+	}
+	.lm-tile-fx[data-fx='rocket'] .lm-tile-fx__bit[data-idle] {
+		animation: lm-fx-puff 2.2s ease-out infinite;
+	}
+
+	/* Chope : se balance et fait des bulles ; au survol, elle trinque. */
+	@keyframes lm-fx-bubble {
+		0% {
+			opacity: 0;
+			transform: translate3d(0, 0, 0) scale(0.5);
+		}
+		15% {
+			opacity: 1;
+		}
+		50% {
+			transform: translate3d(calc(var(--dx) * 0.5 + 18%), calc(var(--dy) * 0.5), 0) scale(0.9);
+		}
+		100% {
+			opacity: 0;
+			transform: translate3d(var(--dx), var(--dy), 0) scale(1.1);
+		}
+	}
+	@keyframes lm-fx-clink {
+		0% {
+			transform: translate3d(0, 0, 0) rotate(-12deg) scale(1);
+		}
+		25% {
+			transform: translate3d(-10%, -10%, 0) rotate(-30deg) scale(1.08);
+		}
+		32% {
+			transform: translate3d(-15%, -12%, 0) rotate(-38deg) scale(1.1);
+		}
+		36% {
+			transform: translate3d(-10%, -10%, 0) rotate(-27deg) scale(1.08);
+		}
+		40% {
+			transform: translate3d(-13%, -11%, 0) rotate(-34deg) scale(1.09);
+		}
+		46% {
+			transform: translate3d(-10%, -10%, 0) rotate(-30deg) scale(1.08);
+		}
+		72%,
+		100% {
+			transform: translate3d(0, 0, 0) rotate(-12deg) scale(1);
+		}
+	}
+	.lm-tile-fx[data-fx='cheers'] .lm-tile-fx__icon {
+		animation: lm-fx-sway 2.6s ease-in-out infinite alternate;
+	}
+	.lm-tile-fx[data-fx='cheers'] .lm-tile-fx__bit[data-idle] {
+		animation: lm-fx-bubble 2.6s ease-out infinite;
+	}
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	.lm-tile:hover .lm-tile-fx[data-fx='shout'],
+	.lm-tile:hover .lm-tile-fx[data-fx='target'] {
+		--cycle: 0.9s;
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='shout'] .lm-tile-fx__bit {
+		animation: lm-fx-blast var(--cycle) ease-out calc(var(--cycle) * 0.7) infinite;
+	}
+	/* Cible : une flèche sur deux rate. La cible ne bouge qu'aux impacts. */
+	.lm-tile:hover .lm-tile-fx[data-fx='target'] .lm-tile-fx__icon {
+		animation-duration: calc(var(--cycle) * 2);
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='target'] .lm-tile-fx__ring {
+		animation-duration: calc(var(--cycle) * 2);
+		animation-delay: calc(var(--cycle) * 0.8);
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='target'] .lm-tile-fx__bit[data-k='0'] {
+		animation: lm-fx-arrow-hit calc(var(--cycle) * 2) cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='target'] .lm-tile-fx__bit[data-k='1'] {
+		animation: lm-fx-arrow-miss calc(var(--cycle) * 2) cubic-bezier(0.4, 0, 0.6, 1) var(--cycle)
+			infinite;
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='rocket'] .lm-tile-fx__icon {
+		animation: lm-fx-launch 2.4s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='rocket'] .lm-tile-fx__bit {
+		animation: lm-fx-puff 0.7s ease-out calc(var(--k) * 0.23s) infinite;
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='cheers'] .lm-tile-fx__icon {
+		animation: lm-fx-clink 1.4s ease-in-out infinite;
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='cheers'] .lm-tile-fx__ring {
+		animation: lm-fx-ring-burst 1.4s ease-out 0.45s infinite;
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='cheers'] .lm-tile-fx__bit {
+		animation: lm-fx-bubble 1.2s ease-out calc(var(--k) * 0.3s) infinite;
+	}
+}
 .lm-pill {
 	display: inline-flex;
 	align-items: center;
