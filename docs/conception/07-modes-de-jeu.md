@@ -300,6 +300,13 @@ morceau attend une voix : deux chanteuses de ton carnet de jams sont
 dans le coin ». Le carnet de jams sert ici : les rencontres d'hier
 deviennent les équipes de demain.
 
+Règles (P4-13a) : l'entrée « Un coup de pouce » n'apparaît dans l'espace
+qu'après **21 jours** sans progrès ; elle mène à un écran de trois idées
+au plus, chacune tirée du **réseau réel** (personnes gardées après avoir
+joué ensemble, à moins de 50 km) ou des jams de la semaine. Aucune
+notification, aucune durée d'absence affichée, jamais l'XP ni le palier
+dans le choix.
+
 ### 4.8 Le parrainage
 
 Les personnes au rang Pilier local ou au-delà peuvent **parrainer** des

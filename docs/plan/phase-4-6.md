@@ -155,6 +155,21 @@ propose aux producteurs et se fait produire ; chacun gagne sur sa piste.
 - **Fin** : les suggestions s'appuient sur le réseau réel (intégration) ;
   aucune notification culpabilisante (relecture des textes).
 
+Découpé le 11/11/2026 :
+
+- **P4-13a — Coups de pouce** : quand on n'avance plus (21 jours sans
+  événement de progression), une entrée « Un coup de pouce » dans
+  `/espace` mène à `/espace/coups-de-pouce` : place libre d'un morceau
+  qu'une personne proche du réseau peut tenir, morceau composé à
+  enregistrer avec un·e ingé son ou producteur·rice du réseau, jams de la
+  semaine. Aucune notification. **Fin** : intégration « réseau réel »,
+  textes relus par un test ; e2e « un coup de pouce tiré de mon réseau ».
+- **P4-13b — Parrainage et _Passeur_** : présenter deux personnes de son
+  réseau (rangs Pilier local et Référence) ; inviter un·e débutant·e à
+  une jam ; succès _Passeur_ quand deux personnes présentées collaborent
+  ensuite ; export et anonymisation RGPD des présentations. **Fin** :
+  une présentation sans collaboration ne débloque rien (test) ; e2e.
+
 ---
 
 ## Phase 5 — La scène : lieux, organisateurs, bookers, managers (acte V)

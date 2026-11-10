@@ -22,6 +22,8 @@ sort de cette liste.
 | Q11 | Un studio et un **lieu** de l'annuaire (type « Studio », où ont lieu des jams) sont-ils la même fiche ?                                                                        | **Non**, deux fiches séparées pour l'instant ; les relier ira avec la revendication des lieux (phase 5)                                                 | `Venue.claimedByActorId`                                            | P4-03a |
 | Q12 | Qui rattache une collaboration à un **studio** ?                                                                                                                               | L'une des deux personnes, si l'une d'elles **gère** ce studio ; la session ne compte que **confirmée par un·e client·e** (quelqu'un qui ne le gère pas) | `studiosOfPair` (`collaborations/service.ts`), `studioSessionStats` | P4-03c |
 | Q13 | Les « gains » proposés pour le studio (08 §6 : réservation honorée 100, session d'enregistrement 300, sortie enregistrée sur place 300) : à qui, et en plus de la prestation ? | **Rien de plus** : les pros gagnent déjà par leur prestation (P4-06) ; le studio gagne un rang, pas d'XP                                                | `progression/core/bareme.ts`                                        | P4-03c |
+| Q14 | À partir de quand « on n'avance plus » (coups de pouce, 07 §4.7) ?                                                                                                             | **21 jours** sans événement de progression qui concerne la personne (une simple modification du profil ne compte pas)                                   | `STALL_DAYS` (`#lib/career/nudges`)                                 | P4-13a |
+| Q15 | Un « ingé son **dispo** » (07 §4.7) : faut-il une disponibilité déclarée des pros ?                                                                                            | **Non** : on propose les ingés son (prise de son) et producteur·rices du réseau, sans dire qu'ils sont libres ; un agenda des pros viendra plus tard    | `nudgesFor` (`server/career/nudges.ts`)                             | P4-13a |
 
 ## À vérifier hors code
 
@@ -35,6 +37,7 @@ sort de cette liste.
 | #   | Point                                                                                       | Pourquoi                                                                                                                                                                                 |
 | --- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | M1  | Monter `memory=` dans `%UserProfile%\.wslconfig` (12 Go par exemple), puis `wsl --shutdown` | Avec 8 Go, le serveur de dev, le serveur e2e, VS Code et `npm run check` ensemble saturent la mémoire : Chromium plante (« Page crashed ») et les e2e échouent dès l'inscription (10/11) |
+| M2  | `sudo npx playwright install-deps chromium` dans WSL                                        | Chromium ne démarre pas (`libnspr4.so` absente) : aucun e2e ne peut tourner depuis le terminal de Claude Code (11/11)                                                                    |
 
 ## Points techniques
 
