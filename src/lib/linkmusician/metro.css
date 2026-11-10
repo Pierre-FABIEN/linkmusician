@@ -1002,7 +1002,10 @@
 		--t-fg2 0.5s,
 		opacity 0.6s calc(var(--i, 0) * 50ms),
 		translate 0.6s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)) calc(var(--i, 0) * 50ms),
-		filter 0.4s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+		filter 0.4s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)),
+		/* Même hiérarchie que la tuile encadrée : redescend pendant qu'elle rétrécit. */
+		z-index 0.45s steps(11, jump-start);
+	z-index: 0;
 }
 .dark .lm-tile {
 	/* En mode sombre, augmenter la saturation visible */
@@ -1192,9 +1195,14 @@
 	min-width: 0;
 	min-height: 0;
 	overflow: visible;
+	/* Hiérarchie au survol : la tuile survolée passe devant (11) ; celle qu'on
+	   quitte redescend vers 0 pendant qu'elle rétrécit, donc reste sous la
+	   nouvelle mais au-dessus des autres. Pas de chevauchement à contretemps. */
+	z-index: 0;
 	will-change: transform;
 	transition:
 		transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+		z-index 260ms steps(11, jump-start),
 		opacity 0.6s calc(var(--i, 0) * 50ms),
 		translate 0.6s var(--lm-ease) calc(var(--i, 0) * 50ms);
 }
@@ -1801,7 +1809,20 @@ button.lm-tile:not(.lm-tile-frame > *):active {
    son survol est plus bas, sans repeinte. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
 	.lm-tile:not(.lm-tile-frame > *):hover {
-		z-index: 2;
+		z-index: 11;
+		/* En entrant, la tuile passe devant tout de suite. */
+		transition:
+			transform 0.45s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)),
+			border-color 0.4s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)),
+			background 0.4s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)),
+			--t-bg 0.5s,
+			--t-bg2 0.5s,
+			--t-fg 0.5s,
+			--t-fg2 0.5s,
+			opacity 0.6s calc(var(--i, 0) * 50ms),
+			translate 0.6s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)) calc(var(--i, 0) * 50ms),
+			filter 0.4s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)),
+			z-index 0s;
 		transform: translate3d(0, -10px, 0) scale(1.36);
 		border-color: transparent;
 		box-shadow:
@@ -1823,8 +1844,14 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 	/* Grand zoom : la tuile passe au-dessus de ses voisines, qu'elle chevauche
 	   légèrement. */
 	.lm-tile-frame:hover {
-		z-index: 2;
+		z-index: 11;
 		transform: translate3d(0, -10px, 0) scale(1.36);
+		/* En entrant, la tuile passe devant tout de suite. */
+		transition:
+			transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+			z-index 0s,
+			opacity 0.6s calc(var(--i, 0) * 50ms),
+			translate 0.6s var(--lm-ease) calc(var(--i, 0) * 50ms);
 	}
 	/* L'ombre est dans le cadre qui monte de 10px : 30px ici la posent 20px sous
 	   sa place de repos. */
