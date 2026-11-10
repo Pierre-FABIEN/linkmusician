@@ -157,27 +157,28 @@ export async function moderationQueue() {
 	const milestoneIds = openReports
 		.filter((r) => r.targetType === 'MILESTONE')
 		.map((r) => r.targetId);
-	const [reportedMedia, reportedOpportunities, reportedVenues, reportedMilestones] = await Promise.all([
-		prisma.media.findMany({ where: { id: { in: mediaIds } } }),
-		prisma.opportunity.findMany({
-			where: { id: { in: opportunityIds } },
-			select: { id: true, title: true, description: true, status: true }
-		}),
-		prisma.venue.findMany({
-			where: { id: { in: venueIds } },
-			select: { id: true, name: true, kind: true, communeName: true, removedAt: true }
-		}),
-		prisma.milestone.findMany({
-			where: { id: { in: milestoneIds } },
-			select: {
-				id: true,
-				definitionId: true,
-				proof: true,
-				occurredAt: true,
-				band: { select: { handle: true, displayName: true } }
-			}
-		})
-	]);
+	const [reportedMedia, reportedOpportunities, reportedVenues, reportedMilestones] =
+		await Promise.all([
+			prisma.media.findMany({ where: { id: { in: mediaIds } } }),
+			prisma.opportunity.findMany({
+				where: { id: { in: opportunityIds } },
+				select: { id: true, title: true, description: true, status: true }
+			}),
+			prisma.venue.findMany({
+				where: { id: { in: venueIds } },
+				select: { id: true, name: true, kind: true, communeName: true, removedAt: true }
+			}),
+			prisma.milestone.findMany({
+				where: { id: { in: milestoneIds } },
+				select: {
+					id: true,
+					definitionId: true,
+					proof: true,
+					occurredAt: true,
+					band: { select: { handle: true, displayName: true } }
+				}
+			})
+		]);
 	const venueById = new Map(reportedVenues.map((v) => [v.id, v]));
 	const byId = new Map(reportedMedia.map((m) => [m.id, m]));
 	const opportunityById = new Map(reportedOpportunities.map((o) => [o.id, o]));
@@ -191,8 +192,7 @@ export async function moderationQueue() {
 			opportunity:
 				r.targetType === 'OPPORTUNITY' ? (opportunityById.get(r.targetId) ?? null) : null,
 			venue: r.targetType === 'VENUE' ? (venueById.get(r.targetId) ?? null) : null,
-			milestone:
-				r.targetType === 'MILESTONE' ? (milestoneById.get(r.targetId) ?? null) : null
+			milestone: r.targetType === 'MILESTONE' ? (milestoneById.get(r.targetId) ?? null) : null
 		}))
 	};
 }
@@ -208,7 +208,10 @@ async function refreshTrust(actorId: string) {
 }
 
 async function closeReports(
-	where: { targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY' | 'VENUE' | 'MILESTONE'; targetId: string },
+	where: {
+		targetType: 'ACTOR' | 'MEDIA' | 'OPPORTUNITY' | 'VENUE' | 'MILESTONE';
+		targetId: string;
+	},
 	by: Moderator,
 	note: string,
 	status: 'ACTIONED' | 'DISMISSED'

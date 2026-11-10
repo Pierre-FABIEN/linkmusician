@@ -22,9 +22,10 @@ describe('vérification d’une sortie externe', () => {
 	});
 
 	it('valide un objet de référence de sortie pour le formulaire', () => {
-		expect(
-			releaseReferenceSchema.parse({ kind: 'ISRC', value: ' usabc1234567 ' })
-		).toEqual({ kind: 'ISRC', value: 'USABC1234567' });
+		expect(releaseReferenceSchema.parse({ kind: 'ISRC', value: ' usabc1234567 ' })).toEqual({
+			kind: 'ISRC',
+			value: 'USABC1234567'
+		});
 	});
 
 	it('rejette un objet de référence incohérent', () => {

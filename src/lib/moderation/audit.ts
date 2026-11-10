@@ -24,6 +24,7 @@ export const AUDIT_ACTIONS = {
 	'moderation.milestone_evidence.reject': { label: 'Preuve d’étape refusée', family: 'milestones' },
 	'moderation.milestone.uphold': { label: 'Contestation d’étape retenue', family: 'milestones' },
 	'moderation.milestone.dismiss': { label: 'Contestation d’étape rejetée', family: 'milestones' },
+	'moderation.milestone.reject': { label: 'Étape signalée invalidée', family: 'milestones' },
 	'moderation.organization.approve': { label: 'Organisation vérifiée', family: 'organizations' },
 	'moderation.organization.reject': {
 		label: 'Vérification d’organisation refusée',

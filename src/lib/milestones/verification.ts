@@ -14,13 +14,16 @@ export const releaseReferenceSchema = z
 		value: z.string()
 	})
 	.transform(({ kind, value }) => ({ kind, value: value.trim() }))
-	.refine(({ kind, value }) => {
-		const result = checkReleaseReference(kind, value);
-		return result.ok;
-	}, {
-		message: 'Référence de sortie invalide.',
-		path: ['value']
-	})
+	.refine(
+		({ kind, value }) => {
+			const result = checkReleaseReference(kind, value);
+			return result.ok;
+		},
+		{
+			message: 'Référence de sortie invalide.',
+			path: ['value']
+		}
+	)
 	.transform(({ kind, value }) => {
 		const result = checkReleaseReference(kind, value);
 		return {

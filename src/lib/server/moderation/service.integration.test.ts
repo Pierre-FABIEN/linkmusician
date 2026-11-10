@@ -215,7 +215,9 @@ describe.skipIf(!enabled)('modération (schéma e2e)', () => {
 		).resolves.toEqual({ accepted: true });
 		const updated = await db.milestone.findUniqueOrThrow({ where: { id: milestone.id } });
 		expect(updated.frozenAt).not.toBeNull();
-		expect(await db.report.findFirst({ where: { targetType: 'MILESTONE', targetId: milestone.id } })).toMatchObject({
+		expect(
+			await db.report.findFirst({ where: { targetType: 'MILESTONE', targetId: milestone.id } })
+		).toMatchObject({
 			status: 'ACTIONED'
 		});
 	}, 120_000);

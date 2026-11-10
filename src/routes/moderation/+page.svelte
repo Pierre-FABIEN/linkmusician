@@ -418,7 +418,8 @@
 										: r.targetType === 'MILESTONE'
 											? 'étape de groupe'
 											: 'profil'}
-							{r.targetType === 'VENUE' || r.targetType === 'MILESTONE' ? '' : 'de '}@{r.targetActor.handle}
+							{r.targetType === 'VENUE' || r.targetType === 'MILESTONE' ? '' : 'de '}@{r.targetActor
+								.handle}
 						</span>
 						<span class="text-muted-foreground">par @{r.reporter} · {date(r.createdAt)}</span>
 					</div>
