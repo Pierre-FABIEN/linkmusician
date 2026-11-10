@@ -1301,18 +1301,19 @@
 	   du ton en continu, avec deux reflets blancs qui font vivre le contour. */
 	background: conic-gradient(
 		from 0deg,
-		color-mix(in oklch, var(--t-bg) 60%, white) 0deg,
-		white 60deg,
-		color-mix(in oklch, var(--t-bg) 80%, white) 130deg,
-		var(--t-bg) 190deg,
-		white 250deg,
-		color-mix(in oklch, var(--t-bg) 60%, white) 360deg
+		color-mix(in oklch, var(--t-bg) 45%, white) 0deg,
+		white 50deg,
+		color-mix(in oklch, var(--t-bg) 55%, white) 110deg,
+		color-mix(in oklch, var(--t-bg) 85%, white) 180deg,
+		white 240deg,
+		white 270deg,
+		color-mix(in oklch, var(--t-bg) 45%, white) 360deg
 	);
 	opacity: 0.001;
 	will-change: opacity;
 	/* Fondu d'entrée et de sortie ; la pulsation prend le relais une fois
 	   le liseré allumé. */
-	transition: opacity 300ms ease;
+	transition: opacity 500ms ease;
 }
 /* Voile sombre au survol, sous le contenu. */
 .lm-tile-frame > .lm-tile::after {
@@ -1381,7 +1382,7 @@
 		opacity: 1;
 	}
 	to {
-		opacity: 0.7;
+		opacity: 0.55;
 	}
 }
 
@@ -1863,7 +1864,7 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 	}
 	.lm-tile-frame > .lm-tile:hover::before {
 		opacity: 1;
-		animation: lm-tile-frame-pulse 1.4s ease-in-out 300ms infinite alternate;
+		animation: lm-tile-frame-pulse 1.2s ease-in-out 500ms infinite alternate;
 	}
 	.lm-tile-frame > .lm-tile:hover::after {
 		opacity: 0.2;
