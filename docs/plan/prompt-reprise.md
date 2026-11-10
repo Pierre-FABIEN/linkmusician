@@ -1,23 +1,42 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 08/11/2026, après P3-13).
+> Mis à jour à chaque fin de lot (dernière : 10/11/2026, après P3-15a).
 
 ---
 
 ```markdown
-On reprend LinkMusician avec le lot **P3-14** (fiche de carrière et cartes
-souvenirs) ; P3-12 (écran de carrière en page-menu, ambition) et P3-13
-(carte, D53) sont livrés ([docs/carriere](../carriere/README.md)). Reste à
-revoir le vocabulaire « projet » (§5 bis).
+On reprend LinkMusician avec le lot **P3-15b** (documents préremplis :
+bulletin de partage d'un morceau, programme des œuvres d'un concert) ;
+P3-15a (fiches et déclencheurs, [docs/demarches](../demarches/README.md))
+est livré, en 🟡 tant que son e2e n'est pas lancé. Reste à revoir le
+vocabulaire « projet » (§5 bis).
 Navigation : pages-menus (D50) et fil d'Ariane en badges (D52) à respecter
-sur toute nouvelle page ; organisateurs de jams (D51). **D'abord** : lancer `npm run test:e2e -- e2e/linkmusician/discussions.spec.ts`
-(P3-16c, écrit mais pas encore lancé : Chromium manquait de `libnspr4`,
-`sudo npx playwright install-deps chromium`), puis passer P3-16c à ✅ dans
-le tableau §5. Ne refais pas l'analyse du projet :
-CLAUDE.md est déjà chargé, tout ce qui sert est ci-dessous.
+sur toute nouvelle page ; organisateurs de jams (D51). **D'abord**, si
+Chromium a ses dépendances (`sudo npx playwright install-deps chromium`,
+il manquait `libnspr4`) : lancer `npm run test:e2e --
+e2e/linkmusician/discussions.spec.ts e2e/linkmusician/demarches.spec.ts`,
+puis passer P3-16c et P3-15a à ✅ dans le tableau §5. Ne refais pas
+l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui sert est
+ci-dessous.
 
-## État (08/11/2026)
+## État (10/11/2026)
+
+- **P3-12 à P3-14 livrés** (carrière, carte, fiche et cartes souvenirs).
+- **P3-15a livré** : `src/lib/demarches/catalog.ts` (fiches, en-tête
+  `verifie`/`relue`/`sources`, `OFFICIAL_HOSTS`), fiches Markdown dans
+  `src/lib/demarches/fiches/`, rendu `src/lib/server/demarches/render.ts`
+  (moteur de l'aide), déclencheurs purs `src/lib/demarches/triggers.ts`,
+  service `src/lib/server/demarches/service.ts` (« J'ai compris » =
+  `demarche:<id>` dans `tipsDismissed`), carte `DemarcheCard.svelte` sur
+  `/morceaux/[id]`, `/groupes/[handle]`, `/annonces/[id]`. P3-15b : le
+  bulletin s'appuie sur les crédits confirmés (`workPage`) ; le programme
+  sur `bandWorks`. Les fiches `ecrire-a-plusieurs` et `premier-concert`
+  ont un encart « 🔜 Bientôt » à remplacer par le lien de téléchargement.
+- Erreurs préexistantes, hors lots : `npm run check` signale 2 erreurs
+  dans `metro/Panorama.svelte` (maquette `_lab`) ; `audit.test.ts` échoue
+  (`moderation.milestone.reject` sans libellé, commit 787ac61) ; Prettier
+  signale 9 fichiers (Metro, modération, `milestones/verification`).
 
 - **Phase 2 terminée et revue** ([docs/plan/revue-phase-2.md](./revue-phase-2.md)).
   Objectif D28 : lancement public à Toulouse début mars 2027. L'UX simple
@@ -45,7 +64,7 @@ CLAUDE.md est déjà chargé, tout ce qui sert est ci-dessous.
   (`contestMilestone`, `upholdContest`, `dismissContest`,
   `retractMilestone`, `disputeQueue`), `Milestone.frozenAt`, événement
   `milestone.revoked` (sans XP, retiré des paliers dans `musicianSummary`).
-- Ordre prévu : P3-14 → P3-15
+- Ordre prévu : P3-15b → P3-17 (D47 proposée) → P3-10
   (tableau §4 bis de docs/plan/README.md). P3-07 après le lancement.
 - Points ouverts hors lots : docs/plan/README.md §5 bis (dont l'e2e
   « quota TL0 » instable en suite complète, les tests d'intégration qui
@@ -78,7 +97,8 @@ e2e/linkmusician` (sortie redirigée dans le scratchpad, lire la fin).
 lat: 43.6459, lng: 1.3785 }` ; a11y : exclure `.cartButton`.
 - Tests d'intégration : `PROGRESSION_INTEGRATION=1 npx vitest --run
 src/lib/server/bands src/lib/server/opportunities src/lib/server/works
-src/lib/server/milestones src/lib/server/contacts src/lib/server/discussions`
+src/lib/server/milestones src/lib/server/contacts src/lib/server/discussions
+src/lib/server/demarches`
   pour les groupes, le recrutement, les morceaux et les étapes (modèle : `vi.mock('#lib/server', () => ({ prisma: db }))`
   sur le schéma `e2e`). Un test qui passe par du SQL brut (villes,
   PostGIS) doit aussi faire `process.env.DATABASE_URL = url.toString()`
