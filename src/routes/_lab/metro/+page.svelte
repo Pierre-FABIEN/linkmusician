@@ -7,18 +7,15 @@
 	import Panorama from '#lib/components/linkmusician/metro/Panorama.svelte';
 	import Pivot from '#lib/components/linkmusician/metro/Pivot.svelte';
 	import Tile from '#lib/components/linkmusician/metro/Tile.svelte';
+	import MetroActions from '#lib/components/linkmusician/metro/MetroActions.svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
 	import { distanceBand } from '#lib/geo/distance';
 	import {
 		Award,
-		Bell,
 		Check,
-		Compass,
 		Guitar,
-		LifeBuoy,
 		Lock,
 		Megaphone,
-		MessageCircle,
 		Moon,
 		Music,
 		Sun,
@@ -58,25 +55,31 @@
 			<header class="flex flex-wrap items-start justify-between gap-4">
 				<div class="space-y-2">
 					<p class="lm-kicker text-[color:var(--muted-foreground)]">
-						direction visuelle · maquette
+						direction visuelle · maquette ·
+						<a class="underline" href="/_lab/metro/texte">typographie</a> ·
+						<a class="underline" href="/_lab/metro/jam">mode jam</a>
 					</p>
 					<h1 class="lm-display">LinkMusician</h1>
 				</div>
-				<div class="flex flex-wrap gap-2">
-					<a class="lm-btn" data-variant="ghost" href="/_lab/metro/texte">Typographie</a>
-					<a class="lm-btn" data-variant="ghost" href="/_lab/metro/jam">Mode Jam</a>
+				<!-- Raccourcis en haut à droite, comme l'en-tête de l'app. -->
+				<div class="flex items-center gap-2">
+					<MetroActions
+						messages={3}
+						notifications={1}
+						hrefs={{ discover: '/_lab', messages: '/_lab', notifications: '/_lab', help: '/_lab' }}
+					/>
 					<button
 						type="button"
-						class="lm-btn"
-						data-variant="ghost"
+						class="lm-action"
 						aria-pressed={dark}
+						title={dark ? 'Mode clair' : 'Mode sombre'}
 						onclick={() => setMode(dark ? 'light' : 'dark')}
 					>
-						{#if dark}<Sun class="size-4" aria-hidden="true" />{:else}<Moon
-								class="size-4"
+						{#if dark}<Sun class="size-5" aria-hidden="true" />{:else}<Moon
+								class="size-5"
 								aria-hidden="true"
 							/>{/if}
-						{dark ? 'Mode clair' : 'Mode sombre'}
+						<span class="sr-only">{dark ? 'Mode clair' : 'Mode sombre'}</span>
 					</button>
 				</div>
 			</header>
@@ -106,22 +109,6 @@
 									<h3 class="lm-tile__title">jam</h3>
 									<p class="lm-tile__text">Joue ce soir, rencontre du monde, sans pression.</p>
 								</div>
-							</Tile>
-							<Tile framed tone="cyan" size="sm" href="/_lab" icon={Compass} index={2}>
-								<Compass class="size-6" aria-hidden="true" />
-								<h3 class="lm-tile__title">découvrir</h3>
-							</Tile>
-							<Tile framed tone="blue" size="sm" href="/_lab" icon={MessageCircle} index={3}>
-								<span class="lm-pill self-start">3</span>
-								<h3 class="lm-tile__title">messages</h3>
-							</Tile>
-							<Tile framed tone="rose" size="sm" href="/_lab" icon={Bell} index={4}>
-								<span class="lm-pill self-start">1</span>
-								<h3 class="lm-tile__title">cloche</h3>
-							</Tile>
-							<Tile framed tone="lime" size="sm" href="/_lab" icon={LifeBuoy} index={5}>
-								<LifeBuoy class="size-6" aria-hidden="true" />
-								<h3 class="lm-tile__title">aide</h3>
 							</Tile>
 						</div>
 					</Pivot>

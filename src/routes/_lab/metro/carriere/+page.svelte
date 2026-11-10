@@ -1,4 +1,5 @@
 <script lang="ts">
+	import MetroActions from '#lib/components/linkmusician/metro/MetroActions.svelte';
 	import '#lib/linkmusician/theme.css';
 	import SEO from '#lib/components/SEO.svelte';
 	import Aurora from '#lib/components/linkmusician/metro/Aurora.svelte';
@@ -47,26 +48,33 @@
 	class="lm-metro min-h-screen w-full"
 >
 	<main class="relative z-10 mx-auto w-full max-w-none px-5 pt-5 pb-24 sm:px-8 2xl:px-10">
-		<nav class="flex items-center justify-between gap-4" aria-label="Navigation Metro">
+		<nav class="flex flex-wrap items-center justify-between gap-3" aria-label="Navigation Metro">
 			<a class="lm-btn" data-variant="ghost" href="/_lab/metro">
 				<ArrowLeft class="size-4" aria-hidden="true" />
 				<span>Metro</span>
 			</a>
-			<div class="lm-career-nav-actions flex items-center gap-2">
+			<div class="lm-career-nav-actions flex flex-wrap items-center justify-end gap-2">
 				<a class="lm-btn" data-variant="ghost" href="/_lab/metro/jam">Mode Jam</a>
-				<button
-					type="button"
-					class="lm-btn"
-					data-variant="ghost"
-					aria-pressed={dark}
-					onclick={() => setMode(dark ? 'light' : 'dark')}
-				>
-					{#if dark}<Sun class="size-4" aria-hidden="true" />{:else}<Moon
-							class="size-4"
-							aria-hidden="true"
-						/>{/if}
-					<span>{dark ? 'Mode clair' : 'Mode sombre'}</span>
-				</button>
+				<div class="flex items-center gap-2">
+					<MetroActions
+						messages={3}
+						notifications={1}
+						hrefs={{ discover: '/_lab', messages: '/_lab', notifications: '/_lab', help: '/_lab' }}
+					/>
+					<button
+						type="button"
+						class="lm-action"
+						aria-pressed={dark}
+						title={dark ? 'Mode clair' : 'Mode sombre'}
+						onclick={() => setMode(dark ? 'light' : 'dark')}
+					>
+						{#if dark}<Sun class="size-5" aria-hidden="true" />{:else}<Moon
+								class="size-5"
+								aria-hidden="true"
+							/>{/if}
+						<span class="sr-only">{dark ? 'Mode clair' : 'Mode sombre'}</span>
+					</button>
+				</div>
 			</div>
 		</nav>
 
