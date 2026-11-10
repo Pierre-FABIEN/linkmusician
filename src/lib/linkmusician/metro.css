@@ -1254,6 +1254,7 @@
 	background-color: oklch(0 0 0);
 	background-image: none;
 	opacity: 0;
+	will-change: opacity;
 	transition: opacity 180ms ease;
 }
 
@@ -1625,6 +1626,10 @@ button.lm-tile:active {
 	.lm-jam-board .lm-tile:hover::after {
 		opacity: 0;
 		animation: none;
+	}
+
+	.lm-jam-board .lm-tile:hover::after {
+		opacity: 0.2;
 	}
 }
 
