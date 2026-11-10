@@ -1,7 +1,7 @@
 # Métiers du son (phase 4)
 
-L'ingé son, puis la productrice ou le producteur (P4-04) et le studio
-(P4-03). Conception : [08 §5 à §7](../conception/08-carrieres-par-role.md#5-ingé-son--sound_engineer--phase-4),
+L'ingé son (P4-02), la productrice ou le producteur (P4-04), puis le
+studio (P4-03). Conception : [08 §5 à §7](../conception/08-carrieres-par-role.md#5-ingé-son--sound_engineer--phase-4),
 barème en [02 §2.2](../conception/02-progression.md#22-barème-première-version-à-calibrer).
 
 ## Barème et rangs (P4-01)
@@ -61,6 +61,32 @@ barème en [02 §2.2](../conception/02-progression.md#22-barème-première-versi
 - **Affichage** : rang sur la carte « Ingé son » du profil public ;
   section « Ingé son » de `/espace/objectifs`, avant celle de musicien·ne
   si c'est le métier principal.
+
+## Producteur·rice (P4-04)
+
+- **Modèle** : `ProducerProfile` (spécialités `ProducerSpecialty` :
+  production, arrangement, beatmaking ; mobilité ; logiciels ; tarifs
+  indicatifs, une phrase) et `ProducerGenre` (styles produits, 5 au plus,
+  genres du référentiel). Les productions en écoute sont des
+  `CraftReference` de la piste `PRODUCER`.
+- **Commun aux métiers du son** : `src/lib/crafts/common.ts` (mobilité,
+  travaux en écoute), `src/lib/prisma/crafts/references.ts`,
+  `CraftReferencesFields.svelte`.
+- **Écran** : `/profil/production`, même logique que `/profil/son`.
+- **Recherche** : `?metier=producteur&specialite=beatmaking`. Les styles
+  produits comptent dans le filtre « Style », avec ou sans métier.
+- **Profil public** : carte « Producteur·rice » (`ProducerCard`), rang,
+  tarifs marqués « indicatifs ».
+- **Rang et objectifs** (08 §7) : `getProducerProgress`,
+  `nextProducerObjectives`. Spécialités, ville, une production en écoute,
+  la première production (ou le premier arrangement), trois artistes, une
+  production sortie et vérifiée. « Parcourir la vitrine » viendra avec
+  P4-08.
+- **RGPD** : export (`profil_producteur`) ; l'anonymisation supprime le
+  profil, ses styles et les productions en écoute.
+- **Tests** : `producer.test.ts`, `producerProfile.integration.test.ts`,
+  cas producteur·rice de `musicians.integration.test.ts` et
+  `craftQuests.test.ts`, e2e `e2e/linkmusician/producteur.spec.ts`.
 
 ## À venir
 

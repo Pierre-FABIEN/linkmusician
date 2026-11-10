@@ -15,8 +15,8 @@ _Ton compte, ton profil et ton mode de jeu, en cinq minutes._
 ## 1. Créer ton compte
 
 1. Inscris-toi avec ton email et confirme-le avec le code reçu.
-2. Réponds à « **Qui es-tu ?** » : musicien·ne, ingé son, ou les deux.
-   D’autres métiers arriveront. Tu les changes quand tu veux dans
+2. Réponds à « **Qui es-tu ?** » : musicien·ne, ingé son,
+   producteur·rice, ou plusieurs à la fois. D’autres métiers arriveront. Tu les changes quand tu veux dans
    **Réglages › Mes métiers**.
 3. Accepte les conditions d’utilisation.
 
@@ -63,6 +63,23 @@ projets avec 3 artistes différents), _Établi·e_ et _Référence_ (des
 sorties vérifiées où tu es crédité·e). Tes **objectifs d’ingé son** sont
 dans **Mon espace › Mes objectifs** : ils suivent les spécialités que tu
 as cochées.
+
+### Si tu es producteur·rice {#producteur}
+
+Ouvre **Mon profil › Mon profil de producteur·rice** :
+
+- coche tes **spécialités** (production, arrangement, beatmaking) : les
+  artistes te trouvent alors dans **Découvrir** ;
+- choisis jusqu’à cinq **styles que tu produis**. Ils comptent dans la
+  recherche par style ;
+- liste tes **logiciels** et, si tu veux, des **tarifs indicatifs**
+  (« À partir de 150 € le titre ») : le prix se discute toujours avec
+  l’artiste ;
+- ajoute jusqu’à six **productions en écoute**.
+
+Ton rang de producteur·rice et tes objectifs suivent la même logique que
+ceux de l’ingé son : tout part des productions confirmées par les
+artistes.
 
 ## 3. Choisir ton mode
 

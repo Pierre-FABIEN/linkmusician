@@ -54,13 +54,24 @@
 				<a href="/profil/ville" class="underline">Ma ville</a>. Démos et vidéos :
 				<a href="/profil/medias" class="underline">Mes médias</a>.
 			</p>
-			{#if data.soundEngineer}
-				<!-- LINKMUSICIAN: métier ingé son (P4-02). -->
-				<a
-					href="/profil/son"
-					class="mt-3 inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
-					>Mon profil d'ingé son →</a
-				>
+			<!-- LINKMUSICIAN: métiers du son (P4-02, P4-04). -->
+			{#if data.soundEngineer || data.producer}
+				<div class="mt-3 flex flex-wrap gap-2">
+					{#if data.soundEngineer}
+						<a
+							href="/profil/son"
+							class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
+							>Mon profil d'ingé son →</a
+						>
+					{/if}
+					{#if data.producer}
+						<a
+							href="/profil/production"
+							class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
+							>Mon profil de producteur·rice →</a
+						>
+					{/if}
+				</div>
 			{/if}
 		</div>
 

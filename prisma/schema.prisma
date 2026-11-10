@@ -1531,6 +1531,8 @@ model Person {
   /// Métiers du son (P4-02).
   soundProfile    SoundEngineerProfile?
   craftReferences CraftReference[]
+  /// Producteur·rice (P4-04).
+  producerProfile ProducerProfile?
 
   @@map("persons")
 }
@@ -1602,6 +1604,7 @@ model Genre {
   children  Genre[]  @relation("GenreTree")
   actors    ActorGenre[]
   works     WorkGenre[]
+  producers ProducerGenre[]
   sortOrder Int
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -3133,6 +3136,44 @@ model SoundEngineerProfile {
   updatedAt   DateTime         @updatedAt
 
   @@map("sound_engineer_profiles")
+}
+
+// ─── Producteur·rice (P4-04) ────────────────────────────────────────────
+
+enum ProducerSpecialty {
+  PRODUCTION
+  ARRANGEMENT
+  BEATMAKING
+}
+
+/// Profil de producteur·rice, déclaratif (conception 08 §7). Trouvable dans
+/// la recherche par métier dès qu'une spécialité est cochée.
+model ProducerProfile {
+  personId    String              @id
+  person      Person              @relation(fields: [personId], references: [actorId], onDelete: Cascade)
+  specialties ProducerSpecialty[]
+  mobility    CraftMobility[]
+  /// Logiciels, texte libre (300 caractères au plus).
+  software    String              @default("")
+  /// Tarifs indicatifs, une phrase (160 caractères au plus).
+  rate        String              @default("")
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  genres      ProducerGenre[]
+
+  @@map("producer_profiles")
+}
+
+/// Style produit (genre du référentiel), 5 au plus par profil.
+model ProducerGenre {
+  personId String
+  profile  ProducerProfile @relation(fields: [personId], references: [personId], onDelete: Cascade)
+  genreId  String
+  genre    Genre           @relation(fields: [genreId], references: [id], onDelete: Restrict)
+
+  @@id([personId, genreId])
+  @@index([genreId])
+  @@map("producer_genres")
 }
 
 /// Travail en écoute ajouté par la personne sur son profil de métier

@@ -4,7 +4,7 @@
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { zodClient } from 'sveltekit-superforms/adapters';
-	import { Plus, X } from 'lucide-svelte';
+	import CraftReferencesFields from '#lib/components/linkmusician/crafts/CraftReferencesFields.svelte';
 	import { Button } from '#shadcn/button';
 	import SEO from '#lib/components/SEO.svelte';
 	import { soundProfileSchema } from '#lib/schema/crafts/soundProfileSchema';
@@ -13,7 +13,6 @@
 		CRAFT_MOBILITY,
 		CRAFT_MOBILITY_LABELS,
 		MAX_GEAR_LENGTH,
-		MAX_REFERENCES,
 		SOUND_SPECIALTIES,
 		SOUND_SPECIALTY_INFO
 	} from '#lib/crafts/sound';
@@ -34,15 +33,6 @@
 		}
 	);
 	const { form, errors, enhance, submitting } = profileForm;
-
-	function addReference() {
-		if ($form.references.length >= MAX_REFERENCES) return;
-		$form.references = [...$form.references, { title: '', url: '' }];
-	}
-
-	function removeReference(index: number) {
-		$form.references = $form.references.filter((_, i) => i !== index);
-	}
 </script>
 
 <SEO title="Mon profil d'ingé son" noindex nofollow />
@@ -128,67 +118,14 @@
 					{#if $errors.gear}<p class="text-sm text-destructive">{$errors.gear[0]}</p>{/if}
 				</section>
 
-				<section class="space-y-3" aria-labelledby="references-title">
-					<h2 id="references-title" class="text-lg font-semibold">
-						Mes travaux en écoute <span class="text-sm font-normal text-muted-foreground"
-							>({$form.references.filter((r) => r.url.trim()).length}/{MAX_REFERENCES})</span
-						>
-					</h2>
-					<p class="text-sm text-muted-foreground">
-						Un titre que tu as enregistré, mixé ou sonorisé, avec un lien public (SoundCloud,
-						YouTube, Bandcamp…). Un avant / après parle beaucoup.
-					</p>
-					<ul class="space-y-3">
-						{#each $form.references as _, i (i)}
-							<li class="grid gap-2 rounded-xl border p-3 sm:grid-cols-[1fr_1.4fr_auto]">
-								<label class="space-y-1 text-sm">
-									<span class="font-medium">Titre</span>
-									<input
-										class="w-full rounded-md border bg-background p-2"
-										placeholder="Mix de « Nuit blanche » (Les Pavés)"
-										bind:value={$form.references[i].title}
-									/>
-									{#if $errors.references?.[i]?.title}
-										<span class="block text-destructive">{$errors.references[i].title?.[0]}</span>
-									{/if}
-								</label>
-								<label class="space-y-1 text-sm">
-									<span class="font-medium">Lien</span>
-									<input
-										type="text"
-										inputmode="url"
-										class="w-full rounded-md border bg-background p-2"
-										placeholder="soundcloud.com/…"
-										bind:value={$form.references[i].url}
-									/>
-									{#if $errors.references?.[i]?.url}
-										<span class="block text-destructive">{$errors.references[i].url?.[0]}</span>
-									{/if}
-								</label>
-								<button
-									type="button"
-									class="flex min-h-11 items-center justify-center self-end rounded-md border px-3 text-muted-foreground hover:bg-muted"
-									aria-label="Retirer ce travail"
-									onclick={() => removeReference(i)}
-								>
-									<X class="size-4" aria-hidden="true" />
-								</button>
-							</li>
-						{/each}
-					</ul>
-					{#if $form.references.length < MAX_REFERENCES}
-						<button
-							type="button"
-							class="flex min-h-11 items-center gap-2 rounded-xl border px-4 text-sm font-medium hover:bg-muted"
-							onclick={addReference}
-						>
-							<Plus class="size-4" aria-hidden="true" /> Ajouter un travail
-						</button>
-					{/if}
-					{#if $errors.references?._errors}
-						<p class="text-sm text-destructive">{$errors.references._errors[0]}</p>
-					{/if}
-				</section>
+				<CraftReferencesFields
+					bind:references={$form.references}
+					errors={$errors.references}
+					title="Mes travaux en écoute"
+					hint="Un titre que tu as enregistré, mixé ou sonorisé, avec un lien public (SoundCloud, YouTube, Bandcamp…). Un avant / après parle beaucoup."
+					titlePlaceholder="Mix de « Nuit blanche » (Les Pavés)"
+					addLabel="Ajouter un travail"
+				/>
 
 				<Button type="submit" class="w-full" disabled={$submitting}>Enregistrer</Button>
 			</form>

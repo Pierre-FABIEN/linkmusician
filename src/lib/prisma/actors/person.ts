@@ -117,7 +117,7 @@ export async function exportPersonData(userId: string) {
 	const location = await getActorLocation(person.actorId);
 	const progress = await getProgress(person.actorId, prisma);
 	// Métiers du son (P4-02) : profil d'ingé son et travaux en écoute.
-	const [soundProfile, craftReferences] = await Promise.all([
+	const [soundProfile, craftReferences, producerProfile] = await Promise.all([
 		prisma.soundEngineerProfile.findUnique({
 			where: { personId: person.actorId },
 			select: { specialties: true, mobility: true, gear: true, updatedAt: true }
@@ -126,6 +126,18 @@ export async function exportPersonData(userId: string) {
 			where: { personId: person.actorId },
 			orderBy: [{ track: 'asc' }, { position: 'asc' }],
 			select: { track: true, title: true, url: true, createdAt: true }
+		}),
+		// Producteur·rice (P4-04).
+		prisma.producerProfile.findUnique({
+			where: { personId: person.actorId },
+			select: {
+				specialties: true,
+				mobility: true,
+				software: true,
+				rate: true,
+				updatedAt: true,
+				genres: { select: { genre: { select: { name: true } } } }
+			}
 		})
 	]);
 	const [
@@ -467,6 +479,16 @@ export async function exportPersonData(userId: string) {
 					modifie_le: soundProfile.updatedAt
 				}
 			: null,
+		profil_producteur: producerProfile
+			? {
+					specialites: producerProfile.specialties,
+					styles_produits: producerProfile.genres.map((g) => g.genre.name),
+					logiciels: producerProfile.software,
+					tarifs_indicatifs: producerProfile.rate,
+					ou_je_travaille: producerProfile.mobility,
+					modifie_le: producerProfile.updatedAt
+				}
+			: null,
 		travaux_en_ecoute: craftReferences.map((r) => ({
 			metier: r.track,
 			titre: r.title,
@@ -693,6 +715,8 @@ export async function personAnonymizationOps(
 		// Métiers du son (P4-02) : tout est déclaratif, rien ne reste.
 		prisma.soundEngineerProfile.deleteMany({ where: { personId: person.actorId } }),
 		prisma.craftReference.deleteMany({ where: { personId: person.actorId } }),
+		// Producteur·rice (P4-04) : les styles suivent le profil (cascade).
+		prisma.producerProfile.deleteMany({ where: { personId: person.actorId } }),
 		prisma.actorGenre.deleteMany({ where: { actorId: person.actorId } }),
 		// Morceaux (P3-11) : ceux que la personne porte sont supprimés ; ses
 		// crédits confirmés sur ceux des autres restent (« Compte supprimé »),

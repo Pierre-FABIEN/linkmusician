@@ -22,9 +22,11 @@
 		SEARCH_TRACK_LABELS,
 		SPECIALTY_SLUGS,
 		filtersToParams,
+		specialtiesOf,
 		type SearchTrackSlug
 	} from '#lib/search/filters';
-	import { SOUND_SPECIALTIES, SOUND_SPECIALTY_INFO } from '#lib/crafts/sound';
+	import { SOUND_SPECIALTY_INFO } from '#lib/crafts/sound';
+	import { PRODUCER_SPECIALTY_INFO } from '#lib/crafts/producer';
 
 	import { untrack } from 'svelte';
 
@@ -36,6 +38,14 @@
 	/** Métier choisi dans le formulaire : la spécialité s'affiche aussitôt (P4-02). */
 	let trackChoice = $state(
 		untrack(() => trackSlugs.find((k) => SEARCH_TRACKS[k] === data.filters.track) ?? '')
+	);
+	const specialtyChoices = $derived(
+		specialtiesOf(trackChoice ? SEARCH_TRACKS[trackChoice as SearchTrackSlug] : null)
+	);
+	const SPECIALTY_LABELS: Record<string, string> = Object.fromEntries(
+		[...Object.entries(SOUND_SPECIALTY_INFO), ...Object.entries(PRODUCER_SPECIALTY_INFO)].map(
+			([k, v]) => [k, v.label]
+		)
 	);
 	/** Volet « Plus de filtres » ouvert d'office si l'un d'eux est actif. */
 	const secondaryActive = $derived(
@@ -50,7 +60,7 @@
 		<header class="space-y-1">
 			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Découvrir</h1>
 			<p class="text-muted-foreground">
-				Trouve avec qui jouer, enregistrer ou sonoriser{data.commune
+				Trouve avec qui jouer, enregistrer ou produire{data.commune
 					? ` autour de ${data.commune}`
 					: ''}.
 			</p>
@@ -72,14 +82,14 @@
 							{/each}
 						</select>
 					</label>
-					{#if trackChoice === 'inge-son'}
+					{#if specialtyChoices.length > 0}
 						<label class="space-y-1 text-sm font-medium">
 							Spécialité
 							<select name="specialite" class={select}>
 								<option value="">Toutes</option>
-								{#each SOUND_SPECIALTIES as s (s)}
+								{#each specialtyChoices as s (s)}
 									<option value={SPECIALTY_SLUGS[s]} selected={f.specialty === s}
-										>{SOUND_SPECIALTY_INFO[s].label}</option
+										>{SPECIALTY_LABELS[s]}</option
 									>
 								{/each}
 							</select>
@@ -224,6 +234,16 @@
 											<span class="text-muted-foreground"
 												>· {r.soundSpecialties
 													.map((sp) => SOUND_SPECIALTY_INFO[sp].label)
+													.join(', ')}</span
+											>
+										</span>
+									{/if}
+									{#if r.producerSpecialties.length > 0}
+										<span class="text-sm">
+											<span class="font-semibold">Producteur·rice</span>
+											<span class="text-muted-foreground"
+												>· {r.producerSpecialties
+													.map((sp) => PRODUCER_SPECIALTY_INFO[sp].label)
 													.join(', ')}</span
 											>
 										</span>

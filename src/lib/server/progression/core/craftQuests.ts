@@ -1,5 +1,6 @@
 /**
- * Objectifs de l'ingé son (P4-02b, conception 08 §5) : les prochains
+ * Objectifs des métiers du son : ingé son (P4-02b, conception 08 §5) et
+ * producteur·rice (P4-04, 08 §7). Les prochains
  * objectifs atteignables, calculés depuis l'état courant, comme ceux des
  * musicien·nes (`quests.ts`). Les prestations proposées suivent les
  * spécialités cochées : on ne propose pas un mastering à qui ne fait que de
@@ -9,23 +10,26 @@ import { BAREME } from './bareme';
 import type { CraftFacts } from './craftSummary';
 import type { Objective } from './quests';
 
-/** Spécialités du profil (`#lib/crafts/sound`), recopiées pour garder le noyau pur. */
+/** Spécialités des profils (`#lib/crafts/*`), recopiées pour garder le noyau pur. */
 export type SoundSpecialty = 'RECORDING' | 'MIXING' | 'MASTERING' | 'LIVE_FOH' | 'LIVE_MONITORS';
+export type ProducerSpecialty = 'PRODUCTION' | 'ARRANGEMENT' | 'BEATMAKING';
 
-export type SoundQuestState = CraftFacts & {
-	specialties: readonly SoundSpecialty[];
+type CraftQuestState<S extends string> = CraftFacts & {
+	specialties: readonly S[];
 	hasZone: boolean;
 };
+export type SoundQuestState = CraftQuestState<SoundSpecialty>;
+export type ProducerQuestState = CraftQuestState<ProducerSpecialty>;
 
-type Candidate = Objective & {
-	done: (s: SoundQuestState) => boolean;
+type Candidate<S extends string> = Objective & {
+	done: (s: CraftQuestState<S>) => boolean;
 	/** Proposé seulement si l'une de ces spécialités est cochée. */
-	forSpecialties?: readonly SoundSpecialty[];
+	forSpecialties?: readonly S[];
 };
 
 const ARTISTS_TARGET = 3;
 
-const CANDIDATES: readonly Candidate[] = [
+const SOUND: readonly Candidate<SoundSpecialty>[] = [
 	{
 		id: 'sound.specialty',
 		label: 'Coche tes spécialités pour qu’on te trouve',
@@ -79,27 +83,92 @@ const CANDIDATES: readonly Candidate[] = [
 	}
 ];
 
-const offered = (c: Candidate, s: SoundQuestState) =>
-	!c.forSpecialties || c.forSpecialties.some((sp) => s.specialties.includes(sp));
+const PRODUCER: readonly Candidate<ProducerSpecialty>[] = [
+	{
+		id: 'producer.specialty',
+		label: 'Coche tes spécialités pour qu’on te trouve',
+		href: '/profil/production',
+		done: (s) => s.specialties.length > 0
+	},
+	{ id: 'producer.zone', label: 'Indique ta ville', href: '/profil/ville', done: (s) => s.hasZone },
+	{
+		id: 'producer.listening',
+		label: 'Publie une production en écoute',
+		href: '/profil/production',
+		done: (s) => s.listeningWorks >= 1
+	},
+	{
+		id: 'producer.production.first',
+		label: 'Termine une première production avec un·e artiste',
+		href: '/decouvrir',
+		xp: BAREME.services.PRODUCTION,
+		forSpecialties: ['PRODUCTION', 'BEATMAKING'],
+		done: (s) => s.byService.PRODUCTION >= 1
+	},
+	{
+		id: 'producer.arrangement.first',
+		label: 'Signe un premier arrangement',
+		href: '/decouvrir',
+		xp: BAREME.services.ARRANGEMENT,
+		forSpecialties: ['ARRANGEMENT'],
+		done: (s) => s.byService.ARRANGEMENT >= 1
+	},
+	{
+		id: 'producer.artists',
+		label: `Produis ${ARTISTS_TARGET} artistes différent·es`,
+		href: '/decouvrir',
+		done: (s) => s.distinctArtists >= ARTISTS_TARGET
+	},
+	{
+		id: 'producer.release',
+		label: 'Une production sortie et vérifiée',
+		href: '/decouvrir',
+		xp: BAREME.releaseCreditVerified,
+		done: (s) => s.verifiedReleaseCredits >= 1
+	}
+];
 
-function progressOf(id: string, s: SoundQuestState): Objective['progress'] {
-	if (id === 'sound.artists')
-		return { current: Math.min(s.distinctArtists, ARTISTS_TARGET), target: ARTISTS_TARGET };
-	return undefined;
+/** Objectifs à trois artistes : avancement affiché. */
+const ARTISTS_IDS = ['sound.artists', 'producer.artists'];
+
+function offered<S extends string>(c: Candidate<S>, s: CraftQuestState<S>) {
+	return !c.forSpecialties || c.forSpecialties.some((sp) => s.specialties.includes(sp));
+}
+
+function next<S extends string>(
+	list: readonly Candidate<S>[],
+	state: CraftQuestState<S>,
+	limit: number
+): Objective[] {
+	return list
+		.filter((c) => offered(c, state) && !c.done(state))
+		.slice(0, limit)
+		.map(({ done: _done, forSpecialties: _for, ...objective }) =>
+			ARTISTS_IDS.includes(objective.id)
+				? {
+						...objective,
+						progress: {
+							current: Math.min(state.distinctArtists, ARTISTS_TARGET),
+							target: ARTISTS_TARGET
+						}
+					}
+				: objective
+		);
+}
+
+function progress<S extends string>(list: readonly Candidate<S>[], state: CraftQuestState<S>) {
+	const shown = list.filter((c) => offered(c, state));
+	return { done: shown.filter((c) => c.done(state)).length, total: shown.length };
 }
 
 /** Les prochains objectifs de l'ingé son, dans l'ordre du parcours. */
-export function nextSoundObjectives(state: SoundQuestState, limit = 3): Objective[] {
-	return CANDIDATES.filter((c) => offered(c, state) && !c.done(state))
-		.slice(0, limit)
-		.map(({ done: _done, forSpecialties: _for, ...objective }) => {
-			const progress = progressOf(objective.id, state);
-			return progress ? { ...objective, progress } : objective;
-		});
-}
+export const nextSoundObjectives = (state: SoundQuestState, limit = 3) => next(SOUND, state, limit);
 
 /** Avancement sur les objectifs proposés : « N atteints sur M ». */
-export function soundQuestProgress(state: SoundQuestState): { done: number; total: number } {
-	const list = CANDIDATES.filter((c) => offered(c, state));
-	return { done: list.filter((c) => c.done(state)).length, total: list.length };
-}
+export const soundQuestProgress = (state: SoundQuestState) => progress(SOUND, state);
+
+/** Les prochains objectifs du producteur ou de la productrice. */
+export const nextProducerObjectives = (state: ProducerQuestState, limit = 3) =>
+	next(PRODUCER, state, limit);
+
+export const producerQuestProgress = (state: ProducerQuestState) => progress(PRODUCER, state);

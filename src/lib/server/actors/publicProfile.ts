@@ -19,7 +19,8 @@ import { adultBirthCutoff, isIndexable } from '#lib/actors/visibility';
 import { endorsersByInstrument } from '#lib/server/endorsements/service';
 import { getPublicReputation } from '#lib/server/progression/reputation';
 import { getSoundProfile } from '#lib/prisma/crafts/soundProfile';
-import { getSoundEngineerTier } from '#lib/server/progression/crafts';
+import { getProducerProfile } from '#lib/prisma/crafts/producerProfile';
+import { getCraftTier, getSoundEngineerTier } from '#lib/server/progression/crafts';
 import { publicActorWhere } from './visibility';
 
 /** Médias publiés affichés sur le profil (les plus récents). */
@@ -51,37 +52,53 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 	});
 	if (!actor) return null;
 
-	const isSoundEngineer = actor.person?.tracks.some((t) => t.track === 'SOUND_ENGINEER') ?? false;
-	const [musical, location, progress, tier, media, endorsed, reputation, bands, works, sound] =
-		await Promise.all([
-			getMusicalProfile({ actorId: actor.id }),
-			getActorLocation(actor.id),
-			getProgress(actor.id, prisma),
-			getMusicianTier(actor.id, prisma),
-			prisma.media.findMany({
-				where: { actorId: actor.id, status: 'PUBLISHED', ...notIdeaDemo },
-				orderBy: { createdAt: 'desc' },
-				select: {
-					id: true,
-					title: true,
-					kind: true,
-					isDemo: true,
-					externalUrl: true,
-					fileUrl: true,
-					instrumentId: true
-				}
-			}),
-			endorsersByInstrument(actor.id),
-			getPublicReputation(actor.id, prisma),
-			// Ses groupes actuels (P3-02).
-			bandsOfPerson(actor.id, now, viewerId),
-			// Morceaux composés, portés ou crédités (P3-11).
-			publicWorksOf(actor.id, now, viewerId),
-			// Profil d'ingé son (P4-02), déclaratif.
-			isSoundEngineer
-				? Promise.all([getSoundProfile(actor.id), getSoundEngineerTier(actor.id, prisma)])
-				: null
-		]);
+	const hasTrack = (track: string) => actor.person?.tracks.some((t) => t.track === track) ?? false;
+	const isSoundEngineer = hasTrack('SOUND_ENGINEER');
+	const [
+		musical,
+		location,
+		progress,
+		tier,
+		media,
+		endorsed,
+		reputation,
+		bands,
+		works,
+		sound,
+		producer
+	] = await Promise.all([
+		getMusicalProfile({ actorId: actor.id }),
+		getActorLocation(actor.id),
+		getProgress(actor.id, prisma),
+		getMusicianTier(actor.id, prisma),
+		prisma.media.findMany({
+			where: { actorId: actor.id, status: 'PUBLISHED', ...notIdeaDemo },
+			orderBy: { createdAt: 'desc' },
+			select: {
+				id: true,
+				title: true,
+				kind: true,
+				isDemo: true,
+				externalUrl: true,
+				fileUrl: true,
+				instrumentId: true
+			}
+		}),
+		endorsersByInstrument(actor.id),
+		getPublicReputation(actor.id, prisma),
+		// Ses groupes actuels (P3-02).
+		bandsOfPerson(actor.id, now, viewerId),
+		// Morceaux composés, portés ou crédités (P3-11).
+		publicWorksOf(actor.id, now, viewerId),
+		// Profil d'ingé son (P4-02), déclaratif.
+		isSoundEngineer
+			? Promise.all([getSoundProfile(actor.id), getSoundEngineerTier(actor.id, prisma)])
+			: null,
+		// Profil de producteur·rice (P4-04), déclaratif.
+		hasTrack('PRODUCER')
+			? Promise.all([getProducerProfile(actor.id), getCraftTier(actor.id, 'PRODUCER', prisma)])
+			: null
+	]);
 
 	const demosByInstrument = new Map<string, number>();
 	for (const m of media) {
@@ -119,6 +136,7 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 		works,
 		// Rang d'ingé son (P4-02b) : des conditions, jamais l'XP.
 		soundEngineer: sound?.[0] ? { ...sound[0], tier: sound[1] } : null,
+		producer: producer?.[0] ? { ...producer[0], tier: producer[1] } : null,
 		media: media.slice(0, PROFILE_MEDIA_LIMIT).map(({ instrumentId: _i, ...m }) => m),
 		mediaCount: media.length,
 		level: progress.level,

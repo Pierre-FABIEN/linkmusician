@@ -11,27 +11,45 @@ import {
 } from '#lib/actors/profile';
 import { isInstrumentLevel, type InstrumentLevel } from '#lib/skills/levels';
 import { SOUND_SPECIALTIES, type SoundSpecialtyValue } from '#lib/crafts/sound';
+import { PRODUCER_SPECIALTIES, type ProducerSpecialtyValue } from '#lib/crafts/producer';
 
 /**
  * Métiers cherchables (P4-02) : ceux qui sont ouverts. Valeur d'URL lisible
  * (`?metier=inge-son`) ; sans métier, on cherche tout le monde.
  */
-export const SEARCH_TRACKS = { musicien: 'MUSICIAN', 'inge-son': 'SOUND_ENGINEER' } as const;
+export const SEARCH_TRACKS = {
+	musicien: 'MUSICIAN',
+	'inge-son': 'SOUND_ENGINEER',
+	producteur: 'PRODUCER'
+} as const;
 export type SearchTrackSlug = keyof typeof SEARCH_TRACKS;
 export type SearchTrack = (typeof SEARCH_TRACKS)[SearchTrackSlug];
 export const SEARCH_TRACK_LABELS: Readonly<Record<SearchTrackSlug, string>> = {
 	musicien: 'Musicien·ne',
-	'inge-son': 'Ingé son'
+	'inge-son': 'Ingé son',
+	producteur: 'Producteur·rice'
 };
 
-/** Spécialités d'ingé son dans l'URL (`?specialite=mixage`). */
-export const SPECIALTY_SLUGS: Readonly<Record<SoundSpecialtyValue, string>> = {
+export type SearchSpecialty = SoundSpecialtyValue | ProducerSpecialtyValue;
+
+/** Spécialités dans l'URL (`?specialite=mixage`), par métier. */
+export const SPECIALTY_SLUGS: Readonly<Record<SearchSpecialty, string>> = {
 	RECORDING: 'prise-de-son',
 	MIXING: 'mixage',
 	MASTERING: 'mastering',
 	LIVE_FOH: 'facade',
-	LIVE_MONITORS: 'retours'
+	LIVE_MONITORS: 'retours',
+	PRODUCTION: 'production',
+	ARRANGEMENT: 'arrangement',
+	BEATMAKING: 'beatmaking'
 };
+
+/** Spécialités cherchables pour un métier (aucune pour musicien·ne). */
+export function specialtiesOf(track: SearchTrack | null): readonly SearchSpecialty[] {
+	if (track === 'SOUND_ENGINEER') return SOUND_SPECIALTIES;
+	if (track === 'PRODUCER') return PRODUCER_SPECIALTIES;
+	return [];
+}
 
 /** Rayons proposés (km), alignés sur les tranches de distance. */
 export const SEARCH_RADII = [5, 10, 25, 50, 100] as const;
@@ -47,8 +65,8 @@ const SLUG = /^[a-z0-9-]{1,60}$/;
 export type SearchFilters = {
 	/** Métier cherché (P4-02), `null` : tous. */
 	track: SearchTrack | null;
-	/** Spécialité d'ingé son, seulement avec `track = SOUND_ENGINEER`. */
-	specialty: SoundSpecialtyValue | null;
+	/** Spécialité du métier choisi (ingé son, producteur·rice). */
+	specialty: SearchSpecialty | null;
 	instrument: string | null;
 	minLevel: InstrumentLevel | null;
 	genre: string | null;
@@ -77,10 +95,7 @@ export function parseFilters(params: URLSearchParams): SearchFilters {
 			? SEARCH_TRACKS[trackSlug as SearchTrackSlug]
 			: null;
 	const specialtySlug = params.get('specialite');
-	const specialty =
-		track === 'SOUND_ENGINEER'
-			? (SOUND_SPECIALTIES.find((s) => SPECIALTY_SLUGS[s] === specialtySlug) ?? null)
-			: null;
+	const specialty = specialtiesOf(track).find((s) => SPECIALTY_SLUGS[s] === specialtySlug) ?? null;
 	return {
 		track,
 		specialty,

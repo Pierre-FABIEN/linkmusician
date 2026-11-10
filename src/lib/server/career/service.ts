@@ -163,6 +163,7 @@ const AVAILABLE = [
 	// Ingé son (P4-02b). Les sessions mènent encore nulle part : elles se
 	// confirmeront avec les collaborations liées au morceau (P4-06).
 	'/profil/son',
+	'/profil/production',
 	'/annonces',
 	'/groupes',
 	'/morceaux'

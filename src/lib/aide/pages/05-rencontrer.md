@@ -14,9 +14,10 @@ _Trouver la bonne personne, lui écrire, et jouer._
 ## 1. Découvrir
 
 1. Ouvre **Découvrir**.
-2. Filtre par **métier** (musicien·ne ou ingé son), **instrument**,
-   **style**, **niveau** et **distance**. Pour un·e ingé son, choisis
-   aussi la **spécialité** : mixage, façade…
+2. Filtre par **métier** (musicien·ne, ingé son ou producteur·rice),
+   **instrument**, **style**, **niveau** et **distance**. Pour un·e ingé
+   son ou un·e producteur·rice, choisis aussi la **spécialité** :
+   mixage, façade, beatmaking…
 3. Ouvre un profil pour écouter ses démos, voir ses groupes et ce que
    d’autres confirment de lui ou d’elle.
 

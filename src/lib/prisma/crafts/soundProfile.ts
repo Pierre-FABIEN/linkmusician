@@ -5,13 +5,13 @@
  */
 import { prisma } from '#lib/server';
 import {
-	checkReference,
 	normalizeGear,
 	type CraftMobilityValue,
 	type Reference,
 	type ReferenceInput,
 	type SoundSpecialtyValue
 } from '#lib/crafts/sound';
+import { listReferences, normalizeReferences, replaceReferencesOps } from './references';
 
 const TRACK = 'SOUND_ENGINEER' as const;
 
@@ -28,11 +28,7 @@ export async function getSoundProfile(personId: string): Promise<SoundProfile | 
 			where: { personId },
 			select: { specialties: true, mobility: true, gear: true }
 		}),
-		prisma.craftReference.findMany({
-			where: { personId, track: TRACK },
-			orderBy: { position: 'asc' },
-			select: { title: true, url: true }
-		})
+		listReferences(personId, TRACK)
 	]);
 	if (!profile) return null;
 	return { ...profile, references };
@@ -50,14 +46,7 @@ export type SoundProfileInput = {
  * lignes vides ignorées, liens normalisés, doublons retirés.
  */
 export async function saveSoundProfile(personId: string, input: SoundProfileInput) {
-	const references: Reference[] = [];
-	for (const r of input.references) {
-		if (!r.title.trim() && !r.url.trim()) continue;
-		const checked = checkReference(r);
-		if (!checked.ok) throw new Error(`Travail en écoute invalide (${checked.field})`);
-		if (!references.some((x) => x.url === checked.reference.url))
-			references.push(checked.reference);
-	}
+	const references = normalizeReferences(input.references);
 	const data = {
 		specialties: [...new Set(input.specialties)],
 		mobility: [...new Set(input.mobility)],
@@ -69,10 +58,7 @@ export async function saveSoundProfile(personId: string, input: SoundProfileInpu
 			create: { personId, ...data },
 			update: data
 		}),
-		prisma.craftReference.deleteMany({ where: { personId, track: TRACK } }),
-		prisma.craftReference.createMany({
-			data: references.map((r, position) => ({ personId, track: TRACK, position, ...r }))
-		})
+		...replaceReferencesOps(personId, TRACK, references)
 	]);
 	return { ...data, references };
 }

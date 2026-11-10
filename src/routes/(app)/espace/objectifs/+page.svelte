@@ -1,5 +1,5 @@
 <script lang="ts">
-	// LINKMUSICIAN: mes objectifs (P3-12, P4-02b), voir +page.server.ts.
+	// LINKMUSICIAN: mes objectifs (P3-12, P4-02b, P4-04), voir +page.server.ts.
 	import SEO from '#lib/components/SEO.svelte';
 	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
 	import QuestCard from '#lib/components/linkmusician/progress/QuestCard.svelte';
@@ -7,7 +7,7 @@
 	import { AMBITION_INFO } from '#lib/career/ambition';
 
 	let { data } = $props();
-	const both = $derived(data.sound !== null && data.musician);
+	const both = $derived(data.crafts.length > 0 && data.musician);
 
 	const reached = (p: { done: number; total: number }) =>
 		`${p.done} objectif${p.done > 1 ? 's' : ''} atteint${p.done > 1 ? 's' : ''} sur ${p.total}.`;
@@ -36,17 +36,17 @@
 	</section>
 {/snippet}
 
-{#snippet sound(s: NonNullable<typeof data.sound>)}
-	<section class="space-y-3" aria-labelledby="objectifs-son">
-		<h2 id="objectifs-son" class="flex flex-wrap items-center gap-2 text-lg font-semibold">
-			Ingé son
-			{#if s.tier}<TierBadge {...s.tier} prefix="Rang d’ingé son :" />{/if}
+{#snippet craft(c: (typeof data.crafts)[number])}
+	<section class="space-y-3" aria-labelledby="objectifs-{c.track}">
+		<h2 id="objectifs-{c.track}" class="flex flex-wrap items-center gap-2 text-lg font-semibold">
+			{c.title}
+			{#if c.tier}<TierBadge {...c.tier} prefix={c.tierPrefix} />{/if}
 		</h2>
 		<p class="text-sm text-muted-foreground">
-			{reached(s.questProgress)} Les sessions se confirmeront bientôt avec les artistes, sur le morceau.
+			{reached(c.questProgress)} Les prestations se confirmeront bientôt avec les artistes, sur le morceau.
 		</p>
 		<div class="space-y-3">
-			{#each s.objectives as q (q.id)}<QuestCard {...q} />{:else}
+			{#each c.objectives as q (q.id)}<QuestCard {...q} />{:else}
 				<p class="text-sm text-muted-foreground">Tu as tout débloqué pour l’instant. Bravo !</p>
 			{/each}
 		</div>
@@ -59,12 +59,12 @@
 			title="Tes prochains objectifs"
 			intro="Les étapes atteignables maintenant : des faits réels de ta carrière, à franchir avec d’autres."
 		/>
-		{#if data.sound && data.soundFirst}
-			{@render sound(data.sound)}
+		{#if data.craftsFirst}
+			{#each data.crafts as c (c.track)}{@render craft(c)}{/each}
 			{#if data.musician}{@render musician()}{/if}
 		{:else}
 			{#if data.musician}{@render musician()}{/if}
-			{#if data.sound}{@render sound(data.sound)}{/if}
+			{#each data.crafts as c (c.track)}{@render craft(c)}{/each}
 		{/if}
 	</div>
 </div>

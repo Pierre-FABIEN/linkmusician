@@ -5,6 +5,7 @@
 	import BandProfile from '#lib/components/linkmusician/BandProfile.svelte';
 	import WorksCard from '#lib/components/linkmusician/works/WorksCard.svelte';
 	import SoundEngineerCard from '#lib/components/linkmusician/crafts/SoundEngineerCard.svelte';
+	import ProducerCard from '#lib/components/linkmusician/crafts/ProducerCard.svelte';
 	import CareerSheetCard from '#lib/components/linkmusician/CareerSheetCard.svelte';
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
@@ -241,6 +242,7 @@
 					{/if}
 
 					{#if p.soundEngineer}<SoundEngineerCard profile={p.soundEngineer} />{/if}
+					{#if p.producer}<ProducerCard profile={p.producer} />{/if}
 
 					<WorksCard works={p.works} signedIn={data.signedIn} />
 

@@ -53,6 +53,13 @@ export async function searchMusicianIds(
 			SELECT 1 FROM ${t('person_tracks')} pt
 			WHERE pt."personId" = a.id AND pt.track::text = ${filters.track})`);
 	}
+	if (filters.track === 'PRODUCER') {
+		// Un·e producteur·rice se trouve dès qu'une spécialité est cochée (P4-04).
+		conditions.push(Prisma.sql`EXISTS (
+			SELECT 1 FROM ${t('producer_profiles')} pp
+			WHERE pp."personId" = a.id AND cardinality(pp.specialties) > 0
+			${filters.specialty ? Prisma.sql`AND ${filters.specialty} = ANY(pp.specialties::text[])` : Prisma.empty})`);
+	}
 	if (filters.track === 'SOUND_ENGINEER') {
 		// Un·e ingé son se trouve dès qu'une spécialité est cochée (P4-02).
 		conditions.push(Prisma.sql`EXISTS (
@@ -72,10 +79,15 @@ export async function searchMusicianIds(
 	}
 	if (filters.genre) {
 		// Un genre parent inclut ses sous-genres.
+		// Styles joués, ou styles produits (P4-04).
 		conditions.push(Prisma.sql`EXISTS (
-			SELECT 1 FROM ${t('actor_genres')} ag JOIN ${t('genres')} g ON g.id = ag."genreId"
+			SELECT 1 FROM (
+				SELECT ag."genreId" FROM ${t('actor_genres')} ag WHERE ag."actorId" = a.id
+				UNION ALL
+				SELECT pg."genreId" FROM ${t('producer_genres')} pg WHERE pg."personId" = a.id
+			) mine JOIN ${t('genres')} g ON g.id = mine."genreId"
 			LEFT JOIN ${t('genres')} parent ON parent.id = g."parentId"
-			WHERE ag."actorId" = a.id AND (g.slug = ${filters.genre} OR parent.slug = ${filters.genre}))`);
+			WHERE g.slug = ${filters.genre} OR parent.slug = ${filters.genre})`);
 	}
 	if (filters.lookingFor) {
 		conditions.push(Prisma.sql`${filters.lookingFor} = ANY(p."lookingFor"::text[])`);
@@ -144,6 +156,7 @@ export async function searchMusicians(
 			proStatus: true,
 			lookingFor: true,
 			soundProfile: { select: { specialties: true } },
+			producerProfile: { select: { specialties: true } },
 			actor: {
 				select: {
 					handle: true,
@@ -178,7 +191,9 @@ export async function searchMusicians(
 				proStatus: p.proStatus,
 				lookingFor: p.lookingFor,
 				/** Spécialités d'ingé son déclarées (P4-02), vides sinon. */
-				soundSpecialties: p.soundProfile?.specialties ?? []
+				soundSpecialties: p.soundProfile?.specialties ?? [],
+				/** Spécialités de producteur·rice déclarées (P4-04), vides sinon. */
+				producerSpecialties: p.producerProfile?.specialties ?? []
 			}
 		];
 	});

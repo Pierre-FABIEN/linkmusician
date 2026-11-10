@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { craftSummary } from './craftSummary';
-import { nextSoundObjectives, soundQuestProgress, type SoundQuestState } from './craftQuests';
+import {
+	nextProducerObjectives,
+	nextSoundObjectives,
+	producerQuestProgress,
+	soundQuestProgress,
+	type SoundQuestState
+} from './craftQuests';
 import { musicianSummary } from './summary';
 import { craftTier } from './tiers';
 import type { DomainEvent } from './events';
@@ -128,5 +134,49 @@ describe('objectifs de l’ingé son (P4-02b)', () => {
 				xp: 300
 			}
 		);
+	});
+});
+
+describe('objectifs du producteur ou de la productrice (P4-04)', () => {
+	const empty = craftSummary('nora', 'PRODUCER', [], 0);
+	const ids = (s: Parameters<typeof nextProducerObjectives>[0]) =>
+		nextProducerObjectives(s, 10).map((o) => o.id);
+
+	it('beatmaking : la première production, pas l’arrangement', () => {
+		const state = {
+			...empty,
+			specialties: ['BEATMAKING'] as const,
+			hasZone: true,
+			listeningWorks: 1
+		};
+		expect(ids({ ...state, specialties: [...state.specialties] })).toEqual([
+			'producer.production.first',
+			'producer.artists',
+			'producer.release'
+		]);
+	});
+
+	it('une sortie vérifiée créditée clôt le parcours', () => {
+		const facts = craftSummary(
+			'nora',
+			'PRODUCER',
+			[
+				session(['nora', 'a'], { nora: 'PRODUCTION' }),
+				session(['nora', 'b'], { nora: 'PRODUCTION' }),
+				session(['nora', 'c'], { nora: 'PRODUCTION' }),
+				{
+					id: 'rel',
+					occurredAt: at,
+					type: 'release.credit_verified',
+					actorId: 'nora',
+					releaseId: 'single',
+					track: 'PRODUCER'
+				}
+			],
+			1
+		);
+		const state = { ...facts, specialties: ['PRODUCTION' as const], hasZone: true };
+		expect(nextProducerObjectives(state)).toEqual([]);
+		expect(producerQuestProgress(state)).toEqual({ done: 6, total: 6 });
 	});
 });

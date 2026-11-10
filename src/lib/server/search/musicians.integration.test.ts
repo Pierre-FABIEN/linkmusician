@@ -259,4 +259,39 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 		expect(await search('metier=inge-son&specialite=facade')).toEqual([]);
 		expect(await search('metier=musicien&rayon=10')).not.toContain('ingeson');
 	});
+
+	it('producteur·rice (P4-04) : par spécialité et par style produit', async () => {
+		const funk = await db.genre.findUniqueOrThrow({ where: { slug: 'funk' } });
+		const user = await db.user.create({
+			data: { email: `${PREFIX}prod@example.test`, referralCode: `${PREFIX}prod` }
+		});
+		const actor = await db.actor.create({
+			data: {
+				kind: 'PERSON',
+				handle: `${PREFIX}prod`,
+				displayName: 'prod',
+				person: {
+					create: {
+						userId: user.id,
+						termsAcceptedAt: new Date(),
+						onboardedAt: new Date(),
+						tracks: { create: { track: 'PRODUCER', isPrimary: true } },
+						producerProfile: {
+							create: {
+								specialties: ['BEATMAKING'],
+								genres: { create: { genreId: funk.id } }
+							}
+						}
+					}
+				}
+			}
+		});
+		ids.prod = actor.id;
+		await setActorLocation(actor.id, commune('Blagnac'), { db, schema: 'e2e' });
+		expect(await search('metier=producteur')).toEqual(['prod']);
+		expect(await search('metier=producteur&specialite=beatmaking&genre=funk')).toEqual(['prod']);
+		expect(await search('metier=producteur&specialite=production')).toEqual([]);
+		// Le style produit compte aussi dans la recherche sans métier.
+		expect(await search('genre=funk&rayon=10')).toContain('prod');
+	});
 });
