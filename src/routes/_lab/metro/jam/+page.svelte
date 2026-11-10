@@ -6,6 +6,7 @@
 	import Aurora from '#lib/components/linkmusician/metro/Aurora.svelte';
 	import ActionTile from '#lib/components/linkmusician/metro/ActionTile.svelte';
 	import EventTile from '#lib/components/linkmusician/metro/EventTile.svelte';
+	import JamTileFrame from '#lib/components/linkmusician/metro/JamTileFrame.svelte';
 	import ProfileTile from '#lib/components/linkmusician/metro/ProfileTile.svelte';
 	import Tile from '#lib/components/linkmusician/metro/Tile.svelte';
 	import * as Calendar from '#shadcn/calendar';
@@ -144,6 +145,7 @@
 
 		<div class="lm-jam-board-wrap mt-6">
 			<div class="lm-jam-board lm-mosaic" aria-label="Tableau de bord du mode Jam">
+				<JamTileFrame class="lm-jam-next" size="big">
 				<Tile tone="orange" size="big" class="lm-pattern-tile lm-jam-next">
 					<Music2 class="lm-jam-hero-symbol" aria-hidden="true" />
 					<div class="flex items-start justify-between gap-4 lm-jam-next__header">
@@ -180,7 +182,9 @@
 						</div>
 					</div>
 				</Tile>
+				</JamTileFrame>
 
+				<JamTileFrame class="lm-jam-availability" size="md">
 				<Tile
 					id="jam-disponibilites"
 					tone="cyan"
@@ -217,7 +221,9 @@
 						>Gérer mes créneaux <ArrowRight class="size-4" aria-hidden="true" /></a
 					>
 				</Tile>
+				</JamTileFrame>
 
+				<JamTileFrame class="lm-profile-tile">
 				<ProfileTile
 					tone="lime"
 					href="/_lab/metro"
@@ -228,7 +234,9 @@
 					location="Toulouse"
 					distance="à moins de 5 km"
 				/>
+				</JamTileFrame>
 
+				<JamTileFrame class="lm-action-tile" size="band">
 				<ActionTile
 					tone="amber"
 					size="band"
@@ -238,7 +246,9 @@
 					actionLabel="Lancer une jam"
 					href="/_lab/metro"
 				/>
+				</JamTileFrame>
 
+				<JamTileFrame class="lm-jam-appreciation" size="md">
 				<Tile tone="rose" size="md" class="lm-pattern-tile lm-jam-appreciation">
 					<div class="flex items-start justify-between gap-3">
 						<p class="lm-tile__kicker">
@@ -256,7 +266,9 @@
 						>Apprécier les musicos <ArrowRight class="size-4" aria-hidden="true" /></a
 					>
 				</Tile>
+				</JamTileFrame>
 
+				<JamTileFrame class="lm-event-tile" size="wide">
 				<EventTile
 					month="nov."
 					day="14"
@@ -269,7 +281,9 @@
 					joined={joinedJam}
 					onJoin={() => (joinedJam = !joinedJam)}
 				/>
+				</JamTileFrame>
 
+				<JamTileFrame class="lm-jam-calendar" size="wide">
 				<Tile tone="violet" size="wide" class="lm-pattern-tile lm-jam-calendar">
 					<div class="flex items-center justify-between gap-3">
 						<div>
@@ -376,7 +390,9 @@
 						</div>
 					</div>
 				</Tile>
+				</JamTileFrame>
 
+				<JamTileFrame class="lm-jam-network" size="wide">
 				<Tile tone="ink" size="wide" class="lm-pattern-tile lm-jam-network">
 					<div class="flex items-start gap-4">
 						<div class="lm-pattern-icon"><BookUser class="size-5" aria-hidden="true" /></div>
@@ -394,6 +410,7 @@
 						>Ouvrir mon carnet <ArrowRight class="size-4" aria-hidden="true" /></a
 					>
 				</Tile>
+				</JamTileFrame>
 			</div>
 		</div>
 	</main>
