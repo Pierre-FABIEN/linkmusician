@@ -46,6 +46,14 @@ propose aux producteurs et se fait produire ; chacun gagne sur sa piste.
   fiche (salles, matériel, tarifs, photos, créneaux) ; rangs Ouvert →
   Incontournable ; page publique.
 - **Fin** : e2e « je crée la fiche de mon studio ».
+- **Découpage** (10/11/2026) :
+  - **P4-03a** — fiche (services, salles et tarifs, matériel, horaires,
+    ville), publication et rang « Ouvert », page publique, RGPD ; porte
+    l'e2e de fin.
+  - **P4-03b** — photos du studio et co-gestion (inviter une autre
+    personne à gérer).
+  - **P4-03c** — sessions confirmées par les client·es, rangs Actif →
+    Incontournable, quêtes du studio (08 §6).
 
 ### P4-04 — Producteur·rice
 

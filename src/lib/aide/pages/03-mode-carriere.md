@@ -22,7 +22,7 @@ les suit dans l’ordre où elles arrivent souvent, sans les imposer :
 | ------------------------- | ------------------------------------------------- | ----------------------------------------------------- |
 | **I. La rencontre**       | Trouver avec qui jouer                            | ✅ Annonces, messages, jams, collaborations           |
 | **II. La création**       | Monter un groupe, composer, répéter, une maquette | ✅ Groupes, morceaux, étapes du groupe                |
-| **III. Le studio**        | Enregistrer, mixer                                | Étape « Premier enregistrement » ; 🔜 studios         |
+| **III. Le studio**        | Enregistrer, mixer                                | Étape « Premier enregistrement » ; fiches des studios |
 | **IV. La production**     | Arranger, produire                                | 🔜                                                    |
 | **V. La scène**           | Premiers concerts, puis une tournée               | Étape « Premier concert » ; 🔜 lieux et organisateurs |
 | **VI. La sortie**         | Sortir un titre, un EP                            | ✅ Étapes EP/album vérifiées par UPC ou ISRC          |

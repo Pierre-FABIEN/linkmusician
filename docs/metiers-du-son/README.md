@@ -113,3 +113,33 @@ barème en [02 §2.2](../conception/02-progression.md#22-barème-première-versi
 - **P4-07** : crédits confirmés des rôles du son sur le morceau.
 - Un objectif « Réponds à une annonce qui cherche un·e ingé son » (08 §5),
   maintenant possible avec P4-05.
+
+## Studio (P4-03a)
+
+- **Modèle** : une `Organization` de type `STUDIO`, administrée par des
+  personnes (`Membership`, OWNER puis ADMIN), avec sa fiche
+  `StudioProfile` (services `StudioService`, matériel, conditions, « sur
+  rendez-vous », `publishedAt`), ses salles `StudioRoom` (tarif à l'heure
+  indicatif, en euros entiers) et ses horaires `StudioHours` (une plage
+  par jour). Aucune adresse : le centre de la commune, comme un groupe.
+- **Règles pures** : `src/lib/studios/rules.ts` (schéma de la fiche,
+  `publicationGaps`). **Service** : `src/lib/server/studios/service.ts`,
+  seul point d'écriture.
+- **Qui** : une personne qui a le métier d'ingé son ou de
+  producteur·rice (`STUDIO_TRACKS`), trois studios gérés au plus.
+- **Publication** : possible quand la fiche a une ville, un service, une
+  salle, un tarif (à l'heure ou des conditions), du matériel et des
+  horaires (ou « sur rendez-vous »). Publiée, elle donne le rang
+  **Ouvert** (`studioTier`) ; vidée, elle repasse en brouillon. Les rangs
+  suivants attendent les sessions confirmées (P4-03c).
+- **Écrans** : `/studios` (mes studios, création), `/studios/[handle]`
+  (fiche, publication) ; page publique `/@handle` (`StudioPublic`) ; les
+  studios gérés s'affichent sur le profil public de la personne. Entrées :
+  « Mon profil » et « Ta structure ».
+- **Un studio n'est pas un groupe** : toute lecture des adhésions d'une
+  personne filtre `kind: 'BAND'` quand elle parle de groupes.
+- **RGPD** : la gestion est exportée (`studios`) ; à l'anonymisation, un
+  studio sans autre responsable est fermé (`dissolvedAt`), comme un
+  groupe.
+- **Tests** : `rules.test.ts`, `service.integration.test.ts`, e2e
+  `e2e/linkmusician/studio.spec.ts`.

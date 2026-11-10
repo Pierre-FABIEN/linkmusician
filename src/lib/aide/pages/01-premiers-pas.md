@@ -101,6 +101,26 @@ Ton rang de producteur·rice et tes objectifs suivent la même logique que
 ceux de l’ingé son : tout part des productions confirmées par les
 artistes.
 
+### Si tu as un studio {#studio}
+
+Un studio se gère avec le métier d’ingé son ou de producteur·rice. Ouvre
+**Mon profil › Mes studios**, donne un nom à ton studio, puis remplis sa
+fiche :
+
+- la **ville** (jamais l’adresse : tu la donnes à tes client·es) ;
+- ce que vous proposez : **répétition, enregistrement, mixage,
+  mastering** ;
+- tes **salles**, avec un **tarif à l’heure** indicatif, et tes
+  conditions (ingé son compris, forfait, acompte) ;
+- ton **matériel**, une ligne par élément ;
+- tes **horaires d’ouverture**, ou « sur rendez-vous ».
+
+Tant que tu ne la publies pas, la fiche n’est visible que de toi. Une fois
+complète, touche **Publier la fiche** : ton studio a sa page, que tout le
+monde peut lire, et il est **Ouvert**. Les rangs suivants (_Actif_,
+_Reconnu_, _Incontournable_) viendront des sessions confirmées par tes
+client·es.
+
 ## 3. Choisir ton mode
 
 Après ton profil, l’app te propose ses deux modes. Une courte
