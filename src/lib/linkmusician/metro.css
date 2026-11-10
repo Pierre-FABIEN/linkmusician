@@ -1696,6 +1696,228 @@
 	width: 4.2rem;
 	height: 4.2rem;
 }
+
+/* ── Icône animée (`Tile fx`) ───────────────────────────────────────────────
+   Le filigrane vit en continu au repos ; le survol lance le reste. Même
+   emplacement que `.lm-tile__mark`. Uniquement transform et opacity, sur des
+   calques promus : rien n'est repeint. Immobile si le système demande moins
+   d'animations. */
+.lm-tile-fx {
+	--beat: 0.8s;
+	position: absolute;
+	right: -0.8rem;
+	bottom: -1rem;
+	z-index: -1;
+	width: 6.5rem;
+	height: 6.5rem;
+	opacity: 0.12;
+	pointer-events: none;
+	will-change: opacity;
+	transition: opacity 500ms ease;
+}
+.lm-tile-fx__icon {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	stroke-width: 1.25;
+	transform: rotate(-12deg);
+	transform-origin: 50% 60%;
+	will-change: transform;
+}
+.lm-tile-fx__ring {
+	position: absolute;
+	left: 25%;
+	top: 25%;
+	width: 50%;
+	height: 50%;
+	border: 3px solid currentColor;
+	border-radius: 50%;
+	opacity: 0;
+	transform: scale(0.3);
+	will-change: transform, opacity;
+}
+.lm-tile-fx[data-fx='trophy'] .lm-tile-fx__ring {
+	top: 12%;
+}
+.lm-tile-fx__bit {
+	position: absolute;
+	left: 35%;
+	top: 30%;
+	width: var(--s);
+	height: var(--s);
+	opacity: 0;
+	will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	/* Repos : la guitare se balance, le trophée flotte. */
+	@keyframes lm-fx-sway {
+		from {
+			transform: translate3d(0, 0, 0) rotate(-14deg);
+		}
+		to {
+			transform: translate3d(0, -4%, 0) rotate(-4deg);
+		}
+	}
+	@keyframes lm-fx-float {
+		from {
+			transform: translate3d(0, 0, 0) rotate(-12deg);
+		}
+		to {
+			transform: translate3d(0, -7%, 0) rotate(-7deg) scale(1.03);
+		}
+	}
+	/* Survol, guitare : battue swing sur deux temps, frappe vive, relâché long. */
+	@keyframes lm-fx-strum {
+		0% {
+			transform: translate3d(0, 0, 0) rotate(-12deg) scale(1);
+		}
+		7% {
+			transform: translate3d(0, -8%, 0) rotate(-30deg) scale(1.1);
+		}
+		22% {
+			transform: translate3d(0, 1%, 0) rotate(-15deg) scale(0.97);
+		}
+		40% {
+			transform: translate3d(0, 0, 0) rotate(-10deg) scale(1);
+		}
+		57% {
+			transform: translate3d(0, -4%, 0) rotate(2deg) scale(1.06);
+		}
+		72% {
+			transform: translate3d(0, 1%, 0) rotate(-14deg) scale(0.98);
+		}
+		100% {
+			transform: translate3d(0, 0, 0) rotate(-12deg) scale(1);
+		}
+	}
+	/* Survol, trophée : saut de victoire, dandinement, retombée. */
+	@keyframes lm-fx-win {
+		0% {
+			transform: translate3d(0, 0, 0) rotate(-12deg) scale(1);
+		}
+		12% {
+			transform: translate3d(0, -14%, 0) rotate(-4deg) scale(1.14);
+		}
+		22% {
+			transform: translate3d(0, -14%, 0) rotate(-20deg) scale(1.14);
+		}
+		32% {
+			transform: translate3d(0, -12%, 0) rotate(-4deg) scale(1.12);
+		}
+		42% {
+			transform: translate3d(0, -10%, 0) rotate(-16deg) scale(1.1);
+		}
+		58% {
+			transform: translate3d(0, 2%, 0) rotate(-12deg) scale(0.96);
+		}
+		70%,
+		100% {
+			transform: translate3d(0, 0, 0) rotate(-12deg) scale(1);
+		}
+	}
+	@keyframes lm-fx-ring {
+		0% {
+			opacity: 0.7;
+			transform: scale(0.3);
+		}
+		100% {
+			opacity: 0;
+			transform: scale(2.2);
+		}
+	}
+	/* Note : monte en ondulant, tourne, s'efface. */
+	@keyframes lm-fx-note {
+		0% {
+			opacity: 0;
+			transform: translate3d(0, 0, 0) rotate(0deg) scale(0.4);
+		}
+		15% {
+			opacity: 1;
+		}
+		40% {
+			transform: translate3d(calc(var(--dx) * 0.35 + 20%), calc(var(--dy) * 0.4), 0)
+				rotate(calc(var(--r) * -0.5)) scale(1);
+		}
+		70% {
+			opacity: 0.8;
+			transform: translate3d(calc(var(--dx) * 0.7 - 20%), calc(var(--dy) * 0.72), 0)
+				rotate(var(--r)) scale(0.95);
+		}
+		100% {
+			opacity: 0;
+			transform: translate3d(var(--dx), var(--dy), 0) rotate(calc(var(--r) * 1.5)) scale(0.7);
+		}
+	}
+	/* Étoile : jaillit, scintille, retombe en s'éteignant. */
+	@keyframes lm-fx-sparkle {
+		0% {
+			opacity: 0;
+			transform: translate3d(0, 0, 0) rotate(0deg) scale(0);
+		}
+		20% {
+			opacity: 1;
+			transform: translate3d(calc(var(--dx) * 0.45), calc(var(--dy) * 0.5), 0)
+				rotate(calc(var(--r) * 0.4)) scale(1.2);
+		}
+		35% {
+			opacity: 0.5;
+			transform: translate3d(calc(var(--dx) * 0.6), calc(var(--dy) * 0.66), 0)
+				rotate(calc(var(--r) * 0.55)) scale(0.8);
+		}
+		50% {
+			opacity: 1;
+			transform: translate3d(calc(var(--dx) * 0.75), calc(var(--dy) * 0.78), 0)
+				rotate(calc(var(--r) * 0.7)) scale(1.05);
+		}
+		100% {
+			opacity: 0;
+			transform: translate3d(var(--dx), calc(var(--dy) * 0.85), 0) rotate(var(--r)) scale(0.3);
+		}
+	}
+
+	/* Repos : mouvement lent, une particule de temps en temps. */
+	.lm-tile-fx[data-fx='notes'] .lm-tile-fx__icon {
+		animation: lm-fx-sway 2.4s ease-in-out infinite alternate;
+	}
+	.lm-tile-fx[data-fx='trophy'] .lm-tile-fx__icon {
+		animation: lm-fx-float 3s ease-in-out infinite alternate;
+	}
+	/* Une seule particule au repos (`data-idle`) : les autres attendent le survol. */
+	.lm-tile-fx[data-fx='notes'] .lm-tile-fx__bit[data-idle] {
+		animation: lm-fx-note 3.6s ease-out infinite;
+	}
+	.lm-tile-fx[data-fx='trophy'] .lm-tile-fx__bit[data-idle] {
+		animation: lm-fx-sparkle 3.2s ease-out infinite;
+	}
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	.lm-tile:hover .lm-tile-fx {
+		opacity: 0.3;
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='notes'] .lm-tile-fx__icon {
+		animation: lm-fx-strum calc(var(--beat) * 2) cubic-bezier(0.3, 0, 0.3, 1) infinite;
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='trophy'] .lm-tile-fx__icon {
+		animation: lm-fx-win calc(var(--beat) * 2) cubic-bezier(0.3, 0, 0.3, 1) infinite;
+	}
+	.lm-tile:hover .lm-tile-fx__ring {
+		animation: lm-fx-ring calc(var(--beat) * 2) cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+	}
+	/* Seconde onde sur le contretemps. */
+	.lm-tile:hover .lm-tile-fx__ring + .lm-tile-fx__ring {
+		animation-delay: calc(var(--beat) * 1.14);
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='notes'] .lm-tile-fx__bit {
+		animation: lm-fx-note calc(var(--beat) * 3) ease-out calc(var(--k) * var(--beat)) infinite;
+	}
+	.lm-tile:hover .lm-tile-fx[data-fx='trophy'] .lm-tile-fx__bit {
+		animation: lm-fx-sparkle calc(var(--beat) * 2.5) ease-out calc(var(--k) * var(--beat) * 0.6)
+			infinite;
+	}
+}
 .lm-pill {
 	display: inline-flex;
 	align-items: center;

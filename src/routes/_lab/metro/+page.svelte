@@ -95,6 +95,7 @@
 								size="wide"
 								href="/_lab/metro/carriere"
 								icon={Trophy}
+								fx="trophy"
 								index={0}
 							>
 								<p class="lm-tile__kicker">mode</p>
@@ -103,7 +104,15 @@
 									<p class="lm-tile__text">Monte un projet : groupe, morceaux, concerts.</p>
 								</div>
 							</Tile>
-							<Tile framed tone="orange" size="wide" href="/_lab" icon={Guitar} index={1}>
+							<Tile
+								framed
+								tone="orange"
+								size="wide"
+								href="/_lab"
+								icon={Guitar}
+								fx="notes"
+								index={1}
+							>
 								<p class="lm-tile__kicker">mode</p>
 								<div class="space-y-1">
 									<h3 class="lm-tile__title">jam</h3>
