@@ -1570,6 +1570,9 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 	margin: 0 0 1.25rem -0.04em;
 	font-size: clamp(3rem, 12vw, 5.5rem);
 	white-space: nowrap;
+	/* Le titre s'estompe quand son volet n'est plus actif. Sans calque à lui,
+	   ce fondu repeint tout le grand texte au début et à la fin. */
+	will-change: opacity;
 	transition: opacity 0.5s;
 }
 /* Le titre voisin dépasse à droite, en retrait, comme dans un pivot Lumia. */
@@ -1755,7 +1758,8 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 	/* Rien ne bouge : inutile de garder des calques promus. */
 	.lm-tile-frame,
 	.lm-tile-frame > .lm-tile::before,
-	.lm-tile-frame > .lm-tile::after {
+	.lm-tile-frame > .lm-tile::after,
+	.lm-pivot__title {
 		will-change: auto;
 		transition: none;
 	}
