@@ -246,4 +246,26 @@ describe('personas des métiers du son (conception 02 §2.3)', () => {
 			studioTier({ published: false, sessions: 0, distinctClients: 0, verifiedReleases: 0 }).tier
 		).toBeNull();
 	});
+
+	it('Q1 : sur un mixage, seule la personne du son gagne ; sur une prise, les deux', () => {
+		const l = new MemoryLedger({ lea: 2, sam: 2 });
+		const mix = l.apply({
+			id: `e${++seq}`,
+			occurredAt: day(20),
+			type: 'collaboration.completed',
+			collaborationId: 'mix',
+			participantIds: ['lea', 'sam'],
+			services: { sam: 'MIXING' }
+		});
+		expect(mix.map((g) => [g.actorId, g.track])).toEqual([['sam', 'SOUND_ENGINEER']]);
+		const live = l.apply({
+			id: `e${++seq}`,
+			occurredAt: day(40),
+			type: 'collaboration.completed',
+			collaborationId: 'live',
+			participantIds: ['lea', 'sam'],
+			services: { sam: 'LIVE_SOUND' }
+		});
+		expect(live.map((g) => g.actorId)).toEqual(['lea', 'sam']);
+	});
 });

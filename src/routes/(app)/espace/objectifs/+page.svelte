@@ -43,7 +43,8 @@
 			{#if c.tier}<TierBadge {...c.tier} prefix={c.tierPrefix} />{/if}
 		</h2>
 		<p class="text-sm text-muted-foreground">
-			{reached(c.questProgress)} Les prestations se confirmeront bientôt avec les artistes, sur le morceau.
+			{reached(c.questProgress)} Une prestation se propose dans une conversation avec l’artiste, et compte
+			quand elle la confirme.
 		</p>
 		<div class="space-y-3">
 			{#each c.objectives as q (q.id)}<QuestCard {...q} />{:else}

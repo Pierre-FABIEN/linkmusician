@@ -258,9 +258,10 @@ export async function exportPersonData(userId: string) {
 				happenedOn: true,
 				status: true,
 				participants: {
-					where: { actorId: { not: person.actorId } },
-					select: { actor: { select: { displayName: true } } }
-				}
+					select: { actorId: true, service: true, actor: { select: { displayName: true } } }
+				},
+				// Morceau concerné (P4-06).
+				work: { select: { title: true } }
 			}
 		}),
 		// Mode jam (P2-13).
@@ -617,7 +618,12 @@ export async function exportPersonData(userId: string) {
 			titre: c.title,
 			le: c.happenedOn,
 			statut: c.status,
-			avec: c.participants.map((p) => p.actor.displayName)
+			avec: c.participants
+				.filter((p) => p.actorId !== person.actorId)
+				.map((p) => p.actor.displayName),
+			// Prestation du son assurée (P4-06) et morceau concerné.
+			ma_prestation: c.participants.find((p) => p.actorId === person.actorId)?.service ?? null,
+			morceau: c.work?.title ?? null
 		})),
 		candidatures: applications.map((a) => ({
 			annonce: a.opportunity.title,

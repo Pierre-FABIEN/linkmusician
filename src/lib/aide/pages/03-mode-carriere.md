@@ -244,6 +244,20 @@ jamais comme extérieur.
 Une idée reste entre vous. Un morceau composé apparaît sur ton profil et
 sur la page du groupe.
 
+### La suite du morceau : enregistrer, mixer, produire {#suite-du-morceau}
+
+Un morceau composé avance avec les métiers du son. Sur sa page, **Trouver
+un·e ingé son** ou **Trouver un·e producteur·rice** prépare une annonce
+que seules ces personnes voient. Ensuite, dans votre conversation,
+proposez une collaboration (enregistrement, mixage, mastering, production)
+**reliée au morceau**, en disant qui assure la prestation.
+
+Quand chacun·e l’a confirmée, le morceau passe **Enregistré**, **Mixé**,
+**Masterisé** ou **Produit**. L’ingé son ou la productrice gagne sur sa
+piste. Toi, tu gagnes la collaboration quand tu joues : un enregistrement,
+une production. Sur un mixage ou un mastering, où tu ne joues pas, seule
+la personne du son gagne.
+
 > 💡 **Astuce** : un morceau écrit à plusieurs ? Notez qui a fait quoi
 > **avant** qu’il soit joué en public. Le guide des
 > [Démarches](/demarches) explique comment le protéger et le déclarer.

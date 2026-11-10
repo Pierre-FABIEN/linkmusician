@@ -4,6 +4,12 @@
  * `collaboration.completed`, traité par le moteur dans la même transaction
  * (400 XP × multiplicateurs : rendement décroissant par contrepartie,
  * confiance de la contrepartie). Règles pures : `#lib/collaborations/rules`.
+ *
+ * Liées au morceau (P4-06) : une collaboration peut porter sur un morceau
+ * géré par l'une des deux personnes, et une prestation du son (prise de son,
+ * mixage, mastering, sonorisation, production) assurée par l'une d'elles, qui
+ * en a le métier. Terminée, elle fait avancer le morceau (enregistré, mixé,
+ * masterisé, produit) et crédite chacun·e sur sa piste.
  */
 import { prisma } from '#lib/server';
 import { isBlockedBetween } from '#lib/server/blocking/service';
@@ -11,12 +17,16 @@ import { emitAndProcess } from '#lib/server/progression/processor';
 import { notify } from '#lib/server/notifications/service';
 import { parisDay } from '#lib/metrics/indicators';
 import {
+	checkProvider,
 	collabStatus,
 	hasHappened,
+	KIND_SERVICE,
+	KIND_WORK_STAGE,
 	nextStep,
 	type CollabKindValue,
 	type CollabStatusValue
 } from '#lib/collaborations/rules';
+import { manageableWorks } from '#lib/server/works/service';
 
 export class CollaborationError extends Error {
 	constructor(
@@ -32,7 +42,15 @@ const dayOf = (d: Date) => d.toISOString().slice(0, 10);
 export async function proposeCollaboration(
 	proposerId: string,
 	conversationId: string,
-	input: { kind: CollabKindValue; title: string; happenedOn: string },
+	input: {
+		kind: CollabKindValue;
+		title: string;
+		happenedOn: string;
+		/** Qui assure la prestation du son (P4-06). */
+		provider?: 'me' | 'other';
+		/** Morceau concerné (P4-06). */
+		work?: string;
+	},
 	now = new Date()
 ) {
 	const conversation = await prisma.conversation.findUnique({
@@ -61,6 +79,29 @@ export async function proposeCollaboration(
 		}
 	});
 	if (duplicate > 0) throw new CollaborationError('Une collaboration existe déjà pour ce jour.');
+	// Prestation du son (P4-06) : la personne qui l'assure en a le métier.
+	const tracksOf = async (actorId: string) =>
+		(
+			await prisma.personTrack.findMany({ where: { personId: actorId }, select: { track: true } })
+		).map((t) => t.track as string);
+	const provider = checkProvider(input.kind, input.provider ?? null, {
+		me: await tracksOf(proposerId),
+		other: await tracksOf(other.actorId)
+	});
+	if (!provider.ok) throw new CollaborationError(provider.message);
+	const service = KIND_SERVICE[input.kind]?.service ?? null;
+	const serviceOf = (who: 'me' | 'other') =>
+		provider.provider === who && service ? service : null;
+	// Morceau (P4-06) : géré par l'une des deux personnes.
+	if (input.work) {
+		const [mine, theirs] = await Promise.all([
+			manageableWorks(proposerId),
+			manageableWorks(other.actorId)
+		]);
+		if (![...mine, ...theirs].some((w) => w.id === input.work)) {
+			throw new CollaborationError('Ce morceau n’est pas à l’un de vous deux.', 403);
+		}
+	}
 	const happened = hasHappened(input.happenedOn, now);
 	const created = await prisma.collaboration.create({
 		data: {
@@ -70,11 +111,17 @@ export async function proposeCollaboration(
 			proposedById: proposerId,
 			conversationId,
 			opportunityId: conversation.opportunityId,
+			workId: input.work ?? null,
 			participants: {
 				create: [
 					// Proposer vaut accord, et confirmation si c'est déjà passé.
-					{ actorId: proposerId, acceptedAt: now, confirmedCompletionAt: happened ? now : null },
-					{ actorId: other.actorId }
+					{
+						actorId: proposerId,
+						acceptedAt: now,
+						confirmedCompletionAt: happened ? now : null,
+						service: serviceOf('me')
+					},
+					{ actorId: other.actorId, service: serviceOf('other') }
 				]
 			}
 		},
@@ -126,11 +173,24 @@ async function settle(collaborationId: string, now: Date) {
 			data: { status, ...(status === 'COMPLETED' ? { completedAt: now } : {}) }
 		});
 		if (status === 'COMPLETED') {
+			// Prestations du son (P4-06) : chacun·e gagne sur sa piste.
+			const services = Object.fromEntries(
+				collab.participants.flatMap((p) => (p.service ? [[p.actorId, p.service]] : []))
+			);
 			await emitAndProcess(tx, {
 				type: 'collaboration.completed',
 				collaborationId,
-				participantIds: collab.participants.map((p) => p.actorId)
+				participantIds: collab.participants.map((p) => p.actorId),
+				...(Object.keys(services).length > 0 ? { services } : {})
 			});
+			// Le morceau avance (P4-06) : la première fois seulement.
+			const stage = KIND_WORK_STAGE[collab.kind as CollabKindValue];
+			if (collab.workId && stage) {
+				await tx.work.updateMany({
+					where: { id: collab.workId, [stage]: null },
+					data: { [stage]: now }
+				});
+			}
 		}
 	});
 }
@@ -208,7 +268,8 @@ function rows(where: object) {
 		include: {
 			participants: {
 				include: { actor: { select: { displayName: true, handle: true, deletedAt: true } } }
-			}
+			},
+			work: { select: { id: true, title: true } }
 		}
 	});
 }
@@ -225,6 +286,13 @@ function view(actorId: string, c: Row, now: Date) {
 		status,
 		conversationId: c.conversationId,
 		with: others.map((p) => p.actor.displayName).join(', '),
+		/** Qui assure la prestation du son (P4-06) : moi, l'autre, ou personne. */
+		provider: me.service
+			? ('me' as const)
+			: others.some((p) => p.service)
+				? ('other' as const)
+				: null,
+		work: c.work ? { id: c.work.id, title: c.work.title } : null,
 		step: nextStep(
 			status,
 			{ accepted: me.acceptedAt !== null, confirmed: me.confirmedCompletionAt !== null },
@@ -245,6 +313,53 @@ export async function listForConversation(
 		status: { not: 'CANCELLED' }
 	});
 	return list.map((c) => view(actorId, c, now));
+}
+
+/**
+ * Ce qu'il faut pour proposer une collaboration liée au morceau (P4-06) : les
+ * métiers des deux personnes, les morceaux proposables (tous les miens ; ceux
+ * de l'autre seulement s'ils sont composés, pour ne pas révéler une idée) et
+ * le morceau de l'annonce d'origine, s'il y en a un.
+ */
+export async function collabFormContext(actorId: string, conversationId: string) {
+	const conversation = await prisma.conversation.findUnique({
+		where: { id: conversationId },
+		select: { opportunityId: true, participants: { select: { actorId: true } } }
+	});
+	const otherId = conversation?.participants.find((p) => p.actorId !== actorId)?.actorId;
+	if (!conversation || !otherId) return null;
+	const tracksOf = async (id: string) =>
+		(await prisma.personTrack.findMany({ where: { personId: id }, select: { track: true } })).map(
+			(t) => t.track as string
+		);
+	const [myTracks, otherTracks, mine, theirs, opportunity] = await Promise.all([
+		tracksOf(actorId),
+		tracksOf(otherId),
+		manageableWorks(actorId),
+		manageableWorks(otherId),
+		conversation.opportunityId
+			? prisma.opportunity.findUnique({
+					where: { id: conversation.opportunityId },
+					select: { workId: true }
+				})
+			: null
+	]);
+	const composed = new Set(
+		(
+			await prisma.work.findMany({
+				where: { id: { in: theirs.map((w) => w.id) }, state: 'COMPOSED' },
+				select: { id: true }
+			})
+		).map((w) => w.id)
+	);
+	const works = [
+		...mine.map((w) => ({ id: w.id, title: w.title, band: w.band, mine: true })),
+		...theirs
+			.filter((w) => composed.has(w.id) && !mine.some((m) => m.id === w.id))
+			.map((w) => ({ id: w.id, title: w.title, band: w.band, mine: false }))
+	];
+	const defaultWork = works.some((w) => w.id === opportunity?.workId) ? opportunity!.workId : null;
+	return { tracks: { me: myTracks, other: otherTracks }, works, defaultWork };
 }
 
 /** Ce qui attend ma réponse ou ma confirmation (tableau de bord). */

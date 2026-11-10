@@ -46,7 +46,7 @@ const SOUND: readonly Candidate<SoundSpecialty>[] = [
 	{
 		id: 'sound.recording.first',
 		label: 'Fais une première session d’enregistrement',
-		href: '/decouvrir',
+		href: '/messages',
 		xp: BAREME.services.RECORDING,
 		forSpecialties: ['RECORDING'],
 		done: (s) => s.byService.RECORDING >= 1
@@ -54,7 +54,7 @@ const SOUND: readonly Candidate<SoundSpecialty>[] = [
 	{
 		id: 'sound.mixing.first',
 		label: 'Signe un premier mixage',
-		href: '/decouvrir',
+		href: '/messages',
 		xp: BAREME.services.MIXING,
 		forSpecialties: ['MIXING'],
 		done: (s) => s.byService.MIXING >= 1
@@ -62,7 +62,7 @@ const SOUND: readonly Candidate<SoundSpecialty>[] = [
 	{
 		id: 'sound.mastering.first',
 		label: 'Signe un premier mastering',
-		href: '/decouvrir',
+		href: '/messages',
 		xp: BAREME.services.MASTERING,
 		forSpecialties: ['MASTERING'],
 		done: (s) => s.byService.MASTERING >= 1
@@ -70,7 +70,7 @@ const SOUND: readonly Candidate<SoundSpecialty>[] = [
 	{
 		id: 'sound.live.first',
 		label: 'Sonorise une première date',
-		href: '/jam',
+		href: '/messages',
 		xp: BAREME.services.LIVE_SOUND,
 		forSpecialties: ['LIVE_FOH', 'LIVE_MONITORS'],
 		done: (s) => s.byService.LIVE_SOUND >= 1
@@ -100,7 +100,7 @@ const PRODUCER: readonly Candidate<ProducerSpecialty>[] = [
 	{
 		id: 'producer.production.first',
 		label: 'Termine une première production avec un·e artiste',
-		href: '/decouvrir',
+		href: '/messages',
 		xp: BAREME.services.PRODUCTION,
 		forSpecialties: ['PRODUCTION', 'BEATMAKING'],
 		done: (s) => s.byService.PRODUCTION >= 1
@@ -108,7 +108,7 @@ const PRODUCER: readonly Candidate<ProducerSpecialty>[] = [
 	{
 		id: 'producer.arrangement.first',
 		label: 'Signe un premier arrangement',
-		href: '/decouvrir',
+		href: '/messages',
 		xp: BAREME.services.ARRANGEMENT,
 		forSpecialties: ['ARRANGEMENT'],
 		done: (s) => s.byService.ARRANGEMENT >= 1

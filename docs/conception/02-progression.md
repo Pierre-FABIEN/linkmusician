@@ -82,7 +82,12 @@ prestation compte quand l'artiste confirme la collaboration. Elle
 rapporte sur la piste du métier exercé (D20), avec les mêmes
 multiplicateurs qu'une collaboration (§6) : rendement décroissant **par
 artiste** sur 12 mois, et confiance de l'artiste. Les musicien·nes de la
-même collaboration gagnent, eux, sur la piste musicien.
+même collaboration gagnent, eux, la collaboration sur la piste musicien
+quand ils y jouent ou co-créent (enregistrement, date sonorisée,
+production, arrangement), **pas sur un mixage ni un mastering** (P4-06,
+défaut provisoire : question Q1 de
+[a-trancher](../plan/a-trancher.md)). La collaboration ne compte alors pas
+non plus pour leur palier (Q2).
 
 | Événement                                            | XP                         | Piste                                        |
 | ---------------------------------------------------- | -------------------------- | -------------------------------------------- |
@@ -208,10 +213,9 @@ puis 0. La progression vient des nouveaux clients, comme pour qui joue.
 
 Le niveau de compte additionne toutes les pistes de la personne :
 c'était déjà le cas en base (`projector.ts`), et le registre en mémoire
-des tests est maintenant aligné. Un point reste à trancher en P4-06 :
-les musicien·nes d'une collaboration de mixage ou de mastering, où ils
-ne jouent pas, doivent-ils gagner la collaboration sur la piste
-musicien ?
+des tests est maintenant aligné. Sur un mixage ou un mastering, les
+musicien·nes ne gagnent rien (P4-06, défaut provisoire, Q1 de
+[a-trancher](../plan/a-trancher.md)).
 
 ## 3. Niveau de compte
 

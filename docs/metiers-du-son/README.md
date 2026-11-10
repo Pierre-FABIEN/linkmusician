@@ -13,9 +13,9 @@ barème en [02 §2.2](../conception/02-progression.md#22-barème-première-versi
   `studioTier`).
 - Une collaboration porte la prestation de chaque pro (`services`) :
   l'ingé son gagne sur la piste `SOUND_ENGINEER`, la productrice sur
-  `PRODUCER`, les musicien·nes sur `MUSICIAN`. Aucun service n'émet
-  encore `services` : c'est P4-06 qui reliera les collaborations aux
-  morceaux et aux prestations.
+  `PRODUCER`, les musicien·nes sur `MUSICIAN` (sauf mixage et mastering,
+  `MUSICIAN_EARNS`). Les collaborations émettent `services` depuis P4-06
+  ([docs/collaborations](../collaborations/README.md#liées-au-morceau-p4-06)).
 - Personas : `personas-son.test.ts`.
 
 ## Profil d'ingé son (P4-02a)
@@ -55,9 +55,7 @@ barème en [02 §2.2](../conception/02-progression.md#22-barème-première-versi
 - **Objectifs** (08 §5) : spécialités, ville, un travail en écoute, puis
   la première prestation de chaque spécialité cochée (prise de son,
   mixage, mastering, date sonorisée) et trois artistes différents. Les
-  prestations s'affichent sans lien tant qu'elles ne se confirment pas
-  dans l'app (P4-06). « Répondre à une annonce cherche ingé son » viendra
-  avec P4-05.
+  prestations mènent à Messages, où elles se proposent (P4-06).
 - **Affichage** : rang sur la carte « Ingé son » du profil public ;
   section « Ingé son » de `/espace/objectifs`, avant celle de musicien·ne
   si c'est le métier principal.
@@ -109,4 +107,6 @@ barème en [02 §2.2](../conception/02-progression.md#22-barème-première-versi
 
 ## À venir
 
-- **P4-06, P4-07** : sessions liées au morceau, crédits confirmés.
+- **P4-07** : crédits confirmés des rôles du son sur le morceau.
+- Un objectif « Réponds à une annonce qui cherche un·e ingé son » (08 §5),
+  maintenant possible avec P4-05.

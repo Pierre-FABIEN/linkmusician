@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { collabStatus, collaborationSchema, hasHappened, nextStep, shiftDay } from './rules';
+import {
+	collabStatus,
+	collaborationSchema,
+	hasHappened,
+	nextStep,
+	shiftDay,
+	checkProvider,
+	KIND_WORK_STAGE,
+	WORK_STAGES
+} from './rules';
 
 const yes = { accepted: true, confirmed: true };
 const accepted = { accepted: true, confirmed: false };
@@ -48,5 +57,41 @@ describe('collaborations (P2-06)', () => {
 		['CANCELLED', accepted, true, 'cancelled']
 	] as const)('%s, %o, a eu lieu=%s → %s', (status, me, happened, step) => {
 		expect(nextStep(status, me, happened)).toBe(step);
+	});
+});
+
+describe('collaborations liées au morceau (P4-06)', () => {
+	const tracks = { me: ['MUSICIAN'], other: ['SOUND_ENGINEER'] };
+
+	it('une répétition n’a pas de prestation', () => {
+		expect(checkProvider('REHEARSAL', 'other', tracks)).toEqual({ ok: true, provider: null });
+	});
+
+	it('un enregistrement peut se faire sans ingé son', () => {
+		expect(checkProvider('RECORDING', null, tracks)).toEqual({ ok: true, provider: null });
+		expect(checkProvider('RECORDING', 'other', tracks)).toEqual({ ok: true, provider: 'other' });
+	});
+
+	it('un mixage exige quelqu’un qui a le métier', () => {
+		expect(checkProvider('MIXING', null, tracks)).toMatchObject({ ok: false });
+		expect(checkProvider('MIXING', 'me', tracks)).toMatchObject({
+			ok: false,
+			message: expect.stringMatching(/Ajoute le métier ingé son/)
+		});
+		expect(checkProvider('PRODUCTION', 'other', tracks)).toMatchObject({
+			ok: false,
+			message: expect.stringMatching(/producteur·rice/)
+		});
+	});
+
+	it('chaque prestation sur un morceau a son étape', () => {
+		expect(KIND_WORK_STAGE.RECORDING).toBe('recordedAt');
+		expect(KIND_WORK_STAGE.LIVE_SOUND).toBeUndefined();
+		expect(WORK_STAGES.map((s) => s.field)).toEqual([
+			'recordedAt',
+			'mixedAt',
+			'masteredAt',
+			'producedAt'
+		]);
 	});
 });

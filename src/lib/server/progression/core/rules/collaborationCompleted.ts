@@ -8,10 +8,11 @@
  * Qui exerce un métier du son sur la collaboration (`services`, P4-01) gagne
  * la valeur de sa prestation sur la piste de ce métier (D20), avec les mêmes
  * multiplicateurs : rendement décroissant **par artiste**, confiance de
- * l'artiste. Les autres gagnent la collaboration sur la piste musicien.
+ * l'artiste. Les autres gagnent la collaboration sur la piste musicien,
+ * sauf sur un mixage ou un mastering, où ils ne jouent pas (P4-06).
  */
 import { BAREME } from '../bareme';
-import { SERVICE_REASON, SERVICE_TRACK } from '../crafts';
+import { musiciansEarn, SERVICE_REASON, SERVICE_TRACK } from '../crafts';
 import { diminishingReturn, roundMultiplier, trustWeight } from '../multipliers';
 import { daysBefore, defineRule, type Track, type XpGain } from '../types';
 
@@ -26,6 +27,8 @@ export const collaborationCompleted = defineRule({
 		const participants = [...new Set(event.participantIds)];
 		if (participants.length < 2) return [];
 		const gains: XpGain[] = [];
+		// Mixage, mastering (P4-06, Q1) : les musicien·nes n'y jouent pas.
+		const musicians = musiciansEarn(event.services);
 		for (const person of participants) {
 			const others = participants.filter((p) => p !== person);
 			const factors = others.map(
@@ -35,6 +38,7 @@ export const collaborationCompleted = defineRule({
 			);
 			const multiplier = roundMultiplier(factors.reduce((a, b) => a + b, 0) / factors.length);
 			const service = event.services?.[person];
+			if (!service && !musicians) continue;
 			const base = service ? BAREME.services[service] : BAREME.collaborationCompleted;
 			const track: Track = service ? SERVICE_TRACK[service] : 'MUSICIAN';
 			const label = service ? SERVICE_REASON[service] : 'Collaboration confirmée';

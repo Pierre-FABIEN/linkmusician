@@ -38,3 +38,22 @@ export const SERVICE_REASON: Readonly<Record<CraftService, string>> = {
 	PRODUCTION: 'Production confirmée',
 	ARRANGEMENT: 'Arrangement confirmé'
 };
+
+/**
+ * Prestations où les musicien·nes de la collaboration gagnent aussi la
+ * collaboration (P4-06) : ils jouent (enregistrement, date sonorisée) ou
+ * co-créent (production, arrangement). Sur un mixage ou un mastering, ils ne
+ * jouent pas : seule la personne du son gagne. Défaut provisoire, question Q1
+ * de `docs/plan/a-trancher.md`.
+ */
+export const MUSICIAN_EARNS: ReadonlySet<CraftService> = new Set([
+	'RECORDING',
+	'LIVE_SOUND',
+	'PRODUCTION',
+	'ARRANGEMENT'
+]);
+
+/** Les musicien·nes d'une collaboration y gagnent-ils (aucune prestation, ou une où l'on joue) ? */
+export function musiciansEarn(services: Readonly<Record<string, CraftService>> | undefined) {
+	return Object.values(services ?? {}).every((s) => MUSICIAN_EARNS.has(s));
+}

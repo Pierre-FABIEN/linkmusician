@@ -12,6 +12,7 @@
 		MAX_WORK_TITLE,
 		craftAnnounceHref
 	} from '#lib/works/rules';
+	import { WORK_STAGES } from '#lib/collaborations/rules';
 	import { plural } from '#lib/jam/log';
 	import { Check, Circle, Megaphone, Music, PartyPopper, UserPlus } from 'lucide-svelte';
 
@@ -84,6 +85,21 @@
 						· confirmé par {plural(confirmed, 'personne', 'personnes')}
 					{/if}
 				</p>
+			{/if}
+			{#if composed}
+				<!-- LINKMUSICIAN: étapes de production (P4-06), par collaborations terminées. -->
+				<ul class="flex flex-wrap gap-2 text-sm" aria-label="Étapes du morceau">
+					{#each WORK_STAGES as stage (stage.field)}
+						{@const at = work.stages[stage.field]}
+						<li
+							class="rounded-full border px-3 py-1 {at
+								? 'border-emerald-400 bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100'
+								: 'text-muted-foreground'}"
+						>
+							{stage.label}{at ? ` le ${day.format(new Date(at))}` : ''}
+						</li>
+					{/each}
+				</ul>
 			{/if}
 		</div>
 

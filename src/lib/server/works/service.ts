@@ -629,6 +629,11 @@ export async function workPage(workId: string, viewerId: string | null, now = ne
 		select: {
 			...workHead,
 			composedAt: true,
+			// Étapes de production (P4-06).
+			recordedAt: true,
+			mixedAt: true,
+			masteredAt: true,
+			producedAt: true,
 			createdAt: true,
 			demoFromWork: true,
 			genres: { select: { genre: { select: { id: true, name: true } } } },
@@ -742,6 +747,13 @@ export async function workPage(workId: string, viewerId: string | null, now = ne
 		state: work.state,
 		proof: work.proof,
 		composedAt: work.composedAt,
+		/** Étapes franchies par des collaborations terminées (P4-06). */
+		stages: {
+			recordedAt: work.recordedAt,
+			mixedAt: work.mixedAt,
+			masteredAt: work.masteredAt,
+			producedAt: work.producedAt
+		},
 		owner: {
 			kind: work.owner.kind,
 			handle: work.owner.handle,

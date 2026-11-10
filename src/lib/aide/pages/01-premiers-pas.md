@@ -54,8 +54,11 @@ Ouvre **Mon profil › Mon profil d’ingé son** :
 - ajoute jusqu’à six **travaux en écoute**, avec un lien public. Un
   avant / après parle beaucoup.
 
-Ces travaux sont déclarés par toi. Ce qui comptera vraiment, ce sont les
-sessions confirmées par les artistes, qui arrivent bientôt.
+Ces travaux sont déclarés par toi. Ce qui compte vraiment, ce sont les
+**sessions confirmées par les artistes** : dans une conversation, propose
+une collaboration (enregistrement, mixage, mastering, sonorisation),
+choisis **Moi** comme prestataire et relie-la au morceau. Quand l’artiste
+confirme, tu gagnes sur ta piste d’ingé son.
 
 Ton **rang d’ingé son** s’affiche sur ton profil : _Home studio_ dès ton
 premier travail en écoute, puis _Premiers projets_, _Portfolio_ (5

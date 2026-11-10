@@ -30,7 +30,7 @@ simplement._
 ## Toutes les pages {#toutes-les-pages}
 
 Dans l’ordre de lecture. Pour l’administratif (protéger un morceau, être
-payé·e pour un concert…), une section **Démarches** arrive bientôt.
+payé·e pour un concert…), voir le guide des [Démarches](/demarches).
 
 ## Questions fréquentes
 

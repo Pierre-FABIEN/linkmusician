@@ -2183,6 +2183,21 @@ enum CollabKind {
   RECORDING
   PRODUCTION
   GIG
+  /// Métiers du son (P4-06).
+  MIXING
+  MASTERING
+  LIVE_SOUND
+}
+
+/// Prestation d'une personne d'un métier du son sur une collaboration
+/// (P4-06) : elle gagne sur la piste de ce métier (D20).
+enum CraftService {
+  RECORDING
+  MIXING
+  MASTERING
+  LIVE_SOUND
+  PRODUCTION
+  ARRANGEMENT
 }
 
 enum CollabStatus {
@@ -2207,6 +2222,9 @@ model Collaboration {
   /// Annonce et conversation d'origine, si elle en vient.
   opportunityId  String?
   conversationId String?
+  /// Morceau sur lequel on a travaillé (P4-06).
+  workId         String?
+  work           Work?                      @relation(fields: [workId], references: [id], onDelete: SetNull)
   completedAt    DateTime?
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
@@ -2225,6 +2243,8 @@ model CollaborationParticipant {
   actor                 Actor         @relation(fields: [actorId], references: [id], onDelete: Cascade)
   acceptedAt            DateTime?
   confirmedCompletionAt DateTime?
+  /// Prestation assurée par cette personne (P4-06), vide si elle joue.
+  service               CraftService?
 
   @@id([collaborationId, actorId])
   @@index([actorId])
@@ -2774,6 +2794,12 @@ model Work {
   contributors WorkContributor[]
   roles        WorkRole[]
   milestones   Milestone[]
+  /// Étapes de production (P4-06) : première collaboration terminée de chaque type.
+  recordedAt   DateTime?
+  mixedAt      DateTime?
+  masteredAt   DateTime?
+  producedAt   DateTime?
+  collaborations Collaboration[]
   /// Annonces liées au morceau (P4-05).
   opportunities Opportunity[]
 

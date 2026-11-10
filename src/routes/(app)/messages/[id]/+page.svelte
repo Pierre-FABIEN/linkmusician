@@ -9,13 +9,24 @@
 	import { ArrowLeft, Heart, Send } from 'lucide-svelte';
 	import { MAX_MESSAGE_LENGTH } from '#lib/messaging/rules';
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
-	import { COLLAB_KINDS, COLLAB_KIND_LABELS, MAX_COLLAB_TITLE } from '#lib/collaborations/rules';
+	import {
+		COLLAB_KINDS,
+		COLLAB_KIND_LABELS,
+		KIND_SERVICE,
+		MAX_COLLAB_TITLE
+	} from '#lib/collaborations/rules';
 
 	let { data, form } = $props();
 	const c = $derived(data.conversation);
 	let body = $state('');
 	const chip = 'min-h-11 rounded-full border px-3 text-sm font-semibold hover:border-primary';
 	let sending = $state(false);
+	// Collaboration liée au morceau (P4-06) : qui assure la prestation du son.
+	let collabKind = $state<(typeof COLLAB_KINDS)[number]>('REHEARSAL');
+	const service = $derived(KIND_SERVICE[collabKind] ?? null);
+	const can = (who: 'me' | 'other') =>
+		Boolean(service && data.collabForm?.tracks[who].includes(service.track));
+	const metier = $derived(service?.track === 'PRODUCER' ? 'producteur·rice' : 'ingé son');
 
 	$effect(() => {
 		if (form?.error) toast.error(form.error);
@@ -104,6 +115,16 @@
 						<li class="space-y-2 rounded-2xl border bg-card p-3 text-sm">
 							<div class="flex flex-wrap items-center justify-between gap-2">
 								<span class="font-semibold">{COLLAB_KIND_LABELS[k.kind]} · {k.title}</span>
+								{#if k.work}
+									<a href="/morceaux/{k.work.id}" class="w-full text-xs underline"
+										>Morceau : {k.work.title}</a
+									>
+								{/if}
+								{#if k.provider}
+									<span class="w-full text-xs text-muted-foreground"
+										>Prestation : {k.provider === 'me' ? 'toi' : k.with}</span
+									>
+								{/if}
 								<span class="text-muted-foreground"
 									>{dayLabel.format(new Date(`${k.happenedOn}T12:00:00Z`))}</span
 								>
@@ -200,7 +221,7 @@
 		{#if c.permission === 'ok' && c.myState === 'ACCEPTED' && c.other.handle}
 			<details class="rounded-2xl border p-3 text-sm">
 				<summary class="min-h-11 cursor-pointer content-center font-medium text-primary">
-					Vous avez joué ensemble ? Proposer une collaboration
+					Vous avez joué ou travaillé ensemble ? Proposer une collaboration
 				</summary>
 				<p class="mt-1 text-muted-foreground">
 					Quand vous l'aurez confirmée tous les deux, elle comptera dans vos parcours.
@@ -213,7 +234,11 @@
 				>
 					<label class="block space-y-1 font-medium">
 						Type
-						<select name="kind" class="w-full rounded-md border bg-background p-2">
+						<select
+							name="kind"
+							bind:value={collabKind}
+							class="w-full rounded-md border bg-background p-2"
+						>
 							{#each COLLAB_KINDS as kind (kind)}<option value={kind}
 									>{COLLAB_KIND_LABELS[kind]}</option
 								>{/each}
@@ -229,6 +254,77 @@
 							class="w-full rounded-md border bg-background p-2"
 						/>
 					</label>
+					{#if service}
+						<fieldset class="space-y-1 sm:col-span-2">
+							<legend class="font-medium">Qui assure la prestation ?</legend>
+							<div class="flex flex-wrap gap-2">
+								{#if !service.required}
+									<label
+										class="inline-flex min-h-11 items-center gap-2 rounded-full border px-3 has-[:checked]:border-primary"
+									>
+										<input type="radio" name="provider" value="" checked class="size-4" />
+										On enregistre nous-mêmes
+									</label>
+								{/if}
+								<label
+									class="inline-flex min-h-11 items-center gap-2 rounded-full border px-3 has-[:checked]:border-primary {can(
+										'me'
+									)
+										? ''
+										: 'opacity-50'}"
+								>
+									<input
+										type="radio"
+										name="provider"
+										value="me"
+										disabled={!can('me')}
+										class="size-4"
+									/>
+									Moi
+								</label>
+								<label
+									class="inline-flex min-h-11 items-center gap-2 rounded-full border px-3 has-[:checked]:border-primary {can(
+										'other'
+									)
+										? ''
+										: 'opacity-50'}"
+								>
+									<input
+										type="radio"
+										name="provider"
+										value="other"
+										disabled={!can('other')}
+										class="size-4"
+									/>
+									{c.other.displayName}
+								</label>
+							</div>
+							{#if !can('me') && !can('other')}
+								<p class="text-muted-foreground">
+									Il faut que l'un de vous ait le métier {metier} sur son profil.
+								</p>
+							{:else}
+								<p class="text-muted-foreground">
+									La personne qui l'assure gagne sur sa piste de {metier}.
+								</p>
+							{/if}
+						</fieldset>
+					{/if}
+					{#if data.collabForm && data.collabForm.works.length > 0}
+						<label class="block space-y-1 font-medium sm:col-span-2">
+							Morceau concerné (facultatif)
+							<select name="work" class="w-full rounded-md border bg-background p-2">
+								<option value="">Aucun</option>
+								{#each data.collabForm.works as w (w.id)}
+									<option value={w.id} selected={data.collabForm.defaultWork === w.id}
+										>{w.title}{w.band ? ` (${w.band})` : ''}{w.mine
+											? ''
+											: ` · ${c.other.displayName}`}</option
+									>
+								{/each}
+							</select>
+						</label>
+					{/if}
 					<label class="block space-y-1 font-medium sm:col-span-2">
 						Titre
 						<input

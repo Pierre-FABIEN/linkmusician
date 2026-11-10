@@ -160,9 +160,10 @@ const AVAILABLE = [
 	'/profil/musical',
 	'/profil/ville',
 	'/profil/medias',
-	// Ingé son (P4-02b). Les sessions mènent encore nulle part : elles se
-	// confirmeront avec les collaborations liées au morceau (P4-06).
+	// Métiers du son (P4-02b, P4-04) ; les prestations se proposent dans une
+	// conversation avec l'artiste (P4-06).
 	'/profil/son',
+	'/messages',
 	'/profil/production',
 	'/annonces',
 	'/groupes',

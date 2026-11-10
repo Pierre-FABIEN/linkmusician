@@ -6,6 +6,7 @@
  */
 import type { DomainEvent, Milestone } from './events';
 import type { MusicianSummary } from './tiers';
+import { musiciansEarn } from './crafts';
 
 /** Étapes de groupe qui valent « sortie » lorsqu'elles sont vérifiées. */
 const RELEASES: readonly Milestone[] = ['FIRST_EP', 'FIRST_ALBUM'];
@@ -67,7 +68,12 @@ export function musicianSummary(actorId: string, events: readonly DomainEvent[])
 			case 'collaboration.completed':
 				// Une prestation du son (P4-01) compte sur sa piste, pas comme
 				// collaboration de musicien·ne (`craftSummary`).
-				if (event.participantIds.includes(actorId) && !event.services?.[actorId]) {
+				// Ni sur un mixage ou un mastering, où l'on ne joue pas (P4-06, Q2).
+				if (
+					event.participantIds.includes(actorId) &&
+					!event.services?.[actorId] &&
+					musiciansEarn(event.services)
+				) {
 					collaborations += 1;
 					for (const id of event.participantIds) if (id !== actorId) collaborators.add(id);
 				}

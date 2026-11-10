@@ -49,3 +49,25 @@ que d'autres confirment » sur le profil public.
   `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/progression/collaborations`.
 - E2E : `e2e/linkmusician/candidatures.spec.ts` (annonce → candidature →
   conversation → collaboration confirmée → XP des deux côtés).
+
+## Liées au morceau (P4-06)
+
+- **Types** ajoutés : mixage, mastering, sonorisation d'une date,
+  production (`COLLAB_KINDS`), en plus de l'enregistrement.
+- **Prestation** : on dit qui l'assure (moi, l'autre personne, ou
+  personne pour un enregistrement entre musicien·nes) ;
+  `CollaborationParticipant.service`. La personne doit avoir le métier
+  (`checkProvider`). L'événement `collaboration.completed` porte
+  `services` : l'ingé son ou la productrice gagne sur sa piste, les
+  musicien·nes sur la leur, sauf sur un mixage ou un mastering (Q1 de
+  [a-trancher](../plan/a-trancher.md)).
+- **Morceau** : `Collaboration.workId`, un morceau géré par l'une des deux
+  personnes. Ceux de l'autre ne sont proposés que composés (une idée reste
+  privée). Le morceau de l'annonce d'origine est présélectionné
+  (`collabFormContext`).
+- **Étapes du morceau** : terminée, la collaboration renseigne la première
+  fois `Work.recordedAt`, `mixedAt`, `masteredAt` ou `producedAt`
+  (`KIND_WORK_STAGE`) ; la page du morceau les affiche.
+- **RGPD** : prestation et morceau dans l'export des collaborations.
+- **Tests** : `rules.test.ts`, `work.integration.test.ts`, e2e
+  `e2e/linkmusician/collaborations-morceau.spec.ts`.
