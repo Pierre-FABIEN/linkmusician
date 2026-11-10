@@ -26,7 +26,12 @@ sort de cette liste.
 
 ## À faire sur la machine
 
-| #   | Point                                                                                                                                                                            | Pourquoi                                                                                                      |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| M1  | Monter `memory=` dans `%UserProfile%\.wslconfig` (12 Go par exemple), puis `wsl --shutdown`                                                                                      | `npm run check` est tué faute de mémoire (7 Go), non relancé depuis P3-16c                                    |
-| M2  | Lancer les e2e écrits mais pas encore passés, `npm run dev` arrêté : `demarches`, `assistant-inscription`, `inge-son`, `producteur`, `annonces-metier`, `collaborations-morceau` | Les lots P3-15a, P3-15b, P3-17, P4-02a, P4-02b, P4-04, P4-05 et P4-06 restent 🟡 tant qu'ils n'ont pas tourné |
+| #   | Point                                                                                       | Pourquoi                                                                                                                                                                                 |
+| --- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M1  | Monter `memory=` dans `%UserProfile%\.wslconfig` (12 Go par exemple), puis `wsl --shutdown` | Avec 8 Go, le serveur de dev, le serveur e2e, VS Code et `npm run check` ensemble saturent la mémoire : Chromium plante (« Page crashed ») et les e2e échouent dès l'inscription (10/11) |
+
+## Points techniques
+
+| #   | Point                                                                                                                                                                                                                                   | En attendant                                                                                                        | Lot   |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----- |
+| T1  | Tests d'intégration (`PROGRESSION_INTEGRATION=1`) instables quand les 60 fichiers tournent ensemble sur Neon : un test différent échoue à chaque passe (délai de 5 s dépassé, données d'un autre fichier), et chacun passe seul (10/11) | Relancer seul le fichier en échec. À terme : `testTimeout` plus large ou `--no-file-parallelism` pour l'intégration | P0-01 |

@@ -42,12 +42,10 @@ ne crée pas de commit pendant cet audit.**
 
 ## Vérifications d'attention
 
-État au 10/11/2026 : les lots 🟡 (P3-15a, P3-15b, P3-17, P4-02a,
-P4-02b, P4-04, P4-05, P4-06) attendaient surtout leur e2e, que Chromium
-ne pouvait pas lancer jusque-là. Vérifie dans le tableau §5 lesquels sont
-passés ✅ ; un lot 🟡 dont le seul manque est l'e2e se ferme en le
-lançant, pas en commençant un lot suivant. P4-07 (crédits) dépend de
-P4-06 : ne le recommande pas tant que P4-06 n'est pas ✅.
+État au 10/11/2026 : les lots P3-15a à P4-06 sont fermés (e2e lancés et
+au vert). Restent en phase 4 pour le lancement : P4-07 (crédits), P4-03
+(studio), P4-09, P4-10 et P4-13. Un lot 🟡 dont le seul manque est l'e2e
+se ferme en le lançant, avant de commencer un lot suivant.
 
 Avant de lancer des e2e : compare `.env.test` à `.env.test.example` (une
 variable ajoutée par un lot peut manquer) et ne lance pas `npm run check`
