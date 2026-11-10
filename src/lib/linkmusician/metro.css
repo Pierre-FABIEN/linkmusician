@@ -1321,7 +1321,8 @@
 	background-image: none;
 	opacity: 0;
 	will-change: opacity;
-	transition: opacity 180ms ease;
+	/* Même fondu que le liseré : les deux s'allument ensemble. */
+	transition: opacity 500ms ease;
 }
 
 /* Commandes posées dans une tuile encadrée : contour à l'accent, aucun
@@ -1383,6 +1384,16 @@
 	}
 	to {
 		opacity: 0.33;
+	}
+}
+/* Voile sombre calé sur le liseré (même durée, même délai) : il fonce quand
+   le liseré brille, s'éclaircit quand il faiblit. */
+@keyframes lm-tile-frame-veil {
+	from {
+		opacity: 0.3;
+	}
+	to {
+		opacity: 0.12;
 	}
 }
 
@@ -1866,7 +1877,8 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 		animation: lm-tile-frame-pulse 1.2s ease-in-out 500ms infinite alternate;
 	}
 	.lm-tile-frame > .lm-tile:hover::after {
-		opacity: 0.2;
+		opacity: 0.3;
+		animation: lm-tile-frame-veil 1.2s ease-in-out 500ms infinite alternate;
 	}
 	/* Bascule à l'appui, elle aussi portée par le cadre. */
 	.lm-tile-frame:has(> :is(a, button).lm-tile:active) {
