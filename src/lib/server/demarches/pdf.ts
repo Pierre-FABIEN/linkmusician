@@ -14,13 +14,15 @@ const MUTED: [number, number, number] = [90, 90, 90];
 
 /** Remplace ce que les polices standard ne savent pas dessiner. */
 export function printable(text: string): string {
-	return text
-		.replace(/[\u2018\u2019]/g, "'")
-		.replace(/[\u201c\u201d]/g, '"')
-		.replace(/[\u00a0\u202f]/g, ' ')
-		// Plage Latin-1 voulue (polices standard du PDF), `\u0000` compris.
-		// eslint-disable-next-line no-control-regex
-		.replace(/[^\u0000-\u00ff\u20ac\u0153\u0152\u2026\u2013\u2014\u2022]/g, '');
+	return (
+		text
+			.replace(/[\u2018\u2019]/g, "'")
+			.replace(/[\u201c\u201d]/g, '"')
+			.replace(/[\u00a0\u202f]/g, ' ')
+			// Plage Latin-1 voulue (polices standard du PDF), `\u0000` compris.
+			// eslint-disable-next-line no-control-regex
+			.replace(/[^\u0000-\u00ff\u20ac\u0153\u0152\u2026\u2013\u2014\u2022]/g, '')
+	);
 }
 
 type Doc = jsPDF & { lastAutoTable?: { finalY: number } };
