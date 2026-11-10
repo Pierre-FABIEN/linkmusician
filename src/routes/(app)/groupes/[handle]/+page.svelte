@@ -5,6 +5,7 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
+	import DemarcheCard from '#lib/components/linkmusician/demarches/DemarcheCard.svelte';
 	import { MAX_MEMBER_TITLE, ROLE_LABELS, isManager, periodLabel } from '#lib/bands/rules';
 	import { plural } from '#lib/jam/log';
 	import {
@@ -124,6 +125,8 @@
 				{/if}
 			</p>
 		</div>
+
+		<DemarcheCard nudge={data.demarche} />
 
 		{#if data.created && !band.formedAt}
 			<div class="flex gap-3 rounded-2xl border border-primary bg-card p-4 text-sm">

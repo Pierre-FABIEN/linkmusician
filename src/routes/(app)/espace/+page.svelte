@@ -13,6 +13,7 @@
 		FileText,
 		Map as MapIcon,
 		Music,
+		Scale,
 		Sparkles,
 		Trophy,
 		UsersRound
@@ -126,6 +127,13 @@
 			title: 'Points, succès et confiance',
 			text: 'Tes succès, ton palier de confiance et ce qu’il permet.',
 			badge: d.trust.name
+		},
+		{
+			href: '/demarches',
+			icon: Scale,
+			title: 'Les démarches',
+			text: 'Protéger un morceau, être payé·e pour jouer, l’association du groupe.',
+			badge: null
 		}
 	]);
 </script>

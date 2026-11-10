@@ -3,6 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
+	import DemarcheCard from '#lib/components/linkmusician/demarches/DemarcheCard.svelte';
 	import MediaPlayer from '#lib/components/linkmusician/MediaPlayer.svelte';
 	import RolePicker from '#lib/components/linkmusician/works/RolePicker.svelte';
 	import { CORROBORATION_CREDITS, MAX_WORK_GENRES, MAX_WORK_TITLE } from '#lib/works/rules';
@@ -80,6 +81,8 @@
 				</p>
 			{/if}
 		</div>
+
+		<DemarcheCard nudge={data.demarche} />
 
 		{#if data.created}
 			<div class="flex gap-3 rounded-2xl border border-primary bg-card p-4 text-sm">

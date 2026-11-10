@@ -245,10 +245,33 @@ Une idée reste entre vous. Un morceau composé apparaît sur ton profil et
 sur la page du groupe.
 
 > 💡 **Astuce** : un morceau écrit à plusieurs ? Notez qui a fait quoi
-> **avant** qu’il soit joué en public. La section **Démarches**, bientôt,
-> t’expliquera comment le protéger et le déclarer.
+> **avant** qu’il soit joué en public. Les [démarches](/demarches)
+> expliquent comment le protéger et le déclarer.
 
-## 5. Tes paliers {#paliers}
+## 5. Les démarches {#demarches}
+
+Quand un morceau, un concert ou un groupe devient sérieux, les mêmes
+questions arrivent : comment protéger ce qu’on a écrit, comment être
+payé·e, faut-il une association. LinkMusician y répond **au moment où
+elles se posent**, par une phrase et un lien, une seule à la fois :
+
+| Quand                                   | Où               | La démarche                                            |
+| --------------------------------------- | ---------------- | ------------------------------------------------------ |
+| Un morceau est composé                  | Fiche du morceau | Protéger un morceau ; écrire à plusieurs (2 crédits +) |
+| Le groupe est formé                     | Page du groupe   | L’association du groupe                                |
+| Étape « Première démo publique »        | Page du groupe   | Première démo et déclaration des œuvres                |
+| Étape « Premier concert »               | Page du groupe   | Premier concert ; être payé·e pour jouer               |
+| Un·e membre du groupe a moins de 18 ans | Page du groupe   | Jouer sur scène avant 18 ans                           |
+| Une annonce de session                  | Annonce          | Être payé·e pour jouer                                 |
+
+**J’ai compris** masque la phrase pour de bon. Toutes les fiches sont dans
+[Les démarches](/demarches), aussi depuis **Mon espace**. Chacune donne
+l’essentiel en trois lignes, les étapes, ce que ça coûte, ses sources
+officielles et la date de sa dernière vérification. C’est une information
+générale, pas un conseil personnalisé. Lire une fiche ne rapporte pas de
+points.
+
+## 6. Tes paliers {#paliers}
 
 Ton palier dit où tu en es, par des faits, jamais par un nombre de points :
 

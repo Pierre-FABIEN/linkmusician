@@ -57,8 +57,9 @@ LinkMusician est ouvert aux mineur·es, avec des règles en plus :
   des morceaux que pour les personnes connectées.
 
 > ⚠️ **Important** : jouer **payé·e** quand on a moins de 16 ans demande
-> une autorisation officielle. La section **Démarches** (bientôt dans l’aide) expliquera comment
-> ça marche, pour toi et tes parents.
+> une autorisation officielle. La fiche
+> [Jouer sur scène avant 18 ans](/demarches/mineurs-sur-scene) explique
+> comment ça marche, pour toi et tes parents.
 
 ## 5. Tes données
 

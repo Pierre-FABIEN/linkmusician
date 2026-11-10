@@ -23,6 +23,7 @@ import {
 	workPage
 } from '#lib/server/works/service';
 import { creditSchema, demoSchema, editWorkSchema, roleInputSchema } from '#lib/works/rules';
+import { demarcheNudge } from '#lib/server/demarches/service';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -45,7 +46,15 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 			name: g.name,
 			children: g.children.map((c) => ({ id: c.id, name: c.name }))
 		})),
-		created: url.searchParams.has('cree')
+		created: url.searchParams.has('cree'),
+		// Démarche en contexte (P3-15a, 09 §3) : pour l'équipe du morceau.
+		demarche: work.team
+			? await demarcheNudge(actorId, {
+					screen: 'morceau',
+					composed: work.state === 'COMPOSED',
+					confirmedCredits: work.credits.filter((c) => c.confirmed).length
+				})
+			: null
 	};
 };
 

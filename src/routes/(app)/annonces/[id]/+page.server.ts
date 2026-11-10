@@ -21,6 +21,7 @@ import {
 	myApplication,
 	withdrawApplication
 } from '#lib/server/opportunities/applications';
+import { demarcheNudge } from '#lib/server/demarches/service';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -31,9 +32,12 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const actorId = (await me(locals)).actorId;
 	const opportunity = await getOpportunity(params.id, actorId);
 	if (!opportunity) error(404, 'Annonce introuvable');
+	// Démarche en contexte (P3-15a, 09 §3) : une session payée, c'est un cachet.
+	const demarche = await demarcheNudge(actorId, { screen: 'annonce', kind: opportunity.kind });
 	if (opportunity.isOwner) {
 		return {
 			opportunity,
+			demarche,
 			applications: await listForIssuer(actorId, params.id),
 			mine: null,
 			unmet: []
@@ -48,7 +52,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		});
 		unmet = await eligibilityFor(actorId, raw);
 	}
-	return { opportunity, applications: [], mine, unmet };
+	return { opportunity, applications: [], mine, unmet, demarche };
 };
 
 const guard = async (run: () => Promise<unknown>, message: string) => {
