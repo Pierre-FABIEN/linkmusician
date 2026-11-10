@@ -262,6 +262,11 @@ piste. Toi, tu gagnes la collaboration quand tu joues : un enregistrement,
 une production. Sur un mixage ou un mastering, où tu ne joues pas, seule
 la personne du son gagne.
 
+Un **enregistrement** relié à un morceau de ton groupe, avec un·e ingé
+son hors du groupe, ou dans un studio de l’app, **vérifie** l’étape
+« Premier enregistrement » du groupe : elle passe **Vérifiée** (ou est
+créée vérifiée), et le groupe reçoit la différence de points.
+
 La personne qui a assuré la prestation est aussi **créditée** sur le
 morceau (« Mixage : Sam »), sans autre confirmation : vous avez déjà
 confirmé la collaboration tous les deux. Tu peux aussi créditer toi-même

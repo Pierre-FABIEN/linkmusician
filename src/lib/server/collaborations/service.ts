@@ -14,6 +14,10 @@
  * Au studio (P4-03c) : une répétition, un enregistrement… peut se tenir dans
  * un studio que gère l'une des deux personnes. Confirmée par un·e client·e,
  * c'est une session du studio (`#lib/server/studios/service`).
+ *
+ * Étapes vérifiées par les pros (P4-09) : un enregistrement terminé avec un·e
+ * ingé son ou dans un studio de la plateforme, relié à un morceau du groupe,
+ * vérifie son « Premier enregistrement ».
  */
 import { prisma } from '#lib/server';
 import { isBlockedBetween } from '#lib/server/blocking/service';
@@ -33,6 +37,7 @@ import {
 } from '#lib/collaborations/rules';
 import { creditFromCollaboration, manageableWorks } from '#lib/server/works/service';
 import { isStudioSessionKind } from '#lib/studios/rules';
+import { verifyRecordingFromCollaboration } from '#lib/server/milestones/service';
 
 /**
  * Studios publiés que gère l'une des deux personnes (P4-03c), pour y
@@ -90,6 +95,11 @@ export class CollaborationError extends Error {
 }
 
 const dayOf = (d: Date) => d.toISOString().slice(0, 10);
+/**
+ * Terminer une collaboration traite la progression, les crédits et l'étape
+ * du groupe (P4-09) : plus que les 5 s par défaut de Prisma sur Neon.
+ */
+const SETTLE_TX = { timeout: 20_000 } as const;
 
 export async function proposeCollaboration(
 	proposerId: string,
@@ -269,8 +279,24 @@ async function settle(collaborationId: string, now: Date) {
 					);
 				}
 			}
+			// Un enregistrement avec un·e pro vérifie l'étape du groupe (P4-09).
+			if (collab.kind === 'RECORDING' && collab.workId) {
+				await verifyRecordingFromCollaboration(
+					tx,
+					{
+						workId: collab.workId,
+						happenedOn: collab.happenedOn,
+						studioId: collab.studioId,
+						participants: collab.participants.map((p) => ({
+							actorId: p.actorId,
+							service: p.service
+						}))
+					},
+					now
+				);
+			}
 		}
-	});
+	}, SETTLE_TX);
 }
 
 export async function respondToCollaboration(

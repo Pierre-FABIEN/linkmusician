@@ -346,6 +346,95 @@ export async function verifyReleaseMilestone(
  * Corriger la date ou la précision d'une étape déclarée. L'XP déjà versée
  * ne bouge pas.
  */
+/**
+ * « Premier enregistrement » vérifié par un·e pro (P4-09, 02 §2.2) : une
+ * collaboration d'enregistrement terminée, reliée à un morceau du groupe,
+ * avec une personne extérieure au groupe qui a assuré la prise de son ou
+ * qui gère le studio où elle s'est tenue. L'étape est créée vérifiée, ou
+ * renforcée si elle était déclarée ou corroborée ; rien si elle est déjà
+ * vérifiée ou gelée par une contestation. Appelé dans la transaction qui
+ * termine la collaboration.
+ */
+export async function verifyRecordingFromCollaboration(
+	tx: Tx,
+	collab: {
+		workId: string;
+		happenedOn: Date;
+		studioId: string | null;
+		/** Participant·es et leur prestation du son (P4-06), s'il y en a une. */
+		participants: { actorId: string; service: string | null }[];
+	},
+	now: Date
+) {
+	const work = await tx.work.findUnique({
+		where: { id: collab.workId },
+		select: {
+			ownerId: true,
+			owner: {
+				select: { organization: { select: { kind: true, formedAt: true, dissolvedAt: true } } }
+			}
+		}
+	});
+	const band = work?.owner.organization;
+	if (!work || band?.kind !== 'BAND' || !band.formedAt || band.dissolvedAt) return null;
+	const bandId = work.ownerId;
+
+	const studioManagers = collab.studioId
+		? (
+				await tx.membership.findMany({
+					where: {
+						orgId: collab.studioId,
+						status: 'ACTIVE',
+						role: { in: ['OWNER', 'ADMIN'] },
+						personId: { in: collab.participants.map((p) => p.actorId) }
+					},
+					select: { personId: true }
+				})
+			).map((m) => m.personId)
+		: [];
+	const pros = collab.participants
+		.filter((p) => p.service !== null || studioManagers.includes(p.actorId))
+		.map((p) => p.actorId);
+	if (pros.length === 0) return null;
+	// Un·e membre du groupe n'en vérifie pas les étapes.
+	const insiders = await tx.membership.count({
+		where: { orgId: bandId, status: 'ACTIVE', personId: { in: pros } }
+	});
+	if (insiders === pros.length) return null;
+
+	await lockBand(tx, bandId);
+	const existing = await tx.milestone.findUnique({
+		where: { bandId_definitionId: { bandId, definitionId: 'FIRST_RECORDING' } },
+		select: { id: true, proof: true, occurredAt: true, frozenAt: true }
+	});
+	if (existing && (existing.frozenAt || !isUpgrade(existing.proof, 'VERIFIED'))) return null;
+	const occurredAt =
+		existing?.occurredAt ?? dayToDate(collab.happenedOn.toISOString().slice(0, 10));
+	if (existing) {
+		await tx.milestone.update({ where: { id: existing.id }, data: { proof: 'VERIFIED' } });
+	} else {
+		await tx.milestone.create({
+			data: {
+				definitionId: 'FIRST_RECORDING',
+				bandId,
+				proof: 'VERIFIED',
+				occurredAt,
+				workId: collab.workId,
+				definitionVersion: await definitionVersion(tx, 'FIRST_RECORDING')
+			}
+		});
+	}
+	return attest(tx, {
+		bandId,
+		key: 'FIRST_RECORDING',
+		from: existing?.proof ?? null,
+		to: 'VERIFIED',
+		occurredAt,
+		formedAt: band.formedAt,
+		now
+	});
+}
+
 export async function updateMilestoneDetails(
 	milestoneId: string,
 	managerId: string,
