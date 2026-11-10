@@ -1802,7 +1802,7 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
 	.lm-tile:not(.lm-tile-frame > *):hover {
 		z-index: 2;
-		transform: translate3d(0, -4px, 0) scale(1.035);
+		transform: translate3d(0, -6px, 0) scale(1.08);
 		border-color: transparent;
 		box-shadow:
 			inset 0 1px 0 oklch(1 0 0 / 0.16),
@@ -1820,17 +1820,17 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 
 /* Tuile encadrée : uniquement transform et opacity, sur des calques promus. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-	/* Zoom franc : la tuile passe au-dessus de ses voisines, qu'elle chevauche
+	/* Grand zoom : la tuile passe au-dessus de ses voisines, qu'elle chevauche
 	   légèrement. */
 	.lm-tile-frame:hover {
 		z-index: 2;
-		transform: translate3d(0, -4px, 0) scale(1.035);
+		transform: translate3d(0, -6px, 0) scale(1.08);
 	}
-	/* L'ombre est dans le cadre qui monte de 4px : 14px ici la posent 10px sous
+	/* L'ombre est dans le cadre qui monte de 6px : 18px ici la posent 12px sous
 	   sa place de repos. */
 	.lm-tile-frame:hover::before {
 		opacity: 0.85;
-		transform: translate3d(0, 14px, 0) scale(1.06);
+		transform: translate3d(0, 18px, 0) scale(1.1);
 	}
 	.lm-tile-frame > .lm-tile:hover::before {
 		animation: lm-tile-frame-pulse 1.4s ease-in-out infinite alternate;
