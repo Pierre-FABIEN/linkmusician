@@ -79,7 +79,7 @@ test.describe('LinkMusician — étapes de groupe', () => {
 			await test.step('2. Je déclare notre premier concert', async () => {
 				await page.getByRole('button', { name: 'C’est fait : Premier concert' }).click();
 				await expect(page.getByText('+50 points pour le groupe')).toBeVisible();
-				await page.getByLabel('Date').fill('2026-06-21');
+				await page.getByLabel('Date', { exact: true }).fill('2026-06-21');
 				await page.getByLabel('Précision').fill('Fête de la musique, place du Capitole');
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
 				await page.getByRole('button', { name: 'Ajouter au parcours' }).click();

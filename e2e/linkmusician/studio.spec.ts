@@ -63,12 +63,18 @@ test.describe('LinkMusician — studio', () => {
 				await page.getByLabel('Tarif à l’heure').fill('35');
 				await page.getByLabel('Matériel').fill('Console Audient\nMicros Neumann U87');
 				await page.getByLabel('Lundi', { exact: true }).check();
+				// Le bandeau cookies recouvre le bouton collé en bas de l'écran.
+				await page.getByRole('button', { name: 'Compris' }).click();
 				await page.getByRole('button', { name: 'Enregistrer la fiche' }).click();
 				await expect(page.getByText('Fiche enregistrée.').first()).toBeVisible();
 
 				await page.getByRole('button', { name: 'Publier la fiche' }).click();
 				await expect(page.getByText(/Ta fiche est publiée/).first()).toBeVisible();
-				await expect(page.getByText('Ouvert', { exact: true })).toBeVisible();
+				await expect(page.getByRole('region', { name: 'Statut de la fiche' })).toContainText(
+					'Ouvert'
+				);
+				// Contraste mesuré pendant l'animation des toasts : on attend qu'ils partent.
+				await expect(page.locator('[data-sonner-toast]')).toHaveCount(0, { timeout: 15_000 });
 				await expectNoA11yViolations(page, ['.cartButton']);
 			});
 
@@ -80,7 +86,10 @@ test.describe('LinkMusician — studio', () => {
 				await expect(
 					musicianPage.getByRole('heading', { name: studioName, level: 1 })
 				).toBeVisible();
-				await expect(musicianPage.getByText('Ouvert', { exact: true })).toBeVisible();
+				// Badge de rang : préfixe « Rang du studio : » lu par les lecteurs d'écran.
+				await expect(
+					musicianPage.locator('span:has(> span.sr-only)').filter({ hasText: 'Rang du studio' })
+				).toContainText('Ouvert');
 				await expect(musicianPage.getByText('Toulouse').first()).toBeVisible();
 				await expect(musicianPage.getByText('Salle de prise')).toBeVisible();
 				await expect(musicianPage.getByText('35 €')).toBeVisible();
