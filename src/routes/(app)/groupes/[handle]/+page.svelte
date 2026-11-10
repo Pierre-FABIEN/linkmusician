@@ -1,5 +1,6 @@
 <script lang="ts">
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
+	import DemarcheCard from '#lib/components/linkmusician/DemarcheCard.svelte';
 	import { BadgeCheck } from 'lucide-svelte';
 	// LINKMUSICIAN: un groupe (P3-01), voir +page.server.ts.
 	import { enhance } from '$app/forms';
@@ -262,6 +263,7 @@
 				<h2 id="milestones-title" class="flex items-center gap-2 text-xl font-bold">
 					<Flag class="size-5" aria-hidden="true" /> Parcours du groupe
 				</h2>
+				<DemarcheCard nudge={data.nudge} />
 				{#if !band.formedAt}
 					<p class="text-sm text-muted-foreground">
 						Le parcours s’ouvre quand le groupe est formé : invitez un premier membre.

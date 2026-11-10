@@ -23,6 +23,7 @@ import {
 	workPage
 } from '#lib/server/works/service';
 import { creditSchema, demoSchema, editWorkSchema, roleInputSchema } from '#lib/works/rules';
+import { workNudge } from '#lib/server/demarches/service';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -30,7 +31,8 @@ async function me(locals: App.Locals) {
 }
 
 export const load: PageServerLoad = async ({ locals, params, url }) => {
-	const actorId = await me(locals);
+	const person = (await getPersonByUserId(locals.user!.id))!;
+	const actorId = person.actorId;
 	const work = await workPage(params.id, actorId);
 	if (!work) error(404, 'Morceau introuvable');
 	const [families, candidates, genres] = work.manage
@@ -45,7 +47,9 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 			name: g.name,
 			children: g.children.map((c) => ({ id: c.id, name: c.name }))
 		})),
-		created: url.searchParams.has('cree')
+		created: url.searchParams.has('cree'),
+		// Démarches au bon moment (P3-15a) : protéger, écrire à plusieurs.
+		nudge: workNudge(work, person)
 	};
 };
 

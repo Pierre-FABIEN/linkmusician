@@ -12,6 +12,7 @@
 	const legalLinks = withoutShopLinks(
 		[
 			{ href: '/aide', label: 'Aide' }, // LINKMUSICIAN: centre d'aide
+			{ href: '/demarches', label: 'Démarches' }, // LINKMUSICIAN: guide des démarches (P3-15a)
 			{ href: '/mentions-legales', label: 'Mentions légales' },
 			{ href: '/cgv', label: 'CGV' },
 			{ href: '/cgu', label: 'CGU' },

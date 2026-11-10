@@ -94,6 +94,8 @@ const ROUTES: Record<string, Node> = {
 	'/reglages/metiers': { label: 'Métiers', parent: '/reglages' },
 	'/aide': { label: 'Aide' },
 	'/aide/[page]': { label: 'Page d’aide', parent: '/aide', name: at('page', 'nav') },
+	'/demarches': { label: 'Démarches' },
+	'/demarches/[fiche]': { label: 'Fiche', parent: '/demarches', name: at('fiche', 'title') },
 	'/@[handle]': {
 		label: 'Profil',
 		parent: '/decouvrir',

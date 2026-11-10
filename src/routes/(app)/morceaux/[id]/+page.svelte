@@ -5,6 +5,7 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import MediaPlayer from '#lib/components/linkmusician/MediaPlayer.svelte';
 	import RolePicker from '#lib/components/linkmusician/works/RolePicker.svelte';
+	import DemarcheCard from '#lib/components/linkmusician/DemarcheCard.svelte';
 	import { CORROBORATION_CREDITS, MAX_WORK_GENRES, MAX_WORK_TITLE } from '#lib/works/rules';
 	import { plural } from '#lib/jam/log';
 	import { Check, Circle, Megaphone, Music, PartyPopper, UserPlus } from 'lucide-svelte';
@@ -96,6 +97,8 @@
 				{form.error}
 			</p>
 		{/if}
+
+		<DemarcheCard nudge={data.nudge} />
 
 		{#if work.myCredit && !work.myCredit.confirmed}
 			<div class="space-y-3 rounded-2xl border border-primary bg-card p-4">

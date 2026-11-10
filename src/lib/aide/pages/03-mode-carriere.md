@@ -245,8 +245,18 @@ Une idée reste entre vous. Un morceau composé apparaît sur ton profil et
 sur la page du groupe.
 
 > 💡 **Astuce** : un morceau écrit à plusieurs ? Notez qui a fait quoi
-> **avant** qu’il soit joué en public. La section **Démarches**, bientôt,
-> t’expliquera comment le protéger et le déclarer.
+> **avant** qu’il soit joué en public. Le guide des
+> [Démarches](/demarches) explique comment le protéger et le déclarer.
+
+### Les démarches, au bon moment {#demarches}
+
+Quand une question administrative se pose (un morceau composé, un
+premier concert, un groupe qui encaisse de l’argent, un·e mineur·e dans le
+groupe), une carte bleue s’affiche sur la page concernée : une phrase et
+le lien vers une fiche courte. **J’ai compris** la masque. Toutes les
+fiches sont réunies sur la page [Démarches](/demarches). Elles donnent une
+information générale, datée et sourcée ; les lire ne rapporte pas de
+points.
 
 ## 5. Tes paliers {#paliers}
 

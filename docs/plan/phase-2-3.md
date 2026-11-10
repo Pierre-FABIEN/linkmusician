@@ -802,6 +802,12 @@ actes. Puis LinkMusician s'ouvre au public.
   phrase et un lien là où la question se pose (09 §3), une à la fois,
   « J'ai compris » ; contenu versionné avec sources et date de
   vérification.
+- **P3-15a réalisé le 10/11/2026** : `/demarches` et `/demarches/[fiche]`
+  (publics, sitemap, pied de page), huit fiches datées et sourcées, en
+  attente de relecture métier ; carte « démarche » sur le morceau, le
+  parcours du groupe et l'annonce de session. Écarts : métadonnées dans le
+  catalogue TypeScript ; pas de déclencheur « concert » ni « rémunérée »
+  côté annonces (champs absents). Voir [docs/demarches](../demarches/README.md).
 - **P3-15b — Documents préremplis** : bulletin de partage d'un morceau
   (crédits confirmés et rôles, parts à saisir et à signer à la main) ;
   programme des œuvres d'un concert (morceaux composés du groupe).
