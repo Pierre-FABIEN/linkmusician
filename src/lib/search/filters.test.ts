@@ -6,6 +6,8 @@ const parse = (query: string) => parseFilters(new URLSearchParams(query));
 describe('filtres de recherche (P2-01)', () => {
 	it('sans paramètre : valeurs par défaut', () => {
 		expect(parse('')).toEqual({
+			track: null,
+			specialty: null,
 			instrument: null,
 			minLevel: null,
 			genre: null,
@@ -23,6 +25,8 @@ describe('filtres de recherche (P2-01)', () => {
 				'instrument=batterie&niveau=3&genre=funk&rayon=10&recherche=JAMS&statut=SEMI_PRO&reciproque=1&page=2'
 			)
 		).toEqual({
+			track: null,
+			specialty: null,
 			instrument: 'batterie',
 			minLevel: 3,
 			genre: 'funk',
@@ -43,7 +47,11 @@ describe('filtres de recherche (P2-01)', () => {
 		['statut=ROCKSTAR', { proStatus: null }],
 		['reciproque=oui', { reciprocal: false }],
 		[`page=${MAX_PAGE + 1}`, { page: 1 }],
-		['page=-2', { page: 1 }]
+		['page=-2', { page: 1 }],
+		['metier=producteur', { track: null }],
+		['metier=constructor', { track: null }],
+		['specialite=mixage', { specialty: null }],
+		['metier=inge-son&specialite=cuisine', { track: 'SOUND_ENGINEER', specialty: null }]
 	])('valeur invalide ignorée : %s', (query, expected) => {
 		expect(parse(query)).toMatchObject(expected);
 	});
@@ -52,5 +60,15 @@ describe('filtres de recherche (P2-01)', () => {
 		const query = 'instrument=basse&niveau=4&rayon=50&reciproque=1';
 		expect(filtersToParams(parse(query)).toString()).toBe(query);
 		expect(filtersToParams(parse('rayon=25&page=1')).toString()).toBe('');
+	});
+
+	it('métier et spécialité (P4-02)', () => {
+		expect(parse('metier=inge-son&specialite=mixage')).toMatchObject({
+			track: 'SOUND_ENGINEER',
+			specialty: 'MIXING'
+		});
+		expect(parse('metier=musicien')).toMatchObject({ track: 'MUSICIAN', specialty: null });
+		const query = 'metier=inge-son&specialite=facade&rayon=50';
+		expect(filtersToParams(parse(query)).toString()).toBe(query);
 	});
 });

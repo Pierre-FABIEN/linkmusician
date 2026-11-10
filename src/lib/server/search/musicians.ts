@@ -48,6 +48,18 @@ export async function searchMusicianIds(
 	const t = (name: string) => qualifiedTable(name, schema);
 	const radiusM = filters.radius * 1000;
 	const conditions: Prisma.Sql[] = [];
+	if (filters.track) {
+		conditions.push(Prisma.sql`EXISTS (
+			SELECT 1 FROM ${t('person_tracks')} pt
+			WHERE pt."personId" = a.id AND pt.track::text = ${filters.track})`);
+	}
+	if (filters.track === 'SOUND_ENGINEER') {
+		// Un·e ingé son se trouve dès qu'une spécialité est cochée (P4-02).
+		conditions.push(Prisma.sql`EXISTS (
+			SELECT 1 FROM ${t('sound_engineer_profiles')} sp
+			WHERE sp."personId" = a.id AND cardinality(sp.specialties) > 0
+			${filters.specialty ? Prisma.sql`AND ${filters.specialty} = ANY(sp.specialties::text[])` : Prisma.empty})`);
+	}
 	if (filters.instrument) {
 		conditions.push(Prisma.sql`EXISTS (
 			SELECT 1 FROM ${t('person_instruments')} pi JOIN ${t('instruments')} i ON i.id = pi."instrumentId"
@@ -131,6 +143,7 @@ export async function searchMusicians(
 			actorId: true,
 			proStatus: true,
 			lookingFor: true,
+			soundProfile: { select: { specialties: true } },
 			actor: {
 				select: {
 					handle: true,
@@ -163,7 +176,9 @@ export async function searchMusicians(
 				})),
 				genres: p.actor.genres.map((g) => g.genre.name),
 				proStatus: p.proStatus,
-				lookingFor: p.lookingFor
+				lookingFor: p.lookingFor,
+				/** Spécialités d'ingé son déclarées (P4-02), vides sinon. */
+				soundSpecialties: p.soundProfile?.specialties ?? []
 			}
 		];
 	});

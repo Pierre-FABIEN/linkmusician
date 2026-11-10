@@ -1,5 +1,6 @@
 /**
  * Métiers (pistes) d'une personne : référentiel et règles de sélection.
+ * Ouverts : musicien·ne (lancement) et ingé son (P4-02).
  *
  * Module pur, partagé par le serveur et le navigateur. Les libellés vivent
  * ici, jamais en dur dans les composants. Décision D15 : tous les métiers
@@ -53,7 +54,7 @@ export const TRACKS: Readonly<Record<TrackKindValue, TrackInfo>> = {
 		kind: 'SOUND_ENGINEER',
 		label: 'Ingé son',
 		description: 'Tu enregistres, mixes, masterises ou sonorises des concerts.',
-		available: false
+		available: true
 	},
 	MANAGER: {
 		kind: 'MANAGER',

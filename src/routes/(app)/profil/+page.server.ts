@@ -27,6 +27,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		mayOrganize: details.mayOrganize,
 		/** Arrivé·e depuis « Lancer une jam » sans avoir coché (D51). */
 		askOrganize: url.searchParams.has('organiser'),
+		/** Lien vers « Mon profil d'ingé son » (P4-02). */
+		soundEngineer: person.tracks.some((t) => t.track === 'SOUND_ENGINEER'),
 		// Conseil en contexte (P2-17).
 		tip: await currentTip('profil', person)
 	};

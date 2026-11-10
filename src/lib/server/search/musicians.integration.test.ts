@@ -97,6 +97,7 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 							onboardedAt: spec.onboarded === false ? null : new Date(),
 							travelRadiusKm: spec.travelRadiusKm,
 							lookingFor: spec.lookingFor ?? [],
+							tracks: { create: { track: 'MUSICIAN', isPrimary: true } },
 							instruments: instrument
 								? {
 										create: {
@@ -223,5 +224,39 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 		await db.reputationSnapshot.deleteMany({
 			where: { actorId: { in: [ids.muret, ids.montauban] } }
 		});
+	});
+
+	it('par métier et spécialité (P4-02) : un·e ingé son sans spécialité reste introuvable', async () => {
+		// En dernier : ces deux personnes s'ajoutent aux résultats des autres tests.
+		for (const [key, specialties] of [
+			['ingeson', ['MIXING', 'MASTERING']],
+			['ingevide', []]
+		] as const) {
+			const user = await db.user.create({
+				data: { email: `${PREFIX}${key}@example.test`, referralCode: `${PREFIX}${key}` }
+			});
+			const actor = await db.actor.create({
+				data: {
+					kind: 'PERSON',
+					handle: PREFIX + key,
+					displayName: key,
+					person: {
+						create: {
+							userId: user.id,
+							termsAcceptedAt: new Date(),
+							onboardedAt: new Date(),
+							tracks: { create: { track: 'SOUND_ENGINEER', isPrimary: true } },
+							soundProfile: { create: { specialties: [...specialties] } }
+						}
+					}
+				}
+			});
+			ids[key] = actor.id;
+			await setActorLocation(actor.id, commune('Blagnac'), { db, schema: 'e2e' });
+		}
+		expect(await search('metier=inge-son')).toEqual(['ingeson']);
+		expect(await search('metier=inge-son&specialite=mastering')).toEqual(['ingeson']);
+		expect(await search('metier=inge-son&specialite=facade')).toEqual([]);
+		expect(await search('metier=musicien&rayon=10')).not.toContain('ingeson');
 	});
 });

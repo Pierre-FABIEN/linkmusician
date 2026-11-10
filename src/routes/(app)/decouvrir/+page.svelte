@@ -16,12 +16,27 @@
 		PRO_STATUS_INFO,
 		proStatusLabel
 	} from '#lib/actors/profile';
-	import { SEARCH_RADII, filtersToParams } from '#lib/search/filters';
+	import {
+		SEARCH_RADII,
+		SEARCH_TRACKS,
+		SEARCH_TRACK_LABELS,
+		SPECIALTY_SLUGS,
+		filtersToParams,
+		type SearchTrackSlug
+	} from '#lib/search/filters';
+	import { SOUND_SPECIALTIES, SOUND_SPECIALTY_INFO } from '#lib/crafts/sound';
+
+	import { untrack } from 'svelte';
 
 	let { data } = $props();
 	const f = $derived(data.filters);
 	const nextPage = $derived(`?${filtersToParams({ ...f, page: f.page + 1 })}`);
 	const select = 'w-full rounded-md border bg-background p-2 text-sm';
+	const trackSlugs = Object.keys(SEARCH_TRACKS) as SearchTrackSlug[];
+	/** Métier choisi dans le formulaire : la spécialité s'affiche aussitôt (P4-02). */
+	let trackChoice = $state(
+		untrack(() => trackSlugs.find((k) => SEARCH_TRACKS[k] === data.filters.track) ?? '')
+	);
 	/** Volet « Plus de filtres » ouvert d'office si l'un d'eux est actif. */
 	const secondaryActive = $derived(
 		Boolean(f.minLevel || f.genre || f.lookingFor || f.proStatus || f.reciprocal)
@@ -35,7 +50,9 @@
 		<header class="space-y-1">
 			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Découvrir</h1>
 			<p class="text-muted-foreground">
-				Trouve avec qui jouer{data.commune ? ` autour de ${data.commune}` : ''}.
+				Trouve avec qui jouer, enregistrer ou sonoriser{data.commune
+					? ` autour de ${data.commune}`
+					: ''}.
 			</p>
 		</header>
 
@@ -46,6 +63,28 @@
 		<div class="grid items-start gap-6 lg:grid-cols-[minmax(18rem,0.32fr)_minmax(0,0.68fr)]">
 			<form method="GET" class="space-y-3 rounded-2xl border bg-card p-4 lg:sticky lg:top-6">
 				<div class="grid gap-3 sm:grid-cols-2">
+					<label class="space-y-1 text-sm font-medium">
+						Métier
+						<select name="metier" class={select} bind:value={trackChoice}>
+							<option value="">Tous</option>
+							{#each trackSlugs as slug (slug)}
+								<option value={slug}>{SEARCH_TRACK_LABELS[slug]}</option>
+							{/each}
+						</select>
+					</label>
+					{#if trackChoice === 'inge-son'}
+						<label class="space-y-1 text-sm font-medium">
+							Spécialité
+							<select name="specialite" class={select}>
+								<option value="">Toutes</option>
+								{#each SOUND_SPECIALTIES as s (s)}
+									<option value={SPECIALTY_SLUGS[s]} selected={f.specialty === s}
+										>{SOUND_SPECIALTY_INFO[s].label}</option
+									>
+								{/each}
+							</select>
+						</label>
+					{/if}
 					<label class="space-y-1 text-sm font-medium">
 						Instrument
 						<select name="instrument" class={select}>
@@ -179,6 +218,16 @@
 											</span>
 										</span>
 									</span>
+									{#if r.soundSpecialties.length > 0}
+										<span class="text-sm">
+											<span class="font-semibold">Ingé son</span>
+											<span class="text-muted-foreground"
+												>· {r.soundSpecialties
+													.map((sp) => SOUND_SPECIALTY_INFO[sp].label)
+													.join(', ')}</span
+											>
+										</span>
+									{/if}
 									{#if r.instruments.length > 0}
 										<span class="text-sm">
 											{#each r.instruments as i, k (i.name)}{k > 0 ? ' · ' : ''}{i.name}

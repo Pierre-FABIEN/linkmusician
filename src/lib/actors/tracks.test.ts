@@ -19,8 +19,11 @@ describe('référentiel des métiers', () => {
 		}
 	});
 
-	it('ouvre seulement « musicien » au lancement (D15)', () => {
-		expect(TRACK_LIST.filter((t) => t.available).map((t) => t.kind)).toEqual(['MUSICIAN']);
+	it('ouvre les métiers un par un (D15) : musicien·ne, puis ingé son (P4-02)', () => {
+		expect(TRACK_LIST.filter((t) => t.available).map((t) => t.kind)).toEqual([
+			'MUSICIAN',
+			'SOUND_ENGINEER'
+		]);
 	});
 
 	it('reconnaît les valeurs de l’enum', () => {

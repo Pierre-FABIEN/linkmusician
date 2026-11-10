@@ -116,6 +116,18 @@ export async function exportPersonData(userId: string) {
 	const details = await getProfileDetails(person);
 	const location = await getActorLocation(person.actorId);
 	const progress = await getProgress(person.actorId, prisma);
+	// Métiers du son (P4-02) : profil d'ingé son et travaux en écoute.
+	const [soundProfile, craftReferences] = await Promise.all([
+		prisma.soundEngineerProfile.findUnique({
+			where: { personId: person.actorId },
+			select: { specialties: true, mobility: true, gear: true, updatedAt: true }
+		}),
+		prisma.craftReference.findMany({
+			where: { personId: person.actorId },
+			orderBy: [{ track: 'asc' }, { position: 'asc' }],
+			select: { track: true, title: true, url: true, createdAt: true }
+		})
+	]);
 	const [
 		ledger,
 		reportsFiled,
@@ -447,6 +459,20 @@ export async function exportPersonData(userId: string) {
 		joue_depuis: details.practiceSince,
 		rayon_de_deplacement_km: details.travelRadiusKm,
 		pret_a_organiser_des_jams: details.organizesJams,
+		profil_inge_son: soundProfile
+			? {
+					specialites: soundProfile.specialties,
+					ou_je_travaille: soundProfile.mobility,
+					materiel: soundProfile.gear,
+					modifie_le: soundProfile.updatedAt
+				}
+			: null,
+		travaux_en_ecoute: craftReferences.map((r) => ({
+			metier: r.track,
+			titre: r.title,
+			lien: r.url,
+			ajoute_le: r.createdAt
+		})),
 		ambition_de_carriere: person.ambition,
 		liens: details.links.map((l) => ({ type: l.kind, url: l.url })),
 		// Seule la commune est stockée (jamais d'adresse ni de point précis).
@@ -664,6 +690,9 @@ export async function personAnonymizationOps(
 		prisma.person.update({ where: { userId }, data: { birthDate: null } }),
 		prisma.personTrack.deleteMany({ where: { personId: person.actorId } }),
 		prisma.personInstrument.deleteMany({ where: { personId: person.actorId } }),
+		// Métiers du son (P4-02) : tout est déclaratif, rien ne reste.
+		prisma.soundEngineerProfile.deleteMany({ where: { personId: person.actorId } }),
+		prisma.craftReference.deleteMany({ where: { personId: person.actorId } }),
 		prisma.actorGenre.deleteMany({ where: { actorId: person.actorId } }),
 		// Morceaux (P3-11) : ceux que la personne porte sont supprimés ; ses
 		// crédits confirmés sur ceux des autres restent (« Compte supprimé »),

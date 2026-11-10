@@ -1528,6 +1528,9 @@ model Person {
   /// jam ; profils proposés plus tard aux lieux et organisateurs.
   organizesJams  Boolean          @default(false)
   links          ProfileLink[]
+  /// Métiers du son (P4-02).
+  soundProfile    SoundEngineerProfile?
+  craftReferences CraftReference[]
 
   @@map("persons")
 }
@@ -3099,4 +3102,52 @@ model OrganizationVerification {
   @@index([orgId, createdAt])
   @@index([siret])
   @@map("organization_verifications")
+}
+
+// ─── Métiers du son (P4-02) ─────────────────────────────────────────────
+
+enum SoundSpecialty {
+  RECORDING
+  MIXING
+  MASTERING
+  LIVE_FOH
+  LIVE_MONITORS
+}
+
+enum CraftMobility {
+  OWN_PLACE
+  ON_SITE
+  REMOTE
+}
+
+/// Profil d'ingé son, déclaratif (conception 08 §5). Trouvable dans la
+/// recherche par métier dès qu'une spécialité est cochée.
+model SoundEngineerProfile {
+  personId    String           @id
+  person      Person           @relation(fields: [personId], references: [actorId], onDelete: Cascade)
+  specialties SoundSpecialty[]
+  mobility    CraftMobility[]
+  /// Matériel, texte libre (600 caractères au plus).
+  gear        String           @default("")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("sound_engineer_profiles")
+}
+
+/// Travail en écoute ajouté par la personne sur son profil de métier
+/// (avant / après, production). Déclaratif : les crédits confirmés par les
+/// artistes viendront avec P4-07.
+model CraftReference {
+  id        String    @id @default(cuid())
+  personId  String
+  person    Person    @relation(fields: [personId], references: [actorId], onDelete: Cascade)
+  track     TrackKind
+  title     String
+  url       String
+  position  Int
+  createdAt DateTime  @default(now())
+
+  @@index([personId, track, position])
+  @@map("craft_references")
 }

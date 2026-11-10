@@ -15,8 +15,9 @@ _Ton compte, ton profil et ton mode de jeu, en cinq minutes._
 ## 1. Créer ton compte
 
 1. Inscris-toi avec ton email et confirme-le avec le code reçu.
-2. Réponds à « **Qui es-tu ?** » : musicien·ne aujourd’hui (d’autres
-   métiers arriveront).
+2. Réponds à « **Qui es-tu ?** » : musicien·ne, ingé son, ou les deux.
+   D’autres métiers arriveront. Tu les changes quand tu veux dans
+   **Réglages › Mes métiers**.
 3. Accepte les conditions d’utilisation.
 
 ## 2. Remplir ton profil
@@ -39,6 +40,22 @@ Bandcamp, ou un fichier), tes influences, tes liens.
 
 > ⚠️ **Important** : ta démo est relue par la modération si ton compte est
 > récent. Elle apparaît dès qu’elle est validée.
+
+### Si tu es ingé son {#inge-son}
+
+Ouvre **Mon profil › Mon profil d’ingé son** :
+
+- coche tes **spécialités** (prise de son, mixage, mastering, façade,
+  retours). Dès qu’il y en a une, les artistes te trouvent dans
+  **Découvrir** ;
+- dis **où tu travailles** : dans ton studio, en te déplaçant, ou à
+  distance ;
+- liste ton **matériel** ;
+- ajoute jusqu’à six **travaux en écoute**, avec un lien public. Un
+  avant / après parle beaucoup.
+
+Ces travaux sont déclarés par toi. Ce qui comptera vraiment, ce sont les
+sessions confirmées par les artistes, qui arrivent bientôt.
 
 ## 3. Choisir ton mode
 

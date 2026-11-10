@@ -18,6 +18,7 @@ import { getMusicianTier, getProgress } from '#lib/server/progression/read';
 import { adultBirthCutoff, isIndexable } from '#lib/actors/visibility';
 import { endorsersByInstrument } from '#lib/server/endorsements/service';
 import { getPublicReputation } from '#lib/server/progression/reputation';
+import { getSoundProfile } from '#lib/prisma/crafts/soundProfile';
 import { publicActorWhere } from './visibility';
 
 /** Médias publiés affichés sur le profil (les plus récents). */
@@ -49,7 +50,8 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 	});
 	if (!actor) return null;
 
-	const [musical, location, progress, tier, media, endorsed, reputation, bands, works] =
+	const isSoundEngineer = actor.person?.tracks.some((t) => t.track === 'SOUND_ENGINEER') ?? false;
+	const [musical, location, progress, tier, media, endorsed, reputation, bands, works, sound] =
 		await Promise.all([
 			getMusicalProfile({ actorId: actor.id }),
 			getActorLocation(actor.id),
@@ -73,7 +75,9 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 			// Ses groupes actuels (P3-02).
 			bandsOfPerson(actor.id, now, viewerId),
 			// Morceaux composés, portés ou crédités (P3-11).
-			publicWorksOf(actor.id, now, viewerId)
+			publicWorksOf(actor.id, now, viewerId),
+			// Profil d'ingé son (P4-02), déclaratif.
+			isSoundEngineer ? getSoundProfile(actor.id) : null
 		]);
 
 	const demosByInstrument = new Map<string, number>();
@@ -110,6 +114,7 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 		influences: musical.influences,
 		bands,
 		works,
+		soundEngineer: sound,
 		media: media.slice(0, PROFILE_MEDIA_LIMIT).map(({ instrumentId: _i, ...m }) => m),
 		mediaCount: media.length,
 		level: progress.level,
