@@ -1254,8 +1254,21 @@
 	background-color: oklch(0 0 0);
 	background-image: none;
 	opacity: 0;
+}
+.lm-jam-board > .lm-tile::before {
+	padding: 2px;
+	opacity: 0.001;
 	will-change: opacity;
-	transition: opacity 180ms ease;
+	transition: none;
+}
+
+@keyframes lm-jam-border-pulse {
+	from {
+		opacity: 0.001;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 
@@ -1628,8 +1641,13 @@ button.lm-tile:active {
 		animation: none;
 	}
 
+	.lm-jam-board .lm-tile:hover::before {
+		animation: lm-jam-border-pulse 1.4s ease-in-out infinite alternate;
+	}
+
 	.lm-jam-board .lm-tile:hover::after {
-		opacity: 0.2;
+		opacity: 0;
+		transition: none;
 	}
 }
 
