@@ -57,6 +57,13 @@ Ouvre **Mon profil › Mon profil d’ingé son** :
 Ces travaux sont déclarés par toi. Ce qui comptera vraiment, ce sont les
 sessions confirmées par les artistes, qui arrivent bientôt.
 
+Ton **rang d’ingé son** s’affiche sur ton profil : _Home studio_ dès ton
+premier travail en écoute, puis _Premiers projets_, _Portfolio_ (5
+projets avec 3 artistes différents), _Établi·e_ et _Référence_ (des
+sorties vérifiées où tu es crédité·e). Tes **objectifs d’ingé son** sont
+dans **Mon espace › Mes objectifs** : ils suivent les spécialités que tu
+as cochées.
+
 ## 3. Choisir ton mode
 
 Après ton profil, l’app te propose ses deux modes. Une courte

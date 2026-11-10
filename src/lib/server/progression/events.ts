@@ -32,6 +32,8 @@ export function actorIdsOf(event: DomainEvent): string[] {
 			return [event.personId, event.bandId];
 		case 'collaboration.completed':
 			return [...new Set(event.participantIds)];
+		case 'release.credit_verified':
+			return [event.actorId];
 		case 'endorsement.received':
 		case 'endorsement.revoked':
 			return [event.actorId, event.endorserId];

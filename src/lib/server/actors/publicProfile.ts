@@ -19,6 +19,7 @@ import { adultBirthCutoff, isIndexable } from '#lib/actors/visibility';
 import { endorsersByInstrument } from '#lib/server/endorsements/service';
 import { getPublicReputation } from '#lib/server/progression/reputation';
 import { getSoundProfile } from '#lib/prisma/crafts/soundProfile';
+import { getSoundEngineerTier } from '#lib/server/progression/crafts';
 import { publicActorWhere } from './visibility';
 
 /** Médias publiés affichés sur le profil (les plus récents). */
@@ -77,7 +78,9 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 			// Morceaux composés, portés ou crédités (P3-11).
 			publicWorksOf(actor.id, now, viewerId),
 			// Profil d'ingé son (P4-02), déclaratif.
-			isSoundEngineer ? getSoundProfile(actor.id) : null
+			isSoundEngineer
+				? Promise.all([getSoundProfile(actor.id), getSoundEngineerTier(actor.id, prisma)])
+				: null
 		]);
 
 	const demosByInstrument = new Map<string, number>();
@@ -114,7 +117,8 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 		influences: musical.influences,
 		bands,
 		works,
-		soundEngineer: sound,
+		// Rang d'ingé son (P4-02b) : des conditions, jamais l'XP.
+		soundEngineer: sound?.[0] ? { ...sound[0], tier: sound[1] } : null,
 		media: media.slice(0, PROFILE_MEDIA_LIMIT).map(({ instrumentId: _i, ...m }) => m),
 		mediaCount: media.length,
 		level: progress.level,

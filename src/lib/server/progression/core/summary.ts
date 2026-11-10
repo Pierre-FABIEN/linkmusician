@@ -65,7 +65,9 @@ export function musicianSummary(actorId: string, events: readonly DomainEvent[])
 				if (event.personId === actorId) bands.add(event.bandId);
 				break;
 			case 'collaboration.completed':
-				if (event.participantIds.includes(actorId)) {
+				// Une prestation du son (P4-01) compte sur sa piste, pas comme
+				// collaboration de musicien·ne (`craftSummary`).
+				if (event.participantIds.includes(actorId) && !event.services?.[actorId]) {
 					collaborations += 1;
 					for (const id of event.participantIds) if (id !== actorId) collaborators.add(id);
 				}

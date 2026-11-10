@@ -4,6 +4,7 @@
 	import * as Card from '#shadcn/card';
 	import { Badge } from '#shadcn/badge';
 	import { ExternalLink } from 'lucide-svelte';
+	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
 	import {
 		CRAFT_MOBILITY_LABELS,
 		SOUND_SPECIALTY_INFO,
@@ -20,6 +21,8 @@
 			mobility: CraftMobilityValue[];
 			gear: string;
 			references: Reference[];
+			/** Rang d'ingé son (P4-02b), `null` avant « Home studio ». */
+			tier: { id: string; label: string } | null;
 		};
 	} = $props();
 
@@ -29,6 +32,7 @@
 <Card.Root>
 	<Card.Header><Card.Title><h2>Ingé son</h2></Card.Title></Card.Header>
 	<Card.Content class="space-y-4">
+		{#if profile.tier}<TierBadge {...profile.tier} prefix="Rang d’ingé son :" />{/if}
 		{#if profile.specialties.length > 0}
 			<div class="flex flex-wrap gap-1">
 				{#each profile.specialties as s (s)}<Badge variant="secondary"

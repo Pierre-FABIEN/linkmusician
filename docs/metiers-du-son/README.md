@@ -43,9 +43,26 @@ barème en [02 §2.2](../conception/02-progression.md#22-barème-première-versi
   « par métier et spécialité » de `musicians.integration.test.ts`, e2e
   `e2e/linkmusician/inge-son.spec.ts`.
 
+## Rang et objectifs (P4-02b)
+
+- **Noyau pur** : `core/craftSummary.ts` (prestations par type, artistes
+  distincts, sorties créditées, lus dans `collaboration.completed` et
+  `release.credit_verified`) et `core/craftQuests.ts` (objectifs). Une
+  prestation ne compte plus comme collaboration de musicien·ne
+  (`musicianSummary`).
+- **Lecture** : `src/lib/server/progression/crafts.ts`
+  (`getSoundEngineerTier`, `getSoundEngineerProgress`).
+- **Objectifs** (08 §5) : spécialités, ville, un travail en écoute, puis
+  la première prestation de chaque spécialité cochée (prise de son,
+  mixage, mastering, date sonorisée) et trois artistes différents. Les
+  prestations s'affichent sans lien tant qu'elles ne se confirment pas
+  dans l'app (P4-06). « Répondre à une annonce cherche ingé son » viendra
+  avec P4-05.
+- **Affichage** : rang sur la carte « Ingé son » du profil public ;
+  section « Ingé son » de `/espace/objectifs`, avant celle de musicien·ne
+  si c'est le métier principal.
+
 ## À venir
 
-- **P4-02b** : quêtes de l'ingé son (08 §5) et rang affiché sur le
-  profil et dans l'espace.
 - **P4-05** : annonces ciblées sur un métier et une spécialité.
 - **P4-06, P4-07** : sessions liées au morceau, crédits confirmés.

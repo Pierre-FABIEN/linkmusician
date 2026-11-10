@@ -1,0 +1,132 @@
+import { describe, expect, it } from 'vitest';
+import { craftSummary } from './craftSummary';
+import { nextSoundObjectives, soundQuestProgress, type SoundQuestState } from './craftQuests';
+import { musicianSummary } from './summary';
+import { craftTier } from './tiers';
+import type { DomainEvent } from './events';
+
+let seq = 0;
+const at = new Date('2026-11-01T10:00:00Z');
+const session = (
+	participantIds: string[],
+	services: Record<string, 'RECORDING' | 'MIXING' | 'MASTERING' | 'LIVE_SOUND' | 'PRODUCTION'>,
+	collaborationId = `c${++seq}`
+): DomainEvent => ({
+	id: `e${++seq}`,
+	occurredAt: at,
+	type: 'collaboration.completed',
+	collaborationId,
+	participantIds,
+	services
+});
+
+describe('craftSummary (P4-02b)', () => {
+	const events: DomainEvent[] = [
+		session(['sam', 'lea', 'malik'], { sam: 'RECORDING' }, 'c-rec'),
+		session(['sam', 'noa'], { sam: 'MIXING' }),
+		// Une productrice sur la même session n'est pas une artiste.
+		session(['sam', 'zoe', 'nora'], { sam: 'MASTERING', nora: 'PRODUCTION' }),
+		// Sam y joue : ce n'est pas une prestation d'ingé son.
+		session(['sam', 'lea'], {}),
+		{
+			id: 'r1',
+			occurredAt: at,
+			type: 'release.credit_verified',
+			actorId: 'sam',
+			releaseId: 'ep',
+			track: 'SOUND_ENGINEER'
+		},
+		{
+			id: 'r2',
+			occurredAt: at,
+			type: 'release.credit_verified',
+			actorId: 'sam',
+			releaseId: 'ep-prod',
+			track: 'PRODUCER'
+		}
+	];
+
+	it('compte les prestations de la piste, les artistes distincts et les sorties', () => {
+		const facts = craftSummary('sam', 'SOUND_ENGINEER', events, 2);
+		expect(facts).toMatchObject({
+			listeningWorks: 2,
+			projects: 3,
+			distinctArtists: 4,
+			verifiedReleaseCredits: 1
+		});
+		expect(facts.byService).toMatchObject({ RECORDING: 1, MIXING: 1, MASTERING: 1, LIVE_SOUND: 0 });
+		expect(craftTier(facts).tier?.id).toBe('FIRST_PROJECTS');
+	});
+
+	it('une même collaboration ne compte qu’une fois', () => {
+		const replay = session(['sam', 'lea', 'malik'], { sam: 'RECORDING' }, 'c-rec');
+		expect(craftSummary('sam', 'SOUND_ENGINEER', [...events, replay], 0).projects).toBe(3);
+	});
+
+	it('la piste producteur·rice ne compte que ses propres prestations', () => {
+		expect(craftSummary('nora', 'PRODUCER', events, 0)).toMatchObject({
+			projects: 1,
+			distinctArtists: 1
+		});
+	});
+
+	it('une prestation ne compte pas comme collaboration de musicien·ne', () => {
+		expect(musicianSummary('sam', events)).toMatchObject({
+			collaborations: 1,
+			distinctCollaborators: 1
+		});
+		// Pour Léa, qui jouait, la session compte.
+		expect(musicianSummary('lea', events).collaborations).toBe(2);
+	});
+});
+
+describe('objectifs de l’ingé son (P4-02b)', () => {
+	const empty = craftSummary('sam', 'SOUND_ENGINEER', [], 0);
+	const state = (o: Partial<SoundQuestState> = {}): SoundQuestState => ({
+		...empty,
+		specialties: [],
+		hasZone: false,
+		...o
+	});
+
+	it('commence par les spécialités, la ville, puis un travail en écoute', () => {
+		expect(nextSoundObjectives(state()).map((o) => o.id)).toEqual([
+			'sound.specialty',
+			'sound.zone',
+			'sound.listening'
+		]);
+	});
+
+	it('propose seulement les prestations des spécialités cochées', () => {
+		const ids = (s: SoundQuestState) => nextSoundObjectives(s, 10).map((o) => o.id);
+		const live = state({ specialties: ['LIVE_FOH'], hasZone: true, listeningWorks: 1 });
+		expect(ids(live)).toEqual(['sound.live.first', 'sound.artists']);
+		const studio = state({ specialties: ['RECORDING', 'MIXING'], hasZone: true });
+		expect(ids(studio)).toEqual([
+			'sound.listening',
+			'sound.recording.first',
+			'sound.mixing.first',
+			'sound.artists'
+		]);
+		expect(soundQuestProgress(studio)).toEqual({ done: 2, total: 6 });
+	});
+
+	it('montre l’avancement vers trois artistes, et l’XP indicative', () => {
+		const s = state({
+			specialties: ['MIXING'],
+			hasZone: true,
+			listeningWorks: 1,
+			distinctArtists: 2,
+			byService: { ...empty.byService, MIXING: 1 }
+		});
+		expect(nextSoundObjectives(s)).toEqual([
+			expect.objectContaining({ id: 'sound.artists', progress: { current: 2, target: 3 } })
+		]);
+		expect(nextSoundObjectives(state({ specialties: ['MIXING'], hasZone: true }))[1]).toMatchObject(
+			{
+				id: 'sound.mixing.first',
+				xp: 300
+			}
+		);
+	});
+});

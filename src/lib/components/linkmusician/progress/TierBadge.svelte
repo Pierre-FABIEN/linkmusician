@@ -29,6 +29,13 @@
 		FIRST_ALBUM: tones.LOCAL_PILLAR,
 		SIGNING: tones.REFERENCE
 	};
+	// Rangs des métiers du son (P4-02b) : mêmes couleurs, par grande étape.
+	const craft: Record<string, string> = {
+		HOME_STUDIO: tones.FIRST_STEPS,
+		FIRST_PROJECTS: tones.NETWORKED,
+		PORTFOLIO: tones.COLLABORATOR,
+		ESTABLISHED: tones.LOCAL_PILLAR
+	};
 </script>
 
 <span
@@ -36,6 +43,7 @@
 		id
 	] ??
 		band[id] ??
+		craft[id] ??
 		tones.FIRST_STEPS}"
 >
 	<Route class="size-3.5" aria-hidden="true" />

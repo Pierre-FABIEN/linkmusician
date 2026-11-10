@@ -10,7 +10,8 @@ import { setCity, skipOnboarding } from '../support/linkmusician';
  * P4-02 — Ingé son : une personne choisit le métier, complète son profil
  * (spécialités, mobilité, travail en écoute) et apparaît dans la recherche
  * par métier et par spécialité ; son profil public montre la carte
- * « Ingé son ». Sans spécialité, on ne la trouve pas.
+ * « Ingé son » et son rang (P4-02b) ; ses objectifs suivent ses
+ * spécialités. Sans spécialité, on ne la trouve pas.
  */
 test.describe('LinkMusician — ingé son', () => {
 	test.setTimeout(6 * 60_000);
@@ -94,6 +95,19 @@ test.describe('LinkMusician — ingé son', () => {
 				await expect(
 					musicianPage.getByRole('link', { name: /Mix de « Nuit blanche »/ })
 				).toHaveAttribute('href', 'https://soundcloud.com/e2e/nuit-blanche');
+			});
+
+			await test.step('6. Mon rang « Home studio » et mes objectifs d’ingé son', async () => {
+				// Un travail en écoute suffit au premier rang (P4-02b).
+				await expect(musicianPage.getByText('Home studio').first()).toBeVisible();
+				await page.goto('/espace/objectifs');
+				await waitForAppReady(page);
+				const section = page.getByRole('region', { name: /Ingé son/ });
+				await expect(section).toBeVisible();
+				await expect(section.getByText('Home studio')).toBeVisible();
+				// Façade cochée : la première date est proposée, pas le mastering.
+				await expect(section.getByText('Sonorise une première date')).toBeVisible();
+				await expect(section.getByText('Signe un premier mastering')).toHaveCount(0);
 			});
 		} finally {
 			await musicianContext.close();
