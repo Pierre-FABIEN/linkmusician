@@ -6,7 +6,12 @@
 	import MediaPlayer from '#lib/components/linkmusician/MediaPlayer.svelte';
 	import RolePicker from '#lib/components/linkmusician/works/RolePicker.svelte';
 	import DemarcheCard from '#lib/components/linkmusician/DemarcheCard.svelte';
-	import { CORROBORATION_CREDITS, MAX_WORK_GENRES, MAX_WORK_TITLE } from '#lib/works/rules';
+	import {
+		CORROBORATION_CREDITS,
+		MAX_WORK_GENRES,
+		MAX_WORK_TITLE,
+		craftAnnounceHref
+	} from '#lib/works/rules';
 	import { plural } from '#lib/jam/log';
 	import { Check, Circle, Megaphone, Music, PartyPopper, UserPlus } from 'lucide-svelte';
 
@@ -363,6 +368,36 @@
 						<button class="min-h-11 rounded-full border px-4 font-medium">Ajouter</button>
 					</form>
 				{/if}
+			</section>
+		{/if}
+
+		{#if work.manage && composed}
+			<!-- LINKMUSICIAN: la suite du morceau, avec les métiers du son (P4-05). -->
+			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="suite-title">
+				<h2 id="suite-title" class="font-semibold">La suite du morceau</h2>
+				<p class="text-sm text-muted-foreground">
+					Publie une annonce que seuls les ingés son ou les producteur·rices verront.
+				</p>
+				<div class="flex flex-wrap gap-2">
+					<a
+						class="inline-flex min-h-11 items-center rounded-full border px-4 font-medium hover:bg-muted"
+						href={craftAnnounceHref({
+							workId: work.id,
+							workTitle: work.title,
+							target: 'SOUND_ENGINEER',
+							specialty: 'RECORDING'
+						})}>Trouver un·e ingé son</a
+					>
+					<a
+						class="inline-flex min-h-11 items-center rounded-full border px-4 font-medium hover:bg-muted"
+						href={craftAnnounceHref({
+							workId: work.id,
+							workTitle: work.title,
+							target: 'PRODUCER',
+							specialty: 'PRODUCTION'
+						})}>Trouver un·e producteur·rice</a
+					>
+				</div>
 			</section>
 		{/if}
 

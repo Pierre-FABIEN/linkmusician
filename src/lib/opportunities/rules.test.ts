@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { displayStatus, expiresAtFor, isActive, opportunitySchema, unmetConditions } from './rules';
+import {
+	checkTarget,
+	displayStatus,
+	expiresAtFor,
+	isActive,
+	opportunitySchema,
+	targetLabel,
+	unmetConditions
+} from './rules';
+import { craftAnnounceHref } from '#lib/works/rules';
 
 const now = new Date('2026-11-05T12:00:00Z');
 const valid = {
@@ -74,5 +83,83 @@ describe('éligibilité (pour P2-03)', () => {
 		[{ minTier: 'NETWORKED' }, ['tier']]
 	])('%o → %o', (condition, unmet) => {
 		expect(unmetConditions(condition, facts)).toEqual(unmet);
+	});
+});
+
+describe('annonces par métier (P4-05)', () => {
+	it('sans cible, ou pour des musicien·nes : comme avant', () => {
+		const musician = { ok: true, target: { track: null, specialty: null } };
+		expect(checkTarget({ kind: 'RECRUIT_MEMBER' })).toEqual(musician);
+		expect(checkTarget({ kind: 'JAM', target: 'MUSICIAN', specialty: 'MIXING' })).toEqual(musician);
+	});
+
+	it('un métier du son se cherche par une session, avec une spécialité du métier', () => {
+		expect(
+			checkTarget({ kind: 'SESSION_WORK', target: 'SOUND_ENGINEER', specialty: 'RECORDING' })
+		).toEqual({ ok: true, target: { track: 'SOUND_ENGINEER', specialty: 'RECORDING' } });
+		expect(checkTarget({ kind: 'SESSION_WORK', target: 'PRODUCER' })).toEqual({
+			ok: true,
+			target: { track: 'PRODUCER', specialty: null }
+		});
+		expect(checkTarget({ kind: 'RECRUIT_MEMBER', target: 'PRODUCER' }).ok).toBe(false);
+		expect(checkTarget({ kind: 'SESSION_WORK', target: 'PRODUCER', specialty: 'MIXING' }).ok).toBe(
+			false
+		);
+	});
+
+	it('libellé de la cible', () => {
+		expect(targetLabel('SOUND_ENGINEER', 'LIVE_FOH')).toBe('Un·e ingé son · Façade');
+		expect(targetLabel('PRODUCER', null)).toBe('Un·e producteur·rice');
+	});
+
+	const facts = {
+		instruments: [],
+		genreSlugs: ['funk'],
+		tiers: [],
+		tracks: ['SOUND_ENGINEER'],
+		specialties: ['MIXING']
+	};
+	it.each([
+		[{ targetTrack: 'SOUND_ENGINEER' }, []],
+		[{ targetTrack: 'SOUND_ENGINEER', targetSpecialty: 'MIXING' }, []],
+		[{ targetTrack: 'SOUND_ENGINEER', targetSpecialty: 'RECORDING' }, ['specialty']],
+		[{ targetTrack: 'PRODUCER' }, ['track']],
+		// Instrument et palier ne s'appliquent pas à un métier du son ; le genre, si.
+		[{ targetTrack: 'SOUND_ENGINEER', instrument: 'batterie', minTier: 'STAGE' }, []],
+		[{ targetTrack: 'SOUND_ENGINEER', genre: 'metal' }, ['genre']]
+	])('%o → %o', (condition, unmet) => {
+		expect(unmetConditions(condition, facts)).toEqual(unmet);
+	});
+
+	it('le formulaire accepte la cible et le morceau', () => {
+		const parsed = opportunitySchema.parse({
+			kind: 'SESSION_WORK',
+			title: 'Ingé son pour un titre',
+			description: 'Une voix et une guitare, un après-midi.',
+			radiusKm: '25',
+			durationDays: '14',
+			slots: '1',
+			target: 'SOUND_ENGINEER',
+			specialty: 'RECORDING',
+			work: 'clxyz1234567890abcd'
+		});
+		expect(parsed).toMatchObject({ target: 'SOUND_ENGINEER', work: 'clxyz1234567890abcd' });
+	});
+
+	it('« Trouver un·e ingé son » depuis un morceau préremplit l’annonce', () => {
+		const href = craftAnnounceHref({
+			workId: 'w1',
+			workTitle: 'Nuit blanche',
+			target: 'SOUND_ENGINEER',
+			specialty: 'RECORDING'
+		});
+		const params = new URL(href, 'https://x').searchParams;
+		expect(Object.fromEntries(params)).toEqual({
+			type: 'SESSION_WORK',
+			cible: 'SOUND_ENGINEER',
+			specialite: 'RECORDING',
+			morceau: 'w1',
+			titre: 'Ingé son pour « Nuit blanche »'
+		});
 	});
 });

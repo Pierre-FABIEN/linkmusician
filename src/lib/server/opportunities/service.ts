@@ -8,6 +8,10 @@
  * Recrutement (P3-03) : un groupe émet son annonce « cherche un membre »,
  * publiée par une personne qui le gère (`postedById`). Sa ville est celle du
  * groupe ; toute la gestion du groupe la clôture et tranche les candidatures.
+ *
+ * Par métier (P4-05) : une annonce de session peut viser un·e ingé son ou
+ * un·e producteur·rice (et une spécialité), et se relier à un morceau. Seules
+ * les personnes du métier visé la voient autour d'elles et peuvent y répondre.
  */
 import { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
@@ -19,12 +23,16 @@ import { MUSICIAN_TIERS } from '#lib/server/progression/core/tiers';
 import { distanceBand } from '#lib/geo/distance';
 import { clearExpiredAvailabilities } from '#lib/server/jam/availability';
 import {
+	checkTarget,
 	displayStatus,
 	expiresAtFor,
 	isActive,
+	targetLabel,
 	type OpportunityForm,
-	type OpportunityKindValue
+	type OpportunityKindValue,
+	type OpportunityTarget
 } from '#lib/opportunities/rules';
+import { manageableWorks } from '#lib/server/works/service';
 
 export class OpportunityError extends Error {
 	constructor(
@@ -66,7 +74,7 @@ async function activeCount(actorId: string, now: Date) {
 
 export async function createOpportunity(
 	actorId: string,
-	form: OpportunityForm,
+	form: Omit<OpportunityForm, 'target'> & { target?: OpportunityTarget },
 	now = new Date(),
 	/** Publier au nom d'un groupe que l'on gère (recrutement seulement, P3-03). */
 	bandId: string | null = null
@@ -114,6 +122,15 @@ export async function createOpportunity(
 	if (form.minTier && !TIER_OPTIONS.some((t) => t.id === form.minTier)) {
 		throw new OpportunityError('Palier inconnu.');
 	}
+	// Métier visé (P4-05) : pour un métier du son, ni instrument, ni niveau,
+	// ni palier musicien.
+	const target = checkTarget(form);
+	if (!target.ok) throw new OpportunityError(target.message);
+	const pro = target.target.track !== null;
+	// Morceau concerné (P4-05) : seulement un morceau que je peux gérer.
+	if (form.work && !(await manageableWorks(actorId)).some((w) => w.id === form.work)) {
+		throw new OpportunityError('Tu ne gères pas ce morceau.', 403);
+	}
 	const startsAt = form.startsAt ? new Date(`${form.startsAt}T12:00:00Z`) : undefined;
 	if (startsAt && startsAt.getTime() < now.getTime() - 24 * 60 * 60 * 1000) {
 		throw new OpportunityError('La date est déjà passée.');
@@ -126,10 +143,13 @@ export async function createOpportunity(
 			kind: form.kind,
 			title: form.title,
 			description: form.description,
-			instrumentId: instrument?.id ?? null,
-			minLevel: form.minLevel ?? null,
+			instrumentId: pro ? null : (instrument?.id ?? null),
+			minLevel: pro ? null : (form.minLevel ?? null),
 			genreSlug: genre?.slug ?? null,
-			minTier: form.minTier ?? null,
+			minTier: pro ? null : (form.minTier ?? null),
+			targetTrack: target.target.track,
+			targetSpecialty: target.target.specialty,
+			workId: form.work ?? null,
 			radiusKm: form.radiusKm,
 			slots: form.slots,
 			startsAt: startsAt ?? null,
@@ -164,6 +184,7 @@ export async function getOpportunity(id: string, viewerId: string, now = new Dat
 		where: { id },
 		include: {
 			instrument: { select: { name: true } },
+			work: { select: { id: true, title: true, state: true } },
 			issuer: {
 				select: {
 					id: true,
@@ -199,6 +220,14 @@ export async function getOpportunity(id: string, viewerId: string, now = new Dat
 		minLevel: o.minLevel,
 		genre: genre?.name ?? null,
 		minTier: tierLabel(o.minTier),
+		/** Ce que cherche l'annonce (P4-05), `null` : des musicien·nes. */
+		target: o.targetTrack
+			? targetLabel(o.targetTrack as OpportunityTarget, o.targetSpecialty)
+			: null,
+		/** Morceau concerné (P4-05) ; lien seulement s'il est composé (public). */
+		work: o.work
+			? { id: o.work.id, title: o.work.title, linkable: o.work.state === 'COMPOSED' }
+			: null,
 		radiusKm: o.radiusKm,
 		slots: o.slots,
 		startsAt: o.startsAt,
@@ -245,6 +274,19 @@ export async function listNearby(
 				WHERE s."actorId" = a.id AND s.kind::text = 'SUSPENSION' AND s."liftedAt" IS NULL
 				AND (s.until IS NULL OR s.until > ${now}))
 			${kind}
+			-- Métier visé (P4-05) : seules les personnes du métier, et de la
+			-- spécialité si elle est précisée, voient l'annonce.
+			AND (o."targetTrack" IS NULL OR (
+				EXISTS (
+					SELECT 1 FROM ${t('person_tracks')} pt
+					WHERE pt."personId" = ${viewerId} AND pt.track = o."targetTrack")
+				AND (o."targetSpecialty" IS NULL
+					OR EXISTS (
+						SELECT 1 FROM ${t('sound_engineer_profiles')} sp
+						WHERE sp."personId" = ${viewerId} AND o."targetSpecialty" = ANY(sp.specialties::text[]))
+					OR EXISTS (
+						SELECT 1 FROM ${t('producer_profiles')} pp
+						WHERE pp."personId" = ${viewerId} AND o."targetSpecialty" = ANY(pp.specialties::text[])))))
 		ORDER BY o."createdAt" DESC
 		LIMIT 50`;
 	const meters = new Map(rows.map((r) => [r.id, r.meters]));
@@ -264,6 +306,9 @@ export async function listNearby(
 		title: o.title,
 		instrument: o.instrument?.name ?? null,
 		minLevel: o.minLevel,
+		target: o.targetTrack
+			? targetLabel(o.targetTrack as OpportunityTarget, o.targetSpecialty)
+			: null,
 		slots: o.slots,
 		startsAt: o.startsAt,
 		issuer: o.issuer.displayName,

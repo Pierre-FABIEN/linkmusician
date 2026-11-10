@@ -8,21 +8,38 @@ import {
 	TIER_OPTIONS,
 	createOpportunity
 } from '#lib/server/opportunities/service';
-import { MAX_TITLE, OPPORTUNITY_KINDS, opportunitySchema } from '#lib/opportunities/rules';
+import {
+	MAX_TITLE,
+	OPPORTUNITY_KINDS,
+	OPPORTUNITY_TARGETS,
+	TARGET_SPECIALTIES,
+	opportunitySchema,
+	type OpportunityTarget
+} from '#lib/opportunities/rules';
 import { managedBands } from '#lib/server/bands/service';
+import { manageableWorks } from '#lib/server/works/service';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	// Une jam se publie dans un lieu de l'annuaire (P2-14b).
 	if (url.searchParams.get('type') === 'JAM') redirect(303, '/jams/nouvelle');
 	const person = (await getPersonByUserId(locals.user!.id))!;
-	const [location, instruments, genres, bands] = await Promise.all([
+	const [location, instruments, genres, bands, works] = await Promise.all([
 		getActorLocation(person.actorId),
 		listInstrumentsByFamily(),
 		listGenreTree(),
 		// Groupes que je gère : publier un recrutement en leur nom (P3-03).
-		managedBands(person.actorId)
+		managedBands(person.actorId),
+		// Morceaux que je peux relier à l'annonce (P4-05).
+		manageableWorks(person.actorId)
 	]);
+	// « Trouver un·e ingé son » depuis un morceau (P4-05) : ?cible=&specialite=&morceau=.
+	const cible = url.searchParams.get('cible') ?? '';
+	const target: OpportunityTarget = (OPPORTUNITY_TARGETS as readonly string[]).includes(cible)
+		? (cible as OpportunityTarget)
+		: 'MUSICIAN';
+	const specialite = url.searchParams.get('specialite') ?? '';
+	const morceau = url.searchParams.get('morceau') ?? '';
 	const groupe = url.searchParams.get('groupe');
 	return {
 		commune: location?.communeName ?? null,
@@ -36,6 +53,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			children: g.children.map((c) => ({ slug: c.slug, name: c.name }))
 		})),
 		tiers: TIER_OPTIONS,
+		works,
 		bands: bands.map(({ handle, name, commune }) => ({ handle, name, commune })),
 		defaultBand: bands.some((b) => b.handle === groupe) ? groupe : '',
 		// « Recruter » depuis un rôle à pourvoir d'un morceau (P3-11).
@@ -45,7 +63,10 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 				f.instruments.some((i) => i.slug === url.searchParams.get('instrument'))
 			)
 				? url.searchParams.get('instrument')!
-				: ''
+				: '',
+			target,
+			specialty: TARGET_SPECIALTIES[target].some((s) => s.id === specialite) ? specialite : '',
+			work: works.some((w) => w.id === morceau) ? morceau : ''
 		},
 		// « Lancer une jam » depuis le mode jam (P2-12) : type présélectionné.
 		defaultKind: (OPPORTUNITY_KINDS as readonly string[]).includes(

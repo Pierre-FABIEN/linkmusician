@@ -173,3 +173,23 @@ export function recruitHref(input: {
 	params.set('titre', `${input.roleLabel} pour « ${input.workTitle} »`.slice(0, MAX_TITLE));
 	return `/annonces/nouvelle?${params}`;
 }
+
+/**
+ * « La suite du morceau » (P4-05) : une annonce de session préremplie pour
+ * trouver un·e ingé son ou un·e producteur·rice, reliée au morceau.
+ */
+export function craftAnnounceHref(input: {
+	workId: string;
+	workTitle: string;
+	target: 'SOUND_ENGINEER' | 'PRODUCER';
+	specialty: string;
+}) {
+	const params = new URLSearchParams();
+	params.set('type', 'SESSION_WORK');
+	params.set('cible', input.target);
+	params.set('specialite', input.specialty);
+	params.set('morceau', input.workId);
+	const what = input.target === 'SOUND_ENGINEER' ? 'Ingé son' : 'Producteur·rice';
+	params.set('titre', `${what} pour « ${input.workTitle} »`.slice(0, MAX_TITLE));
+	return `/annonces/nouvelle?${params}`;
+}

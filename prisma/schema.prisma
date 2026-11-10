@@ -2112,6 +2112,13 @@ model Opportunity {
   leadActorId   String?
   lead          Actor?            @relation("JamLead", fields: [leadActorId], references: [id], onDelete: SetNull)
   backline      BacklineItem[]    @default([])
+  /// Métier visé (P4-05) : vide pour une annonce de musicien·nes.
+  targetTrack     TrackKind?
+  /// Spécialité visée dans ce métier (`SoundSpecialty`, `ProducerSpecialty`).
+  targetSpecialty String?
+  /// Morceau concerné (P4-05), géré par l'émetteur.
+  workId          String?
+  work            Work?             @relation(fields: [workId], references: [id], onDelete: SetNull)
   expiresAt     DateTime
   closedAt      DateTime?
   createdAt     DateTime          @default(now())
@@ -2767,6 +2774,8 @@ model Work {
   contributors WorkContributor[]
   roles        WorkRole[]
   milestones   Milestone[]
+  /// Annonces liées au morceau (P4-05).
+  opportunities Opportunity[]
 
   @@index([ownerId, state])
   @@map("works")

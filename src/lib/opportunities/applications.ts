@@ -57,5 +57,7 @@ export const UNMET_LABELS = {
 	instrument: 'tu ne joues pas l’instrument recherché',
 	level: 'ton niveau déclaré est en dessous du niveau demandé',
 	genre: 'ce genre n’est pas dans ton profil musical',
-	tier: 'ton palier n’est pas encore celui demandé'
+	tier: 'ton palier n’est pas encore celui demandé',
+	track: 'l’annonce cherche un autre métier que les tiens',
+	specialty: 'cette spécialité n’est pas cochée dans ton profil de métier'
 } as const;

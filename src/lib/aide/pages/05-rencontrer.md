@@ -41,15 +41,24 @@ pas.
 
 Deux types d’annonces :
 
-| Type                        | Exemple                                          |
-| --------------------------- | ------------------------------------------------ |
-| **Recrutement**             | « Notre groupe cherche une bassiste »            |
-| **Session ou remplacement** | « Il me faut un batteur pour un concert samedi » |
+| Type                      | Exemple                                          |
+| ------------------------- | ------------------------------------------------ |
+| **Recrutement**           | « Notre groupe cherche une bassiste »            |
+| **Session ou prestation** | « Il me faut un batteur pour un concert samedi » |
 
 Une annonce de recrutement peut être publiée **au nom d’un groupe** par
 les personnes qui le gèrent : elle s’affiche alors dans la ville du
 groupe, et sur sa page (« Le groupe recrute »). Pour une jam, passe par
 le mode jam (**Lancer une jam**).
+
+### Chercher un·e ingé son ou un·e producteur·rice {#metiers-du-son}
+
+Dans **Qui cherches-tu ?**, choisis **Un·e ingé son** ou **Un·e
+producteur·rice**, puis la spécialité (prise de son, mixage, production…).
+L’annonce est une session ou une prestation, et **seules les personnes de
+ce métier** la voient autour d’elles. Tu peux la relier à un de tes
+morceaux : depuis la page d’un morceau composé, **Trouver un·e ingé son**
+prépare l’annonce pour toi.
 
 ### Publier
 

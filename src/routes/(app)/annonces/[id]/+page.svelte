@@ -32,6 +32,7 @@
 	const levelName = (l: number | null) => (l ? INSTRUMENT_LEVELS[l - 1]?.label : null);
 	const conditions = $derived(
 		[
+			o.target,
 			o.instrument &&
 				`${o.instrument}${levelName(o.minLevel) ? ` (${levelName(o.minLevel)} ou plus)` : ''}`,
 			!o.instrument && levelName(o.minLevel) && `Niveau ${levelName(o.minLevel)} ou plus`,
@@ -82,6 +83,17 @@
 
 		<DemarcheCard nudge={data.nudge} />
 
+		{#if o.work}
+			<!-- LINKMUSICIAN: morceau concerné (P4-05). -->
+			<p class="rounded-2xl border bg-card p-4 text-sm">
+				Pour le morceau
+				{#if o.work.linkable}
+					<a href="/morceaux/{o.work.id}" class="font-semibold underline">« {o.work.title} »</a>
+				{:else}
+					<span class="font-semibold">« {o.work.title} »</span>
+				{/if}
+			</p>
+		{/if}
 		{#if conditions.length > 0}
 			<section class="rounded-2xl border bg-card p-4" aria-labelledby="conditions-title">
 				<h2 id="conditions-title" class="mb-2 font-semibold">Ce qui est recherché</h2>

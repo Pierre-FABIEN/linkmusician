@@ -49,7 +49,14 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!mine && opportunity.active) {
 		const raw = await prisma.opportunity.findUniqueOrThrow({
 			where: { id: params.id },
-			select: { instrumentId: true, minLevel: true, genreSlug: true, minTier: true }
+			select: {
+				instrumentId: true,
+				minLevel: true,
+				genreSlug: true,
+				minTier: true,
+				targetTrack: true,
+				targetSpecialty: true
+			}
 		});
 		unmet = await eligibilityFor(actorId, raw);
 	}

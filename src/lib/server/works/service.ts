@@ -579,6 +579,39 @@ export async function myWorks(personId: string) {
 	};
 }
 
+/**
+ * Morceaux que je peux relier à une annonce (P4-05) : ceux que je porte, ou
+ * que porte un groupe dont je fais partie de la gestion.
+ */
+export async function manageableWorks(personId: string) {
+	const rows = await prisma.work.findMany({
+		where: {
+			owner: {
+				deletedAt: null,
+				OR: [
+					{ id: personId },
+					{
+						organization: {
+							dissolvedAt: null,
+							memberships: {
+								some: { personId, status: 'ACTIVE', role: { in: ['OWNER', 'ADMIN'] } }
+							}
+						}
+					}
+				]
+			}
+		},
+		orderBy: { updatedAt: 'desc' },
+		take: 50,
+		select: { id: true, title: true, owner: { select: { kind: true, displayName: true } } }
+	});
+	return rows.map((w) => ({
+		id: w.id,
+		title: w.title,
+		band: w.owner.kind === 'ORGANIZATION' ? w.owner.displayName : null
+	}));
+}
+
 /** Nombre de crédits à confirmer (pastille de `/morceaux`). */
 export async function pendingCredits(personId: string) {
 	return prisma.workContributor.count({

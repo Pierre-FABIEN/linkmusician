@@ -229,7 +229,11 @@ export async function exportPersonData(userId: string) {
 				status: true,
 				createdAt: true,
 				postedById: true,
-				issuer: { select: { displayName: true } }
+				issuer: { select: { displayName: true } },
+				// Par métier (P4-05).
+				targetTrack: true,
+				targetSpecialty: true,
+				work: { select: { title: true } }
 			}
 		}),
 		// Candidatures (P2-03).
@@ -541,7 +545,10 @@ export async function exportPersonData(userId: string) {
 			texte: o.description,
 			statut: o.status,
 			le: o.createdAt,
-			au_nom_du_groupe: o.postedById ? o.issuer.displayName : null
+			au_nom_du_groupe: o.postedById ? o.issuer.displayName : null,
+			metier_recherche: o.targetTrack,
+			specialite_recherchee: o.targetSpecialty,
+			morceau: o.work?.title ?? null
 		})),
 		disponibilite: availability,
 		jams_je_viens: jamsComing.map((a) => ({

@@ -88,7 +88,25 @@ barème en [02 §2.2](../conception/02-progression.md#22-barème-première-versi
   cas producteur·rice de `musicians.integration.test.ts` et
   `craftQuests.test.ts`, e2e `e2e/linkmusician/producteur.spec.ts`.
 
+## Annonces par métier (P4-05)
+
+- **Modèle** : `Opportunity.targetTrack` (vide : musicien·nes, comme
+  avant), `targetSpecialty`, `workId` (morceau géré par l'émetteur).
+- **Règles pures** : `checkTarget` et `unmetConditions` dans
+  `src/lib/opportunities/rules.ts`. Un métier du son se cherche par une
+  annonce de session ou de prestation ; instrument, niveau et palier
+  musicien ne s'y appliquent pas, le genre si (styles produits compris).
+- **Diffusion** : `listNearby` ne montre une annonce ciblée qu'aux
+  personnes du métier, et de la spécialité si elle est précisée.
+  `eligibilityFor` refuse la réponse aux autres.
+- **Formulaire** : « Qui cherches-tu ? », spécialité, morceau concerné ;
+  préremplissage par `?cible=&specialite=&morceau=`. Sur un morceau composé
+  que l'on gère, « La suite du morceau » propose « Trouver un·e ingé son »
+  et « Trouver un·e producteur·rice » (`craftAnnounceHref`).
+- **RGPD** : métier, spécialité et morceau des annonces dans l'export.
+- **Tests** : `rules.test.ts`, `targeted.integration.test.ts`, e2e
+  `e2e/linkmusician/annonces-metier.spec.ts`.
+
 ## À venir
 
-- **P4-05** : annonces ciblées sur un métier et une spécialité.
 - **P4-06, P4-07** : sessions liées au morceau, crédits confirmés.

@@ -28,7 +28,7 @@ import { notify } from '#lib/server/notifications/service';
 
 /** Ce que le profil d'une personne dit des conditions d'une annonce. */
 export async function candidateFacts(actorId: string): Promise<CandidateFacts> {
-	const [instruments, genres, tier] = await Promise.all([
+	const [instruments, genres, tier, tracks, sound, producer] = await Promise.all([
 		prisma.personInstrument.findMany({
 			where: { personId: actorId },
 			select: { declaredLevel: true, instrument: { select: { slug: true } } }
@@ -37,17 +37,35 @@ export async function candidateFacts(actorId: string): Promise<CandidateFacts> {
 			where: { actorId },
 			select: { genre: { select: { slug: true, parent: { select: { slug: true } } } } }
 		}),
-		getMusicianTier(actorId, prisma)
+		getMusicianTier(actorId, prisma),
+		// Métiers du son (P4-05) : métiers, spécialités, styles produits.
+		prisma.personTrack.findMany({ where: { personId: actorId }, select: { track: true } }),
+		prisma.soundEngineerProfile.findUnique({
+			where: { personId: actorId },
+			select: { specialties: true }
+		}),
+		prisma.producerProfile.findUnique({
+			where: { personId: actorId },
+			select: {
+				specialties: true,
+				genres: {
+					select: { genre: { select: { slug: true, parent: { select: { slug: true } } } } }
+				}
+			}
+		})
 	]);
+	const allGenres = [...genres, ...(producer?.genres ?? [])];
 	return {
 		instruments: instruments.map((i) => ({ slug: i.instrument.slug, level: i.declaredLevel })),
 		// Un sous-genre déclaré compte aussi pour son genre parent.
 		genreSlugs: [
 			...new Set(
-				genres.flatMap((g) => [g.genre.slug, ...(g.genre.parent ? [g.genre.parent.slug] : [])])
+				allGenres.flatMap((g) => [g.genre.slug, ...(g.genre.parent ? [g.genre.parent.slug] : [])])
 			)
 		],
-		tiers: tier.reached
+		tiers: tier.reached,
+		tracks: tracks.map((t) => t.track),
+		specialties: [...(sound?.specialties ?? []), ...(producer?.specialties ?? [])]
 	};
 }
 
@@ -59,13 +77,22 @@ export async function eligibilityFor(
 		minLevel: number | null;
 		genreSlug: string | null;
 		minTier: string | null;
+		targetTrack?: string | null;
+		targetSpecialty?: string | null;
 	}
 ) {
 	const instrument = o.instrumentId
 		? await prisma.instrument.findUnique({ where: { id: o.instrumentId }, select: { slug: true } })
 		: null;
 	const unmet = unmetConditions(
-		{ instrument: instrument?.slug, minLevel: o.minLevel, genre: o.genreSlug, minTier: o.minTier },
+		{
+			instrument: instrument?.slug,
+			minLevel: o.minLevel,
+			genre: o.genreSlug,
+			minTier: o.minTier,
+			targetTrack: o.targetTrack,
+			targetSpecialty: o.targetSpecialty
+		},
 		await candidateFacts(actorId)
 	);
 	return unmet.map((u) => UNMET_LABELS[u]);

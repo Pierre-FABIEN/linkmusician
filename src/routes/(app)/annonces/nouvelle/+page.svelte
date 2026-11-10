@@ -12,7 +12,11 @@
 		OPPORTUNITY_DURATIONS,
 		OPPORTUNITY_KINDS,
 		OPPORTUNITY_KIND_INFO,
-		OPPORTUNITY_RADII
+		OPPORTUNITY_RADII,
+		OPPORTUNITY_TARGETS,
+		OPPORTUNITY_TARGET_LABELS,
+		TARGET_SPECIALTIES,
+		type OpportunityTarget
 	} from '#lib/opportunities/rules';
 
 	let { data, form } = $props();
@@ -23,6 +27,18 @@
 	let asBand = $state<string>(v.asBand ?? data.defaultBand);
 	// svelte-ignore state_referenced_locally
 	let kind = $state<string>(v.kind ?? (data.defaultBand ? 'RECRUIT_MEMBER' : data.defaultKind));
+	// Qui l'annonce cherche (P4-05) : un métier du son passe par une session.
+	// svelte-ignore state_referenced_locally
+	let target = $state<OpportunityTarget>(
+		(v.target as OpportunityTarget | undefined) ?? data.prefill.target
+	);
+	const pro = $derived(target !== 'MUSICIAN');
+	$effect(() => {
+		if (pro) {
+			kind = 'SESSION_WORK';
+			asBand = '';
+		}
+	});
 	const band = $derived(data.bands.find((b) => b.handle === asBand) ?? null);
 	const commune = $derived(band ? band.commune : data.commune);
 	$effect(() => {
@@ -82,7 +98,7 @@
 				{#if data.bands.length > 0}
 					<label class="block space-y-1 font-medium">
 						Publier au nom de
-						<select name="asBand" bind:value={asBand} class={field}>
+						<select name="asBand" bind:value={asBand} class={field} disabled={pro}>
 							<option value="">Moi</option>
 							{#each data.bands as b (b.handle)}
 								<option value={b.handle}>{b.name} (groupe)</option>
@@ -96,6 +112,24 @@
 					</label>
 				{/if}
 				<fieldset class="space-y-2">
+					<legend class="font-medium">Qui cherches-tu ?</legend>
+					<div class="grid gap-2 sm:grid-cols-3">
+						{#each OPPORTUNITY_TARGETS as t (t)}
+							<label
+								class="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border p-3 has-[:checked]:border-primary"
+							>
+								<input type="radio" name="target" value={t} bind:group={target} class="size-4" />
+								<span class="font-semibold">{OPPORTUNITY_TARGET_LABELS[t]}</span>
+							</label>
+						{/each}
+					</div>
+					{#if pro}
+						<p class="text-sm text-muted-foreground">
+							Seules les personnes de ce métier verront ton annonce autour d'elles.
+						</p>
+					{/if}
+				</fieldset>
+				<fieldset class="space-y-2">
 					<legend class="font-medium">Type</legend>
 					<div class="grid gap-2 sm:grid-cols-3">
 						{#each OPPORTUNITY_KINDS.filter((k) => k !== 'JAM') as k (k)}
@@ -107,7 +141,8 @@
 									name="kind"
 									value={k}
 									bind:group={kind}
-									disabled={band !== null && k !== 'RECRUIT_MEMBER'}
+									disabled={(band !== null && k !== 'RECRUIT_MEMBER') ||
+										(pro && k !== 'SESSION_WORK')}
 									class="mt-1 size-4"
 								/>
 								<span>
@@ -143,32 +178,48 @@
 					>
 				</label>
 				<div class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
-					<label class="block space-y-1 text-sm font-medium">
-						Instrument recherché
-						<select name="instrument" class={field}>
-							<option value="">Peu importe</option>
-							{#each data.instruments as family (family.family)}
-								<optgroup label={INSTRUMENT_FAMILY_LABELS[family.family]}>
-									{#each family.instruments as i (i.slug)}
-										<option
-											value={i.slug}
-											selected={(v.instrument ?? data.prefill.instrument) === i.slug}
-											>{i.name}</option
-										>
-									{/each}
-								</optgroup>
-							{/each}
-						</select>
-					</label>
-					<label class="block space-y-1 text-sm font-medium">
-						Niveau minimal
-						<select name="minLevel" class={field}>
-							<option value="">Tous niveaux</option>
-							{#each INSTRUMENT_LEVELS as l (l.level)}
-								<option value={l.level} selected={v.minLevel === String(l.level)}>{l.label}</option>
-							{/each}
-						</select>
-					</label>
+					{#if pro}
+						<label class="block space-y-1 text-sm font-medium">
+							Spécialité
+							<select name="specialty" class={field}>
+								<option value="">Peu importe</option>
+								{#each TARGET_SPECIALTIES[target] as sp (sp.id)}
+									<option value={sp.id} selected={(v.specialty ?? data.prefill.specialty) === sp.id}
+										>{sp.label}</option
+									>
+								{/each}
+							</select>
+						</label>
+					{:else}
+						<label class="block space-y-1 text-sm font-medium">
+							Instrument recherché
+							<select name="instrument" class={field}>
+								<option value="">Peu importe</option>
+								{#each data.instruments as family (family.family)}
+									<optgroup label={INSTRUMENT_FAMILY_LABELS[family.family]}>
+										{#each family.instruments as i (i.slug)}
+											<option
+												value={i.slug}
+												selected={(v.instrument ?? data.prefill.instrument) === i.slug}
+												>{i.name}</option
+											>
+										{/each}
+									</optgroup>
+								{/each}
+							</select>
+						</label>
+						<label class="block space-y-1 text-sm font-medium">
+							Niveau minimal
+							<select name="minLevel" class={field}>
+								<option value="">Tous niveaux</option>
+								{#each INSTRUMENT_LEVELS as l (l.level)}
+									<option value={l.level} selected={v.minLevel === String(l.level)}
+										>{l.label}</option
+									>
+								{/each}
+							</select>
+						</label>
+					{/if}
 					<label class="block space-y-1 text-sm font-medium">
 						Genre
 						<select name="genre" class={field}>
@@ -183,15 +234,17 @@
 							{/each}
 						</select>
 					</label>
-					<label class="block space-y-1 text-sm font-medium">
-						Palier minimal
-						<select name="minTier" class={field}>
-							<option value="">Ouvert à tous</option>
-							{#each data.tiers as t (t.id)}
-								<option value={t.id} selected={v.minTier === t.id}>{t.label}</option>
-							{/each}
-						</select>
-					</label>
+					{#if !pro}
+						<label class="block space-y-1 text-sm font-medium">
+							Palier minimal
+							<select name="minTier" class={field}>
+								<option value="">Ouvert à tous</option>
+								{#each data.tiers as t (t.id)}
+									<option value={t.id} selected={v.minTier === t.id}>{t.label}</option>
+								{/each}
+							</select>
+						</label>
+					{/if}
 					<label class="block space-y-1 text-sm font-medium">
 						Diffusion
 						<select name="radiusKm" class={field}>
@@ -218,6 +271,19 @@
 						Date (facultatif)
 						<input name="startsAt" type="date" value={v.startsAt ?? ''} class={field} />
 					</label>
+					{#if data.works.length > 0}
+						<label class="block space-y-1 text-sm font-medium">
+							Morceau concerné (facultatif)
+							<select name="work" class={field}>
+								<option value="">Aucun</option>
+								{#each data.works as w (w.id)}
+									<option value={w.id} selected={(v.work ?? data.prefill.work) === w.id}
+										>{w.title}{w.band ? ` (${w.band})` : ''}</option
+									>
+								{/each}
+							</select>
+						</label>
+					{/if}
 					<label class="block space-y-1 text-sm font-medium">
 						Visible pendant
 						<select name="durationDays" class={field}>
