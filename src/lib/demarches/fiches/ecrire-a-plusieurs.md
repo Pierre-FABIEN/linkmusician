@@ -3,7 +3,7 @@ verifie: 2026-11-10
 relue: non
 sources:
   - Sacem, créateurs et éditeurs | https://www.sacem.fr
-  - INPI, « e-Soleau: protégez votre création » | https://www.inpi.fr/realiser-demarches/propriete-intellectuelle/deposer-une-e-soleau-ou-un-entiercement
+  - INPI, « e-Soleau : protégez votre création » | https://www.inpi.fr/realiser-demarches/propriete-intellectuelle/deposer-une-e-soleau-ou-un-entiercement
 ---
 
 # Écrire un morceau à plusieurs
