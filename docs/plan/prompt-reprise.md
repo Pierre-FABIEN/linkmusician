@@ -1,23 +1,24 @@
 # Prompt de reprise de session
 
 > À coller au début d'une nouvelle session Claude Code dans `linkmusician`.
-> Mis à jour à chaque fin de lot (dernière : 10/11/2026, après P3-15a).
+> Mis à jour à chaque fin de lot (dernière : 10/11/2026, après P3-15b).
 
 ---
 
 ```markdown
-On reprend LinkMusician avec le lot **P3-15b** (documents préremplis :
-bulletin de partage d'un morceau, programme des œuvres d'un concert) ;
-P3-15a (fiches et déclencheurs, [docs/demarches](../demarches/README.md))
-est livré, en 🟡 tant que son e2e n'est pas lancé. Reste à revoir le
-vocabulaire « projet » (§5 bis).
+On reprend LinkMusician : P3-15a et P3-15b (guide des démarches, documents
+préremplis, [docs/demarches](../demarches/README.md)) sont livrés, en 🟡
+tant que leurs e2e ne sont pas lancés. Prochain lot à choisir avec
+l'utilisateur : P3-17 (assistant IA, D47 encore « Proposée » : à trancher
+d'abord) ou la préparation de P3-10 (P3-10a audit de sécurité). Reste à
+revoir le vocabulaire « projet » (§5 bis).
 Navigation : pages-menus (D50) et fil d'Ariane en badges (D52) à respecter
 sur toute nouvelle page ; organisateurs de jams (D51). **D'abord**, si
 Chromium a ses dépendances (`sudo npx playwright install-deps chromium`,
 il manquait `libnspr4`) : lancer `npm run test:e2e --
 e2e/linkmusician/discussions.spec.ts e2e/linkmusician/demarches.spec.ts`,
-puis passer P3-16c et P3-15a à ✅ dans le tableau §5. Ne refais pas
-l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui sert est
+puis passer P3-16c, P3-15a et P3-15b à ✅ dans le tableau §5. Ne refais
+pas l'analyse du projet : CLAUDE.md est déjà chargé, tout ce qui sert est
 ci-dessous.
 
 ## État (10/11/2026)
@@ -29,10 +30,11 @@ ci-dessous.
   (moteur de l'aide), déclencheurs purs `src/lib/demarches/triggers.ts`,
   service `src/lib/server/demarches/service.ts` (« J'ai compris » =
   `demarche:<id>` dans `tipsDismissed`), carte `DemarcheCard.svelte` sur
-  `/morceaux/[id]`, `/groupes/[handle]`, `/annonces/[id]`. P3-15b : le
-  bulletin s'appuie sur les crédits confirmés (`workPage`) ; le programme
-  sur `bandWorks`. Les fiches `ecrire-a-plusieurs` et `premier-concert`
-  ont un encart « 🔜 Bientôt » à remplacer par le lien de téléchargement.
+  `/morceaux/[id]`, `/groupes/[handle]`, `/annonces/[id]`. **P3-15b livré** : le
+  bulletin et le programme : `src/lib/demarches/documents.ts`
+  (pur), `src/lib/server/demarches/documents.ts` (accès par `workPage` et
+  `bandPage`), `src/lib/server/demarches/pdf.ts` (jsPDF, `printable`),
+  routes `/morceaux/[id]/bulletin` et `/groupes/[handle]/programme`.
 - Erreurs préexistantes, hors lots : `npm run check` signale 2 erreurs
   dans `metro/Panorama.svelte` (maquette `_lab`) ; `audit.test.ts` échoue
   (`moderation.milestone.reject` sans libellé, commit 787ac61) ; Prettier
@@ -64,7 +66,7 @@ ci-dessous.
   (`contestMilestone`, `upholdContest`, `dismissContest`,
   `retractMilestone`, `disputeQueue`), `Milestone.frozenAt`, événement
   `milestone.revoked` (sans XP, retiré des paliers dans `musicianSummary`).
-- Ordre prévu : P3-15b → P3-17 (D47 proposée) → P3-10
+- Ordre prévu : P3-17 (D47 proposée) → P3-10a → P3-10
   (tableau §4 bis de docs/plan/README.md). P3-07 après le lancement.
 - Points ouverts hors lots : docs/plan/README.md §5 bis (dont l'e2e
   « quota TL0 » instable en suite complète, les tests d'intégration qui
