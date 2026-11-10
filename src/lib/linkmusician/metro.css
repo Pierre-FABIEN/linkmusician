@@ -1288,17 +1288,17 @@
 /* Liseré conique : présent mais quasi invisible, pour que son calque existe
    déjà au survol (opacity 0 pourrait le faire retirer). */
 .lm-tile-frame > .lm-tile::before {
-	padding: 1px;
-	/* À 1 px, le dégradé doit rester lumineux partout pour se voir : l'accent
+	padding: 1.5px;
+	/* À 1,5 px, le dégradé doit rester lumineux partout pour se voir : l'accent
 	   du ton en continu, avec deux reflets blancs qui font vivre le contour. */
 	background: conic-gradient(
 		from 0deg,
-		color-mix(in oklch, var(--t-bg) 85%, white) 0deg,
-		white 70deg,
-		var(--t-bg) 140deg,
-		color-mix(in oklch, var(--t-bg) 70%, transparent) 200deg,
-		white 260deg,
-		color-mix(in oklch, var(--t-bg) 85%, white) 360deg
+		color-mix(in oklch, var(--t-bg) 60%, white) 0deg,
+		white 60deg,
+		color-mix(in oklch, var(--t-bg) 80%, white) 130deg,
+		var(--t-bg) 190deg,
+		white 250deg,
+		color-mix(in oklch, var(--t-bg) 60%, white) 360deg
 	);
 	opacity: 0.001;
 	will-change: opacity;
@@ -1365,10 +1365,10 @@
 		0 6px 18px oklch(0 0 0 / 0.2);
 }
 
-/* Pulsation franche sur un liseré de 1 px : il se voit sans s'épaissir. */
+/* Pulsation franche sur un liseré de 1,5 px : il se voit sans s'épaissir. */
 @keyframes lm-tile-frame-pulse {
 	from {
-		opacity: 0.45;
+		opacity: 0.7;
 	}
 	to {
 		opacity: 1;
