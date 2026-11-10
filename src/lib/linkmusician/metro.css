@@ -1823,7 +1823,7 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 			translate 0.6s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)) calc(var(--i, 0) * 50ms),
 			filter 0.4s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)),
 			z-index 0s;
-		transform: translate3d(0, -10px, 0) scale(1.36);
+		transform: translate3d(0, -6px, 0) scale(1.08);
 		border-color: transparent;
 		box-shadow:
 			inset 0 1px 0 oklch(1 0 0 / 0.16),
@@ -1845,7 +1845,7 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 	   légèrement. */
 	.lm-tile-frame:hover {
 		z-index: 11;
-		transform: translate3d(0, -10px, 0) scale(1.36);
+		transform: translate3d(0, -6px, 0) scale(1.08);
 		/* En entrant, la tuile passe devant tout de suite. */
 		transition:
 			transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -1853,11 +1853,11 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 			opacity 0.6s calc(var(--i, 0) * 50ms),
 			translate 0.6s var(--lm-ease) calc(var(--i, 0) * 50ms);
 	}
-	/* L'ombre est dans le cadre qui monte de 10px : 30px ici la posent 20px sous
+	/* L'ombre est dans le cadre qui monte de 6px : 18px ici la posent 12px sous
 	   sa place de repos. */
 	.lm-tile-frame:hover::before {
 		opacity: 0.85;
-		transform: translate3d(0, 30px, 0) scale(1.38);
+		transform: translate3d(0, 18px, 0) scale(1.1);
 	}
 	.lm-tile-frame > .lm-tile:hover::before {
 		animation: lm-tile-frame-pulse 1.4s ease-in-out infinite alternate;
