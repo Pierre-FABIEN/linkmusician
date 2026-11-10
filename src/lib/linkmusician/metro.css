@@ -1289,6 +1289,17 @@
    déjà au survol (opacity 0 pourrait le faire retirer). */
 .lm-tile-frame > .lm-tile::before {
 	padding: 1px;
+	/* À 1 px, le dégradé doit rester lumineux partout pour se voir : l'accent
+	   du ton en continu, avec deux reflets blancs qui font vivre le contour. */
+	background: conic-gradient(
+		from 0deg,
+		color-mix(in oklch, var(--t-bg) 85%, white) 0deg,
+		white 70deg,
+		var(--t-bg) 140deg,
+		color-mix(in oklch, var(--t-bg) 70%, transparent) 200deg,
+		white 260deg,
+		color-mix(in oklch, var(--t-bg) 85%, white) 360deg
+	);
 	opacity: 0.001;
 	will-change: opacity;
 	transition: none;
@@ -1354,13 +1365,13 @@
 		0 6px 18px oklch(0 0 0 / 0.2);
 }
 
-/* Pulsation discrète : le liseré respire sans paraître s'épaissir. */
+/* Pulsation franche sur un liseré de 1 px : il se voit sans s'épaissir. */
 @keyframes lm-tile-frame-pulse {
 	from {
-		opacity: 0.35;
+		opacity: 0.45;
 	}
 	to {
-		opacity: 0.7;
+		opacity: 1;
 	}
 }
 
@@ -1798,7 +1809,7 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 		transform: translate3d(0, 12px, 0) scale(1.04);
 	}
 	.lm-tile-frame > .lm-tile:hover::before {
-		animation: lm-tile-frame-pulse 1.8s ease-in-out infinite alternate;
+		animation: lm-tile-frame-pulse 1.4s ease-in-out infinite alternate;
 	}
 	.lm-tile-frame > .lm-tile:hover::after {
 		opacity: 0.2;
