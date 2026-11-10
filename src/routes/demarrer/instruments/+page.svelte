@@ -9,6 +9,9 @@
 	import { INSTRUMENT_LEVELS } from '#lib/skills/levels';
 	import { ONBOARDING_MAX_INSTRUMENTS } from '#lib/onboarding/steps';
 	import SEO from '#lib/components/SEO.svelte';
+	import { onMount } from 'svelte';
+	import ProposedNotice from '#lib/components/linkmusician/onboarding/ProposedNotice.svelte';
+	import { reportUsage, takeProposal } from '#lib/onboarding/proposals';
 
 	let { data, form } = $props();
 
@@ -17,6 +20,23 @@
 	);
 	let primary = $state(untrack(() => data.current.find((c) => c.isPrimary)?.instrumentId ?? null));
 	let toAdd = $state('');
+
+	// Assistant d'inscription (P3-17) : instruments proposés, niveau à
+	// confirmer s'il n'a pas été dit.
+	let proposed = $state(false);
+	onMount(() => {
+		const p = takeProposal('instruments');
+		if (!p?.length || rows.length) return;
+		rows = p.map((i) => ({ instrumentId: i.instrumentId, level: i.level ?? 0 }));
+		primary = rows[0]?.instrumentId ?? null;
+		proposed = true;
+	});
+	function ignoreProposals() {
+		rows = [];
+		primary = null;
+		proposed = false;
+		reportUsage('ignored');
+	}
 
 	const names = $derived(
 		new Map(data.families.flatMap((f) => f.instruments.map((i) => [i.id, i.name] as const)))
@@ -50,6 +70,8 @@
 				» ; il restera affiché comme <em>déclaré</em>.
 			</p>
 		</div>
+
+		{#if proposed}<ProposedNotice onIgnore={ignoreProposals} />{/if}
 
 		{#each rows as row, i (row.instrumentId)}
 			{@const name = names.get(row.instrumentId) ?? '?'}

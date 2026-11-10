@@ -1,6 +1,8 @@
 <script lang="ts">
 	// LINKMUSICIAN: onboarding, « premier résultat » (P1-10, maquette P1-02).
 	import { Sprout, Share2 } from 'lucide-svelte';
+	import { onMount } from 'svelte';
+	import { clearProposals } from '#lib/onboarding/proposals';
 	import * as Card from '#shadcn/card';
 	import * as Avatar from '#shadcn/avatar';
 	import { Badge } from '#shadcn/badge';
@@ -21,6 +23,9 @@
 			.toUpperCase();
 	const levelLabel = (level: number) =>
 		INSTRUMENT_LEVELS.find((l) => l.level === level)?.label ?? '';
+
+	// Assistant d'inscription (P3-17) : plus rien à pré-remplir.
+	onMount(clearProposals);
 </script>
 
 <SEO title="Près de toi" noindex nofollow />

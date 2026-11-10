@@ -12,6 +12,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { tracksSchema } from '#lib/schema/actors/tracksSchema';
 import { setPersonTracks } from '#lib/prisma/actors/tracks';
 import { requirePerson, tracksFormFor } from '#server/actors/tracksForm';
+import { assistantState } from '#lib/server/onboarding-assistant';
 import type { Actions, PageServerLoad } from './$types';
 
 // LINKMUSICIAN: le menu du jeu est le point d'entrée de l'espace (P2-12b).
@@ -23,7 +24,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const person = await requirePerson(locals);
 	// Onboarding terminé : les métiers se modifient dans les réglages.
 	if (person.onboardedAt) redirect(302, APP_HOME);
-	return { form: await tracksFormFor(person.tracks) };
+	return {
+		form: await tracksFormFor(person.tracks),
+		// Assistant d'inscription facultatif (P3-17, D47).
+		assistant: await assistantState(person.actorId)
+	};
 };
 
 export const actions: Actions = {

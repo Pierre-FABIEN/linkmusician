@@ -1515,6 +1515,9 @@ model Person {
   /// Conseils en contexte masqués (« J'ai compris », P2-17) : identifiants du
   /// catalogue `#lib/guide/tips`. Un conseil masqué ne revient pas.
   tipsDismissed      String[]         @default([])
+  /// Assistant d'inscription (P3-17, D47) : analyses déjà faites, au plus
+  /// 3 par compte. Ni le texte ni la réponse ne sont conservés.
+  assistantRuns      Int              @default(0)
 
   /// Profil complet (D17, D18). Tout est déclaré, rien n'est vérifié.
   proStatus      ProStatus?

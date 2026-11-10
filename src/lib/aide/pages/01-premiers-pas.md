@@ -19,6 +19,23 @@ _Ton compte, ton profil et ton mode de jeu, en cinq minutes._
    métiers arriveront).
 3. Accepte les conditions d’utilisation.
 
+### Décrire ta situation avec tes mots {#assistant}
+
+Sur « Qui es-tu ? », l’aide **facultative** « Décris ta situation avec tes
+mots » te fait gagner du temps : tu écris quelques phrases (ce que tu
+joues, tes styles, ta ville, ce que tu cherches), et elle prépare des
+**propositions** pour les écrans suivants.
+
+- Rien n’est enregistré par l’aide : tu relis, tu retires ce qui ne va
+  pas, puis chaque écran est pré-rempli et c’est **toi** qui le valides.
+- Ton niveau n’est proposé que si tu l’as dit ; sinon, tu le choisis.
+  Ta commune se choisit toujours dans la liste.
+- Ton texte part chez notre fournisseur d’IA (Anthropic) pour l’analyse ;
+  LinkMusician ne le conserve pas. Email, téléphone, adresse et liens sont
+  retirés avant l’envoi.
+- Trois analyses par compte. Sans l’aide, les écrans habituels marchent
+  exactement pareil.
+
 ## 2. Remplir ton profil
 
 Ton profil, c’est ta carte de visite. Il est complet quand il a :

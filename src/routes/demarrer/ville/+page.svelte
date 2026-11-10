@@ -8,6 +8,9 @@
 	import { Button } from '#shadcn/button';
 	import { TRAVEL_RADII } from '#lib/actors/profile';
 	import SEO from '#lib/components/SEO.svelte';
+	import { onMount } from 'svelte';
+	import ProposedNotice from '#lib/components/linkmusician/onboarding/ProposedNotice.svelte';
+	import { reportUsage, takeProposal } from '#lib/onboarding/proposals';
 
 	type Suggestion = {
 		code: string;
@@ -40,6 +43,27 @@
 		suggestions = [];
 	}
 	const ready = $derived(Boolean(chosen || data.location));
+
+	// Assistant d'inscription (P3-17) : un nom de commune à chercher (le choix
+	// reste dans la liste) et le rayon s'il a été dit.
+	let proposed = $state(false);
+	onMount(() => {
+		const p = takeProposal('ville');
+		if (!p || data.location) return;
+		if (p.radiusKm) radius = p.radiusKm;
+		if (p.communeQuery) {
+			query = p.communeQuery;
+			onInput();
+		}
+		proposed = Boolean(p.communeQuery || p.radiusKm);
+	});
+	function ignoreProposals() {
+		query = '';
+		suggestions = [];
+		radius = data.radius;
+		proposed = false;
+		reportUsage('ignored');
+	}
 </script>
 
 <SEO title="Ta ville" noindex nofollow />
@@ -60,6 +84,7 @@
 					{data.location.communeName} ({data.location.departmentCode})
 				</p>
 			{/if}
+			{#if proposed}<ProposedNotice onIgnore={ignoreProposals} />{/if}
 			<div class="relative space-y-1">
 				<label for="commune" class="block text-sm font-medium"
 					>{data.location ? 'Changer de commune' : 'Ta commune'}</label
