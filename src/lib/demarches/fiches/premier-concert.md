@@ -1,39 +1,52 @@
+---
+verifie: 2026-11-10
+relue: non
+sources:
+  - Sacem, créateurs et éditeurs | https://www.sacem.fr
+  - Ministère de la Culture, « Vos démarches et responsabilités en tant qu’organisateur occasionnel de spectacles vivants » | https://www.culture.gouv.fr/Media/Medias-creation-rapide/Vos-demarches-et-responsabilites-en-tant-qu-organisateur-occasionnel-de-spectacles-vivants
+---
+
 # Premier concert et programme des œuvres
 
-_Le lieu s’occupe de la Sacem. Toi, tu donnes la liste des morceaux que
-tu joues._
+_Qui fait quoi le soir du concert : le lieu déclare et paie, le groupe
+remet la liste de ses morceaux._
 
 > **En bref**
 >
-> - C’est **l’organisateur** (le lieu, l’association, le festival) qui
->   déclare le concert à la Sacem et paie les droits.
+> - C’est **le lieu ou l’organisateur** qui déclare le concert à la Sacem
+>   et paie les droits d’auteur.
 > - Le groupe remet le **programme des œuvres** : la liste des morceaux
->   joués, reprises comprises.
-> - C’est ce programme qui permet aux auteur·es d’être payé·es, toi
->   compris si tu joues tes morceaux.
-
-## Qui fait quoi
-
-| Qui            | Ce qu’il fait                                                                                                            |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Le lieu        | Déclare le concert, paie la Sacem, assure la salle                                                                       |
-| L’organisateur | S’il paie les musicien·nes, les déclare (souvent par le GUSO) : voir [Être payé·e](/demarches/etre-paye-pour-un-concert) |
-| Le groupe      | Remet le programme des œuvres, joue                                                                                      |
+>   joués, avec leurs auteur·rices et compositeur·rices.
+> - C’est ce programme qui permet aux auteurs, **vous compris**, d’être
+>   payés pour les morceaux joués.
 
 ## Les étapes
 
-1. **Demande à l’organisateur** s’il a déclaré le concert et ce qu’il
-   attend de vous (programme, horaires, matériel).
-2. **Prépare le programme des œuvres** : titre de chaque morceau, ses
-   auteur·es et compositeur·rices. Les reprises aussi.
-3. **Remets-le à l’organisateur**, ou déclare-le toi-même depuis ton
-   espace Sacem si tu es membre. Fais-le vite après le concert.
-4. **Payé·e ?** Vérifie comment tu seras déclaré·e :
-   [Être payé·e pour un concert](/demarches/etre-paye-pour-un-concert).
+1. **Avant le concert**, demandez à l’organisateur qui s’occupe de la
+   déclaration et sous quelle forme il veut le programme.
+2. **Préparez la liste** des morceaux : titre, auteur·rices,
+   compositeur·rices, et pour une reprise, les auteurs d’origine.
+3. **Remettez-la** à l’organisateur, le soir même ou juste après.
+4. **Si vous êtes payés**, ce n’est pas une facture : c’est un cachet
+   (voir [Être payé·e pour jouer](/demarches/etre-paye-pour-jouer)).
 
-> 💡 **Astuce** : garde un programme type à jour avec vos morceaux. Vous
-> n’aurez plus qu’à l’ajuster à chaque date.
+> 💡 **Astuce** : sur la page de votre groupe, **Programme des œuvres
+> (PDF)** prépare la liste avec vos morceaux composés et leurs
+> auteur·rices. Il reste la date, le lieu, les durées et les reprises à
+> compléter.
+
+## Les reprises
+
+Jouer une reprise en concert ne demande pas d’autorisation de votre part :
+les droits sont payés par l’organisateur, il suffit que le morceau figure
+au programme. Changer les paroles, c’est une adaptation : il faut
+l’accord de l’auteur.
 
 ## Ce que ça coûte
 
-Rien pour le groupe : les droits sont à la charge de l’organisateur.
+Rien pour le groupe. Les droits sont à la charge de l’organisateur.
+
+## À qui s’adresser
+
+L’organisateur ou le lieu d’abord ; la Sacem pour toute question sur le
+programme.

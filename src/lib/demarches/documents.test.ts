@@ -1,54 +1,101 @@
 import { describe, expect, it } from 'vitest';
-import { concertProgram, sharingSheet, type Credit } from './documents';
+import { frenchDay, programView, safeFilename, splitSheetView } from './documents';
 
-const lea: Credit = {
-	name: 'Léa',
-	confirmed: true,
-	roles: [{ kind: 'LYRICS' }, { kind: 'INSTRUMENT', instrument: 'Chant' }]
-};
-const malik: Credit = {
-	name: 'Malik',
-	confirmed: true,
-	roles: [{ kind: 'COMPOSITION' }, { kind: 'INSTRUMENT', instrument: 'Basse électrique' }]
-};
-const zoe: Credit = {
-	name: 'Zoé',
-	confirmed: true,
-	roles: [{ kind: 'INSTRUMENT', instrument: 'Batterie' }]
-};
-const sam: Credit = { name: 'Sam', confirmed: false, roles: [{ kind: 'COMPOSITION' }] };
+const now = new Date('2026-11-10T10:00:00Z');
 
 describe('bulletin de partage (P3-15b)', () => {
-	const sheet = sharingSheet([lea, malik, zoe, sam]);
+	const view = splitSheetView(
+		{
+			title: 'Les nuits d’été',
+			owner: { name: 'Les Étoiles', isBand: true },
+			composedAt: new Date('2026-10-01T12:00:00Z'),
+			credits: [
+				{
+					name: 'Zoé',
+					kinds: ['COMPOSITION', 'ARRANGEMENT'],
+					roles: ['Composition', 'Arrangement']
+				},
+				{ name: 'Léa', kinds: ['LYRICS', 'INSTRUMENT'], roles: ['Paroles', 'Basse électrique'] },
+				{ name: 'Malik', kinds: ['INSTRUMENT'], roles: ['Batterie'] }
+			]
+		},
+		now
+	);
 
-	it('les auteur·es et compositeur·rices confirmé·es seulement, avec leurs rôles d’écriture', () => {
-		expect(sheet.writers).toEqual([
-			{ name: 'Léa', roles: ['Paroles'] },
-			{ name: 'Malik', roles: ['Musique'] }
+	it('coche paroles, musique et arrangement d’après les rôles, par ordre alphabétique', () => {
+		expect(view.rows).toEqual([
+			{
+				name: 'Léa',
+				lyrics: true,
+				music: false,
+				arrangement: false,
+				roles: 'Paroles, Basse électrique'
+			},
+			{ name: 'Malik', lyrics: false, music: false, arrangement: false, roles: 'Batterie' },
+			{
+				name: 'Zoé',
+				lyrics: false,
+				music: true,
+				arrangement: true,
+				roles: 'Composition, Arrangement'
+			}
 		]);
-		expect(sheet.pending).toBe(1);
 	});
 
-	it('les interprètes à part, pour mémoire : jouer n’ouvre pas de part d’auteur', () => {
-		expect(sheet.performers.map((p) => p.name)).toEqual(['Léa', 'Malik', 'Zoé']);
-		expect(sheet.writers.map((w) => w.name)).not.toContain('Zoé');
+	it('ne fixe aucune part (09 §4) et garde des lignes libres', () => {
+		expect(JSON.stringify(view.rows)).not.toMatch(/%|share|part/i);
+		expect(view.blankRows).toBeGreaterThan(0);
+		expect(view.notes.join(' ')).toContain('LinkMusician ne fixe aucune part');
+		expect(view.notes.join(' ')).toContain('un parent signe aussi');
 	});
 
-	it('une colonne de parts par rôle présent ; aucune part n’est fixée par l’app', () => {
-		expect(sheet.columns).toEqual(['Paroles', 'Musique']);
-		expect(JSON.stringify(sheet)).not.toMatch(/%|share|part"/);
+	it('dit d’où vient le morceau et quand le document est préparé', () => {
+		expect(view.facts).toEqual([
+			{ label: 'Groupe', value: 'Les Étoiles' },
+			{ label: 'Composé le', value: '1er octobre 2026' },
+			{ label: 'Préparé le', value: '10 novembre 2026' }
+		]);
+		expect(view.filename).toBe('bulletin-de-partage-Les-nuits-d-ete.pdf');
+	});
+
+	it('morceau porté par une personne, sans date de composition', () => {
+		const solo = splitSheetView(
+			{ title: 'X', owner: { name: 'Léa', isBand: false }, composedAt: null, credits: [] },
+			now
+		);
+		expect(solo.facts.map((f) => f.label)).toEqual(['Porté par', 'Préparé le']);
 	});
 });
 
 describe('programme des œuvres (P3-15b)', () => {
-	it('chaque morceau composé, trié, avec paroles et musique confirmées', () => {
-		const lines = concertProgram([
-			{ title: 'Nuit blanche', credits: [lea, malik, sam] },
-			{ title: 'Aube', credits: [malik] }
+	it('liste les morceaux composés, « À compléter » sans auteur connu, et des lignes pour les reprises', () => {
+		const view = programView({
+			band: 'Les Étoiles',
+			works: [
+				{ title: 'Sans paroles', creators: [] },
+				{ title: 'Cœur battant', creators: ['Léa', 'Zoé'] }
+			]
+		});
+		expect(view.rows).toEqual([
+			{ title: 'Cœur battant', creators: 'Léa, Zoé' },
+			{ title: 'Sans paroles', creators: 'À compléter' }
 		]);
-		expect(lines).toEqual([
-			{ title: 'Aube', lyrics: [], music: ['Malik'] },
-			{ title: 'Nuit blanche', lyrics: ['Léa'], music: ['Malik'] }
-		]);
+		expect(view.blanks).toEqual(['Date du concert', 'Lieu', 'Organisateur']);
+		expect(view.blankRows).toBeGreaterThan(0);
+		expect(view.filename).toBe('programme-des-oeuvres-Les-Etoiles.pdf');
+	});
+});
+
+describe('safeFilename et frenchDay', () => {
+	it('un nom de fichier sans caractère risqué', () => {
+		expect(safeFilename('doc', '"; rm -rf / "')).toBe('doc-rm-rf.pdf');
+		expect(safeFilename('doc', '!!!')).toBe('doc.pdf');
+		expect(safeFilename('doc', 'a'.repeat(100))).toBe(`doc-${'a'.repeat(60)}.pdf`);
+	});
+
+	it('« 1er » le premier du mois, à l’heure de Paris', () => {
+		expect(frenchDay(new Date('2026-10-01T12:00:00Z'))).toBe('1er octobre 2026');
+		expect(frenchDay(new Date('2026-10-11T12:00:00Z'))).toBe('11 octobre 2026');
+		expect(frenchDay(new Date('2026-09-30T23:30:00Z'))).toBe('1er octobre 2026');
 	});
 });

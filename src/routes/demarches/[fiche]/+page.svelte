@@ -1,16 +1,20 @@
 <script lang="ts">
-	// LINKMUSICIAN: une fiche du guide des démarches (P3-15a), voir +page.server.ts.
+	// LINKMUSICIAN: une fiche du guide des démarches (P3-15a), voir
+	// +page.server.ts. HTML rendu côté serveur depuis le dépôt, jamais saisi
+	// par un·e utilisateur·rice.
 	import { afterNavigate } from '$app/navigation';
 	import SEO from '#lib/components/SEO.svelte';
 	import MarkdownContent from '#lib/components/linkmusician/aide/MarkdownContent.svelte';
 	import { anchorLinks, scrollToId } from '#lib/components/linkmusician/aide/anchors';
 	import { seoConfig } from '#lib/seo.config';
-	import { ArrowLeft, ExternalLink, FileText } from 'lucide-svelte';
+	import { demarcheHref, FICHES, frenchDate, MOMENT_INFO } from '#lib/demarches/catalog';
+	import { ArrowLeft, CalendarCheck, ExternalLink, Info } from 'lucide-svelte';
 
 	let { data } = $props();
-	const fiche = $derived(data.fiche);
-	const day = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeZone: 'UTC' });
-	const verified = $derived(day.format(new Date(`${fiche.verifiedAt}T00:00:00Z`)));
+	const c = $derived(data.content);
+	const others = $derived(
+		FICHES.filter((f) => f.moment === data.fiche.moment && f.slug !== data.fiche.slug)
+	);
 
 	afterNavigate(({ to }) => {
 		const hash = to?.url.hash;
@@ -19,9 +23,9 @@
 </script>
 
 <SEO
-	title={`${fiche.title} · Démarches`}
-	description={fiche.summary}
-	url={`${seoConfig.site.url}/demarches/${fiche.slug}`}
+	title={`${c.title} · Démarches`}
+	description={data.fiche.summary}
+	url={`${seoConfig.site.url}${demarcheHref(data.fiche.slug)}`}
 />
 
 <div class="min-h-screen w-full px-4 {data.memberShell ? 'pt-6 pb-24' : 'py-24'}">
@@ -33,63 +37,62 @@
 			<ArrowLeft class="size-4" aria-hidden="true" /> Toutes les démarches
 		</a>
 		<header class="space-y-3">
-			<span
-				class="inline-flex size-12 items-center justify-center rounded-2xl bg-muted"
-				aria-hidden="true"
-			>
-				<FileText class="size-6" />
-			</span>
-			<p class="text-sm font-medium text-muted-foreground">{fiche.moment}</p>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{data.help.title}</h1>
-			{#if data.help.lead}<p class="text-lg text-muted-foreground">{data.help.lead}</p>{/if}
-			<p class="text-sm text-muted-foreground">
-				Vérifiée le {verified}
-				{#if fiche.reviewedBy}
-					· relue par {fiche.reviewedBy.who}
-				{:else}
-					· relecture par un·e professionnel·le en cours
-				{/if}
+			<p class="text-sm font-semibold text-muted-foreground">
+				{MOMENT_INFO[data.fiche.moment].label}
+			</p>
+			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{c.title}</h1>
+			{#if c.lead}<p class="text-lg text-muted-foreground">{c.lead}</p>{/if}
+			<p class="inline-flex items-center gap-2 text-sm text-muted-foreground">
+				<CalendarCheck class="size-4 shrink-0" aria-hidden="true" />
+				Vérifiée le {frenchDate(c.meta.verifiedOn)}
 			</p>
 		</header>
 
-		<MarkdownContent html={data.help.html} />
+		<MarkdownContent html={c.html} />
 
-		<section class="space-y-2 rounded-2xl border bg-card p-4" aria-labelledby="sources-title">
-			<h2 id="sources-title" class="font-semibold">Sources</h2>
+		<section aria-labelledby="sources" class="space-y-2 rounded-2xl border bg-card p-4">
+			<h2 id="sources" class="font-bold">Sources officielles</h2>
 			<ul class="space-y-1 text-sm">
-				{#each fiche.sources as s (s.url + s.label)}
+				{#each c.meta.sources as source (source.url)}
 					<li>
 						<a
-							href={s.url}
+							href={source.url}
 							rel="noopener noreferrer"
 							target="_blank"
 							class="inline-flex min-h-11 items-center gap-1 text-primary underline"
 						>
-							{s.label}
+							{source.label}
 							<ExternalLink class="size-3.5 shrink-0" aria-hidden="true" />
+							<span class="sr-only">(nouvel onglet)</span>
 						</a>
 					</li>
 				{/each}
 			</ul>
 		</section>
 
-		<p class="text-sm text-muted-foreground">
-			Information générale, pas un conseil personnalisé : les règles changent, vérifie sur les sites
-			cités ou auprès d’une structure d’accompagnement. LinkMusician n’a de partenariat avec aucun
-			des organismes cités.
-		</p>
+		<aside class="flex items-start gap-3 rounded-2xl border p-4 text-sm text-muted-foreground">
+			<Info class="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+			<p>
+				Information générale, pas un conseil personnalisé : vérifie toujours auprès de l’organisme
+				concerné.{#if !c.meta.reviewed}
+					Cette fiche n’a pas encore été relue par un·e professionnel·le du métier.{/if}
+				LinkMusician n’est lié à aucun des organismes cités.
+			</p>
+		</aside>
 
-		{#if data.related.length > 0}
-			<nav aria-label="Sur le même sujet" class="space-y-2 border-t pt-6">
-				<p class="font-semibold">Sur le même moment</p>
-				<ul class="flex flex-wrap gap-2">
-					{#each data.related as r (r.slug)}
+		{#if others.length}
+			<nav aria-label="Démarches voisines" class="space-y-2 border-t pt-6">
+				<p class="font-semibold">Dans « {MOMENT_INFO[data.fiche.moment].label} »</p>
+				<ul class="grid gap-3 sm:grid-cols-2">
+					{#each others as f (f.slug)}
 						<li>
 							<a
-								href="/demarches/{r.slug}"
-								class="inline-flex min-h-11 items-center rounded-full border px-3 text-sm hover:bg-muted"
-								>{r.title}</a
+								href={demarcheHref(f.slug)}
+								class="flex h-full flex-col rounded-2xl border p-4 hover:border-primary"
 							>
+								<span class="font-semibold">{f.nav}</span>
+								<span class="text-sm text-muted-foreground">{f.summary}</span>
+							</a>
 						</li>
 					{/each}
 				</ul>

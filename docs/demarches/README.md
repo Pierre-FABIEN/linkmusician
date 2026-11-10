@@ -1,65 +1,123 @@
-# Guide des démarches (P3-15, D42)
+# Guide des démarches
 
-Règles produit : [conception/09](../conception/09-demarches.md).
+> Lots P3-15a (fiches et déclencheurs) et P3-15b (documents préremplis),
+> livrés le 10/11/2026. Décision D42, conception
+> [09-demarches.md](../conception/09-demarches.md).
 
-## Où est quoi
+LinkMusician explique les démarches de la musique **au moment où elles se
+posent** : une phrase et un lien dans l'écran concerné, et une fiche claire
+dans `/demarches`. Lire une fiche ne rapporte rien (09 §1.6).
 
-| Quoi                                 | Où                                                                    |
-| ------------------------------------ | --------------------------------------------------------------------- |
-| Catalogue (date, sources, relecture) | `src/lib/demarches/catalog.ts` (pur)                                  |
-| Texte des fiches                     | `src/lib/demarches/fiches/*.md` (conventions de l'aide : `docs/aide`) |
-| Déclencheurs « au bon moment »       | `src/lib/demarches/nudges.ts` (pur)                                   |
-| Faits lus en base pour les écrans    | `src/lib/server/demarches/service.ts`                                 |
-| Rendu Markdown                       | `src/lib/server/demarches/render.ts` (moteur de l'aide)               |
-| Pages publiques                      | `/demarches`, `/demarches/[fiche]`                                    |
-| Carte dans les écrans                | `DemarcheCard.svelte` : morceau, groupe (Parcours), annonce           |
+## Comment c'est fait
 
-## Règles
+- **Catalogue** : `src/lib/demarches/catalog.ts` (adresse, moment, titre
+  court, résumé, fiche pour les mineur·es). Ajouter une fiche : un fichier
+  et une entrée.
+- **Contenu** : un fichier Markdown par fiche dans
+  `src/lib/demarches/fiches/`. Il commence par un en-tête :
 
-- **Une démarche à la fois** par écran, masquable (« J'ai compris »). Le
-  masquage partage `persons.tipsDismissed` avec les conseils (P2-17), avec
-  des identifiants préfixés `demarche-` : déjà couvert par l'export RGPD
-  (`conseils_masques`).
-- **Pas d'XP** : lire une fiche ne rapporte rien.
-- **Fiabilité** (test `render.test.ts`) : chaque fiche a un « En bref », une
-  section « Ce que ça coûte », au moins une source officielle en https et
-  une date de vérification de moins d'un an. Le test échoue quand une
-  fiche n'a pas été revérifiée depuis un an : c'est voulu.
-- **Relecture métier** : `reviewedBy` reste `null` tant qu'une personne du
-  métier n'a pas relu la fiche ; la page affiche alors « relecture par un·e
-  professionnel·le en cours ». À remplir avant l'ouverture publique (P3-10).
-- **Aucun logo**, ni « officiel », ni partenariat suggéré (testé).
+  ```
+  ---
+  verifie: 2026-11-10
+  relue: non
+  sources:
+    - INPI, « e-Soleau » | https://www.inpi.fr/…
+  ---
+  ```
 
-## Documents préremplis (P3-15b)
+  Puis les conventions du centre d'aide ([docs/aide](../aide/README.md)) :
+  `# Titre`, `_Accroche_`, `> **En bref**` (trois points au plus), encarts
+  `💡 Astuce`, `⚠️ Important`, `🔜 Bientôt`. Ordre conseillé : en bref, les
+  étapes numérotées, ce que ça coûte, le détail, à qui s'adresser.
 
-- **Bulletin de partage** (équipe du morceau) : les crédits **confirmés**
-  qui ont un rôle d'écriture (paroles, musique, arrangement), une colonne
-  de parts par rôle présent, laissée vide ; état civil et signatures à la
-  main ; interprètes listés à part, « pour mémoire ». Un crédit en attente
-  n'y figure pas (la page le signale).
-- **Programme des œuvres** (membres actifs du groupe) : les morceaux
-  composés du groupe, avec paroles et musique confirmées, et des lignes
-  vides pour les reprises.
-- Rien n'est enregistré, rien ne rapporte d'XP. Pas de PDF généré côté
-  serveur : « Imprimer ou enregistrer en PDF » passe par le navigateur
-  (page sans la navigation de l'espace, styles `print:`).
-- Groupe de routes `(document)` : même exigence de compte que `(app)`,
-  sans la coquille.
+- **Rendu** : `src/lib/server/demarches/render.ts` lit l'en-tête et passe
+  le corps au moteur de l'aide (`renderHelp`). La page affiche la date de
+  vérification, les sources, et l'avertissement « information générale »
+  (plus « pas encore relue » tant que `relue: non`).
+- **Pages** : `/demarches` (page-menu par moment, D50) et
+  `/demarches/[fiche]`. Publiques, indexées (sitemap), fil d'Ariane (D52).
+  Entrée « Les démarches » dans le menu de `/espace`.
+- **Tests** (`src/lib/server/demarches/render.test.ts`) : chaque fiche du
+  catalogue existe, a un « en bref » d'un à trois points, au moins une
+  source, toutes sur un domaine officiel (`OFFICIAL_HOSTS`, https), une
+  date de vérification de **moins d'un an**, et des liens internes qui
+  existent. Un fichier hors catalogue fait échouer le test.
 
-## Ajouter ou revérifier une fiche
+## Les fiches du lancement
 
-1. Écrire ou corriger `fiches/<slug>.md` : `# Titre` (identique au
-   catalogue), `_accroche_`, `> **En bref**`, les étapes, `## Ce que ça coûte`.
-2. Mettre à jour son entrée dans `catalog.ts` : `verifiedAt`, `sources`.
-3. Un montant ou un seuil incertain renvoie au site officiel plutôt que
-   d'être écrit de mémoire.
+| Fiche                                    | Moment           | Déclencheur dans l'app                    |
+| ---------------------------------------- | ---------------- | ----------------------------------------- |
+| `proteger-un-morceau`                    | Créer un morceau | Morceau composé                           |
+| `ecrire-a-plusieurs`                     | Créer un morceau | Morceau composé, 2 crédits confirmés ou + |
+| `premiere-demo` (déclaration des œuvres) | Publier          | Étape « Première démo publique »          |
+| `premier-concert` (programme des œuvres) | Jouer en concert | Étape « Premier concert »                 |
+| `etre-paye-pour-jouer`                   | Jouer en concert | Premier concert ; annonce de session      |
+| `jouer-gratuitement`                     | Jouer en concert | Aucun (liée depuis les autres fiches)     |
+| `association-du-groupe`                  | Le groupe        | Groupe formé                              |
+| `mineurs-sur-scene` (mineur·es, parents) | Jouer en concert | Un·e membre actif·ve du groupe mineur·e   |
 
-## Écarts avec la conception (P3-15a)
+## Les déclencheurs (09 §3)
 
-- Les métadonnées (date, sources) sont dans le catalogue TypeScript, pas
-  dans l'en-tête Markdown : le test les vérifie sans analyseur.
-- Pas de déclencheur « annonce de concert » ni « session rémunérée » : ces
-  notions n'existent pas dans les annonces. Toute annonce **session**
-  affiche « Être payé·e pour jouer ».
-- « Première démo » s'annonce dès l'étape « Premier enregistrement »
-  (avant de publier), et reste après « Première démo publique ».
+Règles pures dans `src/lib/demarches/triggers.ts`, testées
+(`triggers.test.ts`), même mécanique que les conseils de P2-17 :
+
+- **une seule démarche par écran**, la première du catalogue dont la
+  condition tient et qui n'est pas masquée. Groupe : mineur·es d'abord,
+  puis l'étape la plus avancée (concert, démo), l'association en dernier ;
+- **« J'ai compris »** (`POST /api/demarches/vu`, identifiant vérifié dans
+  le catalogue) l'ajoute à `persons.tipsDismissed` avec le préfixe
+  `demarche:` : aucune migration, et l'export et l'anonymisation RGPD le
+  couvrent déjà (`conseils_masques`) ;
+- écrans : fiche du morceau (équipe seulement), page de gestion du groupe
+  (membres actifs, pas un groupe dissous), annonce (toute personne qui la
+  voit) ;
+- la fiche des mineur·es s'annonce **sans dire qui** est mineur·e
+  (`bandDemarcheContext` ne compte que les membres actifs, comptes
+  supprimés exclus ; test d'intégration).
+
+Écarts avec 09 §3, à revoir si besoin : il n'existe pas d'annonce
+« concert » (pas de déclencheur « mineur·e sur une annonce de concert »),
+et une annonce n'a pas de champ « rémunérée » : toute annonce de session
+déclenche « Être payé·e pour jouer ».
+
+## Les documents préremplis (P3-15b)
+
+L'app remplit ce qu'elle sait, le reste se complète et se signe à la main.
+Télécharger ne rapporte rien et n'enregistre rien (aucune donnée nouvelle).
+
+| Document             | Adresse                       | Pour qui                                                                   | Contenu                                                                                                                                               |
+| -------------------- | ----------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bulletin de partage  | `/morceaux/[id]/bulletin`     | Équipe du morceau (porteur, membres actifs du groupe, personnes créditées) | Crédits **confirmés** (comptes supprimés exclus), paroles / musique / arrangement cochés d'après `WorkRole`, **parts vides**, signatures, total 100 % |
+| Programme des œuvres | `/groupes/[handle]/programme` | Membres actifs d'un groupe non dissous                                     | Morceaux **composés** et leurs auteur·rices et compositeur·rices confirmés (rôles paroles ou musique) ; date, lieu, durées, reprises à compléter      |
+
+- **Code** : contenu pur dans `src/lib/demarches/documents.ts`
+  (`splitSheetView`, `programView`), lecture et accès dans
+  `src/lib/server/demarches/documents.ts` (passe par `workPage` et
+  `bandPage` : rien de plus que ce que la page montre), PDF A4 jsPDF dans
+  `src/lib/server/demarches/pdf.ts` (polices standard, texte passé par
+  `printable`). Réponse en pièce jointe, `cache-control: private, no-store`.
+- **Accès** : 401 sans connexion, 403 hors équipe ou hors groupe, 404
+  inconnu, 409 pour une idée (pas encore composée).
+- **Dans l'écran** : liens permanents « Bulletin de partage (PDF) » sous
+  les crédits et « Programme des œuvres (PDF) » dans les morceaux du
+  groupe ; la démarche « écrit à plusieurs » et celle du premier concert
+  proposent aussi le document en premier lien.
+- **Mineur·es** : le document ne dit pas qui est mineur·e ; une note
+  générale demande la signature d'un parent pour une personne mineure.
+- **Tests** : `documents.test.ts`, `pdf.test.ts`, intégration
+  `documents.integration.test.ts` (accès, contenu) ; e2e « je télécharge
+  le bulletin de partage de notre morceau » (`demarches.spec.ts`).
+
+## Fiabilité du contenu
+
+Les fiches ont été écrites le 10/11/2026 d'après les sources officielles
+citées dans leur en-tête. Ce qui n'a pas pu être confirmé est écrit
+**« à vérifier »** dans le texte : droit d'entrée de la Sacem, règles de
+répartition avec un éditeur, plafonds de la pratique amateur en cadre
+lucratif, règles pour un·e mineur·e non payé·e, coûts de l'association.
+
+**Avant l'ouverture (P3-10)** : chaque fiche est relue par quelqu'un du
+métier (structure d'accompagnement des musiques actuelles en Occitanie,
+juriste du spectacle), puis passe à `relue: oui`. Ensuite : relecture au
+moins une fois par an (le test échoue au-delà) et à chaque changement de
+règle connu.

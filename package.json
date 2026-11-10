@@ -129,6 +129,7 @@
 		"zod": "^3.25.28"
 	},
 	"dependencies": {
+		"@anthropic-ai/sdk": "^1.7.0",
 		"@faker-js/faker": "^10.6.0",
 		"@fontsource-variable/open-sans": "^5.3.0",
 		"@fontsource-variable/raleway": "^5.3.0",

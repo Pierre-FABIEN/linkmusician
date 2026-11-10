@@ -8,7 +8,8 @@ import { isShopHref } from '#lib/shop/gate';
 import { indexableProfiles } from '#lib/server/actors/publicProfile';
 // LINKMUSICIAN: pages du centre d'aide (`/aide/[page]`).
 import { HELP_PAGES } from '#lib/aide/catalog';
-import { FICHES } from '#lib/demarches/catalog'; // LINKMUSICIAN: démarches (P3-15a)
+// LINKMUSICIAN: fiches du guide des démarches (`/demarches/[fiche]`, P3-15a).
+import { FICHES, demarcheHref } from '#lib/demarches/catalog';
 
 // Importer toutes les pages Svelte automatiquement
 const pages = import.meta.glob('../**/+page.svelte', { eager: true });
@@ -183,9 +184,8 @@ export const GET: RequestHandler = async () => {
 	for (const page of HELP_PAGES.filter((p) => p.slug)) {
 		paths.push({ path: `/aide/${page.slug}`, priority: '0.6', changefreq: 'monthly' });
 	}
-	// LINKMUSICIAN: fiches du guide des démarches (P3-15a).
-	for (const fiche of FICHES) {
-		paths.push({ path: `/demarches/${fiche.slug}`, priority: '0.6', changefreq: 'monthly' });
+	for (const f of FICHES) {
+		paths.push({ path: demarcheHref(f.slug), priority: '0.6', changefreq: 'monthly' });
 	}
 	const [blogPosts, products, profiles] = await Promise.all([
 		getBlogPosts(),

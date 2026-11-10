@@ -1,47 +1,69 @@
+---
+verifie: 2026-11-10
+relue: non
+sources:
+  - Sacem, créateurs et éditeurs | https://www.sacem.fr
+  - INPI, « e-Soleau: protégez votre création » | https://www.inpi.fr/realiser-demarches/propriete-intellectuelle/deposer-une-e-soleau-ou-un-entiercement
+---
+
 # Écrire un morceau à plusieurs
 
-_Le moment de parler des parts, c’est avant que le morceau rapporte, pas
-après._
+_Qui a écrit les paroles, qui a composé la musique, et à quelle part :
+c’est le moment d’en parler, avant que l’argent arrive._
 
 > **En bref**
 >
-> - Un morceau écrit à plusieurs est une **œuvre de collaboration** :
->   il appartient à toutes celles et ceux qui l’ont écrit.
-> - Écrivez **qui a fait quoi** (paroles, musique, arrangement) et
->   **à quel pourcentage**, dans un bulletin de partage signé de tous.
-> - C’est ce partage qui sera déclaré à la société d’auteurs.
+> - Chaque personne qui a **écrit les paroles** (auteur) ou **composé la
+>   musique** (compositeur) a des droits sur le morceau.
+> - Écrivez **ensemble, par écrit**, qui a fait quoi et à quel
+>   pourcentage : c’est le **bulletin de partage**, signé de tous.
+> - Sans accord écrit, la Sacem applique une répartition par défaut, qui
+>   ne correspond pas toujours à la réalité.
 
-## Auteur, compositeur, arrangeur
+## Les rôles
 
-- **Auteur·e** : a écrit les paroles.
-- **Compositeur·rice** : a écrit la musique (mélodie, harmonie).
-- **Arrangeur·se** : a adapté une musique existante (orchestration,
-  nouvelle version). Ce n’est pas la même chose que jouer sa partie.
+- **Auteur·rice** : les paroles.
+- **Compositeur·rice** : la musique (mélodie, harmonie).
+- **Arrangeur·se** : adapte un morceau existant (orchestration,
+  harmonisation). Ce rôle a ses propres règles à la Sacem.
+- Jouer sur le morceau, sans l’avoir écrit, relève d’autres droits : les
+  droits d’**artiste-interprète**, quand il est enregistré.
 
-Jouer sur le morceau ne fait pas de toi un·e auteur·e ou un·e
-compositeur·rice : c’est un autre droit, celui d’**artiste-interprète**,
-qui compte quand le morceau est enregistré.
+Une même personne peut avoir plusieurs rôles.
 
 ## Les étapes
 
-1. **Faites la liste** des personnes qui ont écrit les paroles ou la
-   musique. Sur LinkMusician, les crédits confirmés du morceau sont un bon
-   point de départ.
-2. **Décidez des parts** ensemble, en pourcentage, pour les paroles et
-   pour la musique. Il n’y a pas de bonne réponse : seulement un accord.
-3. **Écrivez-le et signez** : un bulletin de partage daté, une copie pour
-   chacun·e.
-4. **Déclarez le morceau** à votre société d’auteurs avec ce partage,
-   avant de le publier.
+1. **Faites la liste** des personnes qui ont écrit ou composé, et de
+   leurs rôles. Les crédits confirmés de votre morceau dans LinkMusician
+   sont un bon point de départ.
+2. **Mettez-vous d’accord sur les parts**, pour les paroles et pour la
+   musique. Le total doit faire 100 %.
+3. **Écrivez-le et signez tous** : date, titre, noms, rôles, parts.
+4. **Gardez une preuve de la date** du morceau (voir
+   [Protéger un morceau](/demarches/proteger-un-morceau)).
+5. **Reportez les mêmes parts** quand vous déclarerez le morceau à la
+   Sacem.
 
-> 💡 **Astuce** : décidez aussi ce qui se passe si quelqu’un quitte le
-> groupe. Ses droits d’auteur sur les morceaux déjà écrits restent les
-> siens.
+> 💡 **Astuce** : sur la fiche du morceau, **Bulletin de partage (PDF)**
+> prépare le document avec les crédits confirmés et leurs rôles (paroles,
+> musique, arrangement déjà cochés). Les parts restent à saisir et à
+> signer à la main : l’app ne fixe rien.
 
-> ⚠️ **Important** : sans accord écrit, la répartition dépend des règles
-> de la société d’auteurs et, en cas de désaccord, d’un juge. Ne laissez
-> pas la question en suspens.
+## La répartition par défaut
+
+Pour les droits de diffusion et de concert, le règlement de la Sacem
+prévoit, pour les œuvres déclarées depuis 2019, **une moitié pour les
+paroles et une moitié pour la musique**, puis un partage à égalité dans
+chaque catégorie. Les droits de reproduction (disque, streaming) suivent
+les parts indiquées sur la déclaration. Les règles détaillées, et celles
+qui s’appliquent quand il y a un éditeur, sont **à vérifier sur
+sacem.fr**.
 
 ## Ce que ça coûte
 
-Rien : un bulletin de partage s’écrit et se signe entre vous.
+Rien : un accord écrit et signé suffit.
+
+## À qui s’adresser
+
+La Sacem pour la déclaration ; une structure d’accompagnement des musiques
+actuelles en cas de doute ; un·e avocat·e si un désaccord s’installe.

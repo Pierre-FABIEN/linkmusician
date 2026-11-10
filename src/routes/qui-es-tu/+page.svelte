@@ -9,6 +9,9 @@
 	import TrackPicker from '#lib/components/linkmusician/TrackPicker.svelte';
 	import SEO from '#lib/components/SEO.svelte';
 	import StepBar from '#lib/components/linkmusician/onboarding/StepBar.svelte';
+	import OnboardingAssistant from '#lib/components/linkmusician/onboarding/OnboardingAssistant.svelte';
+	import { suggestPrimary } from '#lib/actors/tracks';
+	import type { Proposals } from '#lib/onboarding/assistant';
 
 	let { data } = $props();
 
@@ -16,7 +19,15 @@
 		untrack(() => data.form),
 		{ validators: zodClient(tracksSchema), id: 'tracksForm', ...RETRY_FRIENDLY_FORM }
 	);
-	const { enhance, submitting } = tracksForm;
+	const { enhance, submitting, form: formData } = tracksForm;
+
+	// Assistant (P3-17) : coche les métiers proposés, sans rien envoyer.
+	function applyProposals(p: Proposals) {
+		if (!p.tracks.length) return;
+		const tracks = [...new Set([...$formData.tracks, ...p.tracks])];
+		$formData.tracks = tracks;
+		$formData.primary = suggestPrimary(tracks, $formData.primary) ?? undefined;
+	}
 </script>
 
 <SEO title="Qui es-tu ?" noindex nofollow />
@@ -30,6 +41,12 @@
 			bientôt » ont pour l'instant un profil de base : dis-nous que tu es là, on les construit. Tu
 			pourras changer d'avis dans tes réglages.
 		</p>
+
+		{#if data.assistant.available && data.assistant.remaining > 0}
+			<div class="mb-6">
+				<OnboardingAssistant remaining={data.assistant.remaining} onApply={applyProposals} />
+			</div>
+		{/if}
 
 		<form method="POST" use:enhance class="space-y-4">
 			<TrackPicker form={tracksForm} />

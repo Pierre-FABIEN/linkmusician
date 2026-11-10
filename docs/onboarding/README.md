@@ -32,3 +32,8 @@ Règles pures (`steps.test.ts`). E2E `e2e/linkmusician/onboarding.spec.ts` :
 6 écrans, reprise dans un second navigateur, contrôle d'accessibilité axe de
 chaque écran. Les autres specs passent l'onboarding par
 `skipOnboarding` (`e2e/support/linkmusician.ts`).
+
+## Assistant d'inscription (P3-17)
+
+Aide facultative « Décris ta situation avec tes mots » sur « Qui es-tu ? » :
+voir [assistant.md](./assistant.md).

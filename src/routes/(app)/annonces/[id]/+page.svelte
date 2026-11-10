@@ -4,7 +4,7 @@
 	import { page } from '$app/state';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
-	import DemarcheCard from '#lib/components/linkmusician/DemarcheCard.svelte';
+	import DemarcheCard from '#lib/components/linkmusician/demarches/DemarcheCard.svelte';
 	import { Badge } from '#shadcn/badge';
 	import { ArrowLeft, CalendarDays, MapPin, Users } from 'lucide-svelte';
 	import { OPPORTUNITY_KIND_INFO, STATUS_LABELS } from '#lib/opportunities/rules';
@@ -65,6 +65,7 @@
 			</p>
 		</header>
 
+		<DemarcheCard nudge={data.demarche} />
 		<ul class="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
 			{#if o.commune}<li class="inline-flex items-center gap-1">
 					<MapPin class="size-4" aria-hidden="true" />{o.commune}
@@ -80,8 +81,6 @@
 		<p class="max-w-4xl whitespace-pre-line text-base leading-relaxed sm:text-lg">
 			{o.description}
 		</p>
-
-		<DemarcheCard nudge={data.nudge} />
 
 		{#if o.work}
 			<!-- LINKMUSICIAN: morceau concerné (P4-05). -->

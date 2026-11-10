@@ -3,9 +3,9 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
+	import DemarcheCard from '#lib/components/linkmusician/demarches/DemarcheCard.svelte';
 	import MediaPlayer from '#lib/components/linkmusician/MediaPlayer.svelte';
 	import RolePicker from '#lib/components/linkmusician/works/RolePicker.svelte';
-	import DemarcheCard from '#lib/components/linkmusician/DemarcheCard.svelte';
 	import {
 		CORROBORATION_CREDITS,
 		MAX_WORK_GENRES,
@@ -14,7 +14,7 @@
 	} from '#lib/works/rules';
 	import { WORK_STAGES } from '#lib/collaborations/rules';
 	import { plural } from '#lib/jam/log';
-	import { Check, Circle, Megaphone, Music, PartyPopper, UserPlus } from 'lucide-svelte';
+	import { Check, Circle, FileDown, Megaphone, Music, PartyPopper, UserPlus } from 'lucide-svelte';
 
 	let { data, form } = $props();
 
@@ -103,6 +103,8 @@
 			{/if}
 		</div>
 
+		<DemarcheCard nudge={data.demarche} />
+
 		{#if data.created}
 			<div class="flex gap-3 rounded-2xl border border-primary bg-card p-4 text-sm">
 				<PartyPopper class="size-5 shrink-0 text-primary" aria-hidden="true" />
@@ -116,19 +118,6 @@
 		{#if form?.error}
 			<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
 				{form.error}
-			</p>
-		{/if}
-
-		<DemarcheCard nudge={data.nudge} />
-
-		{#if work.team && composed}
-			<p class="text-sm">
-				<a
-					href="/morceaux/{work.id}/bulletin"
-					class="inline-flex min-h-11 items-center font-medium text-primary underline"
-					>Bulletin de partage</a
-				>
-				<span class="text-muted-foreground">· qui a écrit quoi, parts à signer ensemble</span>
 			</p>
 		{/if}
 
@@ -302,6 +291,22 @@
 					</li>
 				{/each}
 			</ul>
+
+			{#if work.team && composed}
+				<p class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+					<a
+						href="/morceaux/{work.id}/bulletin"
+						download
+						data-sveltekit-reload
+						class="inline-flex min-h-11 items-center gap-1 font-semibold text-primary underline"
+					>
+						<FileDown class="size-4" aria-hidden="true" /> Bulletin de partage (PDF)
+					</a>
+					<span class="text-muted-foreground"
+						>Les crédits confirmés et leurs rôles ; les parts se saisissent et se signent à la main.</span
+					>
+				</p>
+			{/if}
 
 			{#if work.manage}
 				<details class="rounded-2xl border bg-card p-4">

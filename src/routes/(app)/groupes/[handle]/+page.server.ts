@@ -48,7 +48,7 @@ import {
 } from '#lib/milestones/rules';
 import { releaseReferenceSchema } from '#lib/milestones/verification';
 import { BAREME } from '#lib/server/progression/core/bareme';
-import { bandNudge } from '#lib/server/demarches/service';
+import { bandDemarcheContext, demarcheNudge } from '#lib/server/demarches/service';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -63,15 +63,20 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const manager = isManager(band.my?.role);
 	const active = band.my?.status === 'ACTIVE';
 	const milestones = active ? await bandMilestones(band.id) : [];
+	const works = active ? await bandWorks(band.id) : [];
+	// Programme des œuvres (P3-15b) : dès un morceau composé.
+	const programHref =
+		active && !band.dissolvedAt && works.some((w) => w.state === 'COMPOSED')
+			? `/groupes/${band.handle}/programme`
+			: null;
 	return {
 		band,
 		candidates: manager && !band.dissolvedAt ? await inviteCandidates(band.id, actorId) : [],
 		// Morceaux du groupe (P3-11), idées comprises : pour ses membres actifs.
-		works: band.my?.status === 'ACTIVE' ? await bandWorks(band.id) : [],
+		works,
+		programHref,
 		// Étapes (P3-04) : le parcours, et ce que rapporte une déclaration.
 		milestones,
-		// Démarches au bon moment (P3-15a) : association, démo, concert, mineur·es.
-		nudge: active && !band.dissolvedAt ? await bandNudge(band, milestones, person) : null,
 		// Rang du groupe (P3-08).
 		tier: await bandTierOf(band.id),
 		// Vérification de l'organisation (P3-09), pour sa gestion.
@@ -81,7 +86,15 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		declaredXp: Object.fromEntries(
 			DECLARABLE_KEYS.map((key) => [key, BAREME.milestones[key].DECLARED ?? 0])
 		),
-		created: url.searchParams.has('cree')
+		created: url.searchParams.has('cree'),
+		// Démarche en contexte (P3-15a, 09 §3) : pour les membres actifs.
+		demarche:
+			active && !band.dissolvedAt
+				? await demarcheNudge(actorId, {
+						...(await bandDemarcheContext(band, milestones)),
+						...(programHref ? { documentHref: programHref } : {})
+					})
+				: null
 	};
 };
 

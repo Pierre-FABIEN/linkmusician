@@ -1,6 +1,6 @@
 # D47 — Assistant IA de préremplissage de l'inscription
 
-- Statut : Proposée
+- Statut : **Acceptée** (10/11/2026) : option 2, fournisseur Anthropic (Claude Haiku, `claude-haiku-5-5`), 3 analyses par compte
 - Lot concerné : P3-17
 
 ## Contexte
@@ -73,3 +73,19 @@ l'assistant.
   valider avant le début de l'implémentation.
 - L'aide à la bio, aux annonces, aux groupes et aux autres formulaires
   est hors périmètre ; elle sera reconsidérée après le pilote.
+
+## Choix du 10/11/2026
+
+- **Option 2 retenue**, pour les seuls écrans de l'onboarding.
+- **Fournisseur** : Anthropic, modèle Claude Haiku (`claude-haiku-5-5`),
+  sortie structurée validée par Zod, aucun outil, effort bas.
+- **Quota** : 3 analyses par compte (`Person.assistantRuns`), une analyse
+  ratée par le fournisseur est rendue. Budget : de l'ordre d'un centime
+  par inscription au plus (quelques milliers de jetons en entrée à
+  0,10 $/M, quelques centaines en sortie à 0,50 $/M).
+- **Mise en service** : désactivée par défaut
+  (`ONBOARDING_ASSISTANT_ENABLED`). Avant de l'activer, vérifier et
+  consigner dans [docs/onboarding/assistant.md](../onboarding/assistant.md)
+  les conditions du fournisseur : conservation des requêtes, usage pour
+  l'entraînement, sous-traitants, localisation, possibilité d'un accord de
+  conservation nulle. Sans garanties vérifiées, l'assistant reste éteint.

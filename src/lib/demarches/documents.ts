@@ -1,90 +1,135 @@
 /**
- * Documents préremplis (P3-15b, conception 09 §1.3) : ce que l'app sait déjà,
- * mis en forme pour être imprimé. LinkMusician **ne fixe rien** : les parts
- * du bulletin de partage restent à écrire et à signer à la main, l'état
- * civil aussi. Module pur.
+ * Documents préremplis (P3-15b, conception 09 §1.3 et §4) : ce que l'app sait
+ * déjà, mis en page pour être imprimé, complété et signé à la main.
+ *
+ * - **Bulletin de partage** d'un morceau : les crédits confirmés et leurs
+ *   rôles (paroles, musique, arrangement cochés d'après LinkMusician). Les
+ *   **parts restent vides** : LinkMusician ne fixe rien (09 §4).
+ * - **Programme des œuvres** d'un concert : les morceaux composés du groupe,
+ *   avec leurs auteur·rices et compositeur·rices ; date, lieu, durées et
+ *   reprises à compléter.
+ *
+ * Rien ne rapporte d'XP (09 §1.6). Module pur : le rendu PDF est dans
+ * `#lib/server/demarches/pdf`.
  */
 
-export type RoleKind = 'INSTRUMENT' | 'COMPOSITION' | 'LYRICS' | 'ARRANGEMENT';
+export type CreditKind = 'INSTRUMENT' | 'COMPOSITION' | 'LYRICS' | 'ARRANGEMENT';
 
-/** Ce qui ouvre une part d'auteur (paroles, musique, arrangement). */
-export const WRITING_ROLES: readonly RoleKind[] = ['LYRICS', 'COMPOSITION', 'ARRANGEMENT'];
-
-const WRITING_LABELS: Record<Exclude<RoleKind, 'INSTRUMENT'>, string> = {
-	LYRICS: 'Paroles',
-	COMPOSITION: 'Musique',
-	ARRANGEMENT: 'Arrangement'
+export type SplitSheetInput = {
+	title: string;
+	owner: { name: string; isBand: boolean };
+	composedAt: Date | null;
+	/** Crédits **confirmés** seulement, comptes supprimés exclus. */
+	credits: { name: string; kinds: readonly CreditKind[]; roles: readonly string[] }[];
 };
 
-export type Credit = {
+export type SplitSheetRow = {
 	name: string;
-	confirmed: boolean;
-	roles: { kind: RoleKind; instrument?: string | null }[];
+	lyrics: boolean;
+	music: boolean;
+	arrangement: boolean;
+	/** Ce que la personne fait dans le morceau, d'après LinkMusician. */
+	roles: string;
 };
 
-export type SharingSheet = {
-	/** Auteur·es, compositeur·rices, arrangeur·ses : une ligne chacun·e. */
-	writers: { name: string; roles: string[] }[];
-	/** Interprètes (pour mémoire : pas de part d'auteur). */
-	performers: { name: string; instruments: string[] }[];
-	/** Crédits pas encore confirmés : absents du bulletin, signalés. */
-	pending: number;
-	/** Colonnes de parts à remplir : une par type de rôle présent. */
-	columns: string[];
+export type SplitSheetView = {
+	filename: string;
+	heading: string;
+	title: string;
+	facts: { label: string; value: string }[];
+	rows: SplitSheetRow[];
+	/** Lignes vides en plus, pour une personne absente de l'app. */
+	blankRows: number;
+	notes: string[];
 };
 
-/** Bulletin de partage d'un morceau, d'après ses crédits confirmés. */
-export function sharingSheet(credits: readonly Credit[]): SharingSheet {
-	const confirmed = credits.filter((c) => c.confirmed);
-	const writers = confirmed
+export type ProgramInput = {
+	band: string;
+	/** Morceaux **composés** du groupe. */
+	works: { title: string; creators: readonly string[] }[];
+};
+
+export type ProgramView = {
+	filename: string;
+	heading: string;
+	band: string;
+	/** Champs à remplir à la main. */
+	blanks: string[];
+	rows: { title: string; creators: string }[];
+	/** Lignes vides pour les reprises et les morceaux ajoutés. */
+	blankRows: number;
+	notes: string[];
+};
+
+const dayFormat = new Intl.DateTimeFormat('fr-FR', {
+	day: 'numeric',
+	month: 'long',
+	year: 'numeric',
+	timeZone: 'Europe/Paris'
+});
+
+/** « 1er octobre 2026 », « 12 octobre 2026 ». */
+export function frenchDay(date: Date): string {
+	return dayFormat.format(date).replace(/^1 /, '1er ');
+}
+
+/** Nom de fichier sûr : sans accents, ni espaces, ni caractères spéciaux. */
+export function safeFilename(prefix: string, title: string): string {
+	const slug = title
+		.normalize('NFD')
+		.replace(/[̀-ͯ]/g, '')
+		.replace(/[^A-Za-z0-9]+/g, '-')
+		.replace(/^-+|-+$/g, '')
+		.slice(0, 60);
+	return `${prefix}${slug ? `-${slug}` : ''}.pdf`;
+}
+
+export function splitSheetView(input: SplitSheetInput, now: Date = new Date()): SplitSheetView {
+	const rows = input.credits
 		.map((c) => ({
 			name: c.name,
-			roles: WRITING_ROLES.filter((k) => c.roles.some((r) => r.kind === k)).map(
-				(k) => WRITING_LABELS[k as Exclude<RoleKind, 'INSTRUMENT'>]
-			)
+			lyrics: c.kinds.includes('LYRICS'),
+			music: c.kinds.includes('COMPOSITION'),
+			arrangement: c.kinds.includes('ARRANGEMENT'),
+			roles: c.roles.join(', ')
 		}))
-		.filter((w) => w.roles.length > 0);
-	const performers = confirmed
-		.map((c) => ({
-			name: c.name,
-			instruments: c.roles
-				.filter((r) => r.kind === 'INSTRUMENT')
-				.map((r) => r.instrument ?? 'Instrument')
-		}))
-		.filter((p) => p.instruments.length > 0);
-	const present = new Set(writers.flatMap((w) => w.roles));
+		.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 	return {
-		writers,
-		performers,
-		pending: credits.length - confirmed.length,
-		columns: Object.values(WRITING_LABELS).filter((l) => present.has(l))
+		filename: safeFilename('bulletin-de-partage', input.title),
+		heading: 'Bulletin de partage',
+		title: input.title,
+		facts: [
+			{ label: input.owner.isBand ? 'Groupe' : 'Porté par', value: input.owner.name },
+			...(input.composedAt ? [{ label: 'Composé le', value: frenchDay(input.composedAt) }] : []),
+			{ label: 'Préparé le', value: frenchDay(now) }
+		],
+		rows,
+		blankRows: rows.length >= 8 ? 1 : 2,
+		notes: [
+			'Cochez ce que chaque personne a écrit, corrigez si besoin, puis inscrivez les parts. Le total des parts « paroles » fait 100 %, celui des parts « musique » aussi.',
+			'Les cases cochées viennent des crédits confirmés dans LinkMusician. LinkMusician ne fixe aucune part : elles se décident entre vous.',
+			'Chaque personne date et signe. Pour une personne mineure, un parent signe aussi.',
+			'Cet accord reste entre vous : il ne remplace pas la déclaration du morceau à la Sacem, où vous reporterez les mêmes parts.'
+		]
 	};
 }
 
-export type ProgramWork = {
-	title: string;
-	credits: Credit[];
-};
-
-export type ProgramLine = {
-	title: string;
-	/** Paroles et musique, d'après les crédits confirmés. */
-	lyrics: string[];
-	music: string[];
-};
-
-/** Lignes vides laissées pour les reprises et les ajouts du jour. */
-export const PROGRAM_BLANK_LINES = 6;
-
-/**
- * Programme des œuvres d'un concert : les morceaux composés du groupe, avec
- * leurs auteur·es et compositeur·rices confirmé·es. Les reprises s'ajoutent
- * à la main.
- */
-export function concertProgram(works: readonly ProgramWork[]): ProgramLine[] {
-	const who = (w: ProgramWork, kind: RoleKind) =>
-		w.credits.filter((c) => c.confirmed && c.roles.some((r) => r.kind === kind)).map((c) => c.name);
-	return [...works]
-		.sort((a, b) => a.title.localeCompare(b.title, 'fr'))
-		.map((w) => ({ title: w.title, lyrics: who(w, 'LYRICS'), music: who(w, 'COMPOSITION') }));
+export function programView(input: ProgramInput): ProgramView {
+	return {
+		filename: safeFilename('programme-des-oeuvres', input.band),
+		heading: 'Programme des œuvres',
+		band: input.band,
+		blanks: ['Date du concert', 'Lieu', 'Organisateur'],
+		rows: input.works
+			.map((w) => ({
+				title: w.title,
+				creators: w.creators.length ? w.creators.join(', ') : 'À compléter'
+			}))
+			.sort((a, b) => a.title.localeCompare(b.title, 'fr')),
+		blankRows: 6,
+		notes: [
+			'Rayez les morceaux que vous ne jouez pas, ajoutez les reprises avec leurs auteurs d’origine, et indiquez la durée de chaque morceau.',
+			'Remettez ce programme à l’organisateur : c’est lui qui déclare le concert à la Sacem, et ce programme permet aux auteurs d’être payés.'
+		]
+	};
 }

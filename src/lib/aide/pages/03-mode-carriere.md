@@ -244,6 +244,10 @@ jamais comme extérieur.
 Une idée reste entre vous. Un morceau composé apparaît sur ton profil et
 sur la page du groupe.
 
+> 💡 **Astuce** : un morceau écrit à plusieurs ? Notez qui a fait quoi
+> **avant** qu’il soit joué en public. Les [démarches](/demarches)
+> expliquent comment le protéger et le déclarer.
+
 ### La suite du morceau : enregistrer, mixer, produire {#suite-du-morceau}
 
 Un morceau composé avance avec les métiers du son. Sur sa page, **Trouver
@@ -258,32 +262,47 @@ piste. Toi, tu gagnes la collaboration quand tu joues : un enregistrement,
 une production. Sur un mixage ou un mastering, où tu ne joues pas, seule
 la personne du son gagne.
 
-> 💡 **Astuce** : un morceau écrit à plusieurs ? Notez qui a fait quoi
-> **avant** qu’il soit joué en public. Le guide des
-> [Démarches](/demarches) explique comment le protéger et le déclarer.
+## 5. Les démarches {#demarches}
 
-### Les démarches, au bon moment {#demarches}
+Quand un morceau, un concert ou un groupe devient sérieux, les mêmes
+questions arrivent : comment protéger ce qu’on a écrit, comment être
+payé·e, faut-il une association. LinkMusician y répond **au moment où
+elles se posent**, par une phrase et un lien, une seule à la fois :
 
-Quand une question administrative se pose (un morceau composé, un
-premier concert, un groupe qui encaisse de l’argent, un·e mineur·e dans le
-groupe), une carte bleue s’affiche sur la page concernée : une phrase et
-le lien vers une fiche courte. **J’ai compris** la masque. Toutes les
-fiches sont réunies sur la page [Démarches](/demarches). Elles donnent une
-information générale, datée et sourcée ; les lire ne rapporte pas de
+| Quand                                   | Où               | La démarche                                            |
+| --------------------------------------- | ---------------- | ------------------------------------------------------ |
+| Un morceau est composé                  | Fiche du morceau | Protéger un morceau ; écrire à plusieurs (2 crédits +) |
+| Le groupe est formé                     | Page du groupe   | L’association du groupe                                |
+| Étape « Première démo publique »        | Page du groupe   | Première démo et déclaration des œuvres                |
+| Étape « Premier concert »               | Page du groupe   | Premier concert ; être payé·e pour jouer               |
+| Un·e membre du groupe a moins de 18 ans | Page du groupe   | Jouer sur scène avant 18 ans                           |
+| Une annonce de session                  | Annonce          | Être payé·e pour jouer                                 |
+
+**J’ai compris** masque la phrase pour de bon. Toutes les fiches sont dans
+[Les démarches](/demarches), aussi depuis **Mon espace**. Chacune donne
+l’essentiel en trois lignes, les étapes, ce que ça coûte, ses sources
+officielles et la date de sa dernière vérification. C’est une information
+générale, pas un conseil personnalisé. Lire une fiche ne rapporte pas de
 points.
 
-Deux documents se préparent tout seuls, à imprimer ou à enregistrer en
-PDF :
+### Les documents préparés pour vous {#documents}
 
-- le **bulletin de partage** d’un morceau (lien sur sa fiche, une fois
-  composé) : qui a écrit les paroles, la musique, l’arrangement, d’après
-  les crédits confirmés. Les parts, vous les écrivez et signez ensemble :
-  LinkMusician ne fixe rien ;
-- le **programme des œuvres** du groupe (lien dans son parcours) : vos
-  morceaux composés, à remettre à l’organisateur d’un concert, avec de la
-  place pour les reprises.
+L’app remplit ce qu’elle sait déjà ; vous complétez et signez à la main :
 
-## 5. Tes paliers {#paliers}
+- **Bulletin de partage (PDF)**, sur la fiche d’un morceau composé (pour
+  son équipe) : les crédits confirmés, avec paroles, musique et
+  arrangement déjà cochés d’après leurs rôles. **Les parts restent
+  vides** : elles se décident entre vous, LinkMusician ne fixe rien.
+  Chacun·e date et signe ; pour une personne mineure, un parent signe
+  aussi.
+- **Programme des œuvres (PDF)**, sur la page du groupe dès un morceau
+  composé (pour ses membres) : vos morceaux et leurs auteur·rices. Il
+  reste la date, le lieu, les durées et les reprises, puis vous le
+  remettez à l’organisateur du concert.
+
+Télécharger un document ne rapporte pas de points.
+
+## 6. Tes paliers {#paliers}
 
 Ton palier dit où tu en es, par des faits, jamais par un nombre de points :
 

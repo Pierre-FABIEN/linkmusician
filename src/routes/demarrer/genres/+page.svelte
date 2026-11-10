@@ -6,10 +6,27 @@
 	import { Button } from '#shadcn/button';
 	import { MAX_GENRES, MAX_INFLUENCES } from '#lib/skills/profile';
 	import SEO from '#lib/components/SEO.svelte';
+	import { onMount } from 'svelte';
+	import ProposedNotice from '#lib/components/linkmusician/onboarding/ProposedNotice.svelte';
+	import { reportUsage, takeProposal } from '#lib/onboarding/proposals';
 
 	let { data, form } = $props();
 	let selected = $state<string[]>(untrack(() => form?.genreIds ?? data.current));
 	const full = $derived(selected.length >= MAX_GENRES);
+
+	// Assistant d'inscription (P3-17) : genres proposés.
+	let proposed = $state(false);
+	onMount(() => {
+		const p = takeProposal('genres');
+		if (!p?.length || selected.length) return;
+		selected = p.map((g) => g.id).slice(0, MAX_GENRES);
+		proposed = true;
+	});
+	function ignoreProposals() {
+		selected = [];
+		proposed = false;
+		reportUsage('ignored');
+	}
 </script>
 
 <SEO title="Tes genres" noindex nofollow />
@@ -23,6 +40,7 @@
 					1 à {MAX_GENRES} : un genre large (« Rock ») ou précis (« Punk »). ({selected.length}/{MAX_GENRES})
 				</p>
 			</div>
+			{#if proposed}<ProposedNotice onIgnore={ignoreProposals} />{/if}
 			<div class="max-h-[50vh] space-y-3 overflow-y-auto pr-1">
 				{#each data.genres as genre (genre.id)}
 					<fieldset>

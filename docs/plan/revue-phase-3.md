@@ -32,7 +32,7 @@ directement.
   restait bloquée au chargement, faute de mémoire sous WSL. Il reste
   aussi la relecture des fiches par un·e professionnel·le avant
   l'ouverture (D42).
-- **Bloqué** : P3-17 attend que D47 soit acceptée.
+- **P3-17** : D47 acceptée ; l'assistant d'inscription est livré, désactivé par défaut (e2e à lancer).
 - **Après les phases 4 et 5** : P3-10a (audit de sécurité) et P3-10
   (ouverture publique), comme prévu dans la feuille de route (§4 ter).
 
@@ -80,10 +80,10 @@ développement, 390 px).
 | 1   | `/groupes/nouveau`                      | Créer un groupe, inviter Malik ; il accepte                               | Étape « Formation en ligne », XP aux deux, badge de rang                 |
 | 2   | `/annonces/nouvelle`                    | « Publier au nom de » le groupe, cherche une bassiste                     | « Le groupe recrute » sur `/@handle` du groupe                           |
 | 3   | `/morceaux/nouveau`                     | Créer un morceau avec Malik, rôle « basse » à pourvoir, « C'est composé » | Corroboré à la 2ᵉ confirmation, carte « démarche » (protéger le morceau) |
-| 4   | `/morceaux/[id]/bulletin`               | Ouvrir le bulletin de partage, imprimer                                   | Qui a écrit quoi, parts laissées vides                                   |
+| 4   | `/morceaux/[id]/bulletin`               | Télécharger le bulletin de partage (PDF)                                  | Qui a écrit quoi, parts laissées vides                                   |
 | 5   | `/groupes/[handle]`                     | Déclarer le premier concert ; Malik confirme                              | L'étape reste « déclarée » (un membre ne corrobore pas)                  |
 | 6   | `/etapes/[id]` (3ᵉ compte, hors groupe) | Attester avec un lien d'événement                                         | Étape corroborée, XP différentielle, notification                        |
-| 7   | `/groupes/[handle]/programme`           | Ouvrir le programme des œuvres                                            | Le morceau composé, prêt à remettre à l'organisateur                     |
+| 7   | `/groupes/[handle]/programme`           | Télécharger le programme des œuvres (PDF)                                 | Le morceau composé, prêt à remettre à l'organisateur                     |
 | 8   | `/@handle` du groupe (3ᵉ compte)        | Signaler l'étape, puis la retenir en modération                           | « En vérification », puis XP reprise et étape retirée                    |
 | 9   | `/espace`, `/espace/carte`              | Choisir une ambition, ouvrir la carte                                     | Objectifs réordonnés, actes I à III, épreuve fêtée une fois              |
 | 10  | `/espace/fiche`                         | Générer la carte souvenir                                                 | PNG sans XP ni confiance                                                 |

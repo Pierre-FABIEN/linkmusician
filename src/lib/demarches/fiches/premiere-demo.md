@@ -1,42 +1,64 @@
+---
+verifie: 2026-11-10
+relue: non
+sources:
+  - Sacem, créateurs et éditeurs | https://www.sacem.fr
+  - Adami, artistes-interprètes | https://www.adami.fr
+  - Spedidam, artistes-interprètes | https://www.spedidam.fr
+---
+
 # Première démo et déclaration des œuvres
 
-_Avant de mettre un morceau en ligne, prends dix minutes pour savoir qui
-touchera quoi._
+_Avant de mettre votre musique en ligne : déclarer vos morceaux, pour ne
+pas perdre une partie de vos droits._
 
 > **En bref**
 >
-> - Publier un morceau (Bandcamp, SoundCloud, YouTube, plateformes de
->   streaming) peut générer des **droits d’auteur**.
-> - Pour les percevoir, il faut être membre d’une **société d’auteurs**
->   (la Sacem en France) et y **déclarer ses œuvres**.
-> - Déclare le morceau **avant** sa sortie, avec le partage entre
->   co-auteurs déjà décidé.
+> - Quand un morceau est diffusé (streaming, radio, concert), des
+>   **droits d’auteur** sont collectés pour qui l’a écrit.
+> - Pour les toucher, il faut **adhérer à une société d’auteurs** (en
+>   France, la Sacem) et **déclarer ses œuvres**, idéalement **avant** la
+>   sortie.
+> - Vous restez libres de publier sans adhérer : vous renoncez alors à
+>   percevoir ces droits.
 
 ## Où publier
 
-- **Bandcamp, SoundCloud, YouTube** : tu y publies toi-même.
-- **Spotify, Deezer, Apple Music…** : il faut passer par un
-  **distributeur** numérique. Compare ce qu’il prend (abonnement ou
-  pourcentage) et ce qu’il fait (codes ISRC, autorisations).
+- **Bandcamp, SoundCloud, YouTube** : vous publiez vous-mêmes, en
+  quelques minutes.
+- **Les plateformes de streaming** (Spotify, Deezer, Apple Music…) : on y
+  passe par un **distributeur**, qui prend un abonnement ou une
+  commission. Il attribue souvent aussi les codes ISRC des
+  enregistrements.
+
+Comparez ce que chaque distributeur prend, et ce que vous lui cédez
+(durée, exclusivité) avant de signer.
 
 ## Les étapes
 
-1. **Décidez du partage** si vous êtes plusieurs :
-   [Écrire un morceau à plusieurs](/demarches/ecrire-a-plusieurs).
-2. **Adhère à une société d’auteurs** si tu veux percevoir tes droits.
-   L’adhésion à la Sacem demande d’avoir écrit ou composé au moins une
-   œuvre ; les conditions et le droit d’entrée sont sur sacem.fr.
-3. **Déclare chaque morceau** dans ton espace membre, avec ses co-auteurs
-   et leurs parts.
-4. **Publie**. Garde la date et le lien : c’est aussi une preuve de
-   l’existence du morceau.
-
-> 💡 **Astuce** : sur LinkMusician, l’étape « Première démo publique » de
-> ton groupe se prouve avec le lien exact de la démo.
+1. **Mettez-vous d’accord sur les parts** si le morceau est écrit à
+   plusieurs (voir [Écrire un morceau à plusieurs](/demarches/ecrire-a-plusieurs)).
+2. **Adhérez à la Sacem** : en ligne, avec une pièce d’identité et un
+   RIB. Il faut en général avoir écrit au moins une œuvre et justifier
+   d’un début d’exploitation.
+3. **Déclarez chaque morceau** depuis votre espace membre : titre, durée,
+   créateur·rices, rôles et parts (le total fait 100 %).
+4. **Publiez**, puis gardez les liens : ils servent de preuve de sortie.
 
 ## Ce que ça coûte
 
-- **Publier soi-même** : gratuit sur la plupart des plateformes.
-- **Distributeur** : variable, à comparer.
-- **Société d’auteurs** : un droit d’entrée à l’adhésion ; montant à jour
-  sur sacem.fr.
+L’adhésion à la Sacem a un **droit d’entrée** fixé chaque année par son
+conseil d’administration : **montant à vérifier sur sacem.fr**. Déclarer
+une œuvre est compris.
+
+## Les droits des musicien·nes qui jouent
+
+Jouer sur un enregistrement ouvre d’autres droits que ceux de l’auteur :
+les droits d’**artiste-interprète**, gérés par l’Adami et la Spedidam.
+Et payer l’enregistrement fait de vous le **producteur** du master.
+
+## À qui s’adresser
+
+La Sacem pour l’adhésion et les déclarations ; l’Adami ou la Spedidam
+pour les droits d’interprète ; une structure d’accompagnement des
+musiques actuelles pour choisir un distributeur.

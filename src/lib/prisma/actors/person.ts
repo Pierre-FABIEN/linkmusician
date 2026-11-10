@@ -461,6 +461,8 @@ export async function exportPersonData(userId: string) {
 		dernier_digest_email_le: person.digestSentAt,
 		// Conseils en contexte masqués (P2-17).
 		conseils_masques: person.tipsDismissed,
+		// Assistant d'inscription (P3-17) : nombre d'analyses, jamais le texte.
+		analyses_assistant_inscription: person.assistantRuns,
 		metiers: person.tracks.map((t) => ({ metier: t.track, principal: t.isPrimary })),
 		instruments: musical.instruments.map((i) => ({
 			instrument: i.name,
@@ -863,7 +865,8 @@ export async function personAnonymizationOps(
 				travelRadiusKm: null,
 				organizesJams: false,
 				ambition: null,
-				tipsDismissed: []
+				tipsDismissed: [],
+				assistantRuns: 0
 			}
 		}),
 		prisma.actor.update({

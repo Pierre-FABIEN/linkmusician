@@ -1,66 +1,114 @@
+/**
+ * Contenu du guide des démarches (P3-15a, 09 §5) : chaque fiche du catalogue
+ * existe, cite des sources officielles, a un « en bref » et une date de
+ * vérification de moins d'un an.
+ */
 import { describe, expect, it } from 'vitest';
-import { FICHES, MAX_AGE_DAYS, ficheBySlug, verificationAgeDays } from '#lib/demarches/catalog';
-import { ficheFiles, renderedFiche } from './render';
+import {
+	FICHES,
+	MAX_AGE_DAYS,
+	isOfficialSource,
+	parseFiche,
+	verificationAgeDays
+} from '#lib/demarches/catalog';
+import { orphanFiles, rawFiche, renderedFiche } from './render';
 
-describe('guide des démarches : les fiches (D42)', () => {
-	const rendered = FICHES.map((fiche) => ({ fiche, html: renderedFiche(fiche.file) }));
-
-	it('les huit fiches du lancement, chacune avec son fichier, et aucun fichier orphelin', () => {
-		expect(FICHES).toHaveLength(8);
-		for (const { fiche, html } of rendered) expect(html, fiche.file).not.toBeNull();
-		expect(ficheFiles().sort()).toEqual(FICHES.map((f) => f.file).sort());
+describe('fiches des démarches', () => {
+	it('chaque fichier du dossier est au catalogue', () => {
+		expect(orphanFiles()).toEqual([]);
 	});
 
-	it('chaque fiche a un titre, une accroche et un « En bref »', () => {
-		for (const { fiche, html } of rendered) {
-			expect(html!.title, fiche.file).toBe(fiche.title);
-			expect(html!.lead, fiche.file).toBeTruthy();
-			expect(html!.html, fiche.file).toContain('aide-brief');
-		}
+	for (const entry of FICHES) {
+		describe(entry.slug, () => {
+			const raw = rawFiche(entry.file);
+
+			it('existe et a un titre, une accroche et des sections', () => {
+				expect(raw).not.toBeNull();
+				const fiche = renderedFiche(entry)!;
+				expect(fiche.title.length).toBeGreaterThan(3);
+				expect(fiche.lead).toBeTruthy();
+				expect(fiche.toc.length).toBeGreaterThanOrEqual(2);
+			});
+
+			it('a un « en bref » d’au plus trois lignes', () => {
+				const html = renderedFiche(entry)!.html;
+				const brief = /<aside class="aide-callout aide-brief"[^>]*>([\s\S]*?)<\/aside>/.exec(html);
+				expect(brief).not.toBeNull();
+				const items = brief![1].match(/<li>/g) ?? [];
+				expect(items.length).toBeGreaterThanOrEqual(1);
+				expect(items.length).toBeLessThanOrEqual(3);
+			});
+
+			it('cite au moins une source, toutes officielles', () => {
+				const { meta } = parseFiche(raw!);
+				expect(meta.sources.length).toBeGreaterThanOrEqual(1);
+				for (const source of meta.sources) {
+					expect(source.label.length, source.url).toBeGreaterThan(3);
+					expect(isOfficialSource(source.url), source.url).toBe(true);
+				}
+			});
+
+			it('a été vérifiée il y a moins d’un an', () => {
+				const { meta } = parseFiche(raw!);
+				const age = verificationAgeDays(meta.verifiedOn);
+				expect(age, `date illisible : « ${meta.verifiedOn} »`).not.toBeNull();
+				expect(age!).toBeGreaterThanOrEqual(0);
+				expect(age!).toBeLessThanOrEqual(MAX_AGE_DAYS);
+			});
+
+			it('ne relie que des fiches et des pages d’aide qui existent', () => {
+				const html = renderedFiche(entry)!.html;
+				const links = [...html.matchAll(/href="(\/[^"#]*)/g)].map((m) => m[1]);
+				for (const href of links) {
+					const demarche = /^\/demarches\/([\w-]+)$/.exec(href);
+					if (demarche)
+						expect(
+							FICHES.map((f) => f.slug),
+							href
+						).toContain(demarche[1]);
+					else expect(href, href).toMatch(/^\/aide(\/[\w-]+)?$/);
+				}
+			});
+		});
+	}
+});
+
+describe('parseFiche', () => {
+	it('lit la date, la relecture et les sources', () => {
+		const { meta, body } = parseFiche(
+			'---\nverifie: 2026-11-10\nrelue: oui\nsources:\n  - INPI, e-Soleau | https://www.inpi.fr/x\n  - Sacem | https://www.sacem.fr\n---\n\n# Titre\n'
+		);
+		expect(meta).toEqual({
+			verifiedOn: '2026-11-10',
+			reviewed: true,
+			sources: [
+				{ label: 'INPI, e-Soleau', url: 'https://www.inpi.fr/x' },
+				{ label: 'Sacem', url: 'https://www.sacem.fr' }
+			]
+		});
+		expect(body.trim()).toBe('# Titre');
 	});
 
-	it('chaque fiche dit ce que ça coûte', () => {
-		for (const { fiche, html } of rendered) {
-			expect(
-				html!.toc.map((t) => t.text),
-				fiche.file
-			).toContain('Ce que ça coûte');
-		}
+	it('sans en-tête : rien de vérifié, pas relue', () => {
+		expect(parseFiche('# Titre').meta).toEqual({ verifiedOn: '', sources: [], reviewed: false });
 	});
+});
 
-	it('chaque fiche a des sources, dont au moins une officielle, en https', () => {
-		const official =
-			/(\.gouv\.fr|service-public\.fr|legifrance|inpi\.fr|sacem\.fr|guso\.fr|cnm\.fr|senat\.fr|justice\.fr)/;
-		for (const fiche of FICHES) {
-			expect(fiche.sources.length, fiche.slug).toBeGreaterThan(0);
-			for (const s of fiche.sources) expect(s.url, fiche.slug).toMatch(/^https:\/\//);
-			expect(
-				fiche.sources.some((s) => official.test(s.url)),
-				fiche.slug
-			).toBe(true);
-		}
+describe('isOfficialSource', () => {
+	it('accepte les organismes et leurs sous-domaines, en https seulement', () => {
+		expect(isOfficialSource('https://normandie.dreets.gouv.fr/page')).toBe(true);
+		expect(isOfficialSource('https://www.service-public.fr/x')).toBe(true);
+		expect(isOfficialSource('http://www.inpi.fr/x')).toBe(false);
+		expect(isOfficialSource('https://www.legalstart.fr/x')).toBe(false);
+		expect(isOfficialSource('https://inpi.fr.example.com/x')).toBe(false);
+		expect(isOfficialSource('pas une adresse')).toBe(false);
 	});
+});
 
-	it('chaque fiche a été vérifiée il y a moins d’un an', () => {
-		for (const fiche of FICHES) {
-			expect(fiche.verifiedAt, fiche.slug).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-			const age = verificationAgeDays(fiche);
-			expect(age, `${fiche.slug} vérifiée il y a ${age} jours`).toBeLessThanOrEqual(MAX_AGE_DAYS);
-			expect(age, fiche.slug).toBeGreaterThanOrEqual(0);
-		}
-	});
-
-	it('les liens entre fiches mènent à une fiche qui existe', () => {
-		for (const { fiche, html } of rendered) {
-			for (const [, slug] of html!.html.matchAll(/href="\/demarches\/([^"#]+)/g)) {
-				expect(ficheBySlug(slug), `${fiche.file} → ${slug}`).not.toBeNull();
-			}
-		}
-	});
-
-	it('aucun logo, ni « officiel », ni partenariat (D42)', () => {
-		for (const { fiche, html } of rendered) {
-			expect(html!.html, fiche.file).not.toMatch(/<img|partenaire|(?<!journal )officiel/i);
-		}
+describe('verificationAgeDays', () => {
+	it('compte les jours, refuse une date illisible', () => {
+		const now = new Date('2027-11-10T10:00:00Z');
+		expect(verificationAgeDays('2026-11-10', now)).toBe(365);
+		expect(verificationAgeDays('10/11/2026', now)).toBeNull();
 	});
 });

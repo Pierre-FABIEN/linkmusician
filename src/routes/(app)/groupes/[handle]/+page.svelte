@@ -1,11 +1,11 @@
 <script lang="ts">
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
-	import DemarcheCard from '#lib/components/linkmusician/DemarcheCard.svelte';
 	import { BadgeCheck } from 'lucide-svelte';
 	// LINKMUSICIAN: un groupe (P3-01), voir +page.server.ts.
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
+	import DemarcheCard from '#lib/components/linkmusician/demarches/DemarcheCard.svelte';
 	import { MAX_MEMBER_TITLE, ROLE_LABELS, isManager, periodLabel } from '#lib/bands/rules';
 	import { plural } from '#lib/jam/log';
 	import {
@@ -21,6 +21,7 @@
 	import {
 		Circle,
 		CircleCheck,
+		FileDown,
 		Flag,
 		Music,
 		PartyPopper,
@@ -125,6 +126,8 @@
 				{/if}
 			</p>
 		</div>
+
+		<DemarcheCard nudge={data.demarche} />
 
 		{#if data.created && !band.formedAt}
 			<div class="flex gap-3 rounded-2xl border border-primary bg-card p-4 text-sm">
@@ -263,17 +266,6 @@
 				<h2 id="milestones-title" class="flex items-center gap-2 text-xl font-bold">
 					<Flag class="size-5" aria-hidden="true" /> Parcours du groupe
 				</h2>
-				<DemarcheCard nudge={data.nudge} />
-				{#if band.formedAt && !dissolved}
-					<p class="text-sm">
-						<a
-							href="/groupes/{band.handle}/programme"
-							class="inline-flex min-h-11 items-center font-medium text-primary underline"
-							>Programme des œuvres</a
-						>
-						<span class="text-muted-foreground">· la liste des morceaux à remettre au lieu</span>
-					</p>
-				{/if}
 				{#if !band.formedAt}
 					<p class="text-sm text-muted-foreground">
 						Le parcours s’ouvre quand le groupe est formé : invitez un premier membre.
@@ -608,6 +600,21 @@
 						>
 					{/if}
 				</div>
+				{#if data.programHref}
+					<p class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+						<a
+							href={data.programHref}
+							download
+							data-sveltekit-reload
+							class="inline-flex min-h-11 items-center gap-1 font-semibold text-primary underline"
+						>
+							<FileDown class="size-4" aria-hidden="true" /> Programme des œuvres (PDF)
+						</a>
+						<span class="text-muted-foreground"
+							>À remettre à l’organisateur d’un concert, avec vos morceaux composés.</span
+						>
+					</p>
+				{/if}
 				{#if data.works.length === 0}
 					<p class="text-sm text-muted-foreground">
 						Pas encore de morceau. Une idée reste entre vous ; une fois composée avec une maquette,

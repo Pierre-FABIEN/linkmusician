@@ -1,233 +1,216 @@
 /**
  * Guide des démarches (P3-15a, D42, conception 09) : la liste des fiches,
- * avec ce qui les rend fiables : date de vérification, sources officielles
- * et relecture par quelqu'un du métier. Le texte vit dans
- * `src/lib/demarches/fiches/*.md` (une fiche = un fichier), rendu par
- * `#lib/server/demarches/render`. Module pur.
+ * rangées par moment de la vie musicale. Le contenu vit dans
+ * `src/lib/demarches/fiches/*.md` (une fiche = un fichier, avec un en-tête
+ * qui porte la date de vérification et les sources officielles), rendu par
+ * `#lib/server/demarches/render`. Voir `docs/demarches/README.md`.
  *
- * Écart avec la conception 09 §4 : l'en-tête de chaque fiche (date,
- * sources) est ici plutôt que dans le Markdown, pour que le test le
- * vérifie sans analyseur de métadonnées.
+ * Module pur, partagé par le serveur et le navigateur.
  */
 
-/** Les moments de la vie musicale (conception 09 §2), dans l'ordre. */
-export const MOMENTS = {
-	creer: 'Créer un morceau',
-	publier: 'Publier',
-	concert: 'Jouer en concert',
-	groupe: 'Le groupe'
-} as const;
-export type Moment = keyof typeof MOMENTS;
+export const MOMENTS = ['creer', 'publier', 'scene', 'groupe'] as const;
+export type Moment = (typeof MOMENTS)[number];
 
-export type Source = { label: string; url: string };
+export const MOMENT_INFO: Record<Moment, { label: string; text: string }> = {
+	creer: { label: 'Créer un morceau', text: 'Prouver la date, écrire à plusieurs.' },
+	publier: { label: 'Publier', text: 'Mettre une démo en ligne sans perdre ses droits.' },
+	scene: { label: 'Jouer en concert', text: 'Le programme, le cachet, la pratique amateur.' },
+	groupe: { label: 'Le groupe', text: 'Encaisser de l’argent ensemble.' }
+};
+
+export type FicheSlug =
+	| 'proteger-un-morceau'
+	| 'ecrire-a-plusieurs'
+	| 'premiere-demo'
+	| 'premier-concert'
+	| 'etre-paye-pour-jouer'
+	| 'jouer-gratuitement'
+	| 'association-du-groupe'
+	| 'mineurs-sur-scene';
 
 export type Fiche = {
-	slug: string;
+	slug: FicheSlug;
 	file: string;
 	moment: Moment;
 	/** Titre court, pour les listes et les liens. */
-	title: string;
+	nav: string;
 	/** Une phrase, pour les cartes et le SEO. */
 	summary: string;
-	/** Date de la dernière vérification sur les sources (AAAA-MM-JJ). */
-	verifiedAt: string;
-	/** Sources officielles d'abord (conception 09 §5). */
-	sources: readonly Source[];
-	/**
-	 * Relecture par quelqu'un du métier (D42). `null` : pas encore relue,
-	 * la fiche le dit en tête. À remplir avant l'ouverture publique.
-	 */
-	reviewedBy: { who: string; at: string } | null;
+	/** Fiche écrite aussi pour les mineur·es et leurs parents (D5, 09 §1.7). */
+	minors?: boolean;
 };
 
-/** Une fiche dont la vérification a plus d'un an est à revoir (09 §5). */
-export const MAX_AGE_DAYS = 365;
-
-const LEGIFRANCE = 'https://www.legifrance.gouv.fr';
-
+/** Les fiches du lancement (09 §2, colonne « Lancement »), dans l'ordre de lecture. */
 export const FICHES: readonly Fiche[] = [
 	{
 		slug: 'proteger-un-morceau',
 		file: 'proteger-un-morceau.md',
 		moment: 'creer',
-		title: 'Protéger un morceau',
-		summary:
-			'Le droit d’auteur naît avec le morceau ; ce qui manque souvent, c’est la preuve de la date.',
-		verifiedAt: '2026-11-10',
-		sources: [
-			{
-				label: 'INPI : déposer une e-Soleau',
-				url: 'https://www.inpi.fr/realiser-demarches/propriete-intellectuelle/deposer-une-e-soleau-ou-un-entiercement'
-			},
-			{
-				label: 'INPI : proroger une e-Soleau',
-				url: 'https://www.inpi.fr/realiser-demarches/propriete-intellectuelle/proroger-une-e-soleau'
-			},
-			{
-				label: 'Code de la propriété intellectuelle, article L111-1',
-				url: `${LEGIFRANCE}/codes/texte_lc/LEGITEXT000006069414`
-			}
-		],
-		reviewedBy: null
+		nav: 'Protéger un morceau',
+		summary: 'Le droit d’auteur naît avec le morceau ; ce qui manque, c’est la preuve de la date.'
 	},
 	{
 		slug: 'ecrire-a-plusieurs',
 		file: 'ecrire-a-plusieurs.md',
 		moment: 'creer',
-		title: 'Écrire un morceau à plusieurs',
-		summary:
-			'Qui a écrit les paroles, qui a composé, et à quel pourcentage : à écrire avant que l’argent arrive.',
-		verifiedAt: '2026-11-10',
-		sources: [
-			{ label: 'Sacem : déclarer une œuvre', url: 'https://www.sacem.fr' },
-			{
-				label: 'Code de la propriété intellectuelle, article L113-3 (œuvre de collaboration)',
-				url: `${LEGIFRANCE}/codes/texte_lc/LEGITEXT000006069414`
-			}
-		],
-		reviewedBy: null
+		nav: 'Écrire un morceau à plusieurs',
+		summary: 'Qui a écrit quoi, et à quelle part : à fixer avant que l’argent arrive.'
 	},
 	{
 		slug: 'premiere-demo',
 		file: 'premiere-demo.md',
 		moment: 'publier',
-		title: 'Première démo et déclaration des œuvres',
-		summary:
-			'Avant de publier, déclarer ses morceaux auprès d’une société d’auteurs pour ne pas perdre de droits.',
-		verifiedAt: '2026-11-10',
-		sources: [
-			{ label: 'Sacem : devenir membre', url: 'https://www.sacem.fr' },
-			{
-				label: 'Centre national de la musique : ressources',
-				url: 'https://cnm.fr'
-			}
-		],
-		reviewedBy: null
+		nav: 'Première démo et déclaration des œuvres',
+		summary: 'Avant de publier : déclarer ses morceaux pour toucher ses droits d’auteur.'
 	},
 	{
 		slug: 'premier-concert',
 		file: 'premier-concert.md',
-		moment: 'concert',
-		title: 'Premier concert et programme des œuvres',
-		summary:
-			'Le lieu déclare le concert et paie la Sacem ; le groupe remet la liste des morceaux joués.',
-		verifiedAt: '2026-11-10',
-		sources: [
-			{ label: 'Sacem : organiser un concert', url: 'https://www.sacem.fr' },
-			{
-				label: 'Ministère de la Culture : organisateur occasionnel de spectacles',
-				url: 'https://www.culture.gouv.fr/Media/Medias-creation-rapide/Vos-demarches-et-responsabilites-en-tant-qu-organisateur-occasionnel-de-spectacles-vivants'
-			}
-		],
-		reviewedBy: null
+		moment: 'scene',
+		nav: 'Premier concert et programme des œuvres',
+		summary: 'Qui déclare quoi, et la liste des morceaux à remettre au lieu.'
 	},
 	{
-		slug: 'etre-paye-pour-un-concert',
-		file: 'etre-paye-pour-un-concert.md',
-		moment: 'concert',
-		title: 'Être payé·e pour un concert',
-		summary:
-			'Un·e musicien·ne payé·e pour jouer est salarié·e : un cachet, déclaré par l’organisateur (souvent par le GUSO).',
-		verifiedAt: '2026-11-10',
-		sources: [
-			{ label: 'GUSO', url: 'https://www.guso.fr' },
-			{
-				label: 'Code du travail, article L7121-3 (présomption de salariat)',
-				url: `${LEGIFRANCE}/codes/texte_lc/LEGITEXT000006072050`
-			},
-			{
-				label: 'Artcena : le GUSO',
-				url: 'https://www.artcena.fr/precis-juridique/droit-du-travail/artistes-et-compagnies-amateurs/guichet-unique-du-spectacle-occasionnel-guso'
-			}
-		],
-		reviewedBy: null
+		slug: 'etre-paye-pour-jouer',
+		file: 'etre-paye-pour-jouer.md',
+		moment: 'scene',
+		nav: 'Être payé·e pour jouer',
+		summary: 'Un cachet, c’est un salaire : qui t’emploie, le GUSO, ce qu’il faut garder.'
 	},
 	{
 		slug: 'jouer-gratuitement',
 		file: 'jouer-gratuitement.md',
-		moment: 'concert',
-		title: 'Jouer gratuitement ou au chapeau',
-		summary:
-			'La pratique amateur est libre ; ce qu’il faut éviter, c’est une rémunération déguisée.',
-		verifiedAt: '2026-11-10',
-		sources: [
-			{
-				label: 'Ministère de la Culture : décret n° 2017-1049 du 10 mai 2017 (artistes amateurs)',
-				url: 'https://www.culture.gouv.fr/Media/Regions/Dac-de-la-Reunion/Files/2018/Spectacle-vivant/Decret-du-10-mai-2017-amateurs'
-			},
-			{
-				label: 'Sénat : question écrite sur la pratique amateur (2018)',
-				url: 'https://www.senat.fr/questions/base/2018/qSEQ18040325S.html'
-			}
-		],
-		reviewedBy: null
+		moment: 'scene',
+		nav: 'Jouer gratuitement ou au chapeau',
+		summary: 'Ce que permet la pratique amateur, et où elle s’arrête.'
 	},
 	{
 		slug: 'association-du-groupe',
 		file: 'association-du-groupe.md',
 		moment: 'groupe',
-		title: 'L’association du groupe',
-		summary:
-			'Pour encaisser de l’argent au nom du groupe : une association loi 1901, gratuite à déclarer.',
-		verifiedAt: '2026-11-10',
-		sources: [
-			{
-				label: 'Service-public.fr : créer une association',
-				url: 'https://www.service-public.fr/associations'
-			},
-			{
-				label: 'Justice.fr : coût de la publication au Journal officiel',
-				url: 'https://www.justice.fr/fiche/combien-coute-publication-journal-officiel-jo-association'
-			},
-			{ label: 'GUSO', url: 'https://www.guso.fr' }
-		],
-		reviewedBy: null
+		nav: 'L’association du groupe',
+		summary: 'Faut-il une association ? Ce que ça permet, ce que ça coûte, ce que ça engage.'
 	},
 	{
 		slug: 'mineurs-sur-scene',
 		file: 'mineurs-sur-scene.md',
-		moment: 'concert',
-		title: 'Les mineur·es sur scène',
-		summary:
-			'Pour les jeunes musicien·nes et leurs parents : ce qui demande une autorisation, et ce qui reste libre.',
-		verifiedAt: '2026-11-10',
-		sources: [
-			{
-				label: 'DREETS Normandie : emploi d’un enfant de moins de 16 ans dans le spectacle',
-				url: 'https://normandie.dreets.gouv.fr/Emploi-d-un-enfant-age-de-moins-de-16-ans-dans-les-secteurs-du-spectacle-vivant'
-			},
-			{
-				label: 'Code du travail, article L7124-1',
-				url: `${LEGIFRANCE}/codes/texte_lc/LEGITEXT000006072050`
-			}
-		],
-		reviewedBy: null
+		moment: 'scene',
+		nav: 'Jouer sur scène avant 18 ans',
+		summary: 'Pour les mineur·es et leurs parents : autorisations, argent, horaires.',
+		minors: true
 	}
 ];
 
-export const FICHES_BY_SLUG: ReadonlyMap<string, Fiche> = new Map(FICHES.map((f) => [f.slug, f]));
-
-export function ficheBySlug(slug: string): Fiche | null {
-	return FICHES_BY_SLUG.get(slug) ?? null;
-}
-
-export function ficheHref(slug: string): string {
+export function demarcheHref(slug: FicheSlug): string {
 	return `/demarches/${slug}`;
 }
 
-/** Les fiches regroupées par moment, dans l'ordre de la conception. */
-export function fichesByMoment(): { moment: Moment; label: string; fiches: Fiche[] }[] {
-	return (Object.keys(MOMENTS) as Moment[])
-		.map((moment) => ({
-			moment,
-			label: MOMENTS[moment],
-			fiches: FICHES.filter((f) => f.moment === moment)
-		}))
-		.filter((g) => g.fiches.length > 0);
+export function fiche(slug: string): Fiche | null {
+	return FICHES.find((f) => f.slug === slug) ?? null;
 }
 
-/** Âge de la vérification, en jours entiers. */
-export function verificationAgeDays(fiche: Pick<Fiche, 'verifiedAt'>, now = new Date()): number {
-	const verified = Date.parse(`${fiche.verifiedAt}T00:00:00Z`);
-	return Math.floor((now.getTime() - verified) / 86_400_000);
+export function fichesByMoment(): { moment: Moment; fiches: Fiche[] }[] {
+	return MOMENTS.map((moment) => ({
+		moment,
+		fiches: FICHES.filter((f) => f.moment === moment)
+	})).filter((g) => g.fiches.length > 0);
+}
+
+// ─── En-tête des fiches ─────────────────────────────────────────────────────
+
+/**
+ * Sources officielles admises (09 §5) : une source secondaire ne suffit pas à
+ * fonder une règle. Comparé au nom d'hôte, sous-domaines compris.
+ */
+export const OFFICIAL_HOSTS = [
+	'sacem.fr',
+	'inpi.fr',
+	'guso.fr',
+	'service-public.fr',
+	'associations.gouv.fr',
+	'dreets.gouv.fr',
+	'culture.gouv.fr',
+	'legifrance.gouv.fr',
+	'cnm.fr',
+	'artcena.fr',
+	'adami.fr',
+	'spedidam.fr'
+] as const;
+
+export function isOfficialSource(url: string): boolean {
+	let host: string;
+	try {
+		const parsed = new URL(url);
+		if (parsed.protocol !== 'https:') return false;
+		host = parsed.hostname;
+	} catch {
+		return false;
+	}
+	return OFFICIAL_HOSTS.some((h) => host === h || host.endsWith(`.${h}`));
+}
+
+/** Une fiche doit être revérifiée au moins une fois par an (09 §5). */
+export const MAX_AGE_DAYS = 365;
+
+export type FicheMeta = {
+	/** Date de vérification sur les sources, `AAAA-MM-JJ`. */
+	verifiedOn: string;
+	sources: { label: string; url: string }[];
+	/** Relue par quelqu'un du métier (09 §5) : obligatoire avant l'ouverture. */
+	reviewed: boolean;
+};
+
+/**
+ * Sépare l'en-tête (`---` … `---`) du corps Markdown. Format :
+ *
+ * ```
+ * ---
+ * verifie: 2026-11-10
+ * relue: non
+ * sources:
+ *   - INPI, déposer une e-Soleau | https://www.inpi.fr/…
+ * ---
+ * ```
+ */
+export function parseFiche(raw: string): { meta: FicheMeta; body: string } {
+	const text = raw.replace(/\r\n/g, '\n');
+	const match = /^---\n([\s\S]*?)\n---\n?/.exec(text);
+	const meta: FicheMeta = { verifiedOn: '', sources: [], reviewed: false };
+	if (!match) return { meta, body: text };
+	let inSources = false;
+	for (const line of match[1].split('\n')) {
+		const source = /^\s+-\s+(.+?)\s*\|\s*(\S+)\s*$/.exec(line);
+		if (inSources && source) {
+			meta.sources.push({ label: source[1], url: source[2] });
+			continue;
+		}
+		inSources = false;
+		const field = /^(\w+):\s*(.*)$/.exec(line);
+		if (!field) continue;
+		const [, key, value] = field;
+		if (key === 'verifie') meta.verifiedOn = value.trim();
+		else if (key === 'relue') meta.reviewed = value.trim() === 'oui';
+		else if (key === 'sources') inSources = true;
+	}
+	return { meta, body: text.slice(match[0].length) };
+}
+
+/** Âge de la vérification en jours, ou `null` si la date est illisible. */
+export function verificationAgeDays(verifiedOn: string, now: Date = new Date()): number | null {
+	if (!/^\d{4}-\d{2}-\d{2}$/.test(verifiedOn)) return null;
+	const day = Date.parse(`${verifiedOn}T00:00:00Z`);
+	if (Number.isNaN(day)) return null;
+	return Math.floor((now.getTime() - day) / 86_400_000);
+}
+
+/** « 10 novembre 2026 ». */
+export function frenchDate(verifiedOn: string): string {
+	const day = Date.parse(`${verifiedOn}T12:00:00Z`);
+	if (Number.isNaN(day)) return verifiedOn;
+	return new Intl.DateTimeFormat('fr-FR', {
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric',
+		timeZone: 'Europe/Paris'
+	}).format(day);
 }

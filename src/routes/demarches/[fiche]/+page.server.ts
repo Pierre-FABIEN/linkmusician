@@ -1,30 +1,13 @@
-// LINKMUSICIAN: une fiche du guide des démarches (P3-15a, D42).
+// LINKMUSICIAN: une fiche du guide des démarches (P3-15a,
+// `src/lib/demarches/fiches/*.md`). Publique ; lire ne rapporte rien (09 §1.6).
 import { error } from '@sveltejs/kit';
-import { ficheBySlug, fichesByMoment, MOMENTS } from '#lib/demarches/catalog';
+import { fiche as ficheOf } from '#lib/demarches/catalog';
 import { renderedFiche } from '#lib/server/demarches/render';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
-	const fiche = ficheBySlug(params.fiche);
-	const help = fiche ? renderedFiche(fiche.file) : null;
-	if (!fiche || !help) error(404, 'Fiche introuvable');
-	// Les autres fiches du même moment, pour continuer la lecture.
-	const related =
-		fichesByMoment()
-			.find((g) => g.moment === fiche.moment)
-			?.fiches.filter((f) => f.slug !== fiche.slug)
-			.map((f) => ({ slug: f.slug, title: f.title })) ?? [];
-	return {
-		fiche: {
-			slug: fiche.slug,
-			title: fiche.title,
-			summary: fiche.summary,
-			moment: MOMENTS[fiche.moment],
-			verifiedAt: fiche.verifiedAt,
-			sources: fiche.sources,
-			reviewedBy: fiche.reviewedBy
-		},
-		help,
-		related
-	};
+	const fiche = ficheOf(params.fiche);
+	const content = fiche ? renderedFiche(fiche) : null;
+	if (!fiche || !content) error(404, 'Fiche introuvable');
+	return { fiche, content };
 };

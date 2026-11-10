@@ -1,5 +1,5 @@
 <script lang="ts">
-	// LINKMUSICIAN: guide des démarches (P3-15a), public comme l'aide ; un membre connecté y garde la navigation de
+	// LINKMUSICIAN: guide des démarches (P3-15a), public comme l’aide ; un membre connecté y garde la navigation de
 	// son espace (P2-12b), un visiteur voit la page seule.
 	import AppShell from '#lib/components/linkmusician/AppShell.svelte';
 

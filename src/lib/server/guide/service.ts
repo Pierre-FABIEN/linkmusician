@@ -4,7 +4,6 @@
  */
 import { prisma } from '#lib/server';
 import { isTipId, tipFor, TIPS, type TipContext, type TipScreen } from '#lib/guide/tips';
-import { isNudgeId } from '#lib/demarches/nudges';
 
 /** Faits qui choisissent le conseil. Quelques comptages, rien de plus. */
 export async function tipContext(actorId: string): Promise<TipContext> {
@@ -68,12 +67,9 @@ export async function currentTip(
 	return tipFor(screen, ctx, person.tipsDismissed);
 }
 
-/**
- * « J'ai compris » : le conseil, ou la démarche au bon moment (P3-15a), ne
- * revient plus. Identifiant inconnu : refusé.
- */
+/** « J'ai compris » : le conseil ne revient plus. Identifiant inconnu : refusé. */
 export async function dismissTip(actorId: string, tipId: unknown): Promise<boolean> {
-	if (!isTipId(tipId) && !isNudgeId(tipId)) return false;
+	if (!isTipId(tipId)) return false;
 	const person = await prisma.person.findUnique({
 		where: { actorId },
 		select: { tipsDismissed: true }
