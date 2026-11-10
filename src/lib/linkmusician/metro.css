@@ -311,18 +311,22 @@
 }
 .lm-jam-board.lm-mosaic {
 	grid-template-columns: repeat(20, minmax(0, 1fr));
+	/* Première rangée (héros, disponibilités, profil) : une seule piste qui prend
+	   la hauteur de la tuile la plus haute, au moins 4 unités. Les trois tuiles
+	   s'y étirent, donc restent alignées quel que soit leur contenu. */
+	grid-template-rows: minmax(calc(4 * var(--lm-unit) + 3 * var(--lm-gap)), auto);
 }
 .lm-jam-board > .lm-tile-frame.lm-jam-next {
 	grid-column: span 10;
-	grid-row: span 5;
+	grid-row: 1;
 }
 .lm-jam-board > .lm-tile-frame.lm-jam-availability {
 	grid-column: span 5;
-	grid-row: span 5;
+	grid-row: 1;
 }
 .lm-jam-board > .lm-tile-frame.lm-profile-tile {
 	grid-column: span 5;
-	grid-row: span 5;
+	grid-row: 1;
 }
 .lm-jam-board > .lm-tile-frame.lm-event-tile {
 	grid-column: 13 / span 8;
@@ -876,6 +880,7 @@
 	.lm-jam-board.lm-mosaic {
 		--lm-unit: 7rem;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-rows: none;
 	}
 	.lm-jam-board > .lm-tile-frame.lm-jam-next,
 	.lm-jam-board > .lm-tile-frame.lm-jam-availability,
