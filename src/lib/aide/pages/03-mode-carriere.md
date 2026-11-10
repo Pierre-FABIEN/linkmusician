@@ -23,7 +23,7 @@ les suit dans l’ordre où elles arrivent souvent, sans les imposer :
 | **I. La rencontre**       | Trouver avec qui jouer                            | ✅ Annonces, messages, jams, collaborations           |
 | **II. La création**       | Monter un groupe, composer, répéter, une maquette | ✅ Groupes, morceaux, étapes du groupe                |
 | **III. Le studio**        | Enregistrer, mixer                                | Étape « Premier enregistrement » ; fiches des studios |
-| **IV. La production**     | Arranger, produire                                | 🔜                                                    |
+| **IV. La production**     | Arranger, produire                                | ✅ Producteur·rices, récap de campagne                |
 | **V. La scène**           | Premiers concerts, puis une tournée               | Étape « Premier concert » ; 🔜 lieux et organisateurs |
 | **VI. La sortie**         | Sortir un titre, un EP                            | ✅ Étapes EP/album vérifiées par UPC ou ISRC          |
 | **VII. Le développement** | Manager, booker, éditeur, label                   | 🔜                                                    |
@@ -39,7 +39,11 @@ par quelqu’un d’autre, jamais par tes points :
 - **II · La création** : un morceau composé **à plusieurs**, chaque rôle
   confirmé, avec une maquette (seul·e, ça ne suffit pas) ;
 - **III · Le studio** : le premier enregistrement de ton groupe, confirmé
-  par une personne extérieure qui y était.
+  par une personne extérieure qui y était, ou vérifié par l’ingé son ou le
+  studio ;
+- **IV · La production** : un morceau **produit**, la production confirmée
+  par le ou la producteur·rice. Sur la fiche du morceau, le **récap de
+  campagne** retrace son chemin, de l’idée au son final.
 
 Pas d’ordre imposé : tu peux franchir l’acte II avant l’acte I. Quand tu
 franchis une épreuve, on la fête, et la carte te montre ce qui s’ouvre.

@@ -2,7 +2,7 @@
  * Carte de carrière (P3-13, conception 07 §2 et §4.5, D53) : règle pure,
  * partagée par le serveur et le navigateur.
  *
- * Huit actes ; au MVP, les actes I à III se jouent. Chaque acte se termine
+ * Huit actes ; les actes I à IV se jouent (I à III au MVP, IV depuis P4-10). Chaque acte se termine
  * par une **épreuve** prouvée par quelqu'un d'autre. La carte est calculée
  * depuis des **faits** (appréciations, collaborations, morceaux, étapes),
  * **jamais depuis l'XP**. Les actes suivants restent dans le brouillard, mais
@@ -24,6 +24,12 @@ export type CareerFacts = {
 	worksSolo: number;
 	/** Premiers enregistrements corroborés d'un groupe dont on était membre. */
 	recordings: number;
+	/**
+	 * Morceaux produits (collaboration de production confirmée par le ou la
+	 * producteur·rice, P4-06) où l'on joue ou écrit : confirmé·e au crédit,
+	 * ou membre du groupe qui le porte (P4-10).
+	 */
+	productions: number;
 };
 
 export type ActStatus = 'passed' | 'current' | 'open' | 'fog';
@@ -38,7 +44,7 @@ export type Act = {
 	trial: string;
 	/** Ce que franchir l'épreuve ouvre (D53 : affiché, sans verrou au MVP). */
 	unlocks: { label: string; href: string | null }[];
-	/** Jouable au MVP (actes I à III). */
+	/** Jouable (actes I à IV). */
 	playable: boolean;
 	status: ActStatus;
 	/** Mis en avant par l'ambition. */
@@ -86,10 +92,16 @@ const ACTS: ActDef[] = [
 		name: 'Le studio',
 		content: 'Enregistrer, mixer, masteriser.',
 		trial:
-			'Un premier enregistrement du groupe confirmé par une personne extérieure qui y était (bientôt : vérifié par le studio).',
-		unlocks: [{ label: 'Proposer un morceau aux producteur·rices (bientôt)', href: null }],
+			'Un premier enregistrement du groupe confirmé par une personne extérieure qui y était, ou vérifié par l’ingé son ou le studio.',
+		unlocks: [
+			{
+				label: 'Trouver un·e producteur·rice pour ton morceau',
+				href: '/decouvrir?metier=producteur'
+			},
+			{ label: 'Proposer un morceau dans la vitrine des producteur·rices (bientôt)', href: null }
+		],
 		playable: true,
-		cta: { label: 'Voir le parcours de mon groupe', href: '/groupes' },
+		cta: { label: 'Trouver un·e ingé son', href: '/decouvrir?metier=inge-son' },
 		passed: (f) => f.recordings >= 1
 	},
 	{
@@ -97,10 +109,14 @@ const ACTS: ActDef[] = [
 		roman: 'IV',
 		name: 'La production',
 		content: 'Arranger, produire, finaliser le son.',
-		trial: 'Une production confirmée par le ou la producteur·rice.',
-		unlocks: [{ label: 'Candidater aux tremplins et appels à projets', href: null }],
-		playable: false,
-		cta: null
+		trial: 'Un morceau produit, la production confirmée par le ou la producteur·rice.',
+		unlocks: [
+			{ label: 'Le récap de campagne sur la fiche du morceau', href: '/espace/campagnes' },
+			{ label: 'Candidater aux tremplins et appels à projets (bientôt)', href: null }
+		],
+		playable: true,
+		cta: { label: 'Trouver un·e producteur·rice', href: '/decouvrir?metier=producteur' },
+		passed: (f) => f.productions >= 1
 	},
 	{
 		number: 5,

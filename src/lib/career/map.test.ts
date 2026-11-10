@@ -6,14 +6,15 @@ const none: CareerFacts = {
 	collaborations: 0,
 	worksTogether: 0,
 	worksSolo: 0,
-	recordings: 0
+	recordings: 0,
+	productions: 0
 };
 const status = (facts: Partial<CareerFacts>) =>
 	careerMap({ ...none, ...facts }).acts.map((a) => a.status);
 
 describe('carte de carrière (P3-13)', () => {
-	it('au départ : acte I en cours, II et III ouverts, la suite dans le brouillard', () => {
-		expect(status({})).toEqual(['current', 'open', 'open', 'fog', 'fog', 'fog', 'fog', 'fog']);
+	it('au départ : acte I en cours, II à IV ouverts, la suite dans le brouillard', () => {
+		expect(status({})).toEqual(['current', 'open', 'open', 'open', 'fog', 'fog', 'fog', 'fog']);
 		expect(careerMap(none).current).toBe(1);
 	});
 
@@ -38,9 +39,21 @@ describe('carte de carrière (P3-13)', () => {
 		expect(status({ worksTogether: 1 }).slice(0, 3)).toEqual(['current', 'passed', 'open']);
 	});
 
-	it('l’acte III : un enregistrement corroboré ; ensuite, plus d’acte jouable en cours', () => {
+	it('l’acte III : un enregistrement corroboré ou vérifié ; l’acte IV devient l’acte en cours', () => {
 		const map = careerMap({ ...none, jamAppreciations: 2, worksTogether: 1, recordings: 1 });
 		expect(map.passed).toEqual([1, 2, 3]);
+		expect(map.current).toBe(4);
+	});
+
+	it('l’acte IV : un morceau produit ; ensuite, plus d’acte jouable en cours (P4-10)', () => {
+		const map = careerMap({
+			...none,
+			jamAppreciations: 2,
+			worksTogether: 1,
+			recordings: 1,
+			productions: 1
+		});
+		expect(map.passed).toEqual([1, 2, 3, 4]);
 		expect(map.current).toBeNull();
 	});
 

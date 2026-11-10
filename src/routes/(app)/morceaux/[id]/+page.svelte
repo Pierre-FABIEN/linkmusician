@@ -12,6 +12,7 @@
 		MAX_WORK_TITLE,
 		craftAnnounceHref
 	} from '#lib/works/rules';
+	import WorkJourney from '#lib/components/linkmusician/works/WorkJourney.svelte';
 	import { WORK_STAGES } from '#lib/collaborations/rules';
 	import { plural } from '#lib/jam/log';
 	import { Check, Circle, FileDown, Megaphone, Music, PartyPopper, UserPlus } from 'lucide-svelte';
@@ -102,6 +103,10 @@
 				</ul>
 			{/if}
 		</div>
+
+		{#if data.journey}
+			<WorkJourney journey={data.journey} />
+		{/if}
 
 		<DemarcheCard nudge={data.demarche} />
 

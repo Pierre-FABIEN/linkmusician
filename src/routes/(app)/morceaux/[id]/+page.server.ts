@@ -24,6 +24,7 @@ import {
 } from '#lib/server/works/service';
 import { creditSchema, demoSchema, editWorkSchema, roleInputSchema } from '#lib/works/rules';
 import { demarcheNudge } from '#lib/server/demarches/service';
+import { workJourney } from '#lib/server/works/journey';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -38,8 +39,14 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const [families, candidates, genres] = work.manage
 		? await Promise.all([instrumentFamilies(), demoCandidates(work.id, actorId), listGenreTree()])
 		: [[], [], []];
+	// Récap de campagne (P4-10) : dès qu'une étape du son est franchie.
+	const journey =
+		work.state === 'COMPOSED' && Object.values(work.stages).some(Boolean)
+			? await workJourney(work.id)
+			: null;
 	return {
 		work,
+		journey,
 		families,
 		candidates,
 		genres: genres.map((g) => ({

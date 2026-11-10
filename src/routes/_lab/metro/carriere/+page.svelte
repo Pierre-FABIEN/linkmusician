@@ -25,7 +25,14 @@
 
 	const dark = $derived(mode.current === 'dark');
 	const dashboard = careerMap(
-		{ jamAppreciations: 1, collaborations: 3, worksTogether: 1, worksSolo: 1, recordings: 0 },
+		{
+			jamAppreciations: 1,
+			collaborations: 3,
+			worksTogether: 1,
+			worksSolo: 1,
+			recordings: 0,
+			productions: 0
+		},
 		'RECORD'
 	);
 	const currentAct = dashboard.acts.find((act) => act.status === 'current')!;

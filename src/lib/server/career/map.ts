@@ -8,7 +8,11 @@
  *   crédité·e et confirmé·e ; un morceau composé seul·e ne suffit pas ;
  * - acte III : « Premier enregistrement » corroboré d'un groupe dont on était
  *   membre à la date (attestation `milestone.attested`, étape toujours là et
- *   non gelée).
+ *   non gelée) ; vérifié par l'ingé son ou le studio depuis P4-09 ;
+ * - acte IV (P4-10) : morceau **produit** (collaboration de production
+ *   terminée, donc confirmée par le ou la producteur·rice) où l'on joue ou
+ *   écrit (crédit confirmé hors rôles du son) ou dont on est membre du
+ *   groupe qui le porte.
  *
  * Célébration d'épreuve (P2-11) : une seule fois par acte
  * (`Person.actsCelebrated`).
@@ -19,7 +23,7 @@ import { actTitle, actsToCelebrate, careerMap, type CareerFacts } from '#lib/car
 import type { AmbitionValue } from '#lib/career/ambition';
 
 async function careerEvidence(actorId: string) {
-	const [tier, together, solo, recordingEvents] = await Promise.all([
+	const [tier, together, solo, recordingEvents, productions] = await Promise.all([
 		getMusicianTier(actorId, prisma),
 		prisma.workContributor.count({
 			where: {
@@ -42,6 +46,32 @@ async function careerEvidence(actorId: string) {
 				payload: { path: ['milestone'], equals: 'FIRST_RECORDING' }
 			},
 			select: { payload: true }
+		}),
+		prisma.work.count({
+			where: {
+				producedAt: { not: null },
+				OR: [
+					{
+						contributors: {
+							some: {
+								personId: actorId,
+								confirmedAt: { not: null },
+								roles: {
+									some: { kind: { in: ['INSTRUMENT', 'COMPOSITION', 'LYRICS', 'ARRANGEMENT'] } }
+								}
+							}
+						}
+					},
+					{
+						owner: {
+							organization: {
+								kind: 'BAND',
+								memberships: { some: { personId: actorId, status: 'ACTIVE' } }
+							}
+						}
+					}
+				]
+			}
 		})
 	]);
 	// Attestations où la personne est créditée, au moins corroborées.
@@ -69,7 +99,8 @@ async function careerEvidence(actorId: string) {
 			collaborations: tier.summary.collaborations,
 			worksTogether: together,
 			worksSolo: solo,
-			recordings
+			recordings,
+			productions
 		} satisfies CareerFacts
 	};
 }

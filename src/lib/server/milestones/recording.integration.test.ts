@@ -24,6 +24,8 @@ const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
 vi.mock('#lib/server', () => ({ prisma: db }));
 
 const collabs = await import('#lib/server/collaborations/service');
+const { workJourney } = await import('#lib/server/works/journey');
+const { careerFacts } = await import('#lib/server/career/map');
 
 const PREFIX = 'recording-test-';
 const YEAR = 365.25 * 86_400_000;
@@ -58,7 +60,7 @@ describe.skipIf(!enabled)(
 				await db.domainEvent.deleteMany({ where: { actorIds: { hasSome: list } } });
 		}
 
-		async function person(name: string, track: 'MUSICIAN' | 'SOUND_ENGINEER') {
+		async function person(name: string, track: 'MUSICIAN' | 'SOUND_ENGINEER' | 'PRODUCER') {
 			const user = await db.user.create({
 				data: { email: `${PREFIX}${name}@example.test`, referralCode: `${PREFIX}${name}` }
 			});
@@ -140,13 +142,17 @@ describe.skipIf(!enabled)(
 		}
 
 		// Une collaboration par jour et par conversation : chaque prise a son jour.
-		let daysAgo = 0;
+		let daysAgo = 20;
 		/** Léa propose un enregistrement assuré par l'autre ; il accepte (c'est passé). */
-		async function recordWith(other: string, workId: string) {
+		async function recordWith(
+			other: string,
+			workId: string,
+			kind: 'RECORDING' | 'PRODUCTION' = 'RECORDING'
+		) {
 			const { id } = await collabs.proposeCollaboration(ids.lea, await conversation('lea', other), {
-				kind: 'RECORDING',
+				kind,
 				title: 'Prise de la batterie',
-				happenedOn: new Date(Date.now() - ++daysAgo * 86_400_000).toISOString().slice(0, 10),
+				happenedOn: new Date(Date.now() - --daysAgo * 86_400_000).toISOString().slice(0, 10),
 				provider: 'other',
 				work: workId
 			});
@@ -166,6 +172,7 @@ describe.skipIf(!enabled)(
 			await person('bob', 'MUSICIAN');
 			await person('sam', 'SOUND_ENGINEER');
 			await person('ines', 'SOUND_ENGINEER');
+			await person('nora', 'PRODUCER');
 		});
 
 		afterAll(async () => {
@@ -210,6 +217,27 @@ describe.skipIf(!enabled)(
 				select: { proof: true, occurredAt: true }
 			});
 			expect(row).toEqual({ proof: 'VERIFIED', occurredAt: new Date('2026-09-01T12:00:00Z') });
+		});
+
+		it('campagne : de l’idée à la production, récap et acte IV (P4-10)', async () => {
+			const nova = await band('nova');
+			expect((await careerFacts(ids.bob)).productions).toBe(0);
+			await recordWith('sam', nova.workId);
+			const halfway = await workJourney(nova.workId);
+			expect(halfway?.done).toBe(false);
+			expect(halfway?.steps.map((s) => s.kind)).toEqual(['IDEA', 'COMPOSED', 'RECORDING']);
+			expect(halfway?.steps[2]).toMatchObject({
+				pro: { name: 'sam' },
+				verified: true
+			});
+
+			await recordWith('nora', nova.workId, 'PRODUCTION');
+			const journey = await workJourney(nova.workId);
+			expect(journey?.done).toBe(true);
+			expect(journey?.steps.at(-1)).toMatchObject({ kind: 'PRODUCTION', pro: { name: 'nora' } });
+			// Bob, membre du groupe, franchit l'acte IV ; Nora, qui a produit, non.
+			expect((await careerFacts(ids.bob)).productions).toBe(1);
+			expect((await careerFacts(ids.nora)).productions).toBe(0);
 		});
 
 		it('un morceau personnel ne touche aucun groupe', async () => {
