@@ -660,8 +660,8 @@ export async function markComposed(workId: string, managerId: string, now = new 
 
 // ─── Lectures ────────────────────────────────────────────────────────────
 
-/** Morceaux où la personne fait partie de l'équipe. */
-function teamWhere(personId: string): Prisma.WorkWhereInput {
+/** Morceaux où la personne fait partie de l'équipe (aussi lu par les coups de pouce, P4-13a). */
+export function teamWhere(personId: string): Prisma.WorkWhereInput {
 	return {
 		owner: {
 			deletedAt: null,

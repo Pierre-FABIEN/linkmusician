@@ -11,6 +11,7 @@
 		Compass,
 		EyeOff,
 		FileText,
+		HandHelping,
 		Map as MapIcon,
 		Music,
 		Scale,
@@ -49,6 +50,18 @@
 						text: 'Des collaborations, crédits ou invitations attendent ta réponse.',
 						badge: String(c.toConfirm),
 						highlight: true
+					}
+				]
+			: []),
+		// Coups de pouce (P4-13a) : une marche facile, quand on n'avance plus.
+		...(data.nudges > 0
+			? [
+					{
+						href: '/espace/coups-de-pouce',
+						icon: HandHelping,
+						title: 'Un coup de pouce',
+						text: 'Des idées simples, tirées de ton réseau, pour reprendre quand tu veux.',
+						badge: plural(data.nudges, 'idée', 'idées')
 					}
 				]
 			: []),
