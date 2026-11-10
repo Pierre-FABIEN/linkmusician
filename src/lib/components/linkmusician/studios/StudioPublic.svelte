@@ -111,6 +111,24 @@
 					</Card.Content>
 				</Card.Root>
 
+				{#if studio.photos.length > 0}
+					<!-- Photos du studio (P4-03b) : la première en grand. -->
+					<ul class="grid grid-cols-2 gap-2 sm:grid-cols-3" aria-label="Photos du studio">
+						{#each studio.photos as photo, i (photo.id)}
+							<li class={i === 0 ? 'col-span-2 row-span-2' : ''}>
+								<img
+									src={photo.url}
+									alt={photo.title}
+									loading={i === 0 ? 'eager' : 'lazy'}
+									class="h-full w-full rounded-xl border object-cover {i === 0
+										? 'aspect-[4/3]'
+										: 'aspect-square'}"
+								/>
+							</li>
+						{/each}
+					</ul>
+				{/if}
+
 				<Card.Root>
 					<Card.Header>
 						<Card.Title

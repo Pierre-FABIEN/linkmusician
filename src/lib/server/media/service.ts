@@ -125,13 +125,23 @@ export async function startUpload(
 		title: string;
 		isDemo: boolean;
 		instrumentId?: string | null;
-	}
+	},
+	/**
+	 * Envoi au nom d'une structure (photos d'un studio, P4-03b) : la personne
+	 * qui envoie (sa confiance règle quota et validation) et les seuls types
+	 * acceptés.
+	 */
+	options: { uploaderId?: string; onlyImages?: boolean } = {}
 ) {
 	if (!isCloudinaryConfigured())
 		throw new MediaError("L'envoi de fichiers n'est pas disponible pour l'instant.");
 	const declared = checkDeclaredFile({ mimeType: input.mimeType, bytes: input.bytes });
 	if (!declared.ok) throw new MediaError(DECLARED_FILE_MESSAGES[declared.reason]);
-	await assertMediaQuota(actorId);
+	if (options.onlyImages && declared.kind !== 'IMAGE')
+		throw new MediaError('Seules les photos sont acceptées ici (JPEG, PNG, WebP ou AVIF).');
+	const uploaderId =
+		options.uploaderId && options.uploaderId !== actorId ? options.uploaderId : null;
+	await assertMediaQuota(actorId, uploaderId ?? actorId);
 
 	const media = await prisma.media.create({
 		data: {
@@ -140,8 +150,9 @@ export async function startUpload(
 			provider: 'CLOUDINARY',
 			status: 'UPLOADING',
 			title: normalizeTitle(input.title) || 'Sans titre',
-			isDemo: declared.kind !== 'IMAGE' && input.isDemo,
-			instrumentId: input.instrumentId || null
+			isDemo: !uploaderId && declared.kind !== 'IMAGE' && input.isDemo,
+			instrumentId: input.instrumentId || null,
+			uploadedById: uploaderId
 		}
 	});
 	const signed = signUpload({ actorId, mediaId: media.id, kind: declared.kind });
@@ -176,7 +187,8 @@ export async function finalizeUpload(mediaId: string) {
 		return { status: 'REJECTED' as const, progress: null, reason };
 	}
 
-	const status = readyStatus(await getTrustLevel(media.actorId));
+	// Au nom d'une structure, c'est la confiance de la personne qui compte.
+	const status = readyStatus(await getTrustLevel(media.uploadedById ?? media.actorId));
 	// Passage conditionnel : si le webhook et le navigateur arrivent ensemble,
 	// un seul des deux poursuit.
 	const { count } = await prisma.media.updateMany({

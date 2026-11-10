@@ -1864,6 +1864,10 @@ model Media {
   title            String
   /// La personne présente ce média comme une démo d'elle (rapporte de l'XP).
   isDemo           Boolean        @default(false)
+  /// Personne qui a envoyé le fichier au nom d'une structure (photos d'un
+  /// studio, P4-03b) : sa confiance règle validation et quota. Sans clé
+  /// étrangère : seule la confiance est lue, jamais affichée.
+  uploadedById     String?
   durationSec      Int?
   bytes            Int?
   instrumentId     String?
@@ -2584,6 +2588,8 @@ enum NotificationType {
   MILESTONE_ATTEST
   /// Invitation à une discussion de groupe (P3-16c).
   GROUP_DISCUSSION_INVITE
+  /// Invitation à gérer un studio (P4-03b).
+  STUDIO_INVITE
   /// Préférence d'email seulement (P2-09b) : jamais une ligne de `Notification`.
   MESSAGES
   PROGRESS

@@ -1,12 +1,17 @@
 <script lang="ts">
 	// LINKMUSICIAN: « Mes studios » (P4-03a), voir +page.server.ts.
 	import { enhance } from '$app/forms';
+	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
 	import { ROLE_LABELS } from '#lib/bands/rules';
 	import { MAX_STUDIO_NAME } from '#lib/studios/rules';
 
 	let { data, form } = $props();
 	let sending = $state(false);
+
+	$effect(() => {
+		if (form?.answered) toast.success(form.answered);
+	});
 </script>
 
 <SEO title="Mes studios" noindex nofollow />
@@ -20,6 +25,42 @@
 				la trouve et ton studio est <strong>Ouvert</strong>.
 			</p>
 		</div>
+
+		{#if data.invites.length > 0}
+			<!-- Invitations à gérer un studio (P4-03b). -->
+			<section class="space-y-3" aria-labelledby="invites">
+				<h2 id="invites" class="text-xl font-bold">Invitations</h2>
+				{#if form?.inviteError}
+					<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+						{form.inviteError}
+					</p>
+				{/if}
+				<ul class="space-y-2">
+					{#each data.invites as invite (invite.membershipId)}
+						<li class="space-y-3 rounded-xl border p-3">
+							<p>
+								{invite.invitedBy ?? 'Quelqu’un'} t’invite à gérer <strong>{invite.name}</strong>.
+							</p>
+							<form method="POST" action="?/answer" use:enhance class="flex flex-wrap gap-2">
+								<input type="hidden" name="membershipId" value={invite.membershipId} />
+								<button
+									name="accept"
+									value="1"
+									class="min-h-11 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
+									>Accepter</button
+								>
+								<button
+									name="accept"
+									value="0"
+									class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+									>Décliner</button
+								>
+							</form>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
 
 		{#if data.studios.length > 0}
 			<ul class="space-y-2">
@@ -51,6 +92,7 @@
 				{/if}
 				<form
 					method="POST"
+					action="?/create"
 					class="flex flex-col gap-3 sm:flex-row sm:items-end"
 					use:enhance={() => {
 						sending = true;

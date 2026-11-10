@@ -9,6 +9,8 @@
 		type CommuneChoice
 	} from '#lib/components/linkmusician/CommunePicker.svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
+	import MediaUpload from '#lib/components/linkmusician/MediaUpload.svelte';
+	import { ROLE_LABELS } from '#lib/bands/rules';
 	import {
 		formatTime,
 		MAX_HOURLY_RATE,
@@ -18,6 +20,7 @@
 		MAX_STUDIO_BIO,
 		MAX_STUDIO_GEAR,
 		MAX_STUDIO_NAME,
+		MAX_STUDIO_PHOTOS,
 		MAX_STUDIO_PRICING,
 		PUBLICATION_GAP_LABELS,
 		STUDIO_SERVICE_INFO,
@@ -92,6 +95,13 @@
 	/** Erreur d'une plage horaire : le serveur numérote les seuls jours ouverts. */
 	const hoursError = (weekday: number) =>
 		fieldError(`hours.${hours.filter((h) => h.open).findIndex((h) => h.weekday === weekday)}`);
+
+	const PHOTO_STATUS: Record<string, string> = {
+		PUBLISHED: 'En ligne',
+		PENDING_REVIEW: 'En attente de validation',
+		PROCESSING: 'En cours',
+		REJECTED: 'Refusée'
+	};
 
 	const published = $derived(data.studio.publishedAt !== null);
 	const input = 'w-full rounded-md border bg-background p-2 text-sm font-normal';
@@ -375,5 +385,128 @@
 				>
 			</div>
 		</form>
+
+		<section class="space-y-4 border-t pt-8" aria-labelledby="photos">
+			<div class="space-y-1">
+				<h2 id="photos" class="text-xl font-bold">
+					Photos <span class="text-sm font-normal text-muted-foreground"
+						>({data.studio.photos.filter((p) => p.status !== 'REJECTED')
+							.length}/{MAX_STUDIO_PHOTOS})</span
+					>
+				</h2>
+				<p class="text-sm text-muted-foreground">
+					Les salles, la régie, le matériel : ce que les musicien·nes veulent voir avant de venir.
+				</p>
+			</div>
+			{#if data.studio.photos.length > 0}
+				<ul class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+					{#each data.studio.photos as photo (photo.id)}
+						<li class="space-y-1.5">
+							{#if photo.fileUrl}
+								<img
+									src={photo.fileUrl}
+									alt={photo.title}
+									loading="lazy"
+									class="aspect-[4/3] w-full rounded-lg border object-cover"
+								/>
+							{:else}
+								<div class="aspect-[4/3] w-full rounded-lg border bg-muted"></div>
+							{/if}
+							<p class="truncate text-sm font-medium">{photo.title}</p>
+							<p class="text-xs text-muted-foreground">
+								{PHOTO_STATUS[photo.status] ?? photo.status}{photo.rejectionReason
+									? ` : ${photo.rejectionReason}`
+									: ''}
+							</p>
+							<form method="POST" action="?/deletePhoto" use:enhance>
+								<input type="hidden" name="mediaId" value={photo.id} />
+								<button
+									class="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+								>
+									<Trash2 class="size-4" aria-hidden="true" />Retirer<span class="sr-only">
+										la photo {photo.title}</span
+									>
+								</button>
+							</form>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+			<MediaUpload
+				forHandle={data.studio.handle}
+				disabled={data.studio.photos.filter((p) => p.status !== 'REJECTED').length >=
+					MAX_STUDIO_PHOTOS}
+			/>
+		</section>
+
+		<!-- Co-gestion (P4-03b). -->
+		<section class="space-y-4 border-t pt-8" aria-labelledby="gestion">
+			<div class="space-y-1">
+				<h2 id="gestion" class="text-xl font-bold">Gestion</h2>
+				<p class="text-sm text-muted-foreground">
+					Les personnes qui gèrent le studio modifient sa fiche et apparaissent sur sa page pour les
+					réservations.
+				</p>
+			</div>
+			{#if form?.teamError}
+				<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+					{form.teamError}
+				</p>
+			{/if}
+			<ul class="divide-y rounded-xl border">
+				{#each data.studio.team as member (member.membershipId)}
+					<li class="flex flex-wrap items-center justify-between gap-3 p-3">
+						<div>
+							<a href="/@{member.handle}" class="font-medium underline">{member.displayName}</a>
+							<span class="text-sm text-muted-foreground">
+								· {member.status === 'INVITED'
+									? 'invitation envoyée'
+									: ROLE_LABELS[member.role]}{member.isMe ? ' (toi)' : ''}
+							</span>
+						</div>
+						{#if member.isMe || data.studio.role === 'OWNER' || member.status === 'INVITED'}
+							<form method="POST" action="?/removeManager" use:enhance>
+								<input type="hidden" name="membershipId" value={member.membershipId} />
+								<button
+									class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+									>{member.isMe
+										? 'Quitter la gestion'
+										: member.status === 'INVITED'
+											? 'Annuler l’invitation'
+											: 'Retirer'}</button
+								>
+							</form>
+						{/if}
+					</li>
+				{/each}
+			</ul>
+			<form
+				method="POST"
+				action="?/inviteManager"
+				use:enhance={() =>
+					async ({ update }) =>
+						update({ reset: true })}
+				class="flex flex-col gap-3 sm:flex-row sm:items-end"
+			>
+				<label class="block flex-1 space-y-1 font-medium">
+					Inviter à gérer
+					<input
+						name="handle"
+						required
+						autocomplete="off"
+						value={form?.handle ?? ''}
+						placeholder="@nom-d-utilisateur"
+						class={input}
+					/>
+					<span class="block text-xs font-normal text-muted-foreground"
+						>Son nom d’utilisateur, sur son profil. Elle ou il doit être ingé son ou
+						producteur·rice.</span
+					>
+				</label>
+				<button class="min-h-11 rounded-full border px-5 font-semibold hover:bg-muted"
+					>Inviter</button
+				>
+			</form>
+		</section>
 	</div>
 </div>

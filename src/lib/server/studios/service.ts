@@ -20,9 +20,13 @@ import { isBlockedBetween } from '#lib/server/blocking/service';
 import { clearActorLocation, getActorLocation, setActorLocation } from '#lib/server/geo/queries';
 import type { Commune } from '#lib/geo/fuzz';
 import { studioTier, STUDIO_TIERS } from '#lib/server/progression/core/tiers';
-import { isManager } from '#lib/bands/rules';
+import { isManager, successorOf } from '#lib/bands/rules';
+import { notify } from '#lib/server/notifications/service';
+import { deleteOwnMedia, MediaError } from '#lib/server/media/service';
 import {
 	MAX_MANAGED_STUDIOS,
+	MAX_PENDING_STUDIO_INVITES,
+	MAX_STUDIO_PHOTOS,
 	publicationGaps,
 	STUDIO_TRACKS,
 	type StudioForm,
@@ -186,6 +190,192 @@ export async function setStudioPublished(
 	}, TX);
 }
 
+// ─── Co-gestion (P4-03b) ─────────────────────────────────────────────────
+
+/**
+ * Inviter une personne à gérer le studio (rôle ADMIN). Elle doit avoir un
+ * métier du son (comme pour ouvrir un studio) ; ni blocage entre les deux,
+ * ni adhésion déjà ouverte. Les deux rôles de gestion peuvent inviter.
+ */
+export async function inviteStudioManager(studioId: string, managerId: string, handle: string) {
+	const invitee = await prisma.actor.findFirst({
+		where: {
+			handle: handle.trim().replace(/^@/, '').toLowerCase(),
+			kind: 'PERSON',
+			deletedAt: null
+		},
+		select: { id: true, displayName: true }
+	});
+	if (!invitee || !(await canOpenStudio(invitee.id))) {
+		throw new StudioError(
+			'Aucun·e ingé son ou producteur·rice n’a ce nom d’utilisateur.',
+			404
+		);
+	}
+	if (invitee.id === managerId) throw new StudioError('Tu gères déjà ce studio.');
+	if (await isBlockedBetween(managerId, invitee.id)) {
+		throw new StudioError('Impossible d’inviter cette personne.', 403);
+	}
+	await prisma.$transaction(async (tx) => {
+		await lockStudio(tx, studioId);
+		await requireManager(tx, studioId, managerId);
+		const open = await tx.membership.findFirst({
+			where: {
+				orgId: studioId,
+				personId: invitee.id,
+				status: { in: ['INVITED', 'REQUESTED', 'ACTIVE'] }
+			},
+			select: { status: true }
+		});
+		if (open) {
+			throw new StudioError(
+				open.status === 'ACTIVE'
+					? `${invitee.displayName} gère déjà ce studio.`
+					: `${invitee.displayName} est déjà invité·e.`
+			);
+		}
+		const pending = await tx.membership.count({ where: { orgId: studioId, status: 'INVITED' } });
+		if (pending >= MAX_PENDING_STUDIO_INVITES) {
+			throw new StudioError(`${MAX_PENDING_STUDIO_INVITES} invitations en attente au plus.`);
+		}
+		await tx.membership.create({
+			data: {
+				orgId: studioId,
+				personId: invitee.id,
+				role: 'ADMIN',
+				status: 'INVITED',
+				invitedById: managerId
+			}
+		});
+		const studio = await tx.actor.findUniqueOrThrow({
+			where: { id: studioId },
+			select: { displayName: true }
+		});
+		await notify(tx, {
+			recipientId: invitee.id,
+			type: 'STUDIO_INVITE',
+			fromActorId: managerId,
+			href: '/studios',
+			title: studio.displayName
+		});
+	}, TX);
+	return invitee.displayName;
+}
+
+/** Accepter ou décliner une invitation à gérer un studio. */
+export async function answerStudioInvite(membershipId: string, personId: string, accept: boolean) {
+	await prisma.$transaction(async (tx) => {
+		const invite = await tx.membership.findFirst({
+			where: { id: membershipId, personId, status: 'INVITED', org: liveStudio },
+			select: { orgId: true }
+		});
+		if (!invite) throw new StudioError('Cette invitation n’est plus valable.', 404);
+		await lockStudio(tx, invite.orgId);
+		if (accept) {
+			const managed = await tx.membership.count({
+				where: { personId, status: 'ACTIVE', role: { in: ['OWNER', 'ADMIN'] }, org: liveStudio }
+			});
+			if (managed >= MAX_MANAGED_STUDIOS) {
+				throw new StudioError(`Tu gères déjà ${MAX_MANAGED_STUDIOS} studios.`);
+			}
+		}
+		await tx.membership.update({
+			where: { id: membershipId },
+			data: accept
+				? { status: 'ACTIVE', startedAt: new Date() }
+				: { status: 'DECLINED', endedAt: new Date() }
+		});
+	}, TX);
+}
+
+/**
+ * Retirer une personne de la gestion, annuler une invitation, ou partir
+ * soi-même. Seul·e la ou le responsable retire quelqu'un d'autre. Qui part
+ * en étant responsable transmet le studio (`successorOf`) ; seul·e, on ne
+ * part pas : on retire d'abord la fiche.
+ */
+export async function leaveOrRemoveStudioManager(
+	studioId: string,
+	byId: string,
+	membershipId: string
+) {
+	await prisma.$transaction(async (tx) => {
+		await lockStudio(tx, studioId);
+		const target = await tx.membership.findFirst({
+			where: { id: membershipId, orgId: studioId, status: { in: ['INVITED', 'ACTIVE'] } },
+			select: { id: true, personId: true, role: true, status: true }
+		});
+		if (!target) throw new StudioError('Cette personne ne fait plus partie de la gestion.', 404);
+		const self = target.personId === byId;
+		if (!self) {
+			const me = await tx.membership.findFirst({
+				where: { orgId: studioId, personId: byId, status: 'ACTIVE', org: liveStudio },
+				select: { role: true }
+			});
+			const allowed = me?.role === 'OWNER' || (isManager(me?.role) && target.status === 'INVITED');
+			if (!allowed) throw new StudioError('Seul·e la ou le responsable retire quelqu’un.', 403);
+		}
+		const now = new Date();
+		if (target.status === 'INVITED') {
+			await tx.membership.update({
+				where: { id: target.id },
+				data: { status: 'DECLINED', endedAt: now }
+			});
+			return;
+		}
+		if (target.role === 'OWNER') {
+			const active = await tx.membership.findMany({
+				where: { orgId: studioId, status: 'ACTIVE' },
+				select: { id: true, personId: true, role: true, startedAt: true }
+			});
+			const next = successorOf(target.personId, active);
+			if (!next) {
+				throw new StudioError(
+					'Tu es seul·e à gérer ce studio : invite quelqu’un pour te passer le relais.'
+				);
+			}
+			await tx.membership.update({ where: { id: next.id }, data: { role: 'OWNER' } });
+		}
+		await tx.membership.update({
+			where: { id: target.id },
+			data: { status: self ? 'LEFT' : 'REMOVED', endedAt: now }
+		});
+	}, TX);
+}
+
+// ─── Photos (P4-03b) ─────────────────────────────────────────────────────
+
+/** Photos qui comptent dans la limite : en ligne, en cours ou en attente. */
+const LIVE_PHOTO = { kind: 'IMAGE', status: { not: 'REJECTED' } } as const;
+
+/**
+ * Avant un envoi de photo au nom du studio : la personne le gère, et il
+ * reste de la place. Renvoie l'identifiant du studio, qui porte la photo.
+ */
+export async function studioForPhotoUpload(handle: string, personId: string) {
+	const studio = await prisma.actor.findFirst({
+		where: { handle, kind: 'ORGANIZATION', deletedAt: null, organization: liveStudio },
+		select: { id: true }
+	});
+	if (!studio) throw new StudioError('Ce studio n’existe plus.', 404);
+	await prisma.$transaction((tx) => requireManager(tx, studio.id, personId));
+	const photos = await prisma.media.count({ where: { actorId: studio.id, ...LIVE_PHOTO } });
+	if (photos >= MAX_STUDIO_PHOTOS) {
+		throw new StudioError(`${MAX_STUDIO_PHOTOS} photos au plus : retires-en une d’abord.`);
+	}
+	return studio.id;
+}
+
+export async function deleteStudioPhoto(studioId: string, managerId: string, mediaId: string) {
+	await prisma.$transaction((tx) => requireManager(tx, studioId, managerId));
+	try {
+		await deleteOwnMedia(studioId, mediaId);
+	} catch (err) {
+		if (err instanceof MediaError) throw new StudioError(err.message, 404);
+		throw err;
+	}
+}
+
 // ─── Lectures ────────────────────────────────────────────────────────────
 
 const ficheSelect = {
@@ -220,7 +410,7 @@ function rankOf(publishedAt: Date | null) {
 	return { tier, next: next ? { id: next.id, label: next.label } : null };
 }
 
-/** `/studios` : les studios que je gère. */
+/** `/studios` : les studios que je gère, et les invitations à en gérer. */
 export async function myStudios(personId: string) {
 	const rows = await prisma.membership.findMany({
 		where: { personId, status: 'ACTIVE', org: liveStudio },
@@ -243,6 +433,23 @@ export async function myStudios(personId: string) {
 	}));
 }
 
+export async function myStudioInvites(personId: string) {
+	const rows = await prisma.membership.findMany({
+		where: { personId, status: 'INVITED', org: liveStudio },
+		orderBy: { createdAt: 'desc' },
+		select: {
+			id: true,
+			org: { select: { actor: { select: { handle: true, displayName: true } } } },
+			invitedBy: { select: { displayName: true, deletedAt: true } }
+		}
+	});
+	return rows.map((r) => ({
+		membershipId: r.id,
+		name: r.org.actor.displayName,
+		invitedBy: r.invitedBy && !r.invitedBy.deletedAt ? r.invitedBy.displayName : null
+	}));
+}
+
 /** `/studios/[handle]` : la fiche à remplir, pour sa gestion seulement (404 sinon). */
 export async function studioForManager(handle: string, personId: string) {
 	const actor = await prisma.actor.findFirst({
@@ -255,24 +462,48 @@ export async function studioForManager(handle: string, personId: string) {
 			organization: {
 				select: {
 					memberships: {
-						where: { personId, status: 'ACTIVE' },
-						select: { role: true }
+						where: { status: { in: ['ACTIVE', 'INVITED'] } },
+						orderBy: { createdAt: 'asc' },
+						select: {
+							id: true,
+							role: true,
+							status: true,
+							startedAt: true,
+							person: { select: { id: true, handle: true, displayName: true } }
+						}
 					},
 					studio: { select: ficheSelect }
 				}
 			}
 		}
 	});
-	const role = actor?.organization?.memberships[0]?.role;
+	const team = actor?.organization?.memberships ?? [];
+	const role = team.find((m) => m.person.id === personId && m.status === 'ACTIVE')?.role;
 	const studio = actor?.organization?.studio;
 	if (!actor || !studio || !isManager(role)) return null;
-	const location = await getActorLocation(actor.id);
+	const [location, photos] = await Promise.all([
+		getActorLocation(actor.id),
+		prisma.media.findMany({
+			where: { actorId: actor.id, kind: 'IMAGE', status: { not: 'UPLOADING' } },
+			orderBy: { createdAt: 'asc' },
+			select: { id: true, title: true, status: true, fileUrl: true, rejectionReason: true }
+		})
+	]);
 	return {
 		id: actor.id,
 		handle: actor.handle,
 		name: actor.displayName,
 		bio: actor.bio,
 		role: role!,
+		team: team.map((m) => ({
+			membershipId: m.id,
+			handle: m.person.handle,
+			displayName: m.person.displayName,
+			role: m.role,
+			status: m.status,
+			isMe: m.person.id === personId
+		})),
+		photos,
 		commune: location
 			? {
 					code: location.communeCode,
@@ -330,7 +561,14 @@ export async function getPublicStudio(handle: string, now = new Date(), viewerId
 		select: { id: true }
 	});
 	const shown = new Set(visible.map((a) => a.id));
-	const location = await getActorLocation(actor.id);
+	const [location, photos] = await Promise.all([
+		getActorLocation(actor.id),
+		prisma.media.findMany({
+			where: { actorId: actor.id, kind: 'IMAGE', status: 'PUBLISHED', fileUrl: { not: null } },
+			orderBy: { createdAt: 'asc' },
+			select: { id: true, title: true, fileUrl: true }
+		})
+	]);
 	const { publishedAt, ...fiche } = org.studio;
 	return {
 		id: actor.id,
@@ -340,6 +578,7 @@ export async function getPublicStudio(handle: string, now = new Date(), viewerId
 		verified: org.verifiedAt !== null,
 		commune: location?.communeName ?? null,
 		...fiche,
+		photos: photos.map((p) => ({ id: p.id, title: p.title, url: p.fileUrl! })),
 		rank: rankOf(publishedAt),
 		managers: org.memberships
 			.filter((m) => shown.has(m.person.id))

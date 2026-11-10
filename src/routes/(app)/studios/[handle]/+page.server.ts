@@ -1,11 +1,14 @@
 // LINKMUSICIAN: fiche d'un studio (P4-03a), pour sa gestion (OWNER, ADMIN) :
 // nom, présentation, ville (centre de commune seulement), services, salles,
-// tarifs, matériel, horaires ; publication (rang « Ouvert »). Ce qui
+// tarifs, matériel, horaires ; publication (rang « Ouvert ») ; photos (P4-03b). Ce qui
 // s'affiche sur la page publique `/@handle` une fois publiée.
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { requirePerson } from '#server/actors/tracksForm';
 import { getCommune } from '#lib/server/geo/communes';
 import {
+	deleteStudioPhoto,
+	inviteStudioManager,
+	leaveOrRemoveStudioManager,
 	setStudioPublished,
 	studioForManager,
 	StudioError,
@@ -77,6 +80,43 @@ export const actions: Actions = {
 			throw err;
 		}
 		return { message: 'Ta fiche est publiée : ton studio est Ouvert.' };
+	},
+	deletePhoto: async ({ locals, params, request }) => {
+		const { actorId, studio } = await managed(locals, params.handle);
+		const mediaId = String((await request.formData()).get('mediaId') ?? '');
+		try {
+			await deleteStudioPhoto(studio.id, actorId, mediaId);
+		} catch (err) {
+			if (err instanceof StudioError) return fail(err.status, { error: err.message });
+			throw err;
+		}
+		return { message: 'Photo retirée.' };
+	},
+	/** Inviter une personne à gérer le studio (P4-03b). */
+	inviteManager: async ({ locals, params, request }) => {
+		const { actorId, studio } = await managed(locals, params.handle);
+		const handle = String((await request.formData()).get('handle') ?? '');
+		try {
+			const name = await inviteStudioManager(studio.id, actorId, handle);
+			return { message: `Invitation envoyée à ${name}.` };
+		} catch (err) {
+			if (err instanceof StudioError) return fail(err.status, { teamError: err.message, handle });
+			throw err;
+		}
+	},
+	/** Retirer une personne, annuler une invitation, ou quitter la gestion. */
+	removeManager: async ({ locals, params, request }) => {
+		const { actorId, studio } = await managed(locals, params.handle);
+		const membershipId = String((await request.formData()).get('membershipId') ?? '');
+		const leaving = studio.team.some((m) => m.membershipId === membershipId && m.isMe);
+		try {
+			await leaveOrRemoveStudioManager(studio.id, actorId, membershipId);
+		} catch (err) {
+			if (err instanceof StudioError) return fail(err.status, { teamError: err.message });
+			throw err;
+		}
+		if (leaving) redirect(303, '/studios');
+		return { message: 'C’est fait.' };
 	},
 	unpublish: async ({ locals, params }) => {
 		const { actorId, studio } = await managed(locals, params.handle);

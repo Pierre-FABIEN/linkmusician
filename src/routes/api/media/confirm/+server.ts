@@ -15,8 +15,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const person = await requirePerson(locals);
 	const body = (await request.json().catch(() => null)) as { mediaId?: unknown } | null;
 	const mediaId = typeof body?.mediaId === 'string' ? body.mediaId : '';
+	// Le sien, ou une photo qu'on vient d'envoyer au nom d'un studio (P4-03b).
 	const own = await prisma.media.findFirst({
-		where: { id: mediaId, actorId: person.actorId },
+		where: {
+			id: mediaId,
+			OR: [{ actorId: person.actorId }, { uploadedById: person.actorId }]
+		},
 		select: { id: true }
 	});
 	if (!own) error(404, 'Média introuvable');

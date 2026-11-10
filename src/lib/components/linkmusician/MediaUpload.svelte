@@ -3,17 +3,31 @@
 	 * LINKMUSICIAN: envoi d'un fichier (P1-08b). Le fichier part directement du
 	 * navigateur vers Cloudinary, avec des paramètres signés par le serveur
 	 * (`/api/media/sign`) ; puis le serveur relit le fichier (`/api/media/confirm`).
+	 * Avec `forHandle` : photo au nom d'un studio que la personne gère (P4-03b).
 	 */
 	import { invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { Button } from '#shadcn/button';
-	import { ACCEPT_ATTRIBUTE, checkDeclaredFile, DECLARED_FILE_MESSAGES } from '#lib/media/upload';
+	import {
+		ACCEPT_ATTRIBUTE,
+		checkDeclaredFile,
+		DECLARED_FILE_MESSAGES,
+		UPLOAD_TYPES
+	} from '#lib/media/upload';
 	import { MAX_TITLE_LENGTH } from '#lib/media/rules';
 
 	let {
-		instruments,
-		disabled = false
-	}: { instruments: { id: string; name: string }[]; disabled?: boolean } = $props();
+		instruments = [],
+		disabled = false,
+		forHandle
+	}: {
+		instruments?: { id: string; name: string }[];
+		disabled?: boolean;
+		/** Studio au nom duquel on envoie une photo. */
+		forHandle?: string;
+	} = $props();
+	const photosOnly = $derived(Boolean(forHandle));
+	const accept = $derived(photosOnly ? UPLOAD_TYPES.IMAGE.mimeTypes.join(',') : ACCEPT_ATTRIBUTE);
 
 	let file = $state<File | null>(null);
 	let title = $state('');
@@ -58,8 +72,9 @@
 					mimeType: file.type,
 					bytes: file.size,
 					title,
-					isDemo,
-					instrumentId: instrumentId || null
+					isDemo: !photosOnly && isDemo,
+					instrumentId: instrumentId || null,
+					...(forHandle ? { forHandle } : {})
 				})
 			});
 			const signed = await signRes.json();
@@ -86,23 +101,27 @@
 </script>
 
 <form onsubmit={submit} class="space-y-3 rounded-lg border p-4">
-	<h2 class="font-semibold">Envoyer un fichier</h2>
+	<h2 class="font-semibold">{photosOnly ? 'Ajouter une photo' : 'Envoyer un fichier'}</h2>
 	<p class="text-xs text-muted-foreground">
-		Photo (10 Mo), audio (10 min, 100 Mo) ou vidéo (3 min, 200 Mo).
+		{photosOnly
+			? 'JPEG, PNG, WebP ou AVIF, 10 Mo au plus.'
+			: 'Photo (10 Mo), audio (10 min, 100 Mo) ou vidéo (3 min, 200 Mo).'}
 	</p>
 	<div class="space-y-1">
-		<label for="file" class="block text-sm font-medium">Fichier</label>
+		<label for="file" class="block text-sm font-medium">{photosOnly ? 'Photo' : 'Fichier'}</label>
 		<input
 			id="file"
 			type="file"
-			accept={ACCEPT_ATTRIBUTE}
+			{accept}
 			bind:this={fileInput}
 			onchange={onFile}
 			class="block w-full text-sm"
 		/>
 	</div>
 	<div class="space-y-1">
-		<label for="upload-title" class="block text-sm font-medium">Titre</label>
+		<label for="upload-title" class="block text-sm font-medium"
+			>{photosOnly ? 'Légende' : 'Titre'}</label
+		>
 		<input
 			id="upload-title"
 			type="text"
@@ -128,10 +147,12 @@
 			</select>
 		</div>
 	{/if}
-	<label class="flex cursor-pointer items-center gap-2 text-sm">
-		<input type="checkbox" bind:checked={isDemo} class="size-4" />
-		C'est une démo de moi (audio ou vidéo)
-	</label>
+	{#if !photosOnly}
+		<label class="flex cursor-pointer items-center gap-2 text-sm">
+			<input type="checkbox" bind:checked={isDemo} class="size-4" />
+			C'est une démo de moi (audio ou vidéo)
+		</label>
+	{/if}
 	{#if progress !== null}
 		<div
 			class="h-2 overflow-hidden rounded-full bg-muted"
@@ -146,7 +167,9 @@
 	{/if}
 	<Button type="submit" class="w-full" disabled={disabled || !file || progress !== null}>
 		{disabled
-			? 'Limite de médias atteinte'
+			? photosOnly
+				? 'Limite de photos atteinte'
+				: 'Limite de médias atteinte'
 			: progress !== null
 				? `Envoi… ${progress} %`
 				: 'Envoyer'}

@@ -38,7 +38,25 @@ vi.mock('#lib/server/geo/queries', () => ({
 	clearActorLocation: async (id: string) => void locations.delete(id)
 }));
 
+// Cloudinary simulé : l'envoi est signé, le fichier « relu » est une photo.
+vi.mock('#lib/server/media/cloudinary', () => ({
+	isCloudinaryConfigured: () => true,
+	signUpload: ({ mediaId }: { mediaId: string }) => ({
+		publicId: `test/${mediaId}`,
+		uploadUrl: 'https://api.cloudinary.test/upload',
+		fields: {}
+	}),
+	fetchAsset: async () => ({
+		bytes: 200_000,
+		durationSec: null,
+		format: 'jpg',
+		url: 'https://res.cloudinary.test/studio.jpg'
+	}),
+	destroyAsset: async () => {}
+}));
+
 const service = await import('./service');
+const { finalizeUpload, startUpload } = await import('#lib/server/media/service');
 const { bandCounts } = await import('#lib/server/bands/service');
 const { exportPersonData, personAnonymizationOps } = await import('#lib/prisma/actors/person');
 
@@ -112,6 +130,7 @@ describe.skipIf(!enabled)('studio (schéma e2e)', { timeout: 60_000 }, () => {
 		await cleanup();
 		await person('sam', 'SOUND_ENGINEER');
 		await person('lea', 'MUSICIAN');
+		await person('max', 'SOUND_ENGINEER');
 	});
 
 	afterAll(async () => {
@@ -183,6 +202,105 @@ describe.skipIf(!enabled)('studio (schéma e2e)', { timeout: 60_000 }, () => {
 		expect(await service.getPublicStudio(studio.handle)).toBeNull();
 		await service.updateStudio(studio.id, ids.sam, fiche);
 		await service.setStudioPublished(studio.id, ids.sam, true);
+	});
+
+	it('photos : envoyées par la gestion, validées selon sa confiance, huit au plus', async () => {
+		await expect(service.studioForPhotoUpload(studio.handle, ids.lea)).rejects.toMatchObject({
+			status: 404
+		});
+		// La personne est de confiance (TL1), le studio jamais : c'est elle qui compte.
+		await db.actor.update({ where: { id: ids.sam }, data: { trustLevel: 1 } });
+		const studioId = await service.studioForPhotoUpload(studio.handle, ids.sam);
+		expect(studioId).toBe(studio.id);
+		const input = { mimeType: 'image/jpeg', bytes: 200_000, title: 'La régie', isDemo: true };
+		await expect(
+			startUpload(
+				studioId,
+				{ ...input, mimeType: 'audio/mpeg' },
+				{
+					uploaderId: ids.sam,
+					onlyImages: true
+				}
+			)
+		).rejects.toThrow('Seules les photos');
+		const { mediaId } = await startUpload(studioId, input, {
+			uploaderId: ids.sam,
+			onlyImages: true
+		});
+		expect(await finalizeUpload(mediaId)).toMatchObject({ status: 'PUBLISHED' });
+		const media = await db.media.findUniqueOrThrow({ where: { id: mediaId } });
+		expect(media).toMatchObject({ actorId: studio.id, uploadedById: ids.sam, isDemo: false });
+
+		const page = await service.getPublicStudio(studio.handle);
+		expect(page?.photos).toEqual([
+			{ id: mediaId, title: 'La régie', url: 'https://res.cloudinary.test/studio.jpg' }
+		]);
+		// Aucune XP pour une photo, ni pour le studio, ni pour la personne.
+		expect(await db.xpTransaction.count({ where: { actorId: { in: [studio.id, ids.sam] } } })).toBe(
+			0
+		);
+
+		await db.media.createMany({
+			data: Array.from({ length: 7 }, (_, i) => ({
+				actorId: studio.id,
+				kind: 'IMAGE' as const,
+				provider: 'CLOUDINARY' as const,
+				status: 'PUBLISHED' as const,
+				title: `Photo ${i}`
+			}))
+		});
+		await expect(service.studioForPhotoUpload(studio.handle, ids.sam)).rejects.toThrow(
+			'8 photos au plus'
+		);
+
+		await expect(service.deleteStudioPhoto(studio.id, ids.lea, mediaId)).rejects.toMatchObject({
+			status: 404
+		});
+		await service.deleteStudioPhoto(studio.id, ids.sam, mediaId);
+		expect(await db.media.count({ where: { id: mediaId } })).toBe(0);
+	});
+
+	it('co-gestion : inviter, accepter, retirer ; on ne part pas seul·e', async () => {
+		// Une musicienne sans métier du son ne peut pas être invitée.
+		await expect(
+			service.inviteStudioManager(studio.id, ids.sam, `@${PREFIX}lea`)
+		).rejects.toMatchObject({ status: 404 });
+		// La ou le responsable seul·e ne quitte pas le studio.
+		const samRow = await db.membership.findFirstOrThrow({
+			where: { orgId: studio.id, personId: ids.sam }
+		});
+		await expect(service.leaveOrRemoveStudioManager(studio.id, ids.sam, samRow.id)).rejects.toThrow(
+			'seul·e'
+		);
+
+		expect(await service.inviteStudioManager(studio.id, ids.sam, `@${PREFIX}MAX`)).toBe('max');
+		await expect(service.inviteStudioManager(studio.id, ids.sam, `${PREFIX}max`)).rejects.toThrow(
+			'déjà invité'
+		);
+		expect(
+			await db.notification.count({ where: { recipientActorId: ids.max, type: 'STUDIO_INVITE' } })
+		).toBe(1);
+		const [invite] = await service.myStudioInvites(ids.max);
+		expect(invite).toMatchObject({ name: 'Studio du Canal', invitedBy: 'sam' });
+
+		await service.answerStudioInvite(invite.membershipId, ids.max, true);
+		expect(await service.myStudios(ids.max)).toMatchObject([{ role: 'ADMIN', published: true }]);
+		const team = (await service.studioForManager(studio.handle, ids.max))!.team;
+		expect(team.map((m) => [m.displayName, m.role, m.status])).toEqual([
+			['sam', 'OWNER', 'ACTIVE'],
+			['max', 'ADMIN', 'ACTIVE']
+		]);
+		// Un ADMIN ne retire pas la ou le responsable.
+		await expect(
+			service.leaveOrRemoveStudioManager(studio.id, ids.max, samRow.id)
+		).rejects.toMatchObject({ status: 403 });
+		// La ou le responsable retire l'ADMIN ; une nouvelle invitation se décline.
+		await service.leaveOrRemoveStudioManager(studio.id, ids.sam, invite.membershipId);
+		expect(await service.studioForManager(studio.handle, ids.max)).toBeNull();
+		await service.inviteStudioManager(studio.id, ids.sam, `${PREFIX}max`);
+		const [again] = await service.myStudioInvites(ids.max);
+		await service.answerStudioInvite(again.membershipId, ids.max, false);
+		expect(await service.myStudioInvites(ids.max)).toEqual([]);
 	});
 
 	it('RGPD : la gestion est exportée, le studio fermé avec son seul responsable', async () => {

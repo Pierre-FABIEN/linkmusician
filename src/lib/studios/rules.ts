@@ -43,6 +43,10 @@ export const MAX_ROOM_DESCRIPTION = 160;
 export const MAX_HOURLY_RATE = 1000;
 /** Studios gérés par personne : au-delà, c'est rarement un vrai studio. */
 export const MAX_MANAGED_STUDIOS = 3;
+/** Photos du studio (P4-03b) : celles refusées ne comptent pas. */
+export const MAX_STUDIO_PHOTOS = 8;
+/** Invitations à gérer en attente par studio (anti-spam). */
+export const MAX_PENDING_STUDIO_INVITES = 5;
 
 /** 1 = lundi … 7 = dimanche (ISO). */
 export const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const;
