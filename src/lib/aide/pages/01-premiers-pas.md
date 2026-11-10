@@ -123,8 +123,12 @@ producteur·rice, et accepte l’invitation dans **Mes studios**.
 Tant que tu ne la publies pas, la fiche n’est visible que de toi. Une fois
 complète, touche **Publier la fiche** : ton studio a sa page, que tout le
 monde peut lire, et il est **Ouvert**. Les rangs suivants (_Actif_,
-_Reconnu_, _Incontournable_) viendront des sessions confirmées par tes
-client·es.
+_Reconnu_, _Incontournable_) viennent des **sessions** : quand tu
+proposes une collaboration (répétition, enregistrement, mixage…) dans une
+conversation, choisis **Au studio**. Une fois confirmée par ton ou ta
+client·e, elle compte comme une session : _Actif_ à 5 sessions, _Reconnu_
+à 20 avec 10 client·es différent·es. Les **objectifs du studio** sont sur
+sa fiche.
 
 ## 3. Choisir ton mode
 

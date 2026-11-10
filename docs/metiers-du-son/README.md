@@ -161,3 +161,23 @@ barème en [02 §2.2](../conception/02-progression.md#22-barème-première-versi
   transmet le studio (`successorOf`) ; seul·e, on ne part pas.
 - **Tests** : cas « photos » et « co-gestion » de
   `service.integration.test.ts` (Cloudinary simulé).
+
+## Sessions, rangs et objectifs du studio (P4-03c)
+
+- **Session** : une collaboration (`STUDIO_SESSION_KINDS` : répétition,
+  enregistrement, mixage, mastering, production) rattachée à un studio
+  publié que gère l'une des deux personnes (`Collaboration.studioId`,
+  choix « Au studio » dans le formulaire de la conversation). Elle compte
+  quand elle est terminée et confirmée par au moins un·e **client·e**,
+  une personne qui ne gère pas le studio : une équipe ne gonfle pas le
+  rang de son propre studio.
+- **Rang** (`studioSessionStats`, lu dans les faits, jamais l'XP) :
+  Ouvert (fiche publiée) → Actif (5 sessions) → Reconnu (20 sessions,
+  10 client·es) → Incontournable (5 sorties vérifiées enregistrées sur
+  place : à brancher avec les sorties créditées, P4-09).
+- **Objectifs** (`studioQuests`, 08 §6) sur la fiche : publier la fiche,
+  donner ses horaires, une première session, accueillir une répétition,
+  un enregistrement relié à un morceau.
+- **XP** : rien de nouveau. Les pros gagnent déjà par leur prestation
+  (P4-06) ; le rang va au studio.
+- **Tests** : cas « sessions » de `service.integration.test.ts`.
