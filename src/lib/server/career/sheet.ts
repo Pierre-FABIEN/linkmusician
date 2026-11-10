@@ -8,6 +8,7 @@ import { careerMap } from '#lib/career/map';
 import type { CareerSheet, PrivateExtras } from '#lib/career/sheet';
 import { bandsOfPerson } from '#lib/server/bands/public';
 import { careerEvidenceForSheet } from './map';
+import { SOUND_ROLE_KINDS } from '#lib/works/rules';
 
 async function publicSheetData(actorId: string, viewerId?: string | null) {
 	const [evidence, appreciations, collabEndorsers, collaborators, credits, bands] =
@@ -34,11 +35,13 @@ async function publicSheetData(actorId: string, viewerId?: string | null) {
 			}),
 			prisma.workRole.count({
 				where: {
-					contributor: {
-						personId: actorId,
-						confirmedAt: { not: null },
-						work: { state: 'COMPOSED', proof: 'CORROBORATED' }
-					}
+					contributor: { personId: actorId, confirmedAt: { not: null } },
+					// Un rôle d'écriture compte sur un morceau corroboré ; un rôle du
+					// son (P4-07), confirmé des deux côtés, compte dès sa confirmation.
+					OR: [
+						{ work: { state: 'COMPOSED', proof: 'CORROBORATED' } },
+						{ kind: { in: [...SOUND_ROLE_KINDS] } }
+					]
 				}
 			}),
 			bandsOfPerson(actorId, new Date(), viewerId)

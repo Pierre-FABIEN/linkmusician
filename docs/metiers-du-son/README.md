@@ -34,7 +34,10 @@ barème en [02 §2.2](../conception/02-progression.md#22-barème-première-versi
   affichent « Ingé son · Mixage, Façade ».
 - **Profil public** : carte « Ingé son » (`SoundEngineerCard`). Les
   travaux en écoute sont marqués « ajoutés par la personne, non
-  vérifiés » ; les crédits confirmés viendront avec P4-07.
+  vérifiés ». Au-dessus, les **crédits confirmés** (P4-07, `CraftCredits`) :
+  morceaux où la personne a assuré la prise de son, le mixage ou le
+  mastering, crédités par une collaboration terminée ou confirmés par elle
+  (voir [docs/morceaux](../morceaux/README.md)).
 - **Ouverture** : `available: true` dans `src/lib/actors/tracks.ts` (le
   badge « bientôt » disparaît).
 - **RGPD** : export (`profil_inge_son`, `travaux_en_ecoute`) ;
@@ -74,7 +77,7 @@ barème en [02 §2.2](../conception/02-progression.md#22-barème-première-versi
 - **Recherche** : `?metier=producteur&specialite=beatmaking`. Les styles
   produits comptent dans le filtre « Style », avec ou sans métier.
 - **Profil public** : carte « Producteur·rice » (`ProducerCard`), rang,
-  tarifs marqués « indicatifs ».
+  crédits confirmés de production (P4-07), tarifs marqués « indicatifs ».
 - **Rang et objectifs** (08 §7) : `getProducerProgress`,
   `nextProducerObjectives`. Spécialités, ville, une production en écoute,
   la première production (ou le premier arrangement), trois artistes, une

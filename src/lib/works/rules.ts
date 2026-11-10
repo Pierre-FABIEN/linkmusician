@@ -10,15 +10,54 @@
 import { z } from 'zod';
 import { MAX_TITLE } from '#lib/opportunities/rules';
 
-export const WORK_ROLE_KINDS = ['INSTRUMENT', 'COMPOSITION', 'LYRICS', 'ARRANGEMENT'] as const;
+export const WORK_ROLE_KINDS = [
+	'INSTRUMENT',
+	'COMPOSITION',
+	'LYRICS',
+	'ARRANGEMENT',
+	'RECORDING',
+	'MIXING',
+	'MASTERING',
+	'PRODUCTION'
+] as const;
 export type WorkRoleKindValue = (typeof WORK_ROLE_KINDS)[number];
 
+/** Rôles d'écriture : ceux du bulletin de partage et de la composition. */
+export const WRITING_ROLE_LABELS = {
+	COMPOSITION: 'Composition',
+	LYRICS: 'Paroles',
+	ARRANGEMENT: 'Arrangement'
+} as const;
+
+/**
+ * Rôles du son (P4-07, conception 06 §4.4) : prise de son, mixage, mastering,
+ * production. Ils créditent un travail, jamais une part d'auteur·rice : ils
+ * n'entrent ni dans la corroboration du morceau composé, ni dans sa part
+ * d'XP, ni dans le bulletin de partage.
+ */
+export const SOUND_ROLE_LABELS = {
+	RECORDING: 'Prise de son',
+	MIXING: 'Mixage',
+	MASTERING: 'Mastering',
+	PRODUCTION: 'Production'
+} as const;
+export type SoundRoleKind = keyof typeof SOUND_ROLE_LABELS;
+export const SOUND_ROLE_KINDS = Object.keys(SOUND_ROLE_LABELS) as SoundRoleKind[];
+
 export const WORK_ROLE_LABELS: Readonly<Record<Exclude<WorkRoleKindValue, 'INSTRUMENT'>, string>> =
-	{
-		COMPOSITION: 'Composition',
-		LYRICS: 'Paroles',
-		ARRANGEMENT: 'Arrangement'
-	};
+	{ ...WRITING_ROLE_LABELS, ...SOUND_ROLE_LABELS };
+
+export function isSoundRole(kind: WorkRoleKindValue): kind is SoundRoleKind {
+	return kind in SOUND_ROLE_LABELS;
+}
+
+/**
+ * Une personne dont **tous** les rôles sont du son n'est pas co-autrice ; un
+ * crédit sans rôle compte comme avant P4-07.
+ */
+export function hasCreativeRole(kinds: readonly WorkRoleKindValue[]): boolean {
+	return kinds.length === 0 || kinds.some((k) => !isSoundRole(k));
+}
 
 export const MAX_WORK_TITLE = 80;
 export const MAX_WORK_GENRES = 3;
@@ -192,4 +231,26 @@ export function craftAnnounceHref(input: {
 	const what = input.target === 'SOUND_ENGINEER' ? 'Ingé son' : 'Producteur·rice';
 	params.set('titre', `${what} pour « ${input.workTitle} »`.slice(0, MAX_TITLE));
 	return `/annonces/nouvelle?${params}`;
+}
+
+/**
+ * « Recruter » pour un rôle à pourvoir (P4-07) : un rôle du son mène à une
+ * annonce ciblée sur le métier (ingé son, ou producteur·rice pour la
+ * production), reliée au morceau ; les autres, au recrutement habituel.
+ */
+export function openRoleHref(input: {
+	workId: string;
+	workTitle: string;
+	bandHandle: string | null;
+	kind: WorkRoleKindValue;
+	instrumentSlug: string | null;
+	roleLabel: string;
+}) {
+	if (input.kind === 'PRODUCTION') {
+		return craftAnnounceHref({ ...input, target: 'PRODUCER', specialty: 'PRODUCTION' });
+	}
+	if (isSoundRole(input.kind)) {
+		return craftAnnounceHref({ ...input, target: 'SOUND_ENGINEER', specialty: input.kind });
+	}
+	return recruitHref(input);
 }

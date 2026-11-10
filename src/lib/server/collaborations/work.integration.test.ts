@@ -222,5 +222,21 @@ describe.skipIf(!enabled)(
 			expect(await xp('sam', 'SOUND_ENGINEER')).toBe(300 + 150);
 			expect(await xp('lea', 'MUSICIAN')).toBe(400);
 		});
+
+		it('P4-07 : Sam est crédité, confirmé, prise de son et mixage, sans XP de morceau', async () => {
+			const credit = await db.workContributor.findUniqueOrThrow({
+				where: { workId_personId: { workId, personId: ids.sam } },
+				select: { confirmedAt: true, roles: { select: { kind: true } } }
+			});
+			expect(credit.confirmedAt).not.toBeNull();
+			expect(credit.roles.map((r) => r.kind).sort()).toEqual(['MIXING', 'RECORDING']);
+			// Un crédit du son n'est pas une part d'auteur : pas d'XP de morceau.
+			const workXp = await db.xpTransaction.count({
+				where: { actorId: ids.sam, ruleId: { startsWith: 'work.' } }
+			});
+			expect(workXp).toBe(0);
+			const work = await db.work.findUniqueOrThrow({ where: { id: workId } });
+			expect(work.proof).not.toBe('CORROBORATED');
+		});
 	}
 );

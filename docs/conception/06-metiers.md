@@ -391,7 +391,13 @@ elle enregistre les autres. Le niveau de compte reste la somme.
 - **Crédits** : un crédit (« enregistrement : Sam ») n'existe que
   confirmé par le morceau (un contributeur) **et** par la personne
   créditée. Il apparaît sur le morceau, sur le profil de chacun et dans
-  la réputation.
+  la réputation. Une collaboration liée au morceau, terminée et confirmée
+  par tous, vaut cette double confirmation : la personne qui a assuré la
+  prestation est créditée d'office (P4-07). Un rôle du son (prise de son,
+  mixage, mastering, production) crédite un **travail, pas une part
+  d'auteur·rice** : il n'entre ni dans la corroboration du morceau composé,
+  ni dans l'XP de composition, ni dans le bulletin de partage, et sa
+  confirmation ne rapporte rien de plus que la collaboration.
 - **Anti-collusion** : rendements décroissants par paire de personnes et
   par morceau (02 §6) ; un même morceau ne rapporte qu'une fois par
   type de collaboration et par personne.
@@ -412,8 +418,8 @@ elle enregistre les autres. Le niveau de compte reste la somme.
   groupe), médias (versions successives).
 - `WorkContributor` : acteur, rôle (instrument, composition, paroles,
   enregistrement, mixage, mastering, production), date de confirmation.
-  Remplace à terme `MediaCredit` pour les crédits portés par un morceau.
-  Livré en P3-11 avec `WorkRole` : un rôle par ligne, rattaché à un
+  (`MediaCredit`, envisagé plus tôt, n'a jamais été créé.) Livré en P3-11
+  avec `WorkRole`, rôles du son en P4-07 : un rôle par ligne, rattaché à un
   contributeur ou **à pourvoir** (bouton « Recruter »). Composer, maquette
   et retrait d'un crédit : D40 et [docs/morceaux](../morceaux/README.md).
 - `Collaboration.workId` : une collaboration peut être liée à un

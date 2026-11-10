@@ -262,6 +262,15 @@ piste. Toi, tu gagnes la collaboration quand tu joues : un enregistrement,
 une production. Sur un mixage ou un mastering, où tu ne joues pas, seule
 la personne du son gagne.
 
+La personne qui a assuré la prestation est aussi **créditée** sur le
+morceau (« Mixage : Sam »), sans autre confirmation : vous avez déjà
+confirmé la collaboration tous les deux. Tu peux aussi créditer toi-même
+une prise de son, un mixage, un mastering ou une production faits ailleurs
+(rubrique « Son » des rôles) : la personne confirme, comme pour tout
+crédit. Ce crédit apparaît sur le morceau et sur son profil. Il reconnaît
+un travail, pas une part d’auteur·rice : il ne compte pas pour un morceau
+« composé à plusieurs » et n’apparaît pas dans le bulletin de partage.
+
 ## 5. Les démarches {#demarches}
 
 Quand un morceau, un concert ou un groupe devient sérieux, les mêmes

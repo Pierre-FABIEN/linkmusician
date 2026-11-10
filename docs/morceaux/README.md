@@ -1,4 +1,4 @@
-# Morceaux (P3-11)
+# Morceaux (P3-11, P4-07)
 
 Le **morceau minimal** (D35, D40) : une idée qu'on note à plusieurs, qu'on
 crédite, puis qu'on déclare composée avec une maquette. C'est le premier
@@ -9,7 +9,7 @@ production et sortie viendront en phase 4.
   - `Work` : titre, `state` (`IDEA`, `COMPOSED`), `proof` (`DECLARED`, `CORROBORATED`, renseignée au passage à « composé »), porteur `ownerId` (un `Actor`, personne ou groupe), `createdById`, maquette `demoMediaId` (un `Media` du porteur), `demoFromWork`, `composedAt` ;
   - `WorkGenre` : 3 genres au plus ;
   - `WorkContributor` : une personne créditée, `invitedById`, `confirmedAt` ;
-  - `WorkRole` : `INSTRUMENT` (du référentiel), `COMPOSITION`, `LYRICS` ou `ARRANGEMENT`. Un rôle sans `contributorId` est **à pourvoir**.
+  - `WorkRole` : `INSTRUMENT` (du référentiel), `COMPOSITION`, `LYRICS` ou `ARRANGEMENT` ; rôles du son (P4-07) `RECORDING`, `MIXING`, `MASTERING`, `PRODUCTION`. Un rôle sans `contributorId` est **à pourvoir**.
 - **Règles pures** : `src/lib/works/rules.ts` (formulaires, rôles, preuve,
   ce que déclenche une confirmation, lien « Recruter »), testées en tables.
 - **Service** : `src/lib/server/works/service.ts`, seul point d'écriture,
@@ -55,7 +55,32 @@ production et sortie viendront en phase 4.
   - entrée « Mes morceaux » dans Mon parcours.
 - **Recruter** : un rôle à pourvoir ouvre `/annonces/nouvelle` prérempli
   (titre « Batterie pour « … » », instrument, `RECRUIT_MEMBER` au nom du
-  groupe, sinon `SESSION_WORK`).
+  groupe, sinon `SESSION_WORK`). Un rôle du son ouvre une annonce ciblée sur
+  le métier, reliée au morceau (P4-05) : ingé son et sa spécialité, ou
+  producteur·rice pour la production (`openRoleHref`).
+- **Crédits du son (P4-07, conception 06 §4.4)** :
+  - une collaboration liée au morceau (prise de son, mixage, mastering,
+    production) crédite, une fois **terminée**, la personne qui a assuré la
+    prestation : crédit **confirmé** d'office, puisque chacun·e a confirmé la
+    collaboration (`creditFromCollaboration`, dans la transaction de la
+    collaboration). Un rôle à pourvoir du même type est pourvu. Une personne
+    déjà créditée reçoit le rôle en plus ; si son crédit attend encore sa
+    réponse, il reste en attente. Au-delà des plafonds, rien n'est ajouté ;
+  - l'équipe peut aussi créditer un rôle du son (groupe « Son » du
+    sélecteur) : la personne confirme, comme pour tout crédit ;
+  - un rôle du son crédite un **travail, pas une part d'auteur·rice** : une
+    personne qui n'a que des rôles du son n'entre ni dans la corroboration
+    du morceau composé, ni dans le partage de l'XP de composition
+    (`confirmedAuthors`, `hasCreativeRole`), ni dans le bulletin de partage ;
+    confirmer un tel crédit ne rapporte rien (la collaboration rapporte déjà) ;
+  - affichage : sur le morceau, dans la carte « Morceaux » du profil, dans la
+    carte « Ingé son » ou « Producteur·rice » (« Crédits confirmés »,
+    `CraftCredits`) et dans « Crédits confirmés » de la fiche de carrière,
+    où un rôle du son compte dès sa confirmation ;
+  - un crédit **non confirmé n'apparaît nulle part** hors de l'équipe du
+    morceau (test d'intégration) ;
+  - `MediaCredit`, cité par la conception, n'a jamais été créé : il n'y a
+    rien à remplacer.
 - **Étape « Première composition » (P3-04)** : `firstComposedWork(bandId)`
   donne le premier morceau composé du groupe et sa preuve.
 - **RGPD** :
@@ -66,9 +91,9 @@ production et sortie viendront en phase 4.
 - **Tests** :
   - `src/lib/works/rules.test.ts` ;
   - règle et persona « deux ami·es qui enchaînent les morceaux » (`core/core.test.ts`, `core/personas.test.ts`) ;
-  - intégration `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/works` ;
-  - e2e `e2e/linkmusician/morceaux.spec.ts`.
+  - intégration `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/works` (crédit du son en attente puis confirmé) et `src/lib/server/collaborations` (crédit d'une collaboration terminée) ;
+  - e2e `e2e/linkmusician/morceaux.spec.ts` ; `collaborations-morceau.spec.ts` (étape 4, crédits confirmés de Sam).
 
-Reportés à la phase 4 : `Collaboration.workId`, états « enregistré » à
-« sorti », crédits d'enregistrement et de production, propositions
-(`WorkPitch`).
+Livrés en phase 4 : `Collaboration.workId` et états « enregistré » à
+« produit » (P4-06), crédits du son (P4-07). Restent : « sorti » (phase 5),
+propositions (`WorkPitch`, P4-08).

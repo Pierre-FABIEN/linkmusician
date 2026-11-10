@@ -1,10 +1,11 @@
 <script lang="ts">
-	// LINKMUSICIAN: carte « Ingé son » du profil public (P4-02). Tout est
-	// déclaratif : les crédits confirmés par les artistes viendront avec P4-07.
+	// LINKMUSICIAN: carte « Ingé son » du profil public (P4-02). Les
+	// crédits sont confirmés (P4-07) ; le reste est déclaratif.
 	import * as Card from '#shadcn/card';
 	import { Badge } from '#shadcn/badge';
 	import { ExternalLink } from 'lucide-svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
+	import CraftCredits from './CraftCredits.svelte';
 	import {
 		CRAFT_MOBILITY_LABELS,
 		SOUND_SPECIALTY_INFO,
@@ -23,6 +24,8 @@
 			references: Reference[];
 			/** Rang d'ingé son (P4-02b), `null` avant « Home studio ». */
 			tier: { id: string; label: string } | null;
+			/** Crédits confirmés sur des morceaux (P4-07). */
+			credits: { id: string; title: string; roles: string[] }[];
 		};
 	} = $props();
 
@@ -45,6 +48,7 @@
 				{#each profile.mobility as m (m)}<li>{CRAFT_MOBILITY_LABELS[m]}</li>{/each}
 			</ul>
 		{/if}
+		<CraftCredits credits={profile.credits} />
 		{#if profile.references.length > 0}
 			<div class="space-y-2">
 				<h3 class="text-sm font-semibold">Travaux en écoute</h3>

@@ -26,6 +26,7 @@ const service = await import('./service');
 const bands = await import('#lib/server/bands/service');
 const { getPublishedMedia } = await import('#lib/server/media/service');
 const { personAnonymizationOps } = await import('#lib/prisma/actors/person');
+const { splitSheetFor } = await import('#lib/server/demarches/documents');
 
 const PREFIX = 'works-test-';
 const YEAR = 365.25 * 86_400_000;
@@ -288,6 +289,44 @@ describe.skipIf(!enabled)('morceaux (schéma e2e)', { timeout: 60_000 }, () => {
 		expect((await service.publicWorksOf(band.id)).map((w) => w.title)).toEqual([
 			'Works Test du groupe'
 		]);
+	});
+
+	it('P4-07 : un crédit du son attend sa confirmation, puis ne compte pas comme co-autrice', async () => {
+		await trust('lea', 'sam');
+		const work = await service.createWork(ids.lea, {
+			title: 'Works Test mixé',
+			genreIds: [],
+			band: null,
+			roles: [guitar]
+		});
+		await service.setDemo(work.id, ids.lea, { mediaId: (await demo(ids.lea)).id });
+		await service.markComposed(work.id, ids.lea);
+		await service.creditPerson(work.id, ids.lea, {
+			handle: PREFIX + 'sam',
+			roles: [{ kind: 'MIXING', instrumentSlug: null }]
+		});
+
+		// En attente : nulle part en public.
+		const pending = await service.workPage(work.id, null);
+		expect(pending?.credits.map((c) => c.roles)).toEqual([['Guitare électrique']]);
+		expect((await service.publicWorksOf(ids.sam)).map((w) => w.title)).not.toContain(
+			'Works Test mixé'
+		);
+
+		await trust('lea', 'sam');
+		const before = await xp(ids.sam);
+		await service.confirmCredit(work.id, ids.sam);
+		// Confirmé : visible, mais ni corroboration ni XP de morceau.
+		expect(await db.work.findUniqueOrThrow({ where: { id: work.id } })).toMatchObject({
+			proof: 'DECLARED'
+		});
+		expect(await xp(ids.sam)).toBe(before);
+		const mine = (await service.publicWorksOf(ids.sam)).find((w) => w.title === 'Works Test mixé');
+		expect(mine).toMatchObject({ roles: ['Mixage'], soundRoles: ['MIXING'] });
+
+		// Le bulletin de partage ne liste que les auteur·rices.
+		const sheet = await splitSheetFor(work.id, ids.lea);
+		expect(sheet.rows.map((r) => r.name)).toEqual(['Works Test lea']);
 	});
 
 	it('RGPD : morceaux portés supprimés, crédits confirmés « Compte supprimé »', async () => {

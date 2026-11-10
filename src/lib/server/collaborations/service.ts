@@ -21,12 +21,13 @@ import {
 	collabStatus,
 	hasHappened,
 	KIND_SERVICE,
+	KIND_WORK_ROLE,
 	KIND_WORK_STAGE,
 	nextStep,
 	type CollabKindValue,
 	type CollabStatusValue
 } from '#lib/collaborations/rules';
-import { manageableWorks } from '#lib/server/works/service';
+import { creditFromCollaboration, manageableWorks } from '#lib/server/works/service';
 
 export class CollaborationError extends Error {
 	constructor(
@@ -190,6 +191,17 @@ async function settle(collaborationId: string, now: Date) {
 					where: { id: collab.workId, [stage]: null },
 					data: { [stage]: now }
 				});
+			}
+			// Crédit confirmé de la personne qui a assuré la prestation (P4-07).
+			const role = KIND_WORK_ROLE[collab.kind as CollabKindValue];
+			if (collab.workId && role) {
+				for (const p of collab.participants.filter((x) => x.service)) {
+					await creditFromCollaboration(
+						tx,
+						{ workId: collab.workId, personId: p.actorId, kind: role },
+						now
+					);
+				}
 			}
 		}
 	});

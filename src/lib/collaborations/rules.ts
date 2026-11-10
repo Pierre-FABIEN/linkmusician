@@ -71,6 +71,19 @@ export const KIND_WORK_STAGE: Readonly<
 	PRODUCTION: 'producedAt'
 };
 
+/**
+ * Rôle du son crédité sur le morceau à la personne qui assure la prestation
+ * (P4-07). La sonorisation d'une date ne porte pas sur un morceau.
+ */
+export const KIND_WORK_ROLE: Readonly<
+	Partial<Record<CollabKindValue, 'RECORDING' | 'MIXING' | 'MASTERING' | 'PRODUCTION'>>
+> = {
+	RECORDING: 'RECORDING',
+	MIXING: 'MIXING',
+	MASTERING: 'MASTERING',
+	PRODUCTION: 'PRODUCTION'
+};
+
 export const WORK_STAGES = [
 	{ field: 'recordedAt', label: 'Enregistré' },
 	{ field: 'mixedAt', label: 'Mixé' },

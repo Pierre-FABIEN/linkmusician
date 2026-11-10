@@ -22,6 +22,26 @@ import { getSoundProfile } from '#lib/prisma/crafts/soundProfile';
 import { getProducerProfile } from '#lib/prisma/crafts/producerProfile';
 import { getCraftTier, getSoundEngineerTier } from '#lib/server/progression/crafts';
 import { publicActorWhere } from './visibility';
+import { SOUND_ROLE_LABELS, type SoundRoleKind } from '#lib/works/rules';
+
+const ENGINEER_ROLES: readonly SoundRoleKind[] = ['RECORDING', 'MIXING', 'MASTERING'];
+const PRODUCER_ROLES: readonly SoundRoleKind[] = ['PRODUCTION'];
+
+/**
+ * Crédits confirmés d'une carte métier (P4-07) : les morceaux publics où la
+ * personne a un rôle du son de ce métier. Un crédit en attente n'y est jamais.
+ */
+function craftCredits(
+	works: { id: string; title: string; soundRoles: SoundRoleKind[] }[],
+	kinds: readonly SoundRoleKind[]
+) {
+	return works.flatMap((w) => {
+		const roles = w.soundRoles.filter((k) => kinds.includes(k));
+		return roles.length > 0
+			? [{ id: w.id, title: w.title, roles: roles.map((k) => SOUND_ROLE_LABELS[k]) }]
+			: [];
+	});
+}
 
 /** Médias publiés affichés sur le profil (les plus récents). */
 export const PROFILE_MEDIA_LIMIT = 6;
@@ -135,8 +155,12 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 		bands,
 		works,
 		// Rang d'ingé son (P4-02b) : des conditions, jamais l'XP.
-		soundEngineer: sound?.[0] ? { ...sound[0], tier: sound[1] } : null,
-		producer: producer?.[0] ? { ...producer[0], tier: producer[1] } : null,
+		soundEngineer: sound?.[0]
+			? { ...sound[0], tier: sound[1], credits: craftCredits(works, ENGINEER_ROLES) }
+			: null,
+		producer: producer?.[0]
+			? { ...producer[0], tier: producer[1], credits: craftCredits(works, PRODUCER_ROLES) }
+			: null,
 		media: media.slice(0, PROFILE_MEDIA_LIMIT).map(({ instrumentId: _i, ...m }) => m),
 		mediaCount: media.length,
 		level: progress.level,

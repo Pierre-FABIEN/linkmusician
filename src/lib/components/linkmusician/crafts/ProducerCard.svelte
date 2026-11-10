@@ -5,6 +5,7 @@
 	import { Badge } from '#shadcn/badge';
 	import { ExternalLink } from 'lucide-svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
+	import CraftCredits from './CraftCredits.svelte';
 	import {
 		CRAFT_MOBILITY_LABELS,
 		type CraftMobilityValue,
@@ -23,6 +24,8 @@
 			rate: string;
 			references: Reference[];
 			tier: { id: string; label: string } | null;
+			/** Crédits confirmés sur des morceaux (P4-07). */
+			credits: { id: string; title: string; roles: string[] }[];
 		};
 	} = $props();
 
@@ -57,6 +60,7 @@
 				{#each profile.mobility as m (m)}<li>{CRAFT_MOBILITY_LABELS[m]}</li>{/each}
 			</ul>
 		{/if}
+		<CraftCredits credits={profile.credits} />
 		{#if profile.references.length > 0}
 			<div class="space-y-2">
 				<h3 class="text-sm font-semibold">Productions en écoute</h3>

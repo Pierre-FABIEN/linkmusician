@@ -38,10 +38,13 @@ import {
 	composeBlocker,
 	onConfirm,
 	proofFor,
-	recruitHref,
+	openRoleHref,
 	roleKey,
 	roleLabel,
+	hasCreativeRole,
+	isSoundRole,
 	type NewWorkInput,
+	type SoundRoleKind,
 	type RoleInput
 } from '#lib/works/rules';
 
@@ -153,12 +156,25 @@ function rowKey(role: { kind: string; instrument: { slug: string } | null }) {
  * Une confirmation vient d'être enregistrée : corrobore le morceau composé à
  * la 2ᵉ, ou verse sa part à la personne si le morceau l'est déjà.
  */
-async function afterConfirm(tx: Tx, work: WorkHead, personId: string, now: Date) {
-	const confirmed = await tx.workContributor.findMany({
-		where: { workId: work.id, confirmedAt: { not: null } },
-		select: { personId: true }
+/**
+ * Co-auteur·rices confirmé·es : les crédits confirmés qui portent au moins un
+ * rôle d'écriture ou d'instrument. Un crédit du son (P4-07) n'entre ni dans
+ * la corroboration ni dans le partage de l'XP de composition.
+ */
+async function confirmedAuthors(db: Db, workId: string): Promise<string[]> {
+	const confirmed = await db.workContributor.findMany({
+		where: { workId, confirmedAt: { not: null } },
+		select: { personId: true, roles: { select: { kind: true } } }
 	});
-	const ids = confirmed.map((c) => c.personId);
+	return confirmed
+		.filter((c) => hasCreativeRole(c.roles.map((r) => r.kind)))
+		.map((c) => c.personId);
+}
+
+async function afterConfirm(tx: Tx, work: WorkHead, personId: string, now: Date) {
+	const ids = await confirmedAuthors(tx, work.id);
+	// Confirmer un crédit du son seulement : rien pour la progression.
+	if (!ids.includes(personId)) return null;
 	const action = onConfirm({ state: work.state, proof: work.proof, confirmed: ids.length });
 	if (action === 'corroborate') {
 		await tx.work.update({ where: { id: work.id }, data: { proof: 'CORROBORATED' } });
@@ -242,6 +258,46 @@ export async function updateWork(
 }
 
 /** Supprimer le morceau. L'XP déjà versée reste (registre en ajout seul). */
+/**
+ * Crédit d'une prestation du son (P4-07), appelé par une collaboration liée au
+ * morceau quand elle se termine, **dans sa transaction**. Chacun·e a confirmé
+ * la collaboration : le crédit naît confirmé, sans XP (la collaboration en
+ * donne déjà) et sans effet sur la composition. Une personne déjà créditée
+ * reçoit le rôle en plus ; si son crédit attend encore sa réponse, il reste en
+ * attente. Au-delà des plafonds, rien n'est ajouté plutôt que de bloquer la
+ * collaboration.
+ */
+export async function creditFromCollaboration(
+	tx: Tx,
+	input: { workId: string; personId: string; kind: SoundRoleKind },
+	now = new Date()
+): Promise<void> {
+	const { workId, personId, kind } = input;
+	await lockWork(tx, workId);
+	let credit = await tx.workContributor.findUnique({
+		where: { workId_personId: { workId, personId } },
+		select: { id: true, roles: { select: { kind: true } } }
+	});
+	if (credit?.roles.some((r) => r.kind === kind)) return;
+	if (!credit) {
+		if ((await tx.workContributor.count({ where: { workId } })) >= MAX_CONTRIBUTORS) return;
+		credit = await tx.workContributor.create({
+			data: { workId, personId, confirmedAt: now },
+			select: { id: true, roles: { select: { kind: true } } }
+		});
+	}
+	const open = await tx.workRole.findFirst({
+		where: { workId, kind, contributorId: null },
+		select: { id: true }
+	});
+	if (open) {
+		await tx.workRole.update({ where: { id: open.id }, data: { contributorId: credit.id } });
+		return;
+	}
+	if ((await tx.workRole.count({ where: { workId } })) >= MAX_ROLES) return;
+	await tx.workRole.create({ data: { workId, kind, contributorId: credit.id } });
+}
+
 export async function deleteWork(workId: string, managerId: string) {
 	await prisma.$transaction(async (tx) => {
 		await lockWork(tx, workId);
@@ -490,11 +546,7 @@ export async function markComposed(workId: string, managerId: string, now = new 
 			hasDemo: Boolean(work.demoMediaId) && work.demoMedia?.status !== 'REJECTED'
 		});
 		if (blocker) throw new WorkError(blocker);
-		const confirmed = await tx.workContributor.findMany({
-			where: { workId, confirmedAt: { not: null } },
-			select: { personId: true }
-		});
-		const ids = confirmed.map((c) => c.personId);
+		const ids = await confirmedAuthors(tx, workId);
 		const proof = proofFor(ids.length);
 		await tx.work.update({
 			where: { id: workId },
@@ -730,9 +782,11 @@ export async function workPage(workId: string, viewerId: string | null, now = ne
 			id: r.id,
 			label,
 			recruitHref: manage
-				? recruitHref({
+				? openRoleHref({
+						workId: work.id,
 						workTitle: work.title,
 						bandHandle,
+						kind: r.kind,
 						instrumentSlug: r.instrument?.slug ?? null,
 						roleLabel: label
 					})
@@ -848,7 +902,11 @@ export async function publicWorksOf(actorId: string, now = new Date(), viewerId?
 				: null,
 		roles: (w.contributors.find((c) => c.personId === actorId)?.roles ?? []).map((r) =>
 			roleLabel(r)
-		)
+		),
+		/** Rôles du son confirmés de l'acteur (P4-07), pour ses cartes métier. */
+		soundRoles: (w.contributors.find((c) => c.personId === actorId)?.roles ?? [])
+			.map((r) => r.kind)
+			.filter(isSoundRole)
 	}));
 }
 

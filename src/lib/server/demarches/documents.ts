@@ -13,10 +13,11 @@
 import { prisma } from '#lib/server';
 import { workPage } from '#lib/server/works/service';
 import { bandPage } from '#lib/server/bands/service';
-import { roleLabel } from '#lib/works/rules';
+import { hasCreativeRole, isSoundRole, roleLabel } from '#lib/works/rules';
 import {
 	programView,
 	splitSheetView,
+	type CreditKind,
 	type ProgramView,
 	type SplitSheetView
 } from '#lib/demarches/documents';
@@ -55,11 +56,18 @@ export async function splitSheetFor(
 			title: work.title,
 			owner: { name: work.owner.name, isBand: work.owner.kind === 'ORGANIZATION' },
 			composedAt: work.composedAt,
-			credits: credits.map((c) => ({
-				name: c.person.displayName,
-				kinds: c.roles.map((r) => r.kind),
-				roles: c.roles.map((r) => roleLabel(r))
-			}))
+			// Les rôles du son (P4-07) créditent un travail, pas une part
+			// d'auteur·rice : ni eux, ni les personnes qui n'ont qu'eux.
+			credits: credits
+				.filter((c) => hasCreativeRole(c.roles.map((r) => r.kind)))
+				.map((c) => {
+					const roles = c.roles.filter((r) => !isSoundRole(r.kind));
+					return {
+						name: c.person.displayName,
+						kinds: roles.map((r) => r.kind) as CreditKind[],
+						roles: roles.map((r) => roleLabel(r))
+					};
+				})
 		},
 		now
 	);

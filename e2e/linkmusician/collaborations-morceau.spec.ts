@@ -10,7 +10,8 @@ import { skipOnboarding } from '../support/linkmusician';
  * P4-06 — Collaboration liée au morceau : Sam, ingé son, propose dans la
  * conversation une session d'enregistrement sur le morceau composé de Léa,
  * en assurant la prestation ; Léa confirme ; le morceau passe « Enregistré »
- * et Sam gagne sur sa piste d'ingé son (rang « Premiers projets »).
+ * et Sam gagne sur sa piste d'ingé son (rang « Premiers projets ») ; le
+ * morceau figure dans ses crédits confirmés (P4-07).
  */
 test.describe('LinkMusician — collaborations liées au morceau', () => {
 	test.setTimeout(6 * 60_000);
@@ -105,6 +106,17 @@ test.describe('LinkMusician — collaborations liées au morceau', () => {
 				await samPage.goto(`/@${sam.actor.handle}`);
 				await waitForAppReady(samPage);
 				await expect(samPage.getByText('Premiers projets').first()).toBeVisible();
+			});
+
+			await test.step('4. Le morceau apparaît dans les crédits confirmés de Sam (P4-07)', async () => {
+				await expect(samPage.getByRole('heading', { name: 'Crédits confirmés' })).toBeVisible();
+				// Dans la carte « Morceaux » et dans la carte « Ingé son ».
+				const links = samPage.getByRole('link', { name: title });
+				await expect(links).toHaveCount(2);
+				for (const link of await links.all()) {
+					await expect(link).toHaveAttribute('href', `/morceaux/${work.id}`);
+				}
+				await expect(samPage.getByText('Prise de son').first()).toBeVisible();
 			});
 		} finally {
 			await samContext.close();

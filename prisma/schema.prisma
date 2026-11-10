@@ -2768,6 +2768,12 @@ enum WorkRoleKind {
   COMPOSITION
   LYRICS
   ARRANGEMENT
+  /// Rôles du son (P4-07) : crédités par une collaboration terminée, ou
+  /// par l'équipe puis confirmés par la personne. Jamais auteur·rice.
+  RECORDING
+  MIXING
+  MASTERING
+  PRODUCTION
 }
 
 /// Morceau. Porté par une personne ou un groupe (`ownerId`, un `Actor`) ;
