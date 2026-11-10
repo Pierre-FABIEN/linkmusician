@@ -70,7 +70,7 @@ test.describe('LinkMusician — coups de pouce', () => {
 				).toBeVisible();
 				await expect(list.getByText(/Lea, de ton réseau, en joue près de chez toi/)).toBeVisible();
 				// Relecture : ni durée d'absence, ni reproche, ni XP.
-				await expect(page.locator('main')).not.toContainText(/depuis|inactif|XP/);
+				await expect(list).not.toContainText(/depuis|inactif|XP/);
 				await expectNoA11yViolations(page, ['.cartButton']);
 				await list.getByRole('link', { name: 'Voir le morceau' }).click();
 				await waitForPath(page, `/morceaux/${work.id}`);

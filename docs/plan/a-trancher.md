@@ -37,7 +37,6 @@ sort de cette liste.
 | #   | Point                                                                                       | Pourquoi                                                                                                                                                                                 |
 | --- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | M1  | Monter `memory=` dans `%UserProfile%\.wslconfig` (12 Go par exemple), puis `wsl --shutdown` | Avec 8 Go, le serveur de dev, le serveur e2e, VS Code et `npm run check` ensemble saturent la mémoire : Chromium plante (« Page crashed ») et les e2e échouent dès l'inscription (10/11) |
-| M2  | `sudo npx playwright install-deps chromium` dans WSL                                        | Chromium ne démarre pas (`libnspr4.so` absente) : aucun e2e ne peut tourner depuis le terminal de Claude Code (11/11)                                                                    |
 
 ## Points techniques
 
