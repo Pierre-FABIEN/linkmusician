@@ -36,6 +36,13 @@
 		PORTFOLIO: tones.COLLABORATOR,
 		ESTABLISHED: tones.LOCAL_PILLAR
 	};
+	// Rangs du studio (P4-03) : mêmes couleurs, par grande étape.
+	const studio: Record<string, string> = {
+		OPEN: tones.NETWORKED,
+		ACTIVE: tones.COLLABORATOR,
+		RECOGNIZED: tones.LOCAL_PILLAR,
+		ESSENTIAL: tones.REFERENCE
+	};
 </script>
 
 <span
@@ -44,6 +51,7 @@
 	] ??
 		band[id] ??
 		craft[id] ??
+		studio[id] ??
 		tones.FIRST_STEPS}"
 >
 	<Route class="size-3.5" aria-hidden="true" />

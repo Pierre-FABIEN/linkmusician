@@ -92,6 +92,8 @@ const ROUTES: Record<string, Node> = {
 	'/profil/ville': { label: 'Ma ville', parent: '/profil' },
 	'/profil/son': { label: 'Profil d’ingé son', parent: '/profil' },
 	'/profil/production': { label: 'Profil de producteur·rice', parent: '/profil' },
+	'/studios': { label: 'Mes studios', parent: '/profil' },
+	'/studios/[handle]': { label: 'Studio', parent: '/studios', name: at('studio', 'name') },
 	'/reglages': { label: 'Réglages' },
 	'/reglages/metiers': { label: 'Métiers', parent: '/reglages' },
 	'/aide': { label: 'Aide' },

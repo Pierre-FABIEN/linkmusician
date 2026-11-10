@@ -12,6 +12,7 @@ import { blockActor, BlockingError } from '#lib/server/blocking/service';
 import { suggestMusicians } from '#lib/server/discovery/suggestions';
 import { prisma } from '#lib/server';
 import { getPublicBand } from '#lib/server/bands/public';
+import { getPublicStudio, studiosOfPerson } from '#lib/server/studios/service';
 import { BandError, requestToJoin } from '#lib/server/bands/service';
 import { MilestoneError } from '#lib/server/milestones/service';
 import { contestMilestone } from '#lib/server/milestones/disputes';
@@ -28,13 +29,32 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	if (!profile) {
 		// Page publique d'un groupe (P3-02).
 		const band = await getPublicBand(handle, new Date(), viewer?.actorId);
-		if (!band) error(404, 'Profil introuvable');
+		if (!band) {
+			// Page publique d'un studio publié (P4-03a).
+			const studio = await getPublicStudio(handle, new Date(), viewer?.actorId);
+			if (!studio) error(404, 'Profil introuvable');
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const { id: _studioId, ...publicStudio } = studio;
+			return {
+				profile: null,
+				band: null,
+				studio: publicStudio,
+				studios: [],
+				careerSheet: null,
+				suggestions: [],
+				isOwner: false,
+				signedIn: Boolean(viewer?.onboardedAt),
+				canReport: Boolean(viewer)
+			};
+		}
 		// L'identifiant interne reste côté serveur.
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { id: _bandId, ...publicBand } = band;
 		return {
 			profile: null,
 			band: publicBand,
+			studio: null,
+			studios: [],
 			careerSheet: null,
 			suggestions: [],
 			isOwner: false,
@@ -48,7 +68,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const isOwner = viewer?.actorId === actorId;
 	// Suggestions (P2-18), pour un membre seulement : les siennes sur son
 	// profil, « Dans le même style » sur celui d'un autre.
-	const [suggestions, careerSheet] = await Promise.all([
+	const [suggestions, careerSheet, studios] = await Promise.all([
 		viewer?.onboardedAt && profile.kind === 'PERSON'
 			? suggestMusicians(
 					viewer.actorId,
@@ -59,11 +79,15 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 					}
 				)
 			: [],
-		profile.kind === 'PERSON' ? publicCareerSheet(actorId, viewer?.actorId) : null
+		profile.kind === 'PERSON' ? publicCareerSheet(actorId, viewer?.actorId) : null,
+		// Studios publiés que la personne gère (P4-03a).
+		profile.kind === 'PERSON' ? studiosOfPerson(actorId, new Date(), viewer?.actorId) : []
 	]);
 	return {
 		profile: publicProfile,
 		band: null,
+		studio: null,
+		studios,
 		careerSheet,
 		signedIn: Boolean(viewer?.onboardedAt),
 		suggestions,
@@ -81,7 +105,8 @@ export const actions: Actions = {
 		const handle = params.handle.toLowerCase();
 		const profile =
 			(await getPublicProfile(handle, new Date(), reporter.actorId)) ??
-			(await getPublicBand(handle, new Date(), reporter.actorId));
+			(await getPublicBand(handle, new Date(), reporter.actorId)) ??
+			(await getPublicStudio(handle, new Date(), reporter.actorId));
 		if (!profile) error(404, 'Profil introuvable');
 		const data = await request.formData();
 		try {

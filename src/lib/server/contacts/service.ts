@@ -109,7 +109,7 @@ export async function myContacts(ownerId: string, now = new Date()) {
 			select: { actorId: true, collaboration: { select: { happenedOn: true } } }
 		}),
 		prisma.membership.findMany({
-			where: { personId: ownerId, status: 'ACTIVE', org: { dissolvedAt: null } },
+			where: { personId: ownerId, status: 'ACTIVE', org: { kind: 'BAND', dissolvedAt: null } },
 			select: {
 				orgId: true,
 				org: {

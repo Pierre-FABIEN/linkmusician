@@ -91,7 +91,7 @@ async function requireManager(tx: Tx, bandId: string, personId: string) {
 
 async function countActiveBands(tx: Tx, personId: string) {
 	return tx.membership.count({
-		where: { personId, status: 'ACTIVE', org: { dissolvedAt: null } }
+		where: { personId, status: 'ACTIVE', org: { kind: 'BAND', dissolvedAt: null } }
 	});
 }
 

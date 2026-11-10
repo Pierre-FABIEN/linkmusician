@@ -71,6 +71,12 @@
 							>Mon profil de producteur·rice →</a
 						>
 					{/if}
+					<!-- Studio (P4-03a) : ouvert aux ingés son et producteur·rices. -->
+					<a
+						href="/studios"
+						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
+						>Mes studios →</a
+					>
 				</div>
 			{/if}
 		</div>

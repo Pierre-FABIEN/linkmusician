@@ -2678,6 +2678,8 @@ model SuggestionDismissal {
 /// (studio, lieu, label…, conception 04).
 enum OrgKind {
   BAND
+  /// Studio (P4-03) : administré par des ingés son ou des producteur·rices.
+  STUDIO
 }
 
 enum OrgRole {
@@ -2715,6 +2717,8 @@ model Organization {
   verifiedAt  DateTime?
   memberships Membership[]
   verifications OrganizationVerification[]
+  /// Fiche du studio (P4-03), pour une organisation STUDIO.
+  studio      StudioProfile?
 
   @@map("organizations")
 }
@@ -3235,4 +3239,65 @@ model CraftReference {
 
   @@index([personId, track, position])
   @@map("craft_references")
+}
+
+// ─── STUDIO (P4-03) ─────────────────────────────────────────────────────────
+
+/// Ce que le studio propose. Sert à la fiche, puis à la recherche.
+enum StudioService {
+  REHEARSAL
+  RECORDING
+  MIXING
+  MASTERING
+}
+
+/// Fiche du studio (conception 06 §3.3, 08 §6). Visible de tous une fois
+/// publiée (rang « Ouvert ») ; avant, seulement de sa gestion. Seul point
+/// d'écriture : `src/lib/server/studios/service.ts`.
+model StudioProfile {
+  orgId         String          @id
+  org           Organization    @relation(fields: [orgId], references: [actorId], onDelete: Cascade)
+  services      StudioService[]
+  /// Matériel, texte libre (1 000 caractères au plus).
+  gear          String          @default("")
+  /// Tarifs et conditions (ce qui est inclus, acompte…), texte libre.
+  pricingNotes  String          @default("")
+  /// Ouvert aussi sur rendez-vous, en dehors des horaires.
+  byAppointment Boolean         @default(false)
+  publishedAt   DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  rooms         StudioRoom[]
+  hours         StudioHours[]
+
+  @@map("studio_profiles")
+}
+
+/// Une salle du studio (cabine, salle de prise, régie, salle de répète).
+model StudioRoom {
+  id          String        @id @default(cuid())
+  studioId    String
+  studio      StudioProfile @relation(fields: [studioId], references: [orgId], onDelete: Cascade)
+  name        String
+  description String        @default("")
+  /// Tarif indicatif à l'heure, en euros entiers (facultatif).
+  hourlyRate  Int?
+  position    Int
+
+  @@index([studioId, position])
+  @@map("studio_rooms")
+}
+
+/// Horaires d'ouverture : une plage par jour (1 = lundi … 7 = dimanche), en
+/// minutes depuis minuit. Les créneaux réservables viendront avec la
+/// réservation (phase 5, D25).
+model StudioHours {
+  studioId String
+  studio   StudioProfile @relation(fields: [studioId], references: [orgId], onDelete: Cascade)
+  weekday  Int
+  opensAt  Int
+  closesAt Int
+
+  @@id([studioId, weekday])
+  @@map("studio_hours")
 }

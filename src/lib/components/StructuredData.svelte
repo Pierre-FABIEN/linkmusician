@@ -1,6 +1,7 @@
 <script lang="ts">
 	interface StructuredDataProps {
-		// LINKMUSICIAN: 'Person' et 'MusicGroup' pour le profil public `/@handle` (P1-11).
+		// LINKMUSICIAN: 'Person' et 'MusicGroup' pour le profil public `/@handle` (P1-11),
+		// 'LocalBusiness' pour un studio (P4-03a).
 		type:
 			| 'Organization'
 			| 'WebSite'
@@ -8,7 +9,8 @@
 			| 'Product'
 			| 'BreadcrumbList'
 			| 'Person'
-			| 'MusicGroup';
+			| 'MusicGroup'
+			| 'LocalBusiness';
 		data: Record<string, unknown>;
 	}
 

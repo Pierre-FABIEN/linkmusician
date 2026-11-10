@@ -1,6 +1,6 @@
 <script lang="ts">
-	// LINKMUSICIAN: étape proposée après le choix des métiers (P1-03b). Les
-	// structures arrivent plus tard : groupe en phase 3, les autres ensuite.
+	// LINKMUSICIAN: étape proposée après le choix des métiers (P1-03b) : groupe
+	// (P3-01) et studio (P4-03a) ; les autres structures arrivent ensuite.
 	import { Badge } from '#shadcn/badge';
 	import { Button } from '#shadcn/button';
 	import SEO from '#lib/components/SEO.svelte';
@@ -14,19 +14,39 @@
 			Tu fais partie d'une structure&nbsp;?
 		</h1>
 		<p class="mb-6 text-sm text-muted-foreground">
-			Groupe, studio, label… Tu pourras bientôt la rattacher à ton profil. On te prévient dès que
-			c'est prêt.
+			Un groupe, un studio : rattache-la à ton profil. Les labels, salles et agences arrivent
+			ensuite.
 		</p>
 
 		<ul class="mb-6 space-y-2">
-			<li class="flex items-center justify-between rounded-lg border p-3 opacity-70">
-				<span>Créer ou rejoindre un groupe</span>
-				<Badge variant="secondary">bientôt</Badge>
+			<li>
+				<a
+					href="/groupes/nouveau"
+					class="flex min-h-14 items-center justify-between rounded-lg border p-3 hover:bg-muted"
+				>
+					<span>Monter ou rejoindre un groupe</span>
+					<span aria-hidden="true">→</span>
+				</a>
+			</li>
+			<li>
+				<!-- Studio (P4-03a) : ingés son et producteur·rices. -->
+				<a
+					href="/studios"
+					class="flex min-h-14 items-center justify-between rounded-lg border p-3 hover:bg-muted"
+				>
+					<span>
+						Ouvrir la fiche de ton studio
+						<span class="block text-sm text-muted-foreground"
+							>pour les ingés son et producteur·rices</span
+						>
+					</span>
+					<span aria-hidden="true">→</span>
+				</a>
 			</li>
 			<li class="flex items-center justify-between rounded-lg border p-3 opacity-70">
 				<span>
-					Créer ou rejoindre une autre structure
-					<span class="block text-sm text-muted-foreground">studio, label, salle, agence…</span>
+					Une autre structure
+					<span class="block text-sm text-muted-foreground">label, salle, agence…</span>
 				</span>
 				<Badge variant="secondary">plus tard</Badge>
 			</li>

@@ -729,6 +729,8 @@ export async function manageableWorks(personId: string) {
 					{ id: personId },
 					{
 						organization: {
+							// Un studio (P4-03) ne porte pas de morceau.
+							kind: 'BAND',
 							dissolvedAt: null,
 							memberships: {
 								some: { personId, status: 'ACTIVE', role: { in: ['OWNER', 'ADMIN'] } }

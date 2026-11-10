@@ -3,6 +3,7 @@
 	// `/_lab/profil`. Voir +page.server.ts.
 	import Suggestions from '#lib/components/linkmusician/Suggestions.svelte';
 	import BandProfile from '#lib/components/linkmusician/BandProfile.svelte';
+	import StudioPublic from '#lib/components/linkmusician/studios/StudioPublic.svelte';
 	import WorksCard from '#lib/components/linkmusician/works/WorksCard.svelte';
 	import SoundEngineerCard from '#lib/components/linkmusician/crafts/SoundEngineerCard.svelte';
 	import ProducerCard from '#lib/components/linkmusician/crafts/ProducerCard.svelte';
@@ -159,6 +160,12 @@
 		canReport={data.canReport}
 		memberShell={Boolean(data.memberShell)}
 	/>
+{:else if data.studio}
+	<StudioPublic
+		studio={data.studio}
+		canReport={data.canReport}
+		memberShell={Boolean(data.memberShell)}
+	/>
 {:else}
 	<SEO
 		title="{p.displayName} (@{p.handle})"
@@ -243,6 +250,23 @@
 
 					{#if p.soundEngineer}<SoundEngineerCard profile={p.soundEngineer} />{/if}
 					{#if p.producer}<ProducerCard profile={p.producer} />{/if}
+					{#if data.studios.length > 0}
+						<!-- Studios publiés que la personne gère (P4-03a). -->
+						<Card.Root>
+							<Card.Header>
+								<Card.Title><h2>Studio</h2></Card.Title>
+							</Card.Header>
+							<Card.Content>
+								<ul class="space-y-1">
+									{#each data.studios as studio (studio.handle)}
+										<li>
+											<a href="/@{studio.handle}" class="font-medium underline">{studio.name}</a>
+										</li>
+									{/each}
+								</ul>
+							</Card.Content>
+						</Card.Root>
+					{/if}
 
 					<WorksCard works={p.works} signedIn={data.signedIn} />
 

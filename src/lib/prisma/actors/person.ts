@@ -422,7 +422,7 @@ export async function exportPersonData(userId: string) {
 				startedAt: true,
 				endedAt: true,
 				createdAt: true,
-				org: { select: { actor: { select: { displayName: true } } } },
+				org: { select: { kind: true, actor: { select: { displayName: true } } } },
 				invitedBy: { select: { displayName: true } }
 			}
 		}),
@@ -663,16 +663,29 @@ export async function exportPersonData(userId: string) {
 			dans_l_app: p.inApp,
 			par_email: p.email
 		})),
-		groupes: memberships.map((m) => ({
-			groupe: m.org.actor.displayName,
-			role: m.role,
-			ce_que_j_y_fais: m.title,
-			statut: m.status,
-			invite_par: m.invitedBy?.displayName ?? null,
-			cree_le: m.createdAt,
-			debut: m.startedAt,
-			fin: m.endedAt
-		})),
+		groupes: memberships
+			.filter((m) => m.org.kind === 'BAND')
+			.map((m) => ({
+				groupe: m.org.actor.displayName,
+				role: m.role,
+				ce_que_j_y_fais: m.title,
+				statut: m.status,
+				invite_par: m.invitedBy?.displayName ?? null,
+				cree_le: m.createdAt,
+				debut: m.startedAt,
+				fin: m.endedAt
+			})),
+		// Studios gérés (P4-03) : la fiche appartient au studio, seule la
+		// gestion est une donnée de la personne.
+		studios: memberships
+			.filter((m) => m.org.kind === 'STUDIO')
+			.map((m) => ({
+				studio: m.org.actor.displayName,
+				role: m.role,
+				statut: m.status,
+				debut: m.startedAt,
+				fin: m.endedAt
+			})),
 		morceaux: {
 			portes: works.owned.map((w) => ({
 				titre: w.title,
