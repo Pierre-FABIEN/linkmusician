@@ -1621,7 +1621,9 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 .lm-rail {
 	--lm-gap: 0.75rem;
 	--lm-pivot-w: min(calc(100vw - var(--lm-rail-inset) - var(--lm-rail-inset)), 34rem);
-	--lm-unit: max(calc((var(--lm-pivot-w) - 3 * var(--lm-gap)) / 4), 5.5rem);
+	/* Rangées basses, comme la mosaïque : caler la rangée sur la largeur d'une
+	   colonne donnait des tuiles carrées, deux fois trop hautes. */
+	--lm-unit: 4.75rem;
 	position: relative;
 	display: grid;
 	grid-auto-flow: column;
@@ -1634,6 +1636,24 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 	scroll-snap-type: x mandatory;
 	scroll-padding-inline: var(--lm-rail-inset);
 	scrollbar-width: none;
+}
+/* Tuiles basses du panorama : marges et interlignes resserrés pour que le
+   contenu tienne sans rogner, chiffre un peu plus petit. */
+.lm-rail .lm-tile:not([data-size='sm']) {
+	gap: 0.4rem;
+	padding: 0.8rem 1rem;
+}
+.lm-rail .lm-tile[data-size='band'] {
+	padding-block: 0.55rem;
+}
+.lm-rail .lm-figure--md {
+	font-size: clamp(2.25rem, 5vw, 3rem);
+}
+/* Sur téléphone, les colonnes étroites font passer le texte sur plus de lignes. */
+@media (max-width: 30rem) {
+	.lm-rail {
+		--lm-unit: 5.1rem;
+	}
 }
 .lm-rail::-webkit-scrollbar {
 	display: none;
