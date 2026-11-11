@@ -100,6 +100,20 @@ Sur la fiche de ta jam, tu peux :
 - ajuster le **matériel sur place** (batterie, amplis, clavier, sono et
   micros, câbles), pour que chacun sache quoi apporter.
 
+### Tu gères un lieu ? {#gerer-un-lieu}
+
+Sur la page de ton bar ou de ta salle, touche **C’est mon lieu** pour le
+revendiquer. Une fois la demande acceptée, **Gérer la fiche du lieu** :
+
+- remplis la fiche : jauge, scène et son, ce que tu proposes aux artistes
+  (cachet, chapeau, défraiement), les jours, les genres, l’accueil des
+  mineur·es ; puis **Publier la fiche** : ton lieu est **ouvert** ;
+- **Publier une date** : un vendredi à remplir, les groupes autour de toi
+  candidatent, tu choisis ;
+- invite les personnes qui travaillent avec toi à gérer le lieu ;
+- **Apprendre le métier** te guide vers la licence de spectacles, le GUSO
+  et la SACEM : LinkMusician n’en gère aucune.
+
 > ⚠️ **Important** : un lieu ajouté par un compte tout neuf reste en
 > attente, le temps qu’un membre confirmé ou la modération le valide.
 > C’est ce qui garantit que les jams ont lieu dans de vrais lieux.

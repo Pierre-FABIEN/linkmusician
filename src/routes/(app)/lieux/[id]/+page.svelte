@@ -3,7 +3,19 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
-	import { BadgeCheck, CircleCheck, Clock, MapPin, Speaker, Store } from 'lucide-svelte';
+	import {
+		BadgeCheck,
+		CalendarDays,
+		CircleCheck,
+		Clock,
+		MapPin,
+		Speaker,
+		Store,
+		Users
+	} from 'lucide-svelte';
+	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
+	import { capacityLabel } from '#lib/crafts/promoter';
+	import { VENUE_AGE_RULE_INFO, VENUE_CONDITION_LABELS, daysLabel } from '#lib/venues/profile';
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
 
 	let { data, form } = $props();
@@ -53,7 +65,100 @@
 					<Store class="size-4" aria-hidden="true" /> Géré par le lieu
 				</p>
 			{/if}
+			{#if data.profile?.tier}
+				<TierBadge
+					id={data.profile.tier.id}
+					label={data.profile.tier.label}
+					prefix="Rang du lieu :"
+				/>
+			{/if}
+			{#if data.manages}
+				<a
+					href="/lieux/{data.venue.id}/gerer"
+					class="inline-flex min-h-11 items-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
+					>Gérer la fiche du lieu</a
+				>
+			{/if}
 		</div>
+
+		{#if data.profile}
+			<!-- Fiche publiée par le lieu (P5-03b). -->
+			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="fiche-title">
+				<h2 id="fiche-title" class="flex items-center gap-2 text-lg font-semibold">
+					<Users class="size-4" aria-hidden="true" /> Jouer ici
+				</h2>
+				<dl class="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+					{#if data.profile.capacity}
+						<div>
+							<dt class="font-semibold">Jauge</dt>
+							<dd>{capacityLabel(data.profile.capacity)}</dd>
+						</div>
+					{/if}
+					<div>
+						<dt class="font-semibold">Pour les artistes</dt>
+						<dd>
+							{data.profile.conditions.map((c) => VENUE_CONDITION_LABELS[c]).join(', ')}
+						</dd>
+					</div>
+					{#if data.profile.days.length > 0}
+						<div>
+							<dt class="font-semibold">Jours</dt>
+							<dd>{daysLabel(data.profile.days)}</dd>
+						</div>
+					{/if}
+					<div>
+						<dt class="font-semibold">Public</dt>
+						<dd>{VENUE_AGE_RULE_INFO[data.profile.ageRule].label}</dd>
+					</div>
+					{#if data.profile.genres.length > 0}
+						<div class="sm:col-span-2">
+							<dt class="font-semibold">Programme</dt>
+							<dd>{data.profile.genres.join(', ')}</dd>
+						</div>
+					{/if}
+					<div class="sm:col-span-2">
+						<dt class="font-semibold">Scène et son</dt>
+						<dd class="whitespace-pre-line">{data.profile.stage}</dd>
+					</div>
+				</dl>
+				{#if data.profile.managers.length > 0}
+					<p class="text-sm">
+						Contact :
+						{#each data.profile.managers as m, i (m.handle)}{i > 0 ? ', ' : ''}<a
+								href="/@{m.handle}"
+								class="font-medium underline">{m.displayName}</a
+							>{/each}
+					</p>
+				{/if}
+			</section>
+
+			<section class="space-y-2 rounded-2xl border bg-card p-4" aria-labelledby="dates-title">
+				<h2 id="dates-title" class="flex items-center gap-2 text-lg font-semibold">
+					<CalendarDays class="size-4" aria-hidden="true" /> Dates à venir
+				</h2>
+				{#if data.profile.gigSlots.length === 0}
+					<p class="text-sm text-muted-foreground">
+						Pas de date ouverte aux groupes pour l’instant.
+					</p>
+				{:else}
+					<ul class="grid gap-2 sm:grid-cols-2">
+						{#each data.profile.gigSlots as g (g.id)}
+							<li>
+								<a href="/annonces/{g.id}" class="block rounded-xl border p-3 hover:border-primary">
+									<span class="block font-semibold">{g.title}</span>
+									<span class="text-sm text-muted-foreground"
+										>{g.startsAt ? day.format(new Date(g.startsAt)) : ''} · {g.slots} groupe{g.slots >
+										1
+											? 's'
+											: ''} cherché{g.slots > 1 ? 's' : ''}</span
+									>
+								</a>
+							</li>
+						{/each}
+					</ul>
+				{/if}
+			</section>
+		{/if}
 
 		{#if !data.venue.validated}
 			<section

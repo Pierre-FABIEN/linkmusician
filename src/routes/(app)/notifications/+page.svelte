@@ -37,6 +37,7 @@
 		GROUP_DISCUSSION_INVITE: MessagesSquare,
 		STUDIO_INVITE: Mic,
 		ORG_INVITE: CalendarCheck,
+		VENUE_CLAIM: Flag,
 		INTRODUCTION: HandHelping
 	};
 

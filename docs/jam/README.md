@@ -117,7 +117,52 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   d'entreprises, ProConnect) : reporté après le lancement (Q20).
 - **RGPD** : revendications dans l'export (`revendications_de_lieux`) ; à
   l'anonymisation, le demandeur et le lien de preuve sont effacés.
-- **Points** : aucun. Le lieu gagnera un rang (`venueTier`, P5-03b).
+- **Points** : aucun. Le lieu gagne un rang (`venueTier`, P5-03b).
+- **Décision notifiée** (P5-03b, Q29) : approbation ou refus envoient une
+  notification `VENUE_CLAIM` vers la fiche du lieu.
+
+## Fiche du lieu (P5-03b)
+
+- **Modèle** : `VenueProfile` sur l'organisation `VENUE` (jauge, scène et
+  son, conditions `VenueCondition` : cachet, chapeau, défraiement ; jours ;
+  accueil des mineur·es `VenueAgeRule` ; publication). Genres :
+  `actor_genres` de l'organisation ; matériel : `Venue.backline`.
+  - Règles pures : `src/lib/venues/profile.ts` (formulaire,
+    `publicationGaps`, `venueQuests`, `VENUE_LEARNING`).
+  - Service : `src/lib/server/venues/profile.ts`, seul point d'écriture.
+- **Gestion** : `/lieux/[id]/gerer` (lien « Gérer la fiche du lieu » sur
+  `/lieux/[id]`, « Mes lieux » sur `/organisations`). Dans l'ordre :
+  prochaines étapes, dates, fiche, publication, « Apprendre le métier »
+  (licence, GUSO, SACEM : des liens, rien n'est géré), vérification SIRET
+  (P5-02), co-gestion.
+- **Publication** : jauge, scène et son, un genre, une condition
+  (`publicationGaps`) ; publiée, la fiche donne le rang « Lieu ouvert ».
+  Une fiche qui perd une condition repasse en brouillon.
+- **Ville** : l'organisation prend la commune du lieu (`actor_locations`) à
+  l'enregistrement : ses dates se diffusent autour de lui.
+- **Dates** : « Publier une date » ouvre `/plateaux/nouveau` au nom du lieu,
+  le lieu verrouillé. La gestion d'un lieu publie **sans le métier
+  d'organisateur·rice** (Q34), majeure, fiche publiée, et seulement chez
+  elle (`createGigSlot`).
+- **Page publique** `/lieux/[id]` : « Jouer ici » (jauge, conditions,
+  jours, public, genres, scène, contacts de la gestion) et « Dates à
+  venir » (plateaux ouverts au lieu, d'auteurs visibles), avec le rang.
+  Pas de `/@handle` (Q19).
+- **Rang** (`venueSummary`) : publié, puis les dates `gig.held` tenues au
+  lieu et confirmées hors organisation (P5-06) ; jamais l'XP (Q24).
+- **Co-gestion** : commune aux organisations
+  (`organizations/comanagement.ts`) ; une personne majeure, sans métier
+  exigé (Q18). Invitation `ORG_INVITE`, réponse sur `/organisations`.
+- **Mineur·es** : l'accueil déclaré par le lieu s'affiche ; son effet sur
+  le mode jam vient avec les jams publiques des lieux (P5-04).
+- **RGPD** : la gestion d'un lieu figure dans l'export (`organisations`) ;
+  à l'anonymisation, elle se clôt (règle commune des organisations).
+- **Tests** : `src/lib/venues/profile.test.ts`,
+  `core/venueSummary.test.ts` ; intégration
+  `venues/profile.integration.test.ts` ; e2e
+  `e2e/linkmusician/lieu-fiche.spec.ts`.
+- **Plus tard** : photos du lieu (P5-03d) ; gérant vérifié, niveau 2
+  (P5-03c, après le lancement).
 
 ## Jams publiques (P2-14b)
 

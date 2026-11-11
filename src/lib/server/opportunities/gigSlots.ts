@@ -53,28 +53,40 @@ export async function isPromoter(personId: string) {
 }
 
 /**
- * Organisation `PROMOTER` que la personne gère (P5-05b), prête à publier :
- * ville indiquée et au moins un type d'événement. Sinon, une erreur qui dit
- * ce qui manque.
+ * Organisation au nom de laquelle publier, que la personne gère (OWNER,
+ * ADMIN) : une organisation `PROMOTER` (P5-05b) avec une ville et un type
+ * d'événement, ou un lieu `VENUE` (P5-03b) dont la fiche est publiée, et
+ * qui publie chez lui. Sinon, une erreur qui dit ce qui manque.
  */
-async function requirePromoterOrg(personId: string, orgId: string) {
+async function requireIssuerOrg(personId: string, orgId: string) {
 	const org = await prisma.organization.findFirst({
 		where: {
 			actorId: orgId,
-			kind: 'PROMOTER',
+			kind: { in: ['PROMOTER', 'VENUE'] },
 			dissolvedAt: null,
 			actor: { deletedAt: null },
 			memberships: {
 				some: { personId, status: 'ACTIVE', role: { in: ['OWNER', 'ADMIN'] } }
 			}
 		},
-		select: { promoter: { select: { eventKinds: true } } }
+		select: {
+			kind: true,
+			promoter: { select: { eventKinds: true } },
+			venueProfile: { select: { publishedAt: true } },
+			venueClaims: { where: { status: 'APPROVED' }, take: 1, select: { venueId: true } }
+		}
 	});
 	if (!org) {
 		throw new OpportunityError(
 			'Seules les personnes qui gèrent l’organisation publient en son nom.',
 			403
 		);
+	}
+	if (org.kind === 'VENUE') {
+		if (!org.venueProfile?.publishedAt) {
+			throw new OpportunityError('Publie d’abord la fiche du lieu.');
+		}
+		return { kind: 'VENUE' as const, venueId: org.venueClaims[0]?.venueId ?? null };
 	}
 	const gaps = gigSlotGaps({
 		hasCommune: (await getActorLocation(orgId)) !== null,
@@ -83,11 +95,12 @@ async function requirePromoterOrg(personId: string, orgId: string) {
 	if (gaps.length > 0) {
 		throw new OpportunityError(`Complète d’abord la fiche de l’organisation : ${gaps.join(', ')}.`);
 	}
+	return { kind: 'PROMOTER' as const, venueId: null };
 }
 
 /**
  * Publier un plateau, en son nom ou au nom d'une organisation que l'on gère
- * (P5-05b) : l'organisation est l'émettrice, la personne est notée
+ * (P5-05b, ou un lieu, P5-03b) : l'organisation est l'émettrice, la personne est notée
  * (`postedById`) ; la zone est la ville de l'organisation ; le quota est
  * celui de la personne, compté sur les plateaux de l'émetteur.
  */
@@ -97,10 +110,20 @@ export async function createGigSlot(
 	now = new Date(),
 	orgId: string | null = null
 ) {
-	if (!(await isPromoter(personId))) throw new OpportunityError(NOT_PROMOTER_ERROR, 403);
 	const issuerId = orgId ?? personId;
-	if (orgId) await requirePromoterOrg(personId, orgId);
-	else if (!(await getActorLocation(personId))) {
+	const org = orgId ? await requireIssuerOrg(personId, orgId) : null;
+	// Un lieu publie ses dates sans le métier d'organisateur·rice (Q34) ; il
+	// faut être majeur·e (D5), et c'est chez lui.
+	if (org?.kind === 'VENUE') {
+		if (!(await isAdult(personId)))
+			throw new OpportunityError('Il faut être majeur·e pour publier une date.', 403);
+		if (form.venueId !== org.venueId) {
+			throw new OpportunityError('Un lieu publie ses dates chez lui.');
+		}
+	} else if (!(await isPromoter(personId))) {
+		throw new OpportunityError(NOT_PROMOTER_ERROR, 403);
+	}
+	if (!orgId && !(await getActorLocation(personId))) {
 		throw new OpportunityError('Indique d’abord ta ville : un plateau se diffuse autour de toi.');
 	}
 	const date = checkGigDate(form, now);

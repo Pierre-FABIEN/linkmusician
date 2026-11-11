@@ -721,9 +721,10 @@ export async function exportPersonData(userId: string) {
 				debut: m.startedAt,
 				fin: m.endedAt
 			})),
-		// Organisations d'organisateur·rices gérées (P5-05b), comme les studios.
+		// Organisations d'organisateur·rices (P5-05b) et lieux (P5-03b) gérés,
+		// comme les studios : la fiche appartient à l'organisation.
 		organisations: memberships
-			.filter((m) => m.org.kind === 'PROMOTER')
+			.filter((m) => m.org.kind === 'PROMOTER' || m.org.kind === 'VENUE')
 			.map((m) => ({
 				organisation: m.org.actor.displayName,
 				role: m.role,

@@ -1,6 +1,7 @@
 // LINKMUSICIAN: fiche d'un lieu de l'annuaire (P2-14a) et ses jams à venir
 // (P2-14b). Validation par un second membre et matériel sur place (P2-14c).
-// Revendication de la fiche, niveau 1 (P5-03a, D31).
+// Revendication de la fiche, niveau 1 (P5-03a, D31). Fiche du lieu, agenda
+// des dates et rang, et lien vers sa gestion (P5-03b).
 import { error, fail } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import {
@@ -11,7 +12,14 @@ import {
 	verifyVenueSiret
 } from '#lib/server/venues/service';
 import { siretSchema } from '#lib/venues/siret';
-import { ClaimError, claimState, startClaim, submitClaimProof } from '#lib/server/venues/claims';
+import {
+	ClaimError,
+	claimState,
+	managesVenueOrg,
+	startClaim,
+	submitClaimProof
+} from '#lib/server/venues/claims';
+import { publicVenueProfile } from '#lib/server/venues/profile';
 import { isJamOrganizer, upcomingJamsAt } from '#lib/server/jam/publicJams';
 import { ModerationError, fileReport } from '#lib/server/moderation/service';
 import { BACKLINE_ITEMS, BACKLINE_LABELS, backlineSchema } from '#lib/jam/lineup';
@@ -26,9 +34,12 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const person = await me(locals);
 	const venue = await getVenue(params.id, person.actorId);
 	if (!venue) error(404, 'Lieu introuvable');
-	const [jams, claim] = await Promise.all([
+	const [jams, claim, profile, manages] = await Promise.all([
 		venue.validated ? upcomingJamsAt(venue.id, person.actorId) : [],
-		venue.validated ? claimState(venue.id, person.actorId) : null
+		venue.validated ? claimState(venue.id, person.actorId) : null,
+		// Fiche publiée, rang et dates (P5-03b).
+		venue.claimedByActorId ? publicVenueProfile(venue.id, person.actorId) : null,
+		venue.claimedByActorId ? managesVenueOrg(venue.claimedByActorId, person.actorId) : false
 	]);
 	return {
 		venue: {
@@ -48,6 +59,9 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		backlineOptions: BACKLINE_ITEMS.map((value) => ({ value, label: BACKLINE_LABELS[value] })),
 		jams,
 		claim,
+		profile,
+		/** Lien « Gérer la fiche du lieu » (P5-03b). */
+		manages,
 		/** « Publier une jam ici » : organisateurs seulement (D51). */
 		organizer: await isJamOrganizer(person.actorId),
 		// « Publier un plateau ici » (P5-05a).

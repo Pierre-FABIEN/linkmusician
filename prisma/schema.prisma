@@ -2617,6 +2617,8 @@ enum NotificationType {
   STUDIO_INVITE
   /// Invitation à gérer une organisation d'organisateur·rices (P5-05b).
   ORG_INVITE
+  /// Décision sur une revendication de lieu (P5-03b, Q29).
+  VENUE_CLAIM
   /// Quelqu'un de ton réseau te présente une personne (P4-13b).
   INTRODUCTION
   /// Préférence d'email seulement (P2-09b) : jamais une ligne de `Notification`.
@@ -2764,6 +2766,8 @@ model Organization {
   venueClaims VenueClaim[]
   /// Fiche d'une organisation d'organisateur·rices (P5-05b).
   promoter    PromoterOrgProfile?
+  /// Fiche d'un lieu revendiqué (P5-03b).
+  venueProfile VenueProfile?
 
   @@map("organizations")
 }
@@ -3333,6 +3337,42 @@ model PromoterOrgProfile {
   updatedAt  DateTime            @updatedAt
 
   @@map("promoter_org_profiles")
+}
+
+/// Conditions faites aux artistes par un lieu (P5-03b).
+enum VenueCondition {
+  FEE
+  HAT
+  EXPENSES
+}
+
+/// Accueil des mineur·es dans un lieu (P5-03b, D5).
+enum VenueAgeRule {
+  ALL_AGES
+  DAYTIME_MINORS
+  ADULTS
+}
+
+/// Fiche d'un lieu revendiqué (P5-03b, conception 08 §14), gérée par son
+/// organisation `VENUE` comme un studio. Genres : `actor_genres` de
+/// l'organisation ; matériel : `Venue.backline`. Publiée, elle donne le rang
+/// « Lieu ouvert ».
+model VenueProfile {
+  orgId       String           @id
+  org         Organization     @relation(fields: [orgId], references: [actorId], onDelete: Cascade)
+  /// Jauge (personnes).
+  capacity    Int?
+  /// Scène et sonorisation, texte libre (400 caractères au plus).
+  stage       String           @default("")
+  conditions  VenueCondition[]
+  /// Jours où le lieu accueille des dates (1 = lundi … 7 = dimanche).
+  days        Int[]
+  ageRule     VenueAgeRule     @default(ALL_AGES)
+  publishedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("venue_profiles")
 }
 
 /// Genre programmé (référentiel), 5 au plus par profil.

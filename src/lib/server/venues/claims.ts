@@ -16,6 +16,7 @@
  */
 import { prisma } from '#lib/server';
 import { logAdminAction } from '#lib/server/audit-log';
+import { notify } from '#lib/server/notifications/service';
 import { suggestHandle } from '#lib/actors/handle';
 import { adultBirthCutoff } from '#lib/actors/visibility';
 import { isManager } from '#lib/bands/rules';
@@ -244,6 +245,13 @@ export async function approveVenueClaim(id: string, by: Moderator, now = new Dat
 			where: { id },
 			data: { status: 'APPROVED', orgId: actor.id, reviewedAt: now, reviewedByUserId: by.userId }
 		});
+		// Décision annoncée (P5-03b, Q29) : la fiche du lieu dit la suite.
+		await notify(tx, {
+			recipientId: personId,
+			type: 'VENUE_CLAIM',
+			href: `/lieux/${row.venueId}`,
+			title: row.venue.name
+		});
 		await tx.venueClaim.updateMany({
 			where: { venueId: row.venueId, id: { not: id }, status: { in: [...OPEN] } },
 			data: {
@@ -275,13 +283,24 @@ export async function rejectVenueClaim(
 	const motive = reason.trim();
 	if (!motive) throw new ClaimError('Indique le motif du refus.');
 	const row = await pendingClaim(id);
-	await prisma.venueClaim.update({
-		where: { id },
-		data: {
-			status: 'REJECTED',
-			reviewedAt: now,
-			reviewedByUserId: by.userId,
-			reason: motive.slice(0, MAX_CLAIM_REASON)
+	await prisma.$transaction(async (tx) => {
+		await tx.venueClaim.update({
+			where: { id },
+			data: {
+				status: 'REJECTED',
+				reviewedAt: now,
+				reviewedByUserId: by.userId,
+				reason: motive.slice(0, MAX_CLAIM_REASON)
+			}
+		});
+		// Décision annoncée (P5-03b, Q29) : le motif se lit sur la fiche.
+		if (row.requestedById) {
+			await notify(tx, {
+				recipientId: row.requestedById,
+				type: 'VENUE_CLAIM',
+				href: `/lieux/${row.venueId}`,
+				title: row.venue.name
+			});
 		}
 	});
 	await logAdminAction({

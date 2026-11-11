@@ -55,6 +55,16 @@
 				<a href="/profil/medias" class="underline">Mes médias</a>.
 			</p>
 			<!-- LINKMUSICIAN: métiers du son (P4-02, P4-04). -->
+			{#if data.managesVenues && !data.promoter}
+				<!-- LINKMUSICIAN: lieux gérés (P5-03b). -->
+				<div class="mt-3 flex flex-wrap gap-2">
+					<a
+						href="/organisations"
+						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
+						>Mes lieux →</a
+					>
+				</div>
+			{/if}
 			{#if data.promoter}
 				<!-- LINKMUSICIAN: organisateur·rice (P5-05a). -->
 				<div class="mt-3 flex flex-wrap gap-2">
@@ -72,7 +82,7 @@
 					<a
 						href="/organisations"
 						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
-						>Mes organisations →</a
+						>{data.managesVenues ? 'Mes organisations et lieux →' : 'Mes organisations →'}</a
 					>
 				</div>
 			{/if}

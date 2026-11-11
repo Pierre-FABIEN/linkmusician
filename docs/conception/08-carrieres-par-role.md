@@ -469,6 +469,12 @@ Lieu de la scène locale).
 **Mode jam** : c'est son point fort. Une scène ouverte chaque semaine
 fait du lieu un rendez-vous du mode jam, où l'on peut venir seul.
 
+**Fiche (P5-03b)** : `/lieux/[id]/gerer` ; publiée (jauge, scène et son,
+genres, conditions), elle donne « Lieu ouvert ». La gestion du lieu
+publie ses dates chez lui sans le métier d'organisateur·rice (Q34). Les
+quêtes « apprendre le métier » sont des liens (fiches démarches, sources
+officielles).
+
 **Garde-fous** : une date ne compte qu'une fois tenue et confirmée par
 le groupe ; une jam publique, par ses participants ; aucune mise en
 avant payante dans le mode jam ; mineur·es : jams publiques seulement

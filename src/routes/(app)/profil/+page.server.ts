@@ -17,6 +17,7 @@ import { requirePerson } from '#server/actors/tracksForm';
 import { onProfileChanged } from '#lib/server/progression/profile';
 
 import { currentTip } from '#lib/server/guide/service';
+import { prisma } from '#lib/server';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -33,6 +34,15 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		producer: person.tracks.some((t) => t.track === 'PRODUCER'),
 		/** Lien vers « Mon profil d'organisateur·rice » (P5-05a). */
 		promoter: person.tracks.some((t) => t.track === 'PROMOTER'),
+		/** Lien « Mes lieux » : la personne gère un lieu revendiqué (P5-03b). */
+		managesVenues:
+			(await prisma.membership.count({
+				where: {
+					personId: person.actorId,
+					status: { in: ['ACTIVE', 'INVITED'] },
+					org: { kind: 'VENUE', dissolvedAt: null }
+				}
+			})) > 0,
 		// Conseil en contexte (P2-17).
 		tip: await currentTip('profil', person)
 	};

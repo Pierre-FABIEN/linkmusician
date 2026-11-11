@@ -44,12 +44,12 @@
 					>Choisir mes métiers</a
 				>
 			</div>
-		{:else if !data.commune && data.orgs.length === 0}
+		{:else if !data.canPublishAsMe && data.orgs.length === 0}
 			<p class="rounded-2xl border bg-card p-6 text-center">
 				Un plateau se diffuse autour de ta ville : indique-la d’abord.
 				<a href="/profil/ville" class="block pt-2 font-semibold underline">Indiquer ma ville</a>
 			</p>
-		{:else if data.venues.length === 0}
+		{:else if data.venues.length === 0 && !data.orgs.some((o) => o.venueId)}
 			<p class="rounded-md border p-3 text-sm">
 				Aucun lieu de l’annuaire autour de toi.
 				<a href="/lieux/nouveau" class="font-semibold underline">Ajoute d’abord le lieu</a>.
@@ -75,7 +75,7 @@
 					<label class="block space-y-1 font-medium">
 						Publier au nom de
 						<select name="asOrg" bind:value={asOrg} class={field}>
-							{#if data.commune}<option value="">Moi</option>{/if}
+							{#if data.canPublishAsMe}<option value="">Moi</option>{/if}
 							{#each data.orgs as o (o.handle)}
 								<option value={o.handle}>{o.name}</option>
 							{/each}
@@ -87,18 +87,24 @@
 						{/if}
 					</label>
 				{/if}
-				<label class="block space-y-1 font-medium">
-					Lieu
-					<select name="venueId" required class={field}>
-						<option value="">—</option>
-						{#each data.venues as venue (venue.id)}
-							<option value={venue.id} selected={(v.venueId ?? data.venueId) === venue.id}
-								>{venue.label}</option
-							>
-						{/each}
-					</select>
-					<a href="/lieux/nouveau" class="text-sm font-normal underline">Le lieu n’y est pas ?</a>
-				</label>
+				{#if issuer?.venueId}
+					<!-- Un lieu publie ses dates chez lui (P5-03b). -->
+					<input type="hidden" name="venueId" value={issuer.venueId} />
+					<p class="font-medium">Lieu : <span class="font-normal">{issuer.name}</span></p>
+				{:else}
+					<label class="block space-y-1 font-medium">
+						Lieu
+						<select name="venueId" required class={field}>
+							<option value="">—</option>
+							{#each data.venues as venue (venue.id)}
+								<option value={venue.id} selected={(v.venueId ?? data.venueId) === venue.id}
+									>{venue.label}</option
+								>
+							{/each}
+						</select>
+						<a href="/lieux/nouveau" class="text-sm font-normal underline">Le lieu n’y est pas ?</a>
+					</label>
+				{/if}
 				<div class="grid gap-3 sm:grid-cols-2">
 					<label class="block space-y-1 font-medium">
 						Date

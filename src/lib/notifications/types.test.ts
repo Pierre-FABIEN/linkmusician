@@ -7,7 +7,8 @@ describe('notifications : textes', () => {
 			const text = notificationText(type, 'Ana', 'Jam funk');
 			expect(text.length).toBeGreaterThan(10);
 			if (type !== 'CONTACT_REQUEST') expect(text).toMatch(/Jam funk/);
-			if (type !== 'APPLICATION_ACCEPTED') expect(text).toMatch(/^Ana /);
+			// Sans expéditeur : une acceptation, une décision de la modération (P5-03b).
+			if (type !== 'APPLICATION_ACCEPTED' && type !== 'VENUE_CLAIM') expect(text).toMatch(/^Ana /);
 		}
 	});
 

@@ -87,6 +87,30 @@
 			</ul>
 		{/if}
 
+		{#if data.venues.length > 0}
+			<!-- Lieux que je gère (P5-03b). -->
+			<section class="space-y-2" aria-labelledby="my-venues">
+				<h2 id="my-venues" class="text-xl font-bold">Mes lieux</h2>
+				<ul class="space-y-2">
+					{#each data.venues as venue (venue.venueId)}
+						<li>
+							<a
+								href="/lieux/{venue.venueId}/gerer"
+								class="flex min-h-14 items-center justify-between gap-3 rounded-xl border p-3 hover:bg-muted"
+							>
+								<span class="font-semibold">{venue.name}</span>
+								<span class="text-sm text-muted-foreground"
+									>{venue.published ? 'Fiche publiée' : 'Fiche à compléter'} · {ROLE_LABELS[
+										venue.role
+									]}</span
+								>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+
 		{#if data.canOpen}
 			<section class="space-y-3" aria-labelledby="new-org">
 				<h2 id="new-org" class="text-xl font-bold">
