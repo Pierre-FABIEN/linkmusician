@@ -145,12 +145,12 @@ en jam passée (vie de jam).
 
 ### Plateaux et candidatures (phase 5, `seed-scene`)
 
-| Plateau                             | Publié par                   | Conditions            | Candidatures                                              |
-| ----------------------------------- | ---------------------------- | --------------------- | --------------------------------------------------------- |
-| **Jeudi jazz au Comptoir** (J+12)   | le lieu, par Sophie          | rang « Live », jazz   | Fanfare Pirate **acceptée** (conversation Lucas ↔ Sophie) |
-| **Plateau rock du vendredi** (J+20) | Bruit Rose, par Yanis        | rang « Répète », rock | Orbital **envoyée** ; Les Rats **présélectionnés**        |
-| **Scène découverte folk** (J+9)     | Lina, **à son nom**          | folk, ouvert à tous   | Les Lucioles **envoyée** (leur toute première scène)      |
-| **Disco live** (J+25)               | Soirées Disco Club, par Hugo | disco                 | aucune                                                    |
+| Plateau                                                        | Publié par                   | Conditions            | Candidatures                                              |
+| -------------------------------------------------------------- | ---------------------------- | --------------------- | --------------------------------------------------------- |
+| **Jeudi jazz au Comptoir** (un jeudi, dans 10 à 16 jours)      | le lieu, par Sophie          | rang « Live », jazz   | Fanfare Pirate **acceptée** (conversation Lucas ↔ Sophie) |
+| **Plateau rock du vendredi** (un vendredi, dans 18 à 24 jours) | Bruit Rose, par Yanis        | rang « Répète », rock | Orbital **envoyée** ; Les Rats **présélectionnés**        |
+| **Scène découverte folk** (J+9)                                | Lina, **à son nom**          | folk, ouvert à tous   | Les Lucioles **envoyée** (leur toute première scène)      |
+| **Disco live** (J+25)                                          | Soirées Disco Club, par Hugo | disco                 | aucune                                                    |
 
 À voir :
 
