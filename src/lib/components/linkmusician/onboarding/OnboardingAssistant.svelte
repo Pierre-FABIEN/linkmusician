@@ -111,7 +111,7 @@
 	}
 </script>
 
-<details class="group rounded-lg border p-4">
+<details class="lm-tile lm-tile--flow group p-4">
 	<summary class="flex min-h-11 cursor-pointer items-center gap-2 font-medium">
 		<Sparkles class="size-4 text-primary" aria-hidden="true" />
 		Décris ta situation avec tes mots

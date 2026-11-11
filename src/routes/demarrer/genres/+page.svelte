@@ -35,7 +35,7 @@
 	<Card.Content>
 		<form method="POST" use:enhance class="space-y-5">
 			<div>
-				<h1 class="text-2xl font-black">Tes genres</h1>
+				<h1 class="lm-title lm-title--sm">Tes genres</h1>
 				<p class="text-sm text-muted-foreground">
 					1 à {MAX_GENRES} : un genre large (« Rock ») ou précis (« Punk »). ({selected.length}/{MAX_GENRES})
 				</p>
@@ -49,11 +49,11 @@
 							{#each [genre, ...genre.children] as g, i (g.id)}
 								{@const on = selected.includes(g.id)}
 								<label
-									class="cursor-pointer rounded-full border px-3 py-1.5 text-sm transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-fuchsia-400 {on
+									class="cursor-pointer rounded-full border px-3 py-1.5 text-sm transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary {on
 										? 'border-transparent bg-foreground text-background'
 										: full
 											? 'opacity-40'
-											: 'hover:border-fuchsia-400'} {i === 0 ? 'font-semibold' : ''}"
+											: 'hover:border-primary'} {i === 0 ? 'font-semibold' : ''}"
 								>
 									<input
 										type="checkbox"
@@ -78,7 +78,7 @@
 					id="influences"
 					name="influences"
 					rows="3"
-					class="w-full rounded-md border bg-background p-2 text-sm"
+					class="lm-field w-full"
 					placeholder="Vulfpeck&#10;Erykah Badu">{form?.influences ?? data.influences}</textarea
 				>
 			</div>

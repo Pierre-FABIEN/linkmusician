@@ -41,8 +41,10 @@
   cartes en tuiles de page `lm-tile--flow`, boutons en `lm-btn`, champs
   en `lm-field`, plus de grand cadre ni de couleur en dur hors des
   accueils). Les **accueils** `/jouer`, `/jam` et `/espace` sont en
-  panorama de tuiles sur l'Aurora (MET-02, fait). Restent les migrations
-  fines par parcours (MET-03 à MET-07).
+  panorama de tuiles sur l'Aurora (MET-02, fait). Les pages hors coquille
+  (visiteur de l'aide, d'un profil ou d'une démarche, premiers pas,
+  modération, erreurs, compte) passent par `MetroPage` (MET-07, fait).
+  Restent les migrations fines par parcours (MET-03 à MET-06).
 - **Comment on migre** : d'abord un **socle** (la coquille passe en
   Metro, les composants manquants sont écrits, le CSS est rangé), puis les
   écrans **par parcours**, un lot à la fois, avec la même liste de
@@ -155,6 +157,8 @@ que la page lui donne (`w-full`, `w-40`).
 | `ProfileTile`                                                                                        | Tuile de profil (initiales, instrument, genres, distance)                                                                                                      |
 | `tones.ts`                                                                                           | Types `Tone`, `Size` partagés ; `TONE_OF` (la table du §4.2 en code) ; `toneOfMode`                                                                            |
 | `MetroMenu`, `MetroPageHeader`, `MetroField`, `MetroChoice`, `MetroSheet`, `MetroEmpty`, `MetroList` | Écrits dans MET-01 (§7.2)                                                                                                                                      |
+| `MetroHome`                                                                                          | Accueil de mode : Aurora, en-tête, panorama de `MetroMenu` (MET-02)                                                                                            |
+| `MetroPage`                                                                                          | Page Metro **hors** de la coquille : visiteur, premiers pas, modération, erreurs, compte (MET-07)                                                              |
 
 Polices déjà chargées pour toute l'app (`routes/+layout.svelte`) :
 `@fontsource-variable/raleway` et `@fontsource-variable/open-sans`.

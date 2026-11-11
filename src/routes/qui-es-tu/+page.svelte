@@ -28,29 +28,32 @@
 		$formData.tracks = tracks;
 		$formData.primary = suggestPrimary(tracks, $formData.primary) ?? undefined;
 	}
+	import MetroPage from '#lib/components/linkmusician/metro/MetroPage.svelte';
 </script>
 
 <SEO title="Qui es-tu ?" noindex nofollow />
 
-<div class="min-h-screen w-screen px-4 py-24">
-	<div class="mx-auto mb-6 max-w-lg"><StepBar current="metiers" /></div>
-	<div class="mx-auto max-w-lg rounded-lg border p-6 shadow-lg backdrop-blur-3xl">
-		<h1 class="mb-2 text-2xl font-bold">Qui es-tu&nbsp;?</h1>
-		<p class="mb-6 text-sm text-muted-foreground">
-			Coche tout ce que tu fais dans la musique, puis ton métier principal. Les métiers marqués «
-			bientôt » ont pour l'instant un profil de base : dis-nous que tu es là, on les construit. Tu
-			pourras changer d'avis dans tes réglages.
-		</p>
+<MetroPage>
+	<div class="min-h-screen w-screen px-4 py-24">
+		<div class="mx-auto mb-6 max-w-lg"><StepBar current="metiers" /></div>
+		<div class="lm-tile lm-tile--flow mx-auto max-w-lg p-6">
+			<h1 class="lm-title lm-title--sm mb-2">Qui es-tu&nbsp;?</h1>
+			<p class="mb-6 text-sm text-muted-foreground">
+				Coche tout ce que tu fais dans la musique, puis ton métier principal. Les métiers marqués «
+				bientôt » ont pour l'instant un profil de base : dis-nous que tu es là, on les construit. Tu
+				pourras changer d'avis dans tes réglages.
+			</p>
 
-		{#if data.assistant.available && data.assistant.remaining > 0}
-			<div class="mb-6">
-				<OnboardingAssistant remaining={data.assistant.remaining} onApply={applyProposals} />
-			</div>
-		{/if}
+			{#if data.assistant.available && data.assistant.remaining > 0}
+				<div class="mb-6">
+					<OnboardingAssistant remaining={data.assistant.remaining} onApply={applyProposals} />
+				</div>
+			{/if}
 
-		<form method="POST" use:enhance class="space-y-4">
-			<TrackPicker form={tracksForm} />
-			<Button type="submit" class="w-full" disabled={$submitting}>Continuer</Button>
-		</form>
+			<form method="POST" use:enhance class="space-y-4">
+				<TrackPicker form={tracksForm} />
+				<Button type="submit" class="w-full" disabled={$submitting}>Continuer</Button>
+			</form>
+		</div>
 	</div>
-</div>
+</MetroPage>

@@ -72,7 +72,7 @@
 	<Card.Content>
 		<form method="POST" use:enhance class="space-y-5">
 			<div>
-				<h1 class="text-2xl font-black">Où joues-tu ?</h1>
+				<h1 class="lm-title lm-title--sm">Où joues-tu ?</h1>
 				<p class="text-sm text-muted-foreground">
 					Seulement ta commune, jamais ton adresse : les autres voient une distance approximative («
 					5 à 10 km »).
@@ -97,7 +97,7 @@
 					aria-expanded={suggestions.length > 0}
 					aria-controls="commune-suggestions"
 					placeholder="Nom de commune ou code postal"
-					class="w-full rounded-md border bg-background p-2 text-sm"
+					class="lm-field w-full"
 					bind:value={query}
 					oninput={onInput}
 				/>
