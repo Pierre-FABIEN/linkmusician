@@ -31,6 +31,7 @@ import { isManager } from '#lib/bands/rules';
 import { bandTier } from '#lib/server/progression/core/tiers';
 import { checkReleaseReference, type ReleaseReferenceKind } from '#lib/milestones/verification';
 import { verifyMusicBrainzRelease, type ReleaseMilestoneKey } from './release-verification';
+import { firstTour } from '#lib/milestones/tour';
 import {
 	compositionProof,
 	creditDate,
@@ -433,6 +434,160 @@ export async function verifyRecordingFromCollaboration(
 		formedAt: band.formedAt,
 		now
 	});
+}
+
+/**
+ * Renforce une étape du groupe à `to` (création, ou montée depuis un niveau
+ * plus faible) et émet l'attestation. Rien si elle est déjà à ce niveau ou
+ * au-dessus, ou gelée par une contestation (P3-06).
+ */
+async function raiseMilestone(
+	tx: Tx,
+	band: { id: string; formedAt: Date },
+	key: MilestoneKey,
+	to: MilestoneProof,
+	day: string,
+	now: Date
+) {
+	await lockBand(tx, band.id);
+	const existing = await tx.milestone.findUnique({
+		where: { bandId_definitionId: { bandId: band.id, definitionId: key } },
+		select: { id: true, proof: true, occurredAt: true, frozenAt: true }
+	});
+	if (existing && (existing.frozenAt || !isUpgrade(existing.proof, to))) return null;
+	const occurredAt = existing?.occurredAt ?? dayToDate(day);
+	if (existing) {
+		await tx.milestone.update({ where: { id: existing.id }, data: { proof: to } });
+	} else {
+		await tx.milestone.create({
+			data: {
+				definitionId: key,
+				bandId: band.id,
+				proof: to,
+				occurredAt,
+				definitionVersion: await definitionVersion(tx, key)
+			}
+		});
+	}
+	return attest(tx, {
+		bandId: band.id,
+		key,
+		from: existing?.proof ?? null,
+		to,
+		occurredAt,
+		formedAt: band.formedAt,
+		now
+	});
+}
+
+/**
+ * Concert terminé (P5-06, conception 02 §4 et 08 §8, §14) : un groupe a
+ * joué, accueilli par un lieu ou une organisation que gère l'autre personne.
+ * Appelé dans la transaction qui termine la collaboration.
+ *
+ * - « Premier concert » : **vérifié** si l'hôte est une organisation
+ *   vérifiée (SIRET, `isVerifiedOrg`, P5-02), sinon **corroboré** (une
+ *   personne extérieure au groupe l'a confirmé). Jamais si la même personne
+ *   joue et accueille.
+ * - « Première tournée » : vérifiée par ≥3 concerts vérifiés dans ≥3
+ *   communes en 30 jours (`firstTour`).
+ * - `gig.held` : l'événement tenu crédite qui organise (piste
+ *   organisateur·rice, rendement par artiste, confiance de qui confirme) ;
+ *   le lieu y gagne son rang, jamais d'XP (Q24).
+ */
+export async function verifyGigFromCollaboration(
+	tx: Tx,
+	collab: {
+		id: string;
+		bandId: string;
+		hostOrgId: string;
+		happenedOn: Date;
+		communeCode: string | null;
+		participantIds: string[];
+	},
+	now: Date
+) {
+	const [band, host, members, managers] = await Promise.all([
+		tx.organization.findUnique({
+			where: { actorId: collab.bandId },
+			select: { kind: true, formedAt: true, dissolvedAt: true }
+		}),
+		tx.organization.findUnique({
+			where: { actorId: collab.hostOrgId },
+			select: { kind: true, verifiedAt: true }
+		}),
+		tx.membership.findMany({
+			where: {
+				orgId: collab.bandId,
+				status: 'ACTIVE',
+				personId: { in: collab.participantIds }
+			},
+			select: { personId: true }
+		}),
+		tx.membership.findMany({
+			where: {
+				orgId: collab.hostOrgId,
+				status: 'ACTIVE',
+				role: { in: ['OWNER', 'ADMIN'] },
+				personId: { in: collab.participantIds }
+			},
+			select: { personId: true }
+		})
+	]);
+	if (!band || band.kind !== 'BAND' || !host) return null;
+	const players = new Set(members.map((m) => m.personId));
+	const hosts = managers.map((m) => m.personId).filter((id) => !players.has(id));
+	const confirmers = [...players].filter((id) => !managers.some((m) => m.personId === id));
+	// Un concert que l'on joue et accueille soi-même ne prouve rien.
+	if (hosts.length === 0 || confirmers.length === 0) return null;
+	const verified = host.verifiedAt !== null;
+	const day = collab.happenedOn.toISOString().slice(0, 10);
+
+	// Toute première date du groupe : ni concert terminé avant, ni étape déclarée.
+	const [earlierGigs, firstGig] = await Promise.all([
+		tx.collaboration.count({
+			where: {
+				bandId: collab.bandId,
+				kind: 'GIG',
+				status: 'COMPLETED',
+				id: { not: collab.id }
+			}
+		}),
+		tx.milestone.count({ where: { bandId: collab.bandId, definitionId: 'FIRST_GIG' } })
+	]);
+	await emitAndProcess(tx, {
+		type: 'gig.held',
+		gigId: collab.id,
+		organizerIds: hosts,
+		bookerIds: [],
+		performerIds: [collab.bandId],
+		confirmerIds: confirmers,
+		...(host.kind === 'VENUE' ? { venueOrgId: collab.hostOrgId } : {}),
+		firstDateIds: earlierGigs === 0 && firstGig === 0 ? [collab.bandId] : [],
+		verified
+	});
+
+	if (!band.formedAt || band.dissolvedAt) return null;
+	const formed = { id: collab.bandId, formedAt: band.formedAt };
+	await raiseMilestone(tx, formed, 'FIRST_GIG', verified ? 'VERIFIED' : 'CORROBORATED', day, now);
+	if (!verified) return null;
+	// Tournée : les concerts vérifiés du groupe, avec leur commune.
+	const gigs = await tx.collaboration.findMany({
+		where: {
+			bandId: collab.bandId,
+			kind: 'GIG',
+			status: 'COMPLETED',
+			communeCode: { not: null },
+			hostOrg: { verifiedAt: { not: null } }
+		},
+		select: { happenedOn: true, communeCode: true }
+	});
+	// La collaboration est déjà marquée terminée : elle fait partie de la liste.
+	const tour = firstTour(
+		gigs.map((g) => ({ day: g.happenedOn.toISOString().slice(0, 10), communeCode: g.communeCode! }))
+	);
+	if (tour) await raiseMilestone(tx, formed, 'FIRST_TOUR', 'VERIFIED', tour.from, now);
+	return null;
 }
 
 export async function updateMilestoneDetails(

@@ -59,7 +59,13 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		 * Prestation de chaque participant·e qui exerce un métier du son
 		 * (P4-01, D20) : ingé son, producteur·rice. Absent pour qui joue.
 		 */
-		services: z.record(id, z.enum(CRAFT_SERVICES)).optional()
+		services: z.record(id, z.enum(CRAFT_SERVICES)).optional(),
+		/**
+		 * Concert (P5-06) : participant·es côté lieu ou organisation. Elles et
+		 * ils comptent comme contrepartie, mais ne gagnent pas la collaboration
+		 * de musicien·ne : l'événement tenu (`gig.held`) les crédite.
+		 */
+		hostIds: z.array(id).optional()
 	}),
 	/**
 	 * Une sortie vérifiée (ISRC, UPC) crédite une personne d'un métier du son

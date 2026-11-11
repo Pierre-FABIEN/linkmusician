@@ -9,7 +9,9 @@
  * la valeur de sa prestation sur la piste de ce métier (D20), avec les mêmes
  * multiplicateurs : rendement décroissant **par artiste**, confiance de
  * l'artiste. Les autres gagnent la collaboration sur la piste musicien,
- * sauf sur un mixage ou un mastering, où ils ne jouent pas (P4-06).
+ * sauf sur un mixage ou un mastering, où ils ne jouent pas (P4-06). Sur un
+ * concert (P5-06), le côté lieu ou organisation (`hostIds`) ne gagne pas la
+ * collaboration : `gig.held` le crédite sur la piste organisateur·rice.
  */
 import { BAREME } from '../bareme';
 import { musiciansEarn, SERVICE_REASON, SERVICE_TRACK } from '../crafts';
@@ -39,6 +41,7 @@ export const collaborationCompleted = defineRule({
 			const multiplier = roundMultiplier(factors.reduce((a, b) => a + b, 0) / factors.length);
 			const service = event.services?.[person];
 			if (!service && !musicians) continue;
+			if (!service && event.hostIds?.includes(person)) continue;
 			const base = service ? BAREME.services[service] : BAREME.collaborationCompleted;
 			const track: Track = service ? SERVICE_TRACK[service] : 'MUSICIAN';
 			const label = service ? SERVICE_REASON[service] : 'Collaboration confirmée';

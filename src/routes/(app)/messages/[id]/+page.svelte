@@ -23,7 +23,11 @@
 	const chip = 'min-h-11 rounded-full border px-3 text-sm font-semibold hover:border-primary';
 	let sending = $state(false);
 	// Collaboration liée au morceau (P4-06) : qui assure la prestation du son.
-	let collabKind = $state<(typeof COLLAB_KINDS)[number]>('REHEARSAL');
+	// Venu d'un plateau (P5-06) : « Concert » d'office.
+	// svelte-ignore state_referenced_locally
+	let collabKind = $state<(typeof COLLAB_KINDS)[number]>(
+		data.collabForm?.gig.fromPlateau ? 'GIG' : 'REHEARSAL'
+	);
 	const service = $derived(KIND_SERVICE[collabKind] ?? null);
 	const can = (who: 'me' | 'other') =>
 		Boolean(service && data.collabForm?.tracks[who].includes(service.track));
@@ -310,6 +314,43 @@
 								</p>
 							{/if}
 						</fieldset>
+					{/if}
+					{#if data.collabForm && collabKind === 'GIG'}
+						<!-- Concert (P5-06) : le groupe qui joue, l'hôte qui l'accueille. -->
+						{@const gig = data.collabForm.gig}
+						{#if gig.bands.length === 0 || gig.hosts.length === 0}
+							<p class="rounded-md border bg-muted/40 p-3 text-sm sm:col-span-2">
+								Un concert se confirme entre une personne qui joue dans le groupe et une personne
+								qui gère le lieu ou l’organisation qui l’accueille. {gig.bands.length === 0
+									? 'Aucun de vous deux ne joue dans un groupe.'
+									: 'Aucun de vous deux ne gère un lieu ou une organisation.'}
+							</p>
+						{:else}
+							<label class="block space-y-1 font-medium">
+								Groupe
+								<select name="band" required class="w-full rounded-md border bg-background p-2">
+									{#each gig.bands as b (b.handle)}
+										<option value={b.handle} selected={b.handle === gig.defaultBand}
+											>{b.name}</option
+										>
+									{/each}
+								</select>
+							</label>
+							<label class="block space-y-1 font-medium">
+								Lieu ou organisation
+								<select name="host" required class="w-full rounded-md border bg-background p-2">
+									{#each gig.hosts as h (h.handle)}
+										<option value={h.handle} selected={h.handle === gig.defaultHost}
+											>{h.name}{h.verified ? ' (vérifié)' : ''}</option
+										>
+									{/each}
+								</select>
+							</label>
+							<p class="text-sm text-muted-foreground sm:col-span-2">
+								Confirmé des deux côtés, le concert compte pour le groupe : vérifié si le lieu ou
+								l’organisation l’est, corroboré sinon.
+							</p>
+						{/if}
 					{/if}
 					{#if data.collabForm && data.collabForm.studios.length > 0 && isStudioSessionKind(collabKind)}
 						<!-- Au studio (P4-03c) : une session, une fois confirmée par le ou la client·e. -->

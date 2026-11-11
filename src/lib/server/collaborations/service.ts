@@ -18,6 +18,11 @@
  * Étapes vérifiées par les pros (P4-09) : un enregistrement terminé avec un·e
  * ingé son ou dans un studio de la plateforme, relié à un morceau du groupe,
  * vérifie son « Premier enregistrement ».
+ *
+ * Concert (P5-06) : un groupe où joue l'une des deux personnes, accueilli
+ * par un lieu ou une organisation que gère l'autre. Terminé, il corrobore
+ * ou vérifie « Premier concert », peut vérifier la tournée, et émet
+ * `gig.held` (`verifyGigFromCollaboration`).
  */
 import { prisma } from '#lib/server';
 import { isBlockedBetween } from '#lib/server/blocking/service';
@@ -25,6 +30,7 @@ import { emitAndProcess } from '#lib/server/progression/processor';
 import { notify } from '#lib/server/notifications/service';
 import { parisDay } from '#lib/metrics/indicators';
 import {
+	checkGigParties,
 	checkProvider,
 	collabStatus,
 	hasHappened,
@@ -37,7 +43,10 @@ import {
 } from '#lib/collaborations/rules';
 import { creditFromCollaboration, manageableWorks } from '#lib/server/works/service';
 import { isStudioSessionKind } from '#lib/studios/rules';
-import { verifyRecordingFromCollaboration } from '#lib/server/milestones/service';
+import {
+	verifyGigFromCollaboration,
+	verifyRecordingFromCollaboration
+} from '#lib/server/milestones/service';
 import { markSucceeded } from '#lib/server/career/introductions';
 
 /**
@@ -86,6 +95,102 @@ async function studiosOfPair(meId: string, otherId: string, handle?: string) {
 	}));
 }
 
+/**
+ * Concert (P5-06) : les groupes où joue l'une des deux personnes, et les
+ * lieux (revendiqués) ou organisations d'organisateur·rices que gère l'une
+ * d'elles. Pour chacun, qui des deux en fait partie.
+ */
+export async function gigPartiesOfPair(meId: string, otherId: string) {
+	const pair = [meId, otherId];
+	const [bands, hosts] = await Promise.all([
+		prisma.actor.findMany({
+			where: {
+				kind: 'ORGANIZATION',
+				deletedAt: null,
+				organization: {
+					kind: 'BAND',
+					dissolvedAt: null,
+					memberships: { some: { personId: { in: pair }, status: 'ACTIVE' } }
+				}
+			},
+			orderBy: { displayName: 'asc' },
+			select: {
+				id: true,
+				handle: true,
+				displayName: true,
+				organization: {
+					select: {
+						memberships: {
+							where: { personId: { in: pair }, status: 'ACTIVE' },
+							select: { personId: true }
+						}
+					}
+				}
+			}
+		}),
+		prisma.actor.findMany({
+			where: {
+				kind: 'ORGANIZATION',
+				deletedAt: null,
+				organization: {
+					dissolvedAt: null,
+					OR: [
+						{ kind: 'PROMOTER' },
+						{ kind: 'VENUE', venueClaims: { some: { status: 'APPROVED' } } }
+					],
+					memberships: {
+						some: { personId: { in: pair }, status: 'ACTIVE', role: { in: ['OWNER', 'ADMIN'] } }
+					}
+				}
+			},
+			orderBy: { displayName: 'asc' },
+			select: {
+				id: true,
+				handle: true,
+				displayName: true,
+				location: { select: { communeCode: true } },
+				organization: {
+					select: {
+						kind: true,
+						verifiedAt: true,
+						venueClaims: {
+							where: { status: 'APPROVED' },
+							take: 1,
+							select: { venue: { select: { communeCode: true } } }
+						},
+						memberships: {
+							where: {
+								personId: { in: pair },
+								status: 'ACTIVE',
+								role: { in: ['OWNER', 'ADMIN'] }
+							},
+							select: { personId: true }
+						}
+					}
+				}
+			}
+		})
+	]);
+	return {
+		bands: bands.map((b) => ({
+			id: b.id,
+			handle: b.handle,
+			name: b.displayName,
+			players: (b.organization?.memberships ?? []).map((m) => m.personId)
+		})),
+		hosts: hosts.map((h) => ({
+			id: h.id,
+			handle: h.handle,
+			name: h.displayName,
+			isVenue: h.organization?.kind === 'VENUE',
+			verified: h.organization?.verifiedAt != null,
+			communeCode:
+				h.organization?.venueClaims[0]?.venue.communeCode ?? h.location?.communeCode ?? null,
+			managers: (h.organization?.memberships ?? []).map((m) => m.personId)
+		}))
+	};
+}
+
 export class CollaborationError extends Error {
 	constructor(
 		message: string,
@@ -115,6 +220,9 @@ export async function proposeCollaboration(
 		work?: string;
 		/** Studio où elle a lieu (P4-03c), par son nom d'utilisateur. */
 		studio?: string;
+		/** Concert (P5-06) : groupe et hôte, par leurs noms d'utilisateur. */
+		band?: string;
+		host?: string;
 	},
 	now = new Date()
 ) {
@@ -179,6 +287,31 @@ export async function proposeCollaboration(
 			throw new CollaborationError('Ce studio n’est pas géré par l’un de vous deux.', 403);
 		studioId = studio.id;
 	}
+	// Concert (P5-06) : l'une joue dans le groupe, l'autre gère l'hôte.
+	const gigError = checkGigParties(input.kind, input);
+	if (gigError) throw new CollaborationError(gigError);
+	let gig: { bandId: string; hostOrgId: string; communeCode: string | null } | null = null;
+	if (input.kind === 'GIG') {
+		const parties = await gigPartiesOfPair(proposerId, other.actorId);
+		const band = parties.bands.find((b) => b.handle === input.band);
+		const host = parties.hosts.find((h) => h.handle === input.host);
+		if (!band) throw new CollaborationError('L’un de vous deux doit jouer dans ce groupe.', 403);
+		if (!host)
+			throw new CollaborationError(
+				'L’un de vous deux doit gérer ce lieu ou cette organisation.',
+				403
+			);
+		const split = [proposerId, other.actorId].some(
+			(player) =>
+				band.players.includes(player) && host.managers.some((manager) => manager !== player)
+		);
+		if (!split) {
+			throw new CollaborationError(
+				'Un concert se confirme à deux : l’une joue dans le groupe, l’autre gère le lieu ou l’organisation.'
+			);
+		}
+		gig = { bandId: band.id, hostOrgId: host.id, communeCode: host.communeCode };
+	}
 	const happened = hasHappened(input.happenedOn, now);
 	const created = await prisma.collaboration.create({
 		data: {
@@ -190,6 +323,9 @@ export async function proposeCollaboration(
 			opportunityId: conversation.opportunityId,
 			workId: input.work ?? null,
 			studioId,
+			bandId: gig?.bandId ?? null,
+			hostOrgId: gig?.hostOrgId ?? null,
+			communeCode: gig?.communeCode ?? null,
 			participants: {
 				create: [
 					// Proposer vaut accord, et confirmation si c'est déjà passé.
@@ -255,11 +391,28 @@ async function settle(collaborationId: string, now: Date) {
 			const services = Object.fromEntries(
 				collab.participants.flatMap((p) => (p.service ? [[p.actorId, p.service]] : []))
 			);
+			// Concert (P5-06) : le côté hôte ne gagne pas la collaboration de
+			// musicien·ne ; `gig.held` le crédite.
+			const hostIds =
+				collab.kind === 'GIG' && collab.hostOrgId
+					? (
+							await tx.membership.findMany({
+								where: {
+									orgId: collab.hostOrgId,
+									status: 'ACTIVE',
+									role: { in: ['OWNER', 'ADMIN'] },
+									personId: { in: collab.participants.map((p) => p.actorId) }
+								},
+								select: { personId: true }
+							})
+						).map((m) => m.personId)
+					: [];
 			await emitAndProcess(tx, {
 				type: 'collaboration.completed',
 				collaborationId,
 				participantIds: collab.participants.map((p) => p.actorId),
-				...(Object.keys(services).length > 0 ? { services } : {})
+				...(Object.keys(services).length > 0 ? { services } : {}),
+				...(hostIds.length > 0 ? { hostIds } : {})
 			});
 			// Parrainage (P4-13b) : deux personnes présentées collaborent, succès Passeur.
 			await markSucceeded(
@@ -285,6 +438,21 @@ async function settle(collaborationId: string, now: Date) {
 						now
 					);
 				}
+			}
+			// Un concert corrobore ou vérifie l'étape du groupe, et la tournée (P5-06).
+			if (collab.kind === 'GIG' && collab.bandId && collab.hostOrgId) {
+				await verifyGigFromCollaboration(
+					tx,
+					{
+						id: collab.id,
+						bandId: collab.bandId,
+						hostOrgId: collab.hostOrgId,
+						happenedOn: collab.happenedOn,
+						communeCode: collab.communeCode,
+						participantIds: collab.participants.map((p) => p.actorId)
+					},
+					now
+				);
 			}
 			// Un enregistrement avec un·e pro vérifie l'étape du groupe (P4-09).
 			if (collab.kind === 'RECORDING' && collab.workId) {
@@ -443,19 +611,39 @@ export async function collabFormContext(actorId: string, conversationId: string)
 		(await prisma.personTrack.findMany({ where: { personId: id }, select: { track: true } })).map(
 			(t) => t.track as string
 		);
-	const [myTracks, otherTracks, mine, theirs, opportunity, studios] = await Promise.all([
-		tracksOf(actorId),
-		tracksOf(otherId),
-		manageableWorks(actorId),
-		manageableWorks(otherId),
-		conversation.opportunityId
-			? prisma.opportunity.findUnique({
-					where: { id: conversation.opportunityId },
-					select: { workId: true }
-				})
-			: null,
-		studiosOfPair(actorId, otherId)
-	]);
+	const [myTracks, otherTracks, mine, theirs, opportunity, studios, gigParties] = await Promise.all(
+		[
+			tracksOf(actorId),
+			tracksOf(otherId),
+			manageableWorks(actorId),
+			manageableWorks(otherId),
+			conversation.opportunityId
+				? prisma.opportunity.findUnique({
+						where: { id: conversation.opportunityId },
+						select: {
+							workId: true,
+							kind: true,
+							issuerActorId: true,
+							applications: {
+								where: { status: 'ACCEPTED' },
+								select: { applicantActorId: true }
+							}
+						}
+					})
+				: null,
+			studiosOfPair(actorId, otherId),
+			// Concert (P5-06).
+			gigPartiesOfPair(actorId, otherId)
+		]
+	);
+	// Venu d'un plateau (P5-05a) : le groupe retenu et l'hôte sont préremplis.
+	const fromPlateau = opportunity?.kind === 'GIG_SLOT' ? opportunity : null;
+	const defaultBand =
+		gigParties.bands.find((b) => fromPlateau?.applications.some((a) => a.applicantActorId === b.id))
+			?.handle ?? (gigParties.bands.length === 1 ? gigParties.bands[0].handle : null);
+	const defaultHost =
+		gigParties.hosts.find((h) => h.id === fromPlateau?.issuerActorId)?.handle ??
+		(gigParties.hosts.length === 1 ? gigParties.hosts[0].handle : null);
 	const composed = new Set(
 		(
 			await prisma.work.findMany({
@@ -476,7 +664,21 @@ export async function collabFormContext(actorId: string, conversationId: string)
 		works,
 		defaultWork,
 		// Studios où la tenir (P4-03c) : le nom d'utilisateur, jamais l'identifiant.
-		studios: studios.map(({ handle, name, mine }) => ({ handle, name, mine }))
+		studios: studios.map(({ handle, name, mine }) => ({ handle, name, mine })),
+		// Concert (P5-06) : groupes et hôtes possibles, sans identifiant.
+		gig: {
+			bands: gigParties.bands.map(({ handle, name }) => ({ handle, name })),
+			hosts: gigParties.hosts.map(({ handle, name, isVenue, verified }) => ({
+				handle,
+				name,
+				isVenue,
+				verified
+			})),
+			defaultBand,
+			defaultHost,
+			/** Venu d'un plateau : « Concert » est proposé d'office. */
+			fromPlateau: fromPlateau !== null
+		}
 	};
 }
 

@@ -12,8 +12,10 @@ Le lieu a sa propre doc ([docs/jam](../jam/README.md#revendication-dun-lieu-nive
   `core/rules/gigHeld.ts` (événement tenu 200, artiste à sa toute première
   date 100, date bookée 150), rangs `PROMOTER_TIERS` et `AGENT_TIERS`
   (`core/tiers.ts`). Personas : `core/personas-scene.test.ts`.
-- Aucun code n'émet encore `gig.held` : il viendra avec les concerts
-  vérifiés (P5-06).
+- `gig.held` est émis à la fin d'un concert confirmé (P5-06,
+  `verifyGigFromCollaboration`) : organisateurs = personnes qui gèrent
+  l'hôte, confirmateurs = personnes qui jouent, lieu = l'hôte s'il est un
+  lieu, vérifié = hôte vérifié.
 
 ## Organisateur·rice (P5-05a)
 
@@ -104,6 +106,5 @@ Le lieu a sa propre doc ([docs/jam](../jam/README.md#revendication-dun-lieu-nive
 
 ## À venir
 
-- **P5-06** : concerts vérifiés, émission de `gig.held`.
 - Festivals : leurs jams « off » se publient comme des jams (P2-14b) ;
   stages et masterclasses : avec les écoles (P5-11).

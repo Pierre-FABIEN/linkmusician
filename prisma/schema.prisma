@@ -2253,7 +2253,15 @@ model Collaboration {
   work           Work?                      @relation(fields: [workId], references: [id], onDelete: SetNull)
   /// Studio où elle a eu lieu (P4-03c) : une session, si un·e client·e la confirme.
   studioId       String?
-  studio         Organization?              @relation(fields: [studioId], references: [actorId], onDelete: SetNull)
+  studio         Organization?              @relation("CollaborationStudio", fields: [studioId], references: [actorId], onDelete: SetNull)
+  /// Concert (P5-06) : le groupe qui a joué, et le lieu ou l'organisation qui
+  /// l'a accueilli (`VENUE` ou `PROMOTER`), géré par l'une des deux personnes.
+  bandId         String?
+  band           Organization?              @relation("CollaborationBand", fields: [bandId], references: [actorId], onDelete: SetNull)
+  hostOrgId      String?
+  hostOrg        Organization?              @relation("CollaborationHost", fields: [hostOrgId], references: [actorId], onDelete: SetNull)
+  /// Commune du concert (code INSEE), pour la tournée : ≥3 communes en 30 jours.
+  communeCode    String?
   completedAt    DateTime?
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
@@ -2263,6 +2271,8 @@ model Collaboration {
 
   @@index([conversationId])
   @@index([studioId])
+  @@index([bandId, kind, status])
+  @@index([hostOrgId])
   @@map("collaborations")
 }
 
@@ -2761,7 +2771,10 @@ model Organization {
   /// Fiche du studio (P4-03), pour une organisation STUDIO.
   studio      StudioProfile?
   /// Sessions tenues au studio (P4-03c).
-  studioSessions Collaboration[]
+  studioSessions Collaboration[] @relation("CollaborationStudio")
+  /// Concerts joués par le groupe, et accueillis par le lieu ou l'organisation (P5-06).
+  gigsPlayed     Collaboration[] @relation("CollaborationBand")
+  gigsHosted     Collaboration[] @relation("CollaborationHost")
   /// Revendications approuvées d'une fiche de lieu (P5-03a).
   venueClaims VenueClaim[]
   /// Fiche d'une organisation d'organisateur·rices (P5-05b).

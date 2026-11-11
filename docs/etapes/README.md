@@ -86,6 +86,24 @@ la contestation avec P3-06.
   - intégration `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/milestones` (dont `proofs.integration.test.ts`) ;
   - e2e `e2e/linkmusician/etapes.spec.ts` (déclarer ; un membre ne corrobore pas le concert, une personne extérieure si).
 
+## Concerts et tournée vérifiés (P5-06)
+
+- **Concert** : une collaboration `GIG` confirmée entre une personne qui
+  joue dans le groupe et une personne qui gère le lieu (organisation
+  `VENUE`) ou l'organisation d'organisateur·rices (`PROMOTER`) qui
+  l'accueille (`verifyGigFromCollaboration`, `milestones/service.ts`).
+  « Premier concert » passe **`VERIFIED`** si l'hôte est vérifié (SIRET,
+  `isVerifiedOrg`, P5-02), sinon **`CORROBORATED`** (Q36) ; jamais si la
+  même personne joue et accueille. Une étape gelée par une contestation
+  (P3-06) n'est pas touchée ; la différence d'XP suit le niveau de preuve.
+- **Tournée** : « Première tournée » est vérifiée par ≥3 concerts vérifiés
+  dans ≥3 communes différentes en 30 jours (`firstTour`,
+  `src/lib/milestones/tour.ts`, pur et testé). La commune est celle de
+  l'hôte, retenue sur la collaboration (`communeCode`).
+- **Tests** : `src/lib/milestones/tour.test.ts` ; intégration
+  `collaborations/gigs.integration.test.ts` ; e2e
+  `e2e/linkmusician/concerts.spec.ts`.
+
 ## Contestation et retrait (P3-06, D49)
 
 - **Qui se conteste** : les étapes déclarées par le groupe (mode

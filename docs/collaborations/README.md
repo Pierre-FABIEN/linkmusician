@@ -71,3 +71,18 @@ que d'autres confirment » sur le profil public.
 - **RGPD** : prestation et morceau dans l'export des collaborations.
 - **Tests** : `rules.test.ts`, `work.integration.test.ts`, e2e
   `e2e/linkmusician/collaborations-morceau.spec.ts`.
+
+## Concerts (P5-06)
+
+- **Proposer** : type « Concert » dans une conversation ; le groupe (où
+  joue l'une des deux personnes) et le lieu ou l'organisation (que gère
+  l'autre) sont obligatoires (`checkGigParties`, `gigPartiesOfPair`). Venu
+  d'un plateau (P5-05a), le type, le groupe retenu et l'hôte sont
+  préremplis. Un lieu ou une organisation est obligatoire : un·e
+  organisateur·rice seul·e crée son organisation, gratuite (Q35).
+- **Terminé** : la personne qui joue gagne la collaboration (400 ×
+  multiplicateurs) ; le côté hôte ne la gagne pas (`hostIds` sur
+  `collaboration.completed`), il gagne l'événement tenu (`gig.held`, piste
+  organisateur·rice, 200 × rendement par artiste × confiance de qui
+  confirme ; 100 par groupe à sa toute première date). Le lieu y gagne son
+  rang. L'étape du groupe suit (voir [docs/etapes](../etapes/README.md#concerts-et-tournée-vérifiés-p5-06)).

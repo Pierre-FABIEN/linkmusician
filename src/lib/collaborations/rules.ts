@@ -20,9 +20,11 @@ export const COLLAB_KINDS = [
 	'MIXING',
 	'MASTERING',
 	'LIVE_SOUND',
-	'PRODUCTION'
+	'PRODUCTION',
+	// Concert (P5-06) : un groupe, un lieu ou une organisation qui l'accueille.
+	'GIG'
 ] as const;
-export type CollabKindValue = (typeof COLLAB_KINDS)[number] | 'JAM' | 'GIG';
+export type CollabKindValue = (typeof COLLAB_KINDS)[number] | 'JAM';
 
 export const COLLAB_KIND_LABELS: Readonly<Record<CollabKindValue, string>> = {
 	JAM: 'Jam',
@@ -145,6 +147,17 @@ export function collaborationSchema(today: string) {
 			.regex(/^[a-z0-9][a-z0-9_-]{1,59}$/)
 			.optional()
 			.or(z.literal('').transform(() => undefined)),
+		/** Concert (P5-06) : le groupe qui joue et l'hôte, par leurs noms d'utilisateur. */
+		band: z
+			.string()
+			.regex(/^[a-z0-9][a-z0-9_-]{1,59}$/)
+			.optional()
+			.or(z.literal('').transform(() => undefined)),
+		host: z
+			.string()
+			.regex(/^[a-z0-9][a-z0-9_-]{1,59}$/)
+			.optional()
+			.or(z.literal('').transform(() => undefined)),
 		/** Morceau concerné (P4-06), relu côté serveur. */
 		work: z
 			.string()
@@ -158,6 +171,22 @@ export function collaborationSchema(today: string) {
 			.refine((d) => d >= min, `Au plus ${PAST_DAYS} jours en arrière.`)
 			.refine((d) => d <= max, `Au plus ${FUTURE_DAYS} jours à l’avance.`)
 	});
+}
+
+/**
+ * Un concert (P5-06) dit quel groupe a joué et quel lieu ou quelle
+ * organisation l'a accueilli ; les autres types n'ont ni l'un ni l'autre.
+ */
+export function checkGigParties(
+	kind: CollabKindValue,
+	parties: { band?: string; host?: string }
+): string | null {
+	if (kind !== 'GIG') {
+		return parties.band || parties.host ? 'Seul un concert dit son groupe et son lieu.' : null;
+	}
+	if (!parties.band) return 'Choisis le groupe qui a joué.';
+	if (!parties.host) return 'Choisis le lieu ou l’organisation qui accueille le concert.';
+	return null;
 }
 
 /** Jour civil décalé (`AAAA-MM-JJ`). */

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+	checkGigParties,
 	collabStatus,
 	collaborationSchema,
 	hasHappened,
@@ -15,6 +16,14 @@ const accepted = { accepted: true, confirmed: false };
 const none = { accepted: false, confirmed: false };
 
 describe('collaborations (P2-06)', () => {
+	it('concert (P5-06) : un groupe et un hôte, et seulement pour un concert', () => {
+		expect(checkGigParties('GIG', {})).toMatch(/groupe/);
+		expect(checkGigParties('GIG', { band: 'les-rats' })).toMatch(/lieu/);
+		expect(checkGigParties('GIG', { band: 'les-rats', host: 'le-comptoir' })).toBeNull();
+		expect(checkGigParties('REHEARSAL', { band: 'les-rats' })).toMatch(/Seul un concert/);
+		expect(checkGigParties('REHEARSAL', {})).toBeNull();
+	});
+
 	it('dates : fenêtre autour d’aujourd’hui', () => {
 		const schema = collaborationSchema('2026-11-05');
 		const ok = (happenedOn: string) =>
@@ -23,9 +32,10 @@ describe('collaborations (P2-06)', () => {
 		expect(ok(shiftDay('2026-11-05', -60))).toBe(true);
 		expect(ok(shiftDay('2026-11-05', -61))).toBe(false);
 		expect(ok(shiftDay('2026-11-05', 91))).toBe(false);
+		// Le concert est proposable depuis P5-06, avec son groupe et son hôte.
 		expect(
 			schema.safeParse({ kind: 'GIG', title: 'Concert', happenedOn: '2026-11-05' }).success
-		).toBe(false);
+		).toBe(true);
 		// Une jam n'est plus une collaboration (D27).
 		expect(
 			schema.safeParse({ kind: 'JAM', title: 'Jam du jeudi', happenedOn: '2026-11-05' }).success

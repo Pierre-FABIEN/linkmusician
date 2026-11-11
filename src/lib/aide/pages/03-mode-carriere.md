@@ -18,16 +18,16 @@ _Ta carrière musicale, comme dans un jeu : une étape à la fois, et chaque
 Une carrière dans la musique passe par des grandes étapes. LinkMusician
 les suit dans l’ordre où elles arrivent souvent, sans les imposer :
 
-| Acte                      | Ce qui s’y passe                                  | Dans l’app aujourd’hui                                |
-| ------------------------- | ------------------------------------------------- | ----------------------------------------------------- |
-| **I. La rencontre**       | Trouver avec qui jouer                            | ✅ Annonces, messages, jams, collaborations           |
-| **II. La création**       | Monter un groupe, composer, répéter, une maquette | ✅ Groupes, morceaux, étapes du groupe                |
-| **III. Le studio**        | Enregistrer, mixer                                | Étape « Premier enregistrement » ; fiches des studios |
-| **IV. La production**     | Arranger, produire                                | ✅ Producteur·rices, récap de campagne                |
-| **V. La scène**           | Premiers concerts, puis une tournée               | Étape « Premier concert » ; 🔜 lieux et organisateurs |
-| **VI. La sortie**         | Sortir un titre, un EP                            | ✅ Étapes EP/album vérifiées par UPC ou ISRC          |
-| **VII. Le développement** | Manager, booker, éditeur, label                   | 🔜                                                    |
-| **VIII. La carrière**     | Album, tournées, en vivre                         | 🔜                                                    |
+| Acte                      | Ce qui s’y passe                                  | Dans l’app aujourd’hui                                                 |
+| ------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
+| **I. La rencontre**       | Trouver avec qui jouer                            | ✅ Annonces, messages, jams, collaborations                            |
+| **II. La création**       | Monter un groupe, composer, répéter, une maquette | ✅ Groupes, morceaux, étapes du groupe                                 |
+| **III. Le studio**        | Enregistrer, mixer                                | Étape « Premier enregistrement » ; fiches des studios                  |
+| **IV. La production**     | Arranger, produire                                | ✅ Producteur·rices, récap de campagne                                 |
+| **V. La scène**           | Premiers concerts, puis une tournée               | Concerts confirmés par les lieux et organisateurs ; 🔜 carte de l’acte |
+| **VI. La sortie**         | Sortir un titre, un EP                            | ✅ Étapes EP/album vérifiées par UPC ou ISRC                           |
+| **VII. Le développement** | Manager, booker, éditeur, label                   | 🔜                                                                     |
+| **VIII. La carrière**     | Album, tournées, en vivre                         | 🔜                                                                     |
 
 Ta **carte de carrière** (dans l’écran de carrière, **Ma carte de
 carrière**) montre ces actes : ceux que tu as franchis, celui en cours, et
@@ -205,6 +205,18 @@ Touche **Prouver** :
 Une personne extérieure doit être inscrite depuis au moins une semaine,
 avec un profil complet. Un membre ou ancien membre du groupe ne compte
 jamais comme extérieur.
+
+### Un concert confirmé avec le lieu {#concert-confirme}
+
+Après une date, propose une collaboration **Concert** dans ta
+conversation avec la personne qui gère le lieu ou l’association qui t’a
+accueilli (venue d’un plateau, elle est déjà préremplie). Choisis ton
+groupe et le lieu, puis elle confirme :
+
+- **Premier concert** passe **Vérifiée** si le lieu ou l’association est
+  vérifié, **Corroborée** sinon ;
+- trois concerts vérifiés dans trois villes en 30 jours vérifient la
+  **Première tournée**.
 
 > 💡 **Astuce** : on te demande de confirmer l’étape d’un groupe ? Réponds
 > seulement si tu y étais. C’est ce qui donne de la valeur aux parcours de

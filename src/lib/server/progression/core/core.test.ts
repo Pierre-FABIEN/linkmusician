@@ -397,6 +397,20 @@ describe('registre en mémoire', () => {
 		expect(collab(5, 400)[0].amount).toBe(400);
 	});
 
+	it('concert (P5-06) : le côté lieu ne gagne pas la collaboration de musicien·ne', () => {
+		const l = new MemoryLedger({ musicienne: 2, patron: 2 });
+		const gains = l.apply({
+			id: 'gig1',
+			occurredAt: at,
+			type: 'collaboration.completed',
+			collaborationId: 'gig1',
+			participantIds: ['musicienne', 'patron'],
+			hostIds: ['patron']
+		});
+		expect(gains.map((g) => g.actorId)).toEqual(['musicienne']);
+		expect(gains[0].amount).toBe(BAREME.collaborationCompleted);
+	});
+
 	it('mémorise adhésions et endossements', () => {
 		const l = new MemoryLedger();
 		const join = () =>
