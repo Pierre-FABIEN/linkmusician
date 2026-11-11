@@ -2,6 +2,9 @@
 
 ## Démo LinkMusician
 
+> **Le guide complet des situations de démo** (17 personnages, où se
+> connecter, quoi voir, phases 1 à 5) : [docs/demo](../docs/demo/README.md).
+
 Pour remplir les données LinkMusician sans vider la base :
 
 ```bash
@@ -10,7 +13,7 @@ npm run seed:referentiels
 npm run seed:demo
 ```
 
-Le seed de démo ajoute 13 profils fictifs et leurs scénarios (groupes,
+Le seed de démo ajoute 17 profils fictifs et leurs scénarios (groupes,
 collaborations, jams, morceaux, contacts et messages). Il ne crée pas les
 autres données du boilerplate ni les établissements. Ces derniers se chargent
 à part avec `npm run seed:etablissements`.
@@ -36,7 +39,14 @@ Jade (mineure) ne va qu'aux jams qui finissent avant 22 h, n'est jamais
 affichée dispo ni dans une discussion de groupe. Les jams passées et à venir
 ne se refont pas si « Jeudi jazz au Comptoir » existe.
 
-Le mot de passe par défaut est `DemoPass!2026` pour les 13 comptes, sauf si
+Puis la **vie pro et scène** (`seed-scene.ts`, phases 4 et 5) : profils
+d'ingé son et de productrice, La Cave Studio (sessions, invitation),
+organisations d'organisateur·rices (vérifiées ou en attente), Le Comptoir
+Jazz revendiqué et sa fiche, une revendication en attente, quatre plateaux
+et leurs candidatures, des concerts vérifiés, corroborés ou à confirmer, et
+une tournée vérifiée. Repère : l'organisation « asso-bruit-rose ».
+
+Le mot de passe par défaut est `DemoPass!2026` pour les 17 comptes, sauf si
 `SEED_DEMO_PASSWORD` est défini dans `.env`. Le seed peut ajouter un suffixe
 au handle si l'adresse habituelle est déjà prise.
 

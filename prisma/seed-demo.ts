@@ -26,6 +26,7 @@
 // Mot de passe des comptes : SEED_DEMO_PASSWORD, ou celui de `seed.js`.
 // Jamais en production (VERCEL_ENV=production refusé).
 import { seedJamLife } from './seed-jam-life';
+import { seedScene } from './seed-scene';
 import dotenv from 'dotenv';
 import { PrismaClient, type LookingFor, type ProStatus, type TrackKind } from '@prisma/client';
 import { hash } from '@node-rs/argon2';
@@ -318,6 +319,72 @@ const CAST: Demo[] = [
 		looking: ['JAMS', 'LESSONS_TAKE'],
 		practiceSince: 2022,
 		radius: 10
+	},
+	// Vie pro et scène (seed-scene.ts, P5) : organisateur·rices et gérant·es de lieu.
+	{
+		handle: 'yanis-orga',
+		name: 'Yanis Morel',
+		born: '1987-06-14',
+		since: 85,
+		near: 0,
+		tracks: ['PROMOTER', 'MUSICIAN'],
+		instruments: [['guitare-acoustique', 2]],
+		genres: ['rock', 'folk', 'jazz'],
+		influences: ['Les Nuits de Fourvière', 'Rock en Seine'],
+		bio: 'Président de l’Asso Bruit Rose et du Festival des Coteaux. Je programme la scène locale.',
+		pro: 'PROFESSIONAL',
+		looking: ['COLLABORATION'],
+		practiceSince: 2004,
+		radius: 100
+	},
+	{
+		handle: 'lina-orga',
+		name: 'Lina Petit',
+		born: '1993-01-09',
+		since: 60,
+		near: 2,
+		tracks: ['PROMOTER', 'MUSICIAN'],
+		instruments: [['chant', 2]],
+		genres: ['folk', 'soul', 'pop-inde'],
+		influences: ['Feist', 'Lianne La Havas'],
+		bio: 'Je monte des scènes découvertes et j’anime le Collectif Nuits Courtes.',
+		pro: 'SEMI_PRO',
+		looking: ['COLLABORATION', 'JAMS'],
+		practiceSince: 2012,
+		radius: 50
+	},
+	{
+		handle: 'sophie-bar',
+		name: 'Sophie Durand',
+		born: '1984-09-22',
+		since: 65,
+		near: 0,
+		// Gérante de lieu sans le métier d'organisatrice (Q18, Q34).
+		tracks: ['MUSICIAN'],
+		instruments: [['contrebasse', 2]],
+		genres: ['jazz', 'soul'],
+		influences: ['Charles Mingus'],
+		bio: 'Je tiens Le Comptoir Jazz : bœufs le jeudi, concerts le week-end.',
+		pro: 'AMATEUR',
+		looking: ['JAMS'],
+		practiceSince: 2010,
+		radius: 25
+	},
+	{
+		handle: 'paul-salle',
+		name: 'Paul Garnier',
+		born: '1979-03-03',
+		since: 4,
+		near: 0,
+		tracks: ['MUSICIAN'],
+		instruments: [['piano', 3]],
+		genres: ['folk', 'jazz'],
+		influences: ['Keith Jarrett'],
+		bio: 'Gérant du Café des Sons. Je viens de demander à reprendre la fiche du café.',
+		pro: 'AMATEUR',
+		looking: ['JAMS'],
+		practiceSince: 1995,
+		radius: 25
 	},
 	// Mineure (D5) : sa dispo n'est montrée à personne, jams finies avant 22 h,
 	// pas de demande d'inconnu·es, pas de discussion de groupe.
@@ -615,6 +682,8 @@ try {
 		[...demoHandles].map(([handle, actualHandle]) => [actualHandle, handle])
 	);
 	await seedJamLife(prisma, communes[0], handleMap);
+	// Vie pro et scène (P4-P5) : studio, métiers, organisations, lieux, plateaux, concerts.
+	await seedScene(prisma, communes, handleMap);
 	// Organisateurs de jams (D51) : les personnes qui en ont publié une.
 	const hosts = await prisma.opportunity.findMany({
 		where: { kind: 'JAM' },

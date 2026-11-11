@@ -18,6 +18,7 @@ supprimée (décision D6).
 | Conventions de code et vérifications avant PR         | `CONTRIBUTING.md`                               |
 | Reprendre une session sans tout relire                | `docs/plan/prompt-reprise.md`                   |
 | Feuille de route de la startup (hors code)            | `docs/lancement/README.md` (`/admin/lancement`) |
+| Données de démo : qui se connecte, quoi voir          | `docs/demo/README.md` (`npm run seed:demo`)     |
 
 ## Méthode de travail
 

@@ -61,6 +61,8 @@ déborde est **coupé** (P5-05a, P5-05b) plutôt que prolongé.
       si un module est créé, décision consignée si une a été prise.
 - [ ] Page d'aide mise à jour si le lot change ce que vit l'utilisateur
       (`src/lib/aide/pages/`, voir `docs/aide/README.md`).
+- [ ] Démo : la situation nouvelle est jouée par `npm run seed:demo` et
+      décrite dans `docs/demo/README.md` (qui, où, ce qu'on voit).
 - [ ] Tableau §5 mis à jour.
 
 ## 5. Tableau de suivi
