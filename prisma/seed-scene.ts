@@ -18,6 +18,9 @@ import { setActorLocation } from '../src/lib/server/geo/queries';
 import { venueNameKey } from '../src/lib/venues/rules';
 import { pairKey } from '../src/lib/messaging/rules';
 import { isUpgrade } from '../src/lib/milestones/rules';
+import { upcomingSeriesWindows } from '../src/lib/jam/series';
+import { jamWindow } from '../src/lib/jam/publicJam';
+import { parisDay } from '../src/lib/metrics/indicators';
 import { ago, DAY, demoContext, emit, id, inDays, talk, type Ctx } from './seed-scenarios';
 
 const MARKER = 'asso-bruit-rose';
@@ -579,6 +582,114 @@ async function credit(
 		select: { id: true }
 	});
 	await ctx.prisma.workRole.create({ data: { workId, kind, contributorId: contributor.id } });
+}
+
+/**
+ * Scène ouverte récurrente (P5-04a), bloc rejouable à part : « Bœuf jazz du
+ * mercredi », publiée par Sophie au nom du Comptoir Jazz. Les jams des 4
+ * semaines à venir existent (comme après le job quotidien) ; celle de
+ * mercredi dernier a été tenue (4 « J'y étais ») : 50 XP × confiance pour
+ * Sophie, une date pour le rang du lieu. Rien si la série existe déjà.
+ */
+export async function seedOpenStage(
+	prisma: PrismaClient,
+	communes: Commune[],
+	demoHandles: ReadonlyMap<string, string> = new Map()
+) {
+	const org = await prisma.actor.findUnique({
+		where: { handle: 'le-comptoir-jazz' },
+		select: { id: true, venuesClaimed: { select: { id: true }, take: 1 } }
+	});
+	const venueId = org?.venuesClaimed[0]?.id;
+	if (!org || !venueId) return;
+	if (await prisma.jamSeries.findFirst({ where: { issuerActorId: org.id } })) {
+		console.log('Scène ouverte du Comptoir Jazz déjà en place : rien à refaire.');
+		return;
+	}
+	const orgId = org.id;
+	const ctx = await demoContext(prisma, communes[0], null, demoHandles);
+	const P = (h: string) => id(ctx, h);
+	const boeufSpots = [
+		{
+			instrumentId: (await prisma.instrument.findUniqueOrThrow({ where: { slug: 'batterie' } })).id,
+			count: 1
+		},
+		{
+			instrumentId: (await prisma.instrument.findUniqueOrThrow({ where: { slug: 'contrebasse' } }))
+				.id,
+			count: 1
+		}
+	];
+	const boeuf = await prisma.jamSeries.create({
+		data: {
+			issuerActorId: orgId,
+			postedById: P('sophie-bar'),
+			venueId: venueId,
+			weekday: 3,
+			startTime: '20:30',
+			endTime: '23:30',
+			title: 'Bœuf jazz du mercredi',
+			description:
+				'Batterie et contrebasse sur place. Standards et compos bienvenus, on tourne au fil de la soirée.',
+			genreSlug: 'jazz',
+			spots: boeufSpots,
+			createdAt: ago(21)
+		}
+	});
+	const lastWednesday = ago(1);
+	while (lastWednesday.getUTCDay() !== 3) lastWednesday.setUTCDate(lastWednesday.getUTCDate() - 1);
+	const windows = [
+		jamWindow(parisDay(lastWednesday), '20:30', '23:30'),
+		...upcomingSeriesWindows({ weekday: 3, startTime: '20:30', endTime: '23:30' }, new Date())
+	];
+	const boeufJams: string[] = [];
+	for (const w of windows) {
+		const jam = await prisma.opportunity.create({
+			data: {
+				issuerActorId: orgId,
+				postedById: P('sophie-bar'),
+				kind: 'JAM',
+				title: 'Bœuf jazz du mercredi',
+				description: boeuf.description,
+				genreSlug: 'jazz',
+				startsAt: w.startsAt,
+				endsAt: w.endsAt,
+				expiresAt: w.endsAt,
+				status: w.endsAt < new Date() ? 'EXPIRED' : 'OPEN',
+				venueId: venueId,
+				backline: ['DRUMS', 'PA_MICS'],
+				seriesId: boeuf.id,
+				slots: 2,
+				jamSpots: { create: boeufSpots },
+				createdAt: ago(21)
+			}
+		});
+		boeufJams.push(jam.id);
+	}
+	const heldJam = boeufJams[0];
+	const heldAt = new Date(windows[0].endsAt.getTime() - 30 * 60_000);
+	const present = ['lucas-sax', 'theo-basse', 'zoe-violon', 'ines-chant'];
+	for (const h of present) {
+		await prisma.jamAttendance.create({
+			data: { opportunityId: heldJam, actorId: P(h), attendedAt: heldAt, createdAt: ago(8) }
+		});
+	}
+	await prisma.opportunity.update({ where: { id: heldJam }, data: { heldAt } });
+	await emit(prisma, {
+		type: 'jam.held',
+		jamId: heldJam,
+		organizerIds: [P('sophie-bar')],
+		confirmerIds: present.map(P),
+		venueOrgId: orgId,
+		occurredAt: heldAt
+	});
+	// Théo dit « Je viens » au prochain bœuf.
+	await prisma.jamAttendance.create({
+		data: { opportunityId: boeufJams[1], actorId: P('theo-basse'), createdAt: ago(1) }
+	});
+	console.log(
+		'  · scène ouverte : Bœuf jazz du mercredi au Comptoir Jazz (une soirée tenue, 4 à venir)'
+	);
 }
 
 // ─── Le scénario ─────────────────────────────────────────────────────────

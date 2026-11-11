@@ -2,7 +2,7 @@
 
 > Le guide pour **voir chaque situation de l'app** avec des comptes fictifs :
 > qui se connecte, où aller, ce qu'on doit y voir. Mis à jour le 11/11/2026
-> (phases 1 à 5 : jusqu'aux concerts vérifiés, P5-06).
+> (phases 1 à 5 : jusqu'aux scènes ouvertes récurrentes, P5-04a).
 
 ## 1. Lancer
 
@@ -134,15 +134,18 @@ en jam passée (vie de jam).
 
 ### Lieux (phase 5, `seed-scene`)
 
-| Situation                                                                                                              | Se connecter avec         | Où                                                                                |
-| ---------------------------------------------------------------------------------------------------------------------- | ------------------------- | --------------------------------------------------------------------------------- |
-| **Le Comptoir Jazz** : « Géré par le lieu », fiche « Jouer ici », dates à venir, rang **Lieu ouvert** (2 dates tenues) | n'importe qui             | `/lieux` puis la fiche                                                            |
-| Gérer le lieu : prochaines étapes, dates, fiche, apprendre le métier, vérification, gestion                            | `sophie-bar`              | « Gérer la fiche du lieu »                                                        |
-| Décision de revendication notifiée (Q29)                                                                               | `sophie-bar`              | notifications                                                                     |
-| **Invitation à co-gérer le lieu** en attente                                                                           | `awa-clavier`             | `/organisations` (« Mes lieux »)                                                  |
-| **Revendication en attente** de la modération (code publié, lien de preuve)                                            | `paul-salle` ; un·e admin | fiche du Café des Sons ; `/moderation`                                            |
-| Un lieu revendiqué publie ses dates **sans le métier d'organisatrice** (Q34)                                           | `sophie-bar`              | « Publier une date »                                                              |
-| Photos du lieu (P5-03d) : envoi, état, retrait ; galerie sur la page du lieu                                           | `sophie-bar`              | « Gérer la fiche du lieu », section Photos (l'envoi demande Cloudinary configuré) |
+| Situation                                                                                                                         | Se connecter avec          | Où                                                                                |
+| --------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | --------------------------------------------------------------------------------- |
+| **Le Comptoir Jazz** : « Géré par le lieu », fiche « Jouer ici », dates à venir, rang **Scène ouverte** (2 dates et 1 jam tenues) | n'importe qui              | `/lieux` puis la fiche                                                            |
+| Gérer le lieu : prochaines étapes, dates, fiche, apprendre le métier, vérification, gestion                                       | `sophie-bar`               | « Gérer la fiche du lieu »                                                        |
+| Décision de revendication notifiée (Q29)                                                                                          | `sophie-bar`               | notifications                                                                     |
+| **Invitation à co-gérer le lieu** en attente                                                                                      | `awa-clavier`              | `/organisations` (« Mes lieux »)                                                  |
+| **Revendication en attente** de la modération (code publié, lien de preuve)                                                       | `paul-salle` ; un·e admin  | fiche du Café des Sons ; `/moderation`                                            |
+| Un lieu revendiqué publie ses dates **sans le métier d'organisatrice** (Q34)                                                      | `sophie-bar`               | « Publier une date »                                                              |
+| Photos du lieu (P5-03d) : envoi, état, retrait ; galerie sur la page du lieu                                                      | `sophie-bar`               | « Gérer la fiche du lieu », section Photos (l'envoi demande Cloudinary configuré) |
+| **Scène ouverte récurrente** (P5-04a) : « Bœuf jazz du mercredi », 20 h 30-23 h 30, ce mercredi et les 3 suivants ; « Arrêter »   | `sophie-bar`               | « Gérer la fiche du lieu », section Scènes ouvertes                               |
+| La scène ouverte dans le calendrier, « Tous les mercredis », hôte : le lieu ; Théo vient au prochain bœuf                         | n'importe qui (à Toulouse) | `/jam/agenda`                                                                     |
+| Le bœuf de mercredi dernier **tenu** (4 « J'y étais ») : 50 points pour Sophie, rien pour les présent·es (D27)                    | `sophie-bar`               | `/espace/objectifs`, historique des points                                        |
 
 ### Plateaux et candidatures (phase 5, `seed-scene`)
 
