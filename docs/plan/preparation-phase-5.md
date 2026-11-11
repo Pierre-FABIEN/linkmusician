@@ -1,7 +1,7 @@
 # Préparation technique de la phase 5
 
 > Rédigé le 11/11/2026, après la revue de phase 4. Les sections des lots
-> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-05a, P5-05b) ont été retirées ; la route complète est
+> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-05a, P5-05b, P5-06) ont été retirées ; la route complète est
 > dans [fin-du-projet.md](./fin-du-projet.md).
 > But : qu'une session de lot n'ait plus à explorer le code. Pour chaque
 > lot : ce qui existe, le modèle à copier, le schéma proposé, les étapes,
@@ -36,7 +36,7 @@ les e2e : fermer le bandeau cookies (« Compris ») avant un bouton collé en
 bas, attendre la fin des toasts avant `expectNoA11yViolations`, et lire
 la carte par `:scope > li`.
 
-**Ordre conseillé** (restant) : P5-06 → P5-03d → P5-04 → P5-08 →
+**Ordre conseillé** (restant) : P5-03d → P5-04 → P5-08 →
 P5-07 → P5-11. Les concerts s'appuient sur l'organisateur et la fiche du
 lieu, les jams publiques sur l'organisation du lieu.
 
@@ -98,39 +98,6 @@ Un lieu n'est jamais mis en avant contre paiement dans le mode jam
 **Pièges** : D27, aucune XP pour une jam, seules les appréciations
 comptent. Pas de notification de masse pour une série : seule la
 formation invitée reçoit une notification.
-
----
-
-## P5-06 — Concerts vérifiés
-
-**Existe** : `CollabKind` contient `GIG`, mais `COLLAB_KINDS` (proposable,
-`src/lib/collaborations/rules.ts`) l'exclut. Les étapes `FIRST_GIG` et
-`FIRST_TOUR` sont corroborées par l'attestation d'une personne
-extérieure (P3-05). Le modèle « vérifié par une organisation » existe
-pour l'enregistrement (P4-09).
-
-**À faire** :
-
-1. Remettre `GIG` dans `COLLAB_KINDS` avec un **lieu ou un organisateur
-   obligatoire** : `Collaboration.venueOrgId` ou `promoterOrgId`, comme
-   `studioId` (migration). Le select « Où » ne s'affiche que pour `GIG`.
-2. `verifyGigFromCollaboration(tx, collab, now)` dans
-   `milestones/service.ts`, copié de `verifyRecordingFromCollaboration`.
-   Si la collaboration est terminée et confirmée par la gestion d'une
-   organisation **vérifiée** (`isVerifiedOrg`, P5-02), `FIRST_GIG` passe
-   à `VERIFIED` pour le groupe des musicien·nes présents. À appeler dans
-   `settle`.
-3. Tournée : `FIRST_TOUR` devient `VERIFIED` avec ≥3 concerts vérifiés
-   dans ≥3 communes en 30 jours. Calcul **pur** dans
-   `src/lib/milestones/tour.ts`, testé ; communes lues dans
-   `Venue.communeCode`.
-4. Émettre `gig.held` (P5-01) pour l'organisateur et le lieu.
-5. Tests d'intégration : un concert avec un lieu **non vérifié** reste
-   `CORROBORATED` (critère P5-02) ; trois villes en 30 jours vérifient la
-   tournée.
-
-**Pièges** : pas de double XP pour l'étape (la différence d'XP se
-calcule déjà selon le niveau de preuve). Un concert contesté suit P3-06.
 
 ---
 

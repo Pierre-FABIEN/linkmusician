@@ -69,9 +69,9 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 Étapes A à F : voir [fin-du-projet.md §1](./fin-du-projet.md#1-où-on-en-est).
 Un lot terminé reste dans le tableau avec ✅ jusqu'à la fin de son étape.
 
-**Terminé : 89 lots sur 105.** Phases 0, 1 et 2 complètes ; phase 3
+**Terminé : 90 lots sur 105.** Phases 0, 1 et 2 complètes ; phase 3
 complète sauf P3-10a et P3-10 ; phase 4 complète pour le lancement ;
-phase 5 : P5-01, P5-02, P5-03a, P5-03b, P5-05a et P5-05b. Le détail de chaque lot terminé est
+phase 5 : P5-01, P5-02, P5-03a, P5-03b, P5-05a, P5-05b et P5-06. Le détail de chaque lot terminé est
 dans le `git log` (messages préfixés par l'ID).
 
 | Lot    | Intitulé                                      | Dépend de             | Statut | Étape | Notes                                                                                                                                                                                                               |
@@ -80,7 +80,7 @@ dans le `git log` (messages préfixés par l'ID).
 | P5-05b | Organisateur·rice : organisation `PROMOTER`   | P5-05a                | ✅     | A     | Lancement. `/organisations` : association ou collectif géré à plusieurs, vérifiable (P5-02), plateaux en son nom, page publique `/@handle` ; e2e `organisation-organisateurs.spec.ts` ; Q33                         |
 | P5-03b | Lieux : fiche, agenda et rang                 | P5-03a                | ✅     | A     | Lancement. `VenueProfile`, `/lieux/[id]/gerer` (fiche, publication, dates, co-gestion, vérification), page du lieu enrichie, rang lu dans les faits ; e2e `lieu-fiche.spec.ts` ; Q29 (notification), Q34            |
 | P5-03d | Lieux : photos                                | P5-03b                | ⬜     | A     | Lancement. Photos de la fiche, modèle du studio (P4-03b), découpé de P5-03b                                                                                                                                         |
-| P5-06  | Concerts vérifiés                             | P5-03b, P5-05b        | ⬜     | A     | Lancement. Rouvrir `GIG`, modèle de P4-09 pour `VERIFIED`, `isVerifiedOrg`                                                                                                                                          |
+| P5-06  | Concerts vérifiés                             | P5-03b, P5-05b        | ✅     | A     | Lancement. Collaboration `GIG` (groupe, hôte lieu ou organisation), « Premier concert » vérifié par un hôte vérifié (corroboré sinon), tournée (`firstTour`), `gig.held` ; e2e `concerts.spec.ts` ; Q35, Q36        |
 | P5-04  | Jams publiques des lieux                      | P5-03b, P2-14b        | ⬜     | A     | Lancement                                                                                                                                                                                                           |
 | P5-08  | Carte : acte V                                | P5-06                 | ⬜     | A     | Lancement                                                                                                                                                                                                           |
 | P5-07  | Booker et manager                             | P5-01                 | ⬜     | A     | Lancement                                                                                                                                                                                                           |

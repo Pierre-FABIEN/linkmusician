@@ -12,14 +12,14 @@
 
 ## 1. Où on en est
 
-**89 lots terminés sur 105** (85 %) ; **≈ 90 % du périmètre du
+**90 lots terminés sur 105** (86 %) ; **≈ 90 % du périmètre du
 lancement**. Phases 0 à 2 complètes, phase 3 complète sauf l'ouverture,
 phase 4 complète pour le lancement, phase 5 commencée (P5-01, P5-02,
-P5-03a, P5-03b, P5-05a, P5-05b). La phase 6 vient après le lancement.
+P5-03a, P5-03b, P5-05a, P5-05b, P5-06). La phase 6 vient après le lancement.
 
 | Étape                              | Lots                                                        | Quand                     |
 | ---------------------------------- | ----------------------------------------------------------- | ------------------------- |
-| A. Finir la scène                  | P5-06, P5-03d, P5-04, P5-08, P5-07, P5-11                   | Nov. → déc. 2026          |
+| A. Finir la scène                  | P5-03d, P5-04, P5-08, P5-07, P5-11                          | Nov. → déc. 2026          |
 | B. Revue de phase 5 et revue UX    | Revue de fin de phase, parcours par rôle, suite e2e (P0-01) | Déc. 2026 → janv. 2027    |
 | C. Audit de sécurité (bloquant)    | P3-10a                                                      | Janv. → fév. 2027         |
 | D. Ouverture publique à Toulouse   | P3-10                                                       | Objectif début mars 2027  |
@@ -74,15 +74,13 @@ de revendication (Q29). Voir [docs/jam](../jam/README.md#fiche-du-lieu-p5-03b).
   après modération ; une personne qui ne gère pas le lieu ne peut pas en
   envoyer (intégration).
 
-### P5-06 — Concerts vérifiés
+### P5-06 — Concerts vérifiés ✅
 
-- **Dépend de** : P5-03b, P5-05b.
-- **Tâches** : rouvrir la collaboration `GIG` ; vérification par le lieu
-  ou l'organisateur **vérifié** (`isVerifiedOrg`, P5-02), sur le modèle
-  de P4-09 ; émettre `gig.held` (P5-01) ; tournée (≥3 concerts dans ≥3
-  villes en 30 jours) ; XP des deux côtés.
-- **Fin** : seule une organisation vérifiée fait passer un concert
-  `VERIFIED` ; intégration des étapes 6 et 7 au niveau `VERIFIED`.
+**P5-06 ✅** (11/11/2026) : collaboration `GIG` entre le groupe et l'hôte
+(lieu ou organisation), « Premier concert » vérifié par un hôte vérifié
+(corroboré sinon), « Première tournée » (≥3 concerts vérifiés, ≥3
+communes, 30 jours), `gig.held` (organisateur·rice et rang du lieu). Voir
+[docs/etapes](../etapes/README.md#concerts-et-tournée-vérifiés-p5-06).
 
 ### P5-04 — Jams publiques des lieux
 
