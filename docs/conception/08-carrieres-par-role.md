@@ -266,6 +266,14 @@ quand l'organisation est vérifiée (SIRET).
 genre, zone, jamais l'XP) · section « plateaux » (offre pro, 01 §5) ·
 recherche de groupes au rang Live et au-delà.
 
+**Plateaux (P5-05a)** : une annonce `GIG_SLOT` dans un lieu validé de
+l'annuaire, à une date et une heure. Le rang demandé est celui du groupe
+(sa dernière étape au moins corroborée). Un groupe hors conditions ne
+peut pas candidater ; on candidate au nom d'un groupe que l'on gère, et
+majeur·e (Q31). « Programmer un premier groupe » : accepter sa
+candidature. L'événement tenu, confirmé par les groupes, vient avec
+P5-06.
+
 **Mode jam** : il peut **héberger des jams publiques** (bœufs), qui
 apparaissent dans le mode jam des musicien·nes de sa zone.
 

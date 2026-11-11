@@ -14,10 +14,12 @@ _Trouver la bonne personne, lui écrire, et jouer._
 ## 1. Découvrir
 
 1. Ouvre **Découvrir**.
-2. Filtre par **métier** (musicien·ne, ingé son ou producteur·rice),
-   **instrument**, **style**, **niveau** et **distance**. Pour un·e ingé
-   son ou un·e producteur·rice, choisis aussi la **spécialité** :
-   mixage, façade, beatmaking…
+2. Filtre par **métier** (musicien·ne, ingé son, producteur·rice ou
+   organisateur·rice), **instrument**, **style**, **niveau** et
+   **distance**. Pour un·e ingé son ou un·e producteur·rice, choisis aussi
+   la **spécialité** (mixage, façade, beatmaking…) ; pour un·e
+   organisateur·rice, ce qu’elle ou il organise (concerts, scènes
+   ouvertes…).
 3. Ouvre un profil pour écouter ses démos, voir ses groupes et ce que
    d’autres confirment de lui ou d’elle.
 
@@ -59,6 +61,23 @@ L’annonce est une session ou une prestation, et **seules les personnes de
 ce métier** la voient autour d’elles. Tu peux la relier à un de tes
 morceaux : depuis la page d’un morceau composé, **Trouver un·e ingé son**
 prépare l’annonce pour toi.
+
+### Les plateaux {#plateaux}
+
+Un **plateau**, c’est une date dans un lieu, pour laquelle un·e
+organisateur·rice cherche des groupes.
+
+- **Publier** (organisateur·rice majeur·e) : **Annonces › Publier un
+  plateau**, ou **Publier un plateau ici** sur la fiche d’un lieu. Choisis
+  le lieu, la date et l’heure, le nombre de groupes, et qui peut
+  candidater : un **rang de groupe** minimal (« Live » : le groupe a déjà
+  joué sur scène), un genre, une zone. Ces conditions portent sur ce que
+  les groupes ont prouvé, jamais sur leurs points.
+- **Candidater** : ouvre le plateau et choisis le groupe que tu gères. Si
+  ton groupe ne remplit pas une condition, l’écran te dit laquelle. Avant
+  18 ans, c’est un·e adulte qui gère le groupe qui candidate.
+- Si l’organisateur·rice accepte, une **conversation** s’ouvre avec la
+  personne qui a candidaté.
 
 ### Publier
 

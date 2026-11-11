@@ -16,7 +16,7 @@ _Ton compte, ton profil et ton mode de jeu, en cinq minutes._
 
 1. Inscris-toi avec ton email et confirme-le avec le code reçu.
 2. Réponds à « **Qui es-tu ?** » : musicien·ne, ingé son,
-   producteur·rice, ou plusieurs à la fois. D’autres métiers arriveront. Tu les changes quand tu veux dans
+   producteur·rice, organisateur·rice, ou plusieurs à la fois. D’autres métiers arriveront. Tu les changes quand tu veux dans
    **Réglages › Mes métiers**.
 3. Accepte les conditions d’utilisation.
 
@@ -100,6 +100,23 @@ Ouvre **Mon profil › Mon profil de producteur·rice** :
 Ton rang de producteur·rice et tes objectifs suivent la même logique que
 ceux de l’ingé son : tout part des productions confirmées par les
 artistes.
+
+### Si tu organises des concerts {#organisateur}
+
+Ouvre **Mon profil › Mon profil d’organisateur·rice** :
+
+- coche **ce que tu organises** (concerts, soirées, festival, tournées,
+  scènes ouvertes) : les groupes et les pros te trouvent alors dans
+  **Découvrir** ;
+- choisis jusqu’à cinq **genres que tu programmes** et, si tu veux, ta
+  **jauge habituelle** ;
+- ajoute jusqu’à six **événements passés**, avec un lien (page
+  d’événement, affiche, article).
+
+Pour trouver des groupes, **publie un plateau** (voir
+[Les plateaux](./05-rencontrer.md#plateaux)). Ton rang d’organisateur·rice
+viendra des dates tenues et confirmées par les groupes, jamais des points.
+Il faut être majeur·e pour publier un plateau.
 
 ### Si tu as un studio {#studio}
 

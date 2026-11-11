@@ -91,3 +91,39 @@ membres.
 - E2E : `e2e/linkmusician/annonces.spec.ts`,
   `e2e/linkmusician/candidatures.spec.ts`,
   `e2e/linkmusician/recrutement.spec.ts`.
+
+## Plateaux (P5-05a)
+
+- **Publier** : `/plateaux/nouveau` (ou « Publier un plateau ici » depuis
+  `/lieux/[id]`, « Publier un plateau » sur `/annonces` et `/profil`).
+  Réservé au métier **Organisateur·rice** (`PROMOTER`), majeur·e (D5),
+  ville indiquée. Annonce `GIG_SLOT` : un **lieu validé** de l'annuaire
+  (D26), une date et une heure (heure de Paris, un an à l'avance au plus),
+  le nombre de groupes à l'affiche (1 à 10). Le formulaire général refuse
+  ce type (`createOpportunity`). Aucune XP à la publication.
+- **Conditions** (facultatives sauf la zone) : **rang minimal du groupe**
+  (`minBandTier`, de « Répète » à « Tournée »), genre, zone (10 à 100 km
+  autour de l'organisateur·rice). Le rang est la dernière étape au moins
+  corroborée du groupe (`bandTierOf`), **jamais l'XP**. Règle pure
+  `unmetGigConditions` (`#lib/opportunities/gigSlot`) ; un groupe sans
+  ville est hors zone.
+- **Candidater au nom d'un groupe** : une personne majeure qui gère le
+  groupe (OWNER ou ADMIN) choisit le groupe sur la page du plateau
+  (`applyAsBand`). Le groupe est le candidat (`applicantActorId`), la
+  personne est notée (`sentById`). **Un groupe hors conditions ne peut pas
+  candidater** : la page dit pourquoi, le serveur revérifie. On ne
+  candidate pas à titre personnel (`applyTo` refuse), ni avant 18 ans
+  (Q31).
+- **Accepter** ouvre la conversation entre l'organisateur·rice et la
+  personne qui a envoyé la candidature (premier message : « au nom de
+  <groupe> »). Le rang prouvé du groupe s'affiche sur la candidature.
+- **Fermeture** : les candidatures ferment au début du plateau
+  (`expiresAt = startsAt`).
+- **Démarche** en contexte : « Un plateau, c'est une date » (premier
+  concert, être payé·e pour jouer).
+- **RGPD** : les candidatures envoyées pour un groupe figurent dans
+  l'export (`candidatures_au_nom_d_un_groupe`) ; à l'anonymisation, elles
+  restent au groupe et `sentById` est oublié.
+- **Plus tard** : publier au nom d'une organisation `PROMOTER` gérée à
+  plusieurs (P5-05b) ; la date tenue et confirmée par les groupes
+  (`gig.held`, P5-06) rapporte l'XP et fait le rang.

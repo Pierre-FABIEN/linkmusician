@@ -163,8 +163,10 @@ producteurs ou ingés son.
 
 - **Besoin immédiat** : programmer des groupes fiables.
 - **Apporte** : des dates, donc des preuves de live.
-- **Profil spécifique** _(proposé)_ : événements organisés (avec dates
-  et lieux), jauge, genres, zone.
+- **Profil spécifique** (P5-05a) : ce que la personne organise
+  (concerts, soirées, festival, tournées, scènes ouvertes), genres
+  programmés, jauge habituelle, événements passés en lien ; la zone est sa
+  commune.
 - **Organisation liée** : `PROMOTER` (association, salle, collectif).
 - **Preuves apportées aux autres** : en organisation vérifiée, il fait
   passer les concerts au niveau `VERIFIED` (étapes 6 et 7).
@@ -173,8 +175,10 @@ producteurs ou ingés son.
   Festival (événement de ≥10 groupes vérifié).
 - **Sources d'XP** _(proposé)_ : événement tenu et confirmé par au moins
   un groupe programmé ; groupe programmé pour la première fois.
-- **Fonctionnalités** : annonces « plateau » (section dédiée, payante
-  pour les pros, 01 §5), vérification des concerts.
+- **Fonctionnalités** : annonces « plateau » (P5-05a : une date dans un
+  lieu validé, conditions de rang de groupe, de genre et de zone ;
+  candidature au nom d'un groupe ; section payante pour les pros plus
+  tard, 01 §5), vérification des concerts (P5-06).
 - **Garde-fous** : un événement fictif ne rapporte rien sans confirmation
   des groupes ; contestation possible (02 §4).
 
