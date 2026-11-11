@@ -45,6 +45,8 @@ export const VENUE_WEEKDAY_LABELS: Readonly<Record<number, string>> = {
 };
 
 export const MAX_VENUE_STAGE = 400;
+/** Photos de la fiche (P5-03d), comme un studio. */
+export const MAX_VENUE_PHOTOS = 8;
 export const MAX_VENUE_GENRES = MAX_PROMOTER_GENRES;
 
 /** Texte brut : contrôles retirés (sauf retours à la ligne), espaces resserrés. */

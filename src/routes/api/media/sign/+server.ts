@@ -2,13 +2,15 @@
  * LINKMUSICIAN: prépare un envoi direct vers Cloudinary (P1-08b) : contrôle
  * du type, de la taille déclarée et du quota de confiance, puis paramètres
  * signés limités au dossier de l'acteur. Réservé à une personne connectée.
- * `forHandle` : photo envoyée au nom d'un studio qu'elle gère (P4-03b).
+ * `forHandle` : photo envoyée au nom d'un studio (P4-03b) ou d'un lieu
+ * (P5-03d) qu'elle gère.
  */
 import { error, json } from '@sveltejs/kit';
 import { z } from 'zod';
 import { requirePerson } from '#server/actors/tracksForm';
 import { MediaError, startUpload } from '#lib/server/media/service';
 import { StudioError, studioForPhotoUpload } from '#lib/server/studios/service';
+import { VenueProfileError, venueForPhotoUpload } from '#lib/server/venues/profile';
 import type { RequestHandler } from './$types';
 
 const bodySchema = z.object({
@@ -28,10 +30,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const { forHandle, ...input } = parsed.data;
 	try {
 		if (forHandle) {
-			const studioId = await studioForPhotoUpload(forHandle, person.actorId);
+			// Un lieu (P5-03d), sinon un studio (P4-03b).
+			const orgId =
+				(await venueForPhotoUpload(forHandle, person.actorId)) ??
+				(await studioForPhotoUpload(forHandle, person.actorId));
 			return json(
 				await startUpload(
-					studioId,
+					orgId,
 					{ ...input, isDemo: false, instrumentId: null },
 					{ uploaderId: person.actorId, onlyImages: true }
 				)
@@ -39,7 +44,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 		return json(await startUpload(person.actorId, input));
 	} catch (err) {
-		if (err instanceof StudioError) return json({ error: err.message }, { status: err.status });
+		if (err instanceof StudioError || err instanceof VenueProfileError)
+			return json({ error: err.message }, { status: err.status });
 		if (err instanceof MediaError) return json({ error: err.message }, { status: 400 });
 		throw err;
 	}

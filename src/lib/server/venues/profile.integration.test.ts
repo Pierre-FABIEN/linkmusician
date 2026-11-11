@@ -30,7 +30,25 @@ vi.mock('#lib/server/rate-limit', () => ({
 	}
 }));
 
+// Cloudinary simulé (P5-03d) : l'envoi est signé, le fichier « relu » est une photo.
+vi.mock('#lib/server/media/cloudinary', () => ({
+	isCloudinaryConfigured: () => true,
+	signUpload: ({ mediaId }: { mediaId: string }) => ({
+		publicId: `test/${mediaId}`,
+		uploadUrl: 'https://api.cloudinary.test/upload',
+		fields: {}
+	}),
+	fetchAsset: async () => ({
+		bytes: 200_000,
+		durationSec: null,
+		format: 'jpg',
+		url: 'https://res.cloudinary.test/comptoir.jpg'
+	}),
+	destroyAsset: async () => {}
+}));
+
 const claims = await import('./claims');
+const { finalizeUpload, startUpload } = await import('#lib/server/media/service');
 const venueProfile = await import('./profile');
 const { createGigSlot } = await import('../opportunities/gigSlots');
 const { exportPersonData } = await import('#lib/prisma/actors/person');
@@ -237,5 +255,55 @@ describe.skipIf(!enabled)('fiche d’un lieu (schéma e2e)', { timeout: 120_000 
 		expect(exported?.organisations).toEqual([
 			expect.objectContaining({ organisation: 'Venueprofile Test Le Comptoir', role: 'ADMIN' })
 		]);
+	});
+
+	it('photos (P5-03d) : la gestion seulement, publiques une fois validées, huit au plus', async () => {
+		const handle = (
+			await db.actor.findFirstOrThrow({
+				where: { organization: { kind: 'VENUE', venueClaims: { some: { venueId: venues.bar } } } },
+				select: { handle: true }
+			})
+		).handle;
+		// Un nom qui n'est pas celui d'un lieu : rien (le studio prend le relais).
+		expect(await venueProfile.venueForPhotoUpload(PREFIX + 'patron', ids.patron)).toBeNull();
+		await expect(venueProfile.venueForPhotoUpload(handle, ids.ado)).rejects.toMatchObject({
+			status: 404
+		});
+		// La personne qui envoie est de confiance (TL1) : sa photo passe en ligne.
+		await db.actor.update({ where: { id: ids.patron }, data: { trustLevel: 1 } });
+		const orgId = await venueProfile.venueForPhotoUpload(handle, ids.patron);
+		const { mediaId } = await startUpload(
+			orgId!,
+			{ mimeType: 'image/jpeg', bytes: 200_000, title: 'La scène', isDemo: false },
+			{ uploaderId: ids.patron, onlyImages: true }
+		);
+		expect(await finalizeUpload(mediaId)).toMatchObject({ status: 'PUBLISHED' });
+		expect((await venueProfile.publicVenueProfile(venues.bar, ids.ado))?.photos).toEqual([
+			{ id: mediaId, title: 'La scène', url: 'https://res.cloudinary.test/comptoir.jpg' }
+		]);
+		expect(
+			(await venueProfile.venueForManager(venues.bar, ids.patron))?.photos.map((p) => p.status)
+		).toEqual(['PUBLISHED']);
+		await db.media.createMany({
+			data: Array.from({ length: 7 }, (_, i) => ({
+				actorId: orgId!,
+				kind: 'IMAGE' as const,
+				provider: 'CLOUDINARY' as const,
+				status: 'PUBLISHED' as const,
+				title: `Photo ${i}`
+			}))
+		});
+		await expect(venueProfile.venueForPhotoUpload(handle, ids.patron)).rejects.toThrow(
+			'8 photos au plus'
+		);
+		await expect(venueProfile.deleteVenuePhoto(venues.bar, ids.ado, mediaId)).rejects.toMatchObject(
+			{ status: 404 }
+		);
+		await venueProfile.deleteVenuePhoto(venues.bar, ids.patron, mediaId);
+		expect(await db.media.count({ where: { id: mediaId } })).toBe(0);
+		// Aucune XP pour une photo.
+		expect(
+			await db.xpTransaction.count({ where: { ruleId: { contains: 'media' }, actorId: orgId! } })
+		).toBe(0);
 	});
 });

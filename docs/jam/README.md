@@ -161,8 +161,17 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   `core/venueSummary.test.ts` ; intégration
   `venues/profile.integration.test.ts` ; e2e
   `e2e/linkmusician/lieu-fiche.spec.ts`.
-- **Plus tard** : photos du lieu (P5-03d) ; gérant vérifié, niveau 2
-  (P5-03c, après le lancement).
+- **Photos** (P5-03d) : des `Media` `IMAGE` portés par l'organisation du
+  lieu, envoyés par sa gestion (`/api/media/sign` avec `forHandle` = le nom
+  d'utilisateur de l'organisation, `venueForPhotoUpload`, essayé avant le
+  studio). Validation et quota suivent la confiance de qui envoie
+  (`uploadedById`, identifiant interne jamais affiché). 8 au plus
+  (`MAX_VENUE_PHOTOS`), aucune XP. Gestion : état et retrait
+  (`deleteVenuePhoto`) ; page du lieu : photos publiées, la première en
+  grand (`publicVenueProfile`). Tests : intégration (Cloudinary simulé),
+  e2e `lieu-photos.spec.ts` (photo déjà en ligne : pas de Cloudinary en
+  e2e).
+- **Plus tard** : gérant vérifié, niveau 2 (P5-03c, après le lancement).
 
 ## Jams publiques (P2-14b)
 

@@ -110,6 +110,7 @@ revendiquer. Une fois la demande acceptée, **Gérer la fiche du lieu** :
   mineur·es ; puis **Publier la fiche** : ton lieu est **ouvert** ;
 - **Publier une date** : un vendredi à remplir, les groupes autour de toi
   candidatent, tu choisis ;
+- ajoute jusqu’à huit **photos** : la salle, la scène, l’ambiance ;
 - invite les personnes qui travaillent avec toi à gérer le lieu ;
 - **Apprendre le métier** te guide vers la licence de spectacles, le GUSO
   et la SACEM : LinkMusician n’en gère aucune.

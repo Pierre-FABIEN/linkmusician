@@ -12,6 +12,9 @@
  *   plateaux se diffusent autour de lui et la zone des groupes s'y mesure.
  * - Rang lu dans les faits (`venueSummary`, dates `gig.held`), jamais dans
  *   l'XP ; le lieu n'en gagne pas (Q24).
+ * - Photos (P5-03d) : portées par l'organisation (`Media.actorId`), envoyées
+ *   par une personne de la gestion (`uploadedById`), validées selon sa
+ *   confiance (`finalizeUpload`), huit au plus ; aucune XP.
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
@@ -22,7 +25,9 @@ import { toDomainEvent } from '#lib/server/progression/events';
 import { venueSummary } from '#lib/server/progression/core/venueSummary';
 import { VENUE_TIERS, venueTier } from '#lib/server/progression/core/tiers';
 import { isManager } from '#lib/bands/rules';
+import { deleteOwnMedia, MediaError } from '#lib/server/media/service';
 import {
+	MAX_VENUE_PHOTOS,
 	publicationGaps,
 	VENUE_LEARNING,
 	venueQuests,
@@ -221,6 +226,43 @@ export const leaveOrRemoveVenueManager = async (
 
 export const myVenueInvites = (personId: string) => invitesFor('VENUE', personId);
 
+// ─── Photos (P5-03d) ─────────────────────────────────────────────────────
+
+/** Photos qui comptent dans la limite : en ligne, en cours ou en attente. */
+const LIVE_PHOTO = { kind: 'IMAGE', status: { not: 'REJECTED' } } as const;
+
+/**
+ * Avant un envoi de photo au nom du lieu (par le nom d'utilisateur de son
+ * organisation) : la personne le gère, et il reste de la place. Renvoie
+ * l'identifiant de l'organisation, qui porte la photo ; `null` si ce nom
+ * n'est pas celui d'un lieu.
+ */
+export async function venueForPhotoUpload(handle: string, personId: string) {
+	const org = await prisma.actor.findFirst({
+		where: { handle, kind: 'ORGANIZATION', deletedAt: null, organization: liveVenueOrg },
+		select: { id: true }
+	});
+	if (!org) return null;
+	await requireOrgManager(VENUE_ORG, prisma, org.id, personId);
+	const photos = await prisma.media.count({ where: { actorId: org.id, ...LIVE_PHOTO } });
+	if (photos >= MAX_VENUE_PHOTOS) {
+		throw new VenueProfileError(`${MAX_VENUE_PHOTOS} photos au plus : retires-en une d’abord.`);
+	}
+	return org.id;
+}
+
+/** Retirer une photo de la fiche : la gestion du lieu seulement. */
+export async function deleteVenuePhoto(venueId: string, managerId: string, mediaId: string) {
+	const orgId = await orgOrThrow(venueId);
+	await requireOrgManager(VENUE_ORG, prisma, orgId, managerId);
+	try {
+		await deleteOwnMedia(orgId, mediaId);
+	} catch (err) {
+		if (err instanceof MediaError) throw new VenueProfileError(err.message, 404);
+		throw err;
+	}
+}
+
 // ─── Lectures ────────────────────────────────────────────────────────────
 
 /** Les lieux que je gère (`/organisations`, plateaux en leur nom). */
@@ -275,7 +317,7 @@ export async function venueForManager(venueId: string, personId: string) {
 		select: { role: true }
 	});
 	if (!isManager(mine?.role)) return null;
-	const [profile, genres, team, gigSlots, bandsProgrammed, publicJams, backline] =
+	const [profile, genres, team, gigSlots, bandsProgrammed, publicJams, backline, org, photos] =
 		await Promise.all([
 			prisma.venueProfile.findUnique({ where: { orgId: venue.orgId }, select: profileSelect }),
 			prisma.actorGenre.findMany({ where: { actorId: venue.orgId }, select: { genreId: true } }),
@@ -304,7 +346,14 @@ export async function venueForManager(venueId: string, personId: string) {
 				}
 			}),
 			prisma.opportunity.count({ where: { kind: 'JAM', venueId } }),
-			prisma.venue.findUniqueOrThrow({ where: { id: venueId }, select: { backline: true } })
+			prisma.venue.findUniqueOrThrow({ where: { id: venueId }, select: { backline: true } }),
+			prisma.actor.findUniqueOrThrow({ where: { id: venue.orgId }, select: { handle: true } }),
+			// Photos (P5-03d) : toutes, avec leur état, pour la gestion.
+			prisma.media.findMany({
+				where: { actorId: venue.orgId, kind: 'IMAGE', status: { not: 'UPLOADING' } },
+				orderBy: { createdAt: 'asc' },
+				select: { id: true, title: true, status: true, fileUrl: true, rejectionReason: true }
+			})
 		]);
 	const fiche = profile ?? EMPTY_PROFILE;
 	const published = fiche.publishedAt !== null;
@@ -313,6 +362,9 @@ export async function venueForManager(venueId: string, personId: string) {
 		venueId,
 		name: venue.name,
 		communeName: venue.communeName,
+		/** Nom d'utilisateur de l'organisation : l'envoi des photos le désigne. */
+		orgHandle: org.handle,
+		photos,
 		role: mine!.role,
 		...fiche,
 		conditions: fiche.conditions as VenueConditionValue[],
@@ -349,7 +401,7 @@ export async function venueForManager(venueId: string, personId: string) {
 export async function publicVenueProfile(venueId: string, viewerId: string, now = new Date()) {
 	const venue = await venueOrg(venueId);
 	if (!venue) return null;
-	const [profile, genres, managers, gigSlots] = await Promise.all([
+	const [profile, genres, managers, gigSlots, photos] = await Promise.all([
 		prisma.venueProfile.findUnique({ where: { orgId: venue.orgId }, select: profileSelect }),
 		prisma.actorGenre.findMany({
 			where: { actorId: venue.orgId },
@@ -376,6 +428,18 @@ export async function publicVenueProfile(venueId: string, viewerId: string, now 
 			orderBy: { startsAt: 'asc' },
 			take: 10,
 			select: { id: true, title: true, startsAt: true, slots: true }
+		}),
+		// Photos publiées seulement (P5-03d).
+		prisma.media.findMany({
+			where: {
+				actorId: venue.orgId,
+				kind: 'IMAGE',
+				status: 'PUBLISHED',
+				fileUrl: { not: null }
+			},
+			orderBy: { createdAt: 'asc' },
+			take: MAX_VENUE_PHOTOS,
+			select: { id: true, title: true, fileUrl: true }
 		})
 	]);
 	if (!profile?.publishedAt) return null;
@@ -399,6 +463,7 @@ export async function publicVenueProfile(venueId: string, viewerId: string, now 
 		dates: rank.summary.dates,
 		managers: visibleManagers,
 		isManager: managers.some((m) => m.person.id === viewerId),
-		gigSlots
+		gigSlots,
+		photos: photos.map((p) => ({ id: p.id, title: p.title, url: p.fileUrl! }))
 	};
 }

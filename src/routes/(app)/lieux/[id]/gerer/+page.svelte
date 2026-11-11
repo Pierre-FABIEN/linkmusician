@@ -5,12 +5,14 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import OrgVerificationCard from '#lib/components/linkmusician/organizations/OrgVerificationCard.svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
-	import { Circle, ExternalLink } from 'lucide-svelte';
+	import { Circle, ExternalLink, Trash2 } from 'lucide-svelte';
+	import MediaUpload from '#lib/components/linkmusician/MediaUpload.svelte';
 	import { ROLE_LABELS } from '#lib/bands/rules';
 	import { STATUS_LABELS } from '#lib/opportunities/rules';
 	import { MAX_CAPACITY } from '#lib/crafts/promoter';
 	import {
 		MAX_VENUE_GENRES,
+		MAX_VENUE_PHOTOS,
 		MAX_VENUE_STAGE,
 		VENUE_AGE_RULES,
 		VENUE_AGE_RULE_INFO,
@@ -37,6 +39,14 @@
 	const published = $derived(v.publishedAt !== null);
 	const nextQuests = $derived(v.quests.filter((q) => !q.done).slice(0, 3));
 	const input = 'w-full rounded-md border bg-background p-2 text-sm font-normal';
+	// Photos (P5-03d) : celles qui comptent dans la limite.
+	const livePhotos = $derived(v.photos.filter((p) => p.status !== 'REJECTED').length);
+	const PHOTO_STATUS: Record<string, string> = {
+		PUBLISHED: 'En ligne',
+		PENDING_REVIEW: 'En attente de validation',
+		PROCESSING: 'En cours',
+		REJECTED: 'Refusée'
+	};
 	const day = new Intl.DateTimeFormat('fr-FR', {
 		weekday: 'short',
 		day: 'numeric',
@@ -284,6 +294,55 @@
 					>
 				</form>
 			{/if}
+		</section>
+
+		<!-- Photos du lieu (P5-03d), comme celles d'un studio. -->
+		<section class="space-y-4 border-t pt-8" aria-labelledby="photos">
+			<div class="space-y-1">
+				<h2 id="photos" class="text-xl font-bold">
+					Photos <span class="text-sm font-normal text-muted-foreground"
+						>({livePhotos}/{MAX_VENUE_PHOTOS})</span
+					>
+				</h2>
+				<p class="text-sm text-muted-foreground">
+					La salle, la scène, l’ambiance : ce que les groupes veulent voir avant de venir jouer.
+				</p>
+			</div>
+			{#if v.photos.length > 0}
+				<ul class="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label="Photos du lieu">
+					{#each v.photos as photo (photo.id)}
+						<li class="space-y-1.5">
+							{#if photo.fileUrl}
+								<img
+									src={photo.fileUrl}
+									alt={photo.title}
+									loading="lazy"
+									class="aspect-[4/3] w-full rounded-lg border object-cover"
+								/>
+							{:else}
+								<div class="aspect-[4/3] w-full rounded-lg border bg-muted"></div>
+							{/if}
+							<p class="truncate text-sm font-medium">{photo.title}</p>
+							<p class="text-xs text-muted-foreground">
+								{PHOTO_STATUS[photo.status] ?? photo.status}{photo.rejectionReason
+									? ` : ${photo.rejectionReason}`
+									: ''}
+							</p>
+							<form method="POST" action="?/deletePhoto" use:enhance>
+								<input type="hidden" name="mediaId" value={photo.id} />
+								<button
+									class="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+								>
+									<Trash2 class="size-4" aria-hidden="true" />Retirer<span class="sr-only">
+										la photo {photo.title}</span
+									>
+								</button>
+							</form>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+			<MediaUpload forHandle={v.orgHandle} disabled={livePhotos >= MAX_VENUE_PHOTOS} />
 		</section>
 
 		<!-- Apprendre le métier (08 §14) : la plateforme guide, elle ne gère rien. -->

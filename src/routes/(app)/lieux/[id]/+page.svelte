@@ -81,6 +81,23 @@
 			{/if}
 		</div>
 
+		{#if data.profile && data.profile.photos.length > 0}
+			<!-- Photos du lieu (P5-03d) : la première en grand. -->
+			<ul class="grid grid-cols-2 gap-2 sm:grid-cols-3" aria-label="Photos du lieu">
+				{#each data.profile.photos as photo, i (photo.id)}
+					<li class={i === 0 ? 'col-span-2 row-span-2' : ''}>
+						<img
+							src={photo.url}
+							alt={photo.title}
+							loading={i === 0 ? 'eager' : 'lazy'}
+							class="h-full w-full rounded-xl border object-cover {i === 0
+								? 'aspect-[4/3]'
+								: 'aspect-square'}"
+						/>
+					</li>
+				{/each}
+			</ul>
+		{/if}
 		{#if data.profile}
 			<!-- Fiche publiée par le lieu (P5-03b). -->
 			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="fiche-title">

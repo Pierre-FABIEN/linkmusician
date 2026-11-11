@@ -8,6 +8,7 @@ import { requirePerson } from '#server/actors/tracksForm';
 import { listGenreTree } from '#lib/prisma/skills/referentials';
 import { prisma } from '#lib/server';
 import {
+	deleteVenuePhoto,
 	inviteVenueManager,
 	leaveOrRemoveVenueManager,
 	setVenuePublished,
@@ -110,6 +111,12 @@ export const actions: Actions = {
 			() => setVenuePublished(params.id, actorId, false),
 			'Ta fiche n’est plus visible.'
 		);
+	},
+	/** Retirer une photo de la fiche (P5-03d). */
+	deletePhoto: async ({ locals, params, request }) => {
+		const { actorId } = await managed(locals, params.id);
+		const mediaId = String((await request.formData()).get('mediaId') ?? '');
+		return guard(() => deleteVenuePhoto(params.id, actorId, mediaId), 'Photo retirée.');
 	},
 	inviteManager: async ({ locals, params, request }) => {
 		const { actorId } = await managed(locals, params.id);
