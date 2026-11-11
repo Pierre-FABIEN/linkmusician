@@ -482,6 +482,20 @@ export async function exportPersonData(userId: string) {
 			createdAt: true
 		}
 	});
+	// Scènes ouvertes publiées pour un lieu que la personne gère (P5-04a).
+	const jamSeries = await prisma.jamSeries.findMany({
+		where: { postedById: person.actorId },
+		orderBy: { createdAt: 'asc' },
+		select: {
+			title: true,
+			weekday: true,
+			startTime: true,
+			endTime: true,
+			createdAt: true,
+			stoppedAt: true,
+			venue: { select: { name: true } }
+		}
+	});
 	return {
 		identifiant_public: person.actor.handle,
 		nom_affiche: person.actor.displayName,
@@ -591,6 +605,14 @@ export async function exportPersonData(userId: string) {
 			metier_recherche: o.targetTrack,
 			specialite_recherchee: o.targetSpecialty,
 			morceau: o.work?.title ?? null
+		})),
+		scenes_ouvertes_publiees: jamSeries.map((s) => ({
+			titre: s.title,
+			lieu: s.venue.name,
+			jour_de_la_semaine: s.weekday,
+			horaires: `${s.startTime}-${s.endTime}`,
+			le: s.createdAt,
+			arretee_le: s.stoppedAt
 		})),
 		disponibilite: availability,
 		jams_je_viens: jamsComing.map((a) => ({
@@ -921,6 +943,11 @@ export async function personAnonymizationOps(
 		// Annonces (P2-02) : supprimées avec le compte. Celles publiées au nom
 		// d'un groupe (P3-03) restent au groupe ; on oublie qui les a publiées.
 		prisma.opportunity.updateMany({
+			where: { postedById: person.actorId },
+			data: { postedById: null }
+		}),
+		// Scènes ouvertes (P5-04a) : elles restent au lieu ; on oublie qui les a publiées.
+		prisma.jamSeries.updateMany({
 			where: { postedById: person.actorId },
 			data: { postedById: null }
 		}),

@@ -2,7 +2,10 @@
  * Après la jam (P2-15, D27) : « J'y étais », qui était là, appréciations,
  * retrait d'un faux présent par l'hôte.
  *
- * « J'y étais » ne rapporte rien. Une appréciation émet
+ * « J'y étais » ne rapporte rien à qui le dit. Une jam publiée au nom d'un
+ * lieu ou d'une organisation est **tenue** (`jam.held`, P5-04a) dès 3
+ * présent·es hors organisation : 50 XP pour qui l'a publiée.
+ * Une appréciation émet
  * `endorsement.received` (≈ 40 XP pour la personne appréciée, rendements
  * décroissants par paire). Un faux présent retiré par l'hôte voit ses
  * appréciations, données et reçues pour cette jam, reprises par
@@ -30,6 +33,8 @@ import {
 } from '#lib/jam/afterJam';
 import { JamError, isAdult } from './publicJams';
 import { networkIdsOf } from '#lib/server/network/service';
+import { hostedBy, hostIdsOf, isHostOf, issuerManagersSelect } from './hosts';
+import { BAREME } from '#lib/server/progression/core/bareme';
 
 const DAY_MS = 86_400_000;
 
@@ -54,8 +59,11 @@ async function findRecentJam(id: string, viewerId: string, now: Date) {
 			startsAt: true,
 			endsAt: true,
 			issuerActorId: true,
+			issuer: { select: issuerManagersSelect },
+			postedById: true,
+			heldAt: true,
 			leadActorId: true,
-			venue: { select: { id: true, name: true, communeName: true } }
+			venue: { select: { id: true, name: true, communeName: true, claimedByActorId: true } }
 		}
 	});
 	if (!jam || !jam.startsAt || !jam.endsAt || !jam.venue) return null;
@@ -99,9 +107,19 @@ export async function whoWasThere(id: string, viewerId: string, now = new Date()
 			g.quality ? JAM_QUALITY_LABELS[g.quality] : (g.instrument?.name.toLowerCase() ?? '')
 		])
 	);
-	const isHost = jam.issuerActorId === viewerId;
+	const hosts = hostIdsOf(jam);
+	const isHost = hosts.includes(viewerId);
 	return {
-		jam: { ...jam, isHost, deadline: afterJamDeadline(jam), open: isAfterJamOpen(jam, now) },
+		jam: {
+			id: jam.id,
+			title: jam.title,
+			startsAt: jam.startsAt,
+			endsAt: jam.endsAt,
+			venue: { id: jam.venue.id, name: jam.venue.name, communeName: jam.venue.communeName },
+			isHost,
+			deadline: afterJamDeadline(jam),
+			open: isAfterJamOpen(jam, now)
+		},
 		iWasThere: Boolean(me?.attendedAt && !me.removedAt),
 		removed: Boolean(me?.removedAt),
 		canEndorse: TRUST_PERMISSIONS[trust].canEndorse,
@@ -113,7 +131,7 @@ export async function whoWasThere(id: string, viewerId: string, now = new Date()
 				initials: initials(a.actor.displayName),
 				instrument,
 				isMe: a.actorId === viewerId,
-				isHost: a.actorId === jam.issuerActorId,
+				isHost: hosts.includes(a.actorId),
 				appreciated: givenTo.get(a.actorId) ?? null,
 				inNetwork: network.has(a.actorId)
 			};
@@ -165,6 +183,40 @@ export async function iWasThere(id: string, actorId: string, now = new Date()) {
 				invites.every((i) => i.status === 'ACCEPTED'),
 			occurredAt: now
 		});
+		await markHeldIfReady(tx, jam, now);
+	});
+}
+
+type RecentJam = NonNullable<Awaited<ReturnType<typeof findRecentJam>>>;
+
+/**
+ * Jam publique tenue (P5-04a, 02 §2.2) : publiée au nom d'un lieu ou d'une
+ * organisation, elle l'est dès 3 présent·es hors organisation. Posée une
+ * seule fois (`heldAt`), elle émet `jam.held` : 50 XP pour la personne qui
+ * l'a publiée, une date de plus pour le rang du lieu. Une jam lancée par
+ * un·e musicien·ne en son nom n'est jamais « tenue » (Q42).
+ */
+async function markHeldIfReady(tx: Tx, jam: RecentJam, now: Date) {
+	if (jam.heldAt || !jam.issuer.organization) return;
+	const hosts = new Set(hostIdsOf(jam));
+	const present = await tx.jamAttendance.findMany({
+		where: { opportunityId: jam.id, ...presentWhere },
+		select: { actorId: true }
+	});
+	const confirmerIds = present.map((p) => p.actorId).filter((id) => !hosts.has(id));
+	if (confirmerIds.length < BAREME.jamHeldMinPresent) return;
+	const { count } = await tx.opportunity.updateMany({
+		where: { id: jam.id, heldAt: null },
+		data: { heldAt: now }
+	});
+	if (count === 0) return;
+	await emitAndProcess(tx, {
+		type: 'jam.held',
+		jamId: jam.id,
+		organizerIds: jam.postedById && hosts.has(jam.postedById) ? [jam.postedById] : [],
+		confirmerIds,
+		...(jam.venue.claimedByActorId ? { venueOrgId: jam.venue.claimedByActorId } : {}),
+		occurredAt: now
 	});
 }
 
@@ -210,13 +262,19 @@ async function revokeEndorsementsOf(tx: Tx, jamId: string, actorId: string, reas
 export async function removeFromJam(id: string, hostId: string, handle: string, now = new Date()) {
 	const jam = await findRecentJam(id, hostId, now);
 	if (!jam) throw new JamError('Jam introuvable.', 404);
-	if (jam.issuerActorId !== hostId) throw new JamError('Seul·e l’hôte retire un présent.', 403);
+	if (!isHostOf(jam, hostId)) throw new JamError('Seul·e l’hôte retire un présent.', 403);
 	const attendance = await prisma.jamAttendance.findFirst({
 		where: { opportunityId: id, actor: { handle }, ...presentWhere },
 		select: { actorId: true }
 	});
 	if (!attendance) throw new JamError('Cette personne n’est pas dans les présent·es.', 404);
-	if (attendance.actorId === hostId) throw new JamError('Tu ne peux pas te retirer toi-même.');
+	if (isHostOf(jam, attendance.actorId)) {
+		throw new JamError(
+			attendance.actorId === hostId
+				? 'Tu ne peux pas te retirer toi-même.'
+				: 'Les personnes qui tiennent la jam ne se retirent pas entre elles.'
+		);
+	}
 	await prisma.$transaction(async (tx) => {
 		await tx.jamAttendance.update({
 			where: { opportunityId_actorId: { opportunityId: id, actorId: attendance.actorId } },
@@ -319,7 +377,7 @@ export async function myRecentJams(viewerId: string, now = new Date()) {
 			startsAt: { lte: now },
 			endsAt: { gte: new Date(now.getTime() - AFTER_JAM_DAYS * DAY_MS) },
 			OR: [
-				{ issuerActorId: viewerId },
+				hostedBy(viewerId),
 				{ attendances: { some: { actorId: viewerId, removedAt: null } } },
 				{ jamInvites: { some: { actorId: viewerId, status: 'ACCEPTED' } } }
 			]
@@ -358,7 +416,7 @@ export async function crossedJams(viewerId: string, now = new Date()) {
 			startsAt: { lte: now },
 			endsAt: { gte: new Date(now.getTime() - AFTER_JAM_DAYS * DAY_MS) },
 			OR: [
-				{ issuerActorId: viewerId },
+				hostedBy(viewerId),
 				{ attendances: { some: { actorId: viewerId, removedAt: null } } },
 				{ jamInvites: { some: { actorId: viewerId, status: 'ACCEPTED' } } }
 			]
@@ -412,7 +470,7 @@ export async function replayDraft(jamId: string, viewerId: string) {
 			id: jamId,
 			kind: 'JAM',
 			OR: [
-				{ issuerActorId: viewerId },
+				hostedBy(viewerId),
 				{ attendances: { some: { actorId: viewerId, ...presentWhere } } },
 				{ jamInvites: { some: { actorId: viewerId, status: 'ACCEPTED' } } }
 			]

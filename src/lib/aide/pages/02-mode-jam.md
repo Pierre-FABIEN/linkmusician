@@ -110,6 +110,11 @@ revendiquer. Une fois la demande acceptée, **Gérer la fiche du lieu** :
   mineur·es ; puis **Publier la fiche** : ton lieu est **ouvert** ;
 - **Publier une date** : un vendredi à remplir, les groupes autour de toi
   candidatent, tu choisis ;
+- **Publier une scène ouverte** : ton bœuf du jeudi, une seule fois (le
+  jour, les heures, les places souhaitées). Les jams des quatre semaines à
+  venir apparaissent dans le mode jam des musicien·nes autour, les
+  suivantes arrivent d’elles-mêmes. Toutes les personnes qui gèrent le
+  lieu en sont hôtes. **Arrêter** annule les soirées à venir ;
 - ajoute jusqu’à huit **photos** : la salle, la scène, l’ambiance ;
 - invite les personnes qui travaillent avec toi à gérer le lieu ;
 - **Apprendre le métier** te guide vers la licence de spectacles, le GUSO
@@ -155,6 +160,7 @@ Puis, avec les gens avec qui le courant est passé :
 | **Recevoir** une appréciation                        | Environ **40 points**                                |
 | Recevoir plusieurs appréciations de la même personne | De moins en moins sur 12 mois (la 2ᵉ compte moitié…) |
 | Organiser, animer, ajouter un lieu                   | Rien en points, mais des **succès** (ci-dessous)     |
+| Tenir la scène ouverte d’un lieu que tu gères        | **50 points** quand 3 personnes disent « J’y étais » |
 
 Pourquoi ? Parce que **venir ne suffit pas, il faut être remarqué·e** :
 celle qui fait groover la salle avance. Les appréciations sont toujours
@@ -185,7 +191,8 @@ Pour le plaisir, sans points :
 
 ## Pour les mineur·es
 
-- Tu vois et tu rejoins les jams qui **finissent avant 22 h**.
+- Tu vois et tu rejoins les jams qui **finissent avant 22 h**, sauf dans
+  les lieux réservés aux adultes.
 - Ta dispo n’est montrée à personne : on ne peut pas te solliciter. Tu
   choisis toi-même les jams où tu vas.
 - Pour écrire ou recevoir un message, les règles sont plus protectrices.

@@ -8,7 +8,9 @@
  * Une jam est une annonce `JAM` avec un lieu, un début et une fin. Elle ne
  * rapporte aucune XP : ni à la publication, ni pour « Je viens » (D27).
  * Mineur·es (D5) : ils ne voient, ne rejoignent et ne publient que des jams
- * finies le jour même avant 22 h.
+ * finies le jour même avant 22 h, et jamais dans un lieu réservé aux adultes.
+ * Scène ouverte récurrente (P5-04a) : la jam est publiée au nom du lieu, et
+ * les personnes qui le gèrent en sont hôtes (`./hosts`).
  */
 import { canOrganizeJams, NOT_ORGANIZER_ERROR } from '#lib/jam/organizer';
 import { prisma } from '#lib/server';
@@ -29,6 +31,8 @@ import {
 	type BacklineItem,
 	type InviteForm
 } from '#lib/jam/lineup';
+import { seriesLabel } from '#lib/jam/series';
+import { isHostOf, issuerManagersSelect } from './hosts';
 
 export class JamError extends Error {
 	constructor(
@@ -116,8 +120,21 @@ export async function createJam(actorId: string, form: JamForm, now = new Date()
 }
 
 const jamInclude = {
-	venue: { select: { id: true, name: true, communeName: true, kind: true } },
-	issuer: { select: { handle: true, displayName: true } },
+	venue: {
+		select: {
+			id: true,
+			name: true,
+			communeName: true,
+			kind: true,
+			claimedByActorId: true,
+			// Accueil des mineur·es fixé par la fiche du lieu (P5-03b).
+			claimedBy: {
+				select: { organization: { select: { venueProfile: { select: { ageRule: true } } } } }
+			}
+		}
+	},
+	issuer: { select: { handle: true, displayName: true, ...issuerManagersSelect } },
+	series: { select: { weekday: true } },
 	lead: { select: { handle: true, displayName: true } },
 	jamSpots: {
 		select: { count: true, instrumentId: true, instrument: { select: { name: true } } }
@@ -169,9 +186,24 @@ function toCard(j: JamRow, viewerId: string) {
 		title: j.title,
 		startsAt: j.startsAt!,
 		endsAt: j.endsAt!,
-		venue: j.venue!,
-		host: j.issuer,
-		isHost: j.issuerActorId === viewerId,
+		venue: {
+			id: j.venue!.id,
+			name: j.venue!.name,
+			communeName: j.venue!.communeName,
+			kind: j.venue!.kind
+		},
+		host: {
+			handle: j.issuer.handle,
+			displayName: j.issuer.displayName,
+			// Jam publiée au nom du lieu (P5-04a) : sa page est celle du lieu.
+			href:
+				j.issuerActorId === j.venue!.claimedByActorId
+					? `/lieux/${j.venue!.id}`
+					: `/@${j.issuer.handle}`
+		},
+		/** Scène ouverte récurrente : « Tous les jeudis ». */
+		recurring: j.series ? seriesLabel(j.series.weekday) : null,
+		isHost: isHostOf(j, viewerId),
 		isLead: leadOf(j) === viewerId,
 		spots: board.map((l) => ({ instrument: l.name, count: l.wanted, open: l.open })),
 		coming: j.attendances.length + accepted.length,
@@ -182,10 +214,13 @@ function toCard(j: JamRow, viewerId: string) {
 }
 export type JamCard = ReturnType<typeof toCard>;
 
-/** Filtre des mineur·es (D5), appliqué après lecture. */
+const adultsOnly = (j: JamRow) =>
+	j.venue?.claimedBy?.organization?.venueProfile?.ageRule === 'ADULTS';
+
+/** Filtre des mineur·es (D5), appliqué après lecture : avant 22 h, pas dans un lieu réservé aux adultes. */
 async function forViewer(viewerId: string, rows: JamRow[]) {
 	const adult = await isAdult(viewerId);
-	return rows.filter((j) => adult || endsBeforeCurfew(j.startsAt!, j.endsAt!));
+	return rows.filter((j) => adult || (endsBeforeCurfew(j.startsAt!, j.endsAt!) && !adultsOnly(j)));
 }
 
 /** Jams à venir dans les lieux autour de soi (50 km), de la plus proche dans le temps. */
@@ -261,7 +296,7 @@ export async function getJam(id: string, viewerId: string, now = new Date()) {
 		...card,
 		description: row.description,
 		genreSlug: row.genreSlug,
-		lead: row.lead ?? row.issuer,
+		lead: row.lead ? { ...row.lead, href: `/@${row.lead.handle}` } : card.host,
 		hasDesignatedLead: row.leadActorId !== null,
 		board: board.map((l) => ({
 			instrumentId: l.instrumentId,
@@ -305,7 +340,7 @@ export async function comeToJam(
 ) {
 	const row = await findVisibleJam(id, actorId, now);
 	if (!row) throw new JamError('Jam introuvable.', 404);
-	if (row.issuerActorId === actorId) throw new JamError('Tu tiens cette jam : tu y es déjà.');
+	if (isHostOf(row, actorId)) throw new JamError('Tu tiens cette jam : tu y es déjà.');
 	const invite = row.jamInvites.find((i) => i.actorId === actorId);
 	if (invite?.status === 'ACCEPTED') throw new JamError('Tu fais déjà partie de la formation.');
 	if (invite?.status === 'INVITED') {
@@ -341,7 +376,7 @@ export async function notComingToJam(id: string, actorId: string) {
 async function managedJam(id: string, actorId: string, now: Date) {
 	const row = await findVisibleJam(id, actorId, now);
 	if (!row) throw new JamError('Jam introuvable.', 404);
-	if (row.issuerActorId !== actorId && leadOf(row) !== actorId) {
+	if (!isHostOf(row, actorId) && leadOf(row) !== actorId) {
 		throw new JamError('Seul·e l’hôte ou le lead peut faire cela.', 403);
 	}
 	return row;
@@ -364,7 +399,7 @@ async function findMusician(handle: string, viewerId: string, now: Date) {
 export async function inviteToJam(id: string, leadId: string, form: InviteForm, now = new Date()) {
 	const row = await managedJam(id, leadId, now);
 	const invitee = await findMusician(form.handle, leadId, now);
-	if (invitee.id === leadId || invitee.id === row.issuerActorId) {
+	if (invitee.id === leadId || isHostOf(row, invitee.id)) {
 		throw new JamError('Tu ne peux pas t’inviter toi-même.');
 	}
 	const instrument = await prisma.instrument.findFirst({
@@ -390,8 +425,15 @@ export async function inviteToJam(id: string, leadId: string, form: InviteForm, 
 	if (!canReserve(board, instrument.id)) {
 		throw new JamError('Toutes les places de cet instrument sont déjà réservées.');
 	}
-	if (!(await isAdult(invitee.id)) && !endsBeforeCurfew(row.startsAt!, row.endsAt!)) {
-		throw new JamError(`${invitee.displayName} ne peut pas venir à une jam qui finit après 22 h.`);
+	if (!(await isAdult(invitee.id))) {
+		if (adultsOnly(row)) {
+			throw new JamError(`${invitee.displayName} est mineur·e : ce lieu est réservé aux adultes.`);
+		}
+		if (!endsBeforeCurfew(row.startsAt!, row.endsAt!)) {
+			throw new JamError(
+				`${invitee.displayName} ne peut pas venir à une jam qui finit après 22 h.`
+			);
+		}
 	}
 	await prisma.jamInvite.upsert({
 		where: { opportunityId_actorId: { opportunityId: id, actorId: invitee.id } },
@@ -446,7 +488,7 @@ export async function respondToJamInvite(
 export async function setJamLead(id: string, hostId: string, handle: string, now = new Date()) {
 	const row = await findVisibleJam(id, hostId, now);
 	if (!row) throw new JamError('Jam introuvable.', 404);
-	if (row.issuerActorId !== hostId) throw new JamError('Seul·e l’hôte désigne le lead.', 403);
+	if (!isHostOf(row, hostId)) throw new JamError('Seul·e l’hôte désigne le lead.', 403);
 	let leadActorId: string | null = null;
 	if (handle) {
 		const lead = await findMusician(handle, hostId, now);

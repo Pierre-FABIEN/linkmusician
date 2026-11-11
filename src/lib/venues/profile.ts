@@ -152,7 +152,7 @@ export function venueQuests(s: VenueQuestState, venueId: string): VenueQuest[] {
 		{
 			id: 'venue.jam',
 			label: 'Accueille ta première jam publique',
-			href: `/jams/nouvelle?lieu=${venueId}`,
+			href: `/lieux/${venueId}/gerer/scene-ouverte`,
 			done: s.publicJams >= 1
 		},
 		{

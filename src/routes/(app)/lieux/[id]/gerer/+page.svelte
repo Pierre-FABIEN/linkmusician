@@ -1,6 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: fiche d'un lieu revendiqué (P5-03b), voir +page.server.ts.
 	import { enhance } from '$app/forms';
+	import { page } from '$app/state';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
 	import OrgVerificationCard from '#lib/components/linkmusician/organizations/OrgVerificationCard.svelte';
@@ -21,6 +22,7 @@
 		VENUE_WEEKDAYS,
 		VENUE_WEEKDAY_LABELS
 	} from '#lib/venues/profile';
+	import { MAX_SERIES_PER_VENUE } from '#lib/jam/series';
 
 	let { data, form } = $props();
 	const v = $derived(data.venue);
@@ -29,6 +31,11 @@
 		if (form?.message) toast.success(form.message);
 		if (form?.error) toast.error(form.error);
 	});
+	$effect(() => {
+		if (page.url.searchParams.get('scene') === '1')
+			toast.success('Scène ouverte publiée : les 4 prochaines jams sont dans le mode jam.');
+	});
+	const activeSeries = $derived(data.series.filter((s) => !s.stopped));
 
 	// Valeurs initiales seulement : la personne modifie ensuite librement.
 	// svelte-ignore state_referenced_locally
@@ -130,6 +137,51 @@
 										: ''}{STATUS_LABELS[g.status]}</span
 								>
 							</a>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</section>
+
+		<!-- Scènes ouvertes récurrentes (P5-04a) : la liste courte, le formulaire à part. -->
+		<section class="space-y-3" aria-labelledby="scenes">
+			<div class="flex flex-wrap items-center justify-between gap-3">
+				<h2 id="scenes" class="text-xl font-bold">Scènes ouvertes</h2>
+				{#if published && activeSeries.length < MAX_SERIES_PER_VENUE}
+					<a
+						href="/lieux/{v.venueId}/gerer/scene-ouverte"
+						class="inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+						>Publier une scène ouverte</a
+					>
+				{/if}
+			</div>
+			{#if activeSeries.length === 0}
+				<p class="text-sm text-muted-foreground">
+					Un bœuf chaque jeudi ? Publie-le une fois : les jams arrivent d’elles-mêmes dans le mode
+					jam des musicien·nes autour de {v.communeName}.
+				</p>
+			{:else}
+				<ul class="space-y-2" aria-label="Scènes ouvertes du lieu">
+					{#each activeSeries as s (s.id)}
+						<li
+							class="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3 text-sm"
+						>
+							<span class="min-w-0">
+								<span class="block font-medium">{s.title}</span>
+								<span class="text-muted-foreground"
+									>{s.label}, {s.hours}{#if s.next}. Prochaine&nbsp;: <a
+											href="/jams/{s.next.id}"
+											class="underline">{day.format(new Date(s.next.startsAt))}</a
+										>{/if}</span
+								>
+							</span>
+							<form method="POST" action="?/stopSeries" use:enhance>
+								<input type="hidden" name="seriesId" value={s.id} />
+								<button
+									class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+									>Arrêter<span class="sr-only"> {s.title}</span></button
+								>
+							</form>
 						</li>
 					{/each}
 				</ul>

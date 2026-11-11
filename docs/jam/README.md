@@ -186,7 +186,8 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   lieux à 50 km, `upcomingJamsAt`, `getJam`, `comeToJam`,
   `notComingToJam`).
 - **Mineur·es (D5)** : ne voient, ne rejoignent et ne publient que des
-  jams finies le jour même avant 22 h.
+  jams finies le jour même avant 22 h, et jamais dans un lieu dont la
+  fiche est « réservé aux adultes » (`ageRule` `ADULTS`, P5-04a).
 - **Écrans** : `/jams/nouvelle` (lieu de l'annuaire, jour, début, fin,
   style, places), `/jams/[id]` (« Je viens »), jams à venir sur `/jam` et
   sur la fiche du lieu (« Publier une jam ici »). Les annonces ne
@@ -196,6 +197,41 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   ses événements ; les jours marqués sont aussi annoncés par lecteur d'écran.
 - **RGPD** : « Je viens » dans l'export (`jams_je_viens`), supprimés à
   l'anonymisation.
+
+## Scènes ouvertes récurrentes (P5-04a)
+
+- **Données** : `JamSeries` (lieu émetteur `issuerActorId`, personne
+  `postedById`, `venueId`, `weekday` 1 à 7, `startTime`, `endTime`,
+  titre, style, places `spots` en JSON, `stoppedAt`). Chaque soirée est une
+  jam ordinaire (`Opportunity.seriesId`, `@@unique([seriesId, startsAt])`)
+  : « Je viens », formation, appréciations inchangés.
+- **Publier** : `/lieux/[id]/gerer/scene-ouverte`, pour la gestion du
+  lieu (OWNER, ADMIN), majeure, fiche publiée, lieu validé ; ni le métier
+  d'organisateur·rice ni la case D51 ne sont demandés (comme les dates,
+  Q34, Q43). Trois séries actives par lieu. La page de gestion liste les
+  séries actives (prochaine date, **Arrêter** : les jams à venir passent
+  `CLOSED`).
+- **Génération** : `generateSeriesJams` (`#server/jam/series`) crée les
+  jams des 4 semaines à venir ; appelée à la création et chaque jour par
+  `/api/jobs/opportunities` (même déclencheur que l'expiration des
+  annonces). Règles pures dans `#lib/jam/series` (heure de Paris, passage
+  à l'heure d'été). Aucune notification de masse.
+- **Hôtes** (`#server/jam/hosts`) : une jam publiée au nom d'un lieu a
+  pour hôtes toutes les personnes qui le gèrent (`hostedBy`, `isHostOf`) :
+  désigner le lead, retirer un faux présent, « Tu y étais ? ». Le lien
+  « Hôte » mène à la page du lieu. Les cartes disent « Tous les jeudis ».
+- **Jam tenue** (`jam.held`, 02 §2.2) : au 3ᵉ « J'y étais » hors
+  organisation, `Opportunity.heldAt` est posé une fois et l'événement émis
+  : 50 XP × meilleure confiance des présent·es pour la personne qui a
+  publié (piste organisateur·rice), une date pour le rang du lieu
+  (`venueSummary`). Les présent·es ne gagnent rien (D27). Une jam lancée
+  par un·e musicien·ne en son nom n'est jamais « tenue » (Q42) ; le gain
+  reste acquis si un présent est retiré ensuite (Q44).
+- **RGPD** : export `scenes_ouvertes_publiees` ; à l'anonymisation, la
+  série reste au lieu et `postedById` est oublié.
+- **Tests** : `series.test.ts`, `series.integration.test.ts`, règle dans
+  `core.test.ts`, persona « Bar à scène ouverte » ; e2e
+  `scene-ouverte.spec.ts`.
 
 ## Formation du lead et matériel sur place (P2-14c)
 

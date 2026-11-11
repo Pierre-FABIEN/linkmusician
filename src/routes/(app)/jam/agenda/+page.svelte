@@ -198,7 +198,11 @@
 											class="group block space-y-3 rounded-2xl border bg-card p-4 transition hover:border-primary hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 										>
 											<span class="flex flex-wrap items-start justify-between gap-2">
-												<span class="text-lg font-bold">{j.title}</span>
+												<span class="text-lg font-bold"
+													>{j.title}{#if j.recurring}<span
+															class="block text-sm font-semibold text-primary">{j.recurring}</span
+														>{/if}</span
+												>
 												<Badge variant="outline">{day.format(new Date(j.startsAt))}</Badge>
 											</span>
 											<span class="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">

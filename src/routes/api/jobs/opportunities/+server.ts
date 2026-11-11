@@ -1,11 +1,13 @@
 import { json, error } from '@sveltejs/kit';
 import { expireOpportunities } from '#lib/server/opportunities/service';
+import { generateSeriesJams } from '#lib/server/jam/series';
 import { getQStashReceiver } from '#lib/server/qstash';
 import { matchesCronSecret } from '#lib/server/cronAuth';
 
 /**
  * LINKMUSICIAN (P2-02) : expiration quotidienne des annonces
- * (`#lib/server/opportunities/service.ts`). Mêmes déclencheurs que `/api/jobs/cleanup` :
+ * (`#lib/server/opportunities/service.ts`), puis les jams des 4 semaines à
+ * venir des scènes ouvertes récurrentes (P5-04a, `#lib/server/jam/series.ts`). Mêmes déclencheurs que `/api/jobs/cleanup` :
  * QStash (POST signé) ou Vercel Cron (GET avec `Authorization: Bearer
  * $CRON_SECRET`), jamais un client direct.
  */
@@ -31,14 +33,18 @@ async function assertAuthorized(request: Request): Promise<void> {
 	}
 }
 
+async function runDaily() {
+	const expired = await expireOpportunities();
+	const series = await generateSeriesJams();
+	return { ...expired, ...series };
+}
+
 export async function POST({ request }) {
 	await assertAuthorized(request);
-	const result = await expireOpportunities();
-	return json({ ok: true, ...result });
+	return json({ ok: true, ...(await runDaily()) });
 }
 
 export async function GET({ request }) {
 	await assertAuthorized(request);
-	const result = await expireOpportunities();
-	return json({ ok: true, ...result });
+	return json({ ok: true, ...(await runDaily()) });
 }

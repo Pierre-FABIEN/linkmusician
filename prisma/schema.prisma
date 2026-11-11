@@ -1456,6 +1456,8 @@ model Actor {
   memberships                Membership[]             @relation("MembershipPerson")
   membershipInvitesSent      Membership[]             @relation("MembershipInviter")
   opportunitiesPosted        Opportunity[]            @relation("OpportunityPoster")
+  jamSeriesIssued            JamSeries[]              @relation("JamSeriesIssuer")
+  jamSeriesPosted            JamSeries[]              @relation("JamSeriesPoster")
   /// Candidatures envoyées au nom d'un groupe (P5-05a).
   applicationsSent           Application[]            @relation("ApplicationSender")
   works                      Work[]                   @relation("WorkOwner")
@@ -2140,6 +2142,12 @@ model Opportunity {
   /// Plateau (P5-05a) : rang de groupe minimal (clé d'étape, `FIRST_GIG`…).
   /// Une condition sur des faits prouvés, jamais sur l'XP.
   minBandTier     String?
+  /// Scène ouverte récurrente (P5-04a) : la série qui a créé cette jam.
+  seriesId        String?
+  series          JamSeries?        @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  /// Jam publique tenue (P5-04a, 02 §2.2) : au moins 3 présent·es hors
+  /// organisation ont dit « J'y étais ». Posé une seule fois (`jam.held`).
+  heldAt          DateTime?
   expiresAt     DateTime
   closedAt      DateTime?
   createdAt     DateTime          @default(now())
@@ -2154,6 +2162,7 @@ model Opportunity {
   @@index([status, expiresAt])
   @@index([issuerActorId, status])
   @@index([venueId, startsAt])
+  @@unique([seriesId, startsAt])
   @@map("opportunities")
 }
 
@@ -2372,6 +2381,7 @@ model Venue {
   verifiedAt       DateTime?
   createdAt        DateTime  @default(now())
   jams             Opportunity[]
+  jamSeries        JamSeries[]
   /// Revendications de la fiche (P5-03a, D31).
   claims           VenueClaim[]
 
@@ -3533,4 +3543,40 @@ model VenueClaim {
   @@index([venueId, status])
   @@index([requestedById])
   @@map("venue_claims")
+}
+
+// ─── SCÈNES OUVERTES RÉCURRENTES (P5-04a) ───────────────────────────────────
+
+/// Scène ouverte récurrente (P5-04a, conception 08 §14) : un lieu publie une
+/// jam chaque semaine, le même jour, aux mêmes heures (heure de Paris). Un
+/// job quotidien crée les jams des 4 semaines à venir (`Opportunity.seriesId`) :
+/// « Je viens », la formation et les appréciations ne changent pas.
+model JamSeries {
+  id            String        @id @default(cuid())
+  /// Lieu émetteur (organisation `VENUE`) : les jams sont publiées en son nom.
+  issuerActorId String
+  issuer        Actor         @relation("JamSeriesIssuer", fields: [issuerActorId], references: [id], onDelete: Cascade)
+  /// Personne de la gestion qui a publié la série ; oubliée à l'anonymisation.
+  postedById    String?
+  postedBy      Actor?        @relation("JamSeriesPoster", fields: [postedById], references: [id], onDelete: SetNull)
+  venueId       String
+  venue         Venue         @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  /// Jour de la semaine (1 = lundi … 7 = dimanche), horaires « HH:MM » à Paris.
+  weekday       Int
+  startTime     String
+  endTime       String
+  title         String
+  description   String        @default("")
+  genreSlug     String?
+  /// Places souhaitées : `[{ instrumentId, count }]`, copiées sur chaque jam.
+  spots         Json          @default("[]")
+  /// Arrêtée : plus aucune jam créée, les jams à venir sont clôturées.
+  stoppedAt     DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  jams Opportunity[]
+
+  @@index([issuerActorId, stoppedAt])
+  @@map("jam_series")
 }

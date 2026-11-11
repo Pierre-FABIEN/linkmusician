@@ -2,7 +2,8 @@
 // sa gestion (OWNER, ADMIN) : jauge, scène et son, conditions faites aux
 // artistes, jours, accueil des mineur·es, genres ; publication (rang « Lieu
 // ouvert ») ; dates publiées ; quêtes et « apprendre le métier » ;
-// vérification (SIRET, P5-02) ; co-gestion. Page publique : `/lieux/[id]`.
+// vérification (SIRET, P5-02) ; co-gestion ; scènes ouvertes récurrentes
+// (P5-04a). Page publique : `/lieux/[id]`.
 import { error, fail, redirect } from '@sveltejs/kit';
 import { requirePerson } from '#server/actors/tracksForm';
 import { listGenreTree } from '#lib/prisma/skills/referentials';
@@ -23,6 +24,8 @@ import {
 	verificationState
 } from '#lib/server/organizations/verification';
 import { displayStatus, type OpportunityStatusValue } from '#lib/opportunities/rules';
+import { stopJamSeries, venueSeries } from '#lib/server/jam/series';
+import { JamError } from '#lib/server/jam/publicJams';
 import type { Actions, PageServerLoad } from './$types';
 
 async function managed(locals: App.Locals, venueId: string) {
@@ -48,9 +51,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		where: { id: params.id },
 		select: { claimedByActorId: true }
 	});
-	const [genres, verification] = await Promise.all([
+	const [genres, verification, series] = await Promise.all([
 		listGenreTree(),
-		verificationState(org.claimedByActorId!)
+		verificationState(org.claimedByActorId!),
+		venueSeries(params.id)
 	]);
 	return {
 		venue: {
@@ -67,11 +71,23 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			}))
 		},
 		genres,
-		verification
+		verification,
+		series
 	};
 };
 
 export const actions: Actions = {
+	stopSeries: async ({ locals, params, request }) => {
+		const { actorId } = await managed(locals, params.id);
+		const seriesId = String((await request.formData()).get('seriesId') ?? '');
+		try {
+			await stopJamSeries(actorId, seriesId);
+		} catch (err) {
+			if (err instanceof JamError) return fail(err.status, { error: err.message });
+			throw err;
+		}
+		return { message: 'Scène ouverte arrêtée : les prochaines jams sont annulées.' };
+	},
 	save: async ({ locals, params, request }) => {
 		const { actorId } = await managed(locals, params.id);
 		const data = await request.formData();

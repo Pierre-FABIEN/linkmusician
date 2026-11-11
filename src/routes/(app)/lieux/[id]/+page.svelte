@@ -276,6 +276,8 @@
 							<li>
 								<a href="/jams/{j.id}" class="block rounded-xl border p-3 hover:border-primary">
 									<span class="block font-semibold">{j.title}</span>
+									{#if j.recurring}<span class="block text-sm text-primary">{j.recurring}</span
+										>{/if}
 									<span class="text-sm text-muted-foreground"
 										>{day.format(new Date(j.startsAt))} · {j.coming} vien{j.coming > 1
 											? 'nent'
