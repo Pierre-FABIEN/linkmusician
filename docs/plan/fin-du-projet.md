@@ -12,14 +12,14 @@
 
 ## 1. Où on en est
 
-**88 lots terminés sur 104** (85 %) ; **≈ 90 % du périmètre du
+**89 lots terminés sur 105** (85 %) ; **≈ 90 % du périmètre du
 lancement**. Phases 0 à 2 complètes, phase 3 complète sauf l'ouverture,
 phase 4 complète pour le lancement, phase 5 commencée (P5-01, P5-02,
-P5-03a, P5-05a, P5-05b). La phase 6 vient après le lancement.
+P5-03a, P5-03b, P5-05a, P5-05b). La phase 6 vient après le lancement.
 
 | Étape                              | Lots                                                        | Quand                     |
 | ---------------------------------- | ----------------------------------------------------------- | ------------------------- |
-| A. Finir la scène                  | P5-03b, P5-06, P5-04, P5-08, P5-07, P5-11                   | Nov. → déc. 2026          |
+| A. Finir la scène                  | P5-06, P5-03d, P5-04, P5-08, P5-07, P5-11                   | Nov. → déc. 2026          |
 | B. Revue de phase 5 et revue UX    | Revue de fin de phase, parcours par rôle, suite e2e (P0-01) | Déc. 2026 → janv. 2027    |
 | C. Audit de sécurité (bloquant)    | P3-10a                                                      | Janv. → fév. 2027         |
 | D. Ouverture publique à Toulouse   | P3-10                                                       | Objectif début mars 2027  |
@@ -55,18 +55,24 @@ page publique `/@handle`. Festivals : jams « off » publiées comme des jams ;
 stages et masterclasses avec les écoles (P5-11). Voir
 [docs/scene](../scene/README.md).
 
-### P5-03b — Lieux : fiche, agenda et rang
+### P5-03b — Lieux : fiche, agenda et rang ✅ (découpé)
 
-- **Dépend de** : P5-03a ✅.
-- **Tâches** : `VenueProfile` (jauge, scène, conditions cachet,
-  chapeau ou défraiement, jours, règle d'âge) ; `/lieux/[id]/gerer`
-  copié de `studios/[handle]` (fiche, publication, photos, co-gestion) ;
-  page publique `/lieux/[id]` enrichie (pas de `/@handle`, Q19) ; agenda
-  public (jams, puis concerts de P5-06) ; rang `venueTier` lu dans les
-  faits ; quêtes d'apprentissage (licence de spectacles, GUSO, SACEM :
-  liens vers `/demarches`, rien de géré). Notification de la décision de
-  revendication (Q29) si le type est ajouté.
-- **Fin** : e2e « un bar crée sa fiche et publie une date ».
+**P5-03b ✅** (11/11/2026) : `VenueProfile`, `/lieux/[id]/gerer` (fiche,
+publication, dates publiées au nom du lieu, quêtes et « apprendre le
+métier », vérification, co-gestion), page `/lieux/[id]` enrichie (fiche,
+dates à venir, rang), rang lu dans les faits, notification de la décision
+de revendication (Q29). Voir [docs/jam](../jam/README.md#fiche-du-lieu-p5-03b).
+
+### P5-03d — Lieux : photos
+
+- **Dépend de** : P5-03b ✅.
+- **Tâches** : photos de la fiche du lieu (8 au plus), sur le modèle du
+  studio (P4-03b : `studioForPhotoUpload`, `deleteStudioPhoto`, médias
+  portés par l'organisation, modération des images) ; galerie sur
+  `/lieux/[id]`.
+- **Fin** : une photo envoyée par la gestion s'affiche sur la page du lieu
+  après modération ; une personne qui ne gère pas le lieu ne peut pas en
+  envoyer (intégration).
 
 ### P5-06 — Concerts vérifiés
 

@@ -1,7 +1,7 @@
 # Préparation technique de la phase 5
 
 > Rédigé le 11/11/2026, après la revue de phase 4. Les sections des lots
-> terminés (P5-01, P5-02, P5-03a, P5-05a, P5-05b) ont été retirées ; la route complète est
+> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-05a, P5-05b) ont été retirées ; la route complète est
 > dans [fin-du-projet.md](./fin-du-projet.md).
 > But : qu'une session de lot n'ait plus à explorer le code. Pour chaque
 > lot : ce qui existe, le modèle à copier, le schéma proposé, les étapes,
@@ -36,39 +36,27 @@ les e2e : fermer le bandeau cookies (« Compris ») avant un bouton collé en
 bas, attendre la fin des toasts avant `expectNoA11yViolations`, et lire
 la carte par `:scope > li`.
 
-**Ordre conseillé** (restant) : P5-03b → P5-06 → P5-04 → P5-08 →
+**Ordre conseillé** (restant) : P5-06 → P5-03d → P5-04 → P5-08 →
 P5-07 → P5-11. Les concerts s'appuient sur l'organisateur et la fiche du
 lieu, les jams publiques sur l'organisation du lieu.
 
 ---
 
-## P5-03b et P5-03c — Lieux
+## P5-03c et P5-03d — Lieux
 
-**Existe** : `Venue` (annuaire : type `VenueKind`, commune, SIRET
-vérifié, `backline`), `/lieux`, `/lieux/[id]`, `server/venues/service.ts`.
-Les jams publiques pointent sur `Opportunity.venueId`. Q11 : le studio et
-le lieu restent deux fiches. **Depuis P5-03a** : `OrgKind.VENUE`,
-`VenueClaim` et `server/venues/claims.ts` ; l'organisation du lieu naît
-à l'approbation de la revendication (Q28) et `Venue.claimedByActorId`
-pointe sur elle ; `managesVenueOrg` dit qui la gère ; `/@handle` d'un
-lieu redirige vers `/lieux/[id]`.
+**Existe (P5-03a, P5-03b)** : `Venue`, `VenueClaim`, organisation `VENUE`
+(`claims.ts`, `managesVenueOrg`), `VenueProfile` et
+`server/venues/profile.ts` (fiche, publication, `venueForManager`,
+`publicVenueProfile`, `myVenues`), co-gestion commune
+(`server/organizations/comanagement.ts`), dates publiées au nom du lieu
+(`createGigSlot`, `requireIssuerOrg`), rang (`core/venueSummary.ts`).
 
-**Schéma proposé pour P5-03b** (migration `lieux_fiche`) :
-
-- `VenueProfile` (sur le modèle de `StudioProfile`) : `orgId` @id,
-  `capacity Int?`, `stage String` (scène, sono), `conditions
-VenueCondition[]` (`FEE`, `HAT`, `EXPENSES`), `days Int[]` (jours
-  d'ouverture 1 à 7), `ageRule` (`ALL_AGES`, `ADULTS`, `DAYTIME_MINORS`),
-  `publishedAt`.
-
-**P5-03b — Fiche et agenda** : `/lieux/[id]/gerer`, copié de
-`studios/[handle]`, avec fiche, publication (`publicationGaps`),
-photos, co-gestion et horaires. Page publique : `/lieux/[id]` enrichi,
-**pas** de `/@handle` pour un lieu (Q19). Agenda public du lieu : jams
-(`upcomingJamsAt`) et concerts (P5-06). Rang `VENUE_TIERS`, lu dans les
-faits. Quêtes d'apprentissage (licence, GUSO, SACEM) : liens vers les
-fiches `/demarches`, rien n'est géré. e2e « un bar crée sa fiche et
-publie une date ».
+**P5-03d — Photos** : copier `studioForPhotoUpload` et `deleteStudioPhoto`
+(`server/studios/service.ts`) pour l'organisation `VENUE` ; la route
+d'envoi des photos du studio et son composant ; galerie sur
+`/lieux/[id]` (photos `PUBLISHED` seulement). Pièges : la photo est portée
+par l'organisation (`Media.actorId`), pas par `Venue` ; l'export RGPD des
+médias de la personne ne doit pas les inclure.
 
 **P5-03c — Niveau 2 « Gérant vérifié »** : identité comparée aux
 dirigeants (API Recherche d'entreprises, champ `dirigeants`), sinon
@@ -76,10 +64,10 @@ documents en modération. **Bloqué** par la réponse de la DINUM sur
 ProConnect ; il n'est exigé que pour les outils payants (après le
 lancement). On peut donc le **reporter après le lancement** (Q20).
 
-**Pièges** : mineur·es (D5), l'`ageRule` du lieu s'ajoute au filtre
-« fini avant 22 h » (`endsBeforeCurfew`). Un lieu n'est jamais mis en
-avant contre paiement dans le mode jam (P5-09). RGPD : les demandes de
-revendication vont dans l'export (`requestedById`).
+**Pièges restants** : mineur·es (D5), l'`ageRule` du lieu s'ajoute au
+filtre « fini avant 22 h » (`endsBeforeCurfew`) dans le mode jam (P5-04).
+Un lieu n'est jamais mis en avant contre paiement dans le mode jam
+(P5-09).
 
 ---
 
