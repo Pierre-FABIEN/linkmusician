@@ -1,7 +1,7 @@
 # Préparation technique de la phase 5
 
 > Rédigé le 11/11/2026, après la revue de phase 4. Les sections des lots
-> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-05a, P5-05b, P5-06) ont été retirées ; la route complète est
+> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-05a, P5-05b, P5-06) ont été retirées ; la route complète est
 > dans [fin-du-projet.md](./fin-du-projet.md).
 > But : qu'une session de lot n'ait plus à explorer le code. Pour chaque
 > lot : ce qui existe, le modèle à copier, le schéma proposé, les étapes,
@@ -36,13 +36,13 @@ les e2e : fermer le bandeau cookies (« Compris ») avant un bouton collé en
 bas, attendre la fin des toasts avant `expectNoA11yViolations`, et lire
 la carte par `:scope > li`.
 
-**Ordre conseillé** (restant) : P5-03d → P5-04 → P5-08 →
+**Ordre conseillé** (restant) : P5-04 → P5-08 →
 P5-07 → P5-11. Les concerts s'appuient sur l'organisateur et la fiche du
 lieu, les jams publiques sur l'organisation du lieu.
 
 ---
 
-## P5-03c et P5-03d — Lieux
+## P5-03c — Lieux, gérant vérifié
 
 **Existe (P5-03a, P5-03b)** : `Venue`, `VenueClaim`, organisation `VENUE`
 (`claims.ts`, `managesVenueOrg`), `VenueProfile` et
@@ -50,13 +50,6 @@ lieu, les jams publiques sur l'organisation du lieu.
 `publicVenueProfile`, `myVenues`), co-gestion commune
 (`server/organizations/comanagement.ts`), dates publiées au nom du lieu
 (`createGigSlot`, `requireIssuerOrg`), rang (`core/venueSummary.ts`).
-
-**P5-03d — Photos** : copier `studioForPhotoUpload` et `deleteStudioPhoto`
-(`server/studios/service.ts`) pour l'organisation `VENUE` ; la route
-d'envoi des photos du studio et son composant ; galerie sur
-`/lieux/[id]` (photos `PUBLISHED` seulement). Pièges : la photo est portée
-par l'organisation (`Media.actorId`), pas par `Venue` ; l'export RGPD des
-médias de la personne ne doit pas les inclure.
 
 **P5-03c — Niveau 2 « Gérant vérifié »** : identité comparée aux
 dirigeants (API Recherche d'entreprises, champ `dirigeants`), sinon
