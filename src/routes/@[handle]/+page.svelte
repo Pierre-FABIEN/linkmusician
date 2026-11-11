@@ -7,6 +7,7 @@
 	import WorksCard from '#lib/components/linkmusician/works/WorksCard.svelte';
 	import SoundEngineerCard from '#lib/components/linkmusician/crafts/SoundEngineerCard.svelte';
 	import ProducerCard from '#lib/components/linkmusician/crafts/ProducerCard.svelte';
+	import PromoterCard from '#lib/components/linkmusician/crafts/PromoterCard.svelte';
 	import CareerSheetCard from '#lib/components/linkmusician/CareerSheetCard.svelte';
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
@@ -250,6 +251,7 @@
 
 					{#if p.soundEngineer}<SoundEngineerCard profile={p.soundEngineer} />{/if}
 					{#if p.producer}<ProducerCard profile={p.producer} />{/if}
+					{#if p.promoter}<PromoterCard profile={p.promoter} />{/if}
 					{#if data.studios.length > 0}
 						<!-- Studios publiés que la personne gère (P4-03a). -->
 						<Card.Root>

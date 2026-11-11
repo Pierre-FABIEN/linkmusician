@@ -22,6 +22,12 @@ import {
 	withdrawApplication
 } from '#lib/server/opportunities/applications';
 import { demarcheNudge } from '#lib/server/demarches/service';
+import { isAdult } from '#lib/server/jam/publicJams';
+import {
+	applyAsBand,
+	bandOptionsFor,
+	withdrawBandApplication
+} from '#lib/server/opportunities/gigSlots';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -41,7 +47,23 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			demarche,
 			applications: await listForIssuer(actorId, params.id),
 			mine: null,
-			unmet: []
+			unmet: [],
+			gig: null
+		};
+	}
+	// Plateau (P5-05a) : on candidate au nom d'un groupe que l'on gère.
+	if (opportunity.kind === 'GIG_SLOT') {
+		const [bands, adult] = await Promise.all([
+			bandOptionsFor(actorId, params.id),
+			isAdult(actorId)
+		]);
+		return {
+			opportunity,
+			applications: [],
+			mine: null,
+			unmet: [],
+			demarche,
+			gig: { bands, adult }
 		};
 	}
 	const mine = await myApplication(actorId, params.id);
@@ -60,7 +82,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		});
 		unmet = await eligibilityFor(actorId, raw);
 	}
-	return { opportunity, applications: [], mine, unmet, demarche };
+	return { opportunity, applications: [], mine, unmet, demarche, gig: null };
 };
 
 const guard = async (run: () => Promise<unknown>, message: string) => {
@@ -79,6 +101,22 @@ export const actions: Actions = {
 		return guard(
 			async () => applyTo((await me(locals)).actorId, params.id, body),
 			'Candidature envoyée !'
+		);
+	},
+	applyBand: async ({ locals, params, request }) => {
+		const data = await request.formData();
+		const band = String(data.get('band') ?? '');
+		const body = String(data.get('message') ?? '');
+		return guard(
+			async () => applyAsBand((await me(locals)).actorId, params.id, band, body),
+			'Candidature du groupe envoyée !'
+		);
+	},
+	withdrawBand: async ({ locals, request }) => {
+		const id = String((await request.formData()).get('applicationId') ?? '');
+		return guard(
+			async () => withdrawBandApplication((await me(locals)).actorId, id),
+			'Candidature retirée.'
 		);
 	},
 	withdraw: async ({ locals, request }) => {

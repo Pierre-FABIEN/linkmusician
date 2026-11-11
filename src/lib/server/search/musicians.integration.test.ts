@@ -294,4 +294,39 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 		// Le style produit compte aussi dans la recherche sans métier.
 		expect(await search('genre=funk&rayon=10')).toContain('prod');
 	});
+
+	it('organisateur·rice (P5-05a) : par ce qu’elle ou il organise et par genre programmé', async () => {
+		const reggae = await db.genre.findUniqueOrThrow({ where: { slug: 'reggae' } });
+		const user = await db.user.create({
+			data: { email: `${PREFIX}orga@example.test`, referralCode: `${PREFIX}orga` }
+		});
+		const actor = await db.actor.create({
+			data: {
+				kind: 'PERSON',
+				handle: `${PREFIX}orga`,
+				displayName: 'orga',
+				person: {
+					create: {
+						userId: user.id,
+						termsAcceptedAt: new Date(),
+						onboardedAt: new Date(),
+						tracks: { create: { track: 'PROMOTER', isPrimary: true } },
+						promoterProfile: {
+							create: {
+								eventKinds: ['OPEN_STAGES'],
+								genres: { create: { genreId: reggae.id } }
+							}
+						}
+					}
+				}
+			}
+		});
+		ids.orga = actor.id;
+		await setActorLocation(actor.id, commune('Blagnac'), { db, schema: 'e2e' });
+		expect(await search('metier=organisateur')).toEqual(['orga']);
+		expect(await search('metier=organisateur&specialite=scenes-ouvertes&genre=reggae')).toEqual([
+			'orga'
+		]);
+		expect(await search('metier=organisateur&specialite=festival')).toEqual([]);
+	});
 });

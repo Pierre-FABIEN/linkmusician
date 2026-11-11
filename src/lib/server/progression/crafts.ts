@@ -1,5 +1,6 @@
 /**
- * Rang et objectifs des métiers du son (P4-02b, P4-04) : lus dans les
+ * Rang et objectifs des métiers du son (P4-02b, P4-04) et de
+ * l'organisateur·rice (P5-05a) : lus dans les
  * événements de domaine (prestations confirmées, crédits de sortie) et dans
  * le profil (spécialités, travaux en écoute, ville). Jamais l'XP.
  */
@@ -8,11 +9,14 @@ import { craftSummary } from './core/craftSummary';
 import type { CraftTrack } from './core/crafts';
 import {
 	nextProducerObjectives,
+	nextPromoterObjectives,
 	nextSoundObjectives,
 	producerQuestProgress,
+	promoterQuestProgress,
 	soundQuestProgress
 } from './core/craftQuests';
-import { craftTier } from './core/tiers';
+import { craftTier, promoterTier } from './core/tiers';
+import { promoterSummary } from './core/promoterSummary';
 import { toDomainEvent } from './events';
 
 type Db = Pick<
@@ -73,5 +77,64 @@ export async function getProducerProgress(actorId: string, db: Db) {
 		tier: craftTier(facts).tier,
 		objectives: nextProducerObjectives(state),
 		questProgress: producerQuestProgress(state)
+	};
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Organisateur·rice (P5-05a)                                                */
+/* -------------------------------------------------------------------------- */
+
+type PromoterDb = Pick<
+	PrismaClient,
+	'domainEvent' | 'promoterProfile' | 'actorLocation' | 'opportunity' | 'application'
+>;
+
+async function promoterFacts(actorId: string, db: PromoterDb) {
+	const rows = await db.domainEvent.findMany({
+		where: { actorIds: { has: actorId }, type: 'gig.held' },
+		select: { id: true, type: true, payload: true, occurredAt: true }
+	});
+	return promoterSummary(actorId, rows.map(toDomainEvent));
+}
+
+/** Rang d'organisateur·rice seul (profil public) : des événements tenus, jamais l'XP. */
+export async function getPromoterTier(actorId: string, db: PromoterDb) {
+	return promoterTier(await promoterFacts(actorId, db)).tier;
+}
+
+/** Rang, prochains objectifs et avancement de l'organisateur·rice (espace). */
+export async function getPromoterProgress(actorId: string, db: PromoterDb) {
+	const [facts, profile, zone, gigSlots, bandsProgrammed, publicJams] = await Promise.all([
+		promoterFacts(actorId, db),
+		db.promoterProfile.findUnique({
+			where: { personId: actorId },
+			select: { eventKinds: true, _count: { select: { genres: true } } }
+		}),
+		db.actorLocation.count({ where: { actorId } }),
+		db.opportunity.count({ where: { issuerActorId: actorId, kind: 'GIG_SLOT' } }),
+		db.application.count({
+			where: {
+				status: 'ACCEPTED',
+				opportunity: { issuerActorId: actorId, kind: 'GIG_SLOT' }
+			}
+		}),
+		db.opportunity.count({
+			where: { issuerActorId: actorId, kind: 'JAM', venueId: { not: null } }
+		})
+	]);
+	const state = {
+		eventKinds: profile?.eventKinds.length ?? 0,
+		genres: profile?._count.genres ?? 0,
+		hasZone: zone > 0,
+		gigSlots,
+		bandsProgrammed,
+		publicJams,
+		events: facts.events,
+		firstDates: facts.firstDates
+	};
+	return {
+		tier: promoterTier(facts).tier,
+		objectives: nextPromoterObjectives(state),
+		questProgress: promoterQuestProgress(state)
 	};
 }

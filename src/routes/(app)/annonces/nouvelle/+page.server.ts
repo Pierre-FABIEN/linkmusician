@@ -10,7 +10,7 @@ import {
 } from '#lib/server/opportunities/service';
 import {
 	MAX_TITLE,
-	OPPORTUNITY_KINDS,
+	GENERAL_KINDS,
 	OPPORTUNITY_TARGETS,
 	TARGET_SPECIALTIES,
 	opportunitySchema,
@@ -23,6 +23,8 @@ import type { Actions, PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ locals, url }) => {
 	// Une jam se publie dans un lieu de l'annuaire (P2-14b).
 	if (url.searchParams.get('type') === 'JAM') redirect(303, '/jams/nouvelle');
+	// Un plateau aussi (P5-05a).
+	if (url.searchParams.get('type') === 'GIG_SLOT') redirect(303, '/plateaux/nouveau');
 	const person = (await getPersonByUserId(locals.user!.id))!;
 	const [location, instruments, genres, bands, works] = await Promise.all([
 		getActorLocation(person.actorId),
@@ -69,9 +71,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			work: works.some((w) => w.id === morceau) ? morceau : ''
 		},
 		// « Lancer une jam » depuis le mode jam (P2-12) : type présélectionné.
-		defaultKind: (OPPORTUNITY_KINDS as readonly string[]).includes(
-			url.searchParams.get('type') ?? ''
-		)
+		defaultKind: (GENERAL_KINDS as readonly string[]).includes(url.searchParams.get('type') ?? '')
 			? url.searchParams.get('type')!
 			: 'RECRUIT_MEMBER'
 	};
@@ -89,6 +89,7 @@ export const actions: Actions = {
 			});
 		}
 		if (parsed.data.kind === 'JAM') redirect(303, '/jams/nouvelle');
+		if (parsed.data.kind === 'GIG_SLOT') redirect(303, '/plateaux/nouveau');
 		// Au nom d'un groupe que je gère (P3-03) : relu côté serveur.
 		const asBand = typeof raw.asBand === 'string' ? raw.asBand : '';
 		const band = asBand

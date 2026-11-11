@@ -169,6 +169,13 @@
 						>Publier une jam ici</a
 					>
 				{/if}
+				{#if data.promoter}
+					<!-- LINKMUSICIAN: plateau (P5-05a). -->
+					<a
+						href="/plateaux/nouveau?lieu={data.venue.id}"
+						class="inline-block font-semibold underline sm:ml-4">Publier un plateau ici</a
+					>
+				{/if}
 			</section>
 		{/if}
 

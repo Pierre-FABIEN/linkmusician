@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { SOUND_SPECIALTIES, SOUND_SPECIALTY_INFO } from '#lib/crafts/sound';
 import { PRODUCER_SPECIALTIES, PRODUCER_SPECIALTY_INFO } from '#lib/crafts/producer';
 
-export const OPPORTUNITY_KINDS = ['JAM', 'RECRUIT_MEMBER', 'SESSION_WORK'] as const;
+export const OPPORTUNITY_KINDS = ['JAM', 'RECRUIT_MEMBER', 'SESSION_WORK', 'GIG_SLOT'] as const;
 export type OpportunityKindValue = (typeof OPPORTUNITY_KINDS)[number];
 
 export const OPPORTUNITY_KIND_INFO: Readonly<
@@ -20,8 +20,13 @@ export const OPPORTUNITY_KIND_INFO: Readonly<
 	SESSION_WORK: {
 		label: 'Session ou prestation',
 		hint: 'Un enregistrement, une date à assurer, un mixage, une production.'
-	}
+	},
+	// P5-05a : publié par un·e organisateur·rice (`/plateaux/nouveau`).
+	GIG_SLOT: { label: 'Plateau', hint: 'Une date dans un lieu : on cherche des groupes.' }
 };
+
+/** Types publiés par le formulaire général (une jam et un plateau ont leur page). */
+export const GENERAL_KINDS = OPPORTUNITY_KINDS.filter((k) => k !== 'JAM' && k !== 'GIG_SLOT');
 
 /**
  * Qui l'annonce cherche (P4-05) : des musicien·nes (par défaut), ou un

@@ -27,6 +27,7 @@
 	} from '#lib/search/filters';
 	import { SOUND_SPECIALTY_INFO } from '#lib/crafts/sound';
 	import { PRODUCER_SPECIALTY_INFO } from '#lib/crafts/producer';
+	import { PROMOTER_EVENT_KIND_INFO } from '#lib/crafts/promoter';
 
 	import { untrack } from 'svelte';
 
@@ -43,9 +44,11 @@
 		specialtiesOf(trackChoice ? SEARCH_TRACKS[trackChoice as SearchTrackSlug] : null)
 	);
 	const SPECIALTY_LABELS: Record<string, string> = Object.fromEntries(
-		[...Object.entries(SOUND_SPECIALTY_INFO), ...Object.entries(PRODUCER_SPECIALTY_INFO)].map(
-			([k, v]) => [k, v.label]
-		)
+		[
+			...Object.entries(SOUND_SPECIALTY_INFO),
+			...Object.entries(PRODUCER_SPECIALTY_INFO),
+			...Object.entries(PROMOTER_EVENT_KIND_INFO)
+		].map(([k, v]) => [k, v.label])
 	);
 	/** Volet « Plus de filtres » ouvert d'office si l'un d'eux est actif. */
 	const secondaryActive = $derived(
@@ -84,7 +87,7 @@
 					</label>
 					{#if specialtyChoices.length > 0}
 						<label class="space-y-1 text-sm font-medium">
-							Spécialité
+							{trackChoice === 'organisateur' ? 'Ce qu’elle ou il organise' : 'Spécialité'}
 							<select name="specialite" class={select}>
 								<option value="">Toutes</option>
 								{#each specialtyChoices as s (s)}
@@ -244,6 +247,16 @@
 											<span class="text-muted-foreground"
 												>· {r.producerSpecialties
 													.map((sp) => PRODUCER_SPECIALTY_INFO[sp].label)
+													.join(', ')}</span
+											>
+										</span>
+									{/if}
+									{#if r.promoterEventKinds.length > 0}
+										<span class="text-sm">
+											<span class="font-semibold">Organisateur·rice</span>
+											<span class="text-muted-foreground"
+												>· {r.promoterEventKinds
+													.map((k) => PROMOTER_EVENT_KIND_INFO[k].label)
 													.join(', ')}</span
 											>
 										</span>

@@ -15,6 +15,7 @@ import { ClaimError, claimState, startClaim, submitClaimProof } from '#lib/serve
 import { isJamOrganizer, upcomingJamsAt } from '#lib/server/jam/publicJams';
 import { ModerationError, fileReport } from '#lib/server/moderation/service';
 import { BACKLINE_ITEMS, BACKLINE_LABELS, backlineSchema } from '#lib/jam/lineup';
+import { isPromoter } from '#lib/server/opportunities/gigSlots';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -49,6 +50,8 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		claim,
 		/** « Publier une jam ici » : organisateurs seulement (D51). */
 		organizer: await isJamOrganizer(person.actorId),
+		// « Publier un plateau ici » (P5-05a).
+		promoter: await isPromoter(person.actorId),
 		added: url.searchParams.has('ajoute')
 	};
 };

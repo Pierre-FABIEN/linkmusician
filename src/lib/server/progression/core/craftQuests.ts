@@ -172,3 +172,91 @@ export const nextProducerObjectives = (state: ProducerQuestState, limit = 3) =>
 	next(PRODUCER, state, limit);
 
 export const producerQuestProgress = (state: ProducerQuestState) => progress(PRODUCER, state);
+
+/**
+ * Objectifs de l'organisateur·rice (P5-05a, conception 08 §8) : la fiche,
+ * un premier plateau, un premier groupe programmé, puis les événements tenus
+ * (P5-06). Lus dans le profil, les annonces et les événements `gig.held` ;
+ * jamais l'XP.
+ */
+export type PromoterQuestState = {
+	/** Types d'événements cochés et genres programmés. */
+	eventKinds: number;
+	genres: number;
+	hasZone: boolean;
+	/** Plateaux publiés, candidatures de groupe acceptées, jams publiques publiées. */
+	gigSlots: number;
+	bandsProgrammed: number;
+	publicJams: number;
+	/** Événements tenus et confirmés, artistes à leur toute première date (P5-06). */
+	events: number;
+	firstDates: number;
+};
+
+type PromoterCandidate = Objective & { done: (s: PromoterQuestState) => boolean };
+
+const NEWCOMERS_TARGET = 3;
+
+const PROMOTER: readonly PromoterCandidate[] = [
+	{
+		id: 'promoter.profile',
+		label: 'Remplis ta fiche : ce que tu organises, tes genres',
+		href: '/profil/organisateur',
+		done: (s) => s.eventKinds > 0 && s.genres > 0
+	},
+	{ id: 'promoter.zone', label: 'Indique ta ville', href: '/profil/ville', done: (s) => s.hasZone },
+	{
+		id: 'promoter.gigslot',
+		label: 'Publie un premier plateau',
+		href: '/plateaux/nouveau',
+		done: (s) => s.gigSlots >= 1
+	},
+	{
+		id: 'promoter.band.first',
+		label: 'Programme un premier groupe (accepte sa candidature)',
+		href: '/annonces',
+		done: (s) => s.bandsProgrammed >= 1
+	},
+	{
+		id: 'promoter.event.first',
+		label: 'Tiens un premier événement, confirmé par un groupe',
+		href: '/annonces',
+		xp: BAREME.gigHeld,
+		done: (s) => s.events >= 1
+	},
+	{
+		id: 'promoter.newcomers',
+		label: `Programme ${NEWCOMERS_TARGET} groupes pour leur toute première date`,
+		href: '/annonces',
+		xp: BAREME.gigFirstDate,
+		done: (s) => s.firstDates >= NEWCOMERS_TARGET
+	},
+	{
+		id: 'promoter.jam',
+		label: 'Organise une jam publique',
+		href: '/jams/nouvelle',
+		done: (s) => s.publicJams >= 1
+	}
+];
+
+/** Les prochains objectifs de l'organisateur·rice, dans l'ordre du parcours. */
+export function nextPromoterObjectives(state: PromoterQuestState, limit = 3): Objective[] {
+	return PROMOTER.filter((c) => !c.done(state))
+		.slice(0, limit)
+		.map(({ done: _done, ...objective }) =>
+			objective.id === 'promoter.newcomers'
+				? {
+						...objective,
+						progress: {
+							current: Math.min(state.firstDates, NEWCOMERS_TARGET),
+							target: NEWCOMERS_TARGET
+						}
+					}
+				: objective
+		);
+}
+
+export const promoterQuestProgress = (state: PromoterQuestState) => ({
+	done: PROMOTER.filter((c) => c.done(state)).length,
+	total: PROMOTER.length
+});

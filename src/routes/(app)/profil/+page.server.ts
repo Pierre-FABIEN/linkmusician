@@ -31,6 +31,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		soundEngineer: person.tracks.some((t) => t.track === 'SOUND_ENGINEER'),
 		/** Lien vers « Mon profil de producteur·rice » (P4-04). */
 		producer: person.tracks.some((t) => t.track === 'PRODUCER'),
+		/** Lien vers « Mon profil d'organisateur·rice » (P5-05a). */
+		promoter: person.tracks.some((t) => t.track === 'PROMOTER'),
 		// Conseil en contexte (P2-17).
 		tip: await currentTip('profil', person)
 	};

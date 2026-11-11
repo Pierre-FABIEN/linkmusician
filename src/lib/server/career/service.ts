@@ -167,7 +167,11 @@ const AVAILABLE = [
 	'/profil/production',
 	'/annonces',
 	'/groupes',
-	'/morceaux'
+	'/morceaux',
+	// Organisateur·rice (P5-05a).
+	'/profil/organisateur',
+	'/plateaux/nouveau',
+	'/jams/nouvelle'
 ];
 
 /** Objectifs pour l'affichage : lien seulement vers un écran qui existe. */

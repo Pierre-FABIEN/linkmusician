@@ -5,6 +5,7 @@ import { listMine, listNearby } from '#lib/server/opportunities/service';
 import { listMyApplications } from '#lib/server/opportunities/applications';
 import { OPPORTUNITY_KINDS, type OpportunityKindValue } from '#lib/opportunities/rules';
 import { currentTip } from '#lib/server/guide/service';
+import { isPromoter } from '#lib/server/opportunities/gigSlots';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -14,12 +15,22 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		? (type as OpportunityKindValue)
 		: null;
 	const location = await getActorLocation(person.actorId);
-	const [nearby, mine, applications, tip] = await Promise.all([
+	const [nearby, mine, applications, tip, promoter] = await Promise.all([
 		location ? listNearby(person.actorId, { kind }) : Promise.resolve([]),
 		listMine(person.actorId),
 		listMyApplications(person.actorId),
 		// Conseil en contexte (P2-17).
-		currentTip('annonces', person)
+		currentTip('annonces', person),
+		// « Publier un plateau » (P5-05a).
+		isPromoter(person.actorId)
 	]);
-	return { kind, commune: location?.communeName ?? null, nearby, mine, applications, tip };
+	return {
+		kind,
+		commune: location?.communeName ?? null,
+		nearby,
+		mine,
+		applications,
+		tip,
+		promoter
+	};
 };

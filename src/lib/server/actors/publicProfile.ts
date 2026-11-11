@@ -20,6 +20,8 @@ import { endorsersByInstrument } from '#lib/server/endorsements/service';
 import { getPublicReputation } from '#lib/server/progression/reputation';
 import { getSoundProfile } from '#lib/prisma/crafts/soundProfile';
 import { getProducerProfile } from '#lib/prisma/crafts/producerProfile';
+import { getPromoterProfile } from '#lib/prisma/crafts/promoterProfile';
+import { getPromoterTier } from '#lib/server/progression/crafts';
 import { getCraftTier, getSoundEngineerTier } from '#lib/server/progression/crafts';
 import { publicActorWhere } from './visibility';
 import { SOUND_ROLE_LABELS, type SoundRoleKind } from '#lib/works/rules';
@@ -85,7 +87,8 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 		bands,
 		works,
 		sound,
-		producer
+		producer,
+		promoter
 	] = await Promise.all([
 		getMusicalProfile({ actorId: actor.id }),
 		getActorLocation(actor.id),
@@ -117,6 +120,24 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 		// Profil de producteur·rice (P4-04), déclaratif.
 		hasTrack('PRODUCER')
 			? Promise.all([getProducerProfile(actor.id), getCraftTier(actor.id, 'PRODUCER', prisma)])
+			: null,
+		// Profil d'organisateur·rice (P5-05a) et plateaux ouverts.
+		hasTrack('PROMOTER')
+			? Promise.all([
+					getPromoterProfile(actor.id),
+					getPromoterTier(actor.id, prisma),
+					prisma.opportunity.findMany({
+						where: {
+							issuerActorId: actor.id,
+							kind: 'GIG_SLOT',
+							status: 'OPEN',
+							expiresAt: { gt: now }
+						},
+						orderBy: { startsAt: 'asc' },
+						take: 5,
+						select: { id: true, title: true, startsAt: true, venue: { select: { name: true } } }
+					})
+				])
 			: null
 	]);
 
@@ -160,6 +181,13 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 			: null,
 		producer: producer?.[0]
 			? { ...producer[0], tier: producer[1], credits: craftCredits(works, PRODUCER_ROLES) }
+			: null,
+		promoter: promoter?.[0]
+			? {
+					...promoter[0],
+					tier: promoter[1],
+					gigSlots: promoter[2].map(({ venue, ...g }) => ({ ...g, venue: venue?.name ?? null }))
+				}
 			: null,
 		media: media.slice(0, PROFILE_MEDIA_LIMIT).map(({ instrumentId: _i, ...m }) => m),
 		mediaCount: media.length,

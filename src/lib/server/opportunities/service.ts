@@ -33,6 +33,8 @@ import {
 	type OpportunityTarget
 } from '#lib/opportunities/rules';
 import { manageableWorks } from '#lib/server/works/service';
+import { GIG_TIER_LABELS } from '#lib/opportunities/gigSlot';
+import type { MilestoneKey } from '#lib/milestones/rules';
 
 export class OpportunityError extends Error {
 	constructor(
@@ -80,6 +82,9 @@ export async function createOpportunity(
 	bandId: string | null = null
 ) {
 	const issuerId = bandId ?? actorId;
+	// Un plateau a son propre chemin (P5-05a, `gigSlots.ts`) : lieu, date, rang de groupe.
+	if (form.kind === 'GIG_SLOT')
+		throw new OpportunityError('Un plateau se publie depuis « Publier un plateau ».');
 	if (bandId) {
 		if (form.kind !== 'RECRUIT_MEMBER') {
 			throw new OpportunityError('Au nom d’un groupe, on publie seulement un recrutement.');
@@ -185,6 +190,8 @@ export async function getOpportunity(id: string, viewerId: string, now = new Dat
 		include: {
 			instrument: { select: { name: true } },
 			work: { select: { id: true, title: true, state: true } },
+			// Plateau (P5-05a) : le lieu de l'annuaire.
+			venue: { select: { id: true, name: true, communeName: true } },
 			issuer: {
 				select: {
 					id: true,
@@ -231,6 +238,9 @@ export async function getOpportunity(id: string, viewerId: string, now = new Dat
 		radiusKm: o.radiusKm,
 		slots: o.slots,
 		startsAt: o.startsAt,
+		/** Plateau (P5-05a) : lieu et rang de groupe demandé (jamais l'XP). */
+		venue: o.kind === 'GIG_SLOT' ? o.venue : null,
+		minBandTier: o.minBandTier ? (GIG_TIER_LABELS[o.minBandTier as MilestoneKey] ?? null) : null,
 		expiresAt: o.expiresAt,
 		createdAt: o.createdAt,
 		commune: o.issuer.location?.communeName ?? null,

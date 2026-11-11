@@ -29,6 +29,20 @@
 	});
 
 	const day = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+	// Plateau (P5-05a) : l'heure compte (heure de Paris).
+	const dayTime = new Intl.DateTimeFormat('fr-FR', {
+		weekday: 'long',
+		day: 'numeric',
+		month: 'long',
+		hour: '2-digit',
+		minute: '2-digit',
+		timeZone: 'Europe/Paris'
+	});
+	const isGig = $derived(o.kind === 'GIG_SLOT');
+	const gigBands = $derived(data.gig?.bands ?? []);
+	const appliedBands = $derived(gigBands.filter((b) => b.application));
+	const openBands = $derived(gigBands.filter((b) => !b.application && b.unmet.length === 0));
+	const blockedBands = $derived(gigBands.filter((b) => !b.application && b.unmet.length > 0));
 	const levelName = (l: number | null) => (l ? INSTRUMENT_LEVELS[l - 1]?.label : null);
 	const conditions = $derived(
 		[
@@ -37,10 +51,39 @@
 				`${o.instrument}${levelName(o.minLevel) ? ` (${levelName(o.minLevel)} ou plus)` : ''}`,
 			!o.instrument && levelName(o.minLevel) && `Niveau ${levelName(o.minLevel)} ou plus`,
 			o.genre && `Genre : ${o.genre}`,
-			o.minTier && `Palier : ${o.minTier} ou plus`
+			o.minTier && `Palier : ${o.minTier} ou plus`,
+			// Plateau (P5-05a) : des faits prouvés, jamais l'XP.
+			o.minBandTier && `Rang du groupe : ${o.minBandTier} ou plus`,
+			o.kind === 'GIG_SLOT' &&
+				`Groupes à ${o.radiusKm} km${o.commune ? ` de ${o.commune}` : ''} au plus`
 		].filter(Boolean) as string[]
 	);
 </script>
+
+{#snippet report()}
+	<details class="rounded-lg border p-3 text-sm">
+		<summary class="cursor-pointer text-muted-foreground">Signaler cette annonce</summary>
+		<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
+			<label class="block space-y-1 font-medium">
+				Motif
+				<select name="reason" required class="w-full rounded-md border bg-background p-2">
+					<option value="">—</option>
+					{#each REPORT_REASONS as r (r)}<option value={r}>{REPORT_REASON_LABELS[r]}</option>{/each}
+				</select>
+			</label>
+			<label class="block space-y-1 font-medium">
+				Précisions (facultatif)
+				<textarea
+					name="details"
+					rows="3"
+					maxlength={MAX_REPORT_DETAILS}
+					class="w-full rounded-md border bg-background p-2"
+				></textarea>
+			</label>
+			<button type="submit" class="rounded-md border px-3 py-1.5">Envoyer le signalement</button>
+		</form>
+	</details>
+{/snippet}
 
 <SEO title={o.title} noindex nofollow />
 
@@ -59,22 +102,32 @@
 			</div>
 			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{o.title}</h1>
 			<p class="text-sm text-muted-foreground">
-				{o.issuer.isBand ? 'Le groupe' : 'par'}
+				{isGig ? 'Plateau proposé par' : o.issuer.isBand ? 'Le groupe' : 'par'}
 				<a href="/@{o.issuer.handle}" class="font-medium underline">{o.issuer.displayName}</a>
-				{o.issuer.isBand ? 'recrute' : ''}
+				{o.issuer.isBand && !isGig ? 'recrute' : ''}
 			</p>
 		</header>
 
 		<DemarcheCard nudge={data.demarche} />
 		<ul class="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-			{#if o.commune}<li class="inline-flex items-center gap-1">
+			{#if o.venue}
+				<li class="inline-flex items-center gap-1">
+					<MapPin class="size-4" aria-hidden="true" /><span
+						><a href="/lieux/{o.venue.id}" class="font-medium underline">{o.venue.name}</a>, {o
+							.venue.communeName}</span
+					>
+				</li>
+			{:else if o.commune}<li class="inline-flex items-center gap-1">
 					<MapPin class="size-4" aria-hidden="true" />{o.commune}
 				</li>{/if}
 			{#if o.startsAt}<li class="inline-flex items-center gap-1">
-					<CalendarDays class="size-4" aria-hidden="true" />{day.format(new Date(o.startsAt))}
+					<CalendarDays class="size-4" aria-hidden="true" />{isGig
+						? dayTime.format(new Date(o.startsAt))
+						: day.format(new Date(o.startsAt))}
 				</li>{/if}
 			<li class="inline-flex items-center gap-1">
-				<Users class="size-4" aria-hidden="true" />{o.slots} place{o.slots > 1 ? 's' : ''}
+				<Users class="size-4" aria-hidden="true" />{o.slots}
+				{isGig ? `groupe${o.slots > 1 ? 's' : ''} à l’affiche` : `place${o.slots > 1 ? 's' : ''}`}
 			</li>
 		</ul>
 
@@ -123,7 +176,9 @@
 				</h2>
 				{#if data.applications.length === 0}
 					<p class="text-sm text-muted-foreground">
-						Pas encore de candidature. Les musicien·nes autour de toi la voient dans leurs annonces.
+						{isGig
+							? 'Pas encore de candidature. Les groupes autour de toi voient ton plateau dans leurs annonces.'
+							: 'Pas encore de candidature. Les musicien·nes autour de toi la voient dans leurs annonces.'}
 					</p>
 				{:else}
 					<ul class="grid gap-3 lg:grid-cols-2" aria-label="Candidatures reçues">
@@ -141,6 +196,11 @@
 										>{APPLICATION_STATUS_LABELS[a.status]}</Badge
 									>
 								</div>
+								{#if a.applicant.isBand}
+									<p class="text-xs text-muted-foreground">
+										Groupe{a.applicant.bandTier ? ` · rang ${a.applicant.bandTier}` : ''}
+									</p>
+								{/if}
 								{#if a.applicant.instruments.length > 0}
 									<p class="text-xs text-muted-foreground">
 										{a.applicant.instruments
@@ -180,6 +240,101 @@
 					</ul>
 				{/if}
 			</section>
+		{:else if data.gig}
+			<!-- LINKMUSICIAN: plateau (P5-05a) : candidater au nom d'un groupe. -->
+			{#if !data.gig.adult}
+				<p class="rounded-2xl border bg-muted/40 p-4 text-sm">
+					Avant 18 ans, on ne candidate pas à un plateau : une personne majeure qui gère ton groupe
+					peut le faire.
+				</p>
+			{:else if gigBands.length === 0}
+				<p class="rounded-2xl border bg-muted/40 p-4 text-sm">
+					Un plateau se candidate au nom d’un groupe que tu gères.
+					<a href="/groupes" class="font-semibold underline">Mes groupes</a>
+				</p>
+			{/if}
+			{#if appliedBands.length > 0}
+				<section
+					class="space-y-2 rounded-2xl border bg-card p-4 text-sm"
+					aria-labelledby="mine-title"
+				>
+					<h2 id="mine-title" class="font-semibold">Candidatures de tes groupes</h2>
+					<ul class="space-y-2">
+						{#each appliedBands as b (b.handle)}
+							{@const app = b.application!}
+							<li class="flex flex-wrap items-center justify-between gap-2">
+								<span>
+									<span class="font-semibold">{b.name}</span> :
+									{APPLICATION_STATUS_LABELS[app.status]}
+								</span>
+								{#if app.status === 'ACCEPTED' && app.conversationId}
+									<a href="/messages/{app.conversationId}" class="font-semibold underline"
+										>Ouvrir la conversation</a
+									>
+								{:else if isPending(app.status)}
+									<form method="POST" action="?/withdrawBand" use:enhance>
+										<input type="hidden" name="applicationId" value={app.id} />
+										<button class="min-h-11 rounded-xl border px-4">Retirer</button>
+									</form>
+								{/if}
+							</li>
+						{/each}
+					</ul>
+				</section>
+			{/if}
+			{#if data.gig.adult && o.active && blockedBands.length > 0}
+				<section
+					class="space-y-1 rounded-2xl border bg-muted/40 p-4 text-sm"
+					aria-label="Groupes hors conditions"
+				>
+					{#each blockedBands as b (b.handle)}
+						<p>
+							<span class="font-semibold">{b.name}</span>{b.tier ? ` (rang ${b.tier})` : ''} ne peut pas
+							candidater : {b.unmet.join(', ')}.
+						</p>
+					{/each}
+					<a href="/groupes/{blockedBands[0].handle}" class="inline-block font-semibold underline"
+						>Voir la fiche du groupe</a
+					>
+				</section>
+			{/if}
+			{#if data.gig.adult && o.active && openBands.length > 0}
+				<form
+					method="POST"
+					action="?/applyBand"
+					use:enhance
+					class="space-y-3 rounded-2xl border bg-card p-4"
+					aria-labelledby="apply-title"
+				>
+					<h2 id="apply-title" class="font-semibold">Candidater avec un groupe</h2>
+					<label class="block space-y-1 text-sm font-medium">
+						Groupe
+						<select name="band" required class="w-full rounded-md border bg-background p-2">
+							{#each openBands as b (b.handle)}
+								<option value={b.handle}>{b.name}{b.tier ? ` · rang ${b.tier}` : ''}</option>
+							{/each}
+						</select>
+					</label>
+					<label class="block space-y-1 text-sm font-medium">
+						Ton message à {o.issuer.displayName}
+						<textarea
+							name="message"
+							required
+							rows="4"
+							minlength={MIN_APPLICATION}
+							maxlength={MAX_APPLICATION}
+							placeholder="Votre style, la durée de votre set, un lien d’écoute, vos besoins techniques…"
+							class="w-full rounded-md border bg-background p-2"
+						></textarea>
+					</label>
+					<button
+						type="submit"
+						class="min-h-11 rounded-xl bg-primary px-5 font-semibold text-primary-foreground"
+						>Envoyer la candidature du groupe</button
+					>
+				</form>
+			{/if}
+			{@render report()}
 		{:else}
 			{#if data.mine}
 				<section
@@ -246,30 +401,7 @@
 					>
 				</form>
 			{/if}
-			<details class="rounded-lg border p-3 text-sm">
-				<summary class="cursor-pointer text-muted-foreground">Signaler cette annonce</summary>
-				<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
-					<label class="block space-y-1 font-medium">
-						Motif
-						<select name="reason" required class="w-full rounded-md border bg-background p-2">
-							<option value="">—</option>
-							{#each REPORT_REASONS as r (r)}<option value={r}>{REPORT_REASON_LABELS[r]}</option
-								>{/each}
-						</select>
-					</label>
-					<label class="block space-y-1 font-medium">
-						Précisions (facultatif)
-						<textarea
-							name="details"
-							rows="3"
-							maxlength={MAX_REPORT_DETAILS}
-							class="w-full rounded-md border bg-background p-2"
-						></textarea>
-					</label>
-					<button type="submit" class="rounded-md border px-3 py-1.5">Envoyer le signalement</button
-					>
-				</form>
-			</details>
+			{@render report()}
 		{/if}
 	</article>
 </div>

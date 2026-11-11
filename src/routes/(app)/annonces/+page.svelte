@@ -33,12 +33,23 @@
 					qui recrute, une session.
 				</p>
 			</div>
-			<a
-				href="/annonces/nouvelle"
-				class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
-			>
-				<Plus class="size-4" aria-hidden="true" /> Publier une annonce
-			</a>
+			<div class="flex flex-wrap gap-2">
+				{#if data.promoter}
+					<!-- LINKMUSICIAN: plateau (P5-05a), réservé aux organisateur·rices. -->
+					<a
+						href="/plateaux/nouveau"
+						class="inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 font-semibold hover:bg-muted"
+					>
+						<Plus class="size-4" aria-hidden="true" /> Publier un plateau
+					</a>
+				{/if}
+				<a
+					href="/annonces/nouvelle"
+					class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
+				>
+					<Plus class="size-4" aria-hidden="true" /> Publier une annonce
+				</a>
+			</div>
 		</header>
 
 		<TipCard tip={data.tip} />
@@ -104,9 +115,10 @@
 													: ''}</span
 											>{/if}
 										<span class="inline-flex items-center gap-1"
-											><Users class="size-3.5" aria-hidden="true" />{o.slots} place{o.slots > 1
-												? 's'
-												: ''}</span
+											><Users class="size-3.5" aria-hidden="true" />{o.slots}
+											{o.kind === 'GIG_SLOT'
+												? `groupe${o.slots > 1 ? 's' : ''}`
+												: `place${o.slots > 1 ? 's' : ''}`}</span
 										>
 										<span>par {o.issuer}</span>
 									</span>
@@ -130,7 +142,11 @@
 											: `/annonces/${a.opportunity.id}`}
 										class="flex min-h-11 items-center justify-between gap-3 rounded-xl border bg-card p-3 text-sm hover:border-primary"
 									>
-										<span class="truncate">{a.opportunity.title}</span>
+										<span class="truncate"
+											>{a.opportunity.title}{#if a.band}<span class="text-muted-foreground">
+													· {a.band}</span
+												>{/if}</span
+										>
 										<Badge variant={a.status === 'ACCEPTED' ? 'default' : 'outline'}
 											>{APPLICATION_STATUS_LABELS[a.status]}</Badge
 										>

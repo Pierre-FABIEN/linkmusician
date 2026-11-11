@@ -19,11 +19,12 @@ describe('référentiel des métiers', () => {
 		}
 	});
 
-	it('ouvre les métiers un par un (D15) : musicien·ne, ingé son, producteur·rice', () => {
+	it('ouvre les métiers un par un (D15) : musicien·ne, ingé son, producteur·rice, organisateur·rice', () => {
 		expect(TRACK_LIST.filter((t) => t.available).map((t) => t.kind)).toEqual([
 			'MUSICIAN',
 			'PRODUCER',
-			'SOUND_ENGINEER'
+			'SOUND_ENGINEER',
+			'PROMOTER'
 		]);
 	});
 

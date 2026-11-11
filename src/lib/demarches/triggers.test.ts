@@ -69,6 +69,8 @@ describe('déclencheurs des démarches (09 §3)', () => {
 		);
 		expect(demarcheFor({ screen: 'annonce', kind: 'JAM' }, [])).toBeNull();
 		expect(demarcheFor({ screen: 'annonce', kind: 'RECRUIT_MEMBER' }, [])).toBeNull();
+		// Plateau (P5-05a) : la date et le cachet.
+		expect(demarcheFor({ screen: 'annonce', kind: 'GIG_SLOT' }, [])?.id).toBe('annonce-plateau');
 	});
 
 	it('un conseil de P2-17 masqué ne masque pas une démarche (préfixe)', () => {

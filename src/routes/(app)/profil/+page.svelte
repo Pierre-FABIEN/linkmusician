@@ -55,6 +55,21 @@
 				<a href="/profil/medias" class="underline">Mes médias</a>.
 			</p>
 			<!-- LINKMUSICIAN: métiers du son (P4-02, P4-04). -->
+			{#if data.promoter}
+				<!-- LINKMUSICIAN: organisateur·rice (P5-05a). -->
+				<div class="mt-3 flex flex-wrap gap-2">
+					<a
+						href="/profil/organisateur"
+						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
+						>Mon profil d’organisateur·rice →</a
+					>
+					<a
+						href="/plateaux/nouveau"
+						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
+						>Publier un plateau →</a
+					>
+				</div>
+			{/if}
 			{#if data.soundEngineer || data.producer}
 				<div class="mt-3 flex flex-wrap gap-2">
 					{#if data.soundEngineer}

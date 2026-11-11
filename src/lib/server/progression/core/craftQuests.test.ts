@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { craftSummary } from './craftSummary';
 import {
 	nextProducerObjectives,
+	nextPromoterObjectives,
 	nextSoundObjectives,
 	producerQuestProgress,
+	promoterQuestProgress,
 	soundQuestProgress,
 	type SoundQuestState
 } from './craftQuests';
@@ -178,5 +180,46 @@ describe('objectifs du producteur ou de la productrice (P4-04)', () => {
 		const state = { ...facts, specialties: ['PRODUCTION' as const], hasZone: true };
 		expect(nextProducerObjectives(state)).toEqual([]);
 		expect(producerQuestProgress(state)).toEqual({ done: 6, total: 6 });
+	});
+});
+
+describe('objectifs de l’organisateur·rice (P5-05a)', () => {
+	const empty = {
+		eventKinds: 0,
+		genres: 0,
+		hasZone: false,
+		gigSlots: 0,
+		bandsProgrammed: 0,
+		publicJams: 0,
+		events: 0,
+		firstDates: 0
+	};
+
+	it('commence par la fiche, la ville et un premier plateau', () => {
+		expect(nextPromoterObjectives(empty).map((o) => o.id)).toEqual([
+			'promoter.profile',
+			'promoter.zone',
+			'promoter.gigslot'
+		]);
+		expect(promoterQuestProgress(empty)).toEqual({ done: 0, total: 7 });
+	});
+
+	it('après un premier groupe programmé : l’événement tenu, puis les premières dates', () => {
+		const state = {
+			...empty,
+			eventKinds: 2,
+			genres: 1,
+			hasZone: true,
+			gigSlots: 1,
+			bandsProgrammed: 1,
+			firstDates: 1
+		};
+		const next = nextPromoterObjectives(state);
+		expect(next.map((o) => o.id)).toEqual([
+			'promoter.event.first',
+			'promoter.newcomers',
+			'promoter.jam'
+		]);
+		expect(next[1].progress).toEqual({ current: 1, target: 3 });
 	});
 });

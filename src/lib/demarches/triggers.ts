@@ -39,7 +39,7 @@ export type DemarcheContext =
 	  }
 	| {
 			screen: 'annonce';
-			kind: 'JAM' | 'RECRUIT_MEMBER' | 'SESSION_WORK';
+			kind: 'JAM' | 'RECRUIT_MEMBER' | 'SESSION_WORK' | 'GIG_SLOT';
 	  };
 
 export type DemarcheTrigger = {
@@ -117,6 +117,14 @@ export const DEMARCHE_TRIGGERS: readonly DemarcheTrigger[] = [
 		text: 'Une session payée, c’est un cachet : voici comment être payé·e en règle.',
 		fiches: ['etre-paye-pour-jouer'],
 		when: on('annonce', (c) => c.kind === 'SESSION_WORK')
+	},
+	{
+		// Plateau (P5-05a) : une date, avec ou sans cachet.
+		id: 'annonce-plateau',
+		screen: 'annonce',
+		text: 'Un plateau, c’est une date : la liste des morceaux à remettre au lieu, et un cachet si l’on vous paie.',
+		fiches: ['premier-concert', 'etre-paye-pour-jouer'],
+		when: on('annonce', (c) => c.kind === 'GIG_SLOT')
 	}
 ];
 

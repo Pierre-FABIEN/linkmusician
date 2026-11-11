@@ -74,6 +74,12 @@ describe('filtres de recherche (P2-01)', () => {
 		});
 		// Une spécialité d'un autre métier est ignorée.
 		expect(parse('metier=producteur&specialite=mixage').specialty).toBeNull();
+		// Organisateur·rice (P5-05a) : ce qu'elle ou il organise.
+		expect(parse('metier=organisateur&specialite=scenes-ouvertes')).toMatchObject({
+			track: 'PROMOTER',
+			specialty: 'OPEN_STAGES'
+		});
+		expect(parse('metier=organisateur&specialite=mixage').specialty).toBeNull();
 		const query = 'metier=inge-son&specialite=facade&rayon=50';
 		expect(filtersToParams(parse(query)).toString()).toBe(query);
 	});

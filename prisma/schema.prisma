@@ -1456,6 +1456,8 @@ model Actor {
   memberships                Membership[]             @relation("MembershipPerson")
   membershipInvitesSent      Membership[]             @relation("MembershipInviter")
   opportunitiesPosted        Opportunity[]            @relation("OpportunityPoster")
+  /// Candidatures envoyées au nom d'un groupe (P5-05a).
+  applicationsSent           Application[]            @relation("ApplicationSender")
   works                      Work[]                   @relation("WorkOwner")
   worksCreated               Work[]                   @relation("WorkCreator")
   workCredits                WorkContributor[]        @relation("WorkContributorPerson")
@@ -1540,6 +1542,8 @@ model Person {
   craftReferences CraftReference[]
   /// Producteur·rice (P4-04).
   producerProfile ProducerProfile?
+  /// Profil d'organisateur·rice (P5-05a).
+  promoterProfile PromoterProfile?
 
   @@map("persons")
 }
@@ -1612,6 +1616,7 @@ model Genre {
   actors    ActorGenre[]
   works     WorkGenre[]
   producers ProducerGenre[]
+  promoters PromoterGenre[]
   sortOrder Int
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -2073,6 +2078,8 @@ enum OpportunityKind {
   JAM
   RECRUIT_MEMBER
   SESSION_WORK
+  /// Plateau (P5-05a) : un·e organisateur·rice cherche des groupes pour une date.
+  GIG_SLOT
 }
 
 enum OpportunityStatus {
@@ -2130,6 +2137,9 @@ model Opportunity {
   /// Morceau concerné (P4-05), géré par l'émetteur.
   workId          String?
   work            Work?             @relation(fields: [workId], references: [id], onDelete: SetNull)
+  /// Plateau (P5-05a) : rang de groupe minimal (clé d'étape, `FIRST_GIG`…).
+  /// Une condition sur des faits prouvés, jamais sur l'XP.
+  minBandTier     String?
   expiresAt     DateTime
   closedAt      DateTime?
   createdAt     DateTime          @default(now())
@@ -2169,6 +2179,10 @@ model Application {
   applicantActorId String
   applicant        Actor             @relation(fields: [applicantActorId], references: [id], onDelete: Cascade)
   message          String
+  /// Plateau (P5-05a) : la personne qui a postulé au nom du groupe candidat
+  /// (`applicantActorId`). Oubliée à l'anonymisation.
+  sentById         String?
+  sentBy           Actor?            @relation("ApplicationSender", fields: [sentById], references: [id], onDelete: SetNull)
   status           ApplicationStatus @default(SENT)
   /// Conversation ouverte à l'acceptation.
   conversationId   String?
@@ -2178,6 +2192,7 @@ model Application {
 
   @@unique([opportunityId, applicantActorId])
   @@index([applicantActorId, createdAt])
+  @@index([sentById])
   @@map("applications")
 }
 
@@ -3271,6 +3286,44 @@ model CraftReference {
 
   @@index([personId, track, position])
   @@map("craft_references")
+}
+
+// ─── ORGANISATEUR·RICE (P5-05a) ─────────────────────────────────────────────
+
+/// Ce que la personne organise (conception 08 §8).
+enum PromoterEventKind {
+  CONCERTS
+  CLUB_NIGHTS
+  FESTIVAL
+  TOURS
+  OPEN_STAGES
+}
+
+/// Profil d'organisateur·rice, déclaratif (conception 06 §3.6, 08 §8).
+/// Trouvable dans la recherche par métier dès qu'un type d'événement est coché.
+model PromoterProfile {
+  personId   String              @id
+  person     Person              @relation(fields: [personId], references: [actorId], onDelete: Cascade)
+  eventKinds PromoterEventKind[]
+  /// Jauge habituelle (personnes), facultative.
+  capacity   Int?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  genres     PromoterGenre[]
+
+  @@map("promoter_profiles")
+}
+
+/// Genre programmé (référentiel), 5 au plus par profil.
+model PromoterGenre {
+  personId String
+  profile  PromoterProfile @relation(fields: [personId], references: [personId], onDelete: Cascade)
+  genreId  String
+  genre    Genre           @relation(fields: [genreId], references: [id], onDelete: Restrict)
+
+  @@id([personId, genreId])
+  @@index([genreId])
+  @@map("promoter_genres")
 }
 
 // ─── STUDIO (P4-03) ─────────────────────────────────────────────────────────

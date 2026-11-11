@@ -10,7 +10,7 @@
 		MAX_SLOTS,
 		MAX_TITLE,
 		OPPORTUNITY_DURATIONS,
-		OPPORTUNITY_KINDS,
+		GENERAL_KINDS,
 		OPPORTUNITY_KIND_INFO,
 		OPPORTUNITY_RADII,
 		OPPORTUNITY_TARGETS,
@@ -132,7 +132,7 @@
 				<fieldset class="space-y-2">
 					<legend class="font-medium">Type</legend>
 					<div class="grid gap-2 sm:grid-cols-3">
-						{#each OPPORTUNITY_KINDS.filter((k) => k !== 'JAM') as k (k)}
+						{#each GENERAL_KINDS as k (k)}
 							<label
 								class="flex min-h-11 cursor-pointer items-start gap-2 rounded-xl border p-3 has-[:checked]:border-primary"
 							>

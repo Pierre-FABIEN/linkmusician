@@ -119,29 +119,52 @@ export async function exportPersonData(userId: string) {
 	const location = await getActorLocation(person.actorId);
 	const progress = await getProgress(person.actorId, prisma);
 	// Métiers du son (P4-02) : profil d'ingé son et travaux en écoute.
-	const [soundProfile, craftReferences, producerProfile] = await Promise.all([
-		prisma.soundEngineerProfile.findUnique({
-			where: { personId: person.actorId },
-			select: { specialties: true, mobility: true, gear: true, updatedAt: true }
-		}),
-		prisma.craftReference.findMany({
-			where: { personId: person.actorId },
-			orderBy: [{ track: 'asc' }, { position: 'asc' }],
-			select: { track: true, title: true, url: true, createdAt: true }
-		}),
-		// Producteur·rice (P4-04).
-		prisma.producerProfile.findUnique({
-			where: { personId: person.actorId },
-			select: {
-				specialties: true,
-				mobility: true,
-				software: true,
-				rate: true,
-				updatedAt: true,
-				genres: { select: { genre: { select: { name: true } } } }
-			}
-		})
-	]);
+	const [soundProfile, craftReferences, producerProfile, promoterProfile, bandApplications] =
+		await Promise.all([
+			prisma.soundEngineerProfile.findUnique({
+				where: { personId: person.actorId },
+				select: { specialties: true, mobility: true, gear: true, updatedAt: true }
+			}),
+			prisma.craftReference.findMany({
+				where: { personId: person.actorId },
+				orderBy: [{ track: 'asc' }, { position: 'asc' }],
+				select: { track: true, title: true, url: true, createdAt: true }
+			}),
+			// Producteur·rice (P4-04).
+			prisma.producerProfile.findUnique({
+				where: { personId: person.actorId },
+				select: {
+					specialties: true,
+					mobility: true,
+					software: true,
+					rate: true,
+					updatedAt: true,
+					genres: { select: { genre: { select: { name: true } } } }
+				}
+			}),
+			// Organisateur·rice (P5-05a).
+			prisma.promoterProfile.findUnique({
+				where: { personId: person.actorId },
+				select: {
+					eventKinds: true,
+					capacity: true,
+					updatedAt: true,
+					genres: { select: { genre: { select: { name: true } } } }
+				}
+			}),
+			// Candidatures envoyées au nom d'un groupe (plateaux, P5-05a).
+			prisma.application.findMany({
+				where: { sentById: person.actorId },
+				orderBy: { createdAt: 'asc' },
+				select: {
+					message: true,
+					status: true,
+					createdAt: true,
+					applicant: { select: { displayName: true } },
+					opportunity: { select: { title: true } }
+				}
+			})
+		]);
 	const [
 		ledger,
 		reportsFiled,
@@ -504,6 +527,14 @@ export async function exportPersonData(userId: string) {
 					modifie_le: producerProfile.updatedAt
 				}
 			: null,
+		profil_organisateur: promoterProfile
+			? {
+					ce_que_j_organise: promoterProfile.eventKinds,
+					genres_programmes: promoterProfile.genres.map((g) => g.genre.name),
+					jauge_habituelle: promoterProfile.capacity,
+					modifie_le: promoterProfile.updatedAt
+				}
+			: null,
 		travaux_en_ecoute: craftReferences.map((r) => ({
 			metier: r.track,
 			titre: r.title,
@@ -641,6 +672,13 @@ export async function exportPersonData(userId: string) {
 			statut: a.status,
 			le: a.createdAt
 		})),
+		candidatures_au_nom_d_un_groupe: bandApplications.map((a) => ({
+			plateau: a.opportunity.title,
+			groupe: a.applicant.displayName,
+			message: a.message,
+			statut: a.status,
+			le: a.createdAt
+		})),
 		personnes_bloquees: blocksMade.map((b) => ({ nom: b.blocked.displayName, le: b.createdAt })),
 		messages_envoyes: messagesSent.map((m) => ({
 			a: m.conversation.participants[0]?.actor.displayName ?? null,
@@ -755,6 +793,8 @@ export async function personAnonymizationOps(
 		prisma.craftReference.deleteMany({ where: { personId: person.actorId } }),
 		// Producteur·rice (P4-04) : les styles suivent le profil (cascade).
 		prisma.producerProfile.deleteMany({ where: { personId: person.actorId } }),
+		// Organisateur·rice (P5-05a) : les genres suivent le profil (cascade).
+		prisma.promoterProfile.deleteMany({ where: { personId: person.actorId } }),
 		prisma.actorGenre.deleteMany({ where: { actorId: person.actorId } }),
 		// Morceaux (P3-11) : ceux que la personne porte sont supprimés ; ses
 		// crédits confirmés sur ceux des autres restent (« Compte supprimé »),
@@ -874,8 +914,14 @@ export async function personAnonymizationOps(
 			data: { postedById: null }
 		}),
 		prisma.opportunity.deleteMany({ where: { issuerActorId: person.actorId } }),
-		// Candidatures (P2-03) : supprimées avec le compte.
+		// Candidatures (P2-03) : supprimées avec le compte. Celles envoyées au
+		// nom d'un groupe (plateaux, P5-05a) restent au groupe ; on oublie qui
+		// les a envoyées.
 		prisma.application.deleteMany({ where: { applicantActorId: person.actorId } }),
+		prisma.application.updateMany({
+			where: { sentById: person.actorId },
+			data: { sentById: null }
+		}),
 		// Blocage (P2-05) : faits et reçus, sans objet après l'effacement.
 		prisma.block.deleteMany({
 			where: { OR: [{ blockerActorId: person.actorId }, { blockedActorId: person.actorId }] }

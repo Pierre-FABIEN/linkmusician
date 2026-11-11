@@ -12,6 +12,7 @@ import {
 import { isInstrumentLevel, type InstrumentLevel } from '#lib/skills/levels';
 import { SOUND_SPECIALTIES, type SoundSpecialtyValue } from '#lib/crafts/sound';
 import { PRODUCER_SPECIALTIES, type ProducerSpecialtyValue } from '#lib/crafts/producer';
+import { PROMOTER_EVENT_KINDS, type PromoterEventKindValue } from '#lib/crafts/promoter';
 
 /**
  * Métiers cherchables (P4-02) : ceux qui sont ouverts. Valeur d'URL lisible
@@ -20,17 +21,20 @@ import { PRODUCER_SPECIALTIES, type ProducerSpecialtyValue } from '#lib/crafts/p
 export const SEARCH_TRACKS = {
 	musicien: 'MUSICIAN',
 	'inge-son': 'SOUND_ENGINEER',
-	producteur: 'PRODUCER'
+	producteur: 'PRODUCER',
+	organisateur: 'PROMOTER'
 } as const;
 export type SearchTrackSlug = keyof typeof SEARCH_TRACKS;
 export type SearchTrack = (typeof SEARCH_TRACKS)[SearchTrackSlug];
 export const SEARCH_TRACK_LABELS: Readonly<Record<SearchTrackSlug, string>> = {
 	musicien: 'Musicien·ne',
 	'inge-son': 'Ingé son',
-	producteur: 'Producteur·rice'
+	producteur: 'Producteur·rice',
+	organisateur: 'Organisateur·rice'
 };
 
-export type SearchSpecialty = SoundSpecialtyValue | ProducerSpecialtyValue;
+/** Spécialité d'un métier ; pour l'organisateur·rice, ce qu'il ou elle organise (P5-05a). */
+export type SearchSpecialty = SoundSpecialtyValue | ProducerSpecialtyValue | PromoterEventKindValue;
 
 /** Spécialités dans l'URL (`?specialite=mixage`), par métier. */
 export const SPECIALTY_SLUGS: Readonly<Record<SearchSpecialty, string>> = {
@@ -41,13 +45,19 @@ export const SPECIALTY_SLUGS: Readonly<Record<SearchSpecialty, string>> = {
 	LIVE_MONITORS: 'retours',
 	PRODUCTION: 'production',
 	ARRANGEMENT: 'arrangement',
-	BEATMAKING: 'beatmaking'
+	BEATMAKING: 'beatmaking',
+	CONCERTS: 'concerts',
+	CLUB_NIGHTS: 'soirees',
+	FESTIVAL: 'festival',
+	TOURS: 'tournees',
+	OPEN_STAGES: 'scenes-ouvertes'
 };
 
 /** Spécialités cherchables pour un métier (aucune pour musicien·ne). */
 export function specialtiesOf(track: SearchTrack | null): readonly SearchSpecialty[] {
 	if (track === 'SOUND_ENGINEER') return SOUND_SPECIALTIES;
 	if (track === 'PRODUCER') return PRODUCER_SPECIALTIES;
+	if (track === 'PROMOTER') return PROMOTER_EVENT_KINDS;
 	return [];
 }
 

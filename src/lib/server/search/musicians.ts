@@ -60,6 +60,13 @@ export async function searchMusicianIds(
 			WHERE pp."personId" = a.id AND cardinality(pp.specialties) > 0
 			${filters.specialty ? Prisma.sql`AND ${filters.specialty} = ANY(pp.specialties::text[])` : Prisma.empty})`);
 	}
+	if (filters.track === 'PROMOTER') {
+		// Un·e organisateur·rice se trouve dès qu'un type d'événement est coché (P5-05a).
+		conditions.push(Prisma.sql`EXISTS (
+			SELECT 1 FROM ${t('promoter_profiles')} op
+			WHERE op."personId" = a.id AND cardinality(op."eventKinds") > 0
+			${filters.specialty ? Prisma.sql`AND ${filters.specialty} = ANY(op."eventKinds"::text[])` : Prisma.empty})`);
+	}
 	if (filters.track === 'SOUND_ENGINEER') {
 		// Un·e ingé son se trouve dès qu'une spécialité est cochée (P4-02).
 		conditions.push(Prisma.sql`EXISTS (
@@ -79,12 +86,14 @@ export async function searchMusicianIds(
 	}
 	if (filters.genre) {
 		// Un genre parent inclut ses sous-genres.
-		// Styles joués, ou styles produits (P4-04).
+		// Styles joués, produits (P4-04) ou programmés (P5-05a).
 		conditions.push(Prisma.sql`EXISTS (
 			SELECT 1 FROM (
 				SELECT ag."genreId" FROM ${t('actor_genres')} ag WHERE ag."actorId" = a.id
 				UNION ALL
 				SELECT pg."genreId" FROM ${t('producer_genres')} pg WHERE pg."personId" = a.id
+				UNION ALL
+				SELECT og."genreId" FROM ${t('promoter_genres')} og WHERE og."personId" = a.id
 			) mine JOIN ${t('genres')} g ON g.id = mine."genreId"
 			LEFT JOIN ${t('genres')} parent ON parent.id = g."parentId"
 			WHERE g.slug = ${filters.genre} OR parent.slug = ${filters.genre})`);
@@ -157,6 +166,7 @@ export async function searchMusicians(
 			lookingFor: true,
 			soundProfile: { select: { specialties: true } },
 			producerProfile: { select: { specialties: true } },
+			promoterProfile: { select: { eventKinds: true } },
 			actor: {
 				select: {
 					handle: true,
@@ -193,7 +203,9 @@ export async function searchMusicians(
 				/** Spécialités d'ingé son déclarées (P4-02), vides sinon. */
 				soundSpecialties: p.soundProfile?.specialties ?? [],
 				/** Spécialités de producteur·rice déclarées (P4-04), vides sinon. */
-				producerSpecialties: p.producerProfile?.specialties ?? []
+				producerSpecialties: p.producerProfile?.specialties ?? [],
+				/** Ce que la personne organise (P5-05a), vide sinon. */
+				promoterEventKinds: p.promoterProfile?.eventKinds ?? []
 			}
 		];
 	});

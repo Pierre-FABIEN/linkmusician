@@ -6,7 +6,11 @@ import { getDashboard } from '#lib/server/progression/dashboard';
 import { linkable } from '#lib/server/career/service';
 import { ambitionPriorities } from '#lib/career/ambition';
 import { prisma } from '#lib/server';
-import { getProducerProgress, getSoundEngineerProgress } from '#lib/server/progression/crafts';
+import {
+	getProducerProgress,
+	getPromoterProgress,
+	getSoundEngineerProgress
+} from '#lib/server/progression/crafts';
 import type { PageServerLoad } from './$types';
 
 const CRAFTS = [
@@ -21,6 +25,13 @@ const CRAFTS = [
 		title: 'Producteur·rice',
 		tierPrefix: 'Rang de producteur·rice :',
 		read: getProducerProgress
+	},
+	// Organisateur·rice (P5-05a).
+	{
+		track: 'PROMOTER',
+		title: 'Organisateur·rice',
+		tierPrefix: 'Rang d’organisateur·rice :',
+		read: getPromoterProgress
 	}
 ] as const;
 

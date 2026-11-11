@@ -8,6 +8,9 @@
  * tranche ; accepter ouvre la conversation avec la personne qui accepte et
  * fait entrer la candidate dans le groupe (`joinFromRecruitment`, XP
  * d'adhésion et formation du groupe), dans la même transaction.
+ *
+ * Plateau (P5-05a) : on candidate au nom d'un groupe (`gigSlots.ts`) ; la
+ * conversation s'ouvre avec la personne qui a envoyé la candidature.
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
@@ -25,6 +28,7 @@ import {
 import { OpportunityError, managesIssuer } from './service';
 import { BAND_TX, BandError, bandManagerIds, joinFromRecruitment } from '#lib/server/bands/service';
 import { notify } from '#lib/server/notifications/service';
+import { bandTierOf } from '#lib/server/milestones/service';
 
 /** Ce que le profil d'une personne dit des conditions d'une annonce. */
 export async function candidateFacts(actorId: string): Promise<CandidateFacts> {
@@ -98,7 +102,7 @@ export async function eligibilityFor(
 	return unmet.map((u) => UNMET_LABELS[u]);
 }
 
-function checkedMessage(raw: string) {
+export function checkedMessage(raw: string) {
 	const result = checkMessage(raw);
 	if (!result.ok || [...result.body].length < MIN_APPLICATION) {
 		throw new OpportunityError(`Présente-toi en ${MIN_APPLICATION} caractères au moins.`);
@@ -117,6 +121,8 @@ export async function applyTo(
 ) {
 	const o = await prisma.opportunity.findUnique({ where: { id: opportunityId } });
 	if (!o || o.status === 'REMOVED') throw new OpportunityError('Annonce introuvable.', 404);
+	if (o.kind === 'GIG_SLOT')
+		throw new OpportunityError('Un plateau se candidate au nom d’un groupe que tu gères.');
 	if (await managesIssuer(actorId, o.issuerActorId))
 		throw new OpportunityError('C’est ton annonce.');
 	const issuerIsBand = Boolean(
@@ -166,8 +172,9 @@ export async function applyTo(
 }
 
 export async function withdrawApplication(actorId: string, applicationId: string) {
+	// Ma candidature, ou celle que j'ai envoyée au nom d'un groupe (P5-05a).
 	const app = await prisma.application.findFirst({
-		where: { id: applicationId, applicantActorId: actorId }
+		where: { id: applicationId, OR: [{ applicantActorId: actorId }, { sentById: actorId }] }
 	});
 	const next = app && applicationTransition(app.status as ApplicationStatusValue, 'withdraw');
 	if (!next) throw new OpportunityError('Cette candidature ne peut plus être retirée.');
@@ -182,20 +189,27 @@ export async function myApplication(actorId: string, opportunityId: string) {
 	});
 }
 
-/** Mes candidatures, les plus récentes d'abord. */
+/** Mes candidatures (et celles envoyées au nom d'un groupe, P5-05a), les plus récentes d'abord. */
 export async function listMyApplications(actorId: string) {
 	const rows = await prisma.application.findMany({
-		where: { applicantActorId: actorId },
+		where: { OR: [{ applicantActorId: actorId }, { sentById: actorId }] },
 		orderBy: { createdAt: 'desc' },
 		take: 50,
 		select: {
 			id: true,
 			status: true,
 			conversationId: true,
+			applicantActorId: true,
+			applicant: { select: { displayName: true } },
 			opportunity: { select: { id: true, title: true } }
 		}
 	});
-	return rows.map((r) => ({ ...r, status: r.status as ApplicationStatusValue }));
+	return rows.map(({ applicantActorId, applicant, ...r }) => ({
+		...r,
+		/** Groupe au nom duquel j'ai candidaté, sinon `null`. */
+		band: applicantActorId === actorId ? null : applicant.displayName,
+		status: r.status as ApplicationStatusValue
+	}));
 }
 
 /**
@@ -223,6 +237,8 @@ export async function listForIssuer(viewerId: string, opportunityId: string) {
 			createdAt: true,
 			applicant: {
 				select: {
+					id: true,
+					kind: true,
 					handle: true,
 					displayName: true,
 					deletedAt: true,
@@ -239,6 +255,16 @@ export async function listForIssuer(viewerId: string, opportunityId: string) {
 			}
 		}
 	});
+	// Plateau (P5-05a) : le rang prouvé de chaque groupe candidat, jamais l'XP.
+	const tiers = new Map(
+		await Promise.all(
+			rows
+				.filter((r) => r.applicant.kind === 'ORGANIZATION')
+				.map(
+					async (r) => [r.applicant.id, (await bandTierOf(r.applicant.id))?.label ?? null] as const
+				)
+		)
+	);
 	return rows.map((r) => ({
 		id: r.id,
 		status: r.status as ApplicationStatusValue,
@@ -248,6 +274,8 @@ export async function listForIssuer(viewerId: string, opportunityId: string) {
 		applicant: {
 			handle: r.applicant.deletedAt ? null : r.applicant.handle,
 			displayName: r.applicant.displayName,
+			isBand: r.applicant.kind === 'ORGANIZATION',
+			bandTier: tiers.get(r.applicant.id) ?? null,
 			instruments: (r.applicant.person?.instruments ?? []).map((i) => ({
 				name: i.instrument.name,
 				level: i.declaredLevel
@@ -268,7 +296,7 @@ export async function decideApplication(
 ) {
 	const app = await prisma.application.findUnique({
 		where: { id: applicationId },
-		include: { opportunity: true }
+		include: { opportunity: true, applicant: { select: { displayName: true } } }
 	});
 	if (!app || !(await managesIssuer(issuerId, app.opportunity.issuerActorId))) {
 		throw new OpportunityError('Candidature introuvable.', 404);
@@ -285,7 +313,15 @@ export async function decideApplication(
 	}
 	const o = app.opportunity;
 	if (o.status !== 'OPEN') throw new OpportunityError('Cette annonce n’est plus ouverte.');
-	if (await isBlockedBetween(issuerId, app.applicantActorId)) {
+	// Plateau (P5-05a) : le groupe candidat parle par la personne qui a
+	// envoyé la candidature ; sans elle (compte supprimé), pas de conversation.
+	const contactId = o.kind === 'GIG_SLOT' ? app.sentById : app.applicantActorId;
+	if (!contactId) {
+		throw new OpportunityError(
+			'La personne qui a envoyé cette candidature n’est plus là : écris au groupe.'
+		);
+	}
+	if (await isBlockedBetween(issuerId, contactId)) {
 		throw new OpportunityError('Impossible d’accepter cette candidature.');
 	}
 
@@ -302,8 +338,11 @@ export async function decideApplication(
 		// Conversation liée à l'annonce : le message de candidature en premier,
 		// le candidat comme initiateur. La première réponse de l'auteur rend
 		// l'échange réciproque (XP des deux, règle de l'annonce).
-		const key = pairKey(issuerId, app.applicantActorId);
-		const body = `Candidature à « ${o.title} » :\n\n${app.message}`;
+		const key = pairKey(issuerId, contactId);
+		const body =
+			o.kind === 'GIG_SLOT'
+				? `Candidature à « ${o.title} », au nom de ${app.applicant.displayName} :\n\n${app.message}`
+				: `Candidature à « ${o.title} » :\n\n${app.message}`;
 		const existing = await tx.conversation.findUnique({ where: { pairKey: key } });
 		let conversationId: string;
 		if (existing) {
@@ -325,7 +364,7 @@ export async function decideApplication(
 			await tx.message.create({
 				data: {
 					conversationId: existing.id,
-					senderActorId: app.applicantActorId,
+					senderActorId: contactId,
 					body,
 					createdAt: now
 				}
@@ -334,17 +373,17 @@ export async function decideApplication(
 			const created = await tx.conversation.create({
 				data: {
 					pairKey: key,
-					initiatorId: app.applicantActorId,
+					initiatorId: contactId,
 					opportunityId: o.id,
 					lastMessageAt: now,
 					participants: {
 						create: [
-							{ actorId: app.applicantActorId, state: 'ACCEPTED', lastReadAt: now },
+							{ actorId: contactId, state: 'ACCEPTED', lastReadAt: now },
 							{ actorId: issuerId, state: 'ACCEPTED' }
 						]
 					},
 					messages: {
-						create: { senderActorId: app.applicantActorId, body, createdAt: now }
+						create: { senderActorId: contactId, body, createdAt: now }
 					}
 				},
 				select: { id: true }
@@ -362,7 +401,7 @@ export async function decideApplication(
 					tx,
 					{
 						bandId,
-						personId: app.applicantActorId,
+						personId: contactId,
 						managerId: issuerId,
 						title: instrument?.name.toLowerCase() ?? null
 					},
@@ -378,7 +417,7 @@ export async function decideApplication(
 		}
 		// Notification (P2-09a) : la conversation est ouverte.
 		await notify(tx, {
-			recipientId: app.applicantActorId,
+			recipientId: contactId,
 			type: 'APPLICATION_ACCEPTED',
 			fromActorId: issuerId,
 			href: `/messages/${conversationId}`,
