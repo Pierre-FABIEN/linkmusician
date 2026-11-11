@@ -105,7 +105,7 @@
 		</section>
 
 		{#if form?.error}
-			<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+			<p role="alert" class="lm-alert p-3 text-sm">
 				{form.error}
 			</p>
 		{/if}
@@ -151,7 +151,7 @@
 				<legend class="font-medium">Ce que vous organisez</legend>
 				<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
 					{#each PROMOTER_EVENT_KINDS as item (item)}
-						<label class="flex cursor-pointer items-start gap-2 rounded-lg border p-3">
+						<label class="lm-tile lm-tile--flow flex cursor-pointer items-start gap-2 p-3">
 							<input
 								type="checkbox"
 								name="eventKinds"
@@ -193,7 +193,7 @@
 					>
 					<div class="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 						{#each data.genres as genre (genre.id)}
-							<fieldset class="rounded-lg border p-3">
+							<fieldset class="lm-tile lm-tile--flow p-3">
 								<legend class="sr-only">{genre.name}</legend>
 								{#each [genre, ...genre.children] as item, i (item.id)}
 									{@const checked = genreIds.includes(item.id)}
@@ -241,11 +241,11 @@
 				</p>
 			</div>
 			{#if form?.teamError}
-				<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+				<p role="alert" class="lm-alert p-3 text-sm">
 					{form.teamError}
 				</p>
 			{/if}
-			<ul class="divide-y rounded-xl border">
+			<ul class="lm-tile lm-tile--flow divide-y">
 				{#each org.team as member (member.membershipId)}
 					<li class="flex flex-wrap items-center justify-between gap-3 p-3">
 						<div>

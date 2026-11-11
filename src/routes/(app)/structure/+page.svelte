@@ -20,7 +20,7 @@
 			<li>
 				<a
 					href="/groupes/nouveau"
-					class="flex min-h-14 items-center justify-between rounded-lg border p-3 hover:bg-muted"
+					class="lm-tile lm-tile--flow flex min-h-14 items-center justify-between p-3"
 				>
 					<span>Monter ou rejoindre un groupe</span>
 					<span aria-hidden="true">→</span>
@@ -30,7 +30,7 @@
 				<!-- Studio (P4-03a) : ingés son et producteur·rices. -->
 				<a
 					href="/studios"
-					class="flex min-h-14 items-center justify-between rounded-lg border p-3 hover:bg-muted"
+					class="lm-tile lm-tile--flow flex min-h-14 items-center justify-between p-3"
 				>
 					<span>
 						Ouvrir la fiche de ton studio
@@ -41,7 +41,7 @@
 					<span aria-hidden="true">→</span>
 				</a>
 			</li>
-			<li class="flex items-center justify-between rounded-lg border p-3 opacity-70">
+			<li class="lm-tile lm-tile--flow flex items-center justify-between p-3 opacity-70">
 				<span>
 					Une autre structure
 					<span class="block text-sm text-muted-foreground">label, salle, agence…</span>

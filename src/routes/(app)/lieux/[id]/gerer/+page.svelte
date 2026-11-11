@@ -191,7 +191,9 @@
 				<legend class="font-medium">Ce que le lieu propose aux artistes</legend>
 				<div class="flex flex-wrap gap-2">
 					{#each VENUE_CONDITIONS as c (c)}
-						<label class="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border px-3">
+						<label
+							class="lm-tile lm-tile--flow flex min-h-11 cursor-pointer items-center gap-2 px-3"
+						>
 							<input
 								type="checkbox"
 								name="conditions"
@@ -208,7 +210,9 @@
 				<legend class="font-medium">Jours de concerts ou de jams (facultatif)</legend>
 				<div class="flex flex-wrap gap-2">
 					{#each VENUE_WEEKDAYS as d (d)}
-						<label class="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border px-3">
+						<label
+							class="lm-tile lm-tile--flow flex min-h-11 cursor-pointer items-center gap-2 px-3"
+						>
 							<input
 								type="checkbox"
 								name="days"
@@ -233,7 +237,7 @@
 					>
 					<div class="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 						{#each data.genres as genre (genre.id)}
-							<fieldset class="rounded-lg border p-3">
+							<fieldset class="lm-tile lm-tile--flow p-3">
 								<legend class="sr-only">{genre.name}</legend>
 								{#each [genre, ...genre.children] as item, i (item.id)}
 									{@const checked = genreIds.includes(item.id)}
@@ -308,7 +312,7 @@
 									class="aspect-[4/3] w-full rounded-lg border object-cover"
 								/>
 							{:else}
-								<div class="aspect-[4/3] w-full rounded-lg border bg-muted"></div>
+								<div class="lm-tile lm-tile--flow aspect-[4/3] w-full bg-muted"></div>
 							{/if}
 							<p class="truncate text-sm font-medium">{photo.title}</p>
 							<p class="text-xs text-muted-foreground">
@@ -334,7 +338,7 @@
 		</section>
 
 		<!-- Apprendre le métier (08 §14) : la plateforme guide, elle ne gère rien. -->
-		<details class="rounded-xl border p-4">
+		<details class="lm-tile lm-tile--flow p-4">
 			<summary class="min-h-11 cursor-pointer content-center font-semibold"
 				>Apprendre le métier : licence, GUSO, SACEM</summary
 			>
@@ -371,11 +375,11 @@
 				</p>
 			</div>
 			{#if form?.teamError}
-				<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+				<p role="alert" class="lm-alert p-3 text-sm">
 					{form.teamError}
 				</p>
 			{/if}
-			<ul class="divide-y rounded-xl border">
+			<ul class="lm-tile lm-tile--flow divide-y">
 				{#each v.team as member (member.membershipId)}
 					<li class="flex flex-wrap items-center justify-between gap-3 p-3">
 						<div>

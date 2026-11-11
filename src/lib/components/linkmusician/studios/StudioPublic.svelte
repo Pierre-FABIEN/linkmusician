@@ -251,7 +251,7 @@
 				{/if}
 
 				{#if canReport && !studio.isManager}
-					<details class="rounded-lg border p-3 text-sm">
+					<details class="lm-tile lm-tile--flow p-3 text-sm">
 						<summary class="cursor-pointer text-muted-foreground">Signaler ce studio</summary>
 						<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
 							<div class="space-y-1">
@@ -273,7 +273,7 @@
 									class="lm-field w-full"
 								></textarea>
 							</div>
-							<button type="submit" class="rounded-md border px-3 py-1.5"
+							<button type="submit" class="lm-btn" data-variant="ghost"
 								>Envoyer le signalement</button
 							>
 						</form>

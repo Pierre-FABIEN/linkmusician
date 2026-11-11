@@ -179,6 +179,14 @@ a.lm-crumb:focus-visible {
 	--t-fg2: var(--muted-foreground);
 }
 
+/* Alerte d'erreur (`role="alert"`) : encart au liseré destructif. */
+.lm-alert {
+	border-radius: 1.1rem;
+	border: 1px solid var(--destructive);
+	background: color-mix(in oklch, var(--destructive) 8%, var(--lm-paper));
+	color: var(--destructive);
+}
+
 /* Petit titre d'écran, pour une sous-section ou un en-tête dense. */
 .lm-title--sm {
 	font-size: clamp(1.5rem, 3.4vw, 2.1rem);

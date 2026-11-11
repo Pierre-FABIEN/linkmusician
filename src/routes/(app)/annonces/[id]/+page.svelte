@@ -61,7 +61,7 @@
 </script>
 
 {#snippet report()}
-	<details class="rounded-lg border p-3 text-sm">
+	<details class="lm-tile lm-tile--flow p-3 text-sm">
 		<summary class="cursor-pointer text-muted-foreground">Signaler cette annonce</summary>
 		<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
 			<label class="block space-y-1 font-medium">
@@ -76,7 +76,7 @@
 				<textarea name="details" rows="3" maxlength={MAX_REPORT_DETAILS} class="lm-field w-full"
 				></textarea>
 			</label>
-			<button type="submit" class="rounded-md border px-3 py-1.5">Envoyer le signalement</button>
+			<button type="submit" class="lm-btn" data-variant="ghost">Envoyer le signalement</button>
 		</form>
 	</details>
 {/snippet}
@@ -152,16 +152,14 @@
 		{/if}
 
 		{#if o.isOwner}
-			<section class="space-y-2 rounded-2xl border bg-muted/40 p-4 text-sm">
+			<section class="lm-tile lm-tile--flow space-y-2 p-4 text-sm">
 				<p>
 					C'est ton annonce. Visible jusqu'au {day.format(new Date(o.expiresAt))}, à {o.radiusKm} km autour
 					de toi.
 				</p>
 				{#if o.active}
 					<form method="POST" action="?/close" use:enhance>
-						<button type="submit" class="min-h-11 rounded-xl border px-4 font-semibold"
-							>Clôturer l'annonce</button
-						>
+						<button type="submit" class="lm-btn" data-variant="ghost">Clôturer l'annonce</button>
 					</form>
 				{/if}
 			</section>
@@ -214,12 +212,12 @@
 										{#if a.status !== 'SHORTLISTED'}
 											<form method="POST" action="?/shortlist" use:enhance>
 												<input type="hidden" name="applicationId" value={a.id} />
-												<button class="min-h-11 rounded-xl border px-4">Présélectionner</button>
+												<button class="lm-btn" data-variant="ghost">Présélectionner</button>
 											</form>
 										{/if}
 										<form method="POST" action="?/decline" use:enhance>
 											<input type="hidden" name="applicationId" value={a.id} />
-											<button class="min-h-11 rounded-xl border px-4">Refuser</button>
+											<button class="lm-btn" data-variant="ghost">Refuser</button>
 										</form>
 									</div>
 								{:else if a.conversationId}
@@ -264,7 +262,7 @@
 								{:else if isPending(app.status)}
 									<form method="POST" action="?/withdrawBand" use:enhance>
 										<input type="hidden" name="applicationId" value={app.id} />
-										<button class="min-h-11 rounded-xl border px-4">Retirer</button>
+										<button class="lm-btn" data-variant="ghost">Retirer</button>
 									</form>
 								{/if}
 							</li>
@@ -274,7 +272,7 @@
 			{/if}
 			{#if data.gig.adult && o.active && blockedBands.length > 0}
 				<section
-					class="space-y-1 rounded-2xl border bg-muted/40 p-4 text-sm"
+					class="lm-tile lm-tile--flow space-y-1 p-4 text-sm"
 					aria-label="Groupes hors conditions"
 				>
 					{#each blockedBands as b (b.handle)}
@@ -343,7 +341,7 @@
 					{:else if isPending(data.mine.status)}
 						<form method="POST" action="?/withdraw" use:enhance>
 							<input type="hidden" name="applicationId" value={data.mine.id} />
-							<button class="min-h-11 rounded-xl border px-4">Retirer ma candidature</button>
+							<button class="lm-btn" data-variant="ghost">Retirer ma candidature</button>
 						</form>
 					{/if}
 				</section>

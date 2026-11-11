@@ -116,7 +116,7 @@
 					<div class="grid gap-2 sm:grid-cols-3">
 						{#each OPPORTUNITY_TARGETS as t (t)}
 							<label
-								class="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border p-3 has-[:checked]:border-primary"
+								class="lm-tile lm-tile--flow flex min-h-11 cursor-pointer items-center gap-2 p-3 has-[:checked]:border-primary"
 							>
 								<input type="radio" name="target" value={t} bind:group={target} class="size-4" />
 								<span class="font-semibold">{OPPORTUNITY_TARGET_LABELS[t]}</span>
@@ -134,7 +134,7 @@
 					<div class="grid gap-2 sm:grid-cols-3">
 						{#each GENERAL_KINDS as k (k)}
 							<label
-								class="flex min-h-11 cursor-pointer items-start gap-2 rounded-xl border p-3 has-[:checked]:border-primary"
+								class="lm-tile lm-tile--flow flex min-h-11 cursor-pointer items-start gap-2 p-3 has-[:checked]:border-primary"
 							>
 								<input
 									type="radio"

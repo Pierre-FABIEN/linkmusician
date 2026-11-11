@@ -36,7 +36,7 @@
 				</p>
 
 				{#if t.next !== null}
-					<div class="rounded-lg border p-3">
+					<div class="lm-tile lm-tile--flow p-3">
 						<h3 class="mb-2 text-sm font-semibold">Pour passer {data.names[t.next]}</h3>
 						<ul class="space-y-1 text-sm">
 							{#each t.requirements as r (r.label)}
@@ -102,7 +102,7 @@
 						<input type="checkbox" name="hidden" checked={data.hidden} class="size-4" />
 						Masquer mon profil public
 					</label>
-					<button type="submit" class="rounded-md border px-3 py-1.5 text-sm">Enregistrer</button>
+					<button type="submit" class="lm-btn" data-variant="ghost">Enregistrer</button>
 				</form>
 			</section>
 
@@ -163,7 +163,7 @@
 							{/each}
 						</tbody>
 					</table>
-					<button type="submit" class="rounded-md border px-3 py-1.5 text-sm"
+					<button type="submit" class="lm-btn" data-variant="ghost"
 						>Enregistrer mes notifications</button
 					>
 				</form>
@@ -176,11 +176,11 @@
 				{:else}
 					<ul class="space-y-2" aria-label="Personnes bloquées">
 						{#each data.blocked as b (b.actorId)}
-							<li class="flex items-center justify-between gap-3 rounded-lg border p-2 text-sm">
+							<li class="lm-tile lm-tile--flow flex items-center justify-between gap-3 p-2 text-sm">
 								<span class="truncate">{b.displayName}</span>
 								<form method="POST" action="?/unblock" use:enhance>
 									<input type="hidden" name="actorId" value={b.actorId} />
-									<button type="submit" class="min-h-11 rounded-md border px-3">Débloquer</button>
+									<button type="submit" class="lm-btn" data-variant="ghost">Débloquer</button>
 								</form>
 							</li>
 						{/each}

@@ -46,10 +46,7 @@
 					<ul class="space-y-2">
 						{#each data.invites as j (j.id)}
 							<li>
-								<a
-									href="/jams/{j.id}"
-									class="block rounded-xl border p-3 transition hover:border-primary"
-								>
+								<a href="/jams/{j.id}" class="lm-tile lm-tile--flow block p-3">
 									<span class="block font-semibold">{j.title}</span>
 									<span class="text-sm text-muted-foreground"
 										>{day.format(new Date(j.startsAt))} · {j.venue.name} · Répondre</span

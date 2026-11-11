@@ -31,13 +31,13 @@
 			<section class="space-y-3" aria-labelledby="invites">
 				<h2 id="invites" class="text-xl font-bold">Invitations</h2>
 				{#if form?.inviteError}
-					<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+					<p role="alert" class="lm-alert p-3 text-sm">
 						{form.inviteError}
 					</p>
 				{/if}
 				<ul class="space-y-2">
 					{#each data.invites as invite (invite.membershipId)}
-						<li class="space-y-3 rounded-xl border p-3">
+						<li class="lm-tile lm-tile--flow space-y-3 p-3">
 							<p>
 								{invite.invitedBy ?? 'Quelqu’un'} t’invite à gérer <strong>{invite.name}</strong>.
 							</p>
@@ -59,7 +59,7 @@
 					<li>
 						<a
 							href="/studios/{studio.handle}"
-							class="flex min-h-14 items-center justify-between gap-3 rounded-xl border p-3 hover:bg-muted"
+							class="lm-tile lm-tile--flow flex min-h-14 items-center justify-between gap-3 p-3"
 						>
 							<span class="font-semibold">{studio.name}</span>
 							<span class="text-sm text-muted-foreground">
@@ -77,7 +77,7 @@
 					{data.studios.length > 0 ? 'Ouvrir une autre fiche' : 'Ouvrir la fiche de ton studio'}
 				</h2>
 				{#if form?.error}
-					<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+					<p role="alert" class="lm-alert p-3 text-sm">
 						{form.error}
 					</p>
 				{/if}
@@ -112,7 +112,7 @@
 				</p>
 			</section>
 		{:else}
-			<section class="space-y-3 rounded-xl border p-4">
+			<section class="lm-tile lm-tile--flow space-y-3 p-4">
 				<h2 class="font-semibold">Un studio se gère avec un métier du son</h2>
 				<p class="text-sm text-muted-foreground">
 					Ajoute le métier d’ingé son ou de producteur·rice pour ouvrir la fiche de ton studio.

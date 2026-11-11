@@ -82,7 +82,7 @@
 				<ul class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
 					{#each $form.instruments as played, index (played.instrumentId)}
 						{@const name = instrumentNames.get(played.instrumentId) ?? '?'}
-						<li class="space-y-2 rounded-lg border p-3">
+						<li class="lm-tile lm-tile--flow space-y-2 p-3">
 							<div class="flex items-center justify-between gap-2">
 								<span class="font-medium">{name}</span>
 								<button
@@ -165,7 +165,7 @@
 				</p>
 				<div class="grid gap-3 sm:grid-cols-2">
 					{#each data.genres as genre (genre.id)}
-						<fieldset class="rounded-lg border p-3">
+						<fieldset class="lm-tile lm-tile--flow p-3">
 							<legend class="sr-only">{genre.name}</legend>
 							{#each [genre, ...genre.children] as item, i (item.id)}
 								{@const checked = $form.genreIds.includes(item.id)}

@@ -25,7 +25,7 @@
 		{/each}
 	</dl>
 	{#if handle && shareable && sheet.actsPassed.length > 0}
-		<div class="space-y-2 rounded-xl border bg-muted/40 p-3">
+		<div class="lm-tile lm-tile--flow space-y-2 p-3">
 			<p class="text-sm font-semibold">Cartes souvenirs à partager</p>
 			<ul class="flex flex-wrap gap-2">
 				{#each sheet.actsPassed as act (act)}
@@ -33,7 +33,8 @@
 						<a
 							href="/api/carriere/souvenir/{handle}/{act}.png"
 							download="linkmusician-acte-{act}.png"
-							class="inline-flex min-h-11 items-center gap-2 rounded-full border bg-background px-3 text-sm font-medium hover:border-primary"
+							class="lm-btn gap-2 bg-background"
+							data-variant="ghost"
 						>
 							<Download class="size-4" aria-hidden="true" />
 							Télécharger · {actTitle(act)}

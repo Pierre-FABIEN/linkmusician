@@ -157,7 +157,7 @@
 					<ul class="grid gap-2 sm:grid-cols-2">
 						{#each data.profile.gigSlots as g (g.id)}
 							<li>
-								<a href="/annonces/{g.id}" class="block rounded-xl border p-3 hover:border-primary">
+								<a href="/annonces/{g.id}" class="lm-tile lm-tile--flow block p-3">
 									<span class="block font-semibold">{g.title}</span>
 									<span class="text-sm text-muted-foreground"
 										>{g.startsAt ? day.format(new Date(g.startsAt)) : ''} · {g.slots} groupe{g.slots >
@@ -209,9 +209,7 @@
 								class="lm-field min-h-11 w-full"
 							/>
 						</label>
-						<button class="min-h-11 rounded-xl border bg-background px-4 font-semibold"
-							>Vérifier le SIRET</button
-						>
+						<button class="lm-btn bg-background" data-variant="ghost">Vérifier le SIRET</button>
 					</form>
 				{/if}
 			</section>
@@ -239,7 +237,7 @@
 						<fieldset class="grid grid-cols-2 gap-2">
 							<legend class="sr-only">Matériel mis à disposition</legend>
 							{#each data.backlineOptions as o (o.value)}
-								<label class="flex min-h-11 items-center gap-2 rounded-md border px-3">
+								<label class="lm-tile lm-tile--flow flex min-h-11 items-center gap-2 px-3">
 									<input
 										type="checkbox"
 										name="backline"
@@ -250,7 +248,7 @@
 								</label>
 							{/each}
 						</fieldset>
-						<button class="min-h-11 rounded-xl border px-4 font-semibold">Enregistrer</button>
+						<button class="lm-btn" data-variant="ghost">Enregistrer</button>
 					</form>
 				</details>
 			{/if}
@@ -265,7 +263,7 @@
 					<ul class="grid gap-2 sm:grid-cols-2">
 						{#each data.jams as j (j.id)}
 							<li>
-								<a href="/jams/{j.id}" class="block rounded-xl border p-3 hover:border-primary">
+								<a href="/jams/{j.id}" class="lm-tile lm-tile--flow block p-3">
 									<span class="block font-semibold">{j.title}</span>
 									<span class="text-sm text-muted-foreground"
 										>{day.format(new Date(j.startsAt))} · {j.coming} vien{j.coming > 1
@@ -365,7 +363,7 @@
 			</section>
 		{/if}
 
-		<details class="rounded-lg border p-3 text-sm">
+		<details class="lm-tile lm-tile--flow p-3 text-sm">
 			<summary class="cursor-pointer text-muted-foreground">Signaler ce lieu</summary>
 			<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
 				<label class="block space-y-1 font-medium">
@@ -386,7 +384,7 @@
 						class="lm-field w-full"
 					></textarea>
 				</label>
-				<button type="submit" class="rounded-md border px-3 py-1.5">Envoyer le signalement</button>
+				<button type="submit" class="lm-btn" data-variant="ghost">Envoyer le signalement</button>
 			</form>
 		</details>
 	</article>

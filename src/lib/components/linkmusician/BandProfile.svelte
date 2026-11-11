@@ -224,7 +224,7 @@
 						</Card.Header>
 						<Card.Content class="grid gap-4 sm:grid-cols-2">
 							{#each band.media as m (m.id)}
-								<div class="space-y-2 rounded-xl border p-3">
+								<div class="lm-tile lm-tile--flow space-y-2 p-3">
 									<MediaPlayer media={m} />
 									<p class="text-sm font-medium">
 										<a href="/medias/{m.id}" class="hover:underline">{m.title}</a>
@@ -268,7 +268,7 @@
 								{/each}
 							</ol>
 							{#if canReport && band.viewer.status !== 'ACTIVE' && contestable.length > 0}
-								<details class="mt-4 rounded-lg border p-3 text-sm">
+								<details class="lm-tile lm-tile--flow mt-4 p-3 text-sm">
 									<summary class="cursor-pointer text-muted-foreground"
 										>Une étape te semble fausse ?</summary
 									>
@@ -304,7 +304,7 @@
 												class="lm-field w-full"
 											></textarea>
 										</div>
-										<button type="submit" class="rounded-md border px-3 py-1.5"
+										<button type="submit" class="lm-btn" data-variant="ghost"
 											>Contester l’étape</button
 										>
 									</form>
@@ -386,7 +386,7 @@
 				{/if}
 
 				{#if canReport && band.viewer.status !== 'ACTIVE'}
-					<details class="rounded-lg border p-3 text-sm">
+					<details class="lm-tile lm-tile--flow p-3 text-sm">
 						<summary class="cursor-pointer text-muted-foreground">Signaler ce groupe</summary>
 						<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
 							<div class="space-y-1">
@@ -408,7 +408,7 @@
 									class="lm-field w-full"
 								></textarea>
 							</div>
-							<button type="submit" class="rounded-md border px-3 py-1.5"
+							<button type="submit" class="lm-btn" data-variant="ghost"
 								>Envoyer le signalement</button
 							>
 						</form>

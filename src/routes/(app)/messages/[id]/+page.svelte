@@ -107,7 +107,7 @@
 					Réponds pour ouvrir la conversation. Refuser la ferme, sans le lui dire.
 				</p>
 				<form method="POST" action="?/decline" use:enhance>
-					<button class="min-h-11 rounded-xl border px-4 font-semibold">Refuser</button>
+					<button class="lm-btn" data-variant="ghost">Refuser</button>
 				</form>
 			</section>
 		{/if}
@@ -189,7 +189,7 @@
 									<form method="POST" action="?/respondCollab" use:enhance>
 										<input type="hidden" name="collaborationId" value={k.id} />
 										<input type="hidden" name="answer" value="no" />
-										<button class="min-h-11 rounded-xl border px-4">Ce n'est pas exact</button>
+										<button class="lm-btn" data-variant="ghost">Ce n'est pas exact</button>
 									</form>
 								</div>
 							{:else if k.step === 'confirm'}
@@ -216,7 +216,7 @@
 		{/if}
 
 		{#if c.permission === 'ok' && c.myState === 'ACCEPTED' && c.other.handle}
-			<details class="rounded-2xl border p-3 text-sm">
+			<details class="lm-tile lm-tile--flow p-3 text-sm">
 				<summary class="min-h-11 cursor-pointer content-center font-medium text-primary">
 					Vous avez joué ou travaillé ensemble ? Proposer une collaboration
 				</summary>
@@ -451,7 +451,7 @@
 		{/if}
 
 		{#if !c.blocked}
-			<details class="rounded-lg border p-3 text-sm">
+			<details class="lm-tile lm-tile--flow p-3 text-sm">
 				<summary class="cursor-pointer text-muted-foreground">Bloquer {c.other.displayName}</summary
 				>
 				<p class="mt-2 text-muted-foreground">
@@ -459,18 +459,13 @@
 					n'est pas prévenue. Tu pourras débloquer depuis tes réglages.
 				</p>
 				<form method="POST" action="?/block" use:enhance class="mt-2">
-					<button
-						type="submit"
-						class="min-h-11 rounded-md border border-destructive/50 px-3 text-destructive"
-					>
-						Bloquer
-					</button>
+					<button type="submit" class="lm-btn" data-variant="danger"> Bloquer </button>
 				</form>
 			</details>
 		{/if}
 
 		{#if c.other.handle}
-			<details class="rounded-lg border p-3 text-sm">
+			<details class="lm-tile lm-tile--flow p-3 text-sm">
 				<summary class="cursor-pointer text-muted-foreground"
 					>Signaler {c.other.displayName}</summary
 				>
@@ -488,8 +483,7 @@
 						<textarea name="details" rows="3" maxlength={MAX_REPORT_DETAILS} class="lm-field w-full"
 						></textarea>
 					</label>
-					<button type="submit" class="rounded-md border px-3 py-1.5">Envoyer le signalement</button
-					>
+					<button type="submit" class="lm-btn" data-variant="ghost">Envoyer le signalement</button>
 				</form>
 			</details>
 		{/if}

@@ -118,7 +118,7 @@
 		{/if}
 
 		{#if form?.error}
-			<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+			<p role="alert" class="lm-alert p-3 text-sm">
 				{form.error}
 			</p>
 		{/if}
@@ -136,7 +136,7 @@
 						<button class="lm-btn">C’est bien moi</button>
 					</form>
 					<form method="POST" action="?/leave" use:enhance>
-						<button class="min-h-11 rounded-full border px-4">Ce n’est pas moi</button>
+						<button class="lm-btn" data-variant="ghost">Ce n’est pas moi</button>
 					</form>
 				</div>
 			</div>
@@ -271,7 +271,7 @@
 								{#if work.manage && !c.me}
 									<form method="POST" action="?/withdrawCredit" use:enhance>
 										<input type="hidden" name="contributorId" value={c.id} />
-										<button class="min-h-11 rounded-full border px-3 text-sm">Retirer</button>
+										<button class="lm-btn" data-variant="ghost">Retirer</button>
 									</form>
 								{/if}
 							</span>
@@ -345,9 +345,7 @@
 										{/if}
 										<form method="POST" action="?/removeRole" use:enhance>
 											<input type="hidden" name="roleId" value={r.id} />
-											<button class="min-h-11 rounded-full border px-3 text-sm"
-												>Retirer {r.label}</button
-											>
+											<button class="lm-btn" data-variant="ghost">Retirer {r.label}</button>
 										</form>
 									</span>
 								{/if}
@@ -368,7 +366,7 @@
 							id="open"
 							instrumentOnly
 						/>
-						<button class="min-h-11 rounded-full border px-4 font-medium">Ajouter</button>
+						<button class="lm-btn" data-variant="ghost">Ajouter</button>
 					</form>
 				{/if}
 			</section>
@@ -460,7 +458,8 @@
 								>
 								<button
 									type="button"
-									class="min-h-11 rounded-full border px-4"
+									class="lm-btn"
+									data-variant="ghost"
 									onclick={() => (confirmDelete = false)}>Annuler</button
 								>
 							</div>
@@ -482,12 +481,11 @@
 					<form method="POST" action="?/leave" use:enhance class="space-y-2">
 						<p>Retirer ton nom de ce morceau ? Les points déjà gagnés restent.</p>
 						<div class="flex gap-2">
-							<button class="min-h-11 rounded-full border border-destructive px-4 text-destructive"
-								>Retirer mon crédit</button
-							>
+							<button class="lm-btn" data-variant="danger">Retirer mon crédit</button>
 							<button
 								type="button"
-								class="min-h-11 rounded-full border px-4"
+								class="lm-btn"
+								data-variant="ghost"
 								onclick={() => (confirmLeave = false)}>Annuler</button
 							>
 						</div>

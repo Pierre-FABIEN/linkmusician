@@ -28,7 +28,7 @@
 		<MessagesTabs current="contacts" />
 
 		{#if form?.error}
-			<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+			<p role="alert" class="lm-alert p-3 text-sm">
 				{form.error}
 			</p>
 		{/if}
@@ -111,7 +111,7 @@
 												class="lm-field w-full"
 											/>
 										</label>
-										<button class="min-h-11 rounded-full border px-4">Renommer</button>
+										<button class="lm-btn" data-variant="ghost">Renommer</button>
 									</form>
 									{#if g.members.length > 0}
 										<ul class="flex flex-wrap gap-2" aria-label="Membres de {g.name}">
@@ -120,7 +120,7 @@
 													<form method="POST" action="?/removeFromGroup" use:enhance>
 														<input type="hidden" name="groupId" value={g.id} />
 														<input type="hidden" name="contactId" value={m.id} />
-														<button class="min-h-11 rounded-full border px-3"
+														<button class="lm-btn" data-variant="ghost"
 															>Retirer {m.displayName}</button
 														>
 													</form>
@@ -219,7 +219,7 @@
 											{/each}
 										</select>
 									</label>
-									<button class="min-h-11 rounded-full border px-4">Ajouter</button>
+									<button class="lm-btn" data-variant="ghost">Ajouter</button>
 								</form>
 							{/if}
 							{#if c.inCarnet}

@@ -64,9 +64,7 @@
 							{#if a.highlighted}
 								<span class="lm-pill" data-tone="violet">Ton ambition</span>
 							{/if}
-							<span class="rounded-full border px-2 py-0.5 text-xs font-semibold"
-								>{STATUS[a.status]}</span
-							>
+							<span class="lm-pill" data-tone="paper">{STATUS[a.status]}</span>
 						</span>
 					</div>
 					<p class="mt-1 text-sm text-muted-foreground">{a.content}</p>

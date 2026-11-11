@@ -173,7 +173,7 @@
 				{/if}
 
 				{#if canReport && !org.isManager}
-					<details class="rounded-lg border p-3 text-sm">
+					<details class="lm-tile lm-tile--flow p-3 text-sm">
 						<summary class="cursor-pointer text-muted-foreground"
 							>Signaler cette organisation</summary
 						>
@@ -197,7 +197,7 @@
 									class="lm-field w-full"
 								></textarea>
 							</div>
-							<button type="submit" class="rounded-md border px-3 py-1.5"
+							<button type="submit" class="lm-btn" data-variant="ghost"
 								>Envoyer le signalement</button
 							>
 						</form>

@@ -40,7 +40,12 @@
 			<div class="space-y-6">
 				<MediaUpload instruments={data.instruments} disabled={full} />
 
-				<form method="POST" action="?/addLink" use:enhance class="space-y-3 rounded-2xl border p-4">
+				<form
+					method="POST"
+					action="?/addLink"
+					use:enhance
+					class="lm-tile lm-tile--flow space-y-3 p-4"
+				>
 					<h2 class="font-semibold">Ajouter un lien</h2>
 					<div class="space-y-1">
 						<label for="url" class="block text-sm font-medium">Adresse</label>
@@ -98,7 +103,7 @@
 				{/if}
 				<ul class="grid gap-4 md:grid-cols-2">
 					{#each data.media as m (m.id)}
-						<li class="space-y-2 rounded-lg border p-3">
+						<li class="lm-tile lm-tile--flow space-y-2 p-3">
 							<div class="flex flex-wrap items-center justify-between gap-2">
 								<span class="font-medium">{m.title}</span>
 								<span class="flex items-center gap-2">

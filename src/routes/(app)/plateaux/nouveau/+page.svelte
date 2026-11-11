@@ -33,7 +33,7 @@
 		</div>
 
 		{#if !data.promoter}
-			<div class="space-y-3 rounded-2xl border bg-muted/40 p-5">
+			<div class="lm-tile lm-tile--flow space-y-3 p-5">
 				<p class="font-semibold">Ajoute d’abord le métier « Organisateur·rice ».</p>
 				<p class="text-sm text-muted-foreground">
 					Il est réservé aux personnes majeures. Tu peux le cumuler avec tes autres métiers.
@@ -52,7 +52,7 @@
 			</p>
 		{:else}
 			{#if form?.error}
-				<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+				<p role="alert" class="lm-alert p-3 text-sm">
 					{form.error}
 				</p>
 			{/if}
@@ -141,7 +141,7 @@
 					>
 				</label>
 
-				<fieldset class="space-y-3 rounded-2xl border p-4">
+				<fieldset class="lm-tile lm-tile--flow space-y-3 p-4">
 					<legend class="px-1 font-semibold">Qui peut candidater</legend>
 					<p class="text-sm text-muted-foreground">
 						Des conditions sur ce que les groupes ont prouvé, jamais sur leurs points. Un groupe

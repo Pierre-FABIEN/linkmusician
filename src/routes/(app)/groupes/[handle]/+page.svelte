@@ -140,7 +140,7 @@
 		{/if}
 
 		{#if form?.error}
-			<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+			<p role="alert" class="lm-alert p-3 text-sm">
 				{form.error}
 			</p>
 		{/if}
@@ -180,7 +180,7 @@
 								</form>
 								<form method="POST" action="?/declineRequest" use:enhance>
 									<input type="hidden" name="membershipId" value={r.membershipId} />
-									<button class="min-h-11 rounded-full border px-4">Refuser</button>
+									<button class="lm-btn" data-variant="ghost">Refuser</button>
 								</form>
 							</div>
 						</li>
@@ -227,7 +227,7 @@
 										use:enhance
 									>
 										<input type="hidden" name="membershipId" value={m.membershipId} />
-										<button class="min-h-11 rounded-full border px-3 text-sm"
+										<button class="lm-btn" data-variant="ghost"
 											>{m.role === 'ADMIN'
 												? 'Retirer la co-gestion'
 												: 'Confier la co-gestion'}</button
@@ -235,17 +235,12 @@
 									</form>
 									<form method="POST" action="?/transfer" use:enhance>
 										<input type="hidden" name="membershipId" value={m.membershipId} />
-										<button class="min-h-11 rounded-full border px-3 text-sm"
-											>Lui transmettre le groupe</button
-										>
+										<button class="lm-btn" data-variant="ghost">Lui transmettre le groupe</button>
 									</form>
 								{/if}
 								<form method="POST" action="?/remove" use:enhance>
 									<input type="hidden" name="membershipId" value={m.membershipId} />
-									<button
-										class="min-h-11 rounded-full border border-destructive px-3 text-sm text-destructive"
-										>Retirer du groupe</button
-									>
+									<button class="lm-btn" data-variant="danger">Retirer du groupe</button>
 								</form>
 							</div>
 						{/if}
@@ -283,7 +278,7 @@
 										<span>
 											<span class="font-semibold">{def.label}</span>
 											{#if step}
-												<span class="ml-1 rounded-full border px-2 py-0.5 text-xs"
+												<span class="lm-pill ml-1" data-tone="paper"
 													>{step.frozen ? FROZEN_LABEL : PROOF_LABELS[step.proof]}</span
 												>
 												<span class="block text-sm text-muted-foreground"
@@ -365,7 +360,8 @@
 											<button class="lm-btn">{step ? 'Enregistrer' : 'Ajouter au parcours'}</button>
 											<button
 												type="button"
-												class="min-h-11 rounded-full border px-4"
+												class="lm-btn"
+												data-variant="ghost"
 												onclick={() => (stepForm = null)}>Annuler</button
 											>
 										</div>
@@ -440,7 +436,8 @@
 											{#if proofOpen !== step.id}
 												<button
 													type="button"
-													class="min-h-11 rounded-full border px-3 font-semibold"
+													class="lm-btn"
+													data-variant="ghost"
 													onclick={() => (proofOpen = step.id)}
 													>Prouver<span class="sr-only"> : {def.label}</span></button
 												>
@@ -466,9 +463,7 @@
 																class="lm-field w-full"
 															/>
 														</label>
-														<button class="min-h-11 rounded-full border px-4"
-															>Ajouter le lien</button
-														>
+														<button class="lm-btn" data-variant="ghost">Ajouter le lien</button>
 													</form>
 												{/if}
 												{#if rule.attester}
@@ -569,9 +564,7 @@
 						<Music class="size-5" aria-hidden="true" /> Morceaux
 					</h2>
 					{#if manager && !dissolved}
-						<a
-							href="/morceaux/nouveau?groupe={band.handle}"
-							class="inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold"
+						<a href="/morceaux/nouveau?groupe={band.handle}" class="lm-btn" data-variant="ghost"
 							>Nouvelle idée</a
 						>
 					{/if}
@@ -719,7 +712,7 @@
 							class="lm-field w-full"
 						/>
 					</label>
-					<button class="min-h-11 rounded-full border px-4 text-sm">Enregistrer</button>
+					<button class="lm-btn" data-variant="ghost">Enregistrer</button>
 				</form>
 				{#if !confirmLeave}
 					<button
@@ -728,7 +721,7 @@
 						onclick={() => (confirmLeave = true)}>Quitter le groupe</button
 					>
 				{:else}
-					<div class="space-y-2 rounded-2xl border p-4 text-sm">
+					<div class="lm-tile lm-tile--flow space-y-2 p-4 text-sm">
 						<p>
 							{owner && band.members.length <= 1
 								? 'Tu es seul·e : quitter le groupe le dissout. Son historique reste.'
@@ -739,15 +732,15 @@
 						<div class="flex gap-2">
 							{#if !(owner && band.members.length > 1)}
 								<form method="POST" action="?/leave" use:enhance>
-									<button
-										class="min-h-11 rounded-full border border-destructive px-4 text-destructive"
+									<button class="lm-btn" data-variant="danger"
 										>{owner ? 'Dissoudre le groupe' : 'Quitter le groupe'}</button
 									>
 								</form>
 							{/if}
 							<button
 								type="button"
-								class="min-h-11 rounded-full border px-4"
+								class="lm-btn"
+								data-variant="ghost"
 								onclick={() => (confirmLeave = false)}>Annuler</button
 							>
 						</div>

@@ -86,10 +86,7 @@
 				<ul class="grid gap-3 sm:grid-cols-2">
 					{#each others as f (f.slug)}
 						<li>
-							<a
-								href={demarcheHref(f.slug)}
-								class="flex h-full flex-col rounded-2xl border p-4 hover:border-primary"
-							>
+							<a href={demarcheHref(f.slug)} class="lm-tile lm-tile--flow flex h-full flex-col p-4">
 								<span class="font-semibold">{f.nav}</span>
 								<span class="text-sm text-muted-foreground">{f.summary}</span>
 							</a>

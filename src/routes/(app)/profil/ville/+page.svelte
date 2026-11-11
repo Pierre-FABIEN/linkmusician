@@ -73,7 +73,7 @@
 		</div>
 
 		{#if data.location}
-			<div class="flex items-center justify-between gap-2 rounded-lg border p-3">
+			<div class="lm-tile lm-tile--flow flex items-center justify-between gap-2 p-3">
 				<span>
 					<span class="block text-sm text-muted-foreground">Ta ville actuelle</span>
 					<span class="font-medium"
@@ -107,7 +107,7 @@
 					<ul
 						id="commune-suggestions"
 						role="listbox"
-						class="absolute z-10 mt-1 w-full overflow-hidden rounded-md border bg-background shadow-lg"
+						class="lm-tile lm-tile--flow absolute z-10 mt-1 w-full overflow-hidden bg-background shadow-lg"
 					>
 						{#each suggestions as s (s.code)}
 							<li role="option" aria-selected="false">

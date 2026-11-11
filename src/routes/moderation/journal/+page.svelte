@@ -18,10 +18,7 @@
 <MetroPage>
 	<div class="min-h-screen w-screen px-4 py-24">
 		<div class="mx-auto max-w-3xl space-y-6">
-			<a
-				href="/moderation"
-				class="inline-flex min-h-10 items-center rounded-full border px-3 text-sm">← Modération</a
-			>
+			<a href="/moderation" class="lm-btn" data-variant="ghost">← Modération</a>
 			<h1 class="lm-title lm-title--sm">Journal de modération</h1>
 			<p class="text-sm text-muted-foreground">
 				Chaque décision de la modération : qui, quoi, sur quelle cible, et pourquoi.
@@ -37,7 +34,7 @@
 						{/each}
 					</select>
 				</label>
-				<button class="min-h-10 rounded-md border px-3">Filtrer</button>
+				<button class="lm-btn" data-variant="ghost">Filtrer</button>
 			</form>
 
 			{#if data.entries.length === 0}
@@ -67,11 +64,7 @@
 					{/each}
 				</ol>
 				{#if nextHref}
-					<a
-						href={nextHref}
-						class="inline-flex min-h-10 items-center rounded-full border px-4 text-sm"
-						>Décisions plus anciennes</a
-					>
+					<a href={nextHref} class="lm-btn" data-variant="ghost">Décisions plus anciennes</a>
 				{/if}
 			{/if}
 		</div>

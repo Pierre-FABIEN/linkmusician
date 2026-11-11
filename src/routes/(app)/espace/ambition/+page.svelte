@@ -45,7 +45,7 @@
 			<div class="flex flex-wrap gap-2">
 				<button class="lm-btn">Enregistrer</button>
 				{#if data.ambition}
-					<button name="ambition" value="" class="min-h-11 rounded-full border px-5"
+					<button name="ambition" value="" class="lm-btn" data-variant="ghost"
 						>Je ne sais pas encore</button
 					>
 				{/if}

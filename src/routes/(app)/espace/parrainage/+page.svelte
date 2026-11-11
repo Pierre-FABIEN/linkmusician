@@ -57,10 +57,7 @@
 					</p>
 				{:else}
 					{#if form?.error}
-						<p
-							role="alert"
-							class="rounded-md border border-destructive p-3 text-sm text-destructive"
-						>
+						<p role="alert" class="lm-alert p-3 text-sm">
 							{form.error}
 						</p>
 					{/if}

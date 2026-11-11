@@ -75,7 +75,7 @@
 		</div>
 
 		{#if form?.error}
-			<div role="alert" class="space-y-1 rounded-md border border-destructive p-3 text-sm">
+			<div role="alert" class="lm-tile lm-tile--flow space-y-1 border-destructive p-3 text-sm">
 				<p class="text-destructive">{form.error}</p>
 				{#if form.existingId}
 					<a href="/lieux/{form.existingId}" class="font-semibold underline">Voir ce lieu</a>
@@ -104,7 +104,7 @@
 					<ul
 						id="venue-suggestions"
 						aria-label="Établissements connus"
-						class="divide-y rounded-md border bg-card text-sm shadow"
+						class="lm-tile lm-tile--flow divide-y text-sm shadow"
 					>
 						{#each suggestions as s (s.siret)}
 							<li>

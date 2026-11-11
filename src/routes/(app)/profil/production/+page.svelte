@@ -51,7 +51,7 @@
 		</div>
 
 		{#if !data.hasTrack}
-			<div class="space-y-3 rounded-2xl border bg-muted/40 p-5">
+			<div class="lm-tile lm-tile--flow space-y-3 p-5">
 				<p class="font-semibold">Ajoute d'abord le métier « Producteur·rice ».</p>
 				<p class="text-sm text-muted-foreground">
 					Tu peux avoir plusieurs métiers, par exemple musicien·ne et producteur·rice.
@@ -64,7 +64,7 @@
 					<legend class="text-lg font-semibold">Mes spécialités</legend>
 					<div class="grid gap-2 sm:grid-cols-3">
 						{#each PRODUCER_SPECIALTIES as item (item)}
-							<label class="flex cursor-pointer items-start gap-2 rounded-lg border p-3">
+							<label class="lm-tile lm-tile--flow flex cursor-pointer items-start gap-2 p-3">
 								<input
 									type="checkbox"
 									value={item}
@@ -95,7 +95,7 @@
 						>
 						<div class="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 							{#each data.genres as genre (genre.id)}
-								<fieldset class="rounded-lg border p-3">
+								<fieldset class="lm-tile lm-tile--flow p-3">
 									<legend class="sr-only">{genre.name}</legend>
 									{#each [genre, ...genre.children] as item, i (item.id)}
 										{@const checked = $form.genreIds.includes(item.id)}

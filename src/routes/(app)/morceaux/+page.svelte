@@ -29,7 +29,7 @@
 		</div>
 
 		{#if form?.error}
-			<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+			<p role="alert" class="lm-alert p-3 text-sm">
 				{form.error}
 			</p>
 		{/if}
@@ -54,7 +54,7 @@
 								</form>
 								<form method="POST" action="?/decline" use:enhance>
 									<input type="hidden" name="workId" value={w.id} />
-									<button class="min-h-11 rounded-full border px-4">Ce n’est pas moi</button>
+									<button class="lm-btn" data-variant="ghost">Ce n’est pas moi</button>
 								</form>
 							</div>
 						</li>

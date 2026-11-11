@@ -127,7 +127,7 @@
 				<h2 id="spots-title" class="font-semibold">On cherche</h2>
 				<ul class="grid gap-2 sm:grid-cols-2">
 					{#each jam.board as l (l.instrumentId)}
-						<li class="rounded-xl border p-3 text-sm">
+						<li class="lm-tile lm-tile--flow p-3 text-sm">
 							<span class="font-semibold">{l.name}</span>
 							<span class="block text-muted-foreground">{spotLabel(l)}</span>
 						</li>
@@ -171,7 +171,7 @@
 						<fieldset class="grid grid-cols-2 gap-2">
 							<legend class="sr-only">Matériel sur place pour cette jam</legend>
 							{#each data.backlineOptions as o (o.value)}
-								<label class="flex min-h-11 items-center gap-2 rounded-md border px-3">
+								<label class="lm-tile lm-tile--flow flex min-h-11 items-center gap-2 px-3">
 									<input
 										type="checkbox"
 										name="backline"
@@ -273,7 +273,7 @@
 					<ul class="space-y-2">
 						{#each jam.pendingInvites as i (i.handle)}
 							<li
-								class="flex flex-wrap items-center justify-between gap-2 rounded-xl border p-3 text-sm"
+								class="lm-tile lm-tile--flow flex flex-wrap items-center justify-between gap-2 p-3 text-sm"
 							>
 								<span>
 									<a href="/@{i.handle}" class="font-semibold underline">{i.displayName}</a>

@@ -38,7 +38,7 @@
 		</div>
 
 		{#if form?.error}
-			<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+			<p role="alert" class="lm-alert p-3 text-sm">
 				{form.error}
 			</p>
 		{/if}
@@ -72,7 +72,7 @@
 						<button class="lm-btn">Je confirme, j’y étais</button>
 					</form>
 					<form method="POST" action="?/decline" use:enhance>
-						<button class="min-h-11 rounded-full border px-4">Je n’y étais pas</button>
+						<button class="lm-btn" data-variant="ghost">Je n’y étais pas</button>
 					</form>
 				</div>
 			</div>

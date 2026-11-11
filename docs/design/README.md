@@ -44,7 +44,12 @@
   panorama de tuiles sur l'Aurora (MET-02, fait). Les pages hors coquille
   (visiteur de l'aide, d'un profil ou d'une démarche, premiers pas,
   modération, erreurs, compte) passent par `MetroPage` (MET-07, fait).
-  Restent les migrations fines par parcours (MET-03 à MET-06).
+  Une passe commune (MET-03 à MET-06, en cours) a aussi converti les
+  encarts, petits boutons bordés, alertes (`lm-alert`) et pastilles.
+  Restent, écran par écran, les migrations fines de ces lots : vraies
+  `Tile` d'un seul geste, `EventTile` et `ProfileTile` pour les cartes de
+  résultat, `MetroSheet` à la place des dialogues, `MetroChoice` pour les
+  choix courts, tons des pastilles d'état.
 - **Comment on migre** : d'abord un **socle** (la coquille passe en
   Metro, les composants manquants sont écrits, le CSS est rangé), puis les
   écrans **par parcours**, un lot à la fois, avec la même liste de

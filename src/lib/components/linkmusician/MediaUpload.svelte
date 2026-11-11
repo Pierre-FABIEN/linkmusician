@@ -100,7 +100,7 @@
 	}
 </script>
 
-<form onsubmit={submit} class="space-y-3 rounded-lg border p-4">
+<form onsubmit={submit} class="lm-tile lm-tile--flow space-y-3 p-4">
 	<h2 class="font-semibold">{photosOnly ? 'Ajouter une photo' : 'Envoyer un fichier'}</h2>
 	<p class="text-xs text-muted-foreground">
 		{photosOnly

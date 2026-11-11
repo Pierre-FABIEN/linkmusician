@@ -152,7 +152,7 @@
 				{#if around.previous}
 					<a
 						href={helpHref(around.previous)}
-						class="flex min-h-11 flex-col rounded-2xl border p-4 hover:border-primary"
+						class="lm-tile lm-tile--flow flex min-h-11 flex-col p-4"
 					>
 						<span class="flex items-center gap-1 text-sm text-muted-foreground">
 							<ArrowLeft class="size-4" aria-hidden="true" /> Page précédente
@@ -165,7 +165,7 @@
 				{#if around.next}
 					<a
 						href={helpHref(around.next)}
-						class="flex min-h-11 flex-col rounded-2xl border p-4 text-right hover:border-primary"
+						class="lm-tile lm-tile--flow flex min-h-11 flex-col p-4 text-right"
 					>
 						<span class="flex items-center justify-end gap-1 text-sm text-muted-foreground">
 							Page suivante <ArrowRight class="size-4" aria-hidden="true" />

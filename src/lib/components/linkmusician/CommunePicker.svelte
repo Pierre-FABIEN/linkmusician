@@ -79,7 +79,7 @@
 			<ul
 				id="{id}-suggestions"
 				role="listbox"
-				class="absolute z-10 mt-1 w-full overflow-hidden rounded-md border bg-background shadow-lg"
+				class="lm-tile lm-tile--flow absolute z-10 mt-1 w-full overflow-hidden bg-background shadow-lg"
 			>
 				{#each suggestions as s (s.code)}
 					<li role="option" aria-selected="false">

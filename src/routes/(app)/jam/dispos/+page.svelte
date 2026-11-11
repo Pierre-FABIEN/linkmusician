@@ -53,9 +53,7 @@
 							« {data.mine.note} »{/if}
 					</p>
 					<form method="POST" action="?/pasDispo" use:enhance>
-						<button class="min-h-11 rounded-xl border px-4 font-semibold"
-							>Je ne suis plus dispo</button
-						>
+						<button class="lm-btn" data-variant="ghost">Je ne suis plus dispo</button>
 					</form>
 				{:else}
 					<p class="text-sm text-muted-foreground">
@@ -115,9 +113,7 @@
 											? ` · ${a.commune}`
 											: ''}
 									</p>
-									<a
-										href="/messages/nouveau?a={a.handle}"
-										class="inline-flex min-h-11 items-center rounded-xl border px-3 text-sm font-semibold"
+									<a href="/messages/nouveau?a={a.handle}" class="lm-btn" data-variant="ghost"
 										>Lui proposer de jouer</a
 									>
 								</li>

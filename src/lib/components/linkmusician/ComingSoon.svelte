@@ -43,10 +43,7 @@
 			<ul class="flex flex-wrap gap-2">
 				{#each meanwhile as m (m.href)}
 					<li>
-						<a
-							href={m.href}
-							class="inline-block rounded-md border px-3 py-1.5 text-sm hover:bg-muted">{m.label}</a
-						>
+						<a href={m.href} class="lm-btn inline-block" data-variant="ghost">{m.label}</a>
 					</li>
 				{/each}
 			</ul>

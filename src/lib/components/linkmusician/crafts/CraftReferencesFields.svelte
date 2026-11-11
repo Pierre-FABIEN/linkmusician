@@ -41,7 +41,7 @@
 	<p class="text-sm text-muted-foreground">{hint}</p>
 	<ul class="space-y-3">
 		{#each references as row, i (i)}
-			<li class="grid gap-2 rounded-xl border p-3 sm:grid-cols-[1fr_1.4fr_auto]">
+			<li class="lm-tile lm-tile--flow grid gap-2 p-3 sm:grid-cols-[1fr_1.4fr_auto]">
 				<label class="space-y-1 text-sm">
 					<span class="font-medium">Titre</span>
 					<input

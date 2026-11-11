@@ -55,10 +55,7 @@
 				placeholder="Nom du lieu"
 				class="lm-field min-h-11 flex-1"
 			/>
-			<button
-				type="submit"
-				class="inline-flex min-h-11 items-center gap-2 rounded-md border px-4 font-semibold"
-			>
+			<button type="submit" class="lm-btn gap-2" data-variant="ghost">
 				<Search class="size-4" aria-hidden="true" /> Chercher
 			</button>
 		</form>

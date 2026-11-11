@@ -115,7 +115,7 @@
 				<p class="text-sm text-muted-foreground">Affiché avec la mention « déclaré ».</p>
 				<div class="grid gap-2 sm:grid-cols-2">
 					{#each PRO_STATUSES as status (status)}
-						<label class="flex cursor-pointer items-start gap-2 rounded-lg border p-3">
+						<label class="lm-tile lm-tile--flow flex cursor-pointer items-start gap-2 p-3">
 							<input
 								type="radio"
 								name="proStatus"

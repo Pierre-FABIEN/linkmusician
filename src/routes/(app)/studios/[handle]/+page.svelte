@@ -130,7 +130,7 @@
 		</header>
 
 		<!-- Statut : publiée (rang) ou brouillon, avec ce qui manque. -->
-		<section aria-labelledby="statut" class="space-y-3 rounded-2xl border p-4 sm:p-5">
+		<section aria-labelledby="statut" class="lm-tile lm-tile--flow space-y-3 p-4 sm:p-5">
 			<h2 id="statut" class="sr-only">Statut de la fiche</h2>
 			{#if published && data.studio.rank.tier}
 				<div class="flex flex-wrap items-center justify-between gap-3">
@@ -205,7 +205,7 @@
 		</section>
 
 		{#if form?.error}
-			<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+			<p role="alert" class="lm-alert p-3 text-sm">
 				{form.error}
 			</p>
 		{/if}
@@ -260,7 +260,7 @@
 				<div class="grid gap-2 sm:grid-cols-2">
 					{#each STUDIO_SERVICES as service (service)}
 						<label
-							class="flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+							class="lm-tile lm-tile--flow flex min-h-14 cursor-pointer items-start gap-3 p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
 						>
 							<input type="checkbox" value={service} bind:group={services} class="mt-1 size-4" />
 							<span>
@@ -278,7 +278,7 @@
 				<h2 id="salles" class="text-xl font-bold">Salles et tarifs</h2>
 				<ul class="space-y-3">
 					{#each rooms as room, i (i)}
-						<li class="space-y-2 rounded-xl border p-3">
+						<li class="lm-tile lm-tile--flow space-y-2 p-3">
 							<div class="flex flex-col gap-2 sm:flex-row">
 								<label class="block flex-1 space-y-1 text-sm font-medium">
 									Salle
@@ -374,7 +374,7 @@
 
 			<fieldset class="space-y-3">
 				<legend class="text-xl font-bold">Horaires d’ouverture</legend>
-				<ul class="divide-y rounded-xl border">
+				<ul class="lm-tile lm-tile--flow divide-y">
 					{#each hours as day (day.weekday)}
 						<li class="flex flex-wrap items-center gap-3 p-3">
 							<label class="flex min-h-11 w-32 cursor-pointer items-center gap-2 font-medium">
@@ -443,7 +443,7 @@
 									class="aspect-[4/3] w-full rounded-lg border object-cover"
 								/>
 							{:else}
-								<div class="aspect-[4/3] w-full rounded-lg border bg-muted"></div>
+								<div class="lm-tile lm-tile--flow aspect-[4/3] w-full bg-muted"></div>
 							{/if}
 							<p class="truncate text-sm font-medium">{photo.title}</p>
 							<p class="text-xs text-muted-foreground">
@@ -492,11 +492,11 @@
 				</p>
 			</div>
 			{#if form?.teamError}
-				<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+				<p role="alert" class="lm-alert p-3 text-sm">
 					{form.teamError}
 				</p>
 			{/if}
-			<ul class="divide-y rounded-xl border">
+			<ul class="lm-tile lm-tile--flow divide-y">
 				{#each data.studio.team as member (member.membershipId)}
 					<li class="flex flex-wrap items-center justify-between gap-3 p-3">
 						<div>

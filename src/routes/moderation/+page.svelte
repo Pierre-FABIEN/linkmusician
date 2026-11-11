@@ -25,11 +25,7 @@
 		<div class="mx-auto max-w-3xl space-y-10">
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<h1 class="lm-title lm-title--sm">Modération</h1>
-				<a
-					href="/moderation/journal"
-					class="inline-flex min-h-10 items-center rounded-full border px-4 text-sm font-semibold"
-					>Journal des décisions</a
-				>
+				<a href="/moderation/journal" class="lm-btn" data-variant="ghost">Journal des décisions</a>
 			</div>
 
 			<section class="space-y-4" aria-labelledby="orgs-title">
@@ -87,7 +83,7 @@
 									<span class="sr-only">Motif du refus</span>
 									<input name="reason" required placeholder="Motif du refus" class="lm-field" />
 								</label>
-								<button class="rounded-md border px-3 py-1.5 text-destructive">Refuser</button>
+								<button class="lm-btn" data-variant="ghost">Refuser</button>
 							</form>
 						</div>
 					</article>
@@ -153,7 +149,7 @@
 									<span class="sr-only">Motif du refus pour {c.venue.name}</span>
 									<input name="reason" required placeholder="Motif du refus" class="lm-field" />
 								</label>
-								<button class="rounded-md border px-3 py-1.5 text-destructive">Refuser</button>
+								<button class="lm-btn" data-variant="ghost">Refuser</button>
 							</form>
 						</div>
 					</article>
@@ -189,7 +185,7 @@
 									<span class="sr-only">Motif du retrait pour {o.org.displayName}</span>
 									<input name="reason" required placeholder="Motif du retrait" class="lm-field" />
 								</label>
-								<button class="rounded-md border px-3 py-1.5 text-destructive">Retirer</button>
+								<button class="lm-btn" data-variant="ghost">Retirer</button>
 							</form>
 						</li>
 					{/each}
@@ -226,9 +222,7 @@
 									<span class="sr-only">Motif du refus</span>
 									<input name="reason" placeholder="Motif du refus" class="lm-field" />
 								</label>
-								<button type="submit" class="rounded-md border px-3 py-1.5 text-sm text-destructive"
-									>Refuser</button
-								>
+								<button type="submit" class="lm-btn" data-variant="ghost">Refuser</button>
 							</form>
 						</div>
 					</article>
@@ -292,13 +286,15 @@
 									type="submit"
 									name="decision"
 									value="DISMISSED"
-									class="rounded-md border px-3 py-1.5">Rien d'anormal</button
+									class="lm-btn"
+									data-variant="ghost">Rien d'anormal</button
 								>
 								<button
 									type="submit"
 									name="decision"
 									value="CONFIRMED"
-									class="rounded-md border px-3 py-1.5 text-destructive">Collusion confirmée</button
+									class="lm-btn"
+									data-variant="ghost">Collusion confirmée</button
 								>
 							</div>
 							<p class="text-xs text-muted-foreground">
@@ -375,9 +371,7 @@
 									<span class="sr-only">Motif de la décision</span>
 									<input name="note" required placeholder="Pourquoi la retenir" class="lm-field" />
 								</label>
-								<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
-									>Retenir</button
-								>
+								<button type="submit" class="lm-btn" data-variant="ghost">Retenir</button>
 							</form>
 							<form method="POST" action="?/dismissMilestone" use:enhance>
 								<input type="hidden" name="milestoneId" value={d.id} />
@@ -429,9 +423,7 @@
 									<span class="sr-only">Motif du refus</span>
 									<input name="reason" required placeholder="Motif du refus" class="lm-field" />
 								</label>
-								<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
-									>Refuser</button
-								>
+								<button type="submit" class="lm-btn" data-variant="ghost">Refuser</button>
 							</form>
 						</div>
 					</article>
@@ -467,9 +459,7 @@
 									<span class="sr-only">Motif du retrait</span>
 									<input name="reason" required placeholder="Motif du retrait" class="lm-field" />
 								</label>
-								<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
-									>Retirer</button
-								>
+								<button type="submit" class="lm-btn" data-variant="ghost">Retirer</button>
 							</form>
 						</div>
 					</article>
@@ -508,19 +498,19 @@
 						{#if r.details}<p class="whitespace-pre-line text-sm">« {r.details} »</p>{/if}
 						{#if r.media}<MediaPlayer media={r.media} />{/if}
 						{#if r.opportunity}
-							<div class="rounded-md border p-3 text-sm">
+							<div class="lm-tile lm-tile--flow p-3 text-sm">
 								<p class="font-medium">{r.opportunity.title}</p>
 								<p class="whitespace-pre-line text-muted-foreground">{r.opportunity.description}</p>
 							</div>
 						{/if}
 						{#if r.venue}
-							<div class="rounded-md border p-3 text-sm">
+							<div class="lm-tile lm-tile--flow p-3 text-sm">
 								<p class="font-medium">{r.venue.name}</p>
 								<p class="text-muted-foreground">{r.venue.communeName}</p>
 							</div>
 						{/if}
 						{#if r.milestone}
-							<div class="rounded-md border p-3 text-sm">
+							<div class="lm-tile lm-tile--flow p-3 text-sm">
 								<p class="font-medium">{r.milestone.definitionId}</p>
 								<p class="text-muted-foreground">Preuve : {r.milestone.proof}</p>
 							</div>
@@ -529,8 +519,7 @@
 						<div class="flex flex-wrap items-end gap-3 text-sm">
 							<form method="POST" action="?/dismiss" use:enhance>
 								<input type="hidden" name="reportId" value={r.id} />
-								<button type="submit" class="rounded-md border px-3 py-1.5"
-									>Classer sans suite</button
+								<button type="submit" class="lm-btn" data-variant="ghost">Classer sans suite</button
 								>
 							</form>
 							{#if r.opportunity && r.opportunity.status !== 'REMOVED'}
@@ -541,7 +530,7 @@
 										name="reason"
 										value={REPORT_REASON_LABELS[r.reason as ReportReasonValue]}
 									/>
-									<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
+									<button type="submit" class="lm-btn" data-variant="ghost"
 										>Retirer l'annonce</button
 									>
 								</form>
@@ -554,9 +543,7 @@
 										name="reason"
 										value={REPORT_REASON_LABELS[r.reason as ReportReasonValue]}
 									/>
-									<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
-										>Retirer le lieu</button
-									>
+									<button type="submit" class="lm-btn" data-variant="ghost">Retirer le lieu</button>
 								</form>
 							{/if}
 							{#if r.media}
@@ -567,8 +554,7 @@
 										name="reason"
 										value={REPORT_REASON_LABELS[r.reason as ReportReasonValue]}
 									/>
-									<button type="submit" class="rounded-md border px-3 py-1.5 text-destructive"
-										>Retirer le média</button
+									<button type="submit" class="lm-btn" data-variant="ghost">Retirer le média</button
 									>
 								</form>
 							{/if}
@@ -600,7 +586,7 @@
 								<span class="sr-only">Motif de la sanction</span>
 								<input name="reason" required placeholder="Motif de la sanction" class="lm-field" />
 							</label>
-							<button type="submit" class="rounded-md border px-3 py-1.5">Sanctionner</button>
+							<button type="submit" class="lm-btn" data-variant="ghost">Sanctionner</button>
 						</form>
 					</article>
 				{/each}

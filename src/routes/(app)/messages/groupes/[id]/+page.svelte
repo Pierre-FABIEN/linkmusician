@@ -73,12 +73,12 @@
 						<button class="lm-btn">Rejoindre</button>
 					</form>
 					<form method="POST" action="?/decline" use:enhance>
-						<button class="min-h-11 rounded-xl border px-5 font-semibold">Non merci</button>
+						<button class="lm-btn" data-variant="ghost">Non merci</button>
 					</form>
 				</div>
 			</section>
 		{:else}
-			<details class="rounded-2xl border p-3 text-sm">
+			<details class="lm-tile lm-tile--flow p-3 text-sm">
 				<summary class="min-h-11 cursor-pointer content-center font-medium">
 					Qui est là ({d.members.length})
 				</summary>
@@ -111,7 +111,7 @@
 									{/each}
 								</select>
 							</label>
-							<button class="min-h-11 rounded-full border px-4">Inviter</button>
+							<button class="lm-btn" data-variant="ghost">Inviter</button>
 						</form>
 					{:else}
 						<p class="mt-2 text-muted-foreground">Tous tes contacts sont déjà invités.</p>
@@ -181,14 +181,14 @@
 				</button>
 			</form>
 
-			<details class="rounded-lg border p-3 text-sm">
+			<details class="lm-tile lm-tile--flow p-3 text-sm">
 				<summary class="cursor-pointer text-muted-foreground">Quitter la discussion</summary>
 				<p class="mt-2 text-muted-foreground">
 					Tu ne verras plus les messages, et tes messages restent pour les autres. Tu ne pourras pas
 					y revenir.
 				</p>
 				<form method="POST" action="?/leave" use:enhance class="mt-2">
-					<button class="min-h-11 rounded-md border px-3">Quitter</button>
+					<button class="lm-btn" data-variant="ghost">Quitter</button>
 				</form>
 			</details>
 		{/if}
