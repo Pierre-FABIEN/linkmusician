@@ -169,7 +169,8 @@ test.describe('LinkMusician — annuaire des lieux', () => {
 				await page.getByRole('button', { name: 'Ajouter à l’annuaire' }).click();
 				await expect(page.getByRole('heading', { name: 'E2E Le Comptoir Sonore' })).toBeVisible();
 				await expect(page.getByText('Établissement vérifié (existe à l’Insee)')).toBeVisible();
-				await expect(page.getByRole('link', { name: 'Publier une jam ici' })).toBeVisible();
+				// D51 (Q30) : sans « prêt·e à organiser des jams », pas de « Publier une jam ici ».
+				await expect(page.getByRole('link', { name: 'Publier une jam ici' })).toHaveCount(0);
 				const verified = await db.venue.findUniqueOrThrow({ where: { siret: SIRET } });
 				expect(verified.createdById).toBe(myActorId);
 				expect(verified.validatedAt).not.toBeNull();
@@ -185,7 +186,8 @@ test.describe('LinkMusician — annuaire des lieux', () => {
 				await expect(page.getByRole('heading', { name: 'E2E Chez Mimi' })).toBeVisible();
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
 				await page.getByRole('button', { name: 'Je confirme ce lieu' }).click();
-				await expect(page.getByRole('link', { name: 'Publier une jam ici' })).toBeVisible();
+				await expect(page.getByText(/Merci|confirmé/).first()).toBeVisible();
+				await expect(page.getByRole('link', { name: 'Publier une jam ici' })).toHaveCount(0);
 				const confirmed = await db.venue.findUniqueOrThrow({ where: { id: mimi.id } });
 				expect(confirmed.confirmedById).toBe(myActorId);
 				expect(confirmed.validatedAt).not.toBeNull();
