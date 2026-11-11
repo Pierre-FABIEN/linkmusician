@@ -5,7 +5,7 @@
  * font, côté serveur, après avoir écrit l'état.
  */
 import { z } from 'zod';
-import { CRAFT_SERVICES, CRAFT_TRACKS } from './crafts';
+import { AGENT_KINDS, CRAFT_SERVICES, CRAFT_TRACKS } from './crafts';
 
 const id = z.string().min(1);
 const base = { id, occurredAt: z.coerce.date() };
@@ -134,6 +134,49 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		personId: id,
 		/** La personne s'est aussi créditée un rôle du son sur ce morceau. */
 		withSoundRole: z.boolean()
+	}),
+	/**
+	 * Concert tenu, confirmé par au moins une personne qui y jouait (P5-01,
+	 * conception 08 §8 à §10, §14). Rapporte à qui organise (piste
+	 * organisateur·rice) et à qui a booké (piste booker), **jamais** aux
+	 * musicien·nes : elles et ils gagnent par la collaboration et l'étape
+	 * `FIRST_GIG`. Le lieu y gagne un rang, pas d'XP (Q24).
+	 */
+	z.object({
+		...base,
+		type: z.literal('gig.held'),
+		gigId: id,
+		/** Personnes qui organisent (association, gestion du lieu). */
+		organizerIds: z.array(id),
+		/** Personnes qui ont booké un artiste de l'affiche. */
+		bookerIds: z.array(id).default([]),
+		/** Artistes à l'affiche : groupes ou personnes (au moins un). */
+		performerIds: z.array(id).min(1),
+		/**
+		 * Personnes qui ont confirmé la date pour les artistes : leur confiance
+		 * pondère les gains (un groupe n'a pas de confiance propre).
+		 */
+		confirmerIds: z.array(id).min(1),
+		/** Lieu (organisation `VENUE`), s'il est sur la plateforme. */
+		venueOrgId: id.optional(),
+		/** Artistes de l'affiche dont c'est la toute première date. */
+		firstDateIds: z.array(id).default([]),
+		/** Confirmé par une organisation vérifiée (SIRET, P5-02). */
+		verified: z.boolean()
+	}),
+	/**
+	 * Accompagnement confirmé par l'artiste (P5-01, 08 §9 et §10) : manager
+	 * ou booker. Suivre un profil ne rapporte rien.
+	 */
+	z.object({
+		...base,
+		type: z.literal('management.confirmed'),
+		managerId: id,
+		/** Artiste accompagné : groupe ou personne. */
+		artistId: id,
+		/** Personne qui a confirmé pour l'artiste (l'artiste, ou la gestion du groupe). */
+		confirmedById: id,
+		kind: z.enum(AGENT_KINDS)
 	}),
 	z.object({
 		...base,

@@ -178,3 +178,128 @@ export function studioTier(summary: StudioSummary) {
 	const top = reached.at(-1);
 	return { tier: top ? { id: top.id, label: top.label } : null, reached: reached.map((t) => t.id) };
 }
+
+/** Rang le plus haut atteint d'une série (les conditions ne s'imbriquent pas). */
+function topTier<S, T extends { id: string; label: string; reached: (s: S) => boolean }>(
+	tiers: readonly T[],
+	summary: S
+) {
+	const reached = tiers.filter((tier) => tier.reached(summary));
+	const top = reached.at(-1);
+	return {
+		tier: top ? { id: top.id as T['id'], label: top.label } : null,
+		reached: reached.map((t) => t.id as T['id'])
+	};
+}
+
+/**
+ * Organisateur·rice (P5-01, conception 02 §5 et 08 §8) : comptés sur les
+ * événements tenus et confirmés par au moins un artiste de l'affiche.
+ */
+export type PromoterSummary = {
+	/** Événements tenus et confirmés. */
+	events: number;
+	/** Artistes distincts (groupes ou personnes) programmés. */
+	distinctArtists: number;
+	/** Événements vérifiés (organisation vérifiée) d'au moins 10 artistes. */
+	verifiedFestivals: number;
+};
+
+export const PROMOTER_TIERS = [
+	{
+		id: 'FIRST_EVENT',
+		label: 'Premier événement',
+		reached: (s: PromoterSummary) => s.events >= 1
+	},
+	{
+		id: 'REGULAR',
+		label: 'Programmation régulière',
+		reached: (s: PromoterSummary) => s.events >= 5
+	},
+	{
+		id: 'LOCAL_SCENE',
+		label: 'Scène locale',
+		reached: (s: PromoterSummary) => s.events >= 20 && s.distinctArtists >= 30
+	},
+	{
+		id: 'FESTIVAL',
+		label: 'Festival',
+		reached: (s: PromoterSummary) => s.verifiedFestivals >= 1
+	}
+] as const;
+
+export type PromoterTierId = (typeof PROMOTER_TIERS)[number]['id'];
+
+export function promoterTier(summary: PromoterSummary) {
+	return topTier(PROMOTER_TIERS, summary);
+}
+
+/**
+ * Manager et booker (P5-01, conception 02 §5, 08 §9 et §10) : mêmes rangs,
+ * comptés sur les accompagnements confirmés par les artistes. « Développé » :
+ * l'artiste a franchi au moins deux rangs pendant l'accompagnement (le calcul
+ * vient avec P5-07). Condition d'« Agence » : défaut Q25.
+ */
+export type AgentSummary = {
+	/** Artistes dont l'accompagnement est confirmé. */
+	artists: number;
+	/** Artistes ayant franchi ≥2 rangs sous l'accompagnement. */
+	developedArtists: number;
+};
+
+export const AGENT_TIERS = [
+	{ id: 'FIRST_ARTIST', label: 'Premier artiste', reached: (s: AgentSummary) => s.artists >= 1 },
+	{
+		id: 'DEVELOPER',
+		label: 'Développement d’artistes',
+		reached: (s: AgentSummary) => s.developedArtists >= 1
+	},
+	{
+		id: 'AGENCY',
+		label: 'Agence',
+		reached: (s: AgentSummary) => s.artists >= 5 && s.developedArtists >= 3
+	}
+] as const;
+
+export type AgentTierId = (typeof AGENT_TIERS)[number]['id'];
+
+export function agentTier(summary: AgentSummary) {
+	return topTier(AGENT_TIERS, summary);
+}
+
+/**
+ * Lieu (P5-01, conception 08 §14, D22) : le rang va à l'organisation, les
+ * points aux personnes (Q24). Une date ne compte que tenue et confirmée par
+ * qui y jouait ; une jam publique (P5-04), par ses participant·es.
+ */
+export type VenueSummary = {
+	/** Fiche complète (jauge, scène, matériel, genres, conditions). */
+	published: boolean;
+	/** Jams publiques et concerts tenus et confirmés. */
+	dates: number;
+	/** Artistes distincts programmés en concert. */
+	distinctArtists: number;
+	/** Groupes passés ensuite au rang Tournée. */
+	touringAlumni: number;
+};
+
+export const VENUE_TIERS = [
+	{ id: 'VENUE_OPEN', label: 'Lieu ouvert', reached: (s: VenueSummary) => s.published },
+	{ id: 'OPEN_STAGE', label: 'Scène ouverte', reached: (s: VenueSummary) => s.dates >= 3 },
+	{
+		id: 'LOCAL_VENUE',
+		label: 'Lieu de la scène locale',
+		reached: (s: VenueSummary) => s.dates >= 20 && s.distinctArtists >= 15
+	},
+	{
+		id: 'CULT_VENUE',
+		label: 'Lieu culte',
+		reached: (s: VenueSummary) => s.dates >= 50 && s.touringAlumni >= 5
+	}
+] as const;
+
+export type VenueTierId = (typeof VENUE_TIERS)[number]['id'];
+
+export function venueTier(summary: VenueSummary) {
+	return topTier(VENUE_TIERS, summary);
+}

@@ -18,6 +18,9 @@ export class MemoryLedger {
 	private endorsements: { actorId: string; endorserId: string; at: Date }[] = [];
 	/** Crédits de morceaux : qui a reçu sa part, et avec qui (D35). */
 	private workCredits: { workId: string; personId: string; withIds: string[]; at: Date }[] = [];
+	/** Concerts tenus : qui organisait ou bookait, avec quel artiste (P5-01). */
+	private gigs: { promoterId: string; performerId: string; venueOrgId?: string; at: Date }[] = [];
+	private managements: { managerId: string; artistId: string; at: Date }[] = [];
 	private now = new Date(0);
 
 	constructor(private trust: Record<string, TrustLevel> = {}) {}
@@ -57,6 +60,18 @@ export class MemoryLedger {
 				).size,
 			creditedOnWork: (personId, workId) =>
 				this.workCredits.some((w) => w.workId === workId && w.personId === personId),
+			priorGigs: (promoterId, performerId, since, venueOrgId) =>
+				this.gigs.filter(
+					(g) =>
+						g.promoterId === promoterId &&
+						g.performerId === performerId &&
+						g.at >= since &&
+						(!venueOrgId || g.venueOrgId === venueOrgId)
+				).length,
+			priorManagements: (managerId, artistId, since) =>
+				this.managements.filter(
+					(m) => m.managerId === managerId && m.artistId === artistId && m.at >= since
+				).length,
 			trustLevel: (actorId) => this.trust[actorId] ?? 0
 		};
 	}
@@ -99,6 +114,23 @@ export class MemoryLedger {
 				workId: event.workId,
 				personId: event.personId,
 				withIds: event.otherIds,
+				at: event.occurredAt
+			});
+		}
+		if (event.type === 'gig.held') {
+			for (const promoterId of new Set([...event.organizerIds, ...event.bookerIds]))
+				for (const performerId of new Set(event.performerIds))
+					this.gigs.push({
+						promoterId,
+						performerId,
+						venueOrgId: event.venueOrgId,
+						at: event.occurredAt
+					});
+		}
+		if (event.type === 'management.confirmed') {
+			this.managements.push({
+				managerId: event.managerId,
+				artistId: event.artistId,
 				at: event.occurredAt
 			});
 		}

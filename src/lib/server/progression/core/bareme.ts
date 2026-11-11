@@ -45,6 +45,19 @@ export const BAREME = {
 	/** Crédit d'une personne du son sur une sortie vérifiée. */
 	releaseCreditVerified: 300,
 
+	// Métiers de la scène (P5-01, conception 08 §8 à §10) : concert tenu et
+	// confirmé par qui y jouait, × rendement par artiste et confiance de qui
+	// confirme. Les musicien·nes n'y gagnent rien de plus ; le lieu gagne un
+	// rang, pas d'XP (Q24).
+	/** Événement tenu, par personne qui organise (piste organisateur·rice). */
+	gigHeld: 200,
+	/** Par artiste programmé pour sa toute première date (organisateur·rice). */
+	gigFirstDate: 100,
+	/** Date bookée et jouée, par personne qui a booké (piste booker). */
+	gigBooked: 150,
+	/** Accompagnement confirmé par l'artiste (piste manager). */
+	managementConfirmed: 200,
+
 	// Anti-abus (§6)
 	/** k-ième occurrence avec la même contrepartie : 1, 0,5, 0,25, puis 0. */
 	diminishing: [1, 0.5, 0.25] as readonly number[],

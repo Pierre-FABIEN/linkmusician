@@ -34,6 +34,19 @@ export function actorIdsOf(event: DomainEvent): string[] {
 			return [...new Set(event.participantIds)];
 		case 'release.credit_verified':
 			return [event.actorId];
+		// Tous les acteurs de la date : la confiance de qui confirme pondère les gains.
+		case 'gig.held':
+			return [
+				...new Set([
+					...event.organizerIds,
+					...event.bookerIds,
+					...event.performerIds,
+					...event.confirmerIds,
+					...(event.venueOrgId ? [event.venueOrgId] : [])
+				])
+			];
+		case 'management.confirmed':
+			return [...new Set([event.managerId, event.artistId, event.confirmedById])];
 		case 'endorsement.received':
 		case 'endorsement.revoked':
 			return [event.actorId, event.endorserId];

@@ -43,6 +43,20 @@
 		RECOGNIZED: tones.LOCAL_PILLAR,
 		ESSENTIAL: tones.REFERENCE
 	};
+	// Rangs de la scène (P5-01) : organisateur·rice, manager et booker, lieu.
+	const scene: Record<string, string> = {
+		FIRST_EVENT: tones.NETWORKED,
+		REGULAR: tones.COLLABORATOR,
+		LOCAL_SCENE: tones.LOCAL_PILLAR,
+		FESTIVAL: tones.REFERENCE,
+		FIRST_ARTIST: tones.NETWORKED,
+		DEVELOPER: tones.LOCAL_PILLAR,
+		AGENCY: tones.REFERENCE,
+		VENUE_OPEN: tones.NETWORKED,
+		OPEN_STAGE: tones.STAGE,
+		LOCAL_VENUE: tones.LOCAL_PILLAR,
+		CULT_VENUE: tones.REFERENCE
+	};
 </script>
 
 <span
@@ -52,6 +66,7 @@
 		band[id] ??
 		craft[id] ??
 		studio[id] ??
+		scene[id] ??
 		tones.FIRST_STEPS}"
 >
 	<Route class="size-3.5" aria-hidden="true" />

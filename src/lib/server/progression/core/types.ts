@@ -1,15 +1,15 @@
 /**
  * Types communs au noyau de progression.
  */
-import type { CraftTrack } from './crafts';
+import type { CraftTrack, SceneTrack } from './crafts';
 import type { DomainEventType, EventOf } from './events';
 import type { TrustLevel } from './trust';
 
 /**
- * Piste qui reçoit l'XP. Les métiers du son (P4-01) ont la leur ; les
- * autres métiers arriveront avec leurs phases.
+ * Piste qui reçoit l'XP. Les métiers du son (P4-01) et de la scène (P5-01)
+ * ont la leur ; les autres métiers arriveront avec leurs phases.
  */
-export type Track = 'MUSICIAN' | 'BAND' | CraftTrack;
+export type Track = 'MUSICIAN' | 'BAND' | CraftTrack | SceneTrack;
 
 /** Gain calculé par une règle, avant inscription au registre. */
 export type XpGain = {
@@ -50,6 +50,15 @@ export interface RuleContext {
 	priorCoWorks(a: string, b: string, since: Date, workId: string): number;
 	/** La personne a déjà reçu sa part pour ce morceau (une fois par morceau). */
 	creditedOnWork(personId: string, workId: string): boolean;
+	/**
+	 * Concerts tenus (`gig.held`) depuis `since`, celui en cours exclu, où
+	 * `promoterId` organisait ou bookait et `performerId` jouait (rendements
+	 * décroissants par paire, P5-01). Avec `venueOrgId`, seulement ceux de ce
+	 * lieu : un booker qui fait jouer le même artiste ailleurs fait son métier.
+	 */
+	priorGigs(promoterId: string, performerId: string, since: Date, venueOrgId?: string): number;
+	/** Accompagnements confirmés entre ce manager ou booker et cet artiste depuis `since`. */
+	priorManagements(managerId: string, artistId: string, since: Date): number;
 	trustLevel(actorId: string): TrustLevel;
 }
 

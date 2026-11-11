@@ -244,18 +244,20 @@ Associations, collectifs, salles, festivals (organisation `PROMOTER`).
 **Ambitions** : organiser des soirées régulières · faire découvrir la
 scène locale · monter un festival.
 
-**Carte (rangs, 02 §5)** : Premier événement → Programmateur régulier
-(≥5 événements) → Scène locale (≥20 événements, ≥30 groupes distincts)
-→ Festival (un événement de ≥10 groupes vérifié).
+**Carte (rangs, 02 §5, `promoterTier`)** : Premier événement →
+Programmation régulière (≥5 événements) → Scène locale (≥20 événements,
+≥30 artistes distincts) → Festival (un événement de ≥10 artistes
+vérifié).
 
 **Quêtes** : créer sa fiche (lieu, jauge, genres) · publier un plateau
 ou un appel à projets · programmer un premier groupe · programmer 3
 groupes qui n'avaient jamais joué sur scène · organiser une jam
 publique.
 
-**Gains** _(proposé)_ : événement tenu, confirmé par au moins un groupe
-200 · par groupe programmé pour la première fois 100 · jam publique
-tenue 50.
+**Gains** (calibrés en P5-01, 02 §2.2) : événement tenu, confirmé par au
+moins un groupe 200 × rendement par artiste et confiance · par groupe
+programmé pour sa toute première date 100 · jam publique tenue 50
+_(avec P5-04)_. Les musicien·nes de l'affiche ne gagnent rien de plus.
 
 **Épreuves qu'il valide** : les concerts (acte V), au niveau vérifié
 quand l'organisation est vérifiée (SIRET).
@@ -275,17 +277,20 @@ par les groupes ; contestation possible.
 **Ambitions** : remplir l'agenda de ses artistes · programmer une salle
 ou un festival · construire des tournées.
 
-**Carte (rangs, 02 §5, partagés avec le manager)** : Premier artiste →
-Développeur (≥1 artiste ayant franchi 2 rangs sous son accompagnement)
-→ Agence.
+**Carte (rangs, 02 §5, partagés avec le manager, `agentTier`)** :
+Premier artiste → Développement d'artistes (≥1 artiste ayant franchi 2
+rangs sous son accompagnement) → Agence (≥5 artistes, dont ≥3
+développés, défaut Q25).
 
 **Quêtes** : relier ses salles ou festivals · première date bookée et
 jouée · première tournée bookée (3 villes) · faire jouer un artiste
 hors de sa région.
 
-**Gains** _(proposé)_ : date bookée et jouée, confirmée des deux côtés
-150 · tournée bookée (≥3 dates jouées) 400 · rang franchi par un
-artiste accompagné : part faible (10 %).
+**Gains** (calibrés en P5-01, 02 §2.2) : date bookée et jouée, confirmée
+des deux côtés 150 × rendement **par artiste et par lieu** et confiance ·
+tournée bookée (≥3 dates jouées) 400 _(avec P5-07)_ · rang franchi par
+un artiste accompagné : part faible (10 %) _(reportée, Q21)_.
+L'accompagnement d'un booker compte pour son rang, sans XP.
 
 **Épreuves qu'il valide** : les concerts qu'il a bookés, avec la salle ;
 la tournée.
@@ -301,15 +306,17 @@ deux côtés.
 **Ambitions** : accompagner un premier artiste · développer une écurie
 · monter une agence.
 
-**Carte (rangs, 02 §5)** : Premier artiste → Développeur (≥1 artiste
-ayant franchi 2 rangs sous son accompagnement) → Agence.
+**Carte (rangs, 02 §5, `agentTier`)** : Premier artiste → Développement
+d'artistes (≥1 artiste ayant franchi 2 rangs sous son accompagnement) →
+Agence (≥5 artistes, dont ≥3 développés, défaut Q25).
 
 **Quêtes** : premier accompagnement confirmé par l'artiste · aider un
 artiste à franchir un rang · mettre en relation un artiste avec un ingé
 son, un booker ou un label.
 
-**Gains** _(proposé)_ : accompagnement confirmé par l'artiste 200 · rang
-franchi par un artiste accompagné : part faible (10 %) · mise en
+**Gains** (calibrés en P5-01, 02 §2.2) : accompagnement confirmé par
+l'artiste 200 × rendement par artiste et confiance · rang franchi par un
+artiste accompagné : part faible (10 %) _(reportée, Q21)_ · mise en
 relation qui aboutit à une collaboration : succès _Passeur_.
 
 **Épreuves qu'il valide** : aucune directement ; sa carrière monte avec
@@ -399,18 +406,19 @@ accès aux dossiers de presse des artistes.
 **Garde-fous** : pas de points pour un simple partage ; une couverture
 n'est pas une note.
 
-## 14. Lieu — organisation `VENUE` · phase 5 _(proposé, D22)_
+## 14. Lieu — organisation `VENUE` · phase 5 _(D22)_
 
 Bars, cafés-concerts, restaurants, salles, MJC, tiers-lieux, campings et
-hôtels en saison (06 §3.10). Le lieu est géré par une personne (piste
-`VENUE_HOST` proposée, ou organisateur·rice) ; les points vont à la
-personne, le rang au lieu.
+hôtels en saison (06 §3.10). Le lieu se gère comme un studio
+(organisation, co-gestion) ; il n'y a pas de piste `VENUE_HOST` (Q18) :
+la personne qui programme gagne sur la piste organisateur·rice. Les
+points vont aux personnes, le rang au lieu, qui ne gagne pas d'XP (Q24).
 
 **Ambitions** : faire vivre son lieu chaque semaine · devenir **le**
 lieu des jams de son quartier · lancer des groupes · avoir une
 programmation reconnue.
 
-**Carte** _(proposé)_
+**Carte** (`venueTier`, P5-01)
 
 | Rang                    | Conditions                                                  |
 | ----------------------- | ----------------------------------------------------------- |
@@ -430,10 +438,11 @@ programmation reconnue.
 - Émises : « cherche un groupe pour le vendredi 14 », « scène ouverte
   tous les jeudis », « cherche un duo acoustique pour l'été ».
 
-**Gains** _(proposé)_ : date tenue et confirmée par le groupe 150 · jam
-publique tenue, confirmée par ≥3 participants 80 · groupe programmé pour
-sa toute première date 100 · groupe passé ensuite au rang Live : succès
-_Tremplin_.
+**Gains** (P5-01) : le lieu ne gagne pas d'XP (Q24). Les dates
+rapportent aux personnes qui organisent (événement tenu 200, première
+date d'un groupe 100, 02 §2.2) ; la jam publique tenue, confirmée par ≥3
+participants, viendra avec P5-04. Groupe passé ensuite au rang Live :
+succès _Tremplin_ _(proposé)_.
 
 **Épreuves qu'il valide** : les concerts des groupes (corroborés ;
 vérifiés si le lieu est vérifié) ; les jams publiques, qui comptent dans

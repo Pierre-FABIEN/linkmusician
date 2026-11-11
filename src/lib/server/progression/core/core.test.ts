@@ -24,6 +24,8 @@ function ctx(over: Partial<RuleContext> = {}): RuleContext {
 		priorEndorsements: () => 0,
 		priorCoWorks: () => 0,
 		creditedOnWork: () => false,
+		priorGigs: () => 0,
+		priorManagements: () => 0,
 		trustLevel: () => 2,
 		...over
 	};

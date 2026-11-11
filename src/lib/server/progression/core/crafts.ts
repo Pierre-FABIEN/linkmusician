@@ -57,3 +57,17 @@ export const MUSICIAN_EARNS: ReadonlySet<CraftService> = new Set([
 export function musiciansEarn(services: Readonly<Record<string, CraftService>> | undefined) {
 	return Object.values(services ?? {}).every((s) => MUSICIAN_EARNS.has(s));
 }
+
+/**
+ * Pistes des métiers de la scène (P5-01, conception 08 §8 à §10) :
+ * organisateur·rice, booker, manager. Le lieu (organisation `VENUE`) gagne
+ * un rang, pas d'XP (Q24) ; les points vont aux personnes qui organisent ou
+ * bookent, jamais aux musicien·nes qui jouent (elles et ils gagnent déjà par
+ * la collaboration et les étapes).
+ */
+export const SCENE_TRACKS = ['PROMOTER', 'BOOKER', 'MANAGER'] as const;
+export type SceneTrack = (typeof SCENE_TRACKS)[number];
+
+/** Accompagnement confirmé par l'artiste : manager ou booker (08 §9, §10). */
+export const AGENT_KINDS = ['MANAGER', 'BOOKER'] as const;
+export type AgentKind = (typeof AGENT_KINDS)[number];

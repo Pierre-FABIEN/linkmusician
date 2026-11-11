@@ -100,6 +100,32 @@ non plus pour leur palier (Q2).
 | Crédit sur une sortie vérifiée (ISRC, UPC)           | 300                        | Piste créditée                               |
 | Appréciation reçue                                   | 40                         | Musicien au MVP ; piste du métier avec P4-02 |
 
+**Métiers de la scène** (phase 5, calibré en P5-01) : organisateur·rice,
+booker et manager. Un concert ne compte qu'une fois **tenu et confirmé**
+par au moins une personne qui y jouait (événement `gig.held`). Il
+rapporte à qui organise et à qui a booké, **jamais aux musicien·nes** de
+l'affiche, qui gagnent déjà par la collaboration et l'étape `FIRST_GIG`.
+Le lieu gagne un rang, pas d'XP (Q24) ; il n'y a pas de piste
+`VENUE_HOST` (Q18) : la personne qui gère un lieu et le programme gagne
+sur la piste organisateur·rice.
+
+| Événement                                                         | XP                          | Piste             | Multiplicateurs (§6)                                               |
+| ----------------------------------------------------------------- | --------------------------- | ----------------- | ------------------------------------------------------------------ |
+| Événement tenu, confirmé par l'affiche, par personne qui organise | 200 × multiplicateurs       | Organisateur·rice | rendement par artiste sur 12 mois × confiance de qui confirme      |
+| Artiste programmé pour sa toute première date                     | 100 par artiste × confiance | Organisateur·rice | confiance de qui confirme (une première date n'arrive qu'une fois) |
+| Date bookée et jouée, par personne qui a booké (sans organiser)   | 150 × multiplicateurs       | Booker            | rendement par artiste **et par lieu** sur 12 mois × confiance      |
+| Accompagnement confirmé par l'artiste                             | 200 × multiplicateurs       | Manager           | rendement par artiste sur 12 mois × confiance de qui confirme      |
+
+La confiance retenue pour un concert est la meilleure parmi les
+personnes qui ont confirmé pour l'affiche, hors organisation et booking :
+une date confirmée seulement par qui l'organise ne rapporte rien. Le
+booker décroît par artiste et par lieu, parce que faire jouer le même
+artiste dans une autre salle est son métier. L'accompagnement d'un
+booker compte pour son rang mais ne rapporte pas d'XP : ses points
+viennent des dates. Reportés : la jam publique tenue (50, P5-04), la
+tournée bookée (400, P5-07) et la part de 10 % sur un rang franchi par
+un artiste accompagné (Q21).
+
 Un devis, une prise de contact ou une réservation annulée ne rapportent
 rien. Pour le studio, la réservation honorée (100, 08 §6) viendra avec
 la réservation en ligne (P5-10).
@@ -217,6 +243,31 @@ des tests est maintenant aligné. Sur un mixage ou un mastering, les
 musicien·nes ne gagnent rien (P4-06, défaut provisoire, Q1 de
 [a-trancher](../plan/a-trancher.md)).
 
+**Métiers de la scène (P5-01, 11/11/2026).** Les gains proposés en 08
+§8 à §10 sont repris, avec une correction : le rendement décroissant du
+booker se compte **par artiste et par lieu**. Par artiste seul, un booker
+de quatre artistes plafonnait au niveau 3 en six mois, alors que rebooker
+ses artistes dans d'autres salles est son métier. Simulation
+(`personas-scene.test.ts`), artistes TL1 le premier mois puis TL2 :
+
+| Persona                                                           | Niveau à 1 / 3 / 6 mois | Rangs (semaine d'atteinte)                                                 |
+| ----------------------------------------------------------------- | ----------------------- | -------------------------------------------------------------------------- |
+| Bar à scène ouverte (une jam par semaine, un concert par mois)    | 2 / 3 / 5               | lieu : Scène ouverte 3 ; Programmation régulière 19 ; pas de scène locale  |
+| Café-concert (deux soirées par semaine, 40 groupes en rotation)   | 4 / 9 / 12              | Programmation régulière 3 ; lieu de la scène locale 10 ; Scène locale 11   |
+| MJC (un tremplin par mois, trois groupes dont deux débutent)      | 2 / 5 / 7               | Premier événement 2 ; lieu : Scène ouverte 10 ; Programmation régulière 18 |
+| Association (une soirée par mois, festival vérifié de 12 groupes) | 2 / 4 / 5               | Programmation régulière 17 ; Festival 31 ; pas de scène locale en un an    |
+| Booker indépendant (4 artistes, 3 dates par mois, 9 salles)       | 2 / 5 / 7               | Premier artiste 1 ; Développement d'artistes 21 (un artiste passe 2 rangs) |
+| Manager débutant (un artiste au 2ᵉ mois, un au 4ᵉ)                | 1 / 2 / 3 (400 XP)      | Premier artiste 7 ; Développement d'artistes 41                            |
+| Farmeur de dates (40 concerts « confirmés » par 2 comptes TL0)    | 90 XP, niveau 1         | —                                                                          |
+
+Le barème tient. Un café-concert très actif monte un peu plus vite que
+l'ingé son de studio (3 / 7 / 11), une MJC et un booker suivent l'ingé
+son live (2 / 4 / 6). Lancer des groupes rapporte à la MJC autant qu'un
+concert de plus. Un manager gagne peu en propre : sa carrière monte avec
+celle de ses artistes, et la part de 10 % qui la récompense attend un
+événement `tier.crossed` (Q21). Les jams publiques comptent déjà pour le
+rang du lieu ; leur XP viendra avec P5-04.
+
 ## 3. Niveau de compte
 
 Un niveau global, volontairement sobre, calculé à partir de la somme
@@ -298,12 +349,30 @@ sur les prestations confirmées de la piste
 (≥20 sessions, ≥10 clients distincts) → Incontournable (≥5 sorties
 vérifiées enregistrées sur place).
 
-**Organisateur** (phase 5) : Premier événement → Programmateur régulier
-(≥5 événements) → Scène locale (≥20 événements, ≥30 groupes distincts) →
-Festival (événement de ≥10 groupes vérifié).
+**Organisateur·rice** (phase 5, `promoterTier`, P5-01), comptés sur les
+événements tenus et confirmés
 
-**Manager / booker** (phase 5) : Premier artiste → Développeur (≥1
-artiste ayant franchi 2 paliers sous son accompagnement) → Agence.
+| Palier                  | Conditions                                                    |
+| ----------------------- | ------------------------------------------------------------- |
+| Premier événement       | ≥1 événement                                                  |
+| Programmation régulière | ≥5 événements                                                 |
+| Scène locale            | ≥20 événements, ≥30 artistes distincts                        |
+| Festival                | ≥1 événement de ≥10 artistes, vérifié (organisation vérifiée) |
+
+**Manager / booker** (phase 5, `agentTier`, P5-01), mêmes rangs, comptés
+sur les accompagnements confirmés par les artistes
+
+| Palier                   | Conditions                                                |
+| ------------------------ | --------------------------------------------------------- |
+| Premier artiste          | ≥1 accompagnement confirmé                                |
+| Développement d'artistes | ≥1 artiste ayant franchi ≥2 rangs sous son accompagnement |
+| Agence                   | ≥5 artistes accompagnés, dont ≥3 développés (défaut Q25)  |
+
+**Lieu** (phase 5, `venueTier`, P5-01, 08 §14) : Lieu ouvert (fiche
+complète) → Scène ouverte (≥3 jams publiques ou concerts tenus et
+confirmés) → Lieu de la scène locale (≥20 dates, ≥15 artistes distincts)
+→ Lieu culte (≥50 dates, ≥5 groupes passés ensuite au rang Tournée). Le
+rang va au lieu, l'XP aux personnes.
 
 **Label** (phase 6) : Première sortie → Catalogue (≥5 sorties) →
 Développeur d'artistes (≥3 artistes ayant franchi un palier après

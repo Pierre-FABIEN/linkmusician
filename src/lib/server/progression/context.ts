@@ -49,7 +49,9 @@ export async function loadRuleContext(
 						'membership.accepted',
 						'endorsement.received',
 						'work.composed',
-						'work.credit_confirmed'
+						'work.credit_confirmed',
+						'gig.held',
+						'management.confirmed'
 					]
 				},
 				actorIds: { hasSome: actors }
@@ -122,6 +124,28 @@ export async function loadRuleContext(
 					((e.type === 'work.composed' && e.actorIds.includes(personId)) ||
 						(e.type === 'work.credit_confirmed' && payloadOf(e).personId === personId))
 			),
+		priorGigs: (promoterId, performerId, since, venueOrgId) =>
+			prior.filter((e) => {
+				if (e.type !== 'gig.held' || e.occurredAt < since) return false;
+				const p = payloadOf(e);
+				const promoters = [
+					...((p.organizerIds as string[] | undefined) ?? []),
+					...((p.bookerIds as string[] | undefined) ?? [])
+				];
+				return (
+					(!venueOrgId || p.venueOrgId === venueOrgId) &&
+					promoters.includes(promoterId) &&
+					((p.performerIds as string[] | undefined) ?? []).includes(performerId)
+				);
+			}).length,
+		priorManagements: (managerId, artistId, since) =>
+			prior.filter(
+				(e) =>
+					e.type === 'management.confirmed' &&
+					e.occurredAt >= since &&
+					payloadOf(e).managerId === managerId &&
+					payloadOf(e).artistId === artistId
+			).length,
 		trustLevel: trustOf
 	};
 }
