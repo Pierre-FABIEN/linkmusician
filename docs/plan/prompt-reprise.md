@@ -42,9 +42,9 @@ ne crée pas de commit pendant cet audit.**
 
 ## Vérifications d'attention
 
-État au 10/11/2026 : les lots P3-15a à P4-06 sont fermés (e2e lancés et
-au vert). Restent en phase 4 pour le lancement : P4-07 (crédits), P4-03
-(studio), P4-09, P4-10 et P4-13. Un lot 🟡 dont le seul manque est l'e2e
+État au 11/11/2026 : la phase 4 est fermée pour le lancement
+([revue](./revue-phase-4.md)) ; les lots de la phase 5 sont au tableau,
+à commencer par P5-01 puis P5-02. Un lot 🟡 dont le seul manque est l'e2e
 se ferme en le lançant, avant de commencer un lot suivant.
 
 Avant de lancer des e2e : compare `.env.test` à `.env.test.example` (une

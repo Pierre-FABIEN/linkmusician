@@ -174,6 +174,11 @@ Découpé le 11/11/2026 :
 
 ## Phase 5 — La scène : lieux, organisateurs, bookers, managers (acte V)
 
+> **Relu à la [revue de fin de phase 4](./revue-phase-4.md#4-fiches-de-la-phase-5-relues)**
+> (11/11/2026) : ce qui existe déjà (annuaire des lieux, vérification
+> manuelle, jams dans un lieu, pistes « bientôt ») et les ajustements de
+> chaque fiche.
+
 **But** : les groupes trouvent des dates et les lieux des groupes ; les
 concerts sont vérifiés ; les jams publiques des lieux nourrissent le
 mode jam.

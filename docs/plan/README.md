@@ -102,6 +102,7 @@ indiquées : on les tranche en début de session.
 | 17 qua | Revue de fin de phase 3 ✅              | Critères vérifiés, fiches de phase 4 relues, lots P4 au tableau, [bilan et démo](./revue-phase-3.md)      | —                                       |
 | 18     | P3-10 Ouverture publique                | Production, pages légales, sécurité ; app ouverte à tous (pas de bêta, D23)                               | Pages légales                           |
 | 19     | P4-01 à P4-13 Métiers du son            | Ingé son, studio, producteur, crédits, vitrine, actes III-IV, temps réel, coups de pouce                  | Gratuité de la vitrine                  |
+| 19 bis | Revue de fin de phase 4 ✅              | Critères vérifiés, fiches de phase 5 relues, lots P5 au tableau, [bilan et démo](./revue-phase-4.md)      | `VENUE_HOST` (Q18, défaut appliqué)     |
 | 20     | P5-01 à P5-10 La scène                  | Lieux et jams publiques, organisateurs, concerts vérifiés, bookers, managers, offre pro, réservation      | `VENUE_HOST`                            |
 | 21     | P6-01 à P6-07 Sortie et développement   | Label, éditeur, communication, actes VI-VIII, défis collectifs, autres rôles                              | Preuves de placement                    |
 
@@ -270,13 +271,33 @@ Entrée au tableau à la [revue de fin de phase 3](./revue-phase-3.md)
 | P4-13a | Coups de pouce                                      | P2-16, P3-12 | ✅     | Lancement. Après 21 jours sans progrès, entrée « Un coup de pouce » dans `/espace` vers `/espace/coups-de-pouce` : place libre d'un morceau qu'une personne proche du réseau peut tenir, morceau composé à enregistrer avec un·e pro du son du réseau, jams de la semaine (`#lib/career/nudges`, `server/career/nudges.ts`). Aucune notification ; textes relus par un test. Unitaires, intégration (`GEO_INTEGRATION=1`), `check` et lint au vert. E2E `coups-de-pouce.spec.ts` réussi (11/11/2026)                                                                                                                                                                                                                                       |
 | P4-13b | Parrainage et succès Passeur                        | P4-13a       | ✅     | Lancement. `/espace/parrainage` (entrée au palier Pilier local ou Référence) : présenter deux personnes majeures de son réseau qui n'ont pas joué ensemble, notification `INTRODUCTION` à chacune ; une collaboration terminée ensuite entre elles émet `introduction.succeeded` et débloque _Passeur_, sans XP (`#lib/career/introductions`, `server/career/introductions.ts`). Export et anonymisation RGPD. Unitaires, intégration (une présentation sans collaboration ne débloque rien), `check` au vert ; e2e `parrainage.spec.ts` réussi (11/11/2026)                                                                                                                                                                               |
 
-### Phases 5 et 6 → [phase-4-6.md](./phase-4-6.md)
+### Phase 5 — La scène : lieux, organisateurs, bookers, managers (acte V) → [phase-4-6.md](./phase-4-6.md)
 
-Lots P5-00 à P5-11 (lieux, organisateurs, bookers, managers, concerts
-vérifiés, acte V, écoles) et P6-01 à P6-07 (label, éditeur,
-communication, actes VI-VIII, défis collectifs, autres rôles). Fiches
-complètes dans [phase-4-6.md](./phase-4-6.md) ; ils entrent dans ce
-tableau à la revue de fin de la phase précédente.
+Entrée au tableau à la [revue de fin de phase 4](./revue-phase-4.md)
+(11/11/2026), qui ajuste les fiches (§4). « Lancement » : lot nécessaire
+à l'ouverture de Toulouse (§4 ter).
+
+| Lot   | Intitulé                                      | Dépend de     | Statut | PR                                                                                                                                   |
+| ----- | --------------------------------------------- | ------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| P5-00 | Validation juridique de la monétisation (D25) | —             | ⬜     | Après le lancement ; avant P5-09 et P5-10                                                                                            |
+| P5-01 | Personas et barème de la scène                | —             | ⬜     | Lancement. `VENUE_HOST` : pas de nouvelle piste par défaut (Q18)                                                                     |
+| P5-02 | Organisations vérifiées                       | P3-09         | ⬜     | Lancement. Vérification manuelle déjà là (P3-09) : contrôle SIRET automatique, demande ouverte aux studios et lieux, droits, retrait |
+| P5-03 | Lieux                                         | P5-01, P5-02  | ⬜     | Lancement. Revendiquer une fiche `Venue` de l'annuaire pour une organisation `VENUE` (D22, D31) ; à découper à l'ouverture           |
+| P5-04 | Jams publiques des lieux                      | P5-03, P2-14b | ⬜     | Lancement                                                                                                                            |
+| P5-05 | Organisateur·rice                             | P5-02         | ⬜     | Lancement. Ouvrir la piste `PROMOTER`                                                                                                |
+| P5-06 | Concerts vérifiés                             | P5-03, P5-05  | ⬜     | Lancement. Rouvrir `GIG`, modèle de P4-09 pour `VERIFIED`                                                                            |
+| P5-07 | Booker et manager                             | P5-01         | ⬜     | Lancement                                                                                                                            |
+| P5-08 | Carte : acte V                                | P5-06         | ⬜     | Lancement                                                                                                                            |
+| P5-09 | Offre pro                                     | P4-11, P5-00  | ⬜     | Après le lancement                                                                                                                   |
+| P5-10 | Réservation de studio                         | P4-03, P5-00  | ⬜     | Après le lancement ; vérifie « Première répétition »                                                                                 |
+| P5-11 | Écoles, MJC, conservatoires (D29)             | P5-02, P2-14c | ⬜     | Lancement                                                                                                                            |
+
+### Phase 6 → [phase-4-6.md](./phase-4-6.md)
+
+Lots P6-01 à P6-07 (label, éditeur, communication, actes VI-VIII, défis
+collectifs, autres rôles), après le lancement. Fiches complètes dans
+[phase-4-6.md](./phase-4-6.md) ; ils entrent dans ce tableau à la revue
+de fin de la phase 5.
 
 ## 5 bis. Points ouverts (hors lots)
 
