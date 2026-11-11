@@ -18,7 +18,6 @@
 		Lock,
 		Megaphone,
 		Moon,
-		Music,
 		Rocket,
 		Sun,
 		Target,
@@ -34,7 +33,7 @@
 
 	const tones = ['violet', 'rose', 'blue', 'orange', 'amber', 'lime', 'cyan', 'ink'] as const;
 	const percent = Math.round((lea.xpIntoLevel / lea.xpForNextLevel) * 100);
-	const [malik, volts, ines, tom] = nearby.filter((n) => n.name !== 'Jam du dimanche');
+	const [malik, volts, ines] = nearby.filter((n) => n.name !== 'Jam du dimanche');
 </script>
 
 <SEO title="Metro · maquette" noindex nofollow />
@@ -124,84 +123,6 @@
 						</div>
 					</Pivot>
 
-					<Pivot id="musiciens" title="musiciens">
-						<div class="lm-mosaic">
-							<Tile framed tone="violet" size="wide" href="/_lab" index={0}>
-								<div class="flex items-start justify-between gap-3">
-									<p class="lm-tile__kicker">{malik.role}</p>
-									<span class="lm-pill">{distanceBand(malik.meters)}</span>
-								</div>
-								<div class="space-y-1.5">
-									<h3 class="lm-tile__title">{malik.name}</h3>
-									<p class="lm-tile__text">{malik.genres.join(' · ')} · {malik.commune}</p>
-									{#if malik.tier}<TierBadge id={malik.tier.id} label={malik.tier.label} />{/if}
-								</div>
-							</Tile>
-							<Tile framed tone="rose" size="md" href="/_lab" index={1}>
-								<p class="lm-tile__kicker">{volts.role}</p>
-								<div class="space-y-1">
-									<h3 class="lm-tile__title">{volts.name}</h3>
-									<p class="lm-tile__text">{volts.genres.join(' · ')}</p>
-								</div>
-							</Tile>
-							<Tile framed tone="cyan" size="md" href="/_lab" index={2}>
-								<p class="lm-tile__kicker">{ines.role}</p>
-								<div class="space-y-1">
-									<h3 class="lm-tile__title">{ines.name}</h3>
-									<p class="lm-tile__text">{ines.genres.join(' · ')}</p>
-								</div>
-							</Tile>
-							<Tile framed tone="paper" size="wide" href="/_lab" index={3}>
-								<div class="flex items-start justify-between gap-3">
-									<p class="lm-tile__kicker">{tom.role}</p>
-									<span class="lm-pill">{distanceBand(tom.meters)}</span>
-								</div>
-								<div class="space-y-1">
-									<h3 class="lm-tile__title">{tom.name}</h3>
-									<p class="lm-tile__text">{tom.genres.join(' · ')} · {tom.commune}</p>
-								</div>
-							</Tile>
-						</div>
-					</Pivot>
-
-					<Pivot id="annonces" title="annonces">
-						<div class="lm-mosaic">
-							<Tile
-								framed
-								tone="orange"
-								size="tall"
-								href="/_lab"
-								icon={Megaphone}
-								fx="shout"
-								index={0}
-							>
-								<p class="lm-tile__kicker">recrutement</p>
-								<div class="space-y-2">
-									<h3 class="lm-tile__title">cherche batteur·se funk</h3>
-									<p class="lm-tile__text">
-										Groupe formé, répète le mardi soir, premiers concerts au printemps.
-									</p>
-									<span class="lm-pill">{distanceBand(4_500)} · Toulouse</span>
-								</div>
-							</Tile>
-							<Tile framed tone="blue" size="md" href="/_lab" index={1}>
-								<p class="lm-tile__kicker">session</p>
-								<h3 class="lm-tile__title">studio, samedi</h3>
-							</Tile>
-							<Tile framed tone="amber" size="md" href="/_lab" index={2}>
-								<p class="lm-tile__kicker">jam ouverte</p>
-								<h3 class="lm-tile__title">dimanche, 17 h</h3>
-							</Tile>
-							<Tile framed tone="paper" size="wide" href="/_lab" index={3}>
-								<p class="lm-tile__kicker">remplacement</p>
-								<div class="space-y-1">
-									<h3 class="lm-tile__title">basse, concert samedi</h3>
-									<p class="lm-tile__text">Setlist envoyée, deux répètes avant la date.</p>
-								</div>
-							</Tile>
-						</div>
-					</Pivot>
-
 					<Pivot id="jam" title="jam">
 						<div class="lm-mosaic">
 							<Tile
@@ -231,12 +152,68 @@
 									<h3 class="lm-tile__title">scène ouverte du canal</h3>
 								</div>
 							</Tile>
-							<Tile framed tone="ink" size="band" icon={Music} index={2}>
-								<p class="lm-tile__kicker">il manque encore</p>
-								<div class="flex flex-wrap gap-2">
-									<span class="lm-pill">batterie</span><span class="lm-pill">voix</span><span
-										class="lm-pill">clavier</span
-									>
+							<!-- Les gens croisés en jam : on les retrouve ici pour rejouer. -->
+							<Tile framed tone="violet" size="wide" href="/_lab" index={2}>
+								<div class="flex items-start justify-between gap-3">
+									<p class="lm-tile__kicker">croisé au jazz au comptoir</p>
+									<span class="lm-pill">{distanceBand(malik.meters)}</span>
+								</div>
+								<div class="space-y-1.5">
+									<h3 class="lm-tile__title">{malik.name}</h3>
+									<p class="lm-tile__text">{malik.role} · {malik.genres.join(' · ')}</p>
+									{#if malik.tier}<TierBadge id={malik.tier.id} label={malik.tier.label} />{/if}
+								</div>
+							</Tile>
+							<Tile framed tone="rose" size="md" href="/_lab" index={3}>
+								<p class="lm-tile__kicker">croisée à la scène ouverte</p>
+								<div class="space-y-1">
+									<h3 class="lm-tile__title">{ines.name}</h3>
+									<p class="lm-tile__text">{ines.genres.join(' · ')}</p>
+								</div>
+							</Tile>
+						</div>
+					</Pivot>
+
+					<!-- Actualité : ce qui bouge autour de toi (annonces, groupes), 5 tuiles au plus. -->
+					<Pivot id="actualite" title="actualité">
+						<div class="lm-mosaic">
+							<Tile
+								framed
+								tone="orange"
+								size="tall"
+								href="/_lab"
+								icon={Megaphone}
+								fx="shout"
+								index={0}
+							>
+								<p class="lm-tile__kicker">recrutement</p>
+								<div class="space-y-2">
+									<h3 class="lm-tile__title">cherche batteur·se funk</h3>
+									<p class="lm-tile__text">
+										Groupe formé, répète le mardi soir, premiers concerts au printemps.
+									</p>
+									<span class="lm-pill">{distanceBand(4_500)} · Toulouse</span>
+								</div>
+							</Tile>
+							<Tile framed tone="rose" size="wide" href="/_lab" index={1}>
+								<div class="flex items-start justify-between gap-3">
+									<p class="lm-tile__kicker">{volts.role}</p>
+									<span class="lm-pill">{distanceBand(volts.meters)}</span>
+								</div>
+								<div class="space-y-1">
+									<h3 class="lm-tile__title">{volts.name}</h3>
+									<p class="lm-tile__text">{volts.genres.join(' · ')} · {volts.commune}</p>
+								</div>
+							</Tile>
+							<Tile framed tone="blue" size="md" href="/_lab" index={2}>
+								<p class="lm-tile__kicker">session</p>
+								<h3 class="lm-tile__title">studio, samedi</h3>
+							</Tile>
+							<Tile framed tone="paper" size="wide" href="/_lab" index={3}>
+								<p class="lm-tile__kicker">remplacement</p>
+								<div class="space-y-1">
+									<h3 class="lm-tile__title">basse, concert samedi</h3>
+									<p class="lm-tile__text">Setlist envoyée, deux répètes avant la date.</p>
 								</div>
 							</Tile>
 						</div>
