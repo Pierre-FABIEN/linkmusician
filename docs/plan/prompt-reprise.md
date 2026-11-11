@@ -12,11 +12,10 @@ ne crée pas de commit pendant cet audit.**
 ## Sources à croiser
 
 1. `CLAUDE.md` et `CONTRIBUTING.md` pour les règles de travail.
-2. `docs/plan/README.md` : cycle de lot (§3), définition de terminé (§4),
-   ordre conseillé (§4 bis), tableau des statuts (§5) et points ouverts
-   (§5 bis).
-3. La fiche de la phase contenant les lots en cours ou à faire, en
-   particulier `docs/plan/phase-4-6.md` pour les phases 4 à 6.
+2. `docs/plan/README.md` : cycle de lot (§3), définition de terminé (§4)
+   et tableau des lots restants (§5).
+3. `docs/plan/fin-du-projet.md` : étapes A à F, ordre et fiche de chaque
+   lot restant, points à surveiller (§8) ; `docs/plan/a-trancher.md`.
 4. `docs/decisions/README.md` et les décisions référencées par les lots
    candidats.
 5. L'état local Git (`git status`, branche, derniers commits) et les
@@ -32,7 +31,7 @@ ne crée pas de commit pendant cet audit.**
   contradiction au lieu de choisir silencieusement une version.
 - Vérifie les dépendances et décisions du prochain lot candidat. Choisis
   le premier lot non commencé dont les dépendances sont livrées et les
-  décisions acceptées, en tenant compte de l'ordre §4 bis.
+  décisions acceptées, dans l'ordre des étapes de `fin-du-projet.md`.
 - Distingue les prototypes, maquettes et changements non commités des
   fonctionnalités produit et de l'avancement officiel du plan. En
   particulier, les pages `src/routes/_lab/metro/` ne font pas avancer un
@@ -42,9 +41,9 @@ ne crée pas de commit pendant cet audit.**
 
 ## Vérifications d'attention
 
-État au 11/11/2026 : la phase 4 est fermée pour le lancement
-([revue](./revue-phase-4.md)) ; les lots de la phase 5 sont au tableau,
-à commencer par P5-01 puis P5-02. Avant un lot P5, lire sa section de
+État au 11/11/2026 : 86 lots sur 103 terminés ; étape A (finir la scène)
+en cours, P5-01, P5-02 et P5-03a faits, P5-05 ensuite. Avant un lot P5,
+lire sa section de
 [preparation-phase-5.md](./preparation-phase-5.md) : fichiers, modèles à
 copier et pièges y sont déjà relevés. Un lot 🟡 dont le seul manque est l'e2e
 se ferme en le lançant, avant de commencer un lot suivant.

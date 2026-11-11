@@ -25,7 +25,7 @@ existants une aide facultative qui transforme une description libre en
 propositions pour les champs d'inscription. Elle ne crée pas de nouvel
 écran et ne remplace pas le choix manuel, les référentiels ni les
 validations. Le texte ne doit pas être conservé ; le fournisseur et ses
-garanties de confidentialité restent à décider. Voir [P3-17](../plan/phase-2-3.md#p3-17--assistant-ia-de-préremplissage-de-linscription).
+garanties de confidentialité restent à décider. Voir [P3-17](../plan/README.md).
 
 **État vide** : si moins de 5 résultats dans le rayon, on le dit
 honnêtement (« tu es parmi les premiers à Annecy »). On propose

@@ -11,7 +11,7 @@ rencontrer, dès ce soir). Mobile d'abord, installable comme une app (PWA).
 | Besoin                                                  | Document                                                                               |
 | ------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | Vision, règles métier, modes de jeu, carrières par rôle | [docs/conception/](./docs/conception/README.md)                                        |
-| Ordre de travail, fiches de lots, état d'avancement     | [docs/plan/](./docs/plan/README.md) (chemin pas à pas : §4 bis)                        |
+| Ordre de travail, fiches de lots, état d'avancement     | [docs/plan/](./docs/plan/README.md) (route jusqu'au bout : `fin-du-projet.md`)         |
 | Décisions prises ou en attente                          | [docs/decisions/](./docs/decisions/README.md)                                          |
 | Consignes de travail avec Claude Code                   | [CLAUDE.md](./CLAUDE.md)                                                               |
 | Conventions et vérifications avant commit               | [CONTRIBUTING.md](./CONTRIBUTING.md)                                                   |

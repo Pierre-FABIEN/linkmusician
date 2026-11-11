@@ -1,13 +1,15 @@
 # Préparation technique de la phase 5
 
-> Rédigé le 11/11/2026, après la [revue de phase 4](./revue-phase-4.md).
+> Rédigé le 11/11/2026, après la revue de phase 4. Les sections des lots
+> terminés (P5-01, P5-02, P5-03a) ont été retirées ; la route complète est
+> dans [fin-du-projet.md](./fin-du-projet.md).
 > But : qu'une session de lot n'ait plus à explorer le code. Pour chaque
 > lot : ce qui existe, le modèle à copier, le schéma proposé, les étapes,
 > les tests et les pièges. Les **valeurs par défaut** proposées ici sont
 > reportées dans [a-trancher.md](./a-trancher.md) (Q18 à Q24) ; on code
 > avec elles sans attendre.
 >
-> Les fiches fonctionnelles restent dans [phase-4-6.md](./phase-4-6.md).
+> Les fiches fonctionnelles sont dans [fin-du-projet.md](./fin-du-projet.md).
 > Ce document dit **comment** faire, pas quoi.
 
 ## 0. Modèles à copier (déjà dans le dépôt)
@@ -34,120 +36,30 @@ les e2e : fermer le bandeau cookies (« Compris ») avant un bouton collé en
 bas, attendre la fin des toasts avant `expectNoA11yViolations`, et lire
 la carte par `:scope > li`.
 
-**Ordre conseillé** : P5-01 → P5-02 → P5-03a → P5-05 → P5-06 → P5-04 →
-P5-08 → P5-07 → P5-11. P5-05 passe avant P5-04, parce que les jams
-publiques d'un lieu s'appuient sur l'organisation du lieu, et les
-concerts sur l'organisateur.
+**Ordre conseillé** (restant) : P5-05 → P5-03b → P5-06 → P5-04 → P5-08 →
+P5-07 → P5-11. Les concerts s'appuient sur l'organisateur et la fiche du
+lieu, les jams publiques sur l'organisation du lieu.
 
 ---
 
-## P5-01 — Personas et barème de la scène
-
-**Existe** : pistes `PROMOTER`, `BOOKER` et `MANAGER` (`TrackKind`),
-`available: false`. Aucune règle d'XP ni aucun rang pour la scène.
-
-**À faire** (aucune migration) :
-
-1. `core/tiers.ts` : `PROMOTER_TIERS` (Premier événement → Programmateur
-   régulier ≥5 → Scène locale ≥20 et ≥30 groupes → Festival : un
-   événement de ≥10 groupes vérifié), `AGENT_TIERS`, partagé par manager
-   et booker (Premier artiste → Développeur : ≥1 artiste qui franchit 2
-   rangs → Agence, Q21), `VENUE_TIERS` (Lieu ouvert → Scène ouverte ≥3
-   dates confirmées → Lieu de la scène locale ≥20 dates et ≥15 groupes →
-   Lieu culte ≥50 dates et ≥5 groupes passés Tournée). Chaque série a sa
-   fonction `xxxTier(summary)`, sur le modèle de `studioTier`.
-2. `core/events.ts` : `gig.held` (`gigId`, `organizerIds`,
-   `performerIds`, `venueOrgId?`, `firstDateIds` : artistes dont c'est la
-   toute première date, `verified`). `management.confirmed` (`managerId`,
-   `artistId`, `kind: 'MANAGER' | 'BOOKER'`). `actorIdsOf` à compléter.
-3. `core/crafts.ts` et `bareme.ts` : barème 08 §8-10, **à calibrer** :
-   événement tenu 200 et première date d'un groupe 100 pour la piste
-   `PROMOTER` ; date bookée et jouée 150 pour `BOOKER` ;
-   accompagnement confirmé 200 pour `MANAGER`. Le lieu gagne un **rang**,
-   pas d'XP (comme le studio, Q13). La « part de 10 % sur un rang
-   franchi » est reportée (Q21).
-4. `core/rules/gigHeld.ts` et `managementConfirmed.ts`, enregistrés dans
-   `rules/index.ts`. Rendements décroissants par paire, comme
-   `collaboration.completed`.
-5. `core/personas-scene.test.ts`, copié de `personas-son.test.ts` :
-   bar à scène ouverte, café-concert, MJC, association organisatrice,
-   booker indépendant, manager débutant. Assertions : semaine d'atteinte
-   de chaque rang dans une fourchette crédible.
-6. Consigner le barème en conception 02 §2.2 et §5, et 08 §8 à §10 et
-   §14.
-
-**Pièges** : les musicien·nes d'un concert gagnent déjà par la
-collaboration. `gig.held` ne doit pas leur redonner d'XP, seulement à
-qui organise ou booke. Un concert vérifié leur rapporte par l'étape
-`FIRST_GIG` (P5-06).
-
----
-
-## P5-02 — Organisations vérifiées
-
-**Existe** : `OrganizationVerification` (SIRET et lien officiel, statut,
-motif), `requestVerification` et `approveVerification` dans
-`server/organizations/verification.ts`, file `/moderation`, badge sur le
-groupe. La demande ne s'ouvre que depuis
-`routes/(app)/groupes/[handle]/+page.svelte` (section ~l. 725).
-L'annuaire a son propre SIRET (`Venue.siret`, `verifyVenueSiret`).
-
-**À faire** :
-
-1. Composant `OrgVerificationCard.svelte`, extrait de la page du groupe
-   et posé aussi sur `studios/[handle]`, puis plus tard sur la fiche du
-   lieu et de l'organisateur.
-2. Contrôle automatique avant la modération, dans `requestVerification` :
-   chercher le SIRET avec `establishments.ts` (table puis API) et le
-   refuser s'il est **inconnu ou fermé** (`active: false`). Joindre à la
-   demande le nom et le code NAF trouvés. Il faut deux colonnes
-   (`foundName`, `naf`) sur `OrganizationVerification`, donc une migration.
-3. Droits liés : `isVerifiedOrg(orgId)` dans `server/organizations/`,
-   qui sert à P5-06 (concert `VERIFIED`) et P5-11.
-4. Retrait : `revokeVerification(orgId, by, reason)` pour la
-   modération. `verifiedAt` repasse à `null` et l'action est journalisée
-   (`moderation.*`, libellé obligatoire, testé). Les étapes déjà
-   vérifiées **restent** (Q22).
-5. Tests : `verification.integration.test.ts` (SIRET fermé refusé,
-   retrait), e2e « un studio demande sa vérification, la modération
-   l'accepte ».
-
-**Fin de fiche** : « seule une organisation vérifiée peut faire passer
-un concert `VERIFIED` ». Ce critère se teste dans P5-06 ; P5-02 livre
-`isVerifiedOrg`.
-
----
-
-## P5-03 — Lieux (à découper : a, b, c)
+## P5-03b et P5-03c — Lieux
 
 **Existe** : `Venue` (annuaire : type `VenueKind`, commune, SIRET
-vérifié, `backline`, `claimedByActorId` jamais renseigné), `/lieux`,
-`/lieux/[id]`, `server/venues/service.ts`. Les jams publiques pointent sur
-`Opportunity.venueId`. Q11 : le studio et le lieu restent deux fiches.
+vérifié, `backline`), `/lieux`, `/lieux/[id]`, `server/venues/service.ts`.
+Les jams publiques pointent sur `Opportunity.venueId`. Q11 : le studio et
+le lieu restent deux fiches. **Depuis P5-03a** : `OrgKind.VENUE`,
+`VenueClaim` et `server/venues/claims.ts` ; l'organisation du lieu naît
+à l'approbation de la revendication (Q28) et `Venue.claimedByActorId`
+pointe sur elle ; `managesVenueOrg` dit qui la gère ; `/@handle` d'un
+lieu redirige vers `/lieux/[id]`.
 
-**Schéma proposé** (migration `lieux`) :
+**Schéma proposé pour P5-03b** (migration `lieux_fiche`) :
 
-- `OrgKind` ajoute `VENUE`.
 - `VenueProfile` (sur le modèle de `StudioProfile`) : `orgId` @id,
   `capacity Int?`, `stage String` (scène, sono), `conditions
 VenueCondition[]` (`FEE`, `HAT`, `EXPENSES`), `days Int[]` (jours
   d'ouverture 1 à 7), `ageRule` (`ALL_AGES`, `ADULTS`, `DAYTIME_MINORS`),
   `publishedAt`.
-- `VenueClaim` : `id`, `venueId`, `orgId`, `requestedById`, `level`
-  (1 ou 2), `code` (aléatoire, 8 caractères), `proofUrl` (bio Instagram
-  ou Facebook, site), `status` (`PENDING`, `APPROVED`, `REJECTED`),
-  `reviewedAt`, `reason`.
-- `Venue.claimedByActorId` pointe sur l'**acteur de l'organisation
-  `VENUE`**, pas sur une personne.
-
-**P5-03a — Revendication niveau 1 (D31)** : bouton « C'est mon lieu »
-sur `/lieux/[id]`. Il crée l'organisation `VENUE`, gérée par la
-personne (OWNER), et affiche le code à publier. La personne colle le lien
-où le code est publié, puis la modération contrôle et approuve. Une fois
-approuvé : `claimedByActorId` est renseigné et le badge « Géré par le
-lieu » s'affiche. Réutiliser la file de `/moderation` (nouvel onglet ou
-type). e2e « un bar revendique sa fiche avec le code publié sur son
-compte » (la modération approuve en base ou par l'interface admin).
 
 **P5-03b — Fiche et agenda** : `/lieux/[id]/gerer`, copié de
 `studios/[handle]`, avec fiche, publication (`publicationGaps`),

@@ -8,21 +8,23 @@ supprimée (décision D6).
 
 ## Où trouver quoi
 
-| Besoin                                                  | Document                                        |
-| ------------------------------------------------------- | ----------------------------------------------- |
-| Vision, règles métier, architecture                     | `docs/conception/` (commencer par `README.md`)  |
-| Ordre de travail, fiches de lots, **état d'avancement** | `docs/plan/README.md` (tableau §5)              |
-| Décisions tranchées ou en attente                       | `docs/decisions/README.md`                      |
-| Questions laissées pour plus tard (défauts appliqués)   | `docs/plan/a-trancher.md`                       |
-| Conventions de code et vérifications avant PR           | `CONTRIBUTING.md`                               |
-| Reprendre une session sans tout relire                  | `docs/plan/prompt-reprise.md`                   |
-| Feuille de route de la startup (hors code)              | `docs/lancement/README.md` (`/admin/lancement`) |
+| Besoin                                                | Document                                        |
+| ----------------------------------------------------- | ----------------------------------------------- |
+| Vision, règles métier, architecture                   | `docs/conception/` (commencer par `README.md`)  |
+| **État d'avancement**, méthode, définition de terminé | `docs/plan/README.md` (§4, tableau §5)          |
+| Route jusqu'à la fin, **fiche de chaque lot restant** | `docs/plan/fin-du-projet.md`                    |
+| Décisions tranchées ou en attente                     | `docs/decisions/README.md`                      |
+| Questions laissées pour plus tard (défauts appliqués) | `docs/plan/a-trancher.md`                       |
+| Conventions de code et vérifications avant PR         | `CONTRIBUTING.md`                               |
+| Reprendre une session sans tout relire                | `docs/plan/prompt-reprise.md`                   |
+| Feuille de route de la startup (hors code)            | `docs/lancement/README.md` (`/admin/lancement`) |
 
 ## Méthode de travail
 
-- **Une session = un lot** (`P1-05`…). Avant de coder : lire la fiche du
-  lot dans `docs/plan/phase-N.md` et les sections de conception qu'elle
-  cite. Vérifier que ses dépendances sont ✅ et que les décisions
+- **Une session = un lot** (`P5-05`…). Avant de coder : lire la fiche du
+  lot dans `docs/plan/fin-du-projet.md` (et sa section de
+  `preparation-phase-5.md` pour un lot P5), puis les sections de
+  conception qu'elle cite. Vérifier que ses dépendances sont ✅ et que les décisions
   qu'elle référence ne sont plus « Proposée ».
 - **On travaille directement sur `main`**, toujours à jour : pas de branche
   de lot ni de PR (décision de l'utilisateur, 04/11/2026). Un commit par
