@@ -171,6 +171,24 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		verified: z.boolean()
 	}),
 	/**
+	 * Jam publique tenue (P5-04a, 02 §2.2, 08 §14) : une jam publiée au nom
+	 * d'un lieu ou d'une organisation, où au moins 3 personnes hors
+	 * organisation ont dit « J'y étais ». Rapporte à qui l'a organisée (piste
+	 * organisateur·rice), **jamais** aux présent·es (D27). Le lieu y gagne un
+	 * rang, pas d'XP (Q24).
+	 */
+	z.object({
+		...base,
+		type: z.literal('jam.held'),
+		jamId: id,
+		/** Personnes qui organisent (la gestion du lieu qui a publié). */
+		organizerIds: z.array(id),
+		/** Présent·es, hors organisation : leur confiance pondère le gain. */
+		confirmerIds: z.array(id).min(1),
+		/** Lieu (organisation `VENUE`), s'il est sur la plateforme. */
+		venueOrgId: id.optional()
+	}),
+	/**
 	 * Accompagnement confirmé par l'artiste (P5-01, 08 §9 et §10) : manager
 	 * ou booker. Suivre un profil ne rapporte rien.
 	 */

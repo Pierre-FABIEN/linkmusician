@@ -4,12 +4,14 @@
  * le lieu ne gagne jamais d'XP (Q24) et l'XP n'entre pas ici.
  *
  * Une date ne compte que confirmée par au moins une personne hors
- * organisation et booking, comme pour l'organisateur·rice. Les jams
- * publiques tenues (P5-04) et les groupes passés ensuite au rang Tournée
- * viendront plus tard : `touringAlumni` reste à 0.
+ * organisation et booking, comme pour l'organisateur·rice. Une jam
+ * publique tenue (`jam.held`, P5-04a) compte comme une date dès 3 présent·es
+ * hors organisation. Les groupes passés ensuite au rang Tournée viendront
+ * plus tard : `touringAlumni` reste à 0.
  */
 import type { DomainEvent, EventOf } from './events';
 import type { VenueSummary } from './tiers';
+import { BAREME } from './bareme';
 
 const confirmedOutside = (event: EventOf<'gig.held'>) => {
 	const insiders = new Set([...event.organizerIds, ...event.bookerIds]);
@@ -24,7 +26,13 @@ export function venueSummary(
 	const gigs = new Set<string>();
 	const artists = new Set<string>();
 	const firsts = new Set<string>();
+	const jams = new Set<string>();
 	for (const event of events) {
+		if (event.type === 'jam.held' && event.venueOrgId === venueOrgId) {
+			const present = event.confirmerIds.filter((id) => !event.organizerIds.includes(id));
+			if (new Set(present).size >= BAREME.jamHeldMinPresent) jams.add(event.jamId);
+			continue;
+		}
 		if (event.type !== 'gig.held' || event.venueOrgId !== venueOrgId) continue;
 		if (gigs.has(event.gigId) || !confirmedOutside(event)) continue;
 		gigs.add(event.gigId);
@@ -33,7 +41,7 @@ export function venueSummary(
 	}
 	return {
 		published,
-		dates: gigs.size,
+		dates: gigs.size + jams.size,
 		distinctArtists: artists.size,
 		touringAlumni: 0,
 		firstDates: firsts.size

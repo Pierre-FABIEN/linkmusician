@@ -11,6 +11,7 @@ import { workComposed, workCreditConfirmed } from './workComposed';
 import { releaseCreditVerified } from './releaseCreditVerified';
 import { gigFirstDates, gigHeld } from './gigHeld';
 import { managementConfirmed } from './managementConfirmed';
+import { jamHeld } from './jamHeld';
 
 export const RULES: readonly Rule[] = [
 	profileCompleted,
@@ -27,5 +28,6 @@ export const RULES: readonly Rule[] = [
 	releaseCreditVerified,
 	gigHeld,
 	gigFirstDates,
+	jamHeld,
 	managementConfirmed
 ] as Rule[];

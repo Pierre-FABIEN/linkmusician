@@ -115,6 +115,7 @@ sur la piste organisateur·rice.
 | Artiste programmé pour sa toute première date                     | 100 par artiste × confiance | Organisateur·rice | confiance de qui confirme (une première date n'arrive qu'une fois) |
 | Date bookée et jouée, par personne qui a booké (sans organiser)   | 150 × multiplicateurs       | Booker            | rendement par artiste **et par lieu** sur 12 mois × confiance      |
 | Accompagnement confirmé par l'artiste                             | 200 × multiplicateurs       | Manager           | rendement par artiste sur 12 mois × confiance de qui confirme      |
+| Jam publique tenue (P5-04a), par personne qui l'a publiée         | 50 × confiance              | Organisateur·rice | au moins 3 présent·es hors organisation ; meilleure confiance      |
 
 La confiance retenue pour un concert est la meilleure parmi les
 personnes qui ont confirmé pour l'affiche, hors organisation et booking :
@@ -122,9 +123,13 @@ une date confirmée seulement par qui l'organise ne rapporte rien. Le
 booker décroît par artiste et par lieu, parce que faire jouer le même
 artiste dans une autre salle est son métier. L'accompagnement d'un
 booker compte pour son rang mais ne rapporte pas d'XP : ses points
-viennent des dates. Reportés : la jam publique tenue (50, P5-04), la
-tournée bookée (400, P5-07) et la part de 10 % sur un rang franchi par
-un artiste accompagné (Q21).
+viennent des dates. La jam publique tenue rapporte à la personne de la
+gestion du lieu (ou de l'organisation) qui l'a publiée, dès que 3
+personnes hors organisation ont dit « J'y étais » ; les présent·es n'y
+gagnent rien (D27), leurs appréciations seules rapportent. Une jam
+lancée par un·e musicien·ne en son nom ne rapporte rien (Q42). Reportés :
+la tournée bookée (400, P5-07) et la part de 10 % sur un rang franchi
+par un artiste accompagné (Q21).
 
 Un devis, une prise de contact ou une réservation annulée ne rapportent
 rien. Pour le studio, la réservation honorée (100, 08 §6) viendra avec
@@ -252,7 +257,7 @@ ses artistes dans d'autres salles est son métier. Simulation
 
 | Persona                                                           | Niveau à 1 / 3 / 6 mois | Rangs (semaine d'atteinte)                                                 |
 | ----------------------------------------------------------------- | ----------------------- | -------------------------------------------------------------------------- |
-| Bar à scène ouverte (une jam par semaine, un concert par mois)    | 2 / 3 / 5               | lieu : Scène ouverte 3 ; Programmation régulière 19 ; pas de scène locale  |
+| Bar à scène ouverte (une jam par semaine, un concert par mois)    | 2 / 4 / 6               | lieu : Scène ouverte 3 ; Programmation régulière 19 ; pas de scène locale  |
 | Café-concert (deux soirées par semaine, 40 groupes en rotation)   | 4 / 9 / 12              | Programmation régulière 3 ; lieu de la scène locale 10 ; Scène locale 11   |
 | MJC (un tremplin par mois, trois groupes dont deux débutent)      | 2 / 5 / 7               | Premier événement 2 ; lieu : Scène ouverte 10 ; Programmation régulière 18 |
 | Association (une soirée par mois, festival vérifié de 12 groupes) | 2 / 4 / 5               | Programmation régulière 17 ; Festival 31 ; pas de scène locale en un an    |

@@ -84,8 +84,22 @@ class Scene {
 		if (verified && artists.length >= 10) this.promoter.festivals++;
 	}
 
-	/** Jam publique tenue au lieu (P5-04) : compte pour le rang du lieu, sans XP ici. */
-	jam() {
+	/**
+	 * Jam publique tenue au lieu (P5-04a) : compte pour le rang du lieu, et
+	 * rapporte 50 à qui organise dès 3 présent·es (TL1).
+	 */
+	jam(week: number) {
+		const present = ['p1', 'p2', 'p3'].map((p) => `${p}-${week}`);
+		for (const p of present) this.ledger.setTrust(p, 1 as TrustLevel);
+		this.ledger.apply({
+			id: `e${++seq}`,
+			occurredAt: day(week * WEEK + 3),
+			type: 'jam.held',
+			jamId: `j${seq}`,
+			organizerIds: this.role === 'organizer' ? [this.id] : [],
+			confirmerIds: present,
+			venueOrgId: 'lieu'
+		});
 		this.venue.dates++;
 	}
 
@@ -149,7 +163,7 @@ describe('personas de la scène (conception 02 §2.3, 08 §8 à §10, §14)', ()
 	it('Bar à scène ouverte : une jam chaque jeudi, un concert par mois', () => {
 		const bar = new Scene('bar', 'organizer', 'PROMOTER');
 		for (let week = 0; week < 26; week++) {
-			bar.jam();
+			bar.jam(week);
 			if (week % 4 === 2) bar.gig(week, { artists: [`bar-groupe-${week}`] });
 			bar.endOfWeek(week);
 		}
@@ -158,8 +172,9 @@ describe('personas de la scène (conception 02 §2.3, 08 §8 à §10, §14)', ()
 		// Six concerts en six mois : pas encore un lieu de la scène locale.
 		expect(bar.reachedAt['venue.LOCAL_VENUE']).toBeUndefined();
 		expect(bar.reachedAt['promoter.REGULAR']).toBe(19);
-		// Les jams ne rapportent pas d'XP ici (P5-04) : niveau modeste.
-		expect(bar.levels).toEqual([2, 3, 5]);
+		// La jam tenue rapporte 25 par jeudi (présent·es TL1) : niveau modeste,
+		// sous le café-concert et la MJC.
+		expect(bar.levels).toEqual([2, 4, 6]);
 	});
 
 	it('Café-concert : deux soirées par semaine, des groupes qui reviennent', () => {

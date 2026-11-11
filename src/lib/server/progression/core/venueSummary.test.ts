@@ -41,4 +41,27 @@ describe('lieu : résumé et rang (P5-03b)', () => {
 		]);
 		expect(s).toMatchObject({ dates: 1, firstDates: 1 });
 	});
+
+	it('une jam publique tenue compte comme une date, dès 3 présent·es hors organisation', () => {
+		const jam = (n: number, confirmerIds: string[]) =>
+			({
+				id: `j${n}`,
+				type: 'jam.held',
+				occurredAt: new Date('2026-11-05T22:00:00Z'),
+				jamId: `jam${n}`,
+				organizerIds: ['patron'],
+				confirmerIds,
+				venueOrgId: 'bar'
+			}) as DomainEvent;
+		const s = venueSummary('bar', true, [
+			gig(1),
+			jam(1, ['a', 'b', 'c']),
+			jam(1, ['a', 'b', 'c']),
+			jam(2, ['a', 'b', 'patron']),
+			jam(3, ['a', 'b', 'c', 'd'])
+		]);
+		expect(s.dates).toBe(3);
+		expect(s.distinctArtists).toBe(1);
+		expect(venueTier(s).tier?.id).toBe('OPEN_STAGE');
+	});
 });

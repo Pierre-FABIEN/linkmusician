@@ -45,6 +45,14 @@ export function actorIdsOf(event: DomainEvent): string[] {
 					...(event.venueOrgId ? [event.venueOrgId] : [])
 				])
 			];
+		case 'jam.held':
+			return [
+				...new Set([
+					...event.organizerIds,
+					...event.confirmerIds,
+					...(event.venueOrgId ? [event.venueOrgId] : [])
+				])
+			];
 		case 'management.confirmed':
 			return [...new Set([event.managerId, event.artistId, event.confirmedById])];
 		case 'endorsement.received':

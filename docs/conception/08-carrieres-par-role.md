@@ -256,8 +256,9 @@ publique.
 
 **Gains** (calibrés en P5-01, 02 §2.2) : événement tenu, confirmé par au
 moins un groupe 200 × rendement par artiste et confiance · par groupe
-programmé pour sa toute première date 100 · jam publique tenue 50
-_(avec P5-04)_. Les musicien·nes de l'affiche ne gagnent rien de plus.
+programmé pour sa toute première date 100 · jam publique tenue 50 ×
+confiance des présent·es, dès 3 « J'y étais » hors organisation (P5-04a).
+Les musicien·nes de l'affiche ne gagnent rien de plus.
 
 **Épreuves qu'il valide** : les concerts (acte V), au niveau vérifié
 quand l'organisation est vérifiée (SIRET).
@@ -454,7 +455,10 @@ programmation reconnue.
 **Gains** (P5-01) : le lieu ne gagne pas d'XP (Q24). Les dates
 rapportent aux personnes qui organisent (événement tenu 200, première
 date d'un groupe 100, 02 §2.2) ; la jam publique tenue, confirmée par ≥3
-participants, viendra avec P5-04. Groupe passé ensuite au rang Live :
+participants (P5-04a), rapporte 50 à la personne qui l'a publiée au nom du
+lieu. Une **scène ouverte récurrente** (« tous les jeudis ») se publie
+une fois : les jams des 4 semaines à venir apparaissent dans le mode jam.
+Groupe passé ensuite au rang Live :
 succès _Tremplin_ _(proposé)_.
 
 **Épreuves qu'il valide** : les concerts des groupes (corroborés ;

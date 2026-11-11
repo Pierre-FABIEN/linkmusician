@@ -55,6 +55,13 @@ export const BAREME = {
 	gigFirstDate: 100,
 	/** Date bookée et jouée, par personne qui a booké (piste booker). */
 	gigBooked: 150,
+	/**
+	 * Jam publique tenue (P5-04a) : au moins `jamHeldMinPresent` présent·es
+	 * hors organisation, × la meilleure confiance parmi eux. Pour qui
+	 * organise, jamais pour qui vient (D27).
+	 */
+	jamHeld: 50,
+	jamHeldMinPresent: 3,
 	/** Accompagnement confirmé par l'artiste (piste manager). */
 	managementConfirmed: 200,
 

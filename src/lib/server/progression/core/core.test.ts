@@ -349,6 +349,41 @@ describe('règles', () => {
 		});
 	});
 
+	describe('jam publique tenue (P5-04a)', () => {
+		const held = (confirmerIds: string[]) =>
+			parseDomainEvent(
+				ev({
+					type: 'jam.held',
+					jamId: 'j',
+					organizerIds: ['patron'],
+					confirmerIds,
+					venueOrgId: 'bar'
+				})
+			);
+
+		it('rapporte 50 à qui organise, rien aux présent·es (D27)', () => {
+			const gains = gainsFor(held(['a', 'b', 'c']), ctx());
+			expect(gains).toEqual([
+				expect.objectContaining({
+					actorId: 'patron',
+					track: 'PROMOTER',
+					amount: BAREME.jamHeld,
+					ruleId: 'jam.held'
+				})
+			]);
+		});
+
+		it('ne rapporte rien sous 3 présent·es hors organisation', () => {
+			expect(gainsFor(held(['a', 'b', 'patron']), ctx())).toEqual([]);
+			expect(gainsFor(held(['a', 'a', 'b']), ctx())).toEqual([]);
+		});
+
+		it('pondère par la meilleure confiance des présent·es', () => {
+			const [gain] = gainsFor(held(['a', 'b', 'c']), ctx({ trustLevel: () => 0 }));
+			expect(gain).toMatchObject({ amount: 5, reason: 'Jam publique tenue ×0,1' });
+		});
+	});
+
 	it('aucune règle ne renvoie un gain nul ou fractionnaire', () => {
 		const gains = gainsFor(
 			ev({
