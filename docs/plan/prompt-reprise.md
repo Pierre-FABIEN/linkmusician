@@ -41,8 +41,8 @@ ne crée pas de commit pendant cet audit.**
 
 ## Vérifications d'attention
 
-État au 11/11/2026 : 86 lots sur 103 terminés ; étape A (finir la scène)
-en cours, P5-01, P5-02 et P5-03a faits, P5-05 ensuite. Avant un lot P5,
+État au 11/11/2026 : 87 lots sur 104 terminés ; étape A (finir la scène)
+en cours, P5-01, P5-02, P5-03a et P5-05a faits, P5-05b ensuite. Avant un lot P5,
 lire sa section de
 [preparation-phase-5.md](./preparation-phase-5.md) : fichiers, modèles à
 copier et pièges y sont déjà relevés. Un lot 🟡 dont le seul manque est l'e2e

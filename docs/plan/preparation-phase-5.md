@@ -36,7 +36,7 @@ les e2e : fermer le bandeau cookies (« Compris ») avant un bouton collé en
 bas, attendre la fin des toasts avant `expectNoA11yViolations`, et lire
 la carte par `:scope > li`.
 
-**Ordre conseillé** (restant) : P5-05 → P5-03b → P5-06 → P5-04 → P5-08 →
+**Ordre conseillé** (restant) : P5-05b → P5-03b → P5-06 → P5-04 → P5-08 →
 P5-07 → P5-11. Les concerts s'appuient sur l'organisateur et la fiche du
 lieu, les jams publiques sur l'organisation du lieu.
 
@@ -113,31 +113,35 @@ formation invitée reçoit une notification.
 
 ---
 
-## P5-05 — Organisateur·rice
+## P5-05b — Organisateur·rice : organisation `PROMOTER`
 
-**Existe** : piste `PROMOTER` (`available: false`). Aucune annonce de
-plateau : `OpportunityKind` ne contient que `JAM`, `RECRUIT_MEMBER` et
-`SESSION_WORK`.
+**Existe (P5-05a)** : piste ouverte, `PromoterProfile`, plateaux
+`GIG_SLOT` (`src/lib/opportunities/gigSlot.ts`,
+`src/lib/server/opportunities/gigSlots.ts`), candidature au nom d'un
+groupe (`Application.sentById`), `/plateaux/nouveau`. Un plateau est
+aujourd'hui émis par la personne.
 
-**À faire** (suivre la liste d'ouverture de P4-04) :
+**À faire** :
 
-1. `PromoterProfile` (`personId`, genres, zone, ce qu'il organise, lien
-   vers une organisation `PROMOTER` facultative). `OrgKind` ajoute
-   `PROMOTER` pour les associations et collectifs, gérés comme un
-   studio.
-2. `OpportunityKind` ajoute `GIG_SLOT` (plateau). Champs : date, lieu
-   (`venueId`), nombre de groupes, conditions d'éligibilité `minBandTier`
-   (rang de groupe), `genreIds` et `radiusKm`. **Jamais l'XP.** La
-   candidature réutilise `applications.ts` (P2-03). Le contrôle
-   d'éligibilité est **pur** dans `src/lib/opportunities/eligibility.ts`
-   et testé : « un groupe hors conditions ne peut pas candidater ».
-3. Festivals : jams « off » publiées comme des jams (P2-14b) dans les
-   lieux du festival ; rien de nouveau côté données.
-4. Stages et masterclasses : reportés avec P5-11 (une `Opportunity`
-   `WORKSHOP` éventuelle).
-5. `available: true`, carte « Organisateur·rice » du profil public,
-   recherche `?metier=organisateur`, objectifs (`craftQuests`), RGPD,
-   e2e.
+1. `OrgKind` ajoute `PROMOTER` ; fiche minimale (nom, ville, genres,
+   lien officiel) et gestion copiées du studio (`studios/rules.ts`,
+   `server/studios/service.ts` : `lockStudio`, `requireManager`,
+   co-gestion). Qui peut en créer une : le métier Organisateur·rice,
+   majeur·e.
+2. Vérification : réutiliser `server/organizations/verification.ts`
+   (P5-02) ; `isVerifiedOrg` servira à P5-06.
+3. Plateau au nom de l'organisation : `createGigSlot(personId, form,
+now, orgId)` sur le modèle du recrutement d'un groupe (`postedById`,
+   ville de l'organisation, quota de la personne) ; `managesIssuer`
+   couvre déjà la gestion partagée ; notifier toute la gestion à la
+   candidature (`bandManagerIds` généralisé).
+4. Carte publique de l'organisation, RGPD (`postedById` déjà oublié à
+   l'anonymisation), e2e.
+
+**Pièges** : `applyTo` traite un émetteur organisation comme un groupe
+(« Tu fais déjà partie de ce groupe ») ; un plateau passe par
+`applyAsBand`, qui n'a pas ce test. `listForIssuer` lit déjà le rang des
+groupes candidats.
 
 ---
 
