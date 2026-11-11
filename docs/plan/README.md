@@ -71,10 +71,10 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 Étapes A à F : voir [fin-du-projet.md §1](./fin-du-projet.md#1-où-on-en-est).
 Un lot terminé reste dans le tableau avec ✅ jusqu'à la fin de son étape.
 
-**Terminé : 92 lots sur 112.** Phases 0, 1 et 2 complètes ; phase 3
+**Terminé : 93 lots sur 112.** Phases 0, 1 et 2 complètes ; phase 3
 complète sauf P3-10a et P3-10 ; phase 4 complète pour le lancement ;
 phase 5 : P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-05a, P5-05b et P5-06 ;
-étape B : MET-01. Le détail de chaque lot terminé est
+étape B : MET-01 et MET-02. Le détail de chaque lot terminé est
 dans le `git log` (messages préfixés par l'ID).
 
 | Lot    | Intitulé                                      | Dépend de             | Statut | Étape | Notes                                                                                                                                                                                                               |
@@ -90,7 +90,7 @@ dans le `git log` (messages préfixés par l'ID).
 | P5-11  | Écoles, MJC, conservatoires (D29)             | P5-02, P2-14c         | ⬜     | A     | Lancement                                                                                                                                                                                                           |
 | P0-01  | Environnement local et état de référence      | —                     | ⏸      | B     | Suite e2e complète à faire passer (échecs d'authentification, `lieux.spec.ts` Q30), à l'étape B                                                                                                                     |
 | MET-01 | Metro : socle                                 | —                     | ✅     | B     | Lancement. Coquille en `.lm-metro`, en-tête, fil d'Ariane, toasts, `TierBadge`, composants (`MetroMenu`, `MetroField`…), CSS rangé, passe de contrôle de toutes les pages (D55, `docs/design` §7)                   |
-| MET-02 | Metro : accueils                              | MET-01                | ⬜     | B     | Lancement. `/jouer`, `/jam`, `/espace` en panorama de tuiles (D50), héros, Aurora                                                                                                                                   |
+| MET-02 | Metro : accueils                              | MET-01                | ✅     | B     | Lancement. `/jouer`, `/jam`, `/espace` en panorama de tuiles (D50), héros, Aurora                                                                                                                                   |
 | MET-07 | Metro : premiers pas et public                | MET-01                | ⬜     | B     | Lancement. `qui-es-tu`, `demarrer/*`, accueil, aide, démarches, erreurs, authentification (Q40)                                                                                                                     |
 | MET-03 | Metro : mode jam                              | MET-02                | ⬜     | B     | Lancement. Agenda, dispos, jams, carnet, apprécier, lieux                                                                                                                                                           |
 | MET-04 | Metro : carrière                              | MET-02                | ⬜     | B     | Lancement. Objectifs, carte, groupes, morceaux, étapes, à confirmer                                                                                                                                                 |

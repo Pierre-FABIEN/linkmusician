@@ -40,8 +40,9 @@
   motifs répétés de toutes les pages de l'espace (titres en `lm-title`,
   cartes en tuiles de page `lm-tile--flow`, boutons en `lm-btn`, champs
   en `lm-field`, plus de grand cadre ni de couleur en dur hors des
-  accueils). Restent les **accueils** en panorama (MET-02) et les
-  migrations fines par parcours (MET-03 à MET-07).
+  accueils). Les **accueils** `/jouer`, `/jam` et `/espace` sont en
+  panorama de tuiles sur l'Aurora (MET-02, fait). Restent les migrations
+  fines par parcours (MET-03 à MET-07).
 - **Comment on migre** : d'abord un **socle** (la coquille passe en
   Metro, les composants manquants sont écrits, le CSS est rangé), puis les
   écrans **par parcours**, un lot à la fois, avec la même liste de
@@ -357,6 +358,17 @@ tableau) : on ne les recopie pas telles quelles. La règle :
 
 Cette règle est consignée dans D55 ; si l'on veut un jour de vrais
 tableaux de bord, il faudra d'abord réviser D50 (§11, Q37).
+
+**Ce qui est fait (MET-02)** : `MetroHome` (Aurora, en-tête, panorama dont
+chaque pivot est un `MetroMenu`) porte `/jam` (pivots « jouer », « mes
+jams », « réseau ») et `/espace` (« avancer », « parcours », « réseau »,
+« repères ») ; le héros `NextStep` ouvre le premier pivot, au ton du mode.
+Toute la navigation garde un seul nom (« Mode jam », « Mode carrière ») :
+le rail ne reprend pas ce nom, pour qu'aucun second landmark ne le
+contienne. Dans une tuile de menu, le résumé suit le titre et la phrase
+dans le nom du lien, et s'affiche en haut à droite. `/jouer` montre deux
+grandes tuiles (bouton d'envoi, `Tile type="submit"`), une icône animée
+chacune ; la présentation d'un mode est une tuile au ton du mode.
 
 ## 6. Correspondance : de l'ancien au Metro
 
