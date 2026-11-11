@@ -272,7 +272,9 @@ l'annuaire, à une date et une heure. Le rang demandé est celui du groupe
 peut pas candidater ; on candidate au nom d'un groupe que l'on gère, et
 majeur·e (Q31). « Programmer un premier groupe » : accepter sa
 candidature. L'événement tenu, confirmé par les groupes, vient avec
-P5-06.
+P5-06. Une **organisation** `PROMOTER` (P5-05b) se gère à plusieurs,
+publie des plateaux en son nom et se fait vérifier (SIRET) ; elle ne gagne
+jamais d'XP.
 
 **Mode jam** : il peut **héberger des jams publiques** (bœufs), qui
 apparaissent dans le mode jam des musicien·nes de sa zone.

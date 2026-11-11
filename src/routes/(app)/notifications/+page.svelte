@@ -36,6 +36,7 @@
 		MILESTONE_ATTEST: Flag,
 		GROUP_DISCUSSION_INVITE: MessagesSquare,
 		STUDIO_INVITE: Mic,
+		ORG_INVITE: CalendarCheck,
 		INTRODUCTION: HandHelping
 	};
 

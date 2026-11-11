@@ -98,6 +98,12 @@ const ROUTES: Record<string, Node> = {
 	'/profil/organisateur': { label: 'Profil d’organisateur·rice', parent: '/profil' },
 	'/studios': { label: 'Mes studios', parent: '/profil' },
 	'/studios/[handle]': { label: 'Studio', parent: '/studios', name: at('studio', 'name') },
+	'/organisations': { label: 'Mes organisations', parent: '/profil' },
+	'/organisations/[handle]': {
+		label: 'Organisation',
+		parent: '/organisations',
+		name: at('org', 'name')
+	},
 	'/reglages': { label: 'Réglages' },
 	'/reglages/metiers': { label: 'Métiers', parent: '/reglages' },
 	'/aide': { label: 'Aide' },

@@ -13,6 +13,7 @@ import { suggestMusicians } from '#lib/server/discovery/suggestions';
 import { prisma } from '#lib/server';
 import { getPublicBand } from '#lib/server/bands/public';
 import { getPublicStudio, studiosOfPerson } from '#lib/server/studios/service';
+import { getPublicPromoterOrg } from '#lib/server/organizations/promoters';
 import { BandError, requestToJoin } from '#lib/server/bands/service';
 import { MilestoneError } from '#lib/server/milestones/service';
 import { contestMilestone } from '#lib/server/milestones/disputes';
@@ -33,6 +34,24 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			// Page publique d'un studio publié (P4-03a).
 			const studio = await getPublicStudio(handle, new Date(), viewer?.actorId);
 			if (!studio) {
+				// Page publique d'une organisation d'organisateur·rices (P5-05b).
+				const promoterOrg = await getPublicPromoterOrg(handle, new Date(), viewer?.actorId);
+				if (promoterOrg) {
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+					const { id: _orgId, ...publicOrg } = promoterOrg;
+					return {
+						profile: null,
+						band: null,
+						studio: null,
+						promoterOrg: publicOrg,
+						studios: [],
+						careerSheet: null,
+						suggestions: [],
+						isOwner: false,
+						signedIn: Boolean(viewer?.onboardedAt),
+						canReport: Boolean(viewer)
+					};
+				}
 				// Un lieu n'a pas de page `/@handle` : sa page est sa fiche (P5-03a, Q19).
 				const venue = await prisma.venue.findFirst({
 					where: { removedAt: null, claimedBy: { handle, deletedAt: null } },
@@ -47,6 +66,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 				profile: null,
 				band: null,
 				studio: publicStudio,
+				promoterOrg: null,
 				studios: [],
 				careerSheet: null,
 				suggestions: [],
@@ -62,6 +82,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			profile: null,
 			band: publicBand,
 			studio: null,
+			promoterOrg: null,
 			studios: [],
 			careerSheet: null,
 			suggestions: [],
@@ -95,6 +116,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		profile: publicProfile,
 		band: null,
 		studio: null,
+		promoterOrg: null,
 		studios,
 		careerSheet,
 		signedIn: Boolean(viewer?.onboardedAt),
@@ -114,7 +136,8 @@ export const actions: Actions = {
 		const profile =
 			(await getPublicProfile(handle, new Date(), reporter.actorId)) ??
 			(await getPublicBand(handle, new Date(), reporter.actorId)) ??
-			(await getPublicStudio(handle, new Date(), reporter.actorId));
+			(await getPublicStudio(handle, new Date(), reporter.actorId)) ??
+			(await getPublicPromoterOrg(handle, new Date(), reporter.actorId));
 		if (!profile) error(404, 'Profil introuvable');
 		const data = await request.formData();
 		try {

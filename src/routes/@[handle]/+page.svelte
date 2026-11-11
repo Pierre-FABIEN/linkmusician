@@ -4,6 +4,7 @@
 	import Suggestions from '#lib/components/linkmusician/Suggestions.svelte';
 	import BandProfile from '#lib/components/linkmusician/BandProfile.svelte';
 	import StudioPublic from '#lib/components/linkmusician/studios/StudioPublic.svelte';
+	import PromoterOrgPublic from '#lib/components/linkmusician/organizations/PromoterOrgPublic.svelte';
 	import WorksCard from '#lib/components/linkmusician/works/WorksCard.svelte';
 	import SoundEngineerCard from '#lib/components/linkmusician/crafts/SoundEngineerCard.svelte';
 	import ProducerCard from '#lib/components/linkmusician/crafts/ProducerCard.svelte';
@@ -164,6 +165,12 @@
 {:else if data.studio}
 	<StudioPublic
 		studio={data.studio}
+		canReport={data.canReport}
+		memberShell={Boolean(data.memberShell)}
+	/>
+{:else if data.promoterOrg}
+	<PromoterOrgPublic
+		org={data.promoterOrg}
 		canReport={data.canReport}
 		memberShell={Boolean(data.memberShell)}
 	/>

@@ -59,11 +59,51 @@ Le lieu a sa propre doc ([docs/jam](../jam/README.md#revendication-dun-lieu-nive
   `crafts/promoterProfile.integration.test.ts`, recherche ; e2e
   `e2e/linkmusician/organisateur.spec.ts`.
 
+## Organisations d'organisateur·rices (P5-05b)
+
+- **Modèle** : `Organization` de type `PROMOTER` (association, collectif,
+  festival) et sa fiche `PromoterOrgProfile` (ce qu'elle organise, jauge
+  habituelle). Nom, présentation, genres (`actor_genres`) et ville
+  (`actor_locations`) sont ceux de l'acteur, comme pour un groupe.
+  - Règles pures : `src/lib/organizations/promoter.ts` (fiche,
+    `gigSlotGaps`).
+  - Service : `src/lib/server/organizations/promoters.ts`, seul point
+    d'écriture (verrou par organisation, comme le studio).
+- **Créer** : `/organisations` (lien « Mes organisations » depuis « Mon
+  profil »), réservé aux organisateur·rices majeur·es (`isPromoter`, D5) ;
+  trois organisations gérées au plus. La personne en est responsable
+  (OWNER).
+- **Fiche** : `/organisations/[handle]` : nom, présentation, ville,
+  ce qu'elle organise, genres programmés (5), jauge ; ses plateaux et les
+  candidatures à trancher ; la vérification ; la co-gestion.
+- **Co-gestion** : inviter (ADMIN) une personne qui a le métier et est
+  majeure (Q33), notification `ORG_INVITE` ; accepter ou décliner sur
+  `/organisations` ; la ou le responsable retire, qui part transmet
+  (`successorOf`), on ne part pas seul·e.
+- **Plateaux en son nom** : « Publier au nom de » sur `/plateaux/nouveau`
+  (ou « Publier un plateau » depuis la fiche). Il faut une ville et au
+  moins un type d'événement (`gigSlotGaps`). L'organisation est l'émettrice
+  (`issuerActorId`), la personne est notée (`postedById`) ; la zone est la
+  ville de l'organisation. Toute la gestion reçoit les candidatures et les
+  tranche (`managesIssuer`) ; accepter ouvre la conversation entre la
+  personne qui tranche et celle qui a candidaté.
+- **Vérification** : la carte commune (`OrgVerificationCard`, P5-02) ;
+  `isVerifiedOrg` servira à P5-06.
+- **Page publique** `/@handle` (`PromoterOrgPublic`) dès la création, comme
+  un groupe : ville, ce qu'elle organise, genres, jauge, plateaux ouverts,
+  contacts (la gestion visible), mention « vérifiée ». Ni adresse, ni
+  SIRET. La carte « Organisateur·rice » d'une personne liste ses
+  organisations.
+- **RGPD** : les adhésions à la gestion figurent dans l'export
+  (`organisations`) ; à l'anonymisation, elles se closent et la
+  responsabilité passe à la personne suivante, ou l'organisation est
+  dissoute (`bandAnonymizationOps`, commun à toutes les organisations).
+- **Tests** : `src/lib/organizations/promoter.test.ts` ; intégration
+  `organizations/promoters.integration.test.ts` ; e2e
+  `e2e/linkmusician/organisation-organisateurs.spec.ts`.
+
 ## À venir
 
-- **P5-05b** : organisation `PROMOTER` (association, collectif, festival)
-  gérée à plusieurs comme un studio, vérifiable (SIRET, P5-02), qui publie
-  des plateaux en son nom ; nécessaire à P5-06 pour vérifier les concerts.
 - **P5-06** : concerts vérifiés, émission de `gig.held`.
 - Festivals : leurs jams « off » se publient comme des jams (P2-14b) ;
   stages et masterclasses : avec les écoles (P5-11).

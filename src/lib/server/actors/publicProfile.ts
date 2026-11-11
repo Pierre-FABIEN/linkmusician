@@ -22,6 +22,7 @@ import { getSoundProfile } from '#lib/prisma/crafts/soundProfile';
 import { getProducerProfile } from '#lib/prisma/crafts/producerProfile';
 import { getPromoterProfile } from '#lib/prisma/crafts/promoterProfile';
 import { getPromoterTier } from '#lib/server/progression/crafts';
+import { promoterOrgsOfPerson } from '#lib/server/organizations/promoters';
 import { getCraftTier, getSoundEngineerTier } from '#lib/server/progression/crafts';
 import { publicActorWhere } from './visibility';
 import { SOUND_ROLE_LABELS, type SoundRoleKind } from '#lib/works/rules';
@@ -136,7 +137,9 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 						orderBy: { startsAt: 'asc' },
 						take: 5,
 						select: { id: true, title: true, startsAt: true, venue: { select: { name: true } } }
-					})
+					}),
+					// Organisations qu'elle ou il gère (P5-05b).
+					promoterOrgsOfPerson(actor.id, now, viewerId)
 				])
 			: null
 	]);
@@ -186,7 +189,8 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 			? {
 					...promoter[0],
 					tier: promoter[1],
-					gigSlots: promoter[2].map(({ venue, ...g }) => ({ ...g, venue: venue?.name ?? null }))
+					gigSlots: promoter[2].map(({ venue, ...g }) => ({ ...g, venue: venue?.name ?? null })),
+					orgs: promoter[3]
 				}
 			: null,
 		media: media.slice(0, PROFILE_MEDIA_LIMIT).map(({ instrumentId: _i, ...m }) => m),

@@ -721,6 +721,16 @@ export async function exportPersonData(userId: string) {
 				debut: m.startedAt,
 				fin: m.endedAt
 			})),
+		// Organisations d'organisateur·rices gérées (P5-05b), comme les studios.
+		organisations: memberships
+			.filter((m) => m.org.kind === 'PROMOTER')
+			.map((m) => ({
+				organisation: m.org.actor.displayName,
+				role: m.role,
+				statut: m.status,
+				debut: m.startedAt,
+				fin: m.endedAt
+			})),
 		// Studios gérés (P4-03) : la fiche appartient au studio, seule la
 		// gestion est une donnée de la personne.
 		studios: memberships

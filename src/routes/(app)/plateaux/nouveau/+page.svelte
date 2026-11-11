@@ -8,6 +8,13 @@
 	let { data, form } = $props();
 	const v = $derived((form?.values ?? {}) as Record<string, string>);
 	let sending = $state(false);
+	// Au nom de (P5-05b) : moi, ou une organisation que je gère.
+	// svelte-ignore state_referenced_locally
+	let asOrg = $state<string>(v.asOrg ?? (data.promoter ? data.defaultOrg : ''));
+	const issuer = $derived(
+		data.promoter ? (data.orgs.find((o) => o.handle === asOrg) ?? null) : null
+	);
+	const zoneCommune = $derived(issuer ? issuer.commune : data.promoter ? data.commune : null);
 	const field = 'w-full rounded-md border bg-background p-2 text-sm font-normal';
 </script>
 
@@ -37,7 +44,7 @@
 					>Choisir mes métiers</a
 				>
 			</div>
-		{:else if !data.commune}
+		{:else if !data.commune && data.orgs.length === 0}
 			<p class="rounded-2xl border bg-card p-6 text-center">
 				Un plateau se diffuse autour de ta ville : indique-la d’abord.
 				<a href="/profil/ville" class="block pt-2 font-semibold underline">Indiquer ma ville</a>
@@ -64,6 +71,22 @@
 					};
 				}}
 			>
+				{#if data.orgs.length > 0}
+					<label class="block space-y-1 font-medium">
+						Publier au nom de
+						<select name="asOrg" bind:value={asOrg} class={field}>
+							{#if data.commune}<option value="">Moi</option>{/if}
+							{#each data.orgs as o (o.handle)}
+								<option value={o.handle}>{o.name}</option>
+							{/each}
+						</select>
+						{#if issuer}
+							<span class="block text-sm font-normal text-muted-foreground"
+								>Toute la gestion de {issuer.name} verra les candidatures et pourra les trancher.</span
+							>
+						{/if}
+					</label>
+				{/if}
 				<label class="block space-y-1 font-medium">
 					Lieu
 					<select name="venueId" required class={field}>
@@ -163,7 +186,7 @@
 							<select name="radiusKm" class={field}>
 								{#each OPPORTUNITY_RADII as r (r)}
 									<option value={r} selected={(v.radiusKm ?? '50') === String(r)}
-										>Groupes à {r} km de {data.commune}</option
+										>Groupes à {r} km de {zoneCommune}</option
 									>
 								{/each}
 							</select>

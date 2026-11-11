@@ -2615,6 +2615,8 @@ enum NotificationType {
   GROUP_DISCUSSION_INVITE
   /// Invitation à gérer un studio (P4-03b).
   STUDIO_INVITE
+  /// Invitation à gérer une organisation d'organisateur·rices (P5-05b).
+  ORG_INVITE
   /// Quelqu'un de ton réseau te présente une personne (P4-13b).
   INTRODUCTION
   /// Préférence d'email seulement (P2-09b) : jamais une ligne de `Notification`.
@@ -2715,6 +2717,8 @@ enum OrgKind {
   STUDIO
   /// Lieu (P5-03, D22) : né de la revendication d'une fiche de l'annuaire.
   VENUE
+  /// Organisateur·rices (P5-05b) : association, collectif, festival.
+  PROMOTER
 }
 
 enum OrgRole {
@@ -2758,6 +2762,8 @@ model Organization {
   studioSessions Collaboration[]
   /// Revendications approuvées d'une fiche de lieu (P5-03a).
   venueClaims VenueClaim[]
+  /// Fiche d'une organisation d'organisateur·rices (P5-05b).
+  promoter    PromoterOrgProfile?
 
   @@map("organizations")
 }
@@ -3312,6 +3318,21 @@ model PromoterProfile {
   genres     PromoterGenre[]
 
   @@map("promoter_profiles")
+}
+
+/// Fiche d'une organisation `PROMOTER` (P5-05b) : association, collectif ou
+/// festival géré à plusieurs. Nom, présentation, genres (`actor_genres`) et
+/// ville (`actor_locations`) sont ceux de l'acteur, comme pour un groupe.
+model PromoterOrgProfile {
+  orgId      String              @id
+  org        Organization        @relation(fields: [orgId], references: [actorId], onDelete: Cascade)
+  eventKinds PromoterEventKind[]
+  /// Jauge habituelle (personnes), facultative.
+  capacity   Int?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  @@map("promoter_org_profiles")
 }
 
 /// Genre programmé (référentiel), 5 au plus par profil.

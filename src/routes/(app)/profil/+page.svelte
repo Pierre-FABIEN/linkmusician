@@ -68,6 +68,12 @@
 						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
 						>Publier un plateau →</a
 					>
+					<!-- Association, collectif, festival (P5-05b). -->
+					<a
+						href="/organisations"
+						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
+						>Mes organisations →</a
+					>
 				</div>
 			{/if}
 			{#if data.soundEngineer || data.producer}

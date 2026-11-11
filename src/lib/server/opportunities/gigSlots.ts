@@ -41,6 +41,7 @@ import {
 } from '#lib/opportunities/applications';
 import { OpportunityError, managesIssuer } from './service';
 import { checkedMessage } from './applications';
+import { gigSlotGaps } from '#lib/organizations/promoter';
 
 export const NOT_PROMOTER_ERROR =
 	'Ajoute d’abord le métier « Organisateur·rice » pour publier un plateau.';
@@ -51,9 +52,55 @@ export async function isPromoter(personId: string) {
 	return track > 0 && (await isAdult(personId));
 }
 
-export async function createGigSlot(personId: string, form: GigSlotForm, now = new Date()) {
+/**
+ * Organisation `PROMOTER` que la personne gère (P5-05b), prête à publier :
+ * ville indiquée et au moins un type d'événement. Sinon, une erreur qui dit
+ * ce qui manque.
+ */
+async function requirePromoterOrg(personId: string, orgId: string) {
+	const org = await prisma.organization.findFirst({
+		where: {
+			actorId: orgId,
+			kind: 'PROMOTER',
+			dissolvedAt: null,
+			actor: { deletedAt: null },
+			memberships: {
+				some: { personId, status: 'ACTIVE', role: { in: ['OWNER', 'ADMIN'] } }
+			}
+		},
+		select: { promoter: { select: { eventKinds: true } } }
+	});
+	if (!org) {
+		throw new OpportunityError(
+			'Seules les personnes qui gèrent l’organisation publient en son nom.',
+			403
+		);
+	}
+	const gaps = gigSlotGaps({
+		hasCommune: (await getActorLocation(orgId)) !== null,
+		eventKinds: org.promoter?.eventKinds ?? []
+	});
+	if (gaps.length > 0) {
+		throw new OpportunityError(`Complète d’abord la fiche de l’organisation : ${gaps.join(', ')}.`);
+	}
+}
+
+/**
+ * Publier un plateau, en son nom ou au nom d'une organisation que l'on gère
+ * (P5-05b) : l'organisation est l'émettrice, la personne est notée
+ * (`postedById`) ; la zone est la ville de l'organisation ; le quota est
+ * celui de la personne, compté sur les plateaux de l'émetteur.
+ */
+export async function createGigSlot(
+	personId: string,
+	form: GigSlotForm,
+	now = new Date(),
+	orgId: string | null = null
+) {
 	if (!(await isPromoter(personId))) throw new OpportunityError(NOT_PROMOTER_ERROR, 403);
-	if (!(await getActorLocation(personId))) {
+	const issuerId = orgId ?? personId;
+	if (orgId) await requirePromoterOrg(personId, orgId);
+	else if (!(await getActorLocation(personId))) {
 		throw new OpportunityError('Indique d’abord ta ville : un plateau se diffuse autour de toi.');
 	}
 	const date = checkGigDate(form, now);
@@ -71,7 +118,7 @@ export async function createGigSlot(personId: string, form: GigSlotForm, now = n
 		throw new OpportunityError('Rang inconnu.');
 	}
 	const active = await prisma.opportunity.count({
-		where: { issuerActorId: personId, status: 'OPEN', expiresAt: { gt: now } }
+		where: { issuerActorId: issuerId, status: 'OPEN', expiresAt: { gt: now } }
 	});
 	const quota = await checkStockQuota(personId, 'activeOpportunities', active);
 	if (!quota.allowed) {
@@ -83,7 +130,8 @@ export async function createGigSlot(personId: string, form: GigSlotForm, now = n
 	// Aucune XP ici (02 §8). Les candidatures ferment au début du plateau.
 	return prisma.opportunity.create({
 		data: {
-			issuerActorId: personId,
+			issuerActorId: issuerId,
+			postedById: orgId ? personId : null,
 			kind: 'GIG_SLOT',
 			title: form.title,
 			description: form.description,
@@ -242,13 +290,25 @@ export async function applyAsBand(
 			data: { opportunityId, applicantActorId: band.id, sentById: personId, message },
 			select: { id: true }
 		});
-		await notify(tx, {
-			recipientId: o.issuerActorId,
-			type: 'APPLICATION_RECEIVED',
-			fromActorId: band.id,
-			href: `/annonces/${opportunityId}`,
-			title: o.title
+		// Plateau d'une organisation (P5-05b) : toute sa gestion est prévenue.
+		const managers = await tx.membership.findMany({
+			where: {
+				orgId: o.issuerActorId,
+				status: 'ACTIVE',
+				role: { in: ['OWNER', 'ADMIN'] }
+			},
+			select: { personId: true }
 		});
+		const recipients = managers.length ? managers.map((m) => m.personId) : [o.issuerActorId];
+		for (const recipientId of recipients) {
+			await notify(tx, {
+				recipientId,
+				type: 'APPLICATION_RECEIVED',
+				fromActorId: band.id,
+				href: `/annonces/${opportunityId}`,
+				title: o.title
+			});
+		}
 		return created;
 	});
 }

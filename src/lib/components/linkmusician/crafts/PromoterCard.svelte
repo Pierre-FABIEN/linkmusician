@@ -24,6 +24,8 @@
 			tier: { id: string; label: string } | null;
 			/** Plateaux ouverts aux candidatures. */
 			gigSlots: { id: string; title: string; startsAt: Date | null; venue: string | null }[];
+			/** Organisations qu'elle ou il gère (P5-05b). */
+			orgs: { handle: string; name: string }[];
 		};
 	} = $props();
 
@@ -51,6 +53,15 @@
 			<p class="text-sm">
 				<span class="font-semibold">Programme :</span>
 				{profile.genres.map((g) => g.name).join(', ')}
+			</p>
+		{/if}
+		{#if profile.orgs.length > 0}
+			<p class="text-sm">
+				<span class="font-semibold">Avec :</span>
+				{#each profile.orgs as o, i (o.handle)}{i > 0 ? ', ' : ''}<a
+						href="/@{o.handle}"
+						class="font-medium underline">{o.name}</a
+					>{/each}
 			</p>
 		{/if}
 		{#if capacity}

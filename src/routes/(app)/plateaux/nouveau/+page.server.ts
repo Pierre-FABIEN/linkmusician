@@ -10,6 +10,7 @@ import { OpportunityError } from '#lib/server/opportunities/service';
 import { createGigSlot, isPromoter } from '#lib/server/opportunities/gigSlots';
 import { GIG_TIER_OPTIONS, gigSlotSchema } from '#lib/opportunities/gigSlot';
 import { parisDay } from '#lib/metrics/indicators';
+import { myPromoterOrgs } from '#lib/server/organizations/promoters';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -18,18 +19,29 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!promoter) return { promoter: false as const };
 	const location = await getActorLocation(person.actorId);
 	const chosenId = url.searchParams.get('lieu');
-	const [venues, chosen, genres] = await Promise.all([
+	const [venues, chosen, genres, orgs] = await Promise.all([
 		location ? venuesNear(person.actorId, { limit: 50 }) : Promise.resolve([]),
 		// Un lieu en attente de validation n'accueille rien (D26).
 		chosenId
 			? getVenue(chosenId, person.actorId).then((v) => (v?.validated ? v : null))
 			: Promise.resolve(null),
-		listGenreTree()
+		listGenreTree(),
+		// Au nom d'une organisation que je gère (P5-05b).
+		myPromoterOrgs(person.actorId)
 	]);
+	const ready = orgs.filter((o) => o.gaps.length === 0);
+	const asOrg = url.searchParams.get('au-nom-de');
 	const options = chosen && !venues.some((v) => v.id === chosen.id) ? [chosen, ...venues] : venues;
 	return {
 		promoter: true as const,
 		commune: location?.communeName ?? null,
+		orgs: ready.map(({ handle, name, commune }) => ({ handle, name, commune })),
+		// Sans ville personnelle, on ne publie qu'au nom d'une organisation.
+		defaultOrg: ready.some((o) => o.handle === asOrg)
+			? asOrg!
+			: location
+				? ''
+				: (ready[0]?.handle ?? ''),
 		venues: options.map((v) => ({
 			id: v.id,
 			label: `${v.name} · ${v.kindLabel} · ${v.communeName}`
@@ -56,9 +68,17 @@ export const actions: Actions = {
 				error: parsed.error.issues[0]?.message ?? 'Vérifie le formulaire.'
 			});
 		}
+		// Au nom d'une organisation (P5-05b) : relu côté serveur.
+		const asOrg = typeof raw.asOrg === 'string' ? raw.asOrg : '';
+		const org = asOrg
+			? (await myPromoterOrgs(person.actorId)).find((o) => o.handle === asOrg)
+			: null;
+		if (asOrg && !org) {
+			return fail(403, { values: raw, error: 'Tu ne gères pas cette organisation.' });
+		}
 		let id: string;
 		try {
-			({ id } = await createGigSlot(person.actorId, parsed.data));
+			({ id } = await createGigSlot(person.actorId, parsed.data, new Date(), org?.id ?? null));
 		} catch (err) {
 			if (err instanceof OpportunityError)
 				return fail(err.status, { values: raw, error: err.message });

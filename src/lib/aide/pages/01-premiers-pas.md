@@ -113,6 +113,14 @@ Ouvre **Mon profil › Mon profil d’organisateur·rice** :
 - ajoute jusqu’à six **événements passés**, avec un lien (page
   d’événement, affiche, article).
 
+Tu organises avec une **association**, un **collectif** ou un
+**festival** ? Ouvre **Mon profil › Mes organisations** et crée sa fiche :
+sa ville, ce qu’elle organise, ses genres. Invite les autres
+organisateur·rices à la gérer avec toi : vous publiez des plateaux en son
+nom et tranchez ensemble les candidatures. Avec son SIRET, demande à
+l’équipe de **vérifier** l’organisation : vérifiée, elle pourra confirmer
+les concerts qu’elle organise.
+
 Pour trouver des groupes, **publie un plateau** (voir
 [Les plateaux](./05-rencontrer.md#plateaux)). Ton rang d’organisateur·rice
 viendra des dates tenues et confirmées par les groupes, jamais des points.

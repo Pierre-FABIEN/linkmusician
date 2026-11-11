@@ -124,6 +124,10 @@ membres.
 - **RGPD** : les candidatures envoyées pour un groupe figurent dans
   l'export (`candidatures_au_nom_d_un_groupe`) ; à l'anonymisation, elles
   restent au groupe et `sentById` est oublié.
-- **Plus tard** : publier au nom d'une organisation `PROMOTER` gérée à
-  plusieurs (P5-05b) ; la date tenue et confirmée par les groupes
-  (`gig.held`, P5-06) rapporte l'XP et fait le rang.
+- **Au nom d'une organisation** (P5-05b) : « Publier au nom de » une
+  association ou un collectif que l'on gère ; l'organisation est
+  l'émettrice, la personne est notée (`postedById`), toute la gestion est
+  prévenue des candidatures et les tranche. Voir
+  [docs/scene](../scene/README.md#organisations-dorganisateurrices-p5-05b).
+- **Plus tard** : la date tenue et confirmée par les groupes (`gig.held`,
+  P5-06) rapporte l'XP et fait le rang.
