@@ -1,8 +1,8 @@
 <script lang="ts">
-	// LINKMUSICIAN: écran de carrière (P3-12), page-menu (D50), voir
-	// +page.server.ts. Les valeurs viennent toutes du serveur.
+	// LINKMUSICIAN: écran de carrière (P3-12), page-menu (D50) en panorama
+	// Metro (MET-02, D55), voir +page.server.ts. Les valeurs viennent toutes du
+	// serveur.
 	import SEO from '#lib/components/SEO.svelte';
-	import * as Card from '#shadcn/card';
 	import * as Avatar from '#shadcn/avatar';
 	import {
 		BookOpen,
@@ -25,7 +25,9 @@
 	import LevelBadge from '#lib/components/linkmusician/progress/LevelBadge.svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
 	import NextStep from '#lib/components/linkmusician/NextStep.svelte';
-	import MenuList, { type MenuItem } from '#lib/components/linkmusician/MenuList.svelte';
+	import MetroHome, { type MetroPivot } from '#lib/components/linkmusician/metro/MetroHome.svelte';
+	import type { MetroMenuItem } from '#lib/components/linkmusician/metro/MetroMenu.svelte';
+	import { TONE_OF } from '#lib/components/linkmusician/metro/tones';
 	import { TRACKS } from '#lib/actors/tracks';
 	import { initialsOf } from '#lib/actors/display';
 	import { AMBITION_INFO } from '#lib/career/ambition';
@@ -40,174 +42,203 @@
 			.join(' · ')
 	);
 	const firstName = $derived(data.person.displayName.split(' ')[0]);
+	const only = (items: (MetroMenuItem | false)[]) =>
+		items.filter((i): i is MetroMenuItem => i !== false);
 
-	const items = $derived<MenuItem[]>([
-		...(c.toConfirm > 0
-			? [
-					{
-						href: '/espace/a-confirmer',
-						icon: CircleCheck,
-						title: 'À confirmer',
-						text: 'Des collaborations, crédits ou invitations attendent ta réponse.',
-						badge: String(c.toConfirm),
-						highlight: true
-					}
-				]
-			: []),
-		// Coups de pouce (P4-13a) : une marche facile, quand on n'avance plus.
-		...(data.nudges > 0
-			? [
-					{
-						href: '/espace/coups-de-pouce',
-						icon: HandHelping,
-						title: 'Un coup de pouce',
-						text: 'Des idées simples, tirées de ton réseau, pour reprendre quand tu veux.',
-						badge: plural(data.nudges, 'idée', 'idées')
-					}
-				]
-			: []),
+	// Quatre pivots : avancer (le héros et ce qui attend), le parcours, le
+	// réseau, les repères. Un ton par sens (D55, `docs/design` §4.2).
+	const pivots = $derived<MetroPivot[]>([
 		{
-			href: '/espace/carte',
-			icon: MapIcon,
-			title: 'Ma carte de carrière',
-			text: data.act
-				? `Acte ${data.act.roman} · ${data.act.name} : ${data.act.trial}`
-				: 'Les actes I à III sont franchis : la suite arrive bientôt.',
-			badge:
-				data.actsPassed > 0
-					? `${data.actsPassed} épreuve${data.actsPassed > 1 ? 's' : ''} franchie${data.actsPassed > 1 ? 's' : ''}`
-					: 'Acte I'
+			id: 'avancer',
+			title: 'avancer',
+			items: only([
+				c.toConfirm > 0 && {
+					href: '/espace/a-confirmer',
+					icon: CircleCheck,
+					tone: TONE_OF.nextStep,
+					title: 'À confirmer',
+					text: 'Des collaborations, crédits ou invitations attendent ta réponse.',
+					summary: String(c.toConfirm),
+					highlight: true
+				},
+				{
+					href: '/espace/objectifs',
+					icon: Sparkles,
+					tone: TONE_OF.goals,
+					title: 'Mes objectifs',
+					text: 'Les trois prochaines étapes atteignables maintenant.',
+					summary: `${Math.min(d.questProgress.done + 1, d.questProgress.total)} sur ${d.questProgress.total}`
+				},
+				{
+					href: '/espace/ambition',
+					icon: Compass,
+					title: 'Mon ambition',
+					text: data.ambition
+						? AMBITION_INFO[data.ambition].pitch
+						: 'Ce que tu vises : on met en avant les bons objectifs. Tu peux en changer.',
+					summary: data.ambition ? AMBITION_INFO[data.ambition].label : 'À choisir',
+					highlight: data.ambition === null
+				},
+				// Coups de pouce (P4-13a) : une marche facile, quand on n'avance plus.
+				data.nudges > 0 && {
+					href: '/espace/coups-de-pouce',
+					icon: HandHelping,
+					title: 'Un coup de pouce',
+					text: 'Des idées simples, tirées de ton réseau, pour reprendre quand tu veux.',
+					summary: plural(data.nudges, 'idée', 'idées')
+				}
+			])
 		},
 		{
-			href: '/espace/fiche',
-			icon: FileText,
-			title: 'Ma fiche de carrière',
-			text: 'Tes rencontres, tes collaborations et les épreuves franchies.',
-			badge: 'À partager'
+			id: 'parcours',
+			title: 'parcours',
+			items: [
+				{
+					href: '/espace/carte',
+					icon: MapIcon,
+					tone: TONE_OF.career,
+					title: 'Ma carte de carrière',
+					text: data.act
+						? `Acte ${data.act.roman} · ${data.act.name} : ${data.act.trial}`
+						: 'Les actes I à III sont franchis : la suite arrive bientôt.',
+					summary:
+						data.actsPassed > 0
+							? `${data.actsPassed} épreuve${data.actsPassed > 1 ? 's' : ''} franchie${data.actsPassed > 1 ? 's' : ''}`
+							: 'Acte I'
+				},
+				{
+					href: '/espace/campagnes',
+					icon: Music,
+					tone: TONE_OF.works,
+					title: 'Campagnes en cours',
+					text: 'Chaque morceau est une aventure : son état et ses places libres.',
+					summary:
+						c.campaigns > 0
+							? c.openRoles > 0
+								? plural(c.openRoles, 'place libre', 'places libres')
+								: plural(c.campaigns, 'morceau', 'morceaux')
+							: null
+				},
+				{
+					href: '/espace/agenda',
+					icon: CalendarDays,
+					tone: TONE_OF.agenda,
+					title: 'Agenda',
+					text: 'Jams et collaborations à venir.',
+					summary: c.agenda > 0 ? `${c.agenda} à venir` : null
+				},
+				{
+					href: '/espace/fiche',
+					icon: FileText,
+					title: 'Ma fiche de carrière',
+					text: 'Tes rencontres, tes collaborations et les épreuves franchies.',
+					summary: 'À partager'
+				}
+			]
 		},
 		{
-			href: '/espace/ambition',
-			icon: Compass,
-			title: 'Mon ambition',
-			text: data.ambition
-				? AMBITION_INFO[data.ambition].pitch
-				: 'Ce que tu vises : on met en avant les bons objectifs. Tu peux en changer.',
-			badge: data.ambition ? AMBITION_INFO[data.ambition].label : 'À choisir',
-			highlight: data.ambition === null
+			id: 'reseau',
+			title: 'réseau',
+			items: only([
+				{
+					href: '/espace/equipe',
+					icon: UsersRound,
+					tone: TONE_OF.people,
+					title: 'Mon équipe',
+					text: 'Tes groupes et les personnes avec qui tu joues le plus.',
+					summary: c.bands > 0 ? plural(c.bands, 'groupe') : null
+				},
+				// Parrainage (P4-13b) : à partir du palier Pilier local.
+				d.canSponsor && {
+					href: '/espace/parrainage',
+					icon: Handshake,
+					tone: TONE_OF.people,
+					title: 'Parrainer',
+					text: 'Présente deux personnes de ton réseau qui devraient jouer ensemble.'
+				}
+			])
 		},
 		{
-			href: '/espace/objectifs',
-			icon: Sparkles,
-			title: 'Mes objectifs',
-			text: 'Les trois prochaines étapes atteignables maintenant.',
-			badge: `${Math.min(d.questProgress.done + 1, d.questProgress.total)} sur ${d.questProgress.total}`
-		},
-		{
-			href: '/espace/campagnes',
-			icon: Music,
-			title: 'Campagnes en cours',
-			text: 'Chaque morceau est une aventure : son état et ses places libres.',
-			badge:
-				c.campaigns > 0
-					? c.openRoles > 0
-						? plural(c.openRoles, 'place libre', 'places libres')
-						: plural(c.campaigns, 'morceau', 'morceaux')
-					: null
-		},
-		{
-			href: '/espace/equipe',
-			icon: UsersRound,
-			title: 'Mon équipe',
-			text: 'Tes groupes et les personnes avec qui tu joues le plus.',
-			badge: c.bands > 0 ? plural(c.bands, 'groupe') : null
-		},
-		{
-			href: '/espace/agenda',
-			icon: CalendarDays,
-			title: 'Agenda',
-			text: 'Jams et collaborations à venir.',
-			badge: c.agenda > 0 ? `${c.agenda} à venir` : null
-		},
-		// Parrainage (P4-13b) : à partir du palier Pilier local.
-		...(d.canSponsor
-			? [
-					{
-						href: '/espace/parrainage',
-						icon: Handshake,
-						title: 'Parrainer',
-						text: 'Présente deux personnes de ton réseau qui devraient jouer ensemble.',
-						badge: null
-					}
-				]
-			: []),
-		{
-			href: '/espace/journal',
-			icon: BookOpen,
-			title: 'Journal de bord',
-			text: 'Tes derniers gains, et d’où ils viennent.',
-			badge: null
-		},
-		{
-			href: '/espace/progression',
-			icon: Trophy,
-			title: 'Points, succès et confiance',
-			text: 'Tes succès, ton palier de confiance et ce qu’il permet.',
-			badge: d.trust.name
-		},
-		{
-			href: '/demarches',
-			icon: Scale,
-			title: 'Les démarches',
-			text: 'Protéger un morceau, être payé·e pour jouer, l’association du groupe.',
-			badge: null
+			id: 'reperes',
+			title: 'repères',
+			items: [
+				{
+					href: '/espace/progression',
+					icon: Trophy,
+					tone: TONE_OF.progress,
+					title: 'Points, succès et confiance',
+					text: 'Tes succès, ton palier de confiance et ce qu’il permet.',
+					summary: d.trust.name
+				},
+				{
+					href: '/espace/journal',
+					icon: BookOpen,
+					tone: TONE_OF.figures,
+					title: 'Journal de bord',
+					text: 'Tes derniers gains, et d’où ils viennent.'
+				},
+				{
+					href: '/demarches',
+					icon: Scale,
+					title: 'Les démarches',
+					text: 'Protéger un morceau, être payé·e pour jouer, l’association du groupe.'
+				}
+			]
 		}
 	]);
 </script>
 
 <SEO title="Mon espace" noindex nofollow />
 
-<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-3xl space-y-6">
+<MetroHome
+	label="Mode carrière"
+	tones={['var(--tone-violet)', 'var(--tone-amber)', 'var(--tone-blue)', 'var(--tone-rose)']}
+	{pivots}
+>
+	{#snippet header()}
 		<!-- En-tête : identité et progression -->
-		<Card.Root class="overflow-hidden pt-0">
-			<div class="h-20 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500"></div>
-			<Card.Content class="-mt-10 space-y-4">
-				<div class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
-					<Avatar.Root class="size-20 border-4 border-background shadow-lg">
-						<Avatar.Fallback class="bg-violet-100 text-2xl font-bold text-violet-800"
-							>{initialsOf(data.person.displayName)}</Avatar.Fallback
-						>
-					</Avatar.Root>
-					<div class="min-w-0 flex-1">
-						<h1 class="lm-title lm-title--sm">Salut {firstName} !</h1>
-						<p class="text-sm text-muted-foreground">{subtitle}</p>
-					</div>
-					{#if d.tier}<TierBadge {...d.tier} />{/if}
+		<header class="flex max-w-3xl flex-col gap-4">
+			<div class="flex items-center gap-4">
+				<Avatar.Root class="size-16 shrink-0 shadow-lg">
+					<Avatar.Fallback class="bg-primary/15 text-xl font-bold text-foreground"
+						>{initialsOf(data.person.displayName)}</Avatar.Fallback
+					>
+				</Avatar.Root>
+				<div class="min-w-0 space-y-1">
+					<p class="lm-kicker flex items-center gap-2 text-muted-foreground">
+						<Trophy class="size-4" aria-hidden="true" /> Mode carrière
+					</p>
+					<h1 class="lm-title">Salut {firstName} !</h1>
 				</div>
-				<div class="flex items-center gap-4">
-					<LevelBadge level={d.level} />
-					<div class="flex-1">
-						<XpBar
-							level={d.level}
-							xp={d.xp}
-							xpIntoLevel={d.xpIntoLevel}
-							xpForNextLevel={d.xpForNextLevel}
-						/>
-					</div>
+			</div>
+			<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+				<p class="text-sm text-muted-foreground">{subtitle}</p>
+				{#if d.tier}<TierBadge {...d.tier} />{/if}
+			</div>
+			<div class="flex items-center gap-4">
+				<LevelBadge level={d.level} />
+				<div class="max-w-md flex-1">
+					<XpBar
+						level={d.level}
+						xp={d.xp}
+						xpIntoLevel={d.xpIntoLevel}
+						xpForNextLevel={d.xpForNextLevel}
+					/>
 				</div>
-				<div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-					{#if data.hidden}
-						<span class="flex items-center gap-1 text-muted-foreground"
-							><EyeOff class="size-4" aria-hidden="true" /> Profil public masqué</span
-						>
-					{:else}
-						<a href="/@{data.person.handle}" class="underline">Voir mon profil public</a>
-					{/if}
-					<a href="/profil" class="underline">Mon profil</a>
-				</div>
-			</Card.Content>
-		</Card.Root>
-
+			</div>
+			<div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+				{#if data.hidden}
+					<span class="flex items-center gap-1 text-muted-foreground"
+						><EyeOff class="size-4" aria-hidden="true" /> Profil public masqué</span
+					>
+				{:else}
+					<a href="/@{data.person.handle}" class="underline">Voir mon profil public</a>
+				{/if}
+				<a href="/profil" class="underline">Mon profil</a>
+			</div>
+		</header>
+	{/snippet}
+	{#snippet hero()}
 		{#if d.objectives[0]}
 			{@const o = d.objectives[0]}
 			<NextStep
@@ -221,7 +252,5 @@
 				cta={o.href ? 'J’y vais' : 'Bientôt disponible'}
 			/>
 		{/if}
-
-		<MenuList label="Mode carrière" {items} />
-	</div>
-</div>
+	{/snippet}
+</MetroHome>

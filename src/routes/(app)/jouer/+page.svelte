@@ -1,71 +1,75 @@
 <script lang="ts">
-	// LINKMUSICIAN: menu du jeu (P2-12, P2-12b), voir +page.server.ts.
+	// LINKMUSICIAN: menu du jeu (P2-12, P2-12b), voir +page.server.ts. Accueil
+	// Metro (MET-02) : deux grandes tuiles au ton de leur mode, sur l'Aurora.
 	import SEO from '#lib/components/SEO.svelte';
 	import { ChevronRight, Guitar, Trophy } from 'lucide-svelte';
+	import Aurora from '#lib/components/linkmusician/metro/Aurora.svelte';
+	import Tile from '#lib/components/linkmusician/metro/Tile.svelte';
+	import { toneOfMode } from '#lib/components/linkmusician/metro/tones';
 	import LevelBadge from '#lib/components/linkmusician/progress/LevelBadge.svelte';
 	import { orderedModes } from '#lib/linkmusician/modes';
 
 	let { data } = $props();
 	const modes = $derived(orderedModes(data.preferredMode));
 	const icons = { CAREER: Trophy, JAM: Guitar } as const;
+	const fx = { CAREER: 'trophy', JAM: 'notes' } as const;
 	const firstName = $derived(data.person.displayName.split(' ')[0]);
 </script>
 
 <SEO title="Jouer" noindex nofollow />
 
-<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-6xl space-y-8">
-		<header class="flex items-center gap-4">
-			<LevelBadge level={data.level} />
-			<div>
-				<p class="text-sm text-muted-foreground">Salut {firstName} !</p>
-				<h1 class="lm-title">Choisis ton mode</h1>
-			</div>
-		</header>
+<Aurora
+	intensity="subtle"
+	speed={1}
+	tones={['var(--tone-violet)', 'var(--tone-orange)', 'var(--tone-rose)', 'var(--tone-amber)']}
+	fade
+	class="min-h-screen w-full"
+>
+	<div class="w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+		<div class="mx-auto max-w-6xl space-y-8">
+			<header class="flex items-center gap-4">
+				<LevelBadge level={data.level} />
+				<div class="space-y-1">
+					<p class="lm-kicker text-muted-foreground">Salut {firstName} !</p>
+					<h1 class="lm-title">Choisis ton mode</h1>
+				</div>
+			</header>
 
-		<form method="POST" action="?/choose" class="grid gap-4 sm:grid-cols-2">
-			{#each modes as m (m.mode)}
-				{@const Icon = icons[m.mode]}
-				<button
-					type="submit"
-					name="mode"
-					value={m.mode}
-					class="group relative flex min-h-56 flex-col justify-between gap-5 overflow-hidden rounded-3xl p-6 text-left text-white shadow-xl transition hover:-translate-y-1 hover:shadow-2xl focus-visible:outline-4 sm:min-h-64 sm:p-8 lg:min-h-80 lg:p-10 {m.mode ===
-					'CAREER'
-						? 'bg-gradient-to-br from-violet-700 to-fuchsia-600'
-						: 'bg-gradient-to-br from-orange-600 to-pink-600'}"
-				>
-					<span class="flex items-center justify-between">
-						<Icon class="size-10 lg:size-12" aria-hidden="true" />
-						{#if m.resume}
-							<span class="rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase"
-								>Reprendre</span
-							>
-						{/if}
-					</span>
-					<span class="space-y-2">
-						<span class="block text-2xl font-black uppercase italic lg:text-3xl">{m.label}</span>
-						<span class="block max-w-xl text-sm text-white/90 lg:text-base">{m.pitch}</span>
-						<span class="block rounded-xl bg-black/15 px-3 py-2 text-sm font-semibold lg:p-4"
-							>{m.how}</span
+			<form method="POST" action="?/choose" class="grid gap-4 sm:grid-cols-2">
+				{#each modes as m, i (m.mode)}
+					{@const Icon = icons[m.mode]}
+					<Tile
+						type="submit"
+						name="mode"
+						value={m.mode}
+						tone={toneOfMode(m.mode)}
+						icon={Icon}
+						fx={fx[m.mode]}
+						index={i}
+						class="lm-mode-tile"
+					>
+						<span class="flex min-h-6 items-center justify-end">
+							{#if m.resume}<span class="lm-pill">Reprendre</span>{/if}
+						</span>
+						<span class="space-y-3">
+							<span class="lm-title block">{m.label}</span>
+							<span class="lm-tile__text block max-w-xl lg:text-base">{m.pitch}</span>
+							<span class="lm-tile__text block max-w-xl font-semibold">{m.how}</span>
+						</span>
+						<span class="lm-btn self-start"
+							>Jouer <ChevronRight class="size-4" aria-hidden="true" /></span
 						>
-					</span>
-					<span class="flex items-center justify-end gap-1 text-sm font-bold">
-						Jouer <ChevronRight
-							class="size-4 transition group-hover:translate-x-1"
-							aria-hidden="true"
-						/>
-					</span>
-				</button>
-			{/each}
-		</form>
-		<p class="text-center text-sm text-muted-foreground lg:text-base">
-			Tu peux changer de mode à tout moment avec la pastille en haut de l'écran.
-		</p>
-		<p class="text-center text-sm">
-			Comment ça marche ?
-			<a href="/aide/mode-jam" class="font-semibold underline">Le mode jam</a> ·
-			<a href="/aide/mode-carriere" class="font-semibold underline">Le mode carrière</a>
-		</p>
+					</Tile>
+				{/each}
+			</form>
+			<p class="text-center text-sm text-muted-foreground lg:text-base">
+				Tu peux changer de mode à tout moment avec la pastille en haut de l'écran.
+			</p>
+			<p class="text-center text-sm">
+				Comment ça marche ?
+				<a href="/aide/mode-jam" class="font-semibold underline">Le mode jam</a> ·
+				<a href="/aide/mode-carriere" class="font-semibold underline">Le mode carrière</a>
+			</p>
+		</div>
 	</div>
-</div>
+</Aurora>

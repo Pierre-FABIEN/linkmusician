@@ -403,14 +403,28 @@ a.lm-list__row:focus-visible {
 	grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
 	gap: 0.75rem;
 }
-.lm-menu > .lm-tile {
+.lm-menu > li > .lm-tile {
 	min-height: 9rem;
 }
-.lm-menu__head {
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: 0.5rem;
+.lm-menu > li > .lm-tile {
+	justify-content: flex-start;
+}
+/* Le résumé vient après le titre dans le nom du lien, mais s'affiche en haut
+   à droite de la tuile. */
+.lm-menu__summary {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	max-width: calc(100% - 4.5rem);
+}
+.lm-menu__summary[data-highlight] {
+	color: var(--lm-solid-fg);
+	background: var(--lm-solid);
+}
+
+/* ── Accueil de mode (`MetroHome`) ─────────────────────────────────────── */
+.lm-home__head {
+	padding-inline: var(--lm-rail-inset, clamp(2.5rem, 6vw, 4rem));
 }
 .lm-menu .lm-tile__title {
 	font-size: 1.15rem;
