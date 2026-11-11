@@ -1,7 +1,7 @@
 # Préparation technique de la phase 5
 
 > Rédigé le 11/11/2026, après la revue de phase 4. Les sections des lots
-> terminés (P5-01, P5-02, P5-03a) ont été retirées ; la route complète est
+> terminés (P5-01, P5-02, P5-03a, P5-05a, P5-05b) ont été retirées ; la route complète est
 > dans [fin-du-projet.md](./fin-du-projet.md).
 > But : qu'une session de lot n'ait plus à explorer le code. Pour chaque
 > lot : ce qui existe, le modèle à copier, le schéma proposé, les étapes,
@@ -36,7 +36,7 @@ les e2e : fermer le bandeau cookies (« Compris ») avant un bouton collé en
 bas, attendre la fin des toasts avant `expectNoA11yViolations`, et lire
 la carte par `:scope > li`.
 
-**Ordre conseillé** (restant) : P5-05b → P5-03b → P5-06 → P5-04 → P5-08 →
+**Ordre conseillé** (restant) : P5-03b → P5-06 → P5-04 → P5-08 →
 P5-07 → P5-11. Les concerts s'appuient sur l'organisateur et la fiche du
 lieu, les jams publiques sur l'organisation du lieu.
 
@@ -110,38 +110,6 @@ revendication vont dans l'export (`requestedById`).
 **Pièges** : D27, aucune XP pour une jam, seules les appréciations
 comptent. Pas de notification de masse pour une série : seule la
 formation invitée reçoit une notification.
-
----
-
-## P5-05b — Organisateur·rice : organisation `PROMOTER`
-
-**Existe (P5-05a)** : piste ouverte, `PromoterProfile`, plateaux
-`GIG_SLOT` (`src/lib/opportunities/gigSlot.ts`,
-`src/lib/server/opportunities/gigSlots.ts`), candidature au nom d'un
-groupe (`Application.sentById`), `/plateaux/nouveau`. Un plateau est
-aujourd'hui émis par la personne.
-
-**À faire** :
-
-1. `OrgKind` ajoute `PROMOTER` ; fiche minimale (nom, ville, genres,
-   lien officiel) et gestion copiées du studio (`studios/rules.ts`,
-   `server/studios/service.ts` : `lockStudio`, `requireManager`,
-   co-gestion). Qui peut en créer une : le métier Organisateur·rice,
-   majeur·e.
-2. Vérification : réutiliser `server/organizations/verification.ts`
-   (P5-02) ; `isVerifiedOrg` servira à P5-06.
-3. Plateau au nom de l'organisation : `createGigSlot(personId, form,
-now, orgId)` sur le modèle du recrutement d'un groupe (`postedById`,
-   ville de l'organisation, quota de la personne) ; `managesIssuer`
-   couvre déjà la gestion partagée ; notifier toute la gestion à la
-   candidature (`bandManagerIds` généralisé).
-4. Carte publique de l'organisation, RGPD (`postedById` déjà oublié à
-   l'anonymisation), e2e.
-
-**Pièges** : `applyTo` traite un émetteur organisation comme un groupe
-(« Tu fais déjà partie de ce groupe ») ; un plateau passe par
-`applyAsBand`, qui n'a pas ce test. `listForIssuer` lit déjà le rang des
-groupes candidats.
 
 ---
 

@@ -12,14 +12,14 @@
 
 ## 1. Où on en est
 
-**87 lots terminés sur 104** (84 %) ; **≈ 90 % du périmètre du
+**88 lots terminés sur 104** (85 %) ; **≈ 90 % du périmètre du
 lancement**. Phases 0 à 2 complètes, phase 3 complète sauf l'ouverture,
 phase 4 complète pour le lancement, phase 5 commencée (P5-01, P5-02,
-P5-03a). La phase 6 vient après le lancement.
+P5-03a, P5-05a, P5-05b). La phase 6 vient après le lancement.
 
 | Étape                              | Lots                                                        | Quand                     |
 | ---------------------------------- | ----------------------------------------------------------- | ------------------------- |
-| A. Finir la scène                  | P5-05b, P5-03b, P5-06, P5-04, P5-08, P5-07, P5-11           | Nov. → déc. 2026          |
+| A. Finir la scène                  | P5-03b, P5-06, P5-04, P5-08, P5-07, P5-11                   | Nov. → déc. 2026          |
 | B. Revue de phase 5 et revue UX    | Revue de fin de phase, parcours par rôle, suite e2e (P0-01) | Déc. 2026 → janv. 2027    |
 | C. Audit de sécurité (bloquant)    | P3-10a                                                      | Janv. → fév. 2027         |
 | D. Ouverture publique à Toulouse   | P3-10                                                       | Objectif début mars 2027  |
@@ -41,28 +41,19 @@ Repérage technique de chaque lot (modèle à copier, schéma, pièges) :
 concerts s'appuient sur l'organisateur et le lieu, les jams publiques
 sur l'organisation du lieu.
 
-### P5-05 — Organisateur·rice (découpé)
+### P5-05 — Organisateur·rice ✅ (découpé)
 
 **P5-05a ✅** (11/11/2026) : piste `PROMOTER` ouverte, profil
 (`/profil/organisateur`), plateaux `GIG_SLOT` publiés dans un lieu validé
 avec conditions (rang de groupe, genre, zone ; **jamais l'XP**),
 candidature au nom d'un groupe, recherche `?metier=organisateur`, carte
-publique, objectifs, rang lu dans `gig.held`, RGPD, e2e. Voir
+publique, objectifs, rang lu dans `gig.held`, RGPD, e2e.
+
+**P5-05b ✅** (11/11/2026) : organisation `PROMOTER` (`/organisations`)
+gérée à plusieurs, vérifiable (SIRET, P5-02), plateaux publiés en son nom,
+page publique `/@handle`. Festivals : jams « off » publiées comme des jams ;
+stages et masterclasses avec les écoles (P5-11). Voir
 [docs/scene](../scene/README.md).
-
-### P5-05b — Organisateur·rice : organisation `PROMOTER`
-
-- **Dépend de** : P5-05a ✅.
-- **Tâches** : `OrgKind` ajoute `PROMOTER` (association, collectif,
-  festival) ; gestion à plusieurs copiée du studio (fiche, publication,
-  co-gestion) ; vérification SIRET (P5-02, `isVerifiedOrg`) ; publier un
-  plateau **au nom de l'organisation** (`issuerActorId` = l'organisation,
-  `postedById`, gestion partagée par `managesIssuer`). **Festivals** :
-  jams « off » publiées comme des jams (P2-14b) ; **stages et
-  masterclasses** reportés avec les écoles (P5-11).
-- **Fin** : une organisation vérifiée publie un plateau, sa co-gestion
-  tranche les candidatures (intégration) ; e2e « l'association publie un
-  plateau ».
 
 ### P5-03b — Lieux : fiche, agenda et rang
 
