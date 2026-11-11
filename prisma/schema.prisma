@@ -1471,6 +1471,7 @@ model Actor {
   groupDiscussionSeats       GroupDiscussionMember[]  @relation("GroupDiscussionMemberActor")
   groupDiscussionMessages    GroupDiscussionMessage[] @relation("GroupDiscussionMessageSender")
   orgVerificationsRequested  OrganizationVerification[] @relation("OrgVerificationRequester")
+  venueClaimsRequested       VenueClaim[]               @relation("VenueClaimRequester")
   introductionsMade          Introduction[]           @relation("IntroductionIntroducer")
   introductionsAsFirst       Introduction[]           @relation("IntroductionFirst")
   introductionsAsSecond      Introduction[]           @relation("IntroductionSecond")
@@ -2346,6 +2347,8 @@ model Venue {
   verifiedAt       DateTime?
   createdAt        DateTime  @default(now())
   jams             Opportunity[]
+  /// Revendications de la fiche (P5-03a, D31).
+  claims           VenueClaim[]
 
   @@unique([communeCode, nameKey])
   @@index([departmentCode])
@@ -2695,6 +2698,8 @@ enum OrgKind {
   BAND
   /// Studio (P4-03) : administré par des ingés son ou des producteur·rices.
   STUDIO
+  /// Lieu (P5-03, D22) : né de la revendication d'une fiche de l'annuaire.
+  VENUE
 }
 
 enum OrgRole {
@@ -2736,6 +2741,8 @@ model Organization {
   studio      StudioProfile?
   /// Sessions tenues au studio (P4-03c).
   studioSessions Collaboration[]
+  /// Revendications approuvées d'une fiche de lieu (P5-03a).
+  venueClaims VenueClaim[]
 
   @@map("organizations")
 }
@@ -3352,4 +3359,51 @@ model Introduction {
   @@index([firstId, secondId])
   @@index([introducerId, createdAt])
   @@map("introductions")
+}
+
+// ─── Revendication d'un lieu (P5-03a, D31) ──────────────────────────────
+
+enum VenueClaimStatus {
+  /// Code donné, lien de preuve pas encore fourni.
+  AWAITING_PROOF
+  /// Lien fourni : en file de modération.
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Revendication de la fiche d'un lieu de l'annuaire, niveau 1 (« Géré par
+/// le lieu ») : un code à publier dans la bio Instagram ou Facebook
+/// officielle du lieu ou sur son site, contrôlé par la modération. À
+/// l'approbation, l'organisation VENUE est créée, gérée par la personne, et
+/// `Venue.claimedByActorId` pointe sur elle. Le niveau 2 (gérant vérifié)
+/// est reporté après le lancement (Q20).
+model VenueClaim {
+  id               String           @id @default(cuid())
+  venueId          String
+  venue            Venue            @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  /// Organisation VENUE créée à l'approbation.
+  orgId            String?
+  org              Organization?    @relation(fields: [orgId], references: [actorId], onDelete: SetNull)
+  /// Personne qui revendique ; vide après RGPD.
+  requestedById    String?
+  requestedBy      Actor?           @relation("VenueClaimRequester", fields: [requestedById], references: [id], onDelete: SetNull)
+  /// 1 : code publié (« Géré par le lieu ») ; 2 : gérant vérifié (plus tard).
+  level            Int              @default(1)
+  /// Code aléatoire à publier (8 caractères, sans caractères ambigus).
+  code             String
+  /// Page où le code est publié (https).
+  proofUrl         String?
+  status           VenueClaimStatus @default(AWAITING_PROOF)
+  createdAt        DateTime         @default(now())
+  submittedAt      DateTime?
+  reviewedAt       DateTime?
+  reviewedByUserId String?
+  /// Motif d'un refus, montré à la personne.
+  reason           String?
+
+  @@index([status, submittedAt])
+  @@index([venueId, status])
+  @@index([requestedById])
+  @@map("venue_claims")
 }

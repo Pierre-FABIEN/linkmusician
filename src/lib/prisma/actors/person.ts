@@ -22,6 +22,7 @@ import { proofsExport } from '#lib/server/milestones/proofs';
 import { contactGroupsExport } from '#lib/server/contacts/service';
 import { discussionsExport } from '#lib/server/discussions/service';
 import { verificationsExport } from '#lib/server/organizations/verification';
+import { venueClaimsExport } from '#lib/server/venues/claims';
 
 export type NewPersonInput = {
 	userId: string;
@@ -174,7 +175,8 @@ export async function exportPersonData(userId: string) {
 		contactGroups,
 		groupDiscussions,
 		orgVerifications,
-		introductions
+		introductions,
+		venueClaims
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -441,7 +443,9 @@ export async function exportPersonData(userId: string) {
 		// Vérifications d'organisation demandées (P3-09).
 		verificationsExport(person.actorId),
 		// Parrainage (P4-13b) : présentations faites ou reçues.
-		introductionsExport(person.actorId)
+		introductionsExport(person.actorId),
+		// Revendications de lieux (P5-03a).
+		venueClaimsExport(person.actorId)
 	]);
 	const media = await prisma.media.findMany({
 		where: { actorId: person.actorId },
@@ -714,6 +718,7 @@ export async function exportPersonData(userId: string) {
 		discussions_de_groupe: groupDiscussions.discussions,
 		messages_de_groupe_envoyes: groupDiscussions.messages,
 		verifications_d_organisation_demandees: orgVerifications,
+		revendications_de_lieux: venueClaims,
 		presentations: introductions,
 		suggestions_ecartees: suggestionsDismissed.map((d) => ({
 			nom: d.actor.displayName,
@@ -847,6 +852,12 @@ export async function personAnonymizationOps(
 		prisma.organizationVerification.updateMany({
 			where: { requestedById: person.actorId },
 			data: { requestedById: null }
+		}),
+		// Revendications de lieux (P5-03a) : le lien de preuve et le code
+		// peuvent désigner la personne ; on les efface avec le demandeur.
+		prisma.venueClaim.updateMany({
+			where: { requestedById: person.actorId },
+			data: { requestedById: null, proofUrl: null }
 		}),
 		// Réseau musical (P2-16) : supprimé, dans les deux sens.
 		prisma.musicalTie.deleteMany({

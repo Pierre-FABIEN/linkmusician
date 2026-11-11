@@ -91,6 +91,34 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   collaboration : seules les appréciations après la jam rapporteront
   (P2-15).
 
+## Revendication d'un lieu, niveau 1 (P5-03a, D31)
+
+- **Pourquoi** : ajouter un lieu reste ouvert à tous ; **revendiquer** sa
+  fiche (devenir le lieu sur LinkMusician) exige une preuve de gestion.
+- **Parcours** : sur `/lieux/[id]` (lieu confirmé, pas encore géré),
+  « C'est mon lieu » donne un code `LM-XXXXXXXX` (8 caractères sans
+  ambiguïté, le même tant que la demande est ouverte). La personne le
+  publie dans la bio du compte Instagram ou Facebook officiel, ou sur une
+  page du site, puis colle le lien : la demande passe en file de
+  `/moderation` (« Lieux à revendiquer »). La modération ouvre le lien,
+  vérifie le code et que la page est bien celle du lieu, puis approuve ou
+  refuse avec un motif.
+- **Approbation** : l'organisation `VENUE` naît (nom du lieu, handle
+  libre), gérée par la personne (OWNER) ; `Venue.claimedByActorId` pointe
+  sur **l'organisation**, pas sur la personne ; la fiche affiche « Géré par
+  le lieu ». Les autres demandes ouvertes sur ce lieu sont refusées. Le
+  matériel sur place passe à la gestion du lieu. Un lieu n'a pas de page
+  `/@handle` : elle redirige vers sa fiche (Q19).
+- **Règles** : majeur·es seulement (D5, Q27) ; trois revendications par
+  30 jours, trois lieux gérés au plus ; l'organisation naît à
+  l'approbation (Q28). `#lib/venues/claim` (pur), service
+  `#server/venues/claims`, modèle `VenueClaim`.
+- **Niveau 2** « Gérant vérifié » (dirigeants de l'API Recherche
+  d'entreprises, ProConnect) : reporté après le lancement (Q20).
+- **RGPD** : revendications dans l'export (`revendications_de_lieux`) ; à
+  l'anonymisation, le demandeur et le lien de preuve sont effacés.
+- **Points** : aucun. Le lieu gagnera un rang (`venueTier`, P5-03b).
+
 ## Jams publiques (P2-14b)
 
 - **Données** : une jam est une `Opportunity` `JAM` avec `venueId`

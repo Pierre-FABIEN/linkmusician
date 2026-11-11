@@ -99,6 +99,79 @@
 			{/each}
 		</section>
 
+		<section class="space-y-4" aria-labelledby="claims-title">
+			<h2 id="claims-title" class="text-lg font-semibold">
+				Lieux à revendiquer ({data.venueClaims.length})
+			</h2>
+			<p class="text-sm text-muted-foreground">
+				Le code est-il publié sur la page indiquée ? Cette page est-elle bien celle du lieu (compte
+				ancien, adresse, photos) ?
+			</p>
+			{#if data.venueClaims.length === 0}<p class="text-sm text-muted-foreground">
+					Rien en attente.
+				</p>{/if}
+			{#each data.venueClaims as c (c.id)}
+				<article
+					class="space-y-3 rounded-lg border p-4 text-sm"
+					aria-label="Revendication de {c.venue.name}"
+				>
+					<div class="space-y-1">
+						<p>
+							<a href="/lieux/{c.venue.id}" class="font-medium underline">{c.venue.name}</a>
+							· {c.venue.communeName} · demandé par {c.requestedBy?.displayName ??
+								'un compte supprimé'}{c.submittedAt ? ` le ${date(c.submittedAt)}` : ''}
+						</p>
+						<p>
+							Code attendu : <strong class="font-mono">{c.code}</strong>
+							{#if c.venue.annuaire}
+								·
+								<a
+									href={c.venue.annuaire}
+									class="underline"
+									target="_blank"
+									rel="noopener noreferrer">fiche Insee</a
+								>
+							{/if}
+						</p>
+						{#if c.proofUrl}
+							<a
+								href={c.proofUrl}
+								class="break-all underline"
+								target="_blank"
+								rel="noopener noreferrer">{c.proofUrl}</a
+							>
+						{/if}
+					</div>
+					<div class="flex flex-wrap items-end gap-2">
+						<form method="POST" action="?/approveVenueClaim" use:enhance>
+							<input type="hidden" name="claimId" value={c.id} />
+							<button class="rounded-md bg-primary px-3 py-1.5 text-primary-foreground"
+								>Approuver</button
+							>
+						</form>
+						<form
+							method="POST"
+							action="?/rejectVenueClaim"
+							use:enhance
+							class="flex items-end gap-2"
+						>
+							<input type="hidden" name="claimId" value={c.id} />
+							<label>
+								<span class="sr-only">Motif du refus pour {c.venue.name}</span>
+								<input
+									name="reason"
+									required
+									placeholder="Motif du refus"
+									class="rounded-md border bg-background p-1.5"
+								/>
+							</label>
+							<button class="rounded-md border px-3 py-1.5 text-destructive">Refuser</button>
+						</form>
+					</div>
+				</article>
+			{/each}
+		</section>
+
 		<section class="space-y-4" aria-labelledby="verified-title">
 			<h2 id="verified-title" class="text-lg font-semibold">
 				Organisations vérifiées ({data.verifiedOrgs.length})

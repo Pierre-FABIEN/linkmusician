@@ -35,6 +35,11 @@ describe('journal de modération', () => {
 		expect(auditLabel('admin.user.delete')).toBe('admin.user.delete');
 	});
 	it('filtre par famille', () => {
-		expect(actionsOf('venues')).toEqual(['moderation.venue.validate', 'moderation.venue.remove']);
+		expect(actionsOf('venues')).toEqual([
+			'moderation.venue.validate',
+			'moderation.venue.remove',
+			'moderation.venue_claim.approve',
+			'moderation.venue_claim.reject'
+		]);
 	});
 });

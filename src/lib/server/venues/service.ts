@@ -24,6 +24,7 @@ import { VENUE_KIND_LABELS, venueNameKey, type VenueForm } from '#lib/venues/rul
 import type { BacklineItem } from '#lib/jam/lineup';
 import { siretMismatch } from '#lib/venues/siret';
 import { SiretLookupError, lookupEstablishment } from './establishments';
+import { managesVenueOrg } from './claims';
 
 /** Palier de confiance qui valide un lieu, à l'ajout ou en le confirmant. */
 export const VALIDATING_TRUST_LEVEL = 1;
@@ -205,10 +206,10 @@ export async function getVenue(id: string, viewerId: string) {
 	const trusted = (await getTrustLevel(viewerId)) >= VALIDATING_TRUST_LEVEL;
 	const canConfirm = !validated && !isCreator && trusted;
 	if (!validated && !isCreator && !canConfirm) return null;
-	// Matériel : le lieu qui a revendiqué sa fiche ; sinon son auteur ou un
-	// membre TL1 (comme on corrige une fiche collaborative).
+	// Matériel : la gestion du lieu qui a revendiqué sa fiche (P5-03a) ; sinon
+	// son auteur ou un membre TL1 (comme on corrige une fiche collaborative).
 	const canEditBackline = venue.claimedByActorId
-		? venue.claimedByActorId === viewerId
+		? await managesVenueOrg(venue.claimedByActorId, viewerId)
 		: isCreator || trusted;
 	return { ...card(venue), validated, isCreator, canConfirm, canEditBackline };
 }

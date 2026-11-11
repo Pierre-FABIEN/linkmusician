@@ -3,7 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
-	import { BadgeCheck, CircleCheck, Clock, MapPin, Speaker } from 'lucide-svelte';
+	import { BadgeCheck, CircleCheck, Clock, MapPin, Speaker, Store } from 'lucide-svelte';
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
 
 	let { data, form } = $props();
@@ -46,6 +46,11 @@
 			{#if data.venue.verified}
 				<p class="flex items-center gap-1 text-sm font-semibold text-primary">
 					<BadgeCheck class="size-4" aria-hidden="true" /> Établissement vérifié (existe à l’Insee)
+				</p>
+			{/if}
+			{#if data.venue.claimed}
+				<p class="flex items-center gap-1 text-sm font-semibold text-primary">
+					<Store class="size-4" aria-hidden="true" /> Géré par le lieu
 				</p>
 			{/if}
 		</div>
@@ -167,11 +172,80 @@
 			</section>
 		{/if}
 
-		{#if !data.venue.claimed}
-			<p class="text-sm text-muted-foreground">
-				Fiche ajoutée par un membre. Le lieu pourra la reprendre à son compte quand les comptes
-				lieux arriveront.
-			</p>
+		{#if data.claim && !data.claim.claimed}
+			<!-- Revendication niveau 1 (P5-03a, D31) : code publié, contrôlé à la main. -->
+			{@const mine = data.claim.mine}
+			{@const open = mine?.status === 'AWAITING_PROOF' || mine?.status === 'PENDING'}
+			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="claim-title">
+				<h2 id="claim-title" class="flex items-center gap-2 text-lg font-semibold">
+					<Store class="size-5" aria-hidden="true" /> C’est ton lieu ?
+				</h2>
+				{#if open && mine?.code}
+					{#if mine.status === 'PENDING'}
+						<p class="text-sm" role="status">
+							Demande en cours d’examen : l’équipe vérifie que le code est bien publié. Laisse-le en
+							place jusqu’à la réponse.
+						</p>
+					{:else}
+						<p class="text-sm">
+							Publie ce code dans la bio du compte Instagram ou Facebook officiel du lieu, ou sur
+							une page de son site, puis colle le lien de cette page. Tu pourras le retirer une fois
+							la fiche reprise.
+						</p>
+					{/if}
+					<p class="text-sm">
+						Ton code :
+						<strong class="font-mono text-lg tracking-wider" data-testid="claim-code"
+							>{mine.code}</strong
+						>
+					</p>
+					<form
+						method="POST"
+						action="?/claimProof"
+						use:enhance={() =>
+							async ({ update }) =>
+								update({ reset: false })}
+						class="flex flex-col gap-2 sm:flex-row sm:items-end"
+					>
+						<label class="block flex-1 space-y-1 text-sm font-medium">
+							Lien où le code est publié
+							<input
+								name="proofUrl"
+								type="url"
+								required
+								value={mine.proofUrl ?? ''}
+								placeholder="https://www.instagram.com/…"
+								class="w-full rounded-md border bg-background p-2 font-normal"
+							/>
+						</label>
+						<button
+							class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
+							>{mine.status === 'PENDING'
+								? 'Mettre à jour le lien'
+								: 'Envoyer pour vérification'}</button
+						>
+					</form>
+				{:else}
+					<p class="text-sm text-muted-foreground">
+						Fiche ajoutée par un membre. Si tu gères ce lieu, reprends-la : tu pourras la compléter,
+						publier ses dates et accueillir des jams en son nom. Ça ne rapporte pas de points.
+					</p>
+					{#if mine?.status === 'REJECTED'}
+						<p class="rounded-md border border-destructive/50 p-3 text-sm">
+							Dernière demande refusée{mine.reason ? ` : ${mine.reason}` : '.'}
+						</p>
+					{/if}
+					{#if data.claim.blocker}
+						<p class="text-sm text-muted-foreground">{data.claim.blocker}</p>
+					{:else}
+						<form method="POST" action="?/claim" use:enhance>
+							<button class="min-h-11 rounded-full border px-4 font-semibold hover:bg-muted"
+								>C’est mon lieu</button
+							>
+						</form>
+					{/if}
+				{/if}
+			</section>
 		{/if}
 
 		<details class="rounded-lg border p-3 text-sm">

@@ -38,8 +38,17 @@ Module LinkMusician (lot P1-12).
   publique, le SIRET n'est jamais affiché) ou **Refuser** avec un motif,
   montré à la gestion. Une demande en attente à la fois, trois par 30
   jours ; un SIRET accordé ne sert qu'à une organisation. Aucune XP,
-  aucune confiance : un statut accordé (conception 02 §4). Préparation de
-  la phase 5 : studios, lieux et labels passeront par la même file.
+  aucune confiance : un statut accordé (conception 02 §4). Depuis P5-02,
+  les studios demandent aussi ; le SIRET est contrôlé dans la base Sirene
+  avant la file (inconnu ou fermé : refusé), et le nom et le code NAF
+  trouvés s'affichent. **Organisations vérifiées** : la modération peut
+  **retirer** la vérification avec un motif (les étapes déjà vérifiées
+  restent, Q22).
+- **Lieux à revendiquer** (P5-03a, D31) : le code attendu, le lien où il
+  est publié et la fiche Insee si le lieu a un SIRET vérifié.
+  **Approuver** crée l'organisation du lieu, gérée par la personne ;
+  **Refuser** demande un motif, montré à la personne. Voir
+  [docs/jam](../jam/README.md#revendication-dun-lieu-niveau-1-p5-03a-d31).
 - Chaque décision est inscrite au journal d'audit du boilerplate
   (`admin_audit_logs`, actions `moderation.*`) et se relit dans
   **`/moderation/journal`** (P3-09) : qui, quoi, sur quelle cible, le

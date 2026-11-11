@@ -32,7 +32,15 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		if (!band) {
 			// Page publique d'un studio publié (P4-03a).
 			const studio = await getPublicStudio(handle, new Date(), viewer?.actorId);
-			if (!studio) error(404, 'Profil introuvable');
+			if (!studio) {
+				// Un lieu n'a pas de page `/@handle` : sa page est sa fiche (P5-03a, Q19).
+				const venue = await prisma.venue.findFirst({
+					where: { removedAt: null, claimedBy: { handle, deletedAt: null } },
+					select: { id: true }
+				});
+				if (venue) redirect(303, `/lieux/${venue.id}`);
+				error(404, 'Profil introuvable');
+			}
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const { id: _studioId, ...publicStudio } = studio;
 			return {

@@ -413,6 +413,9 @@ hôtels en saison (06 §3.10). Le lieu se gère comme un studio
 (organisation, co-gestion) ; il n'y a pas de piste `VENUE_HOST` (Q18) :
 la personne qui programme gagne sur la piste organisateur·rice. Les
 points vont aux personnes, le rang au lieu, qui ne gagne pas d'XP (Q24).
+L'organisation `VENUE` naît de la **revendication** d'une fiche de
+l'annuaire (D31, niveau 1 depuis P5-03a : code publié sur le compte
+officiel, contrôlé par la modération).
 
 **Ambitions** : faire vivre son lieu chaque semaine · devenir **le**
 lieu des jams de son quartier · lancer des groupes · avoir une

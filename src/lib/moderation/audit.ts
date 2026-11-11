@@ -15,6 +15,8 @@ export const AUDIT_ACTIONS = {
 	'moderation.opportunity.remove': { label: 'Annonce retirée', family: 'opportunities' },
 	'moderation.venue.validate': { label: 'Lieu validé', family: 'venues' },
 	'moderation.venue.remove': { label: 'Lieu retiré', family: 'venues' },
+	'moderation.venue_claim.approve': { label: 'Revendication de lieu approuvée', family: 'venues' },
+	'moderation.venue_claim.reject': { label: 'Revendication de lieu refusée', family: 'venues' },
 	'moderation.collusion.confirm': { label: 'Collusion confirmée', family: 'collusion' },
 	'moderation.collusion.dismiss': { label: 'Cercle fermé classé', family: 'collusion' },
 	'moderation.milestone_evidence.accept': {

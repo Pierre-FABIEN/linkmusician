@@ -31,17 +31,25 @@ import {
 	verifiedOrganizations
 } from '#lib/server/organizations/verification';
 import { annuaireUrl } from '#lib/organizations/verification';
+import {
+	ClaimError,
+	approveVenueClaim,
+	pendingVenueClaims,
+	rejectVenueClaim
+} from '#lib/server/venues/claims';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const [queue, collusion, evidence, disputes, verifications, verified] = await Promise.all([
-		moderationQueue(),
-		collusionQueue(),
-		pendingEvidence(),
-		disputeQueue(),
-		pendingVerifications(),
-		verifiedOrganizations()
-	]);
+	const [queue, collusion, evidence, disputes, verifications, verified, venueClaims] =
+		await Promise.all([
+			moderationQueue(),
+			collusionQueue(),
+			pendingEvidence(),
+			disputeQueue(),
+			pendingVerifications(),
+			verifiedOrganizations(),
+			pendingVenueClaims()
+		]);
 	const mediaView = (m: {
 		id: string;
 		kind: string;
@@ -66,6 +74,8 @@ export const load: PageServerLoad = async () => {
 		verifications: verifications.map((v) => ({ ...v, annuaire: annuaireUrl(v.siret) })),
 		// Organisations vérifiées (P5-02) : la vérification peut être retirée.
 		verifiedOrgs: verified,
+		// Revendications de lieux (P5-03a, D31) : code publié sur le compte officiel.
+		venueClaims,
 		// Liens d'écoute joints à une « première démo publique » (P3-05, D43).
 		pendingEvidence: evidence,
 		pendingVenues: queue.pendingVenues.map((v) => ({
@@ -110,7 +120,8 @@ async function run(
 		if (
 			err instanceof ModerationError ||
 			err instanceof MilestoneError ||
-			err instanceof VerificationError
+			err instanceof VerificationError ||
+			err instanceof ClaimError
 		) {
 			return fail(400, { error: err.message });
 		}
@@ -172,6 +183,23 @@ export const actions: Actions = {
 			locals,
 			(by) => rejectVerification(field(data, 'requestId'), field(data, 'reason'), by),
 			'Demande refusée : le motif est montré à la gestion.'
+		);
+	},
+	/** Revendication d'un lieu (P5-03a) : le code est-il publié sur un compte du lieu ? */
+	approveVenueClaim: async ({ request, locals }) => {
+		const data = await request.formData();
+		return run(
+			locals,
+			(by) => approveVenueClaim(field(data, 'claimId'), by),
+			'Revendication approuvée : le lieu est géré par cette personne.'
+		);
+	},
+	rejectVenueClaim: async ({ request, locals }) => {
+		const data = await request.formData();
+		return run(
+			locals,
+			(by) => rejectVenueClaim(field(data, 'claimId'), field(data, 'reason'), by),
+			'Revendication refusée : le motif est montré à la personne.'
 		);
 	},
 	/** Retirer la vérification d'une organisation (P5-02) ; les étapes vérifiées restent (Q22). */
