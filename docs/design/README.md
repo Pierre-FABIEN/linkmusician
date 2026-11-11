@@ -33,10 +33,15 @@
   monumentaux et légers (Raleway), des **tuiles** franches, une couleur
   par **sens** (pas par page), des accueils en **panorama** de pivots, un
   mouvement qui signifie quelque chose et se coupe sur demande.
-- **Où on en est** : le système est construit et **opt-in**
-  (`.lm-metro`), visible seulement dans les maquettes `/_lab/metro`,
-  `/_lab/metro/jam`, `/_lab/metro/carriere`, `/_lab/metro/texte`. Aucune
-  page réelle n'est encore en Metro.
+- **Où on en est** (MET-01 fait, 11/11/2026) : la coquille (`AppShell`)
+  pose `.lm-metro` sur toute l'app ; en-tête, fil d'Ariane, en-têtes
+  d'écran, menus, rangs, célébrations et toasts sont en Metro ; les
+  composants du §7.2 existent. Une migration mécanique a converti les
+  motifs répétés de toutes les pages de l'espace (titres en `lm-title`,
+  cartes en tuiles de page `lm-tile--flow`, boutons en `lm-btn`, champs
+  en `lm-field`, plus de grand cadre ni de couleur en dur hors des
+  accueils). Restent les **accueils** en panorama (MET-02) et les
+  migrations fines par parcours (MET-03 à MET-07).
 - **Comment on migre** : d'abord un **socle** (la coquille passe en
   Metro, les composants manquants sont écrits, le CSS est rangé), puis les
   écrans **par parcours**, un lot à la fois, avec la même liste de
@@ -83,44 +88,72 @@ font-black` dans 52) et des boutons (`rounded-full bg-primary` dans
 Données fictives (`src/routes/_lab/data.ts`). Le laboratoire est hors
 plan : il ne fait avancer aucun lot par lui-même.
 
-### 3.2 Le CSS : `src/lib/linkmusician/metro.css` (≈ 2 800 lignes)
+### 3.2 Le CSS : `src/lib/linkmusician/metro.css` et `metro/`
 
-Importé par `theme.css`, lui-même importé par la coquille (`AppShell`).
-**Opt-in** : rien ne s'applique hors d'un ancêtre `.lm-metro`.
+`metro.css` n'est plus qu'un index (MET-01) qui importe, **dans l'ordre de
+la cascade**, `metro/base.css` (jetons, typographie), `metro/boards.css`
+(tableaux des maquettes, tuiles composées), `metro/tiles.css` (tuile, tons,
+cadre, verre, mosaïque, raccourcis), `metro/motion.css` (icônes animées),
+`metro/controls.css` (pastille, barre, rail, boutons, champs, panneau,
+mouvement, contraste forcé) et `metro/app.css` (coquille et composants de
+l'app). Ne pas changer cet ordre sans relire les règles de même
+spécificité. Importé par `theme.css`, lui-même importé par la coquille
+(`AppShell`). **Opt-in** : rien ne s'applique hors d'un ancêtre
+`.lm-metro`, que la coquille pose désormais partout.
 
-| Section (dans l'ordre du fichier) | Contenu                                                                                                                                                                                        |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Jetons                            | Polices, encre et papier, ombres, verre, et **réécriture des jetons shadcn** (`--background`, `--card`, `--muted`…) : les composants shadcn posés dans une page Metro prennent la même matière |
-| Typographie                       | `lm-display`, `lm-title`, `lm-figure` (`--md`), `lm-kicker`                                                                                                                                    |
-| Tableaux des maquettes            | `lm-pattern-*`, `lm-jam-*`, `lm-career-*` : **propres aux maquettes** (voir §7.3)                                                                                                              |
-| Tuile                             | `lm-tile`, ses neuf tons (`data-tone`), reflet, liseré animé                                                                                                                                   |
-| Tuile encadrée                    | `lm-tile-frame` : le cadre porte l'ombre et le mouvement (règle de performance, §4.8)                                                                                                          |
-| Verre clair                       | La tuile encadrée en mode clair                                                                                                                                                                |
-| Mosaïque et tailles               | `lm-mosaic` (4 colonnes, `--lm-unit`), `data-size` : `sm`, `md`, `wide`, `band`, `tall`, `big`                                                                                                 |
-| Icône animée                      | `Tile fx` : `notes`, `trophy`, `shout`, `target`, `rocket`, `cheers`                                                                                                                           |
-| Pastille, barre                   | `lm-pill`, `lm-bar`                                                                                                                                                                            |
-| Rail panoramique                  | `lm-panorama`, `lm-rail`, `lm-pivot`                                                                                                                                                           |
-| Boutons et champs                 | `lm-btn` (plein, `data-variant="ghost"`), `lm-field`                                                                                                                                           |
-| Raccourcis                        | `lm-actions`, `lm-action`, `lm-action__count`                                                                                                                                                  |
-| Panneau contextuel                | `lm-sheet` : `<dialog>` natif, feuille en bas sur mobile, centré sur grand écran                                                                                                               |
-| Survol, mouvement                 | Survol des tuiles ; tout se coupe sous `prefers-reduced-motion` ; mode `forced-colors`                                                                                                         |
+| Section (dans l'ordre de la cascade) | Contenu                                                                                                                                                                                        |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Jetons                               | Polices, encre et papier, ombres, verre, et **réécriture des jetons shadcn** (`--background`, `--card`, `--muted`…) : les composants shadcn posés dans une page Metro prennent la même matière |
+| Typographie                          | `lm-display`, `lm-title`, `lm-figure` (`--md`), `lm-kicker`                                                                                                                                    |
+| Tableaux des maquettes               | `lm-pattern-*`, `lm-jam-*`, `lm-career-*` : **propres aux maquettes** (voir §7.3)                                                                                                              |
+| Tuile                                | `lm-tile`, ses neuf tons (`data-tone`), reflet, liseré animé                                                                                                                                   |
+| Tuile encadrée                       | `lm-tile-frame` : le cadre porte l'ombre et le mouvement (règle de performance, §4.8)                                                                                                          |
+| Verre clair                          | La tuile encadrée en mode clair                                                                                                                                                                |
+| Mosaïque et tailles                  | `lm-mosaic` (4 colonnes, `--lm-unit`), `data-size` : `sm`, `md`, `wide`, `band`, `tall`, `big`                                                                                                 |
+| Icône animée                         | `Tile fx` : `notes`, `trophy`, `shout`, `target`, `rocket`, `cheers`                                                                                                                           |
+| Pastille, barre                      | `lm-pill`, `lm-bar`                                                                                                                                                                            |
+| Rail panoramique                     | `lm-panorama`, `lm-rail`, `lm-pivot`                                                                                                                                                           |
+| Boutons et champs                    | `lm-btn` (plein, `data-variant="ghost"`), `lm-field`                                                                                                                                           |
+| Raccourcis                           | `lm-actions`, `lm-action`, `lm-action__count`                                                                                                                                                  |
+| Panneau contextuel                   | `lm-sheet` : `<dialog>` natif, feuille en bas sur mobile, centré sur grand écran                                                                                                               |
+| Survol, mouvement                    | Survol des tuiles ; tout se coupe sous `prefers-reduced-motion` ; mode `forced-colors`                                                                                                         |
 
 Contrastes mesurés et notés en tête du fichier (texte sur chaque ton ≥
 5,1:1).
 
+`metro/app.css` ajoute pour l'app :
+
+| Classe                          | Rôle                                                                                                                               |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `--tone-*`                      | Une couleur par ton, en variable (pastilles, pastille du mode, Aurora)                                                             |
+| `lm-tile lm-tile--flow`         | **Tuile de page** : la matière d'une tuile, mais la mise en page des utilitaires (`p-4`, `space-y-3`, `grid`) ; rien n'est découpé |
+| `data-tone` hors tuile          | Pose `--p`, que lisent `lm-pill`, `lm-chip` (puce d'icône), `lm-note` (encart teinté), `lm-fill` (aplat) et `lm-tone-icon`         |
+| `lm-mode-pill`, `lm-crumb`      | Pastille du mode, fil d'Ariane                                                                                                     |
+| `lm-list`, `lm-list__row`       | Liste en tuile (`MenuList`, `MetroList`)                                                                                           |
+| `lm-menu`                       | Menu de tuiles (`MetroMenu`)                                                                                                       |
+| `lm-choice`, `lm-sheet__*`      | Boutons bascules (`MetroChoice`), en-tête du panneau (`MetroSheet`)                                                                |
+| `lm-title--sm`, `lm-pill--lg`   | Titre d'écran réduit, pastille plus grande (rangs)                                                                                 |
+| `lm-btn[data-variant='danger']` | Action destructrice                                                                                                                |
+
+Deux règles générales : une tuile qui n'est ni un lien ni un bouton ne
+bouge plus au survol dans l'app (§4.3), et un `lm-field` garde la largeur
+que la page lui donne (`w-full`, `w-40`).
+
 ### 3.3 Les composants : `src/lib/components/linkmusician/metro/`
 
-| Composant      | Rôle                                                                                                                                                           |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Tile`         | **La** carte : lien (`href`), bouton (`onclick`) ou bloc. Props `tone`, `size`, `icon` (filigrane), `fx` (icône animée), `framed`, `index` (rang d'apparition) |
-| `TileFrame`    | Cadre d'une tuile encadrée (ombre, survol sans repeinte)                                                                                                       |
-| `Panorama`     | Rail horizontal à accroche, onglets, volet actif ; sans script, tout reste lisible                                                                             |
-| `Pivot`        | Un volet du panorama : un grand mot en titre                                                                                                                   |
-| `MetroActions` | Raccourcis en haut à droite (découvrir, messages, notifications, aide), pastilles, cibles de 44 px                                                             |
-| `Aurora`       | Fond animé en voiles de couleur                                                                                                                                |
-| `ActionTile`   | Tuile d'appel à l'action (sur-titre, titre, détail, bouton)                                                                                                    |
-| `EventTile`    | Tuile d'événement (date en bloc, lieu, présents, « Je viens »)                                                                                                 |
-| `ProfileTile`  | Tuile de profil (initiales, instrument, genres, distance)                                                                                                      |
+| Composant                                                                                            | Rôle                                                                                                                                                           |
+| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Tile`                                                                                               | **La** carte : lien (`href`), bouton (`onclick`) ou bloc. Props `tone`, `size`, `icon` (filigrane), `fx` (icône animée), `framed`, `index` (rang d'apparition) |
+| `TileFrame`                                                                                          | Cadre d'une tuile encadrée (ombre, survol sans repeinte)                                                                                                       |
+| `Panorama`                                                                                           | Rail horizontal à accroche, onglets, volet actif ; sans script, tout reste lisible                                                                             |
+| `Pivot`                                                                                              | Un volet du panorama : un grand mot en titre                                                                                                                   |
+| `MetroActions`                                                                                       | Raccourcis en haut à droite (découvrir, messages, notifications, aide), pastilles, cibles de 44 px                                                             |
+| `Aurora`                                                                                             | Fond animé en voiles de couleur                                                                                                                                |
+| `ActionTile`                                                                                         | Tuile d'appel à l'action (sur-titre, titre, détail, bouton)                                                                                                    |
+| `EventTile`                                                                                          | Tuile d'événement (date en bloc, lieu, présents, « Je viens »)                                                                                                 |
+| `ProfileTile`                                                                                        | Tuile de profil (initiales, instrument, genres, distance)                                                                                                      |
+| `tones.ts`                                                                                           | Types `Tone`, `Size` partagés ; `TONE_OF` (la table du §4.2 en code) ; `toneOfMode`                                                                            |
+| `MetroMenu`, `MetroPageHeader`, `MetroField`, `MetroChoice`, `MetroSheet`, `MetroEmpty`, `MetroList` | Écrits dans MET-01 (§7.2)                                                                                                                                      |
 
 Polices déjà chargées pour toute l'app (`routes/+layout.svelte`) :
 `@fontsource-variable/raleway` et `@fontsource-variable/open-sans`.
@@ -371,10 +404,11 @@ Exemple, une section de formulaire :
 </Tile>
 ```
 
-## 7. Ce qui manque avant de migrer (le socle)
+## 7. Le socle (MET-01, fait)
 
-Sans ces pièces, chaque page réinventerait sa version : c'est le premier
-lot (MET-01), avant tout écran.
+Sans ces pièces, chaque page réinventerait sa version : c'était le premier
+lot (MET-01), avant tout écran. **Tout ce qui suit est fait** (11/11/2026),
+sauf mention contraire.
 
 ### 7.1 La coquille et les thèmes
 
@@ -389,7 +423,9 @@ lot (MET-01), avant tout écran.
 - **Toasts** (`svelte-sonner`) et **célébrations** (`Celebrations`,
   `lm-pop`) aux couleurs Metro.
 - **`TierBadge`** et les pastilles d'état (candidature, collaboration,
-  preuve d'une étape) sur `lm-pill`, avec un ton par famille d'état.
+  preuve d'une étape) sur `lm-pill`, avec un ton par famille d'état
+  (`TierBadge` fait : un ton par grande étape ; les pastilles d'état se
+  reprennent avec leur écran, MET-03 à MET-06).
 - **Profil public** `/@handle` (personne, groupe, studio, organisation) :
   il vit hors de l'espace mais dans la coquille pour un membre ; même
   traitement.
@@ -514,8 +550,13 @@ banc d'essai.
   `label`, les noms de boutons et l'ordre des titres. Le bandeau de
   cookies masque le bas de l'écran : le fermer avant un bouton collé en
   bas (« Compris »).
-- **Le calendrier des jams** (bits-ui) impose ses libellés anglais
-  (T3) : à régler dans MET-01, puisque la page sera reprise.
+- **Le calendrier des jams** (bits-ui) imposait ses libellés anglais
+  (T3) : réglé dans MET-01 (`calendar-prev-button`, `calendar-next-button`
+  reposent notre `aria-label`).
+- **Migration mécanique** (MET-01) : elle a converti les motifs, pas les
+  intentions. En reprenant un écran, vérifier qu'une `lm-tile--flow` ne
+  devrait pas être une vraie `Tile` (lien d'un seul geste), qu'un bouton
+  secondaire n'est pas une ligne de liste, et que les tons suivent le §4.2.
 - **Mineur·es, données sensibles** : un restylage ne doit jamais rendre
   visible ce que la page cachait (date de naissance, distance précise,
   XP dans la recherche). Garder les mêmes données, ou moins.
