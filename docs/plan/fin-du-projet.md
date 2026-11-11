@@ -12,19 +12,19 @@
 
 ## 1. Où on en est
 
-**91 lots terminés sur 105** (87 %) ; **≈ 90 % du périmètre du
+**91 lots terminés sur 112** (81 %) ; **≈ 90 % du périmètre du
 lancement**. Phases 0 à 2 complètes, phase 3 complète sauf l'ouverture,
 phase 4 complète pour le lancement, phase 5 commencée (P5-01, P5-02,
 P5-03a, P5-03b, P5-03d, P5-05a, P5-05b, P5-06). La phase 6 vient après le lancement.
 
-| Étape                              | Lots                                                        | Quand                     |
-| ---------------------------------- | ----------------------------------------------------------- | ------------------------- |
-| A. Finir la scène                  | P5-04, P5-08, P5-07, P5-11                                  | Nov. → déc. 2026          |
-| B. Revue de phase 5 et revue UX    | Revue de fin de phase, parcours par rôle, suite e2e (P0-01) | Déc. 2026 → janv. 2027    |
-| C. Audit de sécurité (bloquant)    | P3-10a                                                      | Janv. → fév. 2027         |
-| D. Ouverture publique à Toulouse   | P3-10                                                       | Objectif début mars 2027  |
-| E. Après le lancement              | P5-00, P5-09, P5-10, P5-03c, P4-08, P4-11, P4-12            | Après 3 mois d'usage réel |
-| F. Phase 6 : sortie, développement | P6-01 à P6-07                                               | Selon les indicateurs     |
+| Étape                              | Lots                                                          | Quand                     |
+| ---------------------------------- | ------------------------------------------------------------- | ------------------------- |
+| A. Finir la scène                  | P5-04, P5-08, P5-07, P5-11                                    | Nov. → déc. 2026          |
+| B. Revue de phase 5 et revue UX    | Revue de fin de phase, Metro (MET-01 à 07), suite e2e (P0-01) | Déc. 2026 → janv. 2027    |
+| C. Audit de sécurité (bloquant)    | P3-10a                                                        | Janv. → fév. 2027         |
+| D. Ouverture publique à Toulouse   | P3-10                                                         | Objectif début mars 2027  |
+| E. Après le lancement              | P5-00, P5-09, P5-10, P5-03c, P4-08, P4-11, P4-12              | Après 3 mois d'usage réel |
+| F. Phase 6 : sortie, développement | P6-01 à P6-07                                                 | Selon les indicateurs     |
 
 On a de l'avance sur la feuille de route (D28, février pour la phase 5) :
 le temps gagné va à la revue UX et à l'audit, **pas** à de nouveaux lots.
@@ -119,6 +119,12 @@ communes, 30 jours), `gig.held` (organisateur·rice et rang du lieu). Voir
 
 Une session de revue, puis des lots courts de corrections si besoin
 (`UX-01`, `UX-02`…), un par parcours.
+
+- **Direction visuelle Metro dans toute l'app (D55)** : lots `MET-01`
+  (socle) à `MET-07`, par parcours, dans l'ordre MET-01, MET-02, MET-07,
+  MET-03, MET-04, MET-05, MET-06. Règles, correspondance, méthode et
+  liste de contrôle par page : [docs/design](../design/README.md). La
+  revue UX par rôle se fait sur les écrans **migrés**.
 
 - **Revue de phase** : critères de fin vérifiés ; calibrage des
   personas de la scène relu sur les vrais écrans ; questions Q18 à Q30 de

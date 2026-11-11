@@ -19,6 +19,7 @@ supprimée (décision D6).
 | Reprendre une session sans tout relire                | `docs/plan/prompt-reprise.md`                   |
 | Feuille de route de la startup (hors code)            | `docs/lancement/README.md` (`/admin/lancement`) |
 | Données de démo : qui se connecte, quoi voir          | `docs/demo/README.md` (`npm run seed:demo`)     |
+| Style Metro : règles, migration de chaque page        | `docs/design/README.md` (D55)                   |
 
 ## Méthode de travail
 
