@@ -20,8 +20,7 @@
 	} from 'lucide-svelte';
 	import TileFrame from './TileFrame.svelte';
 
-	type Tone = 'violet' | 'rose' | 'blue' | 'orange' | 'amber' | 'lime' | 'cyan' | 'ink' | 'paper';
-	type Size = 'sm' | 'md' | 'wide' | 'band' | 'tall' | 'big';
+	import type { Size, Tone } from './tones';
 	type Fx = 'notes' | 'trophy' | 'shout' | 'target' | 'rocket' | 'cheers';
 	type Bit = { icon: typeof Bell; dx: number; dy: number; r: number; size: number };
 

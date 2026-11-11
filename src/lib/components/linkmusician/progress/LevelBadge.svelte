@@ -5,7 +5,8 @@
 </script>
 
 <div
-	class="relative grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-600 to-pink-500 p-[3px] shadow-lg shadow-fuchsia-500/20 {sizes[
+	data-tone="violet"
+	class="relative grid shrink-0 place-items-center lm-fill rounded-full p-[3px] shadow-lg {sizes[
 		size
 	]}"
 	title="Niveau {level}"

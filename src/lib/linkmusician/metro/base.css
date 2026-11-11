@@ -1,0 +1,136 @@
+/* LINKMUSICIAN: Metro, jetons et typographie (voir `../metro.css`). */
+
+/* Les tons se fondent d'un état à l'autre (« Je viens » → « Tu viens »). Ils doivent
+   s'hériter : le texte secondaire est dans des enfants de la tuile. */
+@property --t-bg {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+@property --t-bg2 {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+@property --t-fg {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+@property --t-fg2 {
+	syntax: '<color>';
+	inherits: true;
+	initial-value: transparent;
+}
+/* ── Jetons ─────────────────────────────────────────────────────────────── */
+.lm-metro {
+	--lm-font-display: 'Raleway Variable', 'Open Sans Variable', system-ui, sans-serif;
+	--lm-font-body: 'Open Sans Variable', system-ui, sans-serif;
+	--lm-ink: oklch(0.2 0.02 290);
+	/* Blanc cassé : assez soutenu pour que les ombres blanches se lisent dessus. */
+	--lm-paper: oklch(0.945 0.014 85);
+	--lm-line: oklch(0.62 0.02 290);
+	--lm-solid: oklch(0.5 0.25 295);
+	--lm-solid-fg: oklch(0.995 0 0);
+	--lm-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+	/* Couleur des ombres : en mode clair, elles sont inversées en halo blanc. */
+	--lm-shadow: oklch(1 0 0);
+	--lm-shadow-tint: oklch(1 0 0);
+
+	/* Glassmorphism et premium UI */
+	--lm-blur-sm: blur(8px);
+	--lm-blur-md: blur(16px);
+	--lm-blur-lg: blur(28px);
+	--lm-backdrop-alpha: 0.7;
+	--lm-shine: radial-gradient(
+		100% 80% at 50% -20%,
+		oklch(1 0 0 / 0.15) 0%,
+		oklch(1 0 0 / 0.03) 40%,
+		transparent 70%
+	);
+	--lm-shadow-sm: 0 2px 6px color-mix(in oklch, var(--lm-shadow) 12%, transparent);
+	--lm-shadow-md: 0 8px 20px color-mix(in oklch, var(--lm-shadow) 18%, transparent);
+	--lm-shadow-lg: 0 20px 48px -16px color-mix(in oklch, var(--lm-shadow-tint) 65%, transparent);
+	--lm-shine-top: radial-gradient(70% 55% at 100% 0%, oklch(1 0 0 / 0.12), transparent 70%);
+
+	/* Les composants shadcn posés dans la page héritent de la même matière. */
+	--background: var(--lm-paper);
+	--foreground: var(--lm-ink);
+	--card: oklch(1 0.002 85);
+	--card-foreground: var(--lm-ink);
+	--muted: oklch(0.92 0.01 85);
+	--muted-foreground: oklch(0.45 0.02 290);
+	--border: oklch(0.88 0.01 85);
+
+	font-family: var(--lm-font-body);
+	color: var(--lm-ink);
+	background: var(--lm-paper);
+}
+
+/* ── Conteneur : utilise Aurora en arrière-plan animé ─────────────────── */
+.lm-app.lm-metro {
+	position: relative;
+}
+
+.dark .lm-metro {
+	--lm-shadow: oklch(0 0 0);
+	--lm-shadow-tint: oklch(0.2 0.1 290);
+	--lm-ink: oklch(0.96 0.005 85);
+	--lm-paper: oklch(0.18 0.02 290);
+	--lm-line: oklch(0.66 0.02 290);
+	--lm-solid: oklch(0.74 0.16 295);
+	--lm-solid-fg: oklch(0.2 0.02 290);
+	--card: oklch(0.23 0.025 290);
+	--muted: oklch(0.27 0.03 290);
+	--muted-foreground: oklch(0.74 0.015 290);
+	--border: oklch(1 0 0 / 14%);
+
+	/* Shader en mode sombre : reflets plus subtils */
+	--lm-shine: radial-gradient(
+		100% 80% at 50% -20%,
+		oklch(0.4 0.05 290 / 0.04) 0%,
+		oklch(0.4 0.05 290 / 0.01) 40%,
+		transparent 70%
+	);
+	--lm-shine-top: radial-gradient(70% 55% at 100% 0%, oklch(0.4 0.05 290 / 0.04), transparent 70%);
+}
+
+/* ── Typographie : titres monumentaux, informations en retrait ─────────── */
+/* Pas de marge ici : l'espacement appartient au conteneur (`space-y-*`, `gap-*`). */
+.lm-display,
+.lm-title,
+.lm-figure {
+	font-variant-numeric: lining-nums tabular-nums;
+}
+.lm-display {
+	font-family: var(--lm-font-display);
+	font-weight: 200;
+	font-size: clamp(3.25rem, 11vw, 8.5rem);
+	line-height: 0.9;
+	letter-spacing: -0.045em;
+}
+.lm-title {
+	font-family: var(--lm-font-display);
+	font-weight: 300;
+	font-size: clamp(1.9rem, 4.6vw, 3.25rem);
+	line-height: 1;
+	letter-spacing: -0.03em;
+}
+/* Gros chiffres : Open Sans, dont les chiffres sont alignés par défaut. */
+.lm-figure {
+	font-family: var(--lm-font-body);
+	font-weight: 300;
+	font-size: clamp(3rem, 8vw, 5rem);
+	line-height: 0.95;
+	letter-spacing: -0.05em;
+}
+/* Version compacte, pour une tuile : ce CSS n'est pas dans une couche Tailwind, il prime sur ses utilitaires. */
+.lm-figure--md {
+	font-size: clamp(2.5rem, 6vw, 3.75rem);
+}
+.lm-kicker {
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}

@@ -37,7 +37,7 @@ test.describe('LinkMusician — coquille de l’espace', () => {
 			await page.goto('/reglages');
 			await waitForAppReady(page);
 			await page.getByRole('button', { name: 'Ouvrir le menu du compte' }).click();
-			await expect(page.getByRole('link', { name: 'Mon profil' })).toHaveAttribute(
+			await expect(page.getByRole('menuitem', { name: 'Mon profil' })).toHaveAttribute(
 				'aria-current',
 				'page'
 			);

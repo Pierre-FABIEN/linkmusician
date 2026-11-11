@@ -168,8 +168,9 @@ mode en haut de l’écran : elle t’emmène directement vers l’autre mode.
 
 ## 4. Te repérer dans l’app
 
-Dans l’en-tête, tu retrouves les raccourcis **Découvrir**, **Messages**
-et **Notifications** dans les deux modes. Le menu du compte contient ton
+Dans l’en-tête, tu retrouves les raccourcis **Découvrir**, **Messages**,
+**Notifications** et **Aide** dans les deux modes (sur un petit écran,
+l’aide est dans le menu du compte). Le menu du compte contient ton
 profil, tes paramètres et l’aide. L’accueil du mode sélectionné est
 accessible depuis `/espace` (carrière) ou `/jam`.
 

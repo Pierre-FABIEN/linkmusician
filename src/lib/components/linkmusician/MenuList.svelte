@@ -19,7 +19,9 @@
 	/**
 	 * LINKMUSICIAN: page-menu (D50) : une liste d'entrées façon Paramètres de
 	 * Windows, chacune mène à son écran. Une page d'entrée n'empile jamais
-	 * de contenu : elle montre ce menu, rien de plus.
+	 * de contenu : elle montre ce menu, rien de plus. En Metro depuis MET-01 :
+	 * une tuile `paper` découpée en lignes (`.lm-list`) ; le compteur passe
+	 * sous le texte sur téléphone.
 	 */
 	import { ChevronRight } from 'lucide-svelte';
 
@@ -27,34 +29,26 @@
 </script>
 
 <nav aria-label={label}>
-	<ul class="divide-y overflow-hidden rounded-2xl border bg-card shadow-sm">
+	<ul class="lm-tile lm-tile--flow lm-list">
 		{#each items as item (item.href)}
 			{@const Icon = item.icon}
 			<li>
-				<a
-					href={item.href}
-					class="flex min-h-16 items-center gap-4 px-4 py-3 transition hover:bg-muted/60 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring sm:px-5 {item.highlight
-						? 'bg-primary/5'
-						: ''}"
-				>
-					<span
-						class="grid size-10 shrink-0 place-items-center rounded-xl {item.highlight
-							? 'bg-primary text-primary-foreground'
-							: 'bg-primary/10 text-primary'}"
-					>
+				<a href={item.href} class="lm-list__row" data-highlight={item.highlight || undefined}>
+					<span class="lm-list__icon">
 						<Icon class="size-5" aria-hidden="true" />
 					</span>
-					<span class="min-w-0 flex-1">
-						<span class="block font-semibold">{item.title}</span>
-						<span class="block text-sm text-muted-foreground">{item.text}</span>
+					<span class="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+						<span class="min-w-0 flex-1">
+							<span class="block font-semibold">{item.title}</span>
+							<span class="block text-sm text-muted-foreground">{item.text}</span>
+						</span>
+						{#if item.badge}
+							<span
+								class="lm-pill self-start sm:self-auto"
+								data-tone={item.highlight ? 'violet' : 'paper'}>{item.badge}</span
+							>
+						{/if}
 					</span>
-					{#if item.badge}
-						<span
-							class="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold {item.highlight
-								? 'bg-primary text-primary-foreground'
-								: 'bg-muted'}">{item.badge}</span
-						>
-					{/if}
 					<ChevronRight class="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
 				</a>
 			</li>

@@ -2,8 +2,9 @@
 	import Tile from './Tile.svelte';
 	import { ArrowRight } from 'lucide-svelte';
 
-	type Tone = 'violet' | 'rose' | 'blue' | 'orange' | 'amber' | 'lime' | 'cyan' | 'ink' | 'paper';
-	type Size = 'wide' | 'band' | 'big';
+	import type { Size as TileSize, Tone } from './tones';
+
+	type Size = Extract<TileSize, 'wide' | 'band' | 'big'>;
 
 	let {
 		tone = 'rose',

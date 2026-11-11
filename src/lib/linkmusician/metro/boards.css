@@ -1,0 +1,968 @@
+/* LINKMUSICIAN: Metro, tableaux des maquettes Jam et Carrière, tuiles composées (`ActionTile`, `EventTile`, `ProfileTile`) (voir `../metro.css`). */
+
+.lm-pattern-board-wrap {
+	container: lm-pattern-board / inline-size;
+	width: 100%;
+}
+.lm-pattern-board {
+	--lm-gap: 0.75rem;
+	--lm-unit: calc((100cqw - 3 * var(--lm-gap)) / 4);
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	grid-auto-rows: var(--lm-unit);
+	gap: var(--lm-gap);
+}
+.lm-career-board-wrap {
+	container: lm-career-board / inline-size;
+	width: 100%;
+}
+.lm-career-board {
+	--lm-gap: 0.75rem;
+	--lm-unit: clamp(5rem, 5cqw, 7rem);
+	display: grid;
+	grid-template-columns: repeat(12, minmax(0, 1fr));
+	grid-auto-rows: var(--lm-unit);
+	grid-auto-flow: dense;
+	gap: var(--lm-gap);
+}
+.lm-career-board > .lm-tile.lm-career-next {
+	grid-column: span 7;
+	grid-row: span 4;
+}
+.lm-career-board > .lm-tile.lm-career-map {
+	grid-column: span 5;
+	grid-row: span 4;
+}
+.lm-career-board > .lm-tile.lm-career-objective,
+.lm-career-board > .lm-tile.lm-career-team,
+.lm-career-board > .lm-tile.lm-career-agenda {
+	grid-column: span 4;
+	grid-row: span 3;
+}
+.lm-career-board > .lm-tile.lm-career-campaign,
+.lm-career-board > .lm-tile.lm-career-journal {
+	grid-column: span 8;
+	grid-row: span 3;
+}
+.lm-career-acts {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 0.5rem;
+}
+.lm-career-act {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.4rem;
+	padding: 0.6rem;
+	border-top: 1px solid color-mix(in oklch, currentColor 25%, transparent);
+	font-size: 0.72rem;
+}
+.lm-career-act__number {
+	display: grid;
+	width: 1.8rem;
+	flex: 0 0 auto;
+	aspect-ratio: 1;
+	place-items: center;
+	border: 1px solid color-mix(in oklch, currentColor 35%, transparent);
+	border-radius: 50%;
+	font-weight: 700;
+}
+.lm-career-act[data-status='passed'] .lm-career-act__number {
+	border-color: color-mix(in oklch, currentColor 60%, transparent);
+	background: color-mix(in oklch, currentColor 16%, transparent);
+}
+.lm-career-act[data-status='current'] {
+	font-weight: 700;
+}
+.lm-career-act[data-status='current'] .lm-career-act__number {
+	background: color-mix(in oklch, var(--t-fg) 16%, transparent);
+}
+.lm-career-act[data-status='fog'] {
+	opacity: 0.65;
+}
+.lm-career-act__name {
+	overflow-wrap: anywhere;
+}
+.lm-career-gains {
+	display: grid;
+	gap: 0.4rem;
+}
+.lm-career-gains li {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto auto;
+	align-items: center;
+	gap: 0.75rem;
+	border-top: 1px solid color-mix(in oklch, currentColor 18%, transparent);
+	padding-top: 0.5rem;
+	font-size: 0.8rem;
+}
+.lm-career-gains li > span {
+	display: inline-flex;
+	min-width: 0;
+	align-items: center;
+	gap: 0.45rem;
+}
+.lm-career-gains time {
+	color: var(--t-fg2);
+}
+@container lm-career-board (max-width: 56rem) {
+	.lm-career-board {
+		--lm-unit: 7rem;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	.lm-career-board > .lm-tile.lm-career-next,
+	.lm-career-board > .lm-tile.lm-career-map,
+	.lm-career-board > .lm-tile.lm-career-campaign,
+	.lm-career-board > .lm-tile.lm-career-journal {
+		grid-column: span 2;
+	}
+	.lm-career-board > .lm-tile.lm-career-next,
+	.lm-career-board > .lm-tile.lm-career-map {
+		grid-row: span 4;
+	}
+	.lm-career-board > .lm-tile.lm-career-objective,
+	.lm-career-board > .lm-tile.lm-career-team,
+	.lm-career-board > .lm-tile.lm-career-agenda {
+		grid-column: span 1;
+		grid-row: span 3;
+	}
+	.lm-career-acts {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
+@container lm-career-board (max-width: 40rem) {
+	.lm-career-board {
+		--lm-unit: 9rem;
+	}
+	.lm-career-board > .lm-tile.lm-career-map,
+	.lm-career-board > .lm-tile.lm-career-campaign,
+	.lm-career-board > .lm-tile.lm-career-journal {
+		grid-row: span 4;
+	}
+	.lm-career-board > .lm-tile.lm-career-objective,
+	.lm-career-board > .lm-tile.lm-career-team,
+	.lm-career-board > .lm-tile.lm-career-agenda {
+		grid-column: span 2;
+	}
+	.lm-career-acts {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	.lm-career-gains li {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+	.lm-career-gains time {
+		display: none;
+	}
+}
+@media (max-width: 40rem) {
+	.lm-career-nav-actions .lm-btn {
+		padding-inline: 0.55rem;
+		font-size: 0.8rem;
+		white-space: nowrap;
+	}
+}
+.lm-jam-board-wrap {
+	container: lm-jam-board / inline-size;
+	width: 100%;
+}
+.lm-jam-board {
+	--lm-gap: 0.75rem;
+	--lm-unit: clamp(5rem, 5cqw, 7rem);
+	grid-auto-flow: dense;
+}
+.lm-jam-board.lm-mosaic {
+	grid-template-columns: repeat(20, minmax(0, 1fr));
+	/* Première rangée (héros, disponibilités, profil) : une seule piste qui prend
+	   la hauteur de la tuile la plus haute, au moins 4 unités. Les trois tuiles
+	   s'y étirent, donc restent alignées quel que soit leur contenu. */
+	grid-template-rows: minmax(calc(4 * var(--lm-unit) + 3 * var(--lm-gap)), auto);
+}
+.lm-jam-board > .lm-tile-frame.lm-jam-next {
+	grid-column: span 10;
+	grid-row: 1;
+}
+.lm-jam-board > .lm-tile-frame.lm-jam-availability {
+	grid-column: span 5;
+	grid-row: 1;
+}
+.lm-jam-board > .lm-tile-frame.lm-profile-tile {
+	grid-column: span 5;
+	grid-row: 1;
+}
+.lm-jam-board > .lm-tile-frame.lm-event-tile {
+	grid-column: 13 / span 8;
+	grid-row: span 3;
+}
+.lm-jam-board > .lm-tile-frame.lm-action-tile {
+	grid-column: 1 / span 6;
+	grid-row: span 3;
+}
+.lm-jam-board > .lm-tile-frame.lm-jam-appreciation {
+	grid-column: 7 / span 6;
+	grid-row: span 3;
+}
+.lm-jam-board > .lm-tile-frame.lm-jam-calendar {
+	grid-column: 1 / span 14;
+	grid-row: span 5;
+}
+.lm-jam-calendar__content {
+	display: grid;
+	min-height: 0;
+	flex: 1;
+	grid-template-columns: minmax(18rem, 0.9fr) minmax(0, 1.1fr);
+	align-items: center;
+	gap: 1.25rem;
+}
+.lm-jam-calendar__picker {
+	width: 100%;
+	min-width: 0;
+	max-width: 22rem;
+	margin-inline: auto;
+	border: 1px solid color-mix(in oklch, currentColor 18%, transparent);
+	border-radius: 1rem;
+	background: transparent;
+	padding: 0.75rem;
+	--cell-size: 2rem;
+}
+.lm-jam-calendar__picker [data-jam-color] {
+	border: 1px solid color-mix(in oklch, var(--jam-color) 72%, transparent);
+	background: transparent;
+	color: var(--t-fg);
+}
+.lm-jam-calendar__picker [data-jam-color]:hover {
+	background: transparent;
+}
+.lm-jam-calendar__picker [data-jam-color][data-selected] {
+	background: transparent;
+	color: var(--t-fg);
+}
+.lm-jam-calendar__picker button:not([aria-label^='Mois']):not([data-selected]):hover {
+	background-color: transparent;
+}
+.lm-jam-calendar__picker button[aria-label^='Mois']:hover {
+	opacity: 0.5;
+}
+.lm-jam-calendar__day-mark {
+	background: var(--jam-color, currentColor);
+}
+.lm-jam-calendar__selection {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+	gap: 0.75rem;
+	padding: 1rem;
+	border: 1px solid color-mix(in oklch, currentColor 18%, transparent);
+	border-radius: 1rem;
+	background: transparent;
+}
+.lm-jam-calendar__event-list {
+	display: grid;
+	min-width: 0;
+	gap: 0.6rem;
+}
+.lm-jam-calendar__event {
+	display: grid;
+	width: 100%;
+	min-width: 0;
+	grid-template-columns: 3.75rem minmax(0, 1fr);
+	align-items: start;
+	gap: 0.75rem;
+	padding: 0.7rem;
+	border: 1px solid color-mix(in oklch, var(--jam-color) 72%, transparent);
+	border-radius: 0.85rem;
+	background: transparent;
+	color: var(--t-fg);
+	text-align: left;
+	transition:
+		background-color 160ms ease,
+		border-color 160ms ease;
+}
+.lm-jam-calendar__event:not(.lm-jam-calendar__event--selected):hover {
+	background: transparent;
+}
+.lm-jam-calendar__event--selected {
+	border-color: color-mix(in oklch, var(--jam-color) 90%, transparent);
+	background: transparent;
+	box-shadow: none;
+}
+.lm-jam-calendar__event:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+.lm-jam-calendar__event-date {
+	padding: 0.35rem 0.25rem;
+	border: 1px solid color-mix(in oklch, var(--jam-color) 72%, transparent);
+	border-radius: 0.55rem;
+	font-size: 0.8rem;
+	font-weight: 700;
+	text-align: center;
+}
+.lm-jam-calendar__event-info {
+	display: grid;
+	min-width: 0;
+	gap: 0.2rem;
+}
+.lm-jam-calendar__event-info > * {
+	overflow-wrap: anywhere;
+}
+.lm-jam-calendar__event-info > span {
+	font-size: 0.78rem;
+	line-height: 1.35;
+}
+.lm-jam-board > .lm-tile-frame.lm-jam-network {
+	grid-column: 15 / span 6;
+	grid-row: span 4;
+}
+.lm-jam-availability .lm-jam-slots {
+	grid-template-columns: minmax(0, 1fr);
+}
+.lm-pattern-tile {
+	min-height: 0;
+}
+.lm-pattern-title {
+	font-family: var(--lm-font-display);
+	font-size: 1.65rem;
+	font-weight: 400;
+	line-height: 1.08;
+	text-wrap: pretty;
+}
+.lm-pattern-title--large {
+	font-size: 2rem;
+	font-weight: 300;
+}
+.lm-pattern-title--display {
+	max-width: 13ch;
+	font-size: clamp(2.5rem, 5vw, 4.5rem);
+	font-weight: 200;
+	line-height: 0.98;
+}
+.lm-profile-tile__name,
+.lm-event-tile__title,
+.lm-action-tile__title {
+	font-family: var(--lm-font-display);
+	font-weight: 300;
+	line-height: 1.08;
+}
+.lm-profile-tile__name {
+	font-size: 1.65rem;
+}
+.lm-event-tile__title,
+.lm-action-tile__title {
+	font-size: 2rem;
+}
+.lm-pattern-copy {
+	max-width: 64ch;
+	font-size: 0.9375rem;
+	line-height: 1.55;
+}
+.lm-pattern-action {
+	display: inline-flex;
+	width: fit-content;
+	align-items: center;
+	gap: 0.45rem;
+	font-size: 0.875rem;
+	font-weight: 700;
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
+.lm-profile-tile__avatar,
+.lm-pattern-avatar {
+	display: grid;
+	width: 4.25rem;
+	flex: 0 0 auto;
+	aspect-ratio: 1;
+	place-items: center;
+	border: 1px solid color-mix(in oklch, currentColor 20%, transparent);
+	border-radius: 50%;
+	background: color-mix(in oklch, white 20%, transparent);
+	font-family: var(--lm-font-display);
+	font-size: 1.25rem;
+	font-weight: 600;
+}
+.lm-pattern-avatar--small {
+	width: 2.5rem;
+	font-size: 0.875rem;
+}
+.lm-event-tile__date,
+.lm-pattern-date {
+	display: flex;
+	min-width: 5rem;
+	flex-direction: column;
+	align-items: center;
+	padding: 0.75rem;
+	border: 1px solid color-mix(in oklch, currentColor 22%, transparent);
+	border-radius: 0.75rem;
+}
+.lm-event-tile__date span,
+.lm-pattern-date span {
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+.lm-event-tile__date strong,
+.lm-pattern-date strong {
+	font-family: var(--lm-font-display);
+	font-size: 2.5rem;
+	font-weight: 300;
+	line-height: 1;
+}
+.lm-event-tile__availability,
+.lm-pattern-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.8rem;
+	font-weight: 600;
+}
+.lm-event-tile__availability > span,
+.lm-pattern-status > span,
+.lm-pattern-unread {
+	width: 0.55rem;
+	height: 0.55rem;
+	border-radius: 50%;
+	background: oklch(0.65 0.18 145);
+}
+.lm-pattern-unread {
+	flex: 0 0 auto;
+	background: oklch(0.62 0.22 25);
+}
+.lm-pattern-number {
+	font-family: var(--lm-font-body);
+	font-size: 3.5rem;
+	font-weight: 300;
+	line-height: 0.95;
+	font-variant-numeric: tabular-nums;
+}
+.lm-pattern-number span {
+	font-size: 1rem;
+	font-weight: 600;
+}
+.lm-jam-title {
+	max-width: 16ch;
+	font-family: var(--lm-font-display);
+	font-size: clamp(2.5rem, 5vw, 4.25rem);
+	font-weight: 200;
+	line-height: 0.98;
+}
+.lm-jam-next > div {
+	position: relative;
+	z-index: 1;
+}
+/* Croche du héros Jam. Au repos elle flotte ; au survol elle groove : battue
+   swing sur deux temps (un fort, un contretemps), une onde par temps, et de
+   petites notes qui s'échappent en ondulant. Uniquement transform et opacity,
+   sur des calques promus : rien n'est repeint pendant l'animation. */
+.lm-jam-hero {
+	position: absolute;
+	top: 2rem;
+	right: 1.5rem;
+	z-index: 0;
+	width: 10rem;
+	height: 10rem;
+	opacity: 0.08;
+	pointer-events: none;
+	will-change: opacity;
+	transition: opacity 500ms ease;
+	--lm-beat: 0.8s;
+}
+.lm-jam-hero-symbol {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	transform: rotate(8deg);
+	transform-origin: 30% 80%;
+	will-change: transform;
+}
+/* Ondes : centrées sur la tête de la croche (bas gauche). */
+.lm-jam-hero__ring {
+	position: absolute;
+	left: 8%;
+	top: 58%;
+	width: 44%;
+	height: 44%;
+	border: 3px solid currentColor;
+	border-radius: 50%;
+	opacity: 0;
+	transform: scale(0.3);
+	will-change: transform, opacity;
+}
+/* Petites notes : partent de la croche, chacune sur sa trajectoire. */
+.lm-jam-hero__note {
+	position: absolute;
+	left: 30%;
+	top: 40%;
+	width: 26%;
+	height: 26%;
+	opacity: 0;
+	will-change: transform, opacity;
+}
+.lm-jam-hero__note:nth-of-type(1) {
+	--dx: -150%;
+	--dy: -170%;
+	--r: -24deg;
+}
+.lm-jam-hero__note:nth-of-type(2) {
+	--dx: -60%;
+	--dy: -220%;
+	--r: 18deg;
+	width: 20%;
+	height: 20%;
+}
+.lm-jam-hero__note:nth-of-type(3) {
+	--dx: -230%;
+	--dy: -110%;
+	--r: -40deg;
+	width: 18%;
+	height: 18%;
+}
+.lm-jam-step,
+.lm-jam-next .lm-bar,
+.lm-jam-next .lm-tile__text,
+.lm-jam-next .lm-btn {
+	position: relative;
+	z-index: 1;
+}
+.lm-jam-step {
+	display: flex;
+	min-width: 6.5rem;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.85rem 1rem;
+	border: 1px solid color-mix(in oklch, var(--t-fg) 55%, transparent);
+	border-radius: 0.85rem;
+	background: color-mix(in oklch, var(--t-fg) 38%, transparent);
+	backdrop-filter: var(--lm-blur-sm);
+	color: oklch(0.99 0 0);
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.2),
+		0 6px 18px color-mix(in oklch, var(--lm-shadow) 28%, transparent);
+}
+.lm-jam-step strong {
+	font-family: var(--lm-font-display);
+	font-size: 4rem;
+	font-weight: 300;
+	line-height: 0.95;
+}
+.lm-jam-step span {
+	color: oklch(0.99 0 0);
+}
+.lm-jam-appreciation .lm-pill {
+	min-height: 2.5rem;
+	padding: 0.5rem 0.9rem;
+	border: 1px solid color-mix(in oklch, var(--t-fg) 55%, transparent);
+	background: color-mix(in oklch, var(--t-fg) 38%, transparent);
+	backdrop-filter: var(--lm-blur-sm);
+	color: oklch(0.99 0 0);
+	font-size: 0.85rem;
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.2),
+		0 4px 14px color-mix(in oklch, var(--lm-shadow) 28%, transparent);
+}
+.lm-jam-slots {
+	display: grid;
+	gap: 0.5rem;
+}
+.lm-jam-slots button {
+	display: flex;
+	min-height: 2.75rem;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.7rem;
+	border: 1px solid color-mix(in oklch, var(--t-fg) 48%, transparent);
+	border-radius: 0.7rem;
+	background: transparent;
+	color: var(--t-fg);
+	font-size: 0.875rem;
+	font-weight: 600;
+	text-align: left;
+	cursor: pointer;
+	transition: border-color 160ms ease;
+}
+.lm-jam-slots button:hover {
+	background: transparent;
+}
+.lm-jam-slots button[aria-pressed='true'] {
+	border-color: var(--t-fg);
+	background: transparent;
+	box-shadow: none;
+}
+.lm-jam-slots button:focus-visible,
+.lm-jam-calendar__event:focus-visible {
+	outline: 2px solid var(--t-fg);
+	outline-offset: 3px;
+}
+.lm-jam-number {
+	font-family: var(--lm-font-body);
+	font-size: 3.75rem;
+	font-weight: 300;
+	font-variant-numeric: tabular-nums;
+	line-height: 0.95;
+}
+.lm-jam-overview__stats {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.75rem;
+}
+.lm-jam-overview__item {
+	display: grid;
+	min-width: 0;
+	grid-template-columns: auto 1fr auto;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.85rem;
+	border: 1px solid color-mix(in oklch, currentColor 20%, transparent);
+	border-radius: 0.75rem;
+	font-size: 0.85rem;
+	font-weight: 600;
+	transition:
+		background 0.2s,
+		transform 0.2s;
+}
+.lm-jam-overview__item:hover {
+	transform: translateY(-2px);
+	background: color-mix(in oklch, currentColor 8%, transparent);
+}
+.lm-jam-overview__value {
+	font-family: var(--lm-font-display);
+	font-size: 2rem;
+	font-weight: 300;
+	font-variant-numeric: tabular-nums;
+}
+.lm-pattern-icon {
+	display: grid;
+	width: 2.75rem;
+	aspect-ratio: 1;
+	place-items: center;
+	border: 1px solid color-mix(in oklch, currentColor 20%, transparent);
+	border-radius: 0.75rem;
+	background: color-mix(in oklch, currentColor 8%, transparent);
+}
+.lm-pattern-quote {
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+}
+.lm-pattern-quote > span {
+	font-family: var(--lm-font-display);
+	font-size: 4rem;
+	font-weight: 200;
+	line-height: 0.8;
+}
+.lm-pattern-quote blockquote {
+	max-width: 48ch;
+	font-family: var(--lm-font-display);
+	font-size: clamp(1.5rem, 2.7vw, 2.5rem);
+	font-weight: 300;
+	line-height: 1.2;
+}
+.lm-pattern-field-label {
+	font-size: 0.8rem;
+	font-weight: 700;
+}
+.lm-pattern-cta {
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+}
+/* Texte en haut, bouton en bas à gauche. */
+.lm-tile.lm-action-tile {
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: space-between;
+}
+.lm-pattern-cta > :first-child,
+.lm-tile.lm-action-tile > :first-child {
+	max-width: 70ch;
+}
+@container lm-pattern-board (max-width: 40rem) {
+	.lm-pattern-board {
+		--lm-unit: 10rem;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	.lm-pattern-board .lm-pattern-tile[data-size='sm'] {
+		grid-column: span 1;
+		grid-row: span 1;
+	}
+	.lm-pattern-board .lm-pattern-tile[data-size='md'] {
+		grid-column: span 2;
+		grid-row: span 2;
+	}
+	.lm-pattern-board .lm-pattern-tile[data-size='wide'] {
+		grid-column: span 2;
+		grid-row: span 2;
+	}
+	.lm-pattern-board .lm-pattern-tile[data-size='band'] {
+		grid-column: span 2;
+		grid-row: span 1;
+	}
+	.lm-pattern-board .lm-pattern-tile[data-size='big'] {
+		grid-column: span 2;
+		grid-row: span 3;
+	}
+	.lm-pattern-board .lm-pattern-tile[data-size='tall'] {
+		grid-column: span 1;
+		grid-row: span 3;
+	}
+	.lm-pattern-board .lm-pattern-tile[data-size='wide'].lm-pattern-tile--intro,
+	.lm-pattern-board .lm-pattern-tile[data-size='wide'].lm-pattern-tile--event {
+		grid-row: span 3;
+	}
+	.lm-pattern-board .lm-pattern-tile[data-size='md'].lm-pattern-tile--announcement,
+	.lm-pattern-board .lm-pattern-tile[data-size='md'].lm-pattern-tile--empty {
+		grid-row: span 3;
+	}
+	.lm-pattern-board .lm-pattern-tile[data-size='band'].lm-pattern-tile--cta {
+		grid-row: span 2;
+	}
+	.lm-pattern-title--display {
+		font-size: 2.5rem;
+	}
+	.lm-event-tile__title,
+	.lm-action-tile__title {
+		font-size: 1.65rem;
+	}
+	.lm-pattern-cta,
+	.lm-tile.lm-action-tile {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+@container lm-jam-board (max-width: 56rem) {
+	.lm-jam-board.lm-mosaic {
+		--lm-unit: 7rem;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-rows: none;
+	}
+	.lm-jam-board > .lm-tile-frame.lm-jam-next,
+	.lm-jam-board > .lm-tile-frame.lm-jam-availability,
+	.lm-jam-board > .lm-tile-frame.lm-event-tile,
+	.lm-jam-board > .lm-tile-frame.lm-jam-calendar,
+	.lm-jam-board > .lm-tile-frame.lm-jam-network,
+	.lm-jam-board > .lm-tile-frame.lm-action-tile {
+		grid-column: span 2;
+	}
+	.lm-jam-board > .lm-tile-frame.lm-jam-next,
+	.lm-jam-board > .lm-tile-frame.lm-jam-availability,
+	.lm-jam-board > .lm-tile-frame.lm-event-tile {
+		grid-row: span 4;
+	}
+	.lm-jam-board > .lm-tile-frame.lm-jam-network,
+	.lm-jam-board > .lm-tile-frame.lm-jam-calendar,
+	.lm-jam-board > .lm-tile-frame.lm-action-tile {
+		grid-row: span 3;
+	}
+	.lm-jam-board > .lm-tile-frame.lm-jam-calendar {
+		grid-row: span 5;
+	}
+	.lm-jam-board > .lm-tile-frame.lm-profile-tile,
+	.lm-jam-board > .lm-tile-frame.lm-jam-appreciation {
+		grid-column: span 2;
+		grid-row: span 2;
+	}
+	.lm-jam-calendar__content {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.lm-jam-calendar__selection {
+		min-height: 0;
+	}
+	.lm-jam-title {
+		font-size: 2.25rem;
+	}
+	.lm-jam-hero {
+		top: 3.5rem;
+		right: 0.5rem;
+		width: 6rem;
+		height: 6rem;
+	}
+	.lm-jam-slots {
+		grid-template-columns: 1fr;
+	}
+	.lm-jam-next__header {
+		flex-direction: column;
+	}
+	.lm-jam-step {
+		flex-direction: row;
+		align-items: baseline;
+		gap: 0.35rem;
+	}
+	.lm-jam-step strong {
+		font-size: 1.75rem;
+	}
+	.lm-jam-overview__stats {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+@container lm-jam-board (min-width: 40.01rem) and (max-width: 56rem) {
+	.lm-jam-board > .lm-tile-frame.lm-profile-tile,
+	.lm-jam-board > .lm-tile-frame.lm-jam-appreciation {
+		grid-column: span 1;
+		grid-row: span 3;
+	}
+}
+@container lm-jam-board (max-width: 40rem) {
+	.lm-jam-board.lm-mosaic {
+		--lm-unit: 10rem;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	.lm-jam-board > .lm-tile-frame[data-size='big'] {
+		grid-column: span 2;
+		grid-row: span 3;
+	}
+	.lm-jam-board > .lm-tile-frame[data-size='md'] {
+		grid-column: span 2;
+		grid-row: span 2;
+	}
+	.lm-jam-board > .lm-tile-frame[data-size='wide'] {
+		grid-column: span 2;
+		grid-row: span 2;
+	}
+	.lm-jam-board > .lm-tile-frame.lm-jam-calendar {
+		grid-row: span 5;
+	}
+	.lm-jam-board > .lm-tile-frame.lm-event-tile[data-size='wide'] {
+		grid-row: span 3;
+	}
+	.lm-jam-board > .lm-tile-frame[data-size='band'] {
+		grid-column: span 2;
+		grid-row: span 2;
+	}
+}
+@container lm-jam-board (max-width: 20rem) {
+	.lm-jam-title {
+		font-size: 1.95rem;
+	}
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	@keyframes lm-jam-tile-arrive {
+		from {
+			opacity: 0;
+			translate: 0 12px;
+		}
+		to {
+			opacity: 1;
+			translate: 0 0;
+		}
+	}
+	.lm-jam-board > * {
+		animation: lm-jam-tile-arrive 0.5s var(--lm-ease) both;
+	}
+	.lm-jam-board > :nth-child(2) {
+		animation-delay: 50ms;
+	}
+	.lm-jam-board > :nth-child(3) {
+		animation-delay: 100ms;
+	}
+	.lm-jam-board > :nth-child(4) {
+		animation-delay: 150ms;
+	}
+	.lm-jam-board > :nth-child(5) {
+		animation-delay: 200ms;
+	}
+	.lm-jam-board > :nth-child(6) {
+		animation-delay: 250ms;
+	}
+	.lm-jam-board > :nth-child(7) {
+		animation-delay: 300ms;
+	}
+	.lm-jam-board > :nth-child(8) {
+		animation-delay: 350ms;
+	}
+	@keyframes lm-jam-hero-float {
+		from {
+			transform: translate3d(0, 0, 0) rotate(8deg);
+		}
+		to {
+			transform: translate3d(0, -6%, 0) rotate(4deg);
+		}
+	}
+	/* Deux temps : frappe forte, rebond, contretemps plus léger penché de
+	   l'autre côté, puis retour. Le swing vient des frappes rapides et des
+	   relâchements longs. */
+	@keyframes lm-jam-hero-groove {
+		0% {
+			transform: translate3d(0, 0, 0) rotate(8deg) scale(1);
+		}
+		7% {
+			transform: translate3d(0, -7%, 0) rotate(-10deg) scale(1.1);
+		}
+		22% {
+			transform: translate3d(0, 1%, 0) rotate(4deg) scale(0.97);
+		}
+		40% {
+			transform: translate3d(0, 0, 0) rotate(10deg) scale(1);
+		}
+		57% {
+			transform: translate3d(0, -4%, 0) rotate(20deg) scale(1.06);
+		}
+		72% {
+			transform: translate3d(0, 1%, 0) rotate(6deg) scale(0.98);
+		}
+		100% {
+			transform: translate3d(0, 0, 0) rotate(8deg) scale(1);
+		}
+	}
+	@keyframes lm-jam-hero-ring {
+		0% {
+			opacity: 0.7;
+			transform: scale(0.3);
+		}
+		100% {
+			opacity: 0;
+			transform: scale(2.2);
+		}
+	}
+	@keyframes lm-jam-hero-note {
+		0% {
+			opacity: 0;
+			transform: translate3d(0, 0, 0) rotate(0deg) scale(0.4);
+		}
+		15% {
+			opacity: 1;
+		}
+		40% {
+			transform: translate3d(calc(var(--dx) * 0.35 + 20%), calc(var(--dy) * 0.4), 0)
+				rotate(calc(var(--r) * -0.5)) scale(1);
+		}
+		70% {
+			opacity: 0.8;
+			transform: translate3d(calc(var(--dx) * 0.7 - 20%), calc(var(--dy) * 0.72), 0)
+				rotate(var(--r)) scale(0.95);
+		}
+		100% {
+			opacity: 0;
+			transform: translate3d(var(--dx), var(--dy), 0) rotate(calc(var(--r) * 1.5)) scale(0.7);
+		}
+	}
+	.lm-jam-hero-symbol {
+		animation: lm-jam-hero-float 3.2s ease-in-out infinite alternate;
+	}
+	.lm-jam-next:hover .lm-jam-hero {
+		opacity: 0.25;
+	}
+	.lm-jam-next:hover .lm-jam-hero-symbol {
+		animation: lm-jam-hero-groove calc(var(--lm-beat) * 2) cubic-bezier(0.3, 0, 0.3, 1) infinite;
+	}
+	.lm-jam-next:hover .lm-jam-hero__ring {
+		animation: lm-jam-hero-ring calc(var(--lm-beat) * 2) cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+	}
+	/* La seconde onde part sur le contretemps. */
+	.lm-jam-next:hover .lm-jam-hero__ring + .lm-jam-hero__ring {
+		animation-delay: calc(var(--lm-beat) * 1.14);
+	}
+	.lm-jam-next:hover .lm-jam-hero__note {
+		animation: lm-jam-hero-note calc(var(--lm-beat) * 3) ease-out infinite;
+	}
+	.lm-jam-next:hover .lm-jam-hero__note:nth-of-type(2) {
+		animation-delay: var(--lm-beat);
+	}
+	.lm-jam-next:hover .lm-jam-hero__note:nth-of-type(3) {
+		animation-delay: calc(var(--lm-beat) * 2);
+	}
+}
