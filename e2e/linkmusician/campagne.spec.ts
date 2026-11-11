@@ -102,7 +102,7 @@ test.describe('LinkMusician — campagne d’un morceau', () => {
 				}
 			});
 			const acts = page.getByRole('list', { name: 'Actes de la carrière' });
-			const actIV = acts.locator('li').filter({ hasText: 'La production' }).first();
+			const actIV = acts.locator(':scope > li').filter({ hasText: 'La production' });
 
 			await test.step('1. Avant : l’acte IV reste à franchir', async () => {
 				await page.goto('/espace/carte');

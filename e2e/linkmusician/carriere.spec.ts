@@ -90,7 +90,7 @@ test.describe('LinkMusician — écran de carrière', () => {
 			await page.goto('/espace/carte');
 			await waitForAppReady(page);
 			await expect(page.getByText(/Tu as composé seul·e/)).toBeVisible();
-			await expect(acts.locator('li').nth(1)).toContainText('Ouvert');
+			await expect(acts.locator(':scope > li').nth(1)).toContainText('Ouvert');
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 		});
 
@@ -98,8 +98,8 @@ test.describe('LinkMusician — écran de carrière', () => {
 			await work('Notre compo', 'CORROBORATED');
 			await page.reload();
 			await waitForAppReady(page);
-			await expect(acts.locator('li').nth(1)).toContainText('Épreuve franchie');
-			await expect(acts.locator('li').first()).toContainText('Acte en cours');
+			await expect(acts.locator(':scope > li').nth(1)).toContainText('Épreuve franchie');
+			await expect(acts.locator(':scope > li').first()).toContainText('Acte en cours');
 		});
 	});
 

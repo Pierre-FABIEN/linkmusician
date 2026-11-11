@@ -315,6 +315,14 @@ deux personnes présentées par un parrain collaborent, le parrain obtient
 le succès _Passeur_ (02 §9). On progresse aussi en faisant progresser
 les autres.
 
+Règles (P4-13b) : présenter, c'est choisir deux personnes **majeures de
+son réseau musical** qui n'ont **pas encore joué ensemble**, sans
+blocage entre elles, avec un mot facultatif ; chacune reçoit une
+notification avec le profil de l'autre. Dix présentations par mois au
+plus. Le succès _Passeur_ arrive à la première collaboration terminée
+entre elles **après** la présentation ; ni XP, ni classement. Inviter un·e
+débutant·e à une jam passe par l'invitation de la jam (P2-14c).
+
 ## 5. Qui gagne quoi sur toute la chaîne _(proposé, à calibrer)_
 
 Repères indicatifs, cohérents avec le barème du musicien (02 §2.2). Les
