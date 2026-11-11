@@ -56,6 +56,11 @@
 							<a href={v.annuaire} class="underline" target="_blank" rel="noopener noreferrer"
 								>{v.siret}</a
 							>
+							{#if v.foundName}
+								· Sirene : <span class="font-medium">{v.foundName}</span>{v.naf
+									? ` (NAF ${v.naf})`
+									: ''}
+							{/if}
 						</p>
 						<a
 							href={v.officialUrl}
@@ -92,6 +97,47 @@
 					</div>
 				</article>
 			{/each}
+		</section>
+
+		<section class="space-y-4" aria-labelledby="verified-title">
+			<h2 id="verified-title" class="text-lg font-semibold">
+				Organisations vérifiées ({data.verifiedOrgs.length})
+			</h2>
+			<p class="text-sm text-muted-foreground">
+				Retirer la vérification si le SIRET est radié, le lien perdu ou en cas d’abus. Les étapes
+				déjà vérifiées restent.
+			</p>
+			{#if data.verifiedOrgs.length === 0}<p class="text-sm text-muted-foreground">
+					Aucune pour l’instant.
+				</p>{/if}
+			<ul class="divide-y rounded-lg border text-sm">
+				{#each data.verifiedOrgs as o (o.orgId)}
+					<li class="flex flex-wrap items-end justify-between gap-2 p-3">
+						<p>
+							<a href="/@{o.org.handle}" class="font-medium underline">{o.org.displayName}</a>
+							· vérifiée le {date(o.verifiedAt)}{o.siret ? ` · SIRET ${o.siret}` : ''}
+						</p>
+						<form
+							method="POST"
+							action="?/revokeOrganization"
+							use:enhance
+							class="flex items-end gap-2"
+						>
+							<input type="hidden" name="orgId" value={o.orgId} />
+							<label>
+								<span class="sr-only">Motif du retrait pour {o.org.displayName}</span>
+								<input
+									name="reason"
+									required
+									placeholder="Motif du retrait"
+									class="rounded-md border bg-background p-1.5"
+								/>
+							</label>
+							<button class="rounded-md border px-3 py-1.5 text-destructive">Retirer</button>
+						</form>
+					</li>
+				{/each}
+			</ul>
 		</section>
 
 		<section class="space-y-4" aria-labelledby="pending-title">

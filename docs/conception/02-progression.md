@@ -309,8 +309,25 @@ une étape déclarée par erreur, avec la même reprise.
 fournit un SIRET (ou équivalent) et une adresse web ou un réseau social
 officiel, et l'équipe le contrôle à la main. C'est un statut accordé, pas
 un niveau gagné. Au MVP (P3-09), les groupes le demandent depuis leur
-gestion et la modération l'accorde (badge public, sans le SIRET) ; les
-autres organisations suivront en phase 5.
+gestion et la modération l'accorde (badge public, sans le SIRET). Depuis
+P5-02 :
+
+- les **studios** le demandent aussi (même carte, `OrgVerificationCard`) ;
+  les lieux et organisateur·rices suivront avec leurs lots ;
+- le SIRET est d'abord **contrôlé automatiquement** dans la base Sirene
+  (table des établissements, puis API Recherche d'entreprises) : inconnu
+  ou fermé, la demande est refusée sans passer en file ; sinon le nom et
+  le code NAF trouvés sont montrés à la modération ;
+- le statut donne un **droit**, lu par `isVerifiedOrg` : faire passer une
+  étape au niveau `VERIFIED` (concert vérifié, P5-06) ;
+- la modération peut **retirer** la vérification, avec un motif montré à
+  la gestion et tracé au journal ; le SIRET redevient libre. Les étapes
+  déjà vérifiées **restent** vérifiées, seules les suivantes changent
+  (Q22).
+
+Le nom et le code NAF trouvés décrivent l'établissement, pas une
+personne : ils restent hors de l'export RGPD, qui couvre déjà les
+demandes faites par la personne.
 
 ## 5. Paliers par métier
 

@@ -3144,6 +3144,9 @@ enum OrgVerificationStatus {
   PENDING
   APPROVED
   REJECTED
+  /// Vérification retirée par la modération (P5-02) : les étapes déjà
+  /// vérifiées restent (Q22).
+  REVOKED
 }
 
 /// Demande de vérification d'une organisation (groupe au MVP ; studios,
@@ -3163,8 +3166,13 @@ model OrganizationVerification {
   createdAt        DateTime              @default(now())
   reviewedAt       DateTime?
   reviewedByUserId String?
-  /// Motif d'un refus, montré à la gestion du groupe.
+  /// Motif d'un refus ou d'un retrait, montré à la gestion.
   reason           String?
+  /// Contrôle automatique (P5-02) : nom et code NAF de l'établissement trouvé.
+  foundName        String?
+  naf              String?
+  /// Retrait de la vérification par la modération (P5-02).
+  revokedAt        DateTime?
 
   @@index([status, createdAt])
   @@index([orgId, createdAt])

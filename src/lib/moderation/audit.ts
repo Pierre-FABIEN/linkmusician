@@ -29,6 +29,10 @@ export const AUDIT_ACTIONS = {
 	'moderation.organization.reject': {
 		label: 'Vérification d’organisation refusée',
 		family: 'organizations'
+	},
+	'moderation.organization.revoke': {
+		label: 'Vérification d’organisation retirée',
+		family: 'organizations'
 	}
 } as const satisfies Record<string, { label: string; family: string }>;
 

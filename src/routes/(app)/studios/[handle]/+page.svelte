@@ -10,6 +10,7 @@
 	} from '#lib/components/linkmusician/CommunePicker.svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
 	import MediaUpload from '#lib/components/linkmusician/MediaUpload.svelte';
+	import OrgVerificationCard from '#lib/components/linkmusician/organizations/OrgVerificationCard.svelte';
 	import { ROLE_LABELS } from '#lib/bands/rules';
 	import {
 		formatTime,
@@ -472,6 +473,16 @@
 					MAX_STUDIO_PHOTOS}
 			/>
 		</section>
+
+		<!-- Studio vérifié (P5-02) : SIRET contrôlé dans Sirene, puis à la main. -->
+		<div class="border-t pt-8">
+			<OrgVerificationCard
+				verification={data.verification}
+				noun="Le studio"
+				title="Studio vérifié"
+				error={form && 'verifyError' in form ? (form.verifyError as string) : null}
+			/>
+		</div>
 
 		<!-- Co-gestion (P4-03b). -->
 		<section class="space-y-4 border-t pt-8" aria-labelledby="gestion">

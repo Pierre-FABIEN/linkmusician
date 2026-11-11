@@ -210,17 +210,19 @@ export const actions: Actions = {
 			'Étape mise à jour.'
 		);
 	},
-	/** Demander la vérification du groupe (P3-09). */
+	/** Demander la vérification du groupe (P3-09, SIRET contrôlé en P5-02). */
 	requestVerification: async ({ locals, params, request }) => {
 		const { actorId, band, field } = await context(locals, params, request);
-		return run(
-			() =>
-				requestVerification(band.id, actorId, {
-					siret: field('siret'),
-					officialUrl: field('officialUrl')
-				}),
-			'Demande envoyée : l’équipe vérifie et vous répond ici.'
-		);
+		try {
+			await requestVerification(band.id, actorId, {
+				siret: field('siret'),
+				officialUrl: field('officialUrl')
+			});
+		} catch (err) {
+			if (err instanceof VerificationError) return fail(err.status, { verifyError: err.message });
+			throw err;
+		}
+		return { message: 'Demande envoyée : l’équipe vérifie et vous répond ici.' };
 	},
 	/** Retirer une étape déclarée par erreur (P3-06) : XP reprise par transactions liées. */
 	retractMilestone: async ({ locals, params, request }) => {

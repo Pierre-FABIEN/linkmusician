@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { requestBlocker, verificationSchema } from './verification';
+import { establishmentBlocker, requestBlocker, verificationSchema } from './verification';
 
 describe('verificationSchema', () => {
 	it('SIRET valide (Luhn) et lien https', () => {
@@ -32,12 +32,20 @@ describe('requestBlocker', () => {
 		['demande possible', {}, null],
 		['pas la gestion', { isManager: false }, /gèrent/],
 		['déjà vérifié', { verified: true }, /déjà vérifié/],
-		['dissous', { dissolved: true }, /dissous/],
+		['dissoute', { dissolved: true }, /dissoute/],
 		['en attente', { pending: true }, /en cours/],
 		['trop de demandes', { recentRequests: 3 }, /Trois demandes/]
 	])('%s', (_, patch, expected) => {
 		const r = requestBlocker({ ...ok, ...patch });
 		if (expected === null) expect(r).toBeNull();
 		else expect(r).toMatch(expected);
+	});
+});
+
+describe('establishmentBlocker (P5-02)', () => {
+	it('refuse un SIRET inconnu ou fermé, accepte un établissement actif', () => {
+		expect(establishmentBlocker(null)).toMatch(/introuvable/);
+		expect(establishmentBlocker({ active: false })).toMatch(/fermé/);
+		expect(establishmentBlocker({ active: true })).toBeNull();
 	});
 });

@@ -15,6 +15,11 @@ import {
 	updateStudio
 } from '#lib/server/studios/service';
 import { studioProfileSchema } from '#lib/studios/rules';
+import {
+	requestVerification,
+	VerificationError,
+	verificationState
+} from '#lib/server/organizations/verification';
 import type { Actions, PageServerLoad } from './$types';
 
 async function managed(locals: App.Locals, handle: string) {
@@ -29,7 +34,11 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	// L'identifiant interne reste côté serveur.
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { id: _id, ...rest } = studio;
-	return { studio: rest, created: url.searchParams.has('cree') };
+	return {
+		studio: rest,
+		created: url.searchParams.has('cree'),
+		verification: await verificationState(studio.id)
+	};
 };
 
 export const actions: Actions = {
@@ -117,6 +126,21 @@ export const actions: Actions = {
 		}
 		if (leaving) redirect(303, '/studios');
 		return { message: 'C’est fait.' };
+	},
+	/** Demander la vérification du studio (P5-02) : SIRET contrôlé, puis à la main. */
+	requestVerification: async ({ locals, params, request }) => {
+		const { actorId, studio } = await managed(locals, params.handle);
+		const form = await request.formData();
+		try {
+			await requestVerification(studio.id, actorId, {
+				siret: String(form.get('siret') ?? ''),
+				officialUrl: String(form.get('officialUrl') ?? '')
+			});
+		} catch (err) {
+			if (err instanceof VerificationError) return fail(err.status, { verifyError: err.message });
+			throw err;
+		}
+		return { message: 'Demande envoyée : l’équipe vérifie et te répond ici.' };
 	},
 	unpublish: async ({ locals, params }) => {
 		const { actorId, studio } = await managed(locals, params.handle);

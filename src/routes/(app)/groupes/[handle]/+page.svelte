@@ -1,11 +1,11 @@
 <script lang="ts">
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
-	import { BadgeCheck } from 'lucide-svelte';
 	// LINKMUSICIAN: un groupe (P3-01), voir +page.server.ts.
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
 	import DemarcheCard from '#lib/components/linkmusician/demarches/DemarcheCard.svelte';
+	import OrgVerificationCard from '#lib/components/linkmusician/organizations/OrgVerificationCard.svelte';
 	import { MAX_MEMBER_TITLE, ROLE_LABELS, isManager, periodLabel } from '#lib/bands/rules';
 	import { plural } from '#lib/jam/log';
 	import {
@@ -723,65 +723,14 @@
 		{/if}
 
 		{#if manager && data.verification}
-			<!-- Organisation vérifiée (P3-09) : SIRET et lien officiel, contrôlés à la main. -->
-			<section class="space-y-3" aria-labelledby="verify-title">
-				<h2 id="verify-title" class="flex items-center gap-2 text-xl font-bold">
-					<BadgeCheck class="size-5" aria-hidden="true" /> Groupe vérifié
-				</h2>
-				{#if data.verification.verifiedAt}
-					<p class="text-sm">Votre groupe est vérifié : le badge s’affiche sur sa page publique.</p>
-				{:else if data.verification.last?.status === 'PENDING'}
-					<p class="text-sm" role="status">
-						Votre demande est en cours d’examen par l’équipe. Le badge apparaîtra dès qu’elle sera
-						acceptée.
-					</p>
-				{:else if !dissolved}
-					<p class="text-sm text-muted-foreground">
-						Votre groupe est déclaré (association, entreprise) ? Donnez son SIRET et son site ou
-						réseau officiel : l’équipe vérifie à la main, et un badge « vérifié » rassure les lieux
-						et les organisateurs. Ça ne rapporte pas de points.
-					</p>
-					{#if data.verification.last?.status === 'REJECTED'}
-						<p class="rounded-md border border-destructive/50 p-3 text-sm">
-							Dernière demande refusée{data.verification.last.reason
-								? ` : ${data.verification.last.reason}`
-								: '.'}
-						</p>
-					{/if}
-					<form
-						method="POST"
-						action="?/requestVerification"
-						class="grid gap-3 sm:grid-cols-2"
-						use:enhance
-					>
-						<label class="block space-y-1 text-sm font-medium">
-							SIRET
-							<input
-								name="siret"
-								required
-								inputmode="numeric"
-								autocomplete="off"
-								placeholder="123 456 789 00012"
-								class="w-full rounded-md border bg-background p-2 font-normal"
-							/>
-						</label>
-						<label class="block space-y-1 text-sm font-medium">
-							Site ou réseau officiel
-							<input
-								name="officialUrl"
-								type="url"
-								required
-								placeholder="https://www.instagram.com/…"
-								class="w-full rounded-md border bg-background p-2 font-normal"
-							/>
-						</label>
-						<button
-							class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground sm:w-fit"
-							>Demander la vérification</button
-						>
-					</form>
-				{/if}
-			</section>
+			<!-- Organisation vérifiée (P3-09, P5-02) : SIRET contrôlé, puis à la main. -->
+			<OrgVerificationCard
+				verification={data.verification}
+				noun="Le groupe"
+				title="Groupe vérifié"
+				closed={dissolved}
+				error={form && 'verifyError' in form ? (form.verifyError as string) : null}
+			/>
 		{/if}
 
 		{#if member && !dissolved}

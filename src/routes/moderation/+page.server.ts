@@ -26,18 +26,21 @@ import {
 	VerificationError,
 	approveVerification,
 	pendingVerifications,
-	rejectVerification
+	rejectVerification,
+	revokeVerification,
+	verifiedOrganizations
 } from '#lib/server/organizations/verification';
 import { annuaireUrl } from '#lib/organizations/verification';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const [queue, collusion, evidence, disputes, verifications] = await Promise.all([
+	const [queue, collusion, evidence, disputes, verifications, verified] = await Promise.all([
 		moderationQueue(),
 		collusionQueue(),
 		pendingEvidence(),
 		disputeQueue(),
-		pendingVerifications()
+		pendingVerifications(),
+		verifiedOrganizations()
 	]);
 	const mediaView = (m: {
 		id: string;
@@ -61,6 +64,8 @@ export const load: PageServerLoad = async () => {
 		disputes,
 		// Organisations à vérifier à la main (P3-09) : SIRET et lien officiel.
 		verifications: verifications.map((v) => ({ ...v, annuaire: annuaireUrl(v.siret) })),
+		// Organisations vérifiées (P5-02) : la vérification peut être retirée.
+		verifiedOrgs: verified,
 		// Liens d'écoute joints à une « première démo publique » (P3-05, D43).
 		pendingEvidence: evidence,
 		pendingVenues: queue.pendingVenues.map((v) => ({
@@ -166,7 +171,16 @@ export const actions: Actions = {
 		return run(
 			locals,
 			(by) => rejectVerification(field(data, 'requestId'), field(data, 'reason'), by),
-			'Demande refusée : le motif est montré au groupe.'
+			'Demande refusée : le motif est montré à la gestion.'
+		);
+	},
+	/** Retirer la vérification d'une organisation (P5-02) ; les étapes vérifiées restent (Q22). */
+	revokeOrganization: async ({ request, locals }) => {
+		const data = await request.formData();
+		return run(
+			locals,
+			(by) => revokeVerification(field(data, 'orgId'), by, field(data, 'reason')),
+			'Vérification retirée : le motif est montré à la gestion.'
 		);
 	},
 	/** Étape contestée (P3-06) : retenue (XP reprise, avertissements) ou rejetée (dégel). */

@@ -1,8 +1,10 @@
 /**
- * Vérification manuelle des organisations (P3-09) sur la base de `.env`,
- * schéma `e2e` : seule la gestion demande ; une demande à la fois ; refus
- * avec motif puis nouvelle demande ; accord (badge public) ; un SIRET pour
- * une seule organisation ; chaque décision au journal ; RGPD.
+ * Vérification des organisations (P3-09, P5-02) sur la base de `.env`,
+ * schéma `e2e` : seule la gestion demande ; SIRET inconnu ou fermé refusé
+ * (base Sirene, ici la table seule) ; une demande à la fois ; refus avec
+ * motif puis nouvelle demande ; accord (badge public) ; un SIRET pour une
+ * seule organisation ; retrait par la modération ; chaque décision au
+ * journal ; RGPD.
  * Désactivé par défaut :
  *
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/organizations
@@ -22,6 +24,8 @@ url.searchParams.set('schema', 'e2e');
 const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
 
 vi.mock('#lib/server', () => ({ prisma: db }));
+// Recherche d'établissements en mode e2e : la table seule, jamais le réseau.
+vi.mock('$app/env/private', () => ({ SECRET_ADDRESS_SEARCH_MODE: 'e2e' }));
 
 const verification = await import('./verification');
 const { moderationJournal } = await import('#lib/server/moderation/journal');
@@ -32,6 +36,20 @@ const { exportPersonData, personAnonymizationOps } = await import('#lib/prisma/a
 const PREFIX = 'orgverif-test-';
 const YEAR = 365.25 * 86_400_000;
 const SIRET = '73282932000074';
+/** SIRET valides (clé de Luhn), l'un fermé, l'autre absent de la table. */
+const CLOSED = '99900000200009';
+const UNKNOWN = '99900000200017';
+const establishment = (siret: string, active: boolean) => ({
+	siret,
+	siren: siret.slice(0, 9),
+	name: `ORGVERIF TEST ${siret}`,
+	nameKey: `orgverif test ${siret}`,
+	naf: '90.01Z',
+	communeCode: '31555',
+	communeName: 'Toulouse',
+	departmentCode: '31',
+	active
+});
 const moderator = { userId: '' };
 
 describe.skipIf(!enabled)(
@@ -58,6 +76,7 @@ describe.skipIf(!enabled)(
 			await db.adminAuditLog.deleteMany({ where: { targetId: { in: list } } });
 			await db.actor.deleteMany({ where: { id: { in: list } } });
 			await db.user.deleteMany({ where: { email: { startsWith: PREFIX } } });
+			await db.establishment.deleteMany({ where: { siret: { in: [SIRET, CLOSED, UNKNOWN] } } });
 			if (list.length > 0)
 				await db.domainEvent.deleteMany({ where: { actorIds: { hasSome: list } } });
 		}
@@ -66,6 +85,9 @@ describe.skipIf(!enabled)(
 			process.env.DATABASE_URL = url.toString();
 			await cleanup();
 			await seedMilestones(db);
+			await db.establishment.createMany({
+				data: [establishment(SIRET, true), establishment(CLOSED, false)]
+			});
 			for (const name of ['lea', 'malik', 'modo']) {
 				const user = await db.user.create({
 					data: { email: `${PREFIX}${name}@example.test`, referralCode: `${PREFIX}${name}` }
@@ -121,12 +143,24 @@ describe.skipIf(!enabled)(
 			await expect(
 				verification.requestVerification(bandId, ids.lea, { ...input, siret: '12345678901234' })
 			).rejects.toThrow(/SIRET/);
+			// Contrôle automatique (P5-02) : inconnu ou fermé, rien ne part en file.
+			await expect(
+				verification.requestVerification(bandId, ids.lea, { ...input, siret: UNKNOWN })
+			).rejects.toThrow(/introuvable/);
+			await expect(
+				verification.requestVerification(bandId, ids.lea, { ...input, siret: CLOSED })
+			).rejects.toThrow(/fermé/);
+			expect(await db.organizationVerification.count({ where: { orgId: bandId } })).toBe(0);
 			await verification.requestVerification(bandId, ids.lea, input);
 			await expect(verification.requestVerification(bandId, ids.lea, input)).rejects.toThrow(
 				/en cours/
 			);
 			const queue = await verification.pendingVerifications();
-			expect(queue.find((q) => q.org.handle.startsWith('orgverif-test-band'))?.siret).toBe(SIRET);
+			expect(queue.find((q) => q.org.handle.startsWith('orgverif-test-band'))).toMatchObject({
+				siret: SIRET,
+				foundName: `ORGVERIF TEST ${SIRET}`,
+				naf: '90.01Z'
+			});
 		});
 
 		it('refus avec motif, nouvelle demande, puis accord : badge public', async () => {
@@ -166,6 +200,33 @@ describe.skipIf(!enabled)(
 				'Vérification d’organisation refusée'
 			]);
 			expect(mine[1].note).toBe('Le lien ne mène pas au groupe');
+		});
+
+		it('retrait (P5-02) : motif obligatoire, badge ôté, SIRET libéré, au journal', async () => {
+			expect(await verification.isVerifiedOrg(bandId)).toBe(true);
+			expect((await verification.verifiedOrganizations()).map((o) => o.orgId)).toContain(bandId);
+			await expect(verification.revokeVerification(bandId, moderator, ' ')).rejects.toThrow(
+				/motif/
+			);
+			await verification.revokeVerification(bandId, moderator, 'SIRET radié');
+			expect(await verification.isVerifiedOrg(bandId)).toBe(false);
+			expect(await verification.verificationState(bandId)).toMatchObject({
+				verifiedAt: null,
+				last: { status: 'REVOKED', reason: 'SIRET radié' }
+			});
+			const band = await db.actor.findUniqueOrThrow({ where: { id: bandId } });
+			expect((await getPublicBand(band.handle))?.verified).toBe(false);
+			await expect(verification.revokeVerification(bandId, moderator, 'encore')).rejects.toThrow(
+				/pas vérifiée/
+			);
+			// Le SIRET n'est plus accordé : une autre organisation peut le demander.
+			await verification.requestVerification(otherBandId, ids.malik, input);
+			const { entries } = await moderationJournal({ family: 'organizations' });
+			const revoked = entries.find(
+				(e) => e.target?.label === 'Orgverif Test Band' && e.label.includes('retirée')
+			);
+			expect(revoked?.label).toBe('Vérification d’organisation retirée');
+			expect(revoked?.note).toBe('SIRET radié');
 		});
 
 		it('RGPD : demandes exportées, puis on oublie qui les a faites', async () => {
