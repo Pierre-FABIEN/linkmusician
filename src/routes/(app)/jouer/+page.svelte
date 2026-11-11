@@ -19,7 +19,7 @@
 			<LevelBadge level={data.level} />
 			<div>
 				<p class="text-sm text-muted-foreground">Salut {firstName} !</p>
-				<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Choisis ton mode</h1>
+				<h1 class="lm-title">Choisis ton mode</h1>
 			</div>
 		</header>
 

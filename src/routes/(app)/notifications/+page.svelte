@@ -59,7 +59,7 @@
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-6xl space-y-6 lg:space-y-8">
 		<div class="flex items-center justify-between gap-3">
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Notifications</h1>
+			<h1 class="lm-title">Notifications</h1>
 			<a
 				href="/reglages#notifications"
 				class="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -74,7 +74,7 @@
 		{/if}
 
 		{#if data.notifications.length === 0}
-			<div class="rounded-2xl border bg-card p-6 text-center">
+			<div class="lm-tile lm-tile--flow p-6 text-center">
 				<Bell class="mx-auto size-8 text-muted-foreground" aria-hidden="true" />
 				<p class="mt-3 font-semibold">Rien de neuf pour l’instant.</p>
 				<p class="mt-1 text-sm text-muted-foreground">
@@ -91,13 +91,10 @@
 					<li>
 						<a
 							href={n.href}
-							class="flex min-h-16 items-start gap-3 rounded-2xl border p-3 transition hover:border-primary {n.unread
-								? 'border-violet-300 bg-violet-50 dark:border-violet-800 dark:bg-violet-950/40'
-								: 'bg-card'}"
+							class="lm-tile lm-tile--flow flex min-h-16 items-start gap-3 p-3"
+							data-tone={n.unread ? 'violet' : undefined}
 						>
-							<span
-								class="grid size-10 shrink-0 place-items-center rounded-full bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-100"
-							>
+							<span class="lm-chip rounded-full" data-tone="violet">
 								<Icon class="size-5" aria-hidden="true" />
 							</span>
 							<span class="min-w-0 flex-1">
@@ -107,7 +104,10 @@
 								</span>
 							</span>
 							{#if n.unread}
-								<span class="mt-2 size-2.5 shrink-0 rounded-full bg-fuchsia-600" aria-hidden="true"
+								<span
+									class="lm-fill mt-2 size-2.5 shrink-0 rounded-full"
+									data-tone="rose"
+									aria-hidden="true"
 								></span>
 							{/if}
 						</a>

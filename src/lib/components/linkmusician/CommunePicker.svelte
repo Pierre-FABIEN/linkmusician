@@ -68,7 +68,7 @@
 			type="text"
 			autocomplete="off"
 			placeholder="Nom de commune ou code postal"
-			class="w-full rounded-md border bg-background p-2 text-sm"
+			class="lm-field w-full"
 			role="combobox"
 			aria-expanded={suggestions.length > 0}
 			aria-controls="{id}-suggestions"

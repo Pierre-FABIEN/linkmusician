@@ -40,12 +40,10 @@
 <SEO title="Mon profil de producteur·rice" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-5xl space-y-8 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-5xl space-y-8">
 		<div>
 			<a href="/profil" class="text-sm text-muted-foreground underline">← Mon profil</a>
-			<h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-				Mon profil de producteur·rice
-			</h1>
+			<h1 class="lm-title mt-2">Mon profil de producteur·rice</h1>
 			<p class="text-sm text-muted-foreground">
 				Ce que tu produis et comment tu travailles. Les artistes te trouvent dans la recherche dès
 				que tu as coché une spécialité.
@@ -58,11 +56,7 @@
 				<p class="text-sm text-muted-foreground">
 					Tu peux avoir plusieurs métiers, par exemple musicien·ne et producteur·rice.
 				</p>
-				<a
-					href="/reglages/metiers"
-					class="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
-					>Choisir mes métiers</a
-				>
+				<a href="/reglages/metiers" class="lm-btn">Choisir mes métiers</a>
 			</div>
 		{:else}
 			<form method="POST" use:enhance class="space-y-10">
@@ -138,7 +132,7 @@
 						<textarea
 							id="software"
 							rows="4"
-							class="w-full rounded-md border bg-background p-2 text-sm"
+							class="lm-field w-full"
 							placeholder="Ableton Live&#10;FL Studio&#10;Serum"
 							bind:value={$form.software}
 						></textarea>
@@ -155,7 +149,7 @@
 						</p>
 						<input
 							id="rate"
-							class="w-full rounded-md border bg-background p-2 text-sm"
+							class="lm-field w-full"
 							placeholder="À partir de 150 € le titre"
 							bind:value={$form.rate}
 						/>

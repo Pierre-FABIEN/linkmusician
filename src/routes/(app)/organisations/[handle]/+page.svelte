@@ -51,12 +51,12 @@
 <SEO title={org.name} noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-5xl space-y-8 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-5xl space-y-8">
 		<div class="space-y-2">
 			<a href="/organisations" class="text-sm text-muted-foreground underline"
 				>← Mes organisations</a
 			>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{org.name}</h1>
+			<h1 class="lm-title">{org.name}</h1>
 			<p class="text-sm text-muted-foreground">
 				Ce que tout le monde voit sur
 				<a href="/@{org.handle}" class="underline">sa page publique</a>. On n’enregistre que la
@@ -69,11 +69,7 @@
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<h2 id="plateaux" class="text-xl font-bold">Plateaux</h2>
 				{#if org.gaps.length === 0}
-					<a
-						href="/plateaux/nouveau?au-nom-de={org.handle}"
-						class="inline-flex min-h-11 items-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
-						>Publier un plateau</a
-					>
+					<a href="/plateaux/nouveau?au-nom-de={org.handle}" class="lm-btn">Publier un plateau</a>
 				{/if}
 			</div>
 			{#if org.gaps.length > 0}
@@ -91,7 +87,7 @@
 						<li>
 							<a
 								href="/annonces/{g.id}"
-								class="flex min-h-11 items-center justify-between gap-3 rounded-xl border p-3 text-sm hover:bg-muted"
+								class="lm-tile lm-tile--flow flex min-h-11 items-center justify-between gap-3 p-3 text-sm"
 							>
 								<span class="truncate"
 									>{g.title}{g.startsAt ? ` · ${day.format(new Date(g.startsAt))}` : ''}</span
@@ -222,10 +218,7 @@
 					</div>
 				</details>
 			</section>
-			<button
-				class="min-h-11 w-full rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-				>Enregistrer la fiche</button
-			>
+			<button class="lm-btn w-full">Enregistrer la fiche</button>
 		</form>
 
 		<!-- Organisation vérifiée (P5-02) : SIRET contrôlé dans Sirene, puis à la main. -->
@@ -266,8 +259,7 @@
 						{#if member.isMe || org.role === 'OWNER' || member.status === 'INVITED'}
 							<form method="POST" action="?/removeManager" use:enhance>
 								<input type="hidden" name="membershipId" value={member.membershipId} />
-								<button
-									class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+								<button class="lm-btn" data-variant="ghost"
 									>{member.isMe
 										? 'Quitter la gestion'
 										: member.status === 'INVITED'
@@ -302,9 +294,7 @@
 						d’organisateur·rice, et être majeur·e.</span
 					>
 				</label>
-				<button class="min-h-11 rounded-full border px-5 font-semibold hover:bg-muted"
-					>Inviter</button
-				>
+				<button class="lm-btn" data-variant="ghost">Inviter</button>
 			</form>
 		</section>
 	</div>

@@ -34,12 +34,12 @@
 <SEO title="Modifier {data.band.name}" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-6xl space-y-8 rounded-3xl border bg-card p-5 sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-6xl space-y-8">
 		<div class="space-y-2">
 			<a href="/groupes/{data.band.handle}" class="text-sm text-muted-foreground underline"
 				>← {data.band.name}</a
 			>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Fiche du groupe</h1>
+			<h1 class="lm-title">Fiche du groupe</h1>
 			<p class="text-sm text-muted-foreground">
 				Ce que tout le monde voit sur
 				<a href="/@{data.band.handle}" class="underline">la page publique du groupe</a>. On
@@ -69,7 +69,7 @@
 					autocomplete="off"
 					maxlength={MAX_BAND_NAME}
 					value={data.band.name}
-					class="w-full rounded-md border bg-background p-2 text-sm font-normal"
+					class="lm-field w-full"
 				/>
 			</label>
 			<div class="space-y-1">
@@ -81,7 +81,7 @@
 					maxlength={MAX_BAND_BIO}
 					bind:value={bio}
 					placeholder="Ce que vous jouez, ce que vous cherchez, où vous répétez…"
-					class="w-full rounded-md border bg-background p-2 text-sm"
+					class="lm-field w-full"
 				></textarea>
 				<p class="text-right text-xs text-muted-foreground">{[...bio].length}/{MAX_BAND_BIO}</p>
 			</div>
@@ -118,10 +118,7 @@
 					{/each}
 				</div>
 			</section>
-			<button
-				class="min-h-11 w-full rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-				>Enregistrer la fiche</button
-			>
+			<button class="lm-btn w-full">Enregistrer la fiche</button>
 		</form>
 
 		<section class="space-y-3 border-t pt-6" aria-labelledby="links-title">
@@ -138,16 +135,12 @@
 						required
 						value={form?.url ?? ''}
 						placeholder="https://soundcloud.com/…"
-						class="w-full rounded-md border bg-background p-2 font-normal"
+						class="lm-field w-full"
 					/>
 				</label>
 				<label class="block space-y-1 text-sm font-medium">
 					Titre <span class="font-normal text-muted-foreground">(facultatif)</span>
-					<input
-						name="title"
-						maxlength="120"
-						class="w-full rounded-md border bg-background p-2 font-normal"
-					/>
+					<input name="title" maxlength="120" class="lm-field w-full" />
 				</label>
 				<button class="min-h-11 rounded-full border px-4 font-semibold">Ajouter le lien</button>
 			</form>
@@ -155,7 +148,7 @@
 				<ul class="space-y-2" aria-label="Liens du groupe">
 					{#each data.media as m (m.id)}
 						<li
-							class="flex items-center justify-between gap-2 rounded-2xl border bg-card px-4 py-2 text-sm"
+							class="lm-tile lm-tile--flow flex items-center justify-between gap-2 px-4 py-2 text-sm"
 						>
 							<span>
 								<span class="font-semibold">{m.title}</span>

@@ -198,19 +198,19 @@
 				<div class="space-y-6 lg:col-span-2">
 					<Card.Root class="overflow-hidden pt-0">
 						<div
-							class="h-32 bg-violet-900 bg-[radial-gradient(circle_at_20%_30%,var(--color-fuchsia-400),transparent_50%),radial-gradient(circle_at_80%_60%,var(--color-violet-600),transparent_55%)]"
+							class="h-32 bg-muted bg-[radial-gradient(circle_at_20%_30%,var(--tone-rose),transparent_50%),radial-gradient(circle_at_80%_60%,var(--tone-violet),transparent_55%)]"
 						></div>
 						<Card.Content class="-mt-12 space-y-4">
 							<div
 								class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4"
 							>
 								<Avatar.Root class="size-24 border-4 border-background shadow-xl">
-									<Avatar.Fallback class="bg-violet-100 text-3xl font-bold text-violet-800"
+									<Avatar.Fallback class="bg-primary/15 text-3xl font-bold text-foreground"
 										>{initialsOf(p.displayName)}</Avatar.Fallback
 									>
 								</Avatar.Root>
 								<div class="min-w-0 flex-1">
-									<h1 class="text-3xl font-black tracking-tight">{p.displayName}</h1>
+									<h1 class="lm-title">{p.displayName}</h1>
 									<p class="text-muted-foreground">
 										@{p.handle}{trackLabels.length ? ` · ${trackLabels.join(' · ')}` : ''}
 									</p>
@@ -233,10 +233,7 @@
 							</div>
 							{#if p.bio}<p class="whitespace-pre-line leading-relaxed">{p.bio}</p>{/if}
 							{#if data.canReport}
-								<a
-									href="/messages/nouveau?a={p.handle}"
-									class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 font-semibold text-white"
-								>
+								<a href="/messages/nouveau?a={p.handle}" class="lm-btn gap-2">
 									<MessageCircle class="size-4" aria-hidden="true" /> Écrire à {p.displayName}
 								</a>
 							{:else if !data.isOwner}
@@ -328,7 +325,11 @@
 							{/if}
 							{#each confirmed as s (s.text)}
 								<p class="flex items-start gap-2">
-									<s.icon class="mt-0.5 size-4 shrink-0 text-emerald-600" aria-hidden="true" />
+									<s.icon
+										class="mt-0.5 size-4 shrink-0 lm-tone-icon"
+										data-tone="lime"
+										aria-hidden="true"
+									/>
 									{s.text}
 								</p>
 							{:else}
@@ -442,12 +443,7 @@
 							<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
 								<div class="space-y-1">
 									<label for="reason" class="block font-medium">Motif</label>
-									<select
-										id="reason"
-										name="reason"
-										required
-										class="w-full rounded-md border bg-background p-2"
-									>
+									<select id="reason" name="reason" required class="lm-field w-full">
 										<option value="">—</option>
 										{#each REPORT_REASONS as r (r)}
 											<option value={r}>{REPORT_REASON_LABELS[r]}</option>
@@ -461,7 +457,7 @@
 										name="details"
 										rows="3"
 										maxlength={MAX_REPORT_DETAILS}
-										class="w-full rounded-md border bg-background p-2"
+										class="lm-field w-full"
 									></textarea>
 								</div>
 								<button type="submit" class="rounded-md border px-3 py-1.5"

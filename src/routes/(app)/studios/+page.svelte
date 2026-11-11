@@ -17,9 +17,9 @@
 <SEO title="Mes studios" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-3xl space-y-8 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-3xl space-y-8">
 		<div class="space-y-2">
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Mes studios</h1>
+			<h1 class="lm-title">Mes studios</h1>
 			<p class="text-sm text-muted-foreground">
 				La fiche de ton studio : salles, matériel, tarifs, horaires. Une fois publiée, tout le monde
 				la trouve et ton studio est <strong>Ouvert</strong>.
@@ -43,17 +43,8 @@
 							</p>
 							<form method="POST" action="?/answer" use:enhance class="flex flex-wrap gap-2">
 								<input type="hidden" name="membershipId" value={invite.membershipId} />
-								<button
-									name="accept"
-									value="1"
-									class="min-h-11 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
-									>Accepter</button
-								>
-								<button
-									name="accept"
-									value="0"
-									class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
-									>Décliner</button
+								<button name="accept" value="1" class="lm-btn">Accepter</button>
+								<button name="accept" value="0" class="lm-btn" data-variant="ghost">Décliner</button
 								>
 							</form>
 						</li>
@@ -111,14 +102,10 @@
 							maxlength={MAX_STUDIO_NAME}
 							value={form?.name ?? ''}
 							placeholder="Studio du Canal"
-							class="w-full rounded-md border bg-background p-2 text-sm font-normal"
+							class="lm-field w-full"
 						/>
 					</label>
-					<button
-						disabled={sending}
-						class="min-h-11 rounded-full bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-60"
-						>Créer la fiche</button
-					>
+					<button disabled={sending} class="lm-btn disabled:opacity-60">Créer la fiche</button>
 				</form>
 				<p class="text-sm text-muted-foreground">
 					Tu en seras la personne responsable. Rien n’est visible avant que tu publies la fiche.
@@ -130,11 +117,7 @@
 				<p class="text-sm text-muted-foreground">
 					Ajoute le métier d’ingé son ou de producteur·rice pour ouvrir la fiche de ton studio.
 				</p>
-				<a
-					href="/reglages/metiers"
-					class="inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold hover:bg-muted"
-					>Mes métiers →</a
-				>
+				<a href="/reglages/metiers" class="lm-btn" data-variant="ghost">Mes métiers →</a>
 			</section>
 		{/if}
 	</div>

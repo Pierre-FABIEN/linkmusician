@@ -3,7 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { AVAILABILITY_SLOTS, MAX_NOTE, SLOT_LABELS } from '#lib/jam/availability';
 	import { Badge } from '#shadcn/badge';
 	import { MapPin, Radio } from 'lucide-svelte';
@@ -22,9 +22,10 @@
 
 <SEO title="Musicos dispo autour de moi" noindex nofollow />
 
-<div class="min-h-screen w-full bg-muted/20 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
+<div class="min-h-screen w-full px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
 	<div class="mx-auto max-w-7xl space-y-6">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode jam"
 			title="Les musicos dispo autour de moi"
 			intro={data.commune
 				? `Qui a envie de jouer près de ${data.commune}, et dis-le si c’est ton cas.`
@@ -33,7 +34,7 @@
 		<div class="grid items-start gap-5 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)]">
 			<section
 				id="dispo"
-				class="scroll-mt-24 space-y-4 rounded-2xl border bg-card p-4 shadow-sm sm:p-5"
+				class="lm-tile lm-tile--flow scroll-mt-24 space-y-4 p-4 sm:p-5"
 				aria-labelledby="dispo-title"
 			>
 				<h2 id="dispo-title" class="flex items-center gap-2 text-lg font-semibold">
@@ -79,14 +80,10 @@
 								name="note"
 								maxlength={MAX_NOTE}
 								placeholder="Envie d'un bœuf funk, j'ai ma basse"
-								class="w-full rounded-md border bg-background p-2"
+								class="lm-field w-full"
 							/>
 						</label>
-						<button
-							type="submit"
-							class="min-h-11 rounded-xl bg-primary px-5 font-semibold text-primary-foreground"
-							>Je suis dispo</button
-						>
+						<button type="submit" class="lm-btn">Je suis dispo</button>
 					</form>
 				{/if}
 			</section>
@@ -98,13 +95,13 @@
 						<h2 id="available-title" class="text-xl font-bold">Dispos autour de toi</h2>
 					</div>
 					{#if data.available.length === 0}
-						<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+						<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
 							Personne n'est dispo pour l'instant. Mets-toi dispo : tu seras peut-être le déclic !
 						</p>
 					{:else}
 						<ul class="grid gap-3 sm:grid-cols-2" aria-label="Musicien·nes dispos">
 							{#each data.available as a (a.handle)}
-								<li class="space-y-2 rounded-2xl border bg-card p-4">
+								<li class="lm-tile lm-tile--flow space-y-2 p-4">
 									<div class="flex items-start justify-between gap-2">
 										<a href="/@{a.handle}" class="font-bold hover:underline">{a.displayName}</a>
 										<Badge variant="secondary">{SLOT_LABELS[a.slot]}</Badge>
@@ -129,7 +126,7 @@
 					{/if}
 				</section>
 			{:else}
-				<p class="rounded-2xl border bg-card p-6 text-center">
+				<p class="lm-tile lm-tile--flow p-6 text-center">
 					Indique ta ville pour voir les musicien·nes dispos près de chez toi.
 					<a href="/profil/ville" class="block pt-2 font-semibold underline">Indiquer ma ville</a>
 				</p>

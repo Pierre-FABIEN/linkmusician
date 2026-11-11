@@ -1,7 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: à confirmer, voir +page.server.ts.
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { plural } from '#lib/jam/log';
 
 	let { data } = $props();
@@ -14,12 +14,13 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-6">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode carrière"
 			title="À confirmer"
 			intro="Ce qui attend ta réponse. Une confirmation des deux côtés, et ça compte dans vos parcours."
 		/>
 		{#if empty}
-			<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+			<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
 				Rien à confirmer pour l’instant.
 			</p>
 		{/if}
@@ -31,7 +32,7 @@
 						<li>
 							<a
 								href="/messages/{k.conversationId}"
-								class="flex min-h-11 items-center justify-between gap-3 rounded-xl border bg-card p-3 text-sm hover:border-primary"
+								class="lm-tile lm-tile--flow flex min-h-11 items-center justify-between gap-3 p-3 text-sm"
 							>
 								<span class="truncate">{k.title} · avec {k.with}</span>
 								<span class="shrink-0 font-semibold text-primary">Confirmer →</span>
@@ -44,7 +45,7 @@
 		{#if data.workCredits > 0}
 			<a
 				href="/morceaux"
-				class="flex min-h-14 items-center justify-between rounded-2xl border bg-card p-4 hover:border-primary"
+				class="lm-tile lm-tile--flow flex min-h-14 items-center justify-between p-4"
 			>
 				<span class="font-semibold"
 					>{plural(data.workCredits, 'crédit de morceau', 'crédits de morceaux')}</span
@@ -55,7 +56,7 @@
 		{#if data.bandInvitations > 0}
 			<a
 				href="/groupes"
-				class="flex min-h-14 items-center justify-between rounded-2xl border bg-card p-4 hover:border-primary"
+				class="lm-tile lm-tile--flow flex min-h-14 items-center justify-between p-4"
 			>
 				<span class="font-semibold"
 					>{plural(data.bandInvitations, 'invitation de groupe', 'invitations de groupe')}</span

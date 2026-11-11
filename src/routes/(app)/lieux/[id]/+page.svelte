@@ -50,7 +50,7 @@
 	<article class="mx-auto max-w-5xl space-y-6 lg:space-y-8">
 		<div class="space-y-2">
 			<a href="/lieux" class="text-sm text-muted-foreground underline">← Lieux de jam</a>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{data.venue.name}</h1>
+			<h1 class="lm-title">{data.venue.name}</h1>
 			<p class="flex items-center gap-1 text-muted-foreground">
 				<MapPin class="size-4" aria-hidden="true" />
 				{data.venue.kindLabel} · {data.venue.communeName} ({data.venue.departmentCode})
@@ -73,11 +73,7 @@
 				/>
 			{/if}
 			{#if data.manages}
-				<a
-					href="/lieux/{data.venue.id}/gerer"
-					class="inline-flex min-h-11 items-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
-					>Gérer la fiche du lieu</a
-				>
+				<a href="/lieux/{data.venue.id}/gerer" class="lm-btn">Gérer la fiche du lieu</a>
 			{/if}
 		</div>
 
@@ -100,7 +96,7 @@
 		{/if}
 		{#if data.profile}
 			<!-- Fiche publiée par le lieu (P5-03b). -->
-			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="fiche-title">
+			<section class="lm-tile lm-tile--flow space-y-3 p-4" aria-labelledby="fiche-title">
 				<h2 id="fiche-title" class="flex items-center gap-2 text-lg font-semibold">
 					<Users class="size-4" aria-hidden="true" /> Jouer ici
 				</h2>
@@ -149,7 +145,7 @@
 				{/if}
 			</section>
 
-			<section class="space-y-2 rounded-2xl border bg-card p-4" aria-labelledby="dates-title">
+			<section class="lm-tile lm-tile--flow space-y-2 p-4" aria-labelledby="dates-title">
 				<h2 id="dates-title" class="flex items-center gap-2 text-lg font-semibold">
 					<CalendarDays class="size-4" aria-hidden="true" /> Dates à venir
 				</h2>
@@ -178,10 +174,7 @@
 		{/if}
 
 		{#if !data.venue.validated}
-			<section
-				class="space-y-3 rounded-2xl border border-amber-500/50 bg-amber-500/10 p-4"
-				aria-labelledby="pending-title"
-			>
+			<section class="lm-note space-y-3 p-4" data-tone="amber" aria-labelledby="pending-title">
 				<h2 id="pending-title" class="flex items-center gap-2 font-semibold">
 					<Clock class="size-4" aria-hidden="true" /> En attente de confirmation
 				</h2>
@@ -191,9 +184,7 @@
 						s’agit bien d’un lieu public ou professionnel : il pourra alors accueillir des jams.
 					</p>
 					<form method="POST" action="?/confirm" use:enhance>
-						<button
-							class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
-						>
+						<button class="lm-btn gap-2">
 							<CircleCheck class="size-4" aria-hidden="true" /> Je confirme ce lieu
 						</button>
 					</form>
@@ -215,7 +206,7 @@
 								autocomplete="off"
 								maxlength="17"
 								placeholder="14 chiffres"
-								class="min-h-11 w-full rounded-md border bg-background px-3 font-normal"
+								class="lm-field min-h-11 w-full"
 							/>
 						</label>
 						<button class="min-h-11 rounded-xl border bg-background px-4 font-semibold"
@@ -226,7 +217,7 @@
 			</section>
 		{/if}
 
-		<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="backline-title">
+		<section class="lm-tile lm-tile--flow space-y-3 p-4" aria-labelledby="backline-title">
 			<h2 id="backline-title" class="flex items-center gap-2 text-lg font-semibold">
 				<Speaker class="size-4" aria-hidden="true" /> Matériel sur place
 			</h2>
@@ -266,7 +257,7 @@
 		</section>
 
 		{#if data.venue.validated}
-			<section class="space-y-2 rounded-2xl border bg-card p-4" aria-labelledby="jams-title">
+			<section class="lm-tile lm-tile--flow space-y-2 p-4" aria-labelledby="jams-title">
 				<h2 id="jams-title" class="text-lg font-semibold">Jams à venir</h2>
 				{#if data.jams.length === 0}
 					<p class="text-sm text-muted-foreground">Pas de jam prévue ici pour l’instant.</p>
@@ -305,7 +296,7 @@
 			<!-- Revendication niveau 1 (P5-03a, D31) : code publié, contrôlé à la main. -->
 			{@const mine = data.claim.mine}
 			{@const open = mine?.status === 'AWAITING_PROOF' || mine?.status === 'PENDING'}
-			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="claim-title">
+			<section class="lm-tile lm-tile--flow space-y-3 p-4" aria-labelledby="claim-title">
 				<h2 id="claim-title" class="flex items-center gap-2 text-lg font-semibold">
 					<Store class="size-5" aria-hidden="true" /> C’est ton lieu ?
 				</h2>
@@ -344,11 +335,10 @@
 								required
 								value={mine.proofUrl ?? ''}
 								placeholder="https://www.instagram.com/…"
-								class="w-full rounded-md border bg-background p-2 font-normal"
+								class="lm-field w-full"
 							/>
 						</label>
-						<button
-							class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
+						<button class="lm-btn"
 							>{mine.status === 'PENDING'
 								? 'Mettre à jour le lien'
 								: 'Envoyer pour vérification'}</button
@@ -368,9 +358,7 @@
 						<p class="text-sm text-muted-foreground">{data.claim.blocker}</p>
 					{:else}
 						<form method="POST" action="?/claim" use:enhance>
-							<button class="min-h-11 rounded-full border px-4 font-semibold hover:bg-muted"
-								>C’est mon lieu</button
-							>
+							<button class="lm-btn" data-variant="ghost">C’est mon lieu</button>
 						</form>
 					{/if}
 				{/if}
@@ -382,7 +370,7 @@
 			<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
 				<label class="block space-y-1 font-medium">
 					Motif
-					<select name="reason" required class="w-full rounded-md border bg-background p-2">
+					<select name="reason" required class="lm-field w-full">
 						<option value="">—</option>
 						{#each REPORT_REASONS as r (r)}<option value={r}>{REPORT_REASON_LABELS[r]}</option
 							>{/each}
@@ -395,7 +383,7 @@
 						rows="3"
 						maxlength={MAX_REPORT_DETAILS}
 						placeholder="Par exemple : c'est un domicile, ce lieu n'existe pas"
-						class="w-full rounded-md border bg-background p-2"
+						class="lm-field w-full"
 					></textarea>
 				</label>
 				<button type="submit" class="rounded-md border px-3 py-1.5">Envoyer le signalement</button>

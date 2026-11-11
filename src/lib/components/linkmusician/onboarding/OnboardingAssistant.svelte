@@ -113,7 +113,7 @@
 
 <details class="group rounded-lg border p-4">
 	<summary class="flex min-h-11 cursor-pointer items-center gap-2 font-medium">
-		<Sparkles class="size-4 text-fuchsia-600" aria-hidden="true" />
+		<Sparkles class="size-4 text-primary" aria-hidden="true" />
 		Décris ta situation avec tes mots
 		<span class="text-sm text-muted-foreground">(facultatif)</span>
 	</summary>
@@ -229,7 +229,7 @@
 					rows="5"
 					disabled={!consent}
 					placeholder="Ex. : Je joue de la guitare depuis le lycée, plutôt rock et blues, je me débrouille bien en groupe. J’habite à Blagnac et je cherche un groupe ou des jams."
-					class="block w-full rounded-md border bg-background p-2"
+					class="lm-field block w-full"
 				></textarea>
 				<span class="block text-xs text-muted-foreground">
 					{length}/{ASSISTANT_MAX_CHARS} · {remaining} analyse{remaining > 1 ? 's' : ''} restante{remaining >

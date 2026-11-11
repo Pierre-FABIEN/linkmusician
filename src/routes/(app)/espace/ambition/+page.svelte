@@ -3,7 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 
 	let { data, form } = $props();
 	$effect(() => {
@@ -16,7 +16,8 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-6">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode carrière"
 			title="Mon ambition"
 			intro="Qu’est-ce que tu vises ? On met en avant les objectifs qui t’en rapprochent. Tu peux en changer quand tu veux : il n’y a jamais d’échec, et rien n’est retiré."
 		/>
@@ -25,7 +26,7 @@
 				<legend class="sr-only">Ton ambition</legend>
 				{#each data.choices as a (a.value)}
 					<label
-						class="flex min-h-16 cursor-pointer items-start gap-3 rounded-2xl border bg-card p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+						class="lm-tile lm-tile--flow flex min-h-16 cursor-pointer items-start gap-3 p-4 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
 					>
 						<input
 							type="radio"
@@ -42,9 +43,7 @@
 				{/each}
 			</fieldset>
 			<div class="flex flex-wrap gap-2">
-				<button class="min-h-11 rounded-full bg-primary px-5 font-semibold text-primary-foreground"
-					>Enregistrer</button
-				>
+				<button class="lm-btn">Enregistrer</button>
 				{#if data.ambition}
 					<button name="ambition" value="" class="min-h-11 rounded-full border px-5"
 						>Je ne sais pas encore</button

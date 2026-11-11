@@ -22,14 +22,14 @@
 <SEO {title} noindex nofollow />
 
 <div class="min-h-screen w-screen px-4 pt-6 pb-24">
-	<section class="mx-auto max-w-2xl space-y-6 rounded-2xl border bg-card p-6 shadow-sm">
+	<section class="lm-tile lm-tile--flow mx-auto max-w-2xl space-y-6 p-6">
 		<div class="space-y-2">
 			<p
 				class="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground uppercase"
 			>
 				<Sparkles class="size-3.5" aria-hidden="true" /> Bientôt
 			</p>
-			<h1 class="text-3xl font-black tracking-tight">{title}</h1>
+			<h1 class="lm-title">{title}</h1>
 			<p class="text-muted-foreground">{pitch}</p>
 		</div>
 		<div>

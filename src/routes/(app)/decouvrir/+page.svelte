@@ -61,7 +61,7 @@
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
 		<header class="space-y-1">
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Découvrir</h1>
+			<h1 class="lm-title">Découvrir</h1>
 			<p class="text-muted-foreground">
 				Trouve avec qui jouer, enregistrer ou produire{data.commune
 					? ` autour de ${data.commune}`
@@ -74,7 +74,7 @@
 		<Suggestions title="Des musicien·nes pour toi" suggestions={data.suggestions} />
 
 		<div class="grid items-start gap-6 lg:grid-cols-[minmax(18rem,0.32fr)_minmax(0,0.68fr)]">
-			<form method="GET" class="space-y-3 rounded-2xl border bg-card p-4 lg:sticky lg:top-6">
+			<form method="GET" class="lm-tile lm-tile--flow space-y-3 p-4 lg:sticky lg:top-6">
 				<div class="grid gap-3 sm:grid-cols-2">
 					<label class="space-y-1 text-sm font-medium">
 						Métier
@@ -119,10 +119,7 @@
 							{/each}
 						</select>
 					</label>
-					<button
-						type="submit"
-						class="col-span-full flex min-h-11 w-full items-center justify-center gap-2 self-end rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
-					>
+					<button type="submit" class="lm-btn col-span-full flex w-full gap-2 self-end">
 						<Search class="size-4" aria-hidden="true" /> Chercher
 					</button>
 				</div>
@@ -189,16 +186,16 @@
 
 			<div class="min-w-0 space-y-4">
 				{#if data.state === 'no-location'}
-					<p class="rounded-2xl border bg-card p-6 text-center">
+					<p class="lm-tile lm-tile--flow p-6 text-center">
 						Indique d'abord ta ville pour trouver des musicien·nes près de chez toi.
 						<a href="/profil/ville" class="block pt-2 font-semibold underline">Indiquer ma ville</a>
 					</p>
 				{:else if data.state === 'limited'}
-					<p class="rounded-2xl border bg-card p-6 text-center">
+					<p class="lm-tile lm-tile--flow p-6 text-center">
 						Beaucoup de recherches d'un coup ! Patiente quelques secondes et réessaie.
 					</p>
 				{:else if data.results.length === 0}
-					<div class="space-y-2 rounded-2xl border bg-card p-6 text-center">
+					<div class="lm-tile lm-tile--flow space-y-2 p-6 text-center">
 						<Sparkles class="mx-auto size-6 text-primary" aria-hidden="true" />
 						<p class="font-semibold">Personne ne correspond pour l'instant.</p>
 						<p class="text-sm text-muted-foreground">
@@ -211,11 +208,11 @@
 							<li>
 								<a
 									href="/@{r.handle}"
-									class="flex h-full flex-col gap-3 rounded-2xl border bg-card p-4 transition hover:-translate-y-0.5 hover:border-primary hover:shadow-md"
+									class="lm-tile lm-tile--flow flex h-full flex-col gap-3 p-4 hover:-translate-y-0.5 hover:shadow-md"
 								>
 									<span class="flex items-center gap-3">
 										<Avatar.Root class="size-12">
-											<Avatar.Fallback class="bg-violet-100 font-bold text-violet-800"
+											<Avatar.Fallback class="bg-primary/15 font-bold text-foreground"
 												>{initialsOf(r.displayName)}</Avatar.Fallback
 											>
 										</Avatar.Root>
@@ -284,11 +281,7 @@
 						{/each}
 					</ul>
 					{#if data.hasMore}
-						<a
-							href={nextPage}
-							class="mx-auto flex min-h-11 w-fit items-center rounded-xl border px-5 font-semibold hover:bg-muted"
-							>Voir plus</a
-						>
+						<a href={nextPage} class="lm-btn mx-auto flex w-fit" data-variant="ghost">Voir plus</a>
 					{/if}
 				{/if}
 

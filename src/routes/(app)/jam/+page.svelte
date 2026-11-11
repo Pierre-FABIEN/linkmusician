@@ -77,13 +77,13 @@
 
 <SEO title="Mode jam" noindex nofollow />
 
-<div class="min-h-screen w-full bg-muted/20 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
+<div class="min-h-screen w-full px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
 	<div class="mx-auto max-w-3xl space-y-6">
 		<header class="space-y-2">
 			<p class="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-primary">
 				<Guitar class="size-5" aria-hidden="true" /> Mode jam
 			</p>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Envie de jouer ?</h1>
+			<h1 class="lm-title">Envie de jouer ?</h1>
 			{#if data.commune}
 				<p class="inline-flex items-center gap-2 text-sm text-muted-foreground">
 					<MapPin class="size-4" aria-hidden="true" /> Autour de {data.commune}

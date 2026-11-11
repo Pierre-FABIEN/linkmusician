@@ -28,11 +28,8 @@
 </script>
 
 {#if tip && !hidden}
-	<aside
-		class="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm dark:border-amber-800 dark:bg-amber-950/40"
-		aria-label="Conseil"
-	>
-		<Lightbulb class="mt-0.5 size-5 shrink-0 text-amber-600" aria-hidden="true" />
+	<aside class="lm-note flex items-start gap-3 p-4 text-sm" data-tone="amber" aria-label="Conseil">
+		<Lightbulb class="mt-0.5 size-5 shrink-0" aria-hidden="true" />
 		<div class="min-w-0 flex-1 space-y-2">
 			<p>{tip.text}</p>
 			<div class="flex flex-wrap items-center gap-x-4 gap-y-1">

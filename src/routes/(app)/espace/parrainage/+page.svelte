@@ -4,7 +4,7 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { Handshake } from 'lucide-svelte';
 	import { MAX_INTRO_NOTE } from '#lib/career/introductions';
 
@@ -32,13 +32,14 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-6">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode carrière"
 			title="Parrainer"
 			intro="Tu connais deux personnes qui devraient jouer ensemble ? Présente-les. Si elles collaborent, tu deviens Passeur."
 		/>
 
 		{#if !data.eligible}
-			<div class="space-y-2 rounded-2xl border bg-card p-6 text-center">
+			<div class="lm-tile lm-tile--flow space-y-2 p-6 text-center">
 				<Handshake class="mx-auto size-6 text-primary" aria-hidden="true" />
 				<p class="font-semibold">Le parrainage s’ouvre au palier Pilier local.</p>
 				<p class="text-sm text-muted-foreground">
@@ -47,7 +48,7 @@
 				</p>
 			</div>
 		{:else}
-			<section aria-labelledby="presenter" class="space-y-4 rounded-2xl border bg-card p-4 sm:p-5">
+			<section aria-labelledby="presenter" class="lm-tile lm-tile--flow space-y-4 p-4 sm:p-5">
 				<h2 id="presenter" class="text-xl font-bold">Présenter deux personnes</h2>
 				{#if data.contacts.length < 2}
 					<p class="text-sm text-muted-foreground">
@@ -107,9 +108,7 @@
 							Les deux reçoivent une notification avec le profil de l’autre. Le reste leur
 							appartient.
 						</p>
-						<button
-							disabled={sending}
-							class="min-h-11 w-full rounded-full bg-primary px-4 font-semibold text-primary-foreground disabled:opacity-60"
+						<button disabled={sending} class="lm-btn w-full disabled:opacity-60"
 							>Les présenter</button
 						>
 					</form>
@@ -120,7 +119,7 @@
 		{#if data.introductions.length > 0}
 			<section aria-labelledby="mes-presentations" class="space-y-3">
 				<h2 id="mes-presentations" class="text-xl font-bold">Mes présentations</h2>
-				<ul class="divide-y rounded-2xl border bg-card">
+				<ul class="lm-tile lm-tile--flow divide-y">
 					{#each data.introductions as intro (intro.id)}
 						<li class="flex flex-wrap items-center justify-between gap-2 p-4">
 							<span>
@@ -134,10 +133,7 @@
 								>
 							</span>
 							{#if intro.succeededAt}
-								<span
-									class="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100"
-									>Ont collaboré</span
-								>
+								<span class="lm-pill lm-pill--lg" data-tone="lime">Ont collaboré</span>
 							{/if}
 						</li>
 					{/each}

@@ -108,21 +108,17 @@
 				>
 					<Icon class="size-6" />
 				</span>
-				<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{help.title}</h1>
+				<h1 class="lm-title">{help.title}</h1>
 				{#if help.lead}<p class="text-lg text-muted-foreground">{help.lead}</p>{/if}
 			</header>
 
 			{#if !home && help.toc.length > 2}
-				<nav aria-label="Sur cette page" class="rounded-2xl border bg-card p-4 text-sm">
+				<nav aria-label="Sur cette page" class="lm-tile lm-tile--flow p-4 text-sm">
 					<p class="mb-2 font-semibold">Sur cette page</p>
 					<ul class="flex flex-wrap gap-2">
 						{#each help.toc as t (t.id)}
 							<li>
-								<a
-									href="#{t.id}"
-									class="inline-flex min-h-11 items-center rounded-full border px-3 hover:bg-muted"
-									>{t.text}</a
-								>
+								<a href="#{t.id}" class="lm-btn" data-variant="ghost">{t.text}</a>
 							</li>
 						{/each}
 					</ul>
@@ -136,10 +132,7 @@
 					{#each others as p, i (p.file)}
 						{@const PageIcon = ICONS[p.icon]}
 						<li>
-							<a
-								href={helpHref(p)}
-								class="flex h-full gap-3 rounded-2xl border bg-card p-4 hover:border-primary"
-							>
+							<a href={helpHref(p)} class="lm-tile lm-tile--flow flex h-full gap-3 p-4">
 								<PageIcon class="mt-0.5 size-5 shrink-0" aria-hidden="true" />
 								<span>
 									<span class="block font-semibold">{i + 1}. {p.nav}</span>

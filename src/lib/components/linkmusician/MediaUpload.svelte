@@ -127,7 +127,7 @@
 			type="text"
 			maxlength={MAX_TITLE_LENGTH}
 			bind:value={title}
-			class="w-full rounded-md border bg-background p-2 text-sm"
+			class="lm-field w-full"
 		/>
 	</div>
 	{#if instruments.length > 0}
@@ -135,11 +135,7 @@
 			<label for="upload-instrument" class="block text-sm font-medium"
 				>Instrument joué (facultatif)</label
 			>
-			<select
-				id="upload-instrument"
-				bind:value={instrumentId}
-				class="w-full rounded-md border bg-background p-2 text-sm"
-			>
+			<select id="upload-instrument" bind:value={instrumentId} class="lm-field w-full">
 				<option value="">—</option>
 				{#each instruments as i (i.id)}
 					<option value={i.id}>{i.name}</option>

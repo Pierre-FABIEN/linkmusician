@@ -22,10 +22,10 @@
 <SEO title="Mes médias" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-7xl space-y-8 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-7xl space-y-8">
 		<div>
 			<a href="/profil" class="text-sm text-muted-foreground underline">← Mon profil</a>
-			<h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Mes médias</h1>
+			<h1 class="lm-title mt-2">Mes médias</h1>
 			<p class="text-sm text-muted-foreground">
 				Fais entendre ce que tu joues : envoie un fichier, ou ajoute un lien YouTube, SoundCloud ou
 				Bandcamp.
@@ -54,7 +54,7 @@
 							required
 							placeholder="youtube.com/watch?v=…, soundcloud.com/…, nom.bandcamp.com/track/…"
 							value={form?.url ?? ''}
-							class="w-full rounded-md border bg-background p-2 text-sm"
+							class="lm-field w-full"
 						/>
 					</div>
 					<div class="space-y-1">
@@ -65,7 +65,7 @@
 							type="text"
 							maxlength={MAX_TITLE_LENGTH}
 							placeholder="Repris de la plateforme si vide"
-							class="w-full rounded-md border bg-background p-2 text-sm"
+							class="lm-field w-full"
 						/>
 					</div>
 					{#if data.instruments.length > 0}
@@ -73,11 +73,7 @@
 							<label for="instrumentId" class="block text-sm font-medium"
 								>Instrument joué (facultatif)</label
 							>
-							<select
-								id="instrumentId"
-								name="instrumentId"
-								class="w-full rounded-md border bg-background p-2 text-sm"
-							>
+							<select id="instrumentId" name="instrumentId" class="lm-field w-full">
 								<option value="">—</option>
 								{#each data.instruments as i (i.id)}
 									<option value={i.id}>{i.name}</option>

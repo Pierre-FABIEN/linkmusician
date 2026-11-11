@@ -18,7 +18,7 @@
 	</div>
 	<dl class="grid grid-cols-2 gap-2 sm:grid-cols-3">
 		{#each lines as line (line.label)}
-			<div class="min-w-0 rounded-xl border bg-card p-3">
+			<div class="lm-tile lm-tile--flow min-w-0 p-3">
 				<dt class="text-xs text-muted-foreground">{line.label}</dt>
 				<dd class="mt-1 wrap-break-word font-semibold">{line.value}</dd>
 			</div>

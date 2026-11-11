@@ -179,7 +179,7 @@
 						>
 					</Avatar.Root>
 					<div class="min-w-0 flex-1">
-						<h1 class="text-2xl font-black tracking-tight">Salut {firstName} !</h1>
+						<h1 class="lm-title lm-title--sm">Salut {firstName} !</h1>
 						<p class="text-sm text-muted-foreground">{subtitle}</p>
 					</div>
 					{#if d.tier}<TierBadge {...d.tier} />{/if}

@@ -15,7 +15,7 @@
 	<div class="mx-auto max-w-4xl space-y-6">
 		<div class="space-y-2">
 			<a href="/morceaux" class="text-sm text-muted-foreground underline">← Mes morceaux</a>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Nouvelle idée</h1>
+			<h1 class="lm-title">Nouvelle idée</h1>
 			<p class="text-sm text-muted-foreground">
 				Elle ne se voit que de ton équipe tant qu’elle n’est pas composée.
 			</p>
@@ -29,7 +29,7 @@
 
 		<form
 			method="POST"
-			class="space-y-6 rounded-3xl border bg-card p-5 sm:p-8 lg:p-10"
+			class="space-y-6"
 			use:enhance={() => {
 				sending = true;
 				return async ({ update }) => {
@@ -46,7 +46,7 @@
 					maxlength={MAX_WORK_TITLE}
 					value={form?.values?.title ?? ''}
 					placeholder="Sans titre n° 3"
-					class="block min-h-11 w-full rounded-md border bg-background px-3"
+					class="lm-field block min-h-11 w-full"
 				/>
 			</label>
 
@@ -55,7 +55,7 @@
 					<span class="text-sm font-medium">Ce morceau est</span>
 					<select
 						name="band"
-						class="block min-h-11 w-full rounded-md border bg-background px-3"
+						class="lm-field block min-h-11 w-full"
 						value={form?.values?.band ?? data.defaultBand}
 					>
 						<option value="">À moi</option>
@@ -68,10 +68,7 @@
 
 			<RolePicker families={data.families} legend="Ton rôle sur ce morceau" id="mine" />
 
-			<button
-				disabled={sending}
-				class="min-h-11 rounded-full bg-primary px-6 font-semibold text-primary-foreground disabled:opacity-60"
-			>
+			<button disabled={sending} class="lm-btn disabled:opacity-60">
 				{sending ? 'Un instant…' : 'Noter l’idée'}
 			</button>
 		</form>

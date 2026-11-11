@@ -78,7 +78,7 @@
 					inputmode="numeric"
 					autocomplete="off"
 					placeholder="123 456 789 00012"
-					class="w-full rounded-md border bg-background p-2 font-normal"
+					class="lm-field w-full"
 				/>
 			</label>
 			<label class="block space-y-1 text-sm font-medium">
@@ -88,13 +88,10 @@
 					type="url"
 					required
 					placeholder="https://www.instagram.com/…"
-					class="w-full rounded-md border bg-background p-2 font-normal"
+					class="lm-field w-full"
 				/>
 			</label>
-			<button
-				class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground sm:w-fit"
-				>Demander la vérification</button
-			>
+			<button class="lm-btn sm:w-fit">Demander la vérification</button>
 		</form>
 	{/if}
 </section>

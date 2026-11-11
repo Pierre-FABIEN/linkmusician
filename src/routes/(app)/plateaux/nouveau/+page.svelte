@@ -21,10 +21,10 @@
 <SEO title="Publier un plateau" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-5xl space-y-6 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-5xl space-y-6">
 		<div class="space-y-2">
 			<a href="/annonces" class="text-sm text-muted-foreground underline">← Annonces</a>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Publier un plateau</h1>
+			<h1 class="lm-title">Publier un plateau</h1>
 			<p class="text-sm text-muted-foreground">
 				Une date dans un lieu de l’annuaire : les groupes autour de toi candidatent, tu choisis ton
 				affiche. Publier ne rapporte pas de points ; c’est la date tenue, confirmée par les groupes,
@@ -38,14 +38,10 @@
 				<p class="text-sm text-muted-foreground">
 					Il est réservé aux personnes majeures. Tu peux le cumuler avec tes autres métiers.
 				</p>
-				<a
-					href="/reglages/metiers"
-					class="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
-					>Choisir mes métiers</a
-				>
+				<a href="/reglages/metiers" class="lm-btn">Choisir mes métiers</a>
 			</div>
 		{:else if !data.canPublishAsMe && data.orgs.length === 0}
-			<p class="rounded-2xl border bg-card p-6 text-center">
+			<p class="lm-tile lm-tile--flow p-6 text-center">
 				Un plateau se diffuse autour de ta ville : indique-la d’abord.
 				<a href="/profil/ville" class="block pt-2 font-semibold underline">Indiquer ma ville</a>
 			</p>
@@ -203,7 +199,7 @@
 				<button
 					type="submit"
 					disabled={sending}
-					class="min-h-11 w-full rounded-xl bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-50 sm:w-auto"
+					class="lm-btn w-full disabled:opacity-50 sm:w-auto"
 				>
 					Publier le plateau
 				</button>

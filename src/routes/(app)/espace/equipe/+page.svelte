@@ -1,7 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: mon équipe (P3-12), voir +page.server.ts.
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
 	import { UsersRound } from 'lucide-svelte';
 
@@ -12,7 +12,8 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-8">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode carrière"
 			title="Mon équipe"
 			intro="Tes groupes, et les personnes avec qui tu as le plus collaboré."
 		/>
@@ -20,7 +21,7 @@
 		<section class="space-y-3" aria-labelledby="bands-title">
 			<h2 id="bands-title" class="text-xl font-bold">Mes groupes</h2>
 			{#if data.bands.length === 0}
-				<p class="rounded-2xl border bg-card p-4 text-sm">
+				<p class="lm-tile lm-tile--flow p-4 text-sm">
 					Pas encore de groupe. <a href="/groupes/nouveau" class="font-semibold underline"
 						>Monter un groupe</a
 					>
@@ -32,7 +33,7 @@
 						<li>
 							<a
 								href="/groupes/{b.handle}"
-								class="flex min-h-14 flex-wrap items-center justify-between gap-2 rounded-2xl border bg-card p-4 hover:border-primary"
+								class="lm-tile lm-tile--flow flex min-h-14 flex-wrap items-center justify-between gap-2 p-4"
 							>
 								<span class="flex items-center gap-2 font-semibold"
 									><UsersRound class="size-4" aria-hidden="true" />{b.name}</span
@@ -48,14 +49,14 @@
 		<section class="space-y-3" aria-labelledby="partners-title">
 			<h2 id="partners-title" class="text-xl font-bold">Partenaires réguliers</h2>
 			{#if data.partners.length === 0}
-				<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+				<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
 					Quand tu auras confirmé des collaborations, les personnes avec qui tu joues le plus
 					apparaîtront ici.
 				</p>
 			{:else}
 				<ul class="grid gap-2 sm:grid-cols-2" aria-label="Partenaires réguliers">
 					{#each data.partners as p (p.handle)}
-						<li class="rounded-2xl border bg-card p-4">
+						<li class="lm-tile lm-tile--flow p-4">
 							<a href="/@{p.handle}" class="font-semibold underline">{p.displayName}</a>
 							<span class="block text-sm text-muted-foreground"
 								>{p.count} collaboration{p.count > 1 ? 's' : ''} confirmée{p.count > 1

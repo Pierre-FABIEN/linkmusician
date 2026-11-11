@@ -44,7 +44,7 @@
 			aria-roledescription="étape"
 		>
 			{#key step}
-				<h1 id="intro-title" class="text-3xl font-black tracking-tight sm:text-4xl">
+				<h1 id="intro-title" class="lm-title">
 					{current.title}
 				</h1>
 				<p class="text-lg leading-relaxed text-white/95 lg:text-xl">{current.text}</p>

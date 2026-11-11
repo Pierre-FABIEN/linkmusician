@@ -122,26 +122,26 @@
 			<div class="space-y-6 lg:col-span-2">
 				<Card.Root class="overflow-hidden pt-0">
 					<div
-						class="h-32 bg-violet-900 bg-[radial-gradient(circle_at_20%_30%,var(--color-amber-400),transparent_50%),radial-gradient(circle_at_80%_60%,var(--color-violet-600),transparent_55%)]"
+						class="h-32 bg-muted bg-[radial-gradient(circle_at_20%_30%,var(--tone-amber),transparent_50%),radial-gradient(circle_at_80%_60%,var(--tone-violet),transparent_55%)]"
 					></div>
 					<Card.Content class="-mt-12 space-y-4">
 						<div class="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:gap-4">
 							<Avatar.Root class="size-24 border-4 border-background shadow-xl">
-								<Avatar.Fallback class="bg-amber-100 text-3xl font-bold text-amber-900"
+								<Avatar.Fallback class="bg-primary/15 text-3xl font-bold text-foreground"
 									>{initialsOf(band.displayName)}</Avatar.Fallback
 								>
 							</Avatar.Root>
 							<div class="min-w-0 flex-1">
-								<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight">
+								<h1 class="lm-title flex items-center gap-2">
 									{band.displayName}
 									{#if band.verified}
 										<!-- Organisation vérifiée à la main (P3-09). -->
-										<BadgeCheck class="size-6 shrink-0 text-sky-600" aria-hidden="true" />
+										<BadgeCheck class="size-6 shrink-0 text-primary" aria-hidden="true" />
 										<span class="sr-only">(groupe vérifié)</span>
 									{/if}
 								</h1>
 								{#if band.verified}
-									<p class="text-sm font-medium text-sky-700 dark:text-sky-300">
+									<p class="text-sm font-medium text-primary">
 										Groupe vérifié par l’équipe LinkMusician
 									</p>
 								{/if}
@@ -176,9 +176,7 @@
 								>
 							{:else if band.viewer.status === null}
 								<form method="POST" action="?/join" use:enhance>
-									<button
-										class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 font-semibold text-white"
-									>
+									<button class="lm-btn gap-2">
 										<UserPlus class="size-4" aria-hidden="true" /> Demander à rejoindre
 									</button>
 								</form>
@@ -286,12 +284,7 @@
 									>
 										<div class="space-y-1">
 											<label for="contest-key" class="block font-medium">Étape</label>
-											<select
-												id="contest-key"
-												name="key"
-												required
-												class="w-full rounded-md border bg-background p-2"
-											>
+											<select id="contest-key" name="key" required class="lm-field w-full">
 												{#each contestable as m (m.key)}
 													<option value={m.key}>{m.label}</option>
 												{/each}
@@ -308,7 +301,7 @@
 												minlength={MIN_CONTEST_DETAILS}
 												maxlength={MAX_REPORT_DETAILS}
 												placeholder="J’y étais, ce soir-là il n’y a pas eu de concert."
-												class="w-full rounded-md border bg-background p-2"
+												class="lm-field w-full"
 											></textarea>
 										</div>
 										<button type="submit" class="rounded-md border px-3 py-1.5"
@@ -398,12 +391,7 @@
 						<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
 							<div class="space-y-1">
 								<label for="reason" class="block font-medium">Motif</label>
-								<select
-									id="reason"
-									name="reason"
-									required
-									class="w-full rounded-md border bg-background p-2"
-								>
+								<select id="reason" name="reason" required class="lm-field w-full">
 									<option value="">—</option>
 									{#each REPORT_REASONS as r (r)}
 										<option value={r}>{REPORT_REASON_LABELS[r]}</option>
@@ -417,7 +405,7 @@
 									name="details"
 									rows="3"
 									maxlength={MAX_REPORT_DETAILS}
-									class="w-full rounded-md border bg-background p-2"
+									class="lm-field w-full"
 								></textarea>
 							</div>
 							<button type="submit" class="rounded-md border px-3 py-1.5"

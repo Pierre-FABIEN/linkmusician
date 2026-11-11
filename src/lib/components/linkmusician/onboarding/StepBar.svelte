@@ -16,9 +16,9 @@
 			>
 				<span
 					class="grid size-8 place-items-center rounded-full text-sm font-bold {i + 1 < n
-						? 'bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white'
+						? 'bg-primary text-primary-foreground'
 						: i + 1 === n
-							? 'bg-foreground text-background ring-4 ring-fuchsia-200'
+							? 'bg-foreground text-background ring-4 ring-primary/30'
 							: 'bg-muted text-muted-foreground'}"
 				>
 					{#if i + 1 < n}<Check class="size-4" aria-hidden="true" /><span class="sr-only"

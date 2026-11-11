@@ -100,7 +100,7 @@
 	<div class="mx-auto max-w-7xl space-y-8">
 		<div class="space-y-2">
 			<a href="/groupes" class="text-sm text-muted-foreground underline">← Mes groupes</a>
-			<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight sm:text-4xl">
+			<h1 class="lm-title flex items-center gap-2">
 				<UsersRound class="size-7" aria-hidden="true" />
 				{band.name}
 			</h1>
@@ -130,7 +130,7 @@
 		<DemarcheCard nudge={data.demarche} />
 
 		{#if data.created && !band.formedAt}
-			<div class="flex gap-3 rounded-2xl border border-primary bg-card p-4 text-sm">
+			<div class="lm-tile lm-tile--flow flex gap-3 border-primary p-4 text-sm">
 				<PartyPopper class="size-5 shrink-0 text-primary" aria-hidden="true" />
 				<p>
 					Ton groupe existe. Invite quelqu’un avec qui tu as joué : à son arrivée, le groupe est
@@ -147,18 +147,16 @@
 
 		{#if !dissolved && !band.my}
 			<form method="POST" action="?/request" use:enhance>
-				<button
-					class="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-				>
+				<button class="lm-btn gap-2">
 					<UserPlus class="size-4" aria-hidden="true" /> Demander à rejoindre
 				</button>
 			</form>
 		{:else if band.my?.status === 'REQUESTED'}
-			<p class="rounded-2xl border bg-card p-4 text-sm">
+			<p class="lm-tile lm-tile--flow p-4 text-sm">
 				Ta demande est envoyée. Le groupe te répondra ici.
 			</p>
 		{:else if band.my?.status === 'INVITED'}
-			<p class="rounded-2xl border border-primary bg-card p-4 text-sm">
+			<p class="lm-tile lm-tile--flow border-primary p-4 text-sm">
 				Le groupe t’invite.
 				<a href="/groupes" class="font-semibold underline">Répondre à l’invitation</a>
 			</p>
@@ -169,9 +167,7 @@
 				<h2 id="requests-title" class="text-xl font-bold">Demandes pour rejoindre</h2>
 				<ul class="grid gap-2 md:grid-cols-2">
 					{#each band.requests as r (r.membershipId)}
-						<li
-							class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border bg-card p-4"
-						>
+						<li class="lm-tile lm-tile--flow flex flex-wrap items-center justify-between gap-2 p-4">
 							{#if r.handle}
 								<a href="/@{r.handle}" class="font-semibold underline">{r.name}</a>
 							{:else}
@@ -180,10 +176,7 @@
 							<div class="flex gap-2">
 								<form method="POST" action="?/acceptRequest" use:enhance>
 									<input type="hidden" name="membershipId" value={r.membershipId} />
-									<button
-										class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-										>Accepter {r.name}</button
-									>
+									<button class="lm-btn">Accepter {r.name}</button>
 								</form>
 								<form method="POST" action="?/declineRequest" use:enhance>
 									<input type="hidden" name="membershipId" value={r.membershipId} />
@@ -200,7 +193,7 @@
 			<h2 id="members-title" class="text-xl font-bold">Membres</h2>
 			<ul class="grid gap-3 md:grid-cols-2" aria-label="Membres actuels">
 				{#each band.members as m (m.membershipId)}
-					<li class="space-y-2 rounded-2xl border bg-card p-4">
+					<li class="lm-tile lm-tile--flow space-y-2 p-4">
 						<div class="flex flex-wrap items-start justify-between gap-2">
 							<span>
 								{#if m.handle}
@@ -276,7 +269,7 @@
 							{@const step = stepOf(def.key)}
 							{@const rule = proofRule(def.key)}
 							{@const proofs = step ? data.proofs[step.id] : undefined}
-							<li class="space-y-3 rounded-2xl border bg-card p-4">
+							<li class="lm-tile lm-tile--flow space-y-3 p-4">
 								<div class="flex items-start justify-between gap-2">
 									<span class="flex gap-3">
 										{#if step}
@@ -346,7 +339,7 @@
 													min={MIN_MILESTONE_DATE}
 													max={today}
 													value={step ? isoDay(step.occurredAt) : today}
-													class="block rounded-md border bg-background p-2 font-normal"
+													class="lm-field block"
 												/>
 											</label>
 											<label class="block grow space-y-1 text-sm font-medium">
@@ -358,7 +351,7 @@
 													maxlength={MAX_MILESTONE_NOTE}
 													value={step?.note ?? ''}
 													placeholder={NOTE_EXAMPLES[def.key] ?? ''}
-													class="w-full rounded-md border bg-background p-2 font-normal"
+													class="lm-field w-full"
 												/>
 											</label>
 										</div>
@@ -369,10 +362,7 @@
 											</p>
 										{/if}
 										<div class="flex gap-2">
-											<button
-												class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-												>{step ? 'Enregistrer' : 'Ajouter au parcours'}</button
-											>
+											<button class="lm-btn">{step ? 'Enregistrer' : 'Ajouter au parcours'}</button>
 											<button
 												type="button"
 												class="min-h-11 rounded-full border px-4"
@@ -473,7 +463,7 @@
 																required
 																autocomplete="off"
 																placeholder="https://"
-																class="w-full rounded-md border bg-background p-2 font-normal"
+																class="lm-field w-full"
 															/>
 														</label>
 														<button class="min-h-11 rounded-full border px-4"
@@ -498,13 +488,10 @@
 																required
 																autocomplete="off"
 																placeholder="@son-identifiant"
-																class="w-full rounded-md border bg-background p-2 font-normal"
+																class="lm-field w-full"
 															/>
 														</label>
-														<button
-															class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-															>Demander de confirmer</button
-														>
+														<button class="lm-btn">Demander de confirmer</button>
 													</form>
 												{/if}
 												<p class="text-muted-foreground">
@@ -544,32 +531,21 @@
 												min={MIN_MILESTONE_DATE}
 												max={today}
 												value={today}
-												class="block rounded-md border bg-background p-2 font-normal"
+												class="lm-field block"
 											/>
 										</label>
 										<label class="block space-y-1 text-sm font-medium">
 											<span>Identifiant</span>
-											<select
-												name="kind"
-												class="block rounded-md border bg-background p-2 font-normal"
-											>
+											<select name="kind" class="lm-field block">
 												<option value="UPC">UPC</option>
 												<option value="ISRC">ISRC</option>
 											</select>
 										</label>
 										<label class="block min-w-56 grow space-y-1 text-sm font-medium">
 											<span>UPC ou ISRC</span>
-											<input
-												name="value"
-												required
-												autocomplete="off"
-												class="w-full rounded-md border bg-background p-2 font-normal"
-											/>
+											<input name="value" required autocomplete="off" class="lm-field w-full" />
 										</label>
-										<button
-											class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-											>Vérifier {def.label.toLowerCase()}</button
-										>
+										<button class="lm-btn">Vérifier {def.label.toLowerCase()}</button>
 									</form>
 								{/if}
 							{/each}
@@ -626,7 +602,7 @@
 							<li>
 								<a
 									href="/morceaux/{w.id}"
-									class="flex min-h-11 items-center justify-between gap-2 rounded-2xl border bg-card p-4 hover:border-primary"
+									class="lm-tile lm-tile--flow flex min-h-11 items-center justify-between gap-2 p-4"
 								>
 									<span class="truncate font-semibold">{w.title}</span>
 									<span class="shrink-0 text-xs text-muted-foreground"
@@ -650,9 +626,7 @@
 							<li>
 								<form method="POST" action="?/invite" use:enhance>
 									<input type="hidden" name="handle" value={c.handle} />
-									<button class="min-h-11 rounded-full border px-3 text-sm hover:bg-muted"
-										>Inviter {c.displayName}</button
-									>
+									<button class="lm-btn" data-variant="ghost">Inviter {c.displayName}</button>
 								</form>
 							</li>
 						{/each}
@@ -676,19 +650,16 @@
 							autocomplete="off"
 							bind:value={handle}
 							placeholder="@malik-batterie"
-							class="w-full rounded-md border bg-background p-2 font-normal"
+							class="lm-field w-full"
 						/>
 					</label>
-					<button
-						class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-						>Inviter</button
-					>
+					<button class="lm-btn">Inviter</button>
 				</form>
 				{#if band.invitations.length > 0}
 					<ul class="grid gap-2 sm:grid-cols-2" aria-label="Invitations en attente">
 						{#each band.invitations as i (i.membershipId)}
 							<li
-								class="flex items-center justify-between gap-2 rounded-2xl border bg-card px-4 py-2 text-sm"
+								class="lm-tile lm-tile--flow flex items-center justify-between gap-2 px-4 py-2 text-sm"
 							>
 								<span>{i.name} · invitation en attente</span>
 								<form method="POST" action="?/withdraw" use:enhance>
@@ -745,7 +716,7 @@
 							maxlength={MAX_MEMBER_TITLE}
 							value={band.my?.title ?? ''}
 							placeholder="basse, chœurs"
-							class="w-full rounded-md border bg-background p-2 font-normal"
+							class="lm-field w-full"
 						/>
 					</label>
 					<button class="min-h-11 rounded-full border px-4 text-sm">Enregistrer</button>

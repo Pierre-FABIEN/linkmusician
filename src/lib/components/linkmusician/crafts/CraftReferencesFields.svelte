@@ -45,7 +45,7 @@
 				<label class="space-y-1 text-sm">
 					<span class="font-medium">Titre</span>
 					<input
-						class="w-full rounded-md border bg-background p-2"
+						class="lm-field w-full"
 						placeholder={titlePlaceholder}
 						value={row.title}
 						oninput={(e) => update(i, 'title', e.currentTarget.value)}
@@ -59,7 +59,7 @@
 					<input
 						type="text"
 						inputmode="url"
-						class="w-full rounded-md border bg-background p-2"
+						class="lm-field w-full"
 						placeholder="soundcloud.com/…"
 						value={row.url}
 						oninput={(e) => update(i, 'url', e.currentTarget.value)}
@@ -70,7 +70,8 @@
 				</label>
 				<button
 					type="button"
-					class="flex min-h-11 items-center justify-center self-end rounded-md border px-3 text-muted-foreground hover:bg-muted"
+					class="lm-btn flex self-end text-muted-foreground"
+					data-variant="ghost"
 					aria-label="Retirer"
 					onclick={() => (references = references.filter((_, k) => k !== i))}
 				>
@@ -82,7 +83,8 @@
 	{#if references.length < MAX_REFERENCES}
 		<button
 			type="button"
-			class="flex min-h-11 items-center gap-2 rounded-xl border px-4 text-sm font-medium hover:bg-muted"
+			class="lm-btn flex gap-2"
+			data-variant="ghost"
 			onclick={() => (references = [...references, { title: '', url: '' }])}
 		>
 			<Plus class="size-4" aria-hidden="true" />

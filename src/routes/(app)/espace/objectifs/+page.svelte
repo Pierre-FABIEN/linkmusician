@@ -1,7 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: mes objectifs (P3-12, P4-02b, P4-04), voir +page.server.ts.
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import QuestCard from '#lib/components/linkmusician/progress/QuestCard.svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
 	import { AMBITION_INFO } from '#lib/career/ambition';
@@ -56,7 +56,8 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-8">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode carrière"
 			title="Tes prochains objectifs"
 			intro="Les étapes atteignables maintenant : des faits réels de ta carrière, à franchir avec d’autres."
 		/>

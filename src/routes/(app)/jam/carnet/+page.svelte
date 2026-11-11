@@ -33,7 +33,7 @@
 	<div class="mx-auto max-w-7xl space-y-8">
 		<div class="space-y-2">
 			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
-			<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight sm:text-4xl">
+			<h1 class="lm-title flex items-center gap-2">
 				<BookHeart class="size-7" aria-hidden="true" /> Mon carnet de jams
 			</h1>
 			<p class="text-sm text-muted-foreground">
@@ -44,7 +44,7 @@
 		<TipCard tip={data.tip} />
 
 		{#if data.entries.length === 0}
-			<p class="rounded-2xl border bg-card p-6 text-center text-sm text-muted-foreground">
+			<p class="lm-tile lm-tile--flow p-6 text-center text-sm text-muted-foreground">
 				Ton carnet se remplit quand tu dis « J’y étais » après une jam.
 				<a href="/jam/agenda" class="block pt-2 font-semibold underline">Trouver une jam</a>
 			</p>
@@ -57,7 +57,7 @@
 
 			<ol class="grid gap-4 lg:grid-cols-2" aria-label="Jams du carnet">
 				{#each data.entries as e (e.jamId)}
-					<li class="space-y-3 rounded-2xl border bg-card p-4">
+					<li class="lm-tile lm-tile--flow space-y-3 p-4">
 						<div>
 							<p class="text-sm text-muted-foreground">{day.format(new Date(e.startsAt))}</p>
 							<h2 class="text-lg font-bold">{e.title}</h2>
@@ -100,13 +100,13 @@
 				<a href="/messages/contacts" class="font-semibold underline">Tous mes contacts</a>
 			</p>
 			{#if data.network.length === 0}
-				<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+				<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
 					Après une jam, touche « Garder le contact » sur les personnes avec qui tu veux rejouer.
 				</p>
 			{:else}
 				<ul class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
 					{#each data.network as n (n.handle)}
-						<li class="flex items-start justify-between gap-2 rounded-2xl border bg-card p-4">
+						<li class="lm-tile lm-tile--flow flex items-start justify-between gap-2 p-4">
 							<span>
 								<a href="/@{n.handle}" class="font-semibold underline">{n.displayName}</a>
 								<span class="block text-sm text-muted-foreground"

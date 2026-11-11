@@ -24,7 +24,7 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
-		<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Messages</h1>
+		<h1 class="lm-title">Messages</h1>
 		<MessagesTabs current="contacts" />
 
 		{#if form?.error}
@@ -34,7 +34,7 @@
 		{/if}
 
 		{#if data.contacts.length === 0}
-			<div class="space-y-2 rounded-2xl border bg-card p-6 text-center">
+			<div class="lm-tile lm-tile--flow space-y-2 p-6 text-center">
 				<BookUser class="mx-auto size-6 text-primary" aria-hidden="true" />
 				<p class="font-semibold">Ton carnet est encore vide.</p>
 				<p class="text-sm text-muted-foreground">
@@ -62,7 +62,7 @@
 			{#if data.groups.length > 0}
 				<ul class="grid gap-3 md:grid-cols-2" aria-label="Groupes de contacts">
 					{#each data.groups as g (g.id)}
-						<li class="space-y-2 rounded-2xl border bg-card p-4">
+						<li class="lm-tile lm-tile--flow space-y-2 p-4">
 							<div class="flex items-start justify-between gap-2">
 								<span>
 									<span class="font-semibold">{g.name}</span>
@@ -83,8 +83,7 @@
 							{#if g.members.length > 0}
 								<form method="POST" action="?/openDiscussion" use:enhance>
 									<input type="hidden" name="groupId" value={g.id} />
-									<button
-										class="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
+									<button class="lm-btn gap-2"
 										><MessagesSquare class="size-4" aria-hidden="true" />Ouvrir une discussion<span
 											class="sr-only"
 										>
@@ -109,7 +108,7 @@
 												required
 												maxlength={MAX_GROUP_NAME}
 												value={g.name}
-												class="w-full rounded-md border bg-background p-2 font-normal"
+												class="lm-field w-full"
 											/>
 										</label>
 										<button class="min-h-11 rounded-full border px-4">Renommer</button>
@@ -159,12 +158,10 @@
 						maxlength={MAX_GROUP_NAME}
 						bind:value={newGroup}
 						placeholder="Projet funk"
-						class="w-full rounded-md border bg-background p-2 font-normal"
+						class="lm-field w-full"
 					/>
 				</label>
-				<button class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-					>Créer</button
-				>
+				<button class="lm-btn">Créer</button>
 			</form>
 		</section>
 
@@ -175,7 +172,7 @@
 				</h2>
 				<ul class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="Mon carnet">
 					{#each data.contacts as c (c.id)}
-						<li class="space-y-3 rounded-2xl border bg-card p-4">
+						<li class="lm-tile lm-tile--flow space-y-3 p-4">
 							<div class="flex flex-wrap items-start justify-between gap-2">
 								<span class="min-w-0">
 									<a href="/@{c.handle}" class="font-semibold underline">{c.displayName}</a>
@@ -200,9 +197,7 @@
 										>
 									{/if}
 								</span>
-								<a
-									href={writeHref(c)}
-									class="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
+								<a href={writeHref(c)} class="lm-btn shrink-0 gap-2"
 									><MessageCircle class="size-4" aria-hidden="true" />Écrire<span class="sr-only">
 										à {c.displayName}</span
 									></a
@@ -218,7 +213,7 @@
 									<input type="hidden" name="handle" value={c.handle} />
 									<label class="block space-y-1 font-medium">
 										Ajouter {c.displayName} à
-										<select name="groupId" class="block rounded-md border bg-background p-2">
+										<select name="groupId" class="lm-field block">
 											{#each data.groups as g (g.id)}
 												<option value={g.id}>{g.name}</option>
 											{/each}

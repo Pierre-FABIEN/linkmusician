@@ -3,7 +3,7 @@
 	import { parseDate, type DateValue } from '@internationalized/date';
 	import { Calendar as CalendarPrimitive } from 'bits-ui';
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import * as Calendar from '#shadcn/calendar';
 	import { parisDayKey } from '#lib/jam/calendar';
 	import { Badge } from '#shadcn/badge';
@@ -63,9 +63,10 @@
 
 <SEO title="Jams à venir" noindex nofollow />
 
-<div class="min-h-screen w-full bg-muted/20 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
+<div class="min-h-screen w-full px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
 	<div class="mx-auto max-w-7xl space-y-6">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode jam"
 			title="Jams à venir"
 			intro="Choisis une date dans le calendrier, puis la jam qui te tente. Les lieux de jam du coin sont en dessous."
 		/>
@@ -81,13 +82,13 @@
 				{/if}
 			</div>
 			{#if !data.commune}
-				<p class="rounded-2xl border bg-card p-6 text-center">
+				<p class="lm-tile lm-tile--flow p-6 text-center">
 					Indique ta ville pour voir les jams près de chez toi.
 					<a href="/profil/ville" class="block pt-2 font-semibold underline">Indiquer ma ville</a>
 				</p>
 			{:else}
 				<div class="grid gap-4 lg:grid-cols-[minmax(26rem,0.78fr)_minmax(0,1.22fr)]">
-					<div class="min-w-0 space-y-3 rounded-3xl border bg-card p-3 shadow-sm sm:p-5">
+					<div class="min-w-0 space-y-3">
 						<div class="flex items-center gap-2 px-1 text-sm text-muted-foreground">
 							<span
 								class="inline-flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
@@ -171,7 +172,7 @@
 							>
 						</div>
 						{#if selectedJams.length === 0}
-							<div class="rounded-2xl border border-dashed bg-card p-6 text-center">
+							<div class="lm-tile lm-tile--flow border-dashed p-6 text-center">
 								<CalendarDays
 									class="mx-auto mb-2 size-8 text-muted-foreground"
 									aria-hidden="true"
@@ -195,7 +196,7 @@
 									<li>
 										<a
 											href="/jams/{j.id}"
-											class="group block space-y-3 rounded-2xl border bg-card p-4 transition hover:border-primary hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+											class="lm-tile lm-tile--flow group block space-y-3 p-4 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 										>
 											<span class="flex flex-wrap items-start justify-between gap-2">
 												<span class="text-lg font-bold">{j.title}</span>
@@ -249,7 +250,7 @@
 				<a href="/lieux" class="text-sm font-semibold underline">Tous les lieux</a>
 			</div>
 			{#if data.venues.length === 0}
-				<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+				<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
 					Bars, cafés-concerts, MJC, locaux de répète… Ajoute le lieu où tu aimes jouer : les autres
 					le trouveront.
 					<a href="/lieux/nouveau" class="block pt-2 font-semibold underline">Ajouter un lieu</a>
@@ -258,10 +259,7 @@
 				<ul class="grid gap-3 sm:grid-cols-3" aria-label="Lieux de jam autour de toi">
 					{#each data.venues as v (v.id)}
 						<li>
-							<a
-								href="/lieux/{v.id}"
-								class="block rounded-2xl border bg-card p-4 transition hover:border-primary"
-							>
+							<a href="/lieux/{v.id}" class="lm-tile lm-tile--flow block p-4">
 								<span class="block font-semibold">{v.name}</span>
 								<span class="text-sm text-muted-foreground">{v.kindLabel} · {v.distance}</span>
 							</a>

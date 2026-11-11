@@ -50,7 +50,7 @@
 				<ArrowLeft class="size-5" aria-hidden="true" />
 			</a>
 			<div class="min-w-0 flex-1">
-				<h1 class="truncate text-2xl font-black">{d.title}</h1>
+				<h1 class="lm-title lm-title--sm truncate">{d.title}</h1>
 				<p class="truncate text-sm text-muted-foreground">
 					{d.access === 'member' ? `Avec ${d.summary}` : `Discussion de groupe`}
 				</p>
@@ -58,7 +58,7 @@
 		</header>
 
 		{#if d.access === 'invitation'}
-			<section class="space-y-3 rounded-2xl border bg-card p-5" aria-labelledby="invite-title">
+			<section class="lm-tile lm-tile--flow space-y-3 p-5" aria-labelledby="invite-title">
 				<MessagesSquare class="size-6 text-primary" aria-hidden="true" />
 				<h2 id="invite-title" class="text-lg font-semibold">
 					{d.creator.displayName} t’invite à la discussion « {d.title} »
@@ -70,10 +70,7 @@
 				</p>
 				<div class="flex flex-wrap gap-2">
 					<form method="POST" action="?/join" use:enhance>
-						<button
-							class="min-h-11 rounded-xl bg-primary px-5 font-semibold text-primary-foreground"
-							>Rejoindre</button
-						>
+						<button class="lm-btn">Rejoindre</button>
 					</form>
 					<form method="POST" action="?/decline" use:enhance>
 						<button class="min-h-11 rounded-xl border px-5 font-semibold">Non merci</button>
@@ -108,7 +105,7 @@
 						>
 							<label class="block space-y-1 font-medium">
 								Inviter un contact
-								<select name="handle" class="block rounded-md border bg-background p-2">
+								<select name="handle" class="lm-field block">
 									{#each data.invitable as c (c.handle)}
 										<option value={c.handle}>{c.displayName}</option>
 									{/each}
@@ -171,7 +168,7 @@
 						maxlength={MAX_MESSAGE_LENGTH}
 						required
 						placeholder="Écris au groupe…"
-						class="w-full resize-y rounded-2xl border bg-background p-3"
+						class="lm-field w-full resize-y"
 					></textarea>
 				</label>
 				<button

@@ -30,7 +30,7 @@
 			<p class="flex items-center gap-2 text-sm text-muted-foreground">
 				<Flag class="size-4" aria-hidden="true" /> Étape de groupe à confirmer
 			</p>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{step.label}</h1>
+			<h1 class="lm-title">{step.label}</h1>
 			<p>
 				<a href="/@{step.band.handle}" class="font-semibold underline">{step.band.name}</a>
 				· {day.format(new Date(step.occurredAt))}{step.note ? ` · ${step.note}` : ''}
@@ -56,7 +56,7 @@
 		{/if}
 
 		{#if step.status === 'REQUESTED'}
-			<div class="space-y-4 rounded-2xl border bg-card p-4">
+			<div class="lm-tile lm-tile--flow space-y-4 p-4">
 				<p>
 					{step.requestedBy ?? 'Le groupe'} te demande de confirmer cette étape{step.role ===
 					'MEMBER'
@@ -69,10 +69,7 @@
 				</p>
 				<div class="flex flex-wrap gap-2">
 					<form method="POST" action="?/confirm" use:enhance>
-						<button
-							class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-							>Je confirme, j’y étais</button
-						>
+						<button class="lm-btn">Je confirme, j’y étais</button>
 					</form>
 					<form method="POST" action="?/decline" use:enhance>
 						<button class="min-h-11 rounded-full border px-4">Je n’y étais pas</button>
@@ -80,7 +77,7 @@
 				</div>
 			</div>
 		{:else}
-			<p class="rounded-2xl border bg-card p-4">
+			<p class="lm-tile lm-tile--flow p-4">
 				{step.status === 'CONFIRMED'
 					? 'Tu as confirmé cette étape. Merci !'
 					: 'Tu as indiqué que tu n’y étais pas.'}

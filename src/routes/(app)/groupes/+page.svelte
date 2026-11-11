@@ -25,13 +25,10 @@
 		<div class="space-y-2">
 			<a href="/espace" class="text-sm text-muted-foreground underline">← Mon parcours</a>
 			<div class="flex flex-wrap items-center justify-between gap-3">
-				<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight sm:text-4xl">
+				<h1 class="lm-title flex items-center gap-2">
 					<UsersRound class="size-7" aria-hidden="true" /> Mes groupes
 				</h1>
-				<a
-					href="/groupes/nouveau"
-					class="inline-flex min-h-11 items-center gap-1 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-				>
+				<a href="/groupes/nouveau" class="lm-btn gap-1">
 					<Plus class="size-4" aria-hidden="true" /> Monter un groupe
 				</a>
 			</div>
@@ -51,7 +48,7 @@
 				<h2 id="invites-title" class="text-xl font-bold">Invitations reçues</h2>
 				<ul class="grid gap-3 md:grid-cols-2">
 					{#each data.invitations as b (b.membershipId)}
-						<li class="space-y-3 rounded-2xl border border-primary bg-card p-4">
+						<li class="lm-tile lm-tile--flow space-y-3 border-primary p-4">
 							<p>
 								<span class="font-semibold">{b.name}</span>
 								<span class="block text-sm text-muted-foreground"
@@ -63,10 +60,7 @@
 							<div class="flex flex-wrap gap-2">
 								<form method="POST" action="?/accept" use:enhance>
 									<input type="hidden" name="membershipId" value={b.membershipId} />
-									<button
-										class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-										>Rejoindre {b.name}</button
-									>
+									<button class="lm-btn">Rejoindre {b.name}</button>
 								</form>
 								<form method="POST" action="?/decline" use:enhance>
 									<input type="hidden" name="membershipId" value={b.membershipId} />
@@ -80,7 +74,7 @@
 		{/if}
 
 		{#if empty}
-			<div class="space-y-2 rounded-2xl border bg-card p-6 text-center text-sm">
+			<div class="lm-tile lm-tile--flow space-y-2 p-6 text-center text-sm">
 				<p class="font-semibold">Tu n’as pas encore de groupe.</p>
 				<p class="text-muted-foreground">
 					Monte le tien et invite les gens avec qui tu as joué, ou réponds à une annonce « cherche
@@ -98,7 +92,7 @@
 						<li>
 							<a
 								href="/groupes/{b.handle}"
-								class="block min-h-11 space-y-1 rounded-2xl border bg-card p-4 hover:bg-muted"
+								class="lm-tile lm-tile--flow block min-h-11 space-y-1 p-4"
 							>
 								<span class="flex flex-wrap items-center gap-2">
 									<span class="text-lg font-bold">{b.name}</span>
@@ -126,7 +120,7 @@
 				<h2 id="requests-title" class="text-xl font-bold">Mes demandes en attente</h2>
 				<ul class="grid gap-2 sm:grid-cols-2">
 					{#each data.requests as b (b.membershipId)}
-						<li class="flex items-center justify-between gap-2 rounded-2xl border bg-card p-4">
+						<li class="lm-tile lm-tile--flow flex items-center justify-between gap-2 p-4">
 							<a href="/groupes/{b.handle}" class="font-semibold underline">{b.name}</a>
 							<form method="POST" action="?/withdraw" use:enhance>
 								<input type="hidden" name="membershipId" value={b.membershipId} />

@@ -19,7 +19,7 @@
 	<div class="mx-auto max-w-7xl space-y-8">
 		<div class="space-y-2">
 			<a href="/espace" class="text-sm text-muted-foreground underline">← Mon parcours</a>
-			<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight sm:text-4xl">
+			<h1 class="lm-title flex items-center gap-2">
 				<Music class="size-7" aria-hidden="true" /> Mes morceaux
 			</h1>
 			<p class="text-sm text-muted-foreground">
@@ -39,7 +39,7 @@
 				<h2 id="confirm-title" class="text-xl font-bold">On te crédite</h2>
 				<ul class="grid gap-2 md:grid-cols-2">
 					{#each data.toConfirm as w (w.id)}
-						<li class="space-y-3 rounded-2xl border border-primary bg-card p-4">
+						<li class="lm-tile lm-tile--flow space-y-3 border-primary p-4">
 							<p class="text-sm">
 								<a href="/morceaux/{w.id}" class="font-semibold underline">{w.title}</a>
 								{#if w.band}· {w.band.name}{/if}
@@ -50,10 +50,7 @@
 							<div class="flex flex-wrap gap-2">
 								<form method="POST" action="?/confirm" use:enhance>
 									<input type="hidden" name="workId" value={w.id} />
-									<button
-										class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-										>C’est bien moi</button
-									>
+									<button class="lm-btn">C’est bien moi</button>
 								</form>
 								<form method="POST" action="?/decline" use:enhance>
 									<input type="hidden" name="workId" value={w.id} />
@@ -69,15 +66,12 @@
 		<section class="space-y-3" aria-labelledby="works-title">
 			<div class="flex flex-wrap items-center justify-between gap-2">
 				<h2 id="works-title" class="text-xl font-bold">Morceaux</h2>
-				<a
-					href="/morceaux/nouveau"
-					class="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-				>
+				<a href="/morceaux/nouveau" class="lm-btn gap-2">
 					<Plus class="size-4" aria-hidden="true" /> Nouvelle idée
 				</a>
 			</div>
 			{#if data.works.length === 0}
-				<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+				<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
 					Pas encore de morceau. Note une idée, même avec un titre provisoire : tu pourras créditer
 					celles et ceux qui la jouent avec toi.
 				</p>
@@ -87,7 +81,7 @@
 						<li>
 							<a
 								href="/morceaux/{w.id}"
-								class="flex min-h-11 flex-wrap items-center justify-between gap-2 rounded-2xl border bg-card p-4 hover:border-primary"
+								class="lm-tile lm-tile--flow flex min-h-11 flex-wrap items-center justify-between gap-2 p-4"
 							>
 								<span class="min-w-0">
 									<span class="block truncate font-semibold">{w.title}</span>

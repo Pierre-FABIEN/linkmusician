@@ -118,10 +118,10 @@
 <SEO title="Fiche de {data.studio.name}" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-4xl space-y-8 rounded-3xl border bg-card p-5 sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-4xl space-y-8">
 		<header class="space-y-3">
 			<a href="/studios" class="text-sm text-muted-foreground underline">← Mes studios</a>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{data.studio.name}</h1>
+			<h1 class="lm-title">{data.studio.name}</h1>
 			{#if data.created}
 				<p class="rounded-md border border-primary/40 bg-primary/5 p-3 text-sm">
 					La fiche est créée. Remplis-la, puis publie-la pour que les musicien·nes te trouvent.
@@ -154,9 +154,7 @@
 						</p>
 					</div>
 					<form method="POST" action="?/unpublish" use:enhance>
-						<button class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
-							>Retirer la fiche</button
-						>
+						<button class="lm-btn" data-variant="ghost">Retirer la fiche</button>
 					</form>
 				</div>
 			{:else}
@@ -172,10 +170,7 @@
 					</div>
 				{:else}
 					<form method="POST" action="?/publish" use:enhance>
-						<button
-							class="min-h-11 w-full rounded-full bg-primary px-4 font-semibold text-primary-foreground sm:w-auto"
-							>Publier la fiche</button
-						>
+						<button class="lm-btn w-full sm:w-auto">Publier la fiche</button>
 					</form>
 				{/if}
 			{/if}
@@ -190,7 +185,11 @@
 						class="flex items-center gap-3 rounded-xl border p-3 {quest.done ? 'opacity-70' : ''}"
 					>
 						{#if quest.done}
-							<CircleCheck class="size-5 shrink-0 text-emerald-600" aria-hidden="true" />
+							<CircleCheck
+								class="size-5 shrink-0 lm-tone-icon"
+								data-tone="lime"
+								aria-hidden="true"
+							/>
 						{:else}
 							<Circle class="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
 						{/if}
@@ -339,7 +338,8 @@
 					<button
 						type="button"
 						onclick={() => rooms.push({ name: '', description: '', hourlyRate: '' })}
-						class="inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+						class="lm-btn gap-1.5"
+						data-variant="ghost"
 					>
 						<Plus class="size-4" aria-hidden="true" />Ajouter une salle
 					</button>
@@ -387,14 +387,14 @@
 										type="time"
 										bind:value={day.opensAt}
 										aria-label="{WEEKDAY_LABELS[day.weekday]} : ouverture"
-										class="rounded-md border bg-background p-2"
+										class="lm-field"
 									/>
 									à
 									<input
 										type="time"
 										bind:value={day.closesAt}
 										aria-label="{WEEKDAY_LABELS[day.weekday]} : fermeture"
-										class="rounded-md border bg-background p-2"
+										class="lm-field"
 									/>
 								</span>
 							{:else}
@@ -413,9 +413,7 @@
 			</fieldset>
 
 			<div class="sticky bottom-4 z-10">
-				<button
-					disabled={saving}
-					class="min-h-12 w-full rounded-full bg-primary px-4 font-semibold text-primary-foreground shadow-lg disabled:opacity-60"
+				<button disabled={saving} class="lm-btn w-full disabled:opacity-60"
 					>{saving ? 'Enregistrement…' : 'Enregistrer la fiche'}</button
 				>
 			</div>
@@ -512,8 +510,7 @@
 						{#if member.isMe || data.studio.role === 'OWNER' || member.status === 'INVITED'}
 							<form method="POST" action="?/removeManager" use:enhance>
 								<input type="hidden" name="membershipId" value={member.membershipId} />
-								<button
-									class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+								<button class="lm-btn" data-variant="ghost"
 									>{member.isMe
 										? 'Quitter la gestion'
 										: member.status === 'INVITED'
@@ -548,9 +545,7 @@
 						producteur·rice.</span
 					>
 				</label>
-				<button class="min-h-11 rounded-full border px-5 font-semibold hover:bg-muted"
-					>Inviter</button
-				>
+				<button class="lm-btn" data-variant="ghost">Inviter</button>
 			</form>
 		</section>
 	</div>

@@ -43,12 +43,7 @@
 					</fieldset>
 					<div class="space-y-1">
 						<label for="reason" class="block font-medium">Motif</label>
-						<select
-							id="reason"
-							name="reason"
-							required
-							class="w-full rounded-md border bg-background p-2"
-						>
+						<select id="reason" name="reason" required class="lm-field w-full">
 							<option value="">—</option>
 							{#each REPORT_REASONS as r (r)}
 								<option value={r}>{REPORT_REASON_LABELS[r]}</option>
@@ -62,7 +57,7 @@
 							name="details"
 							rows="3"
 							maxlength={MAX_REPORT_DETAILS}
-							class="w-full rounded-md border bg-background p-2"
+							class="lm-field w-full"
 						></textarea>
 					</div>
 					<button type="submit" class="rounded-md border px-3 py-1.5">Envoyer le signalement</button

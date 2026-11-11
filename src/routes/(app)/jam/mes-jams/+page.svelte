@@ -1,7 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: « Mes jams » (P2-14c, P2-15, D50), voir +page.server.ts.
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { CalendarDays } from 'lucide-svelte';
 
 	let { data } = $props();
@@ -15,14 +15,15 @@
 
 <SEO title="Mes jams" noindex nofollow />
 
-<div class="min-h-screen w-full bg-muted/20 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
+<div class="min-h-screen w-full px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
 	<div class="mx-auto max-w-7xl space-y-6">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode jam"
 			title="Mes jams"
 			intro="Les jams où l’on t’invite, et celles où tu es allé·e : dis si tu y étais, apprécie les présent·es."
 		/>
 		{#if data.invites.length === 0 && data.recent.length === 0}
-			<div class="space-y-2 rounded-2xl border bg-card p-6 text-center">
+			<div class="lm-tile lm-tile--flow space-y-2 p-6 text-center">
 				<CalendarDays class="mx-auto size-6 text-primary" aria-hidden="true" />
 				<p class="font-semibold">Pas encore de jam ici.</p>
 				<p class="text-sm text-muted-foreground">
@@ -61,10 +62,7 @@
 			{/if}
 
 			{#if data.recent.length > 0}
-				<section
-					class="space-y-3 rounded-2xl border bg-card p-4 sm:p-5"
-					aria-labelledby="recent-title"
-				>
+				<section class="lm-tile lm-tile--flow space-y-3 p-4 sm:p-5" aria-labelledby="recent-title">
 					<div class="flex flex-wrap items-baseline justify-between gap-2">
 						<h2 id="recent-title" class="text-lg font-semibold">Tes dernières jams</h2>
 						<a href="/jam/carnet" class="text-sm font-semibold underline">Mon carnet de jams</a>
@@ -74,7 +72,7 @@
 							<li>
 								<a
 									href="/jams/{j.id}/presents"
-									class="flex min-h-11 flex-wrap items-center justify-between gap-2 rounded-xl border p-3 transition hover:border-primary"
+									class="lm-tile lm-tile--flow flex min-h-11 flex-wrap items-center justify-between gap-2 p-3"
 								>
 									<span>
 										<span class="block font-semibold">{j.title}</span>

@@ -62,10 +62,10 @@
 <SEO title="Ma ville" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-2xl space-y-6 rounded-3xl border bg-card p-5 shadow-sm sm:p-8">
+	<div class="mx-auto max-w-2xl space-y-6">
 		<div>
 			<a href="/profil" class="text-sm text-muted-foreground underline">← Mon profil</a>
-			<h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Ma ville</h1>
+			<h1 class="lm-title mt-2">Ma ville</h1>
 			<p class="text-sm text-muted-foreground">
 				Pour trouver des musicien·nes près de toi. On n'enregistre que ta commune, jamais ton
 				adresse : les autres ne voient qu'une distance approximative (« 10 à 25 km »).
@@ -96,7 +96,7 @@
 					type="text"
 					autocomplete="off"
 					placeholder="Nom de commune ou code postal"
-					class="w-full rounded-md border bg-background p-2 text-sm"
+					class="lm-field w-full"
 					role="combobox"
 					aria-expanded={suggestions.length > 0}
 					aria-controls="commune-suggestions"

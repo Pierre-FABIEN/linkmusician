@@ -51,9 +51,9 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-6xl space-y-5">
-		<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Publier une annonce</h1>
+		<h1 class="lm-title">Publier une annonce</h1>
 		{#if !data.commune && data.bands.length === 0}
-			<p class="rounded-2xl border bg-card p-6 text-center">
+			<p class="lm-tile lm-tile--flow p-6 text-center">
 				Une annonce se diffuse autour de ta ville : indique-la d'abord.
 				<a href="/profil/ville" class="block pt-2 font-semibold underline">Indiquer ma ville</a>
 			</p>
@@ -64,14 +64,14 @@
 					répond et que vous jouez ensemble que chacun gagne.
 				</p>
 			{:else if band}
-				<p role="status" class="rounded-2xl border bg-card p-4 text-sm">
+				<p role="status" class="lm-tile lm-tile--flow p-4 text-sm">
 					L’annonce se diffuse autour de la ville du groupe : indique-la d’abord.
 					<a href="/groupes/{band.handle}/modifier" class="font-semibold underline"
 						>Fiche de {band.name}</a
 					>
 				</p>
 			{:else}
-				<p role="status" class="rounded-2xl border bg-card p-4 text-sm">
+				<p role="status" class="lm-tile lm-tile--flow p-4 text-sm">
 					L’annonce se diffuse autour de ta ville : indique-la d’abord.
 					<a href="/profil/ville" class="font-semibold underline">Indiquer ma ville</a>
 				</p>
@@ -86,7 +86,7 @@
 			{/if}
 			<form
 				method="POST"
-				class="space-y-5 rounded-3xl border bg-card p-4 sm:p-6 lg:p-8"
+				class="space-y-5"
 				use:enhance={() => {
 					sending = true;
 					return async ({ update }) => {
@@ -300,7 +300,7 @@
 				<button
 					type="submit"
 					disabled={sending || !commune}
-					class="min-h-11 w-full rounded-xl bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-50 sm:w-auto"
+					class="lm-btn w-full disabled:opacity-50 sm:w-auto"
 				>
 					Publier
 				</button>

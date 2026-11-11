@@ -42,7 +42,7 @@
 			>
 				<Scale class="size-6" />
 			</span>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Les démarches</h1>
+			<h1 class="lm-title">Les démarches</h1>
 			<p class="text-lg text-muted-foreground">
 				Protéger un morceau, être payé·e pour jouer, monter l’association du groupe : l’essentiel,
 				au moment où la question se pose.
@@ -61,7 +61,7 @@
 			</section>
 		{/each}
 
-		<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+		<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
 			Ces fiches donnent une information générale, pas un conseil personnalisé. Chacune cite ses
 			sources officielles et la date de sa dernière vérification. LinkMusician n’est lié à aucun des
 			organismes cités.
