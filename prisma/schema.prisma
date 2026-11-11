@@ -1471,6 +1471,9 @@ model Actor {
   groupDiscussionSeats       GroupDiscussionMember[]  @relation("GroupDiscussionMemberActor")
   groupDiscussionMessages    GroupDiscussionMessage[] @relation("GroupDiscussionMessageSender")
   orgVerificationsRequested  OrganizationVerification[] @relation("OrgVerificationRequester")
+  introductionsMade          Introduction[]           @relation("IntroductionIntroducer")
+  introductionsAsFirst       Introduction[]           @relation("IntroductionFirst")
+  introductionsAsSecond      Introduction[]           @relation("IntroductionSecond")
 
   @@map("actors")
 }
@@ -2594,6 +2597,8 @@ enum NotificationType {
   GROUP_DISCUSSION_INVITE
   /// Invitation à gérer un studio (P4-03b).
   STUDIO_INVITE
+  /// Quelqu'un de ton réseau te présente une personne (P4-13b).
+  INTRODUCTION
   /// Préférence d'email seulement (P2-09b) : jamais une ligne de `Notification`.
   MESSAGES
   PROGRESS
@@ -3312,4 +3317,31 @@ model StudioHours {
 
   @@id([studioId, weekday])
   @@map("studio_hours")
+}
+
+// ─── Parrainage (P4-13b) ────────────────────────────────────────────────
+
+/// Présentation (conception 07 §4.8) : une personne au palier Pilier local
+/// ou Référence présente deux personnes de son réseau musical. Si elles
+/// collaborent ensuite, elle obtient le succès Passeur. Ni XP, ni
+/// classement. La paire est rangée (`firstId` < `secondId`).
+model Introduction {
+  id              String    @id @default(cuid())
+  introducerId    String
+  introducer      Actor     @relation("IntroductionIntroducer", fields: [introducerId], references: [id], onDelete: Cascade)
+  firstId         String
+  first           Actor     @relation("IntroductionFirst", fields: [firstId], references: [id], onDelete: Cascade)
+  secondId        String
+  second          Actor     @relation("IntroductionSecond", fields: [secondId], references: [id], onDelete: Cascade)
+  /// Un mot pour dire pourquoi (300 caractères au plus), texte brut.
+  note            String    @default("")
+  createdAt       DateTime  @default(now())
+  /// Première collaboration terminée entre les deux, après la présentation.
+  succeededAt     DateTime?
+  collaborationId String?
+
+  @@unique([introducerId, firstId, secondId])
+  @@index([firstId, secondId])
+  @@index([introducerId, createdAt])
+  @@map("introductions")
 }

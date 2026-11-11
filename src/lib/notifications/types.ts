@@ -19,7 +19,8 @@ export const NOTIFICATION_TYPES = [
 	'WORK_CREDIT',
 	'MILESTONE_ATTEST',
 	'GROUP_DISCUSSION_INVITE',
-	'STUDIO_INVITE'
+	'STUDIO_INVITE',
+	'INTRODUCTION'
 ] as const;
 export type NotificationTypeValue = (typeof NOTIFICATION_TYPES)[number];
 
@@ -41,7 +42,8 @@ export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, st
 	WORK_CREDIT: 'Crédits sur un morceau à confirmer',
 	MILESTONE_ATTEST: 'Étapes de groupe à confirmer',
 	GROUP_DISCUSSION_INVITE: 'Invitations à une discussion de groupe',
-	STUDIO_INVITE: 'Invitations à gérer un studio'
+	STUDIO_INVITE: 'Invitations à gérer un studio',
+	INTRODUCTION: 'Présentations par quelqu’un de mon réseau'
 };
 
 /**
@@ -95,6 +97,8 @@ export function notificationText(
 			return `${who} te demande de confirmer${title ? ` : ${title}` : ' une étape de son groupe'}. Réponds seulement si tu y étais.`;
 		case 'STUDIO_INVITE':
 			return `${who} t’invite à gérer le studio${what} à ses côtés.`;
+		case 'INTRODUCTION':
+			return `${who} te présente ${title ?? 'quelqu’un'} : vous devriez jouer ensemble. Jette un œil à son profil.`;
 		case 'GROUP_DISCUSSION_INVITE':
 			return `${who} t’invite à la discussion de groupe${what}. Rejoins-la si tu veux.`;
 	}

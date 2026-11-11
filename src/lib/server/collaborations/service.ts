@@ -38,6 +38,7 @@ import {
 import { creditFromCollaboration, manageableWorks } from '#lib/server/works/service';
 import { isStudioSessionKind } from '#lib/studios/rules';
 import { verifyRecordingFromCollaboration } from '#lib/server/milestones/service';
+import { markSucceeded } from '#lib/server/career/introductions';
 
 /**
  * Studios publiés que gère l'une des deux personnes (P4-03c), pour y
@@ -260,6 +261,12 @@ async function settle(collaborationId: string, now: Date) {
 				participantIds: collab.participants.map((p) => p.actorId),
 				...(Object.keys(services).length > 0 ? { services } : {})
 			});
+			// Parrainage (P4-13b) : deux personnes présentées collaborent, succès Passeur.
+			await markSucceeded(
+				tx,
+				{ id: collaborationId, participantIds: collab.participants.map((p) => p.actorId) },
+				now
+			);
 			// Le morceau avance (P4-06) : la première fois seulement.
 			const stage = KIND_WORK_STAGE[collab.kind as CollabKindValue];
 			if (collab.workId && stage) {

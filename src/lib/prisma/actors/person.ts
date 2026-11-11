@@ -17,6 +17,7 @@ import { getActorLocation } from '#lib/server/geo/queries';
 import { getProgress } from '#lib/server/progression/read';
 import { worksExport } from '#lib/server/works/service';
 import { milestonesExport } from '#lib/server/milestones/service';
+import { introductionsExport } from '#lib/server/career/introductions';
 import { proofsExport } from '#lib/server/milestones/proofs';
 import { contactGroupsExport } from '#lib/server/contacts/service';
 import { discussionsExport } from '#lib/server/discussions/service';
@@ -172,7 +173,8 @@ export async function exportPersonData(userId: string) {
 		milestoneProofs,
 		contactGroups,
 		groupDiscussions,
-		orgVerifications
+		orgVerifications,
+		introductions
 	] = await Promise.all([
 		prisma.xpTransaction.findMany({
 			where: { actorId: person.actorId },
@@ -437,7 +439,9 @@ export async function exportPersonData(userId: string) {
 		// Discussions de groupe (P3-16c) : les siennes et ses messages.
 		discussionsExport(person.actorId),
 		// Vérifications d'organisation demandées (P3-09).
-		verificationsExport(person.actorId)
+		verificationsExport(person.actorId),
+		// Parrainage (P4-13b) : présentations faites ou reçues.
+		introductionsExport(person.actorId)
 	]);
 	const media = await prisma.media.findMany({
 		where: { actorId: person.actorId },
@@ -710,6 +714,7 @@ export async function exportPersonData(userId: string) {
 		discussions_de_groupe: groupDiscussions.discussions,
 		messages_de_groupe_envoyes: groupDiscussions.messages,
 		verifications_d_organisation_demandees: orgVerifications,
+		presentations: introductions,
 		suggestions_ecartees: suggestionsDismissed.map((d) => ({
 			nom: d.actor.displayName,
 			le: d.createdAt
@@ -802,6 +807,17 @@ export async function personAnonymizationOps(
 		// Suggestions écartées (P2-18) : dans les deux sens.
 		prisma.suggestionDismissal.deleteMany({
 			where: { OR: [{ ownerId: person.actorId }, { actorId: person.actorId }] }
+		}),
+		// Parrainage (P4-13b) : présentations faites ou reçues, supprimées
+		// (le succès Passeur déjà obtenu reste à qui l'a gagné).
+		prisma.introduction.deleteMany({
+			where: {
+				OR: [
+					{ introducerId: person.actorId },
+					{ firstId: person.actorId },
+					{ secondId: person.actorId }
+				]
+			}
 		}),
 		// Collusion (P2-10) : les cas qui la citent sont supprimés.
 		prisma.collusionCase.deleteMany({ where: { memberIds: { has: person.actorId } } }),

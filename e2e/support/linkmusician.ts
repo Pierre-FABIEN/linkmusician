@@ -175,3 +175,38 @@ export async function setReputation(
 		update: data
 	});
 }
+
+/**
+ * LINKMUSICIAN: amène une personne au palier Pilier local (P4-13b) en posant
+ * en base les faits que lit `musicianSummary` : 10 collaborations avec 5
+ * personnes et 10 premiers concerts corroborés, dans 10 groupes. Des
+ * identifiants fictifs suffisent : le palier ne lit que les événements.
+ */
+export async function makeLocalPillar(actorId: string) {
+	const tag = Math.random().toString(36).slice(2, 8);
+	const rows = [
+		...Array.from({ length: 10 }, (_, i) => ({
+			type: 'collaboration.completed',
+			payload: {
+				collaborationId: `e2e-${tag}-c${i}`,
+				participantIds: [actorId, `e2e-${tag}-p${i % 5}`]
+			},
+			actorIds: [actorId]
+		})),
+		...Array.from({ length: 10 }, (_, i) => ({
+			type: 'milestone.attested',
+			payload: {
+				bandId: `e2e-${tag}-b${i}`,
+				milestone: 'FIRST_GIG',
+				from: null,
+				to: 'CORROBORATED',
+				memberIds: [actorId]
+			},
+			actorIds: [actorId]
+		}))
+	];
+	// Déjà « traités » : le moteur ne les rejoue pas (aucune XP).
+	await db.domainEvent.createMany({
+		data: rows.map((r) => ({ ...r, processedAt: new Date() }))
+	});
+}

@@ -15,7 +15,8 @@
 		Music,
 		Flag,
 		MessagesSquare,
-		Mic
+		Mic,
+		HandHelping
 	} from 'lucide-svelte';
 	import type { NotificationTypeValue } from '#lib/notifications/types';
 
@@ -34,7 +35,8 @@
 		WORK_CREDIT: Music,
 		MILESTONE_ATTEST: Flag,
 		GROUP_DISCUSSION_INVITE: MessagesSquare,
-		STUDIO_INVITE: Mic
+		STUDIO_INVITE: Mic,
+		INTRODUCTION: HandHelping
 	};
 
 	const rtf = new Intl.RelativeTimeFormat('fr-FR', { numeric: 'auto' });

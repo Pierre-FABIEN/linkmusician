@@ -112,6 +112,18 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		ownSoloWork: z.boolean()
 	}),
 	/**
+	 * Deux personnes présentées par une troisième (P4-13b, 07 §4.8) ont
+	 * collaboré ensuite : succès Passeur pour qui les a présentées. Sans XP.
+	 */
+	z.object({
+		...base,
+		type: z.literal('introduction.succeeded'),
+		introductionId: id,
+		introducerId: id,
+		introducedIds: z.array(id).length(2),
+		collaborationId: id
+	}),
+	/**
 	 * Morceau composé seul·e, maquette jointe (P4-07b) : déclaré, sans XP
 	 * (D35), mais un succès pour soutenir qui fait tout seul·e.
 	 */

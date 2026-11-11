@@ -3,6 +3,7 @@
  * prochains objectifs, confiance, derniers gains et succès. Tout est calculé
  * ici, côté serveur ; la page ne fait qu'afficher.
  */
+import { canSponsor } from '#lib/career/introductions';
 import { prisma } from '#lib/server';
 import { nextObjectives, questProgress, type QuestState } from './core/quests';
 import type { MusicianSummary } from './core/tiers';
@@ -66,6 +67,8 @@ export async function getDashboard(actorId: string, priorities: readonly string[
 		xpIntoLevel: progress.xpIntoLevel,
 		xpForNextLevel: progress.xpForNextLevel,
 		tier: tier.tier,
+		/** Parrainage ouvert (P4-13b) : palier Pilier local ou Référence. */
+		canSponsor: canSponsor(tier.reached),
 		objectives,
 		/** Avancement global (« Étape X sur N », P2-12b). */
 		questProgress: questProgress(questState),

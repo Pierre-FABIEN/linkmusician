@@ -12,6 +12,7 @@
 		EyeOff,
 		FileText,
 		HandHelping,
+		Handshake,
 		Map as MapIcon,
 		Music,
 		Scale,
@@ -127,6 +128,18 @@
 			text: 'Jams et collaborations à venir.',
 			badge: c.agenda > 0 ? `${c.agenda} à venir` : null
 		},
+		// Parrainage (P4-13b) : à partir du palier Pilier local.
+		...(d.canSponsor
+			? [
+					{
+						href: '/espace/parrainage',
+						icon: Handshake,
+						title: 'Parrainer',
+						text: 'Présente deux personnes de ton réseau qui devraient jouer ensemble.',
+						badge: null
+					}
+				]
+			: []),
 		{
 			href: '/espace/journal',
 			icon: BookOpen,

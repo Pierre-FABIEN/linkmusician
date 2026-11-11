@@ -125,6 +125,13 @@ export const ACHIEVEMENTS: readonly AchievementDefinition[] = [
 				? [event.personId]
 				: []
 	},
+	// Parrainage (P4-13b, 07 §4.8) : on progresse aussi en faisant progresser les autres.
+	{
+		id: 'passeur',
+		name: 'Passeur',
+		description: 'A présenté deux personnes qui ont ensuite collaboré.',
+		unlockedBy: (event) => (event.type === 'introduction.succeeded' ? [event.introducerId] : [])
+	},
 	{
 		id: 'founder',
 		name: 'Fondateur·rice',

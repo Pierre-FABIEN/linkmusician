@@ -58,6 +58,7 @@ const ROUTES: Record<string, Node> = {
 	'/espace/progression': { label: 'Points et succès', parent: '/espace' },
 	'/espace/a-confirmer': { label: 'À confirmer', parent: '/espace' },
 	'/espace/coups-de-pouce': { label: 'Coups de pouce', parent: '/espace' },
+	'/espace/parrainage': { label: 'Parrainer', parent: '/espace' },
 	'/annonces': { label: 'Annonces', parent: '/espace' },
 	'/annonces/nouvelle': { label: 'Nouvelle annonce', parent: '/annonces' },
 	'/annonces/[id]': { label: 'Annonce', parent: '/annonces', name: at('opportunity', 'title') },

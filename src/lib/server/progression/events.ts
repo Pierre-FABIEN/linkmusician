@@ -42,6 +42,9 @@ export function actorIdsOf(event: DomainEvent): string[] {
 		case 'work.sound_credited':
 		case 'work.composed_solo':
 			return [event.personId];
+		// Le succès va à qui a présenté ; les deux autres ont déjà la collaboration.
+		case 'introduction.succeeded':
+			return [event.introducerId];
 		case 'work.credit_confirmed':
 			return [event.personId, ...new Set(event.otherIds.filter((id) => id !== event.personId))];
 		case 'milestone.attested':
