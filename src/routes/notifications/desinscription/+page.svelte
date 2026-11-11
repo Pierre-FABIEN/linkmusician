@@ -37,11 +37,7 @@
 				</p>
 				<form method="POST" use:enhance>
 					<input type="hidden" name="t" value={data.token} />
-					<button
-						type="submit"
-						class="lm-btn"
-						>Confirmer</button
-					>
+					<button type="submit" class="lm-btn">Confirmer</button>
 				</form>
 				{#if form?.error}<p role="alert" class="text-sm text-red-700">{form.error}</p>{/if}
 			{:else}
