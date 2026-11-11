@@ -12,14 +12,14 @@
 
 ## 1. Où on en est
 
-**91 lots terminés sur 112** (81 %) ; **≈ 90 % du périmètre du
+**92 lots terminés sur 113** (81 %) ; **≈ 90 % du périmètre du
 lancement**. Phases 0 à 2 complètes, phase 3 complète sauf l'ouverture,
 phase 4 complète pour le lancement, phase 5 commencée (P5-01, P5-02,
-P5-03a, P5-03b, P5-03d, P5-05a, P5-05b, P5-06). La phase 6 vient après le lancement.
+P5-03a, P5-03b, P5-03d, P5-04a, P5-05a, P5-05b, P5-06). La phase 6 vient après le lancement.
 
 | Étape                              | Lots                                                          | Quand                     |
 | ---------------------------------- | ------------------------------------------------------------- | ------------------------- |
-| A. Finir la scène                  | P5-04, P5-08, P5-07, P5-11                                    | Nov. → déc. 2026          |
+| A. Finir la scène                  | P5-04b, P5-08, P5-07, P5-11                                   | Nov. → déc. 2026          |
 | B. Revue de phase 5 et revue UX    | Revue de fin de phase, Metro (MET-01 à 07), suite e2e (P0-01) | Déc. 2026 → janv. 2027    |
 | C. Audit de sécurité (bloquant)    | P3-10a                                                        | Janv. → fév. 2027         |
 | D. Ouverture publique à Toulouse   | P3-10                                                         | Objectif début mars 2027  |
@@ -77,15 +77,30 @@ galerie sur `/lieux/[id]`.
 communes, 30 jours), `gig.held` (organisateur·rice et rang du lieu). Voir
 [docs/etapes](../etapes/README.md#concerts-et-tournée-vérifiés-p5-06).
 
-### P5-04 — Jams publiques des lieux
+### P5-04 — Jams publiques des lieux (découpé)
 
-- **Dépend de** : P5-03b, P2-14b ✅.
-- **Tâches** : scène ouverte **récurrente** publiée par le lieu ;
-  animateur·rices affilié·es ; « prêt·e à animer une jam » ; suggestions
-  de leads triées par réputation (**jamais l'XP**) ; les appréciations
-  restent la seule source de points (D27) ; XP « jam publique tenue »
-  (50, 02 §2.2) ; règles des mineur·es. Corriger `lieux.spec.ts` (Q30).
-- **Fin** : e2e « je trouve la scène ouverte du jeudi dans le mode jam ».
+**P5-04a ✅** (11/11/2026) : scène ouverte **récurrente** publiée par la
+gestion du lieu (`JamSeries`, `/lieux/[id]/gerer/scene-ouverte`), jams des
+4 semaines à venir créées par le job quotidien, toute la gestion du lieu
+hôte, « Tous les jeudis » dans le mode jam ; « jam publique tenue » au 3ᵉ
+« J'y étais » (`jam.held`, 50 × confiance pour qui l'a publiée, une date
+pour le rang du lieu ; rien pour les présent·es, D27) ; mineur·es : lieu
+`ADULTS` caché ; `lieux.spec.ts` corrigé (Q30) ; e2e « je trouve la scène
+ouverte du jeudi dans le mode jam ». Voir [docs/jam](../jam/README.md).
+
+**P5-04b — Animateur·rices**
+
+- **Dépend de** : P5-04a ✅.
+- **Tâches** : animateur·rices affilié·es au lieu (`VenueHost` : le lieu
+  invite, la personne accepte, comme la co-gestion) ; « prêt·e à animer »
+  = la case D51 existante (`Person.organizesJams`), visible du seul lieu ;
+  suggestions de leads triées par **appréciations reçues** et **jams
+  animées** (faits), à moins de 30 km, **jamais l'XP**, sans mineur·es pour
+  un lieu `ADULTS` ni personnes bloquées ; lead par défaut d'une série
+  (copié sur chaque jam créée). Les appréciations restent la seule source
+  de points des présent·es (D27).
+- **Fin** : e2e « le lieu invite une animatrice suggérée, elle devient
+  lead du prochain jeudi ».
 
 ### P5-08 — Carte : acte V
 

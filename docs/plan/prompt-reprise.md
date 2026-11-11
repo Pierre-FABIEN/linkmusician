@@ -42,7 +42,7 @@ ne crée pas de commit pendant cet audit.**
 ## Vérifications d'attention
 
 État au 11/11/2026 : 91 lots sur 112 terminés (dont les 7 lots Metro de l’étape B) ; étape A (finir la scène)
-en cours, P5-01 à P5-03b, P5-03d, P5-05a, P5-05b et P5-06 faits, P5-04 ensuite. Avant un lot P5,
+en cours, P5-01 à P5-03b, P5-03d, P5-04a, P5-05a, P5-05b et P5-06 faits, P5-04b ensuite. Avant un lot P5,
 lire sa section de
 [preparation-phase-5.md](./preparation-phase-5.md) : fichiers, modèles à
 copier et pièges y sont déjà relevés. Un lot 🟡 dont le seul manque est l'e2e

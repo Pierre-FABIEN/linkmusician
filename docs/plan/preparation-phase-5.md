@@ -1,7 +1,7 @@
 # Préparation technique de la phase 5
 
 > Rédigé le 11/11/2026, après la revue de phase 4. Les sections des lots
-> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-05a, P5-05b, P5-06) ont été retirées ; la route complète est
+> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-04a, P5-05a, P5-05b, P5-06) ont été retirées ; la route complète est
 > dans [fin-du-projet.md](./fin-du-projet.md).
 > But : qu'une session de lot n'ait plus à explorer le code. Pour chaque
 > lot : ce qui existe, le modèle à copier, le schéma proposé, les étapes,
@@ -36,7 +36,7 @@ les e2e : fermer le bandeau cookies (« Compris ») avant un bouton collé en
 bas, attendre la fin des toasts avant `expectNoA11yViolations`, et lire
 la carte par `:scope > li`.
 
-**Ordre conseillé** (restant) : P5-04 → P5-08 →
+**Ordre conseillé** (restant) : P5-04b → P5-08 →
 P5-07 → P5-11. Les concerts s'appuient sur l'organisateur et la fiche du
 lieu, les jams publiques sur l'organisation du lieu.
 
@@ -64,33 +64,35 @@ Un lieu n'est jamais mis en avant contre paiement dans le mode jam
 
 ---
 
-## P5-04 — Jams publiques des lieux
+## P5-04b — Jams des lieux : animateur·rices
 
-**Existe** : jams publiques (`Opportunity` kind `JAM`, `venueId`,
-`startsAt`, `endsAt`), lead et formation (P2-14c : `jamInvites`,
-`setJamLead`), appréciations (D27), calendrier. Tout se trouve dans
-`server/jam/publicJams.ts`.
+**Existe (P5-04a)** : `JamSeries` et `generateSeriesJams`
+(`server/jam/series.ts`), hôtes d'une jam de lieu (`server/jam/hosts.ts` :
+`hostedBy`, `isHostOf`), `setJamLead` ouvert à toute la gestion du lieu,
+`Person.organizesJams` (D51), `jam.held` et `heldAt`, appréciations (D27),
+`venueForManager` (gestion du lieu), co-gestion commune
+(`server/organizations/comanagement.ts`, modèle de l'invitation).
 
 **À faire** :
 
-1. Récurrence : `JamSeries` (`venueId`, `orgId`, `weekday`, `startTime`,
-   `endTime`, `until?`, `leadId?`). Un job quotidien (QStash, sur le
-   modèle des jobs de `server/jobs/`) génère les jams des **4 prochaines
-   semaines** avec `seriesId`. Ainsi, rien ne change pour le calendrier,
-   « Je viens » ou les appréciations.
-2. Animateur·rices affilié·es : `VenueHost` (`orgId`, `personId`,
-   `since`) ; le lieu invite, la personne accepte (comme la co-gestion).
-3. « Prêt·e à animer une jam » : booléen `canLeadJams` sur `Person`,
-   réglé depuis `/jam/dispos` ou le profil musical, visible du seul lieu.
-4. Suggestions de leads : `suggestJamLeads(orgId)`. Personnes prêtes à
-   animer, à moins de 30 km, triées par **appréciations reçues** et
-   **jams animées** (faits), jamais par l'XP. Elles excluent les
-   mineur·es pour un lieu `ADULTS` et les personnes bloquées.
-5. e2e « je trouve la scène ouverte du jeudi dans le mode jam ».
+1. Animateur·rices affilié·es : `VenueHost` (`orgId`, `personId`,
+   `status` INVITED/ACTIVE, `since`) ; le lieu invite, la personne accepte
+   (copier `inviteManager` / `answerVenueInvite`, notification
+   `ORG_INVITE`). Pas de gestion du lieu pour autant.
+2. « Prêt·e à animer » : réutiliser `organizesJams` (pas de nouveau
+   booléen) ; visible du seul lieu, dans les suggestions.
+3. Suggestions de leads : `suggestJamLeads(orgId)` : personnes
+   `organizesJams`, à moins de 30 km (`actor_locations`, `qualifiedTable`),
+   triées par **appréciations reçues** puis **jams animées**
+   (`leadActorId` sur des jams tenues), jamais par l'XP ; sans mineur·es
+   pour un lieu `ADULTS`, sans personnes bloquées (`isBlockedBetween`).
+4. `JamSeries.leadId?` : lead par défaut, copié par `generateForSeries`.
+5. RGPD : `VenueHost` dans l'export et supprimé à l'anonymisation.
+6. e2e « le lieu invite une animatrice suggérée, elle devient lead du
+   prochain jeudi ».
 
-**Pièges** : D27, aucune XP pour une jam, seules les appréciations
-comptent. Pas de notification de masse pour une série : seule la
-formation invitée reçoit une notification.
+**Pièges** : D27, une jam ne rapporte rien aux présent·es. Pas de
+notification de masse : seule l'invitation d'animation notifie.
 
 ---
 
