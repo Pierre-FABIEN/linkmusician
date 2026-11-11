@@ -275,7 +275,8 @@ Entrée au tableau à la [revue de fin de phase 3](./revue-phase-3.md)
 
 Entrée au tableau à la [revue de fin de phase 4](./revue-phase-4.md)
 (11/11/2026), qui ajuste les fiches (§4). « Lancement » : lot nécessaire
-à l'ouverture de Toulouse (§4 ter).
+à l'ouverture de Toulouse (§4 ter). Guide technique de chaque lot :
+[preparation-phase-5.md](./preparation-phase-5.md).
 
 | Lot   | Intitulé                                      | Dépend de     | Statut | PR                                                                                                                                   |
 | ----- | --------------------------------------------- | ------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------ |

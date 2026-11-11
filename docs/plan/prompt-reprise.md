@@ -44,7 +44,9 @@ ne crée pas de commit pendant cet audit.**
 
 État au 11/11/2026 : la phase 4 est fermée pour le lancement
 ([revue](./revue-phase-4.md)) ; les lots de la phase 5 sont au tableau,
-à commencer par P5-01 puis P5-02. Un lot 🟡 dont le seul manque est l'e2e
+à commencer par P5-01 puis P5-02. Avant un lot P5, lire sa section de
+[preparation-phase-5.md](./preparation-phase-5.md) : fichiers, modèles à
+copier et pièges y sont déjà relevés. Un lot 🟡 dont le seul manque est l'e2e
 se ferme en le lançant, avant de commencer un lot suivant.
 
 Avant de lancer des e2e : compare `.env.test` à `.env.test.example` (une
