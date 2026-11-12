@@ -496,6 +496,21 @@ export async function exportPersonData(userId: string) {
 			venue: { select: { name: true } }
 		}
 	});
+	// Lieux où la personne anime, ou où on l'invite à animer (P5-04b).
+	const venueHostings = await prisma.venueHost.findMany({
+		where: { personId: person.actorId },
+		orderBy: { createdAt: 'asc' },
+		select: {
+			status: true,
+			createdAt: true,
+			since: true,
+			org: { select: { actor: { select: { displayName: true } } } }
+		}
+	});
+	const seriesLed = await prisma.jamSeries.findMany({
+		where: { leadId: person.actorId },
+		select: { title: true, venue: { select: { name: true } } }
+	});
 	return {
 		identifiant_public: person.actor.handle,
 		nom_affiche: person.actor.displayName,
@@ -613,6 +628,16 @@ export async function exportPersonData(userId: string) {
 			horaires: `${s.startTime}-${s.endTime}`,
 			le: s.createdAt,
 			arretee_le: s.stoppedAt
+		})),
+		lieux_ou_j_anime: venueHostings.map((h) => ({
+			lieu: h.org.actor.displayName,
+			statut: h.status === 'ACTIVE' ? 'anime' : 'invitation en attente',
+			invite_le: h.createdAt,
+			depuis: h.since
+		})),
+		scenes_ouvertes_menees_par_defaut: seriesLed.map((s) => ({
+			titre: s.title,
+			lieu: s.venue.name
 		})),
 		disponibilite: availability,
 		jams_je_viens: jamsComing.map((a) => ({
@@ -950,6 +975,17 @@ export async function personAnonymizationOps(
 		prisma.jamSeries.updateMany({
 			where: { postedById: person.actorId },
 			data: { postedById: null }
+		}),
+		// Animateur·rices (P5-04b) : supprimé·e des lieux, plus lead par défaut ;
+		// on oublie qui a invité.
+		prisma.venueHost.deleteMany({ where: { personId: person.actorId } }),
+		prisma.venueHost.updateMany({
+			where: { invitedById: person.actorId },
+			data: { invitedById: null }
+		}),
+		prisma.jamSeries.updateMany({
+			where: { leadId: person.actorId },
+			data: { leadId: null }
 		}),
 		prisma.opportunity.deleteMany({ where: { issuerActorId: person.actorId } }),
 		// Candidatures (P2-03) : supprimées avec le compte. Celles envoyées au

@@ -1458,6 +1458,11 @@ model Actor {
   opportunitiesPosted        Opportunity[]            @relation("OpportunityPoster")
   jamSeriesIssued            JamSeries[]              @relation("JamSeriesIssuer")
   jamSeriesPosted            JamSeries[]              @relation("JamSeriesPoster")
+  /// Animateur·rice par défaut de scènes ouvertes (P5-04b).
+  jamSeriesLed               JamSeries[]              @relation("JamSeriesLead")
+  /// Lieux que la personne anime, ou où on l'invite à animer (P5-04b).
+  venueHostings              VenueHost[]              @relation("VenueHostPerson")
+  venueHostInvitesSent       VenueHost[]              @relation("VenueHostInviter")
   /// Candidatures envoyées au nom d'un groupe (P5-05a).
   applicationsSent           Application[]            @relation("ApplicationSender")
   works                      Work[]                   @relation("WorkOwner")
@@ -2637,6 +2642,8 @@ enum NotificationType {
   STUDIO_INVITE
   /// Invitation à gérer une organisation d'organisateur·rices (P5-05b).
   ORG_INVITE
+  /// Un lieu t'invite à animer ses scènes ouvertes (P5-04b).
+  VENUE_HOST_INVITE
   /// Décision sur une revendication de lieu (P5-03b, Q29).
   VENUE_CLAIM
   /// Quelqu'un de ton réseau te présente une personne (P4-13b).
@@ -2791,6 +2798,8 @@ model Organization {
   promoter    PromoterOrgProfile?
   /// Fiche d'un lieu revendiqué (P5-03b).
   venueProfile VenueProfile?
+  /// Animateur·rices affilié·es à un lieu (P5-04b).
+  venueHosts   VenueHost[]
 
   @@map("organizations")
 }
@@ -3570,6 +3579,10 @@ model JamSeries {
   genreSlug     String?
   /// Places souhaitées : `[{ instrumentId, count }]`, copiées sur chaque jam.
   spots         Json          @default("[]")
+  /// Animateur·rice par défaut (P5-04b) : un·e `VenueHost` actif·ve du lieu,
+  /// copié·e comme lead sur chaque jam créée.
+  leadId        String?
+  lead          Actor?        @relation("JamSeriesLead", fields: [leadId], references: [id], onDelete: SetNull)
   /// Arrêtée : plus aucune jam créée, les jams à venir sont clôturées.
   stoppedAt     DateTime?
   createdAt     DateTime      @default(now())
@@ -3579,4 +3592,33 @@ model JamSeries {
 
   @@index([issuerActorId, stoppedAt])
   @@map("jam_series")
+}
+
+/// Statut d'un·e animateur·rice affilié·e à un lieu (P5-04b).
+enum VenueHostStatus {
+  INVITED
+  ACTIVE
+}
+
+/// Animateur·rice affilié·e à un lieu (P5-04b, conception 08 §14) : le lieu
+/// invite une personne « prête à organiser des jams » (D51), elle accepte.
+/// Ne donne pas la gestion du lieu ; permet d'en faire le lead par défaut
+/// d'une scène ouverte. Décliner, partir ou être retiré·e supprime la ligne.
+model VenueHost {
+  id          String          @id @default(cuid())
+  orgId       String
+  org         Organization    @relation(fields: [orgId], references: [actorId], onDelete: Cascade)
+  personId    String
+  person      Actor           @relation("VenueHostPerson", fields: [personId], references: [id], onDelete: Cascade)
+  status      VenueHostStatus @default(INVITED)
+  /// Personne de la gestion qui a invité ; oubliée à l'anonymisation.
+  invitedById String?
+  invitedBy   Actor?          @relation("VenueHostInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+  /// Acceptation de l'invitation.
+  since       DateTime?
+  createdAt   DateTime        @default(now())
+
+  @@unique([orgId, personId])
+  @@index([personId, status])
+  @@map("venue_hosts")
 }

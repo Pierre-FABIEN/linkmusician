@@ -1,10 +1,17 @@
 <script lang="ts">
 	// LINKMUSICIAN: « Mes jams » (P2-14c, P2-15, D50), voir +page.server.ts.
+	import { enhance } from '$app/forms';
+	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
 	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
 	import { CalendarDays } from 'lucide-svelte';
 
-	let { data } = $props();
+	let { data, form } = $props();
+	$effect(() => {
+		if (form?.message) toast.success(form.message);
+		if (form?.error) toast.error(form.error);
+	});
+	const pill = 'min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted';
 	const day = new Intl.DateTimeFormat('fr-FR', {
 		weekday: 'short',
 		day: 'numeric',
@@ -21,7 +28,7 @@
 			title="Mes jams"
 			intro="Les jams où l’on t’invite, et celles où tu es allé·e : dis si tu y étais, apprécie les présent·es."
 		/>
-		{#if data.invites.length === 0 && data.recent.length === 0}
+		{#if data.invites.length === 0 && data.recent.length === 0 && data.hostInvites.length === 0 && data.hostings.length === 0}
 			<div class="space-y-2 rounded-2xl border bg-card p-6 text-center">
 				<CalendarDays class="mx-auto size-6 text-primary" aria-hidden="true" />
 				<p class="font-semibold">Pas encore de jam ici.</p>
@@ -34,6 +41,70 @@
 			</div>
 		{/if}
 		<div class="grid gap-4 xl:grid-cols-2">
+			<!-- Animer les scènes ouvertes d'un lieu (P5-04b) -->
+			{#if data.hostInvites.length > 0}
+				<section
+					class="space-y-3 rounded-2xl border-2 border-primary bg-card p-4 sm:p-5"
+					aria-labelledby="host-invites-title"
+				>
+					<h2 id="host-invites-title" class="text-lg font-semibold">Un lieu t’invite à animer</h2>
+					<ul class="space-y-3">
+						{#each data.hostInvites as h (h.hostId)}
+							<li class="space-y-2 rounded-xl border p-3 text-sm">
+								<p>
+									<a href="/lieux/{h.venueId}" class="font-semibold hover:underline">{h.venue}</a>, {h.commune}{h.invitedBy
+										? ` · invitation de ${h.invitedBy}`
+										: ''}
+								</p>
+								<p class="text-muted-foreground">
+									Tu pourras mener ses scènes ouvertes : accueillir les musicien·nes, composer les
+									plateaux. Tu ne gères pas le lieu.
+								</p>
+								<form method="POST" action="?/answerHost" use:enhance class="flex flex-wrap gap-2">
+									<input type="hidden" name="hostId" value={h.hostId} />
+									<button
+										name="accept"
+										value="1"
+										class="min-h-11 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
+										>Accepter</button
+									>
+									<button name="accept" value="0" class={pill}>Décliner</button>
+								</form>
+							</li>
+						{/each}
+					</ul>
+				</section>
+			{/if}
+			{#if data.hostings.length > 0}
+				<section
+					class="space-y-3 rounded-2xl border bg-card p-4 sm:p-5"
+					aria-labelledby="hostings-title"
+				>
+					<h2 id="hostings-title" class="text-lg font-semibold">Tu animes</h2>
+					<ul class="space-y-2">
+						{#each data.hostings as h (h.hostId)}
+							<li
+								class="flex flex-wrap items-center justify-between gap-2 rounded-xl border p-3 text-sm"
+							>
+								<span>
+									<a href="/lieux/{h.venueId}" class="font-semibold hover:underline">{h.venue}</a>
+									<span class="block text-muted-foreground"
+										>{h.leads.length > 0
+											? `Tu mènes : ${h.leads.join(', ')}`
+											: 'Le lieu peut te confier une scène ouverte.'}</span
+									>
+								</span>
+								<form method="POST" action="?/leaveHost" use:enhance>
+									<input type="hidden" name="hostId" value={h.hostId} />
+									<button class={pill}
+										>Arrêter d’animer<span class="sr-only"> : {h.venue}</span></button
+									>
+								</form>
+							</li>
+						{/each}
+					</ul>
+				</section>
+			{/if}
 			{#if data.invites.length > 0}
 				<section
 					class="space-y-3 rounded-2xl border-2 border-primary bg-card p-4 sm:p-5"

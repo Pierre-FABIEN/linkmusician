@@ -47,6 +47,7 @@ const ROUTES: Record<string, Node> = {
 	'/lieux/[id]': { label: 'Lieu', parent: '/lieux', name: at('venue', 'name') },
 	'/lieux/[id]/gerer': { label: 'Gérer le lieu', parent: '/lieux/[id]' },
 	'/lieux/[id]/gerer/scene-ouverte': { label: 'Scène ouverte', parent: '/lieux/[id]/gerer' },
+	'/lieux/[id]/gerer/animation': { label: 'Qui anime', parent: '/lieux/[id]/gerer' },
 
 	// Mode carrière
 	'/espace/carte': { label: 'Ma carte', parent: '/espace' },

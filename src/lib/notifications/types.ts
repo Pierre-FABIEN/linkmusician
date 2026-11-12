@@ -21,6 +21,7 @@ export const NOTIFICATION_TYPES = [
 	'GROUP_DISCUSSION_INVITE',
 	'STUDIO_INVITE',
 	'ORG_INVITE',
+	'VENUE_HOST_INVITE',
 	'VENUE_CLAIM',
 	'INTRODUCTION'
 ] as const;
@@ -46,6 +47,7 @@ export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, st
 	GROUP_DISCUSSION_INVITE: 'Invitations à une discussion de groupe',
 	STUDIO_INVITE: 'Invitations à gérer un studio',
 	ORG_INVITE: 'Invitations à gérer une organisation ou un lieu',
+	VENUE_HOST_INVITE: 'Invitations à animer les scènes ouvertes d’un lieu',
 	VENUE_CLAIM: 'Réponses à mes revendications de lieu',
 	INTRODUCTION: 'Présentations par quelqu’un de mon réseau'
 };
@@ -103,6 +105,8 @@ export function notificationText(
 			return `${who} t’invite à gérer le studio${what} à ses côtés.`;
 		case 'ORG_INVITE':
 			return `${who} t’invite à gérer${what} à ses côtés.`;
+		case 'VENUE_HOST_INVITE':
+			return `${who} t’invite à animer les scènes ouvertes du lieu${what}. Réponds quand tu veux, depuis « Mes jams ».`;
 		case 'VENUE_CLAIM':
 			return `L’équipe a répondu à ta demande pour le lieu${what} : ouvre sa fiche pour la suite.`;
 		case 'INTRODUCTION':

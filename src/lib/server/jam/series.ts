@@ -14,6 +14,9 @@
  *   Idempotent : une jam par série et par début (`@@unique`).
  * - Aucune notification de masse (piège du repérage) et aucune XP à la
  *   publication : seule la jam tenue rapporte (`jam.held`).
+ * - Lead par défaut (P5-04b) : un·e animateur·rice actif·ve du lieu
+ *   (`VenueHost`), copié·e sur chaque jam créée et sur les jams à venir qui
+ *   n'ont pas d'autre lead.
  */
 import { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
@@ -179,6 +182,7 @@ async function generateForSeries(seriesId: string, now: Date) {
 					venueId: series.venueId,
 					backline: series.venue.backline,
 					seriesId: series.id,
+					leadActorId: series.leadId,
 					slots: Math.max(
 						1,
 						spots.reduce((n, s) => n + s.count, 0)
@@ -194,6 +198,52 @@ async function generateForSeries(seriesId: string, now: Date) {
 		}
 	}
 	return created;
+}
+
+/**
+ * Choisir le lead par défaut d'une série (vide : aucun). Il doit animer au
+ * lieu (`VenueHost` actif). Les jams à venir sans lead, ou menées par
+ * l'ancien lead par défaut, passent au nouveau ; un lead choisi pour une
+ * soirée précise reste.
+ */
+export async function setSeriesLead(
+	personId: string,
+	seriesId: string,
+	handle: string,
+	now = new Date()
+) {
+	const series = await prisma.jamSeries.findUnique({
+		where: { id: seriesId },
+		select: { venueId: true, issuerActorId: true, leadId: true, stoppedAt: true }
+	});
+	if (!series || series.stoppedAt) throw new JamError('Scène ouverte introuvable.', 404);
+	await managedVenue(series.venueId, personId);
+	let leadId: string | null = null;
+	if (handle) {
+		const host = await prisma.venueHost.findFirst({
+			where: {
+				orgId: series.issuerActorId,
+				status: 'ACTIVE',
+				person: { handle: handle.trim().replace(/^@/, '').toLowerCase(), deletedAt: null }
+			},
+			select: { personId: true }
+		});
+		if (!host) throw new JamError('Choisis une personne qui anime au lieu.');
+		leadId = host.personId;
+	}
+	if (leadId === series.leadId) return;
+	await prisma.$transaction([
+		prisma.jamSeries.update({ where: { id: seriesId }, data: { leadId } }),
+		prisma.opportunity.updateMany({
+			where: {
+				seriesId,
+				status: 'OPEN',
+				startsAt: { gt: now },
+				OR: [{ leadActorId: null }, ...(series.leadId ? [{ leadActorId: series.leadId }] : [])]
+			},
+			data: { leadActorId: leadId }
+		})
+	]);
 }
 
 /** Job quotidien : les jams des 4 semaines à venir pour toutes les séries actives. */
@@ -220,6 +270,7 @@ export async function venueSeries(venueId: string, now = new Date()) {
 			startTime: true,
 			endTime: true,
 			stoppedAt: true,
+			lead: { select: { handle: true, displayName: true } },
 			jams: {
 				where: { status: 'OPEN', startsAt: { gt: now } },
 				orderBy: { startsAt: 'asc' },
@@ -237,6 +288,7 @@ export async function venueSeries(venueId: string, now = new Date()) {
 			' h'
 		),
 		stopped: r.stoppedAt !== null,
+		lead: r.lead ? { handle: r.lead.handle, displayName: r.lead.displayName } : null,
 		next: r.jams[0] ? { id: r.jams[0].id, startsAt: r.jams[0].startsAt! } : null
 	}));
 }

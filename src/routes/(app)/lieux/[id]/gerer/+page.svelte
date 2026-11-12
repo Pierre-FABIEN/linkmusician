@@ -147,13 +147,23 @@
 		<section class="space-y-3" aria-labelledby="scenes">
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<h2 id="scenes" class="text-xl font-bold">Scènes ouvertes</h2>
-				{#if published && activeSeries.length < MAX_SERIES_PER_VENUE}
-					<a
-						href="/lieux/{v.venueId}/gerer/scene-ouverte"
-						class="inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold hover:bg-muted"
-						>Publier une scène ouverte</a
-					>
-				{/if}
+				<div class="flex flex-wrap gap-2">
+					{#if activeSeries.length > 0}
+						<!-- Animateur·rices (P5-04b) -->
+						<a
+							href="/lieux/{v.venueId}/gerer/animation"
+							class="inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+							>Qui anime</a
+						>
+					{/if}
+					{#if published && activeSeries.length < MAX_SERIES_PER_VENUE}
+						<a
+							href="/lieux/{v.venueId}/gerer/scene-ouverte"
+							class="inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+							>Publier une scène ouverte</a
+						>
+					{/if}
+				</div>
 			</div>
 			{#if activeSeries.length === 0}
 				<p class="text-sm text-muted-foreground">
@@ -169,7 +179,8 @@
 							<span class="min-w-0">
 								<span class="block font-medium">{s.title}</span>
 								<span class="text-muted-foreground"
-									>{s.label}, {s.hours}{#if s.next}. Prochaine&nbsp;: <a
+									>{s.label}, {s.hours}{#if s.lead}, menée par {s.lead
+											.displayName}{/if}{#if s.next}. Prochaine&nbsp;: <a
 											href="/jams/{s.next.id}"
 											class="underline">{day.format(new Date(s.next.startsAt))}</a
 										>{/if}</span
