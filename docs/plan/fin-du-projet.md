@@ -12,14 +12,14 @@
 
 ## 1. Où on en est
 
-**93 lots terminés sur 113** (82 %) ; **≈ 90 % du périmètre du
+**94 lots terminés sur 113** (83 %) ; **≈ 90 % du périmètre du
 lancement**. Phases 0 à 2 complètes, phase 3 complète sauf l'ouverture,
 phase 4 complète pour le lancement, phase 5 commencée (P5-01, P5-02,
-P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06). La phase 6 vient après le lancement.
+P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06, P5-08). La phase 6 vient après le lancement.
 
 | Étape                              | Lots                                                          | Quand                     |
 | ---------------------------------- | ------------------------------------------------------------- | ------------------------- |
-| A. Finir la scène                  | P5-08, P5-07, P5-11                                           | Nov. → déc. 2026          |
+| A. Finir la scène                  | P5-07, P5-11                                                  | Nov. → déc. 2026          |
 | B. Revue de phase 5 et revue UX    | Revue de fin de phase, Metro (MET-01 à 07), suite e2e (P0-01) | Déc. 2026 → janv. 2027    |
 | C. Audit de sécurité (bloquant)    | P3-10a                                                        | Janv. → fév. 2027         |
 | D. Ouverture publique à Toulouse   | P3-10                                                         | Objectif début mars 2027  |
@@ -97,12 +97,15 @@ personne bloquée ; lead par défaut d'une série (`JamSeries.leadId`),
 copié sur les jams à venir et suivantes ; RGPD ; e2e « le lieu invite une
 animatrice suggérée, elle devient lead du prochain jeudi ». Q45 à Q47.
 
-### P5-08 — Carte : acte V
+### P5-08 — Carte : acte V ✅
 
-- **Dépend de** : P5-06.
-- **Tâches** : acte scène jouable (modèle P4-10) ; épreuves « premier
-  concert vérifié », « tournée » ; carte souvenir du concert.
-- **Fin** : e2e de l'acte V.
+**P5-08 ✅** (12/11/2026) : acte V « La scène » jouable, épreuve lue dans
+les faits (« Premier concert » vérifié par un hôte vérifié, d'un groupe
+dont on était membre à la date ; un concert corroboré ne suffit pas) ;
+la tournée vérifiée en épreuve de plus, affichée, jamais bloquante ;
+appel « Candidater à un plateau » ; carte souvenir du concert (groupe,
+hôte, mois) ; radar des pros « bientôt » (P4-11). e2e de l'acte V dans
+`carriere.spec.ts`. Voir [docs/carriere](../carriere/README.md#carte-de-carrière-p3-13-d53).
 
 ### P5-07 — Booker et manager
 

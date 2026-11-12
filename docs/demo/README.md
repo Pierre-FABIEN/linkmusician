@@ -179,6 +179,8 @@ en jam passée (vie de jam).
 | « Première date d'un groupe » (100) pour qui a accueilli Fanfare Pirate et Orbital la première fois                                                 | `sophie-bar`, `hugo-dj`                            | `/espace`                                            |
 | **Concert à confirmer** côté organisateur (apéro-concert des Coteaux, J-2)                                                                          | `yanis-orga`                                       | `/espace` (« À confirmer »), conversation avec Lucas |
 | Proposer un concert : type « Concert », groupe et hôte préremplis                                                                                   | `lucas-sax`                                        | conversation avec Sophie                             |
+| Carte, **acte V franchi** et tournée faite (« Faite ! ») ; carte souvenir du concert sur la fiche                                                   | `lucas-sax`, `awa-clavier`, `malik-batterie`       | `/espace/carte`, `/espace/fiche`                     |
+| Carte, **acte V ouvert** : le concert d'Orbital n'est que corroboré ; « Candidater à un plateau »                                                   | `kevin-metal`                                      | `/espace/carte`                                      |
 
 ### Mineur·es (D5)
 
@@ -195,7 +197,6 @@ Les lots suivants n'existent pas encore dans l'app :
 
 - jams publiques **récurrentes** des lieux, animateur·rices (P5-04) ;
 - photos des lieux (P5-03d) ;
-- acte V jouable de la carte de carrière (P5-08) ;
 - booker et manager (P5-07) ;
 - écoles, MJC, conservatoires (P5-11) ;
 - tout ce qui est payant (P5-09, P5-10).

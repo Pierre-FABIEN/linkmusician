@@ -47,8 +47,8 @@ Conception : [07 §4.1 et §4.2](../conception/07-modes-de-jeu.md#41-choisir-son
 
 - `/espace/carte`, entrée « Ma carte de carrière » en tête du menu (acte en
   cours et son épreuve, nombre d'épreuves franchies).
-- Règle pure `src/lib/career/map.ts` (`careerMap`) : huit actes, I à III
-  jouables, la suite dans le brouillard (contenu visible) ; statut
+- Règle pure `src/lib/career/map.ts` (`careerMap`) : huit actes, I à V
+  jouables (IV depuis P4-10, V depuis P5-08), la suite dans le brouillard (contenu visible) ; statut
   `passed`, `current` (premier jouable non franchi), `open`, `fog` ;
   l'ambition met des actes en avant sans changer leur état.
 - Faits (`src/lib/server/career/map.ts`, `careerFacts`), jamais l'XP :
@@ -56,7 +56,13 @@ Conception : [07 §4.1 et §4.2](../conception/07-modes-de-jeu.md#41-choisir-son
   morceaux composés à plusieurs (`Work.proof = CORROBORATED`) ou seul·e
   (`DECLARED`, rappel « compose à plusieurs »), premier enregistrement de
   groupe corroboré dont on était membre à la date (étape toujours là, non
-  gelée).
+  gelée), morceau produit (acte IV), « Premier concert » **vérifié** d'un
+  groupe dont on était membre à la date (acte V, P5-08 : un concert
+  seulement corroboré ne suffit pas, l'hôte ne franchit rien).
+- Épreuve de plus (`Act.bonusTrial`), affichée, jamais bloquante : la
+  « Première tournée » vérifiée pour l'acte V.
+- Carte souvenir de l'acte V (`firstVerifiedGig`) : le groupe, l'hôte et
+  le mois du premier concert vérifié, faits publics seulement.
 - Déblocages affichés avec leurs liens, sans verrou au MVP (D53).
 - Célébration d'épreuve : `pendingActCelebrations`, appelée par le layout
   de l'espace quand il y a du neuf ; une fois par acte

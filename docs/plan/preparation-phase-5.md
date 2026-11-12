@@ -1,7 +1,7 @@
 # Préparation technique de la phase 5
 
 > Rédigé le 11/11/2026, après la revue de phase 4. Les sections des lots
-> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-04a, P5-05a, P5-05b, P5-06) ont été retirées ; la route complète est
+> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-04a, P5-05a, P5-05b, P5-06, P5-08) ont été retirées ; la route complète est
 > dans [fin-du-projet.md](./fin-du-projet.md).
 > But : qu'une session de lot n'ait plus à explorer le code. Pour chaque
 > lot : ce qui existe, le modèle à copier, le schéma proposé, les étapes,
@@ -36,8 +36,8 @@ les e2e : fermer le bandeau cookies (« Compris ») avant un bouton collé en
 bas, attendre la fin des toasts avant `expectNoA11yViolations`, et lire
 la carte par `:scope > li`.
 
-**Ordre conseillé** (restant) : P5-08 → P5-07 →
-P5-11 (P5-04b ✅ le 12/11/2026). Les concerts s'appuient sur l'organisateur et la fiche du
+**Ordre conseillé** (restant) : P5-07 →
+P5-11 (P5-04b et P5-08 ✅ le 12/11/2026). Les concerts s'appuient sur l'organisateur et la fiche du
 lieu, les jams publiques sur l'organisation du lieu.
 
 ---
@@ -117,19 +117,6 @@ notification de masse : seule l'invitation d'animation notifie.
 
 **Report** : la « part de 10 % sur un rang franchi par l'artiste » exige
 un événement `tier.crossed`. Ce n'est pas nécessaire au lancement (Q21).
-
----
-
-## P5-08 — Carte : acte V
-
-**À faire** : dans `src/lib/career/map.ts`, acte V `playable: true`,
-`passed: (f) => f.verifiedGigs >= 1`. Le fait `verifiedGigs`
-(`FIRST_GIG` `VERIFIED` d'un groupe dont on était membre) se calcule dans
-`server/career/map.ts`, comme `recordings`. La tournée (`FIRST_TOUR`
-vérifiée) donne une 2ᵉ épreuve affichée, pas bloquante. Déblocage : le
-radar des pros, « bientôt » (P4-11 vient après le lancement). Carte
-souvenir du concert : `server/career/souvenir.ts` (P3-14). e2e de l'acte
-V, avec un concert vérifié préparé en base.
 
 ---
 

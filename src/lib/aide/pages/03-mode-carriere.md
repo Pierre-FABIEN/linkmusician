@@ -18,16 +18,16 @@ _Ta carrière musicale, comme dans un jeu : une étape à la fois, et chaque
 Une carrière dans la musique passe par des grandes étapes. LinkMusician
 les suit dans l’ordre où elles arrivent souvent, sans les imposer :
 
-| Acte                      | Ce qui s’y passe                                  | Dans l’app aujourd’hui                                                 |
-| ------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
-| **I. La rencontre**       | Trouver avec qui jouer                            | ✅ Annonces, messages, jams, collaborations                            |
-| **II. La création**       | Monter un groupe, composer, répéter, une maquette | ✅ Groupes, morceaux, étapes du groupe                                 |
-| **III. Le studio**        | Enregistrer, mixer                                | Étape « Premier enregistrement » ; fiches des studios                  |
-| **IV. La production**     | Arranger, produire                                | ✅ Producteur·rices, récap de campagne                                 |
-| **V. La scène**           | Premiers concerts, puis une tournée               | Concerts confirmés par les lieux et organisateurs ; 🔜 carte de l’acte |
-| **VI. La sortie**         | Sortir un titre, un EP                            | ✅ Étapes EP/album vérifiées par UPC ou ISRC                           |
-| **VII. Le développement** | Manager, booker, éditeur, label                   | 🔜                                                                     |
-| **VIII. La carrière**     | Album, tournées, en vivre                         | 🔜                                                                     |
+| Acte                      | Ce qui s’y passe                                  | Dans l’app aujourd’hui                                       |
+| ------------------------- | ------------------------------------------------- | ------------------------------------------------------------ |
+| **I. La rencontre**       | Trouver avec qui jouer                            | ✅ Annonces, messages, jams, collaborations                  |
+| **II. La création**       | Monter un groupe, composer, répéter, une maquette | ✅ Groupes, morceaux, étapes du groupe                       |
+| **III. Le studio**        | Enregistrer, mixer                                | Étape « Premier enregistrement » ; fiches des studios        |
+| **IV. La production**     | Arranger, produire                                | ✅ Producteur·rices, récap de campagne                       |
+| **V. La scène**           | Premiers concerts, puis une tournée               | ✅ Concerts vérifiés par les lieux et organisateurs, tournée |
+| **VI. La sortie**         | Sortir un titre, un EP                            | ✅ Étapes EP/album vérifiées par UPC ou ISRC                 |
+| **VII. Le développement** | Manager, booker, éditeur, label                   | 🔜                                                           |
+| **VIII. La carrière**     | Album, tournées, en vivre                         | 🔜                                                           |
 
 Ta **carte de carrière** (dans l’écran de carrière, **Ma carte de
 carrière**) montre ces actes : ceux que tu as franchis, celui en cours, et
@@ -43,7 +43,11 @@ par quelqu’un d’autre, jamais par tes points :
   studio ;
 - **IV · La production** : un morceau **produit**, la production confirmée
   par le ou la producteur·rice. Sur la fiche du morceau, le **récap de
-  campagne** retrace son chemin, de l’idée au son final.
+  campagne** retrace son chemin, de l’idée au son final ;
+- **V · La scène** : un concert de ton groupe **vérifié** par le lieu ou
+  l’organisation qui l’accueille (vérifiée elle aussi). Pour aller plus
+  loin, une **tournée** : trois concerts vérifiés dans trois villes en un
+  mois. Ta carte souvenir nomme le groupe, l’hôte et le mois du concert.
 
 Pas d’ordre imposé : tu peux franchir l’acte II avant l’acte I. Quand tu
 franchis une épreuve, on la fête, et la carte te montre ce qui s’ouvre.

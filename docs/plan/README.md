@@ -71,9 +71,9 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 Étapes A à F : voir [fin-du-projet.md §1](./fin-du-projet.md#1-où-on-en-est).
 Un lot terminé reste dans le tableau avec ✅ jusqu'à la fin de son étape.
 
-**Terminé : 93 lots sur 113.** Phases 0, 1 et 2 complètes ; phase 3
+**Terminé : 94 lots sur 113.** Phases 0, 1 et 2 complètes ; phase 3
 complète sauf P3-10a et P3-10 ; phase 4 complète pour le lancement ;
-phase 5 : P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b et P5-06. Le détail de chaque lot terminé est
+phase 5 : P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06 et P5-08. Le détail de chaque lot terminé est
 dans le `git log` (messages préfixés par l'ID).
 
 | Lot    | Intitulé                                      | Dépend de             | Statut | Étape | Notes                                                                                                                                                                                                                                                            |
@@ -86,7 +86,7 @@ dans le `git log` (messages préfixés par l'ID).
 | P5-04  | Jams publiques des lieux                      | P5-03b, P2-14b        | ✂️     | A     | Découpé en P5-04a et P5-04b                                                                                                                                                                                                                                      |
 | P5-04a | Jams des lieux : scène ouverte récurrente     | P5-03b, P2-14b        | ✅     | A     | Lancement. `JamSeries` (« tous les jeudis »), jams des 4 semaines créées par le job, gestion du lieu hôte, « jam publique tenue » (`jam.held`, 50 × confiance, rang du lieu), mineur·es et lieu `ADULTS` ; e2e `scene-ouverte.spec.ts` ; Q30 corrigé ; Q42 à Q44 |
 | P5-04b | Jams des lieux : animateur·rices              | P5-04a                | ✅     | A     | Lancement. `VenueHost` (le lieu invite, la personne accepte dans Mes jams), suggestions de leads à 30 km (appréciations, jams animées, jamais l'XP), lead par défaut d'une série ; e2e `animation-lieu.spec.ts` ; Q45 à Q47                                      |
-| P5-08  | Carte : acte V                                | P5-06                 | ⬜     | A     | Lancement                                                                                                                                                                                                                                                        |
+| P5-08  | Carte : acte V                                | P5-06                 | ✅     | A     | Lancement. Acte V jouable (« Premier concert » vérifié, membre à la date), tournée en épreuve de plus, carte souvenir du concert ; e2e `carriere.spec.ts` (acte V)                                                                                               |
 | P5-07  | Booker et manager                             | P5-01                 | ⬜     | A     | Lancement                                                                                                                                                                                                                                                        |
 | P5-11  | Écoles, MJC, conservatoires (D29)             | P5-02, P2-14c         | ⬜     | A     | Lancement                                                                                                                                                                                                                                                        |
 | P0-01  | Environnement local et état de référence      | —                     | ⏸      | B     | Suite e2e complète à faire passer (échecs d'authentification, `lieux.spec.ts` Q30), à l'étape B                                                                                                                                                                  |
