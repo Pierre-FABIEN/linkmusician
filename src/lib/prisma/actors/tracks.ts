@@ -5,6 +5,7 @@
 import type { TrackKind } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { checkTrackSelection, type TrackKindValue, type TrackSelection } from '#lib/actors/tracks';
+import { syncLegacySpecializations } from './specializations';
 
 type Equals<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 /** Échoue à la compilation si le référentiel pur et l'enum Prisma divergent. */
@@ -18,7 +19,8 @@ export const TRACK_KINDS_MATCH_PRISMA: Equals<TrackKind, TrackKindValue> = true;
  * unique partiel en base (Prisma 5 ne sait pas le décrire, et un index absent
  * du schéma serait supprimé par la prochaine `migrate dev`) : cette fonction
  * est donc la seule à écrire dans `person_tracks`, hors anonymisation. Les
- * métiers déjà présents sont conservés (leur `createdAt` mesure la demande).
+ * métiers déjà présents sont conservés (leur `createdAt` mesure la demande),
+ * avec leurs spécialités et intentions (ONB-01).
  */
 export async function setPersonTracks(personId: string, selection: TrackSelection) {
 	const result = checkTrackSelection(selection.tracks, selection.primary);
@@ -39,5 +41,8 @@ export async function setPersonTracks(personId: string, selection: TrackSelectio
 		],
 		{ isolationLevel: 'Serializable' }
 	); // deux enregistrements simultanés ne laissent pas deux principaux
+	// ONB-01 : retirer un métier efface ses spécialités (cascade) mais pas son
+	// profil ; s'il est repris, on recopie les spécialités du profil.
+	await syncLegacySpecializations(personId);
 	return result.selection;
 }
