@@ -7,7 +7,7 @@
 	import * as Calendar from '#shadcn/calendar';
 	import { parisDayKey } from '#lib/jam/calendar';
 	import { Badge } from '#shadcn/badge';
-	import { CalendarDays, Clock3, MapPin, Users } from 'lucide-svelte';
+	import { CalendarDays, ChevronLeft, ChevronRight, Clock3, MapPin, Users } from 'lucide-svelte';
 
 	let { data } = $props();
 	let selectedDate = $state<DateValue | undefined>(parseDate('2000-01-01'));
@@ -107,9 +107,22 @@
 						>
 							{#snippet children({ months, weekdays })}
 								<Calendar.Header class="pb-2">
-									<Calendar.PrevButton aria-label="Mois précédent" class="size-11 opacity-100" />
+									<!-- bits-ui impose « Previous » / « Next » : le libellé français passe par `child`. -->
+									<Calendar.PrevButton class="size-11 opacity-100">
+										{#snippet child({ props })}
+											<button {...props} aria-label="Mois précédent">
+												<ChevronLeft class="size-4" aria-hidden="true" />
+											</button>
+										{/snippet}
+									</Calendar.PrevButton>
 									<Calendar.Heading class="text-base font-bold capitalize" />
-									<Calendar.NextButton aria-label="Mois suivant" class="size-11 opacity-100" />
+									<Calendar.NextButton class="size-11 opacity-100">
+										{#snippet child({ props })}
+											<button {...props} aria-label="Mois suivant">
+												<ChevronRight class="size-4" aria-hidden="true" />
+											</button>
+										{/snippet}
+									</Calendar.NextButton>
 								</Calendar.Header>
 								<Calendar.Months>
 									{#each months as month (month)}
