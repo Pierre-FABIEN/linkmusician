@@ -173,7 +173,7 @@ button.lm-tile:not(.lm-tile-frame > *):active {
 	font-weight: 700;
 	text-decoration: none;
 	color: var(--lm-solid-fg);
-	background: linear-gradient(135deg, var(--lm-solid), oklch(0.45 0.24 290));
+	background: var(--lm-solid);
 	backdrop-filter: var(--lm-blur-sm);
 	cursor: pointer;
 	box-shadow:

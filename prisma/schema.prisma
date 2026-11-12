@@ -1556,8 +1556,46 @@ model PersonTrack {
   isPrimary Boolean   @default(false)
   createdAt DateTime  @default(now())
 
+  specializations PersonTrackSpecialization[]
+  intents         PersonTrackIntent[]
+
   @@id([personId, track])
   @@map("person_tracks")
+}
+
+/// Spécialité exercée dans un métier (ONB-01, D56). `code` : référentiel
+/// `#lib/actors/specializations`, validé par l'application. Suit le métier :
+/// retirer le métier retire ses spécialités. Seul point d'écriture :
+/// `src/lib/prisma/actors/specializations.ts` (hors anonymisation).
+model PersonTrackSpecialization {
+  personId    String
+  track       TrackKind
+  personTrack PersonTrack @relation(fields: [personId, track], references: [personId, track], onDelete: Cascade)
+  code        String
+  createdAt   DateTime    @default(now())
+
+  @@id([personId, track, code])
+  @@map("person_track_specializations")
+}
+
+/// « Je propose » (`OFFER`) ou « Je recherche » (`NEED`), par métier (ONB-01).
+enum TrackIntentDirection {
+  OFFER
+  NEED
+}
+
+/// Intention déclarée pour un métier : deux listes de codes indépendantes
+/// (`#lib/actors/specializations`, catalogue `INTENTS`). Suit le métier.
+model PersonTrackIntent {
+  personId    String
+  track       TrackKind
+  personTrack PersonTrack          @relation(fields: [personId, track], references: [personId, track], onDelete: Cascade)
+  direction   TrackIntentDirection
+  code        String
+  createdAt   DateTime             @default(now())
+
+  @@id([personId, track, direction, code])
+  @@map("person_track_intents")
 }
 
 // ─── COMPÉTENCES : référentiels (P1-04) ─────────────────────────────────────

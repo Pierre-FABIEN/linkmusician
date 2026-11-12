@@ -20,6 +20,9 @@
 	} from '#lib/store/initialLoaderStore';
 	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/state'; // LINKMUSICIAN: barre de l'espace (P0-07)
+	// LINKMUSICIAN: fond Metro commun à l'en-tête, à la page et au pied de page (D56).
+	import MetroBackdrop from '#lib/components/linkmusician/metro/MetroBackdrop.svelte';
+	import { backdropFor } from '#lib/linkmusician/backdrop';
 
 	import { resetCart, setCart, setVatRate } from '#lib/store/Data/cartStore';
 	import { setCartSyncAuthenticated, startSync } from '#lib/store/Data/cartSync';
@@ -190,6 +193,8 @@
 	$effect(() => {
 		document.addEventListener('DOMContentLoaded', () => setDomLoaded(true));
 	});
+	// LINKMUSICIAN: fond de la page affichée (D56).
+	const backdrop = $derived(backdropFor(page.url.pathname));
 </script>
 
 <svelte:head>
@@ -222,12 +227,23 @@
 			<div class="absolute top-0 left-0 z-[1] h-screen w-screen overflow-hidden">
 				<SmoothScrollBar>
 					<main id="main-content" class="max-w-[100vw] overflow-hidden">
-						<div class="ccc absolute z-[1] w-full pb-15" bind:this={contentRef}>
-							{@render children()}
-							{#if !page.url.pathname.startsWith('/_lab/metro')}
-								<Footer companyName={data.companyName} />
-							{/if}
-						</div>
+						<!-- LINKMUSICIAN: sur une page Metro, la page et le pied de page
+						     partagent le même fond (D56) ; la marge basse passe dedans. -->
+						{#if backdrop.metro}
+							<div class="ccc absolute z-[1] w-full" bind:this={contentRef}>
+								<MetroBackdrop aurora={backdrop.aurora}>
+									{@render children()}
+									<Footer companyName={data.companyName} />
+								</MetroBackdrop>
+							</div>
+						{:else}
+							<div class="ccc absolute z-[1] w-full pb-15" bind:this={contentRef}>
+								{@render children()}
+								{#if !page.url.pathname.startsWith('/_lab/metro')}
+									<Footer companyName={data.companyName} />
+								{/if}
+							</div>
+						{/if}
 					</main>
 				</SmoothScrollBar>
 			</div>

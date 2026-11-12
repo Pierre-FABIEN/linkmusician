@@ -76,3 +76,52 @@ sort de cette liste.
 | T3  | Calendrier des jams (`/jam/agenda`) : bits-ui 2.20.4 imposait `aria-label="Previous"` / `"Next"` sur `Calendar.PrevButton` et `NextButton`. **Réglé dans MET-01** (11/11) : les deux composants shadcn reposent notre libellé (`LINKMUSICIAN:`), l'étape 1 de `jams.spec.ts` passe. L'étape 3 échoue ensuite pour une autre raison : le compte e2e n'a « aucun lieu de l'annuaire autour de toi », le formulaire n'est pas affiché (données de la base e2e, pas le style) | Réglé pour le calendrier ; l'étape 3 de `jams.spec.ts` reste à reprendre (lieu de test hors du rayon du compte)      | P0-01 |
 | T4  | `e2e/auth/journey.spec.ts`, étape 14 (2FA, code invalide) : le message « Invalid TOTP code » n'apparaît plus (11/11). L'échec existe déjà sans les changements Metro (spec rejouée sur la mise en page d'origine) : le texte d'erreur de Better Auth a sans doute changé                                                                                                                                                                                                  | Spec du boilerplate en échec sur cette étape. À reprendre côté boilerplate (texte attendu ou traduction de l'erreur) | P0-01 |
 | T5  | Specs en échec depuis D51 (`fd41845d`, 08/11), constaté le 11/11 pendant la passe Metro : `lieux.spec.ts` étape 4 bis attend « Publier une jam ici » (réservé aux organisateur·rices) ; `profil.spec.ts` étape 3, `getByLabel('Jams')` trouve aussi « Je suis prêt·e à organiser des jams ». Sans lien avec le style                                                                                                                                                      | Specs à mettre à jour : cocher « organiser » avant la fiche du lieu, `getByLabel('Jams', { exact: true })`           | P0-01 |
+
+
+
+
+# Bilan provisoire de l'audit de sécurité
+
+L'audit a été interrompu à peu près aux deux tiers. Je n'ai fait que lire le code : aucune requête n'a été envoyée au site, et je n'ai rien modifié ni commité.
+
+## Constats à traiter
+
+| # | Gravité | Constat | Où |
+|---|---|---|---|
+| 1 | **Critique si la configuration de production est incomplète** | Quand `GOOGLE_CLIENT_ID` est absent ou factice, la vérification du jeton Google est remplacée par `async () => true`. Or `isDummySecret(undefined)` renvoie `true`. Si cette variable manque en production, n'importe qui peut se connecter avec n'importe quelle identité Google. La sécurité dépend d'une variable d'environnement au lieu d'un contrôle explicite du mode test. | [src/lib/auth/index.ts](src/lib/auth/index.ts), [dummy-secrets.ts](src/lib/server/dummy-secrets.ts) |
+| 2 | **Élevée, à confirmer par un test** | `svelteKitHandler` expose tous les points d'entrée Better Auth (`/api/auth/sign-up/email`, `/sign-in/email`, 2FA…), et aucun `disabledPaths` n'est configuré. Une inscription par cette voie contourne l'âge minimum de 16 ans (D5), l'acceptation des CGU, les règles de complexité du mot de passe et la limite par IP. Une connexion par cette voie contourne le délai croissant par compte. La limitation propre à Better Auth est stockée en mémoire, donc inefficace sur Vercel, où plusieurs instances tournent en parallèle. | [hooks.server.ts](src/hooks.server.ts), [auth/index.ts](src/lib/auth/index.ts) |
+| 3 | **Moyenne à élevée** | La suspension, la vérification de l'email et la fin de l'onboarding ne sont contrôlées que dans le `load` du layout `(app)`. Or SvelteKit n'exécute pas ce `load` avant une action. Un compte suspendu ou non vérifié peut donc envoyer des actions (messages, collaborations…) et appeler les API (`/api/media/sign`…). `requirePerson` ne vérifie pas non plus la suspension. | [(app)/+layout.server.ts](src/routes/(app)/+layout.server.ts), [tracksForm.ts](src/lib/server/actors/tracksForm.ts) |
+| 4 | Moyenne | Les messages d'erreur révèlent quelles adresses sont inscrites : « Le compte nexiste pas », « Connectez vous via Google », « Account does not exist », « déjà inscrit ». Le commentaire en tête de la page de connexion affirme pourtant le contraire. | [login](src/routes/auth/login/+page.server.ts), [forgot-password](src/routes/auth/forgot-password/+page.server.ts), [signup](src/routes/auth/signup/+page.server.ts) |
+| 5 | Moyenne | `allowPasswordless: true` : on peut désactiver la 2FA sans ressaisir son mot de passe. Quelqu'un qui a volé une session peut donc retirer la 2FA. | [auth/index.ts](src/lib/auth/index.ts) |
+| 6 | Moyenne, à vérifier | Le cookie est lu sous le nom `better-auth.session_token`. En production (HTTPS), Better Auth le préfixe en `__Secure-`. Deux conséquences possibles : des sessions non reconnues en production, et une clé de cache d'identité calculée à partir d'un cookie différent de celui que Better Auth valide. | [auth/hooks.ts](src/lib/auth/hooks.ts) |
+| 7 | Moyenne | 50 fichiers utilisent `locals.user!`. Une action envoyée sans être connecté provoque une erreur 500 au lieu d'une 401. Il n'y a pas de contournement, mais ce n'est pas robuste. | [messages/[id]](src/routes/(app)/messages/[id]/+page.server.ts) et autres |
+| 8 | Moyenne | Dépendances : `zod` (épuisement de la mémoire, alerte de gravité haute), `qs`, `minimatch`, `satori`. Le paquet `npx`, déclaré en dépendance de production, apporte à lui seul 58 des 72 alertes et peut être retiré (npm le fournit déjà). | [package.json](package.json) |
+| 9 | Faible | Les limites par IP lisent `X-Forwarded-For`. C'est acceptable sur Vercel, qui réécrit cet en-tête, mais la limite de connexion est sautée si l'en-tête est absent. La limite globale est très large (100 requêtes par seconde). | [hooks.server.ts](src/hooks.server.ts), [login](src/routes/auth/login/+page.server.ts) |
+| 10 | Faible | `allowedHosts` contient encore `madeindiamonds.com`, un reste du boilerplate, ainsi que `*.vercel.app`. | [auth/index.ts](src/lib/auth/index.ts) |
+| 11 | Faible | Le code de réinitialisation est comparé avec `!==`, ce qui n'est pas une comparaison à temps constant. Le risque est réduit par la limite de 5 essais par 30 minutes. `/api/csp-report` écrit dans les journaux tout ce qu'on lui envoie, sans limite propre. | [reset-password/verify-email](src/routes/auth/reset-password/verify-email/+page.server.ts) |
+
+## Points vérifiés sans problème
+
+- **En-têtes et CSP** : HSTS en production, `nosniff`, `X-Frame-Options: DENY`, `frame-ancestors 'none'`, et une CSP sans script inline autorisé. La protection CSRF par défaut de SvelteKit est active.
+- **Secrets** : `.env` et `.env.test` sont ignorés par git et absents de l'historique. Aucun secret n'apparaît dans les fichiers suivis.
+- **Administration et modération** : le hook `/admin` couvre les GET et les POST, et chaque action admin appelle `requireAdmin`. Chaque action de modération appelle `requireModerator`.
+- **Tâches planifiées** : toutes les routes `/api/jobs/*` exigent une signature QStash ou `CRON_SECRET`, comparé à temps constant. Elles refusent l'accès si le secret manque.
+- **Webhooks** : les signatures Stripe et Cloudinary sont vérifiées, avec un verrou contre le traitement en double.
+- **Médias** : les paramètres d'envoi signés limitent le dossier, l'identifiant et les formats. Le serveur relit le fichier chez Cloudinary, et la confirmation vérifie le propriétaire.
+- **Injection de code (XSS)** : le blog passe par DOMPurify, le JSON-LD échappe `<`, l'aide n'affiche que du contenu du dépôt. Les liens saisis sont limités à http et https, et les lecteurs intégrés sont construits à partir d'un identifiant contrôlé.
+- **Requêtes vers des adresses internes (SSRF)** : oEmbed n'appelle que des adresses fixes et n'utilise que le titre renvoyé.
+- **Injection SQL** : `Prisma.raw` ne reçoit que des constantes numériques et le nom du schéma.
+- **Accès aux données d'autrui** : factures, panier, conversations, discussions et bulletins sont bien restreints à leur propriétaire.
+- **Divers** : le lien « Ce n'était pas moi » ne révoque la session qu'au clic, pas à l'ouverture de la page. Les mots de passe sont hachés en Argon2id et comparés aux fuites connues (HIBP). La réinitialisation expire en 10 minutes et redemande la 2FA. `/_lab` renvoie 404 en production.
+
+## Reste à auditer
+
+- Export et anonymisation RGPD
+- Exports, imports et purges de l'administration
+- Règles d'accès détaillées de la messagerie et des groupes
+- Recherche et précision de la géolocalisation (invariant du centroïde de commune)
+- Webhook Sendcloud, paiement, cartes cadeaux
+- Assistant d'onboarding : coût des appels et injection de consignes
+- Tests réels des points 2 et 6 sur l'environnement de test
+
+Les points 1 à 3 sont les plus urgents. Je peux terminer les parties restantes de l'audit, ou commencer par corriger ces trois points.

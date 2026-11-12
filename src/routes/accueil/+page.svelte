@@ -68,7 +68,7 @@
 		<div class="mx-auto grid max-w-5xl items-start gap-10 lg:grid-cols-[1fr_24rem]">
 			<header class="space-y-8">
 				<div class="space-y-4">
-					<h1 class="lm-display bg-[image:var(--lm-gradient)] bg-clip-text pb-2 text-transparent">
+					<h1 class="lm-display">
 						{BRAND.name}
 					</h1>
 					<p class="lm-title lm-title--sm">{BRAND.tagline}</p>

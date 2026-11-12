@@ -103,11 +103,7 @@
 
 <SEO title="Mode jam" noindex nofollow />
 
-<MetroHome
-	label="Mode jam"
-	tones={['var(--tone-orange)', 'var(--tone-rose)', 'var(--tone-cyan)', 'var(--tone-amber)']}
-	{pivots}
->
+<MetroHome label="Mode jam" {pivots}>
 	{#snippet header()}
 		<header class="space-y-2">
 			<p class="lm-kicker flex items-center gap-2 text-muted-foreground">

@@ -190,11 +190,7 @@
 
 <SEO title="Mon espace" noindex nofollow />
 
-<MetroHome
-	label="Mode carrière"
-	tones={['var(--tone-violet)', 'var(--tone-amber)', 'var(--tone-blue)', 'var(--tone-rose)']}
-	{pivots}
->
+<MetroHome label="Mode carrière" {pivots}>
 	{#snippet header()}
 		<!-- En-tête : identité et progression -->
 		<header class="flex max-w-3xl flex-col gap-4">

@@ -27,6 +27,37 @@
 	--tone-ink: oklch(0.96 0.005 85);
 }
 
+/* ── Fond commun (`MetroBackdrop`, D56) ────────────────────────────────────
+   L'en-tête, la page et le pied de page vivent dans le même conteneur : le
+   papier (et l'Aurora d'un accueil) court d'un bord à l'autre. Les blocs
+   Metro posés dedans n'ont plus de fond à eux. */
+.lm-backdrop {
+	width: 100%;
+}
+.lm-backdrop__inner,
+.lm-backdrop__inner > .lm-aurora__content {
+	display: flex;
+	flex-direction: column;
+}
+.lm-backdrop__inner {
+	min-height: 100vh;
+	min-height: 100dvh;
+}
+.lm-backdrop__inner > .lm-aurora__content {
+	flex: 1 0 auto;
+}
+.lm-backdrop .lm-metro {
+	background: none;
+}
+.lm-backdrop .lm-app.lm-metro {
+	flex: 1 0 auto;
+	min-height: 0;
+}
+/* Le pied de page garde la place de la barre flottante du boilerplate. */
+.lm-backdrop footer:last-child {
+	padding-bottom: 5rem;
+}
+
 /* ── Coquille ─────────────────────────────────────────────────────────────── */
 .lm-app.lm-metro {
 	/* La coquille est posée dans un conteneur centré du boilerplate (`ccc`). */
@@ -43,16 +74,20 @@
 		padding-top: 1.5rem;
 	}
 }
+/* Le nom de l'app : Raleway léger, à l'encre, comme dans les maquettes (D56). */
 .lm-shell-brand {
 	font-family: var(--lm-font-display);
-	font-weight: 800;
-	font-size: 1.25rem;
-	letter-spacing: -0.02em;
+	font-weight: 300;
+	font-size: 1.5rem;
+	line-height: 1;
+	letter-spacing: -0.03em;
 	text-decoration: none;
-	background: var(--lm-gradient);
-	-webkit-background-clip: text;
-	background-clip: text;
-	color: transparent;
+	color: var(--foreground);
+}
+.lm-shell-brand:focus-visible {
+	outline: 3px solid var(--foreground);
+	outline-offset: 4px;
+	border-radius: 0.25rem;
 }
 /* Pastille du mode : un liseré et un point au ton du mode, le texte en encre. */
 .lm-mode-pill {

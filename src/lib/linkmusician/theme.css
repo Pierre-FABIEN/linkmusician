@@ -1,18 +1,10 @@
 @import './metro.css';
 
 /*
- * LINKMUSICIAN: jetons de design de l'espace (P0-05b). Depuis MET-01 (D55),
- * la coquille est en Metro : l'aplat (`--primary`, `--ring`) vient de
- * `metro/app.css`. Il reste ici le dégradé de marque, réservé au nom de
- * l'app. Le thème suit le réglage de l'appareil.
+ * LINKMUSICIAN: thème de l'espace. Tous les jetons viennent de Metro
+ * (`metro/base.css`, `metro/app.css`). Il n'y a plus de couleur ni de
+ * dégradé de marque (D56) : le nom de l'app s'écrit à l'encre, en Raleway.
  */
-.lm-app {
-	--lm-gradient: linear-gradient(90deg, oklch(0.541 0.281 293.009), oklch(0.591 0.293 322.896));
-}
-
-.dark .lm-app {
-	--lm-gradient: linear-gradient(90deg, oklch(0.702 0.183 293.541), oklch(0.74 0.238 322.16));
-}
 
 /* Apparition des célébrations (P2-11), coupée si l'appareil le demande. */
 @keyframes lm-pop {

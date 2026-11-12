@@ -103,9 +103,9 @@
 			<a
 				href="/jouer"
 				aria-label={BRAND.name}
-				class="lm-shell-brand shrink-0 uppercase {showGroupAnnouncements
+				class="lm-shell-brand shrink-0 {showGroupAnnouncements
 					? 'max-[519px]:hidden'
-					: 'max-[419px]:hidden'} sm:text-2xl">{BRAND.name}</a
+					: 'max-[419px]:hidden'}">{BRAND.name}</a
 			>
 			<form method="POST" action="/jouer?/toggleMode">
 				<input type="hidden" name="mode" value={targetMode} />
