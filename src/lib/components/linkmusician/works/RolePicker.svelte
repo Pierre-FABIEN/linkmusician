@@ -25,11 +25,7 @@
 	<legend class="text-sm font-medium">{legend}</legend>
 	<label class="block space-y-1 text-sm">
 		<span class="text-muted-foreground">Instrument ou voix</span>
-		<select
-			name="roles"
-			id="{id}-instrument"
-			class="block min-h-11 w-full rounded-md border bg-background px-3"
-		>
+		<select name="roles" id="{id}-instrument" class="lm-field block min-h-11 w-full">
 			<option value="">{instrumentOnly ? 'Choisir…' : 'Aucun'}</option>
 			{#each families as f (f.family)}
 				<optgroup label={f.label}>

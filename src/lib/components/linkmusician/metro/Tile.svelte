@@ -20,8 +20,7 @@
 	} from 'lucide-svelte';
 	import TileFrame from './TileFrame.svelte';
 
-	type Tone = 'violet' | 'rose' | 'blue' | 'orange' | 'amber' | 'lime' | 'cyan' | 'ink' | 'paper';
-	type Size = 'sm' | 'md' | 'wide' | 'band' | 'tall' | 'big';
+	import type { Size, Tone } from './tones';
 	type Fx = 'notes' | 'trophy' | 'shout' | 'target' | 'rocket' | 'cheers';
 	type Bit = { icon: typeof Bell; dx: number; dy: number; r: number; size: number };
 
@@ -54,9 +53,13 @@
 		 *  la fusée décolle et revient par le bas ; `cheers` : la chope trinque. */
 		fx?: Fx;
 		children: Snippet;
+		/** Bouton d'un formulaire (`submit`) : la tuile envoie `name` et `value`. */
+		type?: 'button' | 'submit';
+		name?: string;
+		value?: string;
 	} & HTMLAttributes<HTMLElement> = $props();
 
-	const tag = $derived(href ? 'a' : rest.onclick ? 'button' : 'div');
+	const tag = $derived(href ? 'a' : rest.onclick || rest.type ? 'button' : 'div');
 	const Icon = $derived(icon);
 
 	// Trajectoire de chaque particule, en % de sa propre taille, depuis son
@@ -101,7 +104,7 @@
 		this={tag}
 		{...rest}
 		href={href ?? undefined}
-		type={tag === 'button' ? 'button' : undefined}
+		type={tag === 'button' ? (rest.type ?? 'button') : undefined}
 		class="lm-tile {className}"
 		data-tone={tone}
 		data-size={size}

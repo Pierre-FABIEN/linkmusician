@@ -61,26 +61,22 @@
 </script>
 
 {#snippet report()}
-	<details class="rounded-lg border p-3 text-sm">
+	<details class="lm-tile lm-tile--flow p-3 text-sm">
 		<summary class="cursor-pointer text-muted-foreground">Signaler cette annonce</summary>
 		<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
 			<label class="block space-y-1 font-medium">
 				Motif
-				<select name="reason" required class="w-full rounded-md border bg-background p-2">
+				<select name="reason" required class="lm-field w-full">
 					<option value="">—</option>
 					{#each REPORT_REASONS as r (r)}<option value={r}>{REPORT_REASON_LABELS[r]}</option>{/each}
 				</select>
 			</label>
 			<label class="block space-y-1 font-medium">
 				Précisions (facultatif)
-				<textarea
-					name="details"
-					rows="3"
-					maxlength={MAX_REPORT_DETAILS}
-					class="w-full rounded-md border bg-background p-2"
+				<textarea name="details" rows="3" maxlength={MAX_REPORT_DETAILS} class="lm-field w-full"
 				></textarea>
 			</label>
-			<button type="submit" class="rounded-md border px-3 py-1.5">Envoyer le signalement</button>
+			<button type="submit" class="lm-btn" data-variant="ghost">Envoyer le signalement</button>
 		</form>
 	</details>
 {/snippet}
@@ -100,7 +96,7 @@
 				<Badge variant="secondary">{OPPORTUNITY_KIND_INFO[o.kind].label}</Badge>
 				{#if o.status !== 'OPEN'}<Badge variant="outline">{STATUS_LABELS[o.status]}</Badge>{/if}
 			</div>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{o.title}</h1>
+			<h1 class="lm-title">{o.title}</h1>
 			<p class="text-sm text-muted-foreground">
 				{isGig ? 'Plateau proposé par' : o.issuer.isBand ? 'Le groupe' : 'par'}
 				<a href="/@{o.issuer.handle}" class="font-medium underline">{o.issuer.displayName}</a>
@@ -137,7 +133,7 @@
 
 		{#if o.work}
 			<!-- LINKMUSICIAN: morceau concerné (P4-05). -->
-			<p class="rounded-2xl border bg-card p-4 text-sm">
+			<p class="lm-tile lm-tile--flow p-4 text-sm">
 				Pour le morceau
 				{#if o.work.linkable}
 					<a href="/morceaux/{o.work.id}" class="font-semibold underline">« {o.work.title} »</a>
@@ -147,7 +143,7 @@
 			</p>
 		{/if}
 		{#if conditions.length > 0}
-			<section class="rounded-2xl border bg-card p-4" aria-labelledby="conditions-title">
+			<section class="lm-tile lm-tile--flow p-4" aria-labelledby="conditions-title">
 				<h2 id="conditions-title" class="mb-2 font-semibold">Ce qui est recherché</h2>
 				<ul class="list-disc space-y-1 pl-5 text-sm">
 					{#each conditions as c (c)}<li>{c}</li>{/each}
@@ -156,16 +152,14 @@
 		{/if}
 
 		{#if o.isOwner}
-			<section class="space-y-2 rounded-2xl border bg-muted/40 p-4 text-sm">
+			<section class="lm-tile lm-tile--flow space-y-2 p-4 text-sm">
 				<p>
 					C'est ton annonce. Visible jusqu'au {day.format(new Date(o.expiresAt))}, à {o.radiusKm} km autour
 					de toi.
 				</p>
 				{#if o.active}
 					<form method="POST" action="?/close" use:enhance>
-						<button type="submit" class="min-h-11 rounded-xl border px-4 font-semibold"
-							>Clôturer l'annonce</button
-						>
+						<button type="submit" class="lm-btn" data-variant="ghost">Clôturer l'annonce</button>
 					</form>
 				{/if}
 			</section>
@@ -183,7 +177,7 @@
 				{:else}
 					<ul class="grid gap-3 lg:grid-cols-2" aria-label="Candidatures reçues">
 						{#each data.applications as a (a.id)}
-							<li class="space-y-2 rounded-2xl border bg-card p-4">
+							<li class="lm-tile lm-tile--flow space-y-2 p-4">
 								<div class="flex flex-wrap items-center justify-between gap-2">
 									<span class="font-semibold">
 										{#if a.applicant.handle}
@@ -213,20 +207,17 @@
 									<div class="flex flex-wrap gap-2">
 										<form method="POST" action="?/accept" use:enhance>
 											<input type="hidden" name="applicationId" value={a.id} />
-											<button
-												class="min-h-11 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
-												>Accepter</button
-											>
+											<button class="lm-btn">Accepter</button>
 										</form>
 										{#if a.status !== 'SHORTLISTED'}
 											<form method="POST" action="?/shortlist" use:enhance>
 												<input type="hidden" name="applicationId" value={a.id} />
-												<button class="min-h-11 rounded-xl border px-4">Présélectionner</button>
+												<button class="lm-btn" data-variant="ghost">Présélectionner</button>
 											</form>
 										{/if}
 										<form method="POST" action="?/decline" use:enhance>
 											<input type="hidden" name="applicationId" value={a.id} />
-											<button class="min-h-11 rounded-xl border px-4">Refuser</button>
+											<button class="lm-btn" data-variant="ghost">Refuser</button>
 										</form>
 									</div>
 								{:else if a.conversationId}
@@ -254,10 +245,7 @@
 				</p>
 			{/if}
 			{#if appliedBands.length > 0}
-				<section
-					class="space-y-2 rounded-2xl border bg-card p-4 text-sm"
-					aria-labelledby="mine-title"
-				>
+				<section class="lm-tile lm-tile--flow space-y-2 p-4 text-sm" aria-labelledby="mine-title">
 					<h2 id="mine-title" class="font-semibold">Candidatures de tes groupes</h2>
 					<ul class="space-y-2">
 						{#each appliedBands as b (b.handle)}
@@ -274,7 +262,7 @@
 								{:else if isPending(app.status)}
 									<form method="POST" action="?/withdrawBand" use:enhance>
 										<input type="hidden" name="applicationId" value={app.id} />
-										<button class="min-h-11 rounded-xl border px-4">Retirer</button>
+										<button class="lm-btn" data-variant="ghost">Retirer</button>
 									</form>
 								{/if}
 							</li>
@@ -284,7 +272,7 @@
 			{/if}
 			{#if data.gig.adult && o.active && blockedBands.length > 0}
 				<section
-					class="space-y-1 rounded-2xl border bg-muted/40 p-4 text-sm"
+					class="lm-tile lm-tile--flow space-y-1 p-4 text-sm"
 					aria-label="Groupes hors conditions"
 				>
 					{#each blockedBands as b (b.handle)}
@@ -303,13 +291,13 @@
 					method="POST"
 					action="?/applyBand"
 					use:enhance
-					class="space-y-3 rounded-2xl border bg-card p-4"
+					class="lm-tile lm-tile--flow space-y-3 p-4"
 					aria-labelledby="apply-title"
 				>
 					<h2 id="apply-title" class="font-semibold">Candidater avec un groupe</h2>
 					<label class="block space-y-1 text-sm font-medium">
 						Groupe
-						<select name="band" required class="w-full rounded-md border bg-background p-2">
+						<select name="band" required class="lm-field w-full">
 							{#each openBands as b (b.handle)}
 								<option value={b.handle}>{b.name}{b.tier ? ` · rang ${b.tier}` : ''}</option>
 							{/each}
@@ -324,23 +312,16 @@
 							minlength={MIN_APPLICATION}
 							maxlength={MAX_APPLICATION}
 							placeholder="Votre style, la durée de votre set, un lien d’écoute, vos besoins techniques…"
-							class="w-full rounded-md border bg-background p-2"
+							class="lm-field w-full"
 						></textarea>
 					</label>
-					<button
-						type="submit"
-						class="min-h-11 rounded-xl bg-primary px-5 font-semibold text-primary-foreground"
-						>Envoyer la candidature du groupe</button
-					>
+					<button type="submit" class="lm-btn">Envoyer la candidature du groupe</button>
 				</form>
 			{/if}
 			{@render report()}
 		{:else}
 			{#if data.mine}
-				<section
-					class="space-y-2 rounded-2xl border bg-card p-4 text-sm"
-					aria-labelledby="mine-title"
-				>
+				<section class="lm-tile lm-tile--flow space-y-2 p-4 text-sm" aria-labelledby="mine-title">
 					<h2 id="mine-title" class="font-semibold">
 						Ta candidature : {APPLICATION_STATUS_LABELS[data.mine.status]}
 					</h2>
@@ -360,7 +341,7 @@
 					{:else if isPending(data.mine.status)}
 						<form method="POST" action="?/withdraw" use:enhance>
 							<input type="hidden" name="applicationId" value={data.mine.id} />
-							<button class="min-h-11 rounded-xl border px-4">Retirer ma candidature</button>
+							<button class="lm-btn" data-variant="ghost">Retirer ma candidature</button>
 						</form>
 					{/if}
 				</section>
@@ -378,7 +359,7 @@
 					method="POST"
 					action="?/apply"
 					use:enhance
-					class="space-y-3 rounded-2xl border bg-card p-4"
+					class="lm-tile lm-tile--flow space-y-3 p-4"
 					aria-labelledby="apply-title"
 				>
 					<h2 id="apply-title" class="font-semibold">Postuler</h2>
@@ -391,14 +372,10 @@
 							minlength={MIN_APPLICATION}
 							maxlength={MAX_APPLICATION}
 							placeholder="Présente-toi : ce que tu joues, depuis quand, tes disponibilités…"
-							class="w-full rounded-md border bg-background p-2"
+							class="lm-field w-full"
 						></textarea>
 					</label>
-					<button
-						type="submit"
-						class="min-h-11 rounded-xl bg-primary px-5 font-semibold text-primary-foreground"
-						>Envoyer ma candidature</button
-					>
+					<button type="submit" class="lm-btn">Envoyer ma candidature</button>
 				</form>
 			{/if}
 			{@render report()}

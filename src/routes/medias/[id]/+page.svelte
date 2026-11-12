@@ -28,7 +28,7 @@
 		<MediaPlayer media={m} />
 
 		{#if data.canReport}
-			<details class="rounded-lg border p-3 text-sm">
+			<details class="lm-tile lm-tile--flow p-3 text-sm">
 				<summary class="cursor-pointer text-muted-foreground">Signaler</summary>
 				<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
 					<fieldset class="space-y-1">
@@ -43,12 +43,7 @@
 					</fieldset>
 					<div class="space-y-1">
 						<label for="reason" class="block font-medium">Motif</label>
-						<select
-							id="reason"
-							name="reason"
-							required
-							class="w-full rounded-md border bg-background p-2"
-						>
+						<select id="reason" name="reason" required class="lm-field w-full">
 							<option value="">—</option>
 							{#each REPORT_REASONS as r (r)}
 								<option value={r}>{REPORT_REASON_LABELS[r]}</option>
@@ -62,11 +57,10 @@
 							name="details"
 							rows="3"
 							maxlength={MAX_REPORT_DETAILS}
-							class="w-full rounded-md border bg-background p-2"
+							class="lm-field w-full"
 						></textarea>
 					</div>
-					<button type="submit" class="rounded-md border px-3 py-1.5">Envoyer le signalement</button
-					>
+					<button type="submit" class="lm-btn" data-variant="ghost">Envoyer le signalement</button>
 				</form>
 			</details>
 		{/if}

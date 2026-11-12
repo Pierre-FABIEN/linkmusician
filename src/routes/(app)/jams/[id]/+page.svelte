@@ -57,7 +57,7 @@
 	<article class="mx-auto max-w-6xl space-y-6 lg:space-y-8">
 		<div class="space-y-2">
 			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{jam.title}</h1>
+			<h1 class="lm-title">{jam.title}</h1>
 			<p class="flex items-center gap-2">
 				<CalendarDays class="size-4" aria-hidden="true" />
 				{when.format(new Date(jam.startsAt))} → {hour.format(new Date(jam.endsAt))}
@@ -115,7 +115,7 @@
 		{#if jam.description}<p class="whitespace-pre-line">{jam.description}</p>{/if}
 
 		{#if jam.packing && jam.packing.sentence}
-			<section class="flex gap-3 rounded-2xl border bg-card p-4" aria-labelledby="packing-title">
+			<section class="lm-tile lm-tile--flow flex gap-3 p-4" aria-labelledby="packing-title">
 				<Backpack class="mt-0.5 size-5 shrink-0" aria-hidden="true" />
 				<div>
 					<h2 id="packing-title" class="font-semibold">
@@ -131,7 +131,7 @@
 				<h2 id="spots-title" class="font-semibold">On cherche</h2>
 				<ul class="grid gap-2 sm:grid-cols-2">
 					{#each jam.board as l (l.instrumentId)}
-						<li class="rounded-xl border p-3 text-sm">
+						<li class="lm-tile lm-tile--flow p-3 text-sm">
 							<span class="font-semibold">{l.name}</span>
 							<span class="block text-muted-foreground">{spotLabel(l)}</span>
 						</li>
@@ -175,7 +175,7 @@
 						<fieldset class="grid grid-cols-2 gap-2">
 							<legend class="sr-only">Matériel sur place pour cette jam</legend>
 							{#each data.backlineOptions as o (o.value)}
-								<label class="flex min-h-11 items-center gap-2 rounded-md border px-3">
+								<label class="lm-tile lm-tile--flow flex min-h-11 items-center gap-2 px-3">
 									<input
 										type="checkbox"
 										name="backline"
@@ -192,7 +192,7 @@
 			{/if}
 		</section>
 
-		<section class="space-y-3 rounded-2xl border bg-card p-4">
+		<section class="lm-tile lm-tile--flow space-y-3 p-4">
 			<p class="flex items-center gap-2 font-semibold">
 				<Users class="size-4" aria-hidden="true" />
 				{jam.coming} musicien·ne{jam.coming > 1 ? 's' : ''} vien{jam.coming > 1 ? 'nent' : 't'}
@@ -231,7 +231,7 @@
 		</section>
 
 		{#if jam.canManage}
-			<section class="space-y-4 rounded-2xl border bg-card p-4" aria-labelledby="lead-title">
+			<section class="lm-tile lm-tile--flow space-y-4 p-4" aria-labelledby="lead-title">
 				<h2 id="lead-title" class="flex items-center gap-2 text-lg font-semibold">
 					<UserPlus class="size-4" aria-hidden="true" /> Compose ta formation
 				</h2>
@@ -277,7 +277,7 @@
 					<ul class="space-y-2">
 						{#each jam.pendingInvites as i (i.handle)}
 							<li
-								class="flex flex-wrap items-center justify-between gap-2 rounded-xl border p-3 text-sm"
+								class="lm-tile lm-tile--flow flex flex-wrap items-center justify-between gap-2 p-3 text-sm"
 							>
 								<span>
 									<a href="/@{i.handle}" class="font-semibold underline">{i.displayName}</a>

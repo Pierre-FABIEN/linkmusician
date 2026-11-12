@@ -2,7 +2,7 @@
 	import Tile from './Tile.svelte';
 	import { ArrowRight } from 'lucide-svelte';
 
-	type Tone = 'violet' | 'rose' | 'blue' | 'orange' | 'amber' | 'lime' | 'cyan' | 'ink' | 'paper';
+	import type { Tone } from './tones';
 
 	let {
 		tone = 'lime',

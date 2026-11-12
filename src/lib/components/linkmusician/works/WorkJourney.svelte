@@ -43,7 +43,7 @@
 	);
 </script>
 
-<section aria-labelledby="campagne" class="space-y-4 rounded-2xl border bg-card p-4 sm:p-5">
+<section aria-labelledby="campagne" class="lm-tile lm-tile--flow space-y-4 p-4 sm:p-5">
 	{#if journey.done}
 		<div class="flex items-start gap-3">
 			<PartyPopper class="mt-0.5 size-6 shrink-0 text-primary" aria-hidden="true" />
@@ -92,7 +92,7 @@
 					</p>
 				{/if}
 				{#if step.verified}
-					<p class="inline-flex items-center gap-1 text-sm text-emerald-700 dark:text-emerald-400">
+					<p class="inline-flex items-center gap-1 text-sm font-medium text-foreground">
 						<BadgeCheck class="size-4" aria-hidden="true" />
 						A vérifié l’étape « Premier enregistrement » du groupe
 					</p>

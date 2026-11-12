@@ -10,14 +10,14 @@
 
 {#snippet venueList(venues: typeof data.nearby, empty: string)}
 	{#if venues.length === 0}
-		<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">{empty}</p>
+		<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">{empty}</p>
 	{:else}
 		<ul class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
 			{#each venues as v (v.id)}
 				<li>
 					<a
 						href="/lieux/{v.id}"
-						class="flex min-h-16 flex-col justify-center rounded-2xl border bg-card p-4 hover:border-primary"
+						class="lm-tile lm-tile--flow flex min-h-16 flex-col justify-center p-4"
 					>
 						<span class="font-semibold">{v.name}</span>
 						<span class="flex items-center gap-1 text-sm text-muted-foreground">
@@ -37,7 +37,7 @@
 	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
 		<div class="space-y-2">
 			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Lieux de jam</h1>
+			<h1 class="lm-title">Lieux de jam</h1>
 			<p class="text-sm text-muted-foreground">
 				Bars, cafés-concerts, salles, MJC, locaux de répète, studios : une jam se tient toujours
 				dans un lieu public ou professionnel, jamais chez quelqu'un.
@@ -53,20 +53,14 @@
 				value={data.q}
 				maxlength="80"
 				placeholder="Nom du lieu"
-				class="min-h-11 flex-1 rounded-md border bg-background px-3 text-sm"
+				class="lm-field min-h-11 flex-1"
 			/>
-			<button
-				type="submit"
-				class="inline-flex min-h-11 items-center gap-2 rounded-md border px-4 font-semibold"
-			>
+			<button type="submit" class="lm-btn gap-2" data-variant="ghost">
 				<Search class="size-4" aria-hidden="true" /> Chercher
 			</button>
 		</form>
 
-		<a
-			href="/lieux/nouveau"
-			class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
-		>
+		<a href="/lieux/nouveau" class="lm-btn gap-2">
 			<Plus class="size-4" aria-hidden="true" /> Ajouter un lieu
 		</a>
 
@@ -111,7 +105,7 @@
 					'Aucun lieu dans l’annuaire près de chez toi. Ajoute le bar où se tient ta jam préférée !'
 				)}
 			{:else}
-				<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+				<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
 					<a href="/profil/ville" class="underline">Indique ta ville</a> pour voir les lieux autour de
 					toi.
 				</p>

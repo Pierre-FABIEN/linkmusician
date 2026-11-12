@@ -3,7 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import {
 		AGENT_KIND_INFO,
 		MAX_REPRESENTATION_MESSAGE,
@@ -32,7 +32,7 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-8">
-		<SubPageHeader
+		<MetroPageHeader
 			title="Accompagnement"
 			intro="Managers et bookers : un accompagnement ne compte qu’une fois confirmé par l’artiste."
 		/>

@@ -71,7 +71,7 @@ describe('centre d’aide : le rendu', () => {
 		expect(help.html).toContain('<h2 id="avant">Avant</h2>');
 		expect(help.html).toContain('aide-tip');
 		expect(help.html).toContain('aide-warning');
-		expect(help.html).toContain('<div class="aide-table"><table>');
+		expect(help.html).toContain('<div class="aide-table" role="region" tabindex="0"');
 		expect(help.toc).toEqual([{ id: 'avant', text: 'Avant' }]);
 	});
 

@@ -16,7 +16,7 @@ export const PRODUCER_SPECIALTY_INFO: Readonly<
 	Record<ProducerSpecialtyValue, { label: string; hint: string }>
 > = {
 	PRODUCTION: {
-		label: 'Production',
+		label: 'Production complète',
 		hint: 'Porter un titre de la maquette au son final, avec les artistes.'
 	},
 	ARRANGEMENT: { label: 'Arrangement', hint: 'Écrire les parties, la structure, les couleurs.' },

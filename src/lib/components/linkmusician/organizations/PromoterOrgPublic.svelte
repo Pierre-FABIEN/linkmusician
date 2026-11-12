@@ -65,20 +65,20 @@
 			<div class="space-y-6 lg:col-span-2">
 				<Card.Root class="overflow-hidden pt-0">
 					<div
-						class="h-32 bg-slate-900 bg-[radial-gradient(circle_at_25%_35%,var(--color-orange-500),transparent_50%),radial-gradient(circle_at_80%_60%,var(--color-fuchsia-600),transparent_55%)]"
+						class="h-32 bg-muted bg-[radial-gradient(circle_at_25%_35%,var(--tone-orange),transparent_50%),radial-gradient(circle_at_80%_60%,var(--tone-rose),transparent_55%)]"
 					></div>
 					<Card.Content class="-mt-12 space-y-4">
 						<div class="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:gap-4">
 							<Avatar.Root class="size-24 border-4 border-background shadow-xl">
-								<Avatar.Fallback class="bg-orange-100 text-3xl font-bold text-orange-900"
+								<Avatar.Fallback class="bg-primary/15 text-3xl font-bold text-foreground"
 									>{initialsOf(org.name)}</Avatar.Fallback
 								>
 							</Avatar.Root>
 							<div class="min-w-0 flex-1 space-y-2">
-								<h1 class="flex items-center gap-2 text-3xl font-black tracking-tight">
+								<h1 class="lm-title flex items-center gap-2">
 									{org.name}
 									{#if org.verified}
-										<BadgeCheck class="size-6 shrink-0 text-sky-600" aria-hidden="true" />
+										<BadgeCheck class="size-6 shrink-0 text-primary" aria-hidden="true" />
 										<span class="sr-only">(organisation vérifiée)</span>
 									{/if}
 								</h1>
@@ -173,19 +173,14 @@
 				{/if}
 
 				{#if canReport && !org.isManager}
-					<details class="rounded-lg border p-3 text-sm">
+					<details class="lm-tile lm-tile--flow p-3 text-sm">
 						<summary class="cursor-pointer text-muted-foreground"
 							>Signaler cette organisation</summary
 						>
 						<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
 							<div class="space-y-1">
 								<label for="reason" class="block font-medium">Motif</label>
-								<select
-									id="reason"
-									name="reason"
-									required
-									class="w-full rounded-md border bg-background p-2"
-								>
+								<select id="reason" name="reason" required class="lm-field w-full">
 									<option value="">—</option>
 									{#each REPORT_REASONS as r (r)}
 										<option value={r}>{REPORT_REASON_LABELS[r]}</option>
@@ -199,10 +194,10 @@
 									name="details"
 									rows="3"
 									maxlength={MAX_REPORT_DETAILS}
-									class="w-full rounded-md border bg-background p-2"
+									class="lm-field w-full"
 								></textarea>
 							</div>
-							<button type="submit" class="rounded-md border px-3 py-1.5"
+							<button type="submit" class="lm-btn" data-variant="ghost"
 								>Envoyer le signalement</button
 							>
 						</form>

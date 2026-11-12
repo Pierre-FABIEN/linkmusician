@@ -8,6 +8,7 @@
 	 * Voir « Tuile encadrée » dans `metro.css`.
 	 */
 	import type { Snippet } from 'svelte';
+	import type { Size } from './tones';
 
 	let {
 		class: className = '',
@@ -16,7 +17,7 @@
 		children
 	}: {
 		class?: string;
-		size?: 'sm' | 'md' | 'wide' | 'band' | 'tall' | 'big';
+		size?: Size;
 		/** Rang d'apparition : décale l'entrée des cadres d'un même pivot. */
 		index?: number;
 		children: Snippet;

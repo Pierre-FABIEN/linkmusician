@@ -37,7 +37,8 @@
 		aria-valuenow={xpIntoLevel}
 	>
 		<div
-			class="h-full rounded-full bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500 transition-[width] duration-700"
+			class="lm-fill h-full rounded-full transition-[width] duration-700 motion-reduce:transition-none"
+			data-tone="violet"
 			style:width="{Math.round(ratio * 100)}%"
 		></div>
 	</div>

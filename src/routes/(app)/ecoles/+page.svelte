@@ -2,7 +2,7 @@
 	// LINKMUSICIAN: « Mes écoles » (P5-11), voir +page.server.ts.
 	import { enhance } from '$app/forms';
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { MAX_SCHOOL_NAME, SCHOOL_KINDS, SCHOOL_KIND_LABELS } from '#lib/schools/rules';
 
 	let { data, form } = $props();
@@ -15,7 +15,7 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-8">
-		<SubPageHeader
+		<MetroPageHeader
 			title="Mes écoles"
 			intro="Ton école de musique, ta MJC ou ton conservatoire : ses ateliers jam, réservés à ses élèves, pour apprendre à jouer avec d’autres avant la scène."
 		/>

@@ -8,6 +8,9 @@
 		ref = $bindable(null),
 		class: className,
 		children,
+		// LINKMUSICIAN: bits-ui 2.20 impose son `aria-label` anglais (« Previous »,
+		// « Next ») par-dessus le nôtre (T3) ; on le repose après ses props.
+		'aria-label': ariaLabel,
 		...restProps
 	}: CalendarPrimitive.PrevButtonProps = $props();
 </script>
@@ -23,6 +26,11 @@
 		'size-7 bg-transparent p-0 opacity-50 hover:opacity-100',
 		className
 	)}
-	children={children || Fallback}
 	{...restProps}
-/>
+>
+	{#snippet child({ props })}
+		<button {...props} aria-label={ariaLabel ?? (props['aria-label'] as string | undefined)}>
+			{@render (children || Fallback)()}
+		</button>
+	{/snippet}
+</CalendarPrimitive.PrevButton>

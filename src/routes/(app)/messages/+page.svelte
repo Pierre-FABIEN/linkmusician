@@ -28,12 +28,9 @@
 
 {#snippet row(c: Item, label: string | null)}
 	<li>
-		<a
-			href="/messages/{c.id}"
-			class="flex min-h-16 items-center gap-3 rounded-2xl border bg-card p-3 transition hover:border-primary"
-		>
+		<a href="/messages/{c.id}" class="lm-tile lm-tile--flow flex min-h-16 items-center gap-3 p-3">
 			<Avatar.Root class="size-11">
-				<Avatar.Fallback class="bg-violet-100 font-bold text-violet-800"
+				<Avatar.Fallback class="bg-primary/15 font-bold text-foreground"
 					>{initialsOf(c.displayName)}</Avatar.Fallback
 				>
 			</Avatar.Root>
@@ -62,11 +59,9 @@
 	<li>
 		<a
 			href="/messages/groupes/{g.id}"
-			class="flex min-h-16 items-center gap-3 rounded-2xl border bg-card p-3 transition hover:border-primary"
+			class="lm-tile lm-tile--flow flex min-h-16 items-center gap-3 p-3"
 		>
-			<span
-				class="grid size-11 shrink-0 place-items-center rounded-full bg-amber-100 text-amber-800"
-			>
+			<span class="lm-chip rounded-full" data-tone="rose">
 				<MessagesSquare class="size-5" aria-hidden="true" />
 			</span>
 			<span class="min-w-0 flex-1">
@@ -94,7 +89,7 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
-		<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Messages</h1>
+		<h1 class="lm-title">Messages</h1>
 		<MessagesTabs current="conversations" />
 
 		<TipCard tip={data.tip} />
@@ -134,7 +129,7 @@
 			<section class="space-y-2" aria-labelledby="conversations-title">
 				<h2 id="conversations-title" class="font-semibold">Conversations</h2>
 				{#if data.conversations.length === 0}
-					<div class="space-y-2 rounded-2xl border bg-card p-6 text-center">
+					<div class="lm-tile lm-tile--flow space-y-2 p-6 text-center">
 						<MessageCircle class="mx-auto size-6 text-primary" aria-hidden="true" />
 						<p class="font-semibold">Pas encore de conversation.</p>
 						<p class="text-sm text-muted-foreground">

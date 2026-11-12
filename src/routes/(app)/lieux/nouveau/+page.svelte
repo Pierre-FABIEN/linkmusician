@@ -64,10 +64,10 @@
 <SEO title="Ajouter un lieu" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-4xl space-y-6 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-4xl space-y-6">
 		<div class="space-y-2">
 			<a href="/lieux" class="text-sm text-muted-foreground underline">← Lieux de jam</a>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Ajouter un lieu</h1>
+			<h1 class="lm-title">Ajouter un lieu</h1>
 			<p class="text-sm text-muted-foreground">
 				Un lieu public ou professionnel : bar, café-concert, salle, MJC, local de répète, studio…
 				Jamais un domicile. On n'enregistre que la commune, pas l'adresse.
@@ -75,7 +75,7 @@
 		</div>
 
 		{#if form?.error}
-			<div role="alert" class="space-y-1 rounded-md border border-destructive p-3 text-sm">
+			<div role="alert" class="lm-tile lm-tile--flow space-y-1 border-destructive p-3 text-sm">
 				<p class="text-destructive">{form.error}</p>
 				{#if form.existingId}
 					<a href="/lieux/{form.existingId}" class="font-semibold underline">Voir ce lieu</a>
@@ -98,13 +98,13 @@
 					role="combobox"
 					aria-expanded={suggestions.length > 0}
 					aria-controls="venue-suggestions"
-					class="w-full rounded-md border bg-background p-2 text-sm"
+					class="lm-field w-full"
 				/>
 				{#if suggestions.length > 0}
 					<ul
 						id="venue-suggestions"
 						aria-label="Établissements connus"
-						class="divide-y rounded-md border bg-card text-sm shadow"
+						class="lm-tile lm-tile--flow divide-y text-sm shadow"
 					>
 						{#each suggestions as s (s.siret)}
 							<li>
@@ -131,12 +131,7 @@
 			</div>
 			<label class="block space-y-1 font-medium">
 				Type de lieu
-				<select
-					name="kind"
-					required
-					bind:value={kind}
-					class="w-full rounded-md border bg-background p-2 text-sm font-normal"
-				>
+				<select name="kind" required bind:value={kind} class="lm-field w-full">
 					<option value="">—</option>
 					{#each data.kinds as k (k.value)}
 						<option value={k.value}>{k.label}</option>
@@ -155,17 +150,14 @@
 					maxlength="17"
 					bind:value={siret}
 					placeholder="14 chiffres"
-					class="w-full rounded-md border bg-background p-2 text-sm font-normal"
+					class="lm-field w-full"
 				/>
 				<span class="block text-sm font-normal text-muted-foreground"
 					>Tu gères ce lieu ou tu connais son SIRET ? Il est vérifié auprès de l’Insee et le lieu
 					est validé tout de suite.</span
 				>
 			</label>
-			<button
-				type="submit"
-				disabled={!commune}
-				class="min-h-11 w-full rounded-xl bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-50"
+			<button type="submit" disabled={!commune} class="lm-btn w-full disabled:opacity-50"
 				>Ajouter à l’annuaire</button
 			>
 		</form>

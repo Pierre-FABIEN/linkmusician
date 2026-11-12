@@ -1,0 +1,694 @@
+/* LINKMUSICIAN: Metro, tuile, tons, tuile encadrée, verre clair, mosaïque, raccourcis, filigrane (voir `../metro.css`). */
+
+/* ── Tuile ──────────────────────────────────────────────────────────────── */
+.lm-tile {
+	--t-bg: var(--card);
+	--t-bg2: var(--card);
+	--t-fg: var(--foreground);
+	--t-fg2: var(--muted-foreground);
+	position: relative;
+	isolation: isolate;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 0.6rem;
+	min-width: 0;
+	padding: 1.1rem 1.2rem;
+	border: 1px solid color-mix(in oklch, var(--t-bg) 35%, transparent);
+	border-radius: 1.25rem;
+	overflow: hidden;
+	text-align: left;
+	text-decoration: none;
+	font: inherit;
+	color: var(--t-fg);
+
+	background: color-mix(in oklch, var(--t-bg) 12%, transparent);
+
+	-webkit-backdrop-filter: blur(10px) saturate(150%);
+	backdrop-filter: blur(10px) saturate(150%);
+
+	/* Ombres multiples pour la profondeur */
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.04),
+		0 4px 30px color-mix(in oklch, var(--lm-shadow) 10%, transparent),
+		0 20px 48px -16px color-mix(in oklch, var(--lm-shadow-tint) 45%, transparent);
+	transition:
+		transform 0.45s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)),
+		border-color 0.4s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)),
+		background 0.4s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)),
+		--t-bg 0.5s,
+		--t-bg2 0.5s,
+		--t-fg 0.5s,
+		--t-fg2 0.5s,
+		opacity 0.6s calc(var(--i, 0) * 50ms),
+		translate 0.6s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)) calc(var(--i, 0) * 50ms),
+		filter 0.4s var(--lm-ease, cubic-bezier(0.2, 0.8, 0.2, 1)),
+		/* Même hiérarchie que la tuile encadrée : redescend pendant qu'elle rétrécit. */ z-index 0.45s
+			steps(11, jump-start);
+	z-index: 0;
+}
+.dark .lm-tile {
+	/* En mode sombre, augmenter la saturation visible */
+	border-color: color-mix(in oklch, var(--t-bg) 50%, transparent);
+	background: color-mix(in oklch, var(--t-bg) 12%, transparent);
+}
+
+/* Reflet lumineux supérieur (coin haut-droit). */
+
+.lm-tile::before,
+.lm-tile::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	pointer-events: none;
+}
+
+/* Animated gradient border */
+.lm-tile::before {
+	z-index: 2;
+	padding: 1.25px;
+	opacity: 0;
+	background: conic-gradient(
+		from 0deg,
+		transparent 0deg,
+		color-mix(in oklch, var(--t-bg) 70%, white) 55deg,
+		white 90deg,
+		color-mix(in oklch, var(--t-bg2) 80%, transparent) 145deg,
+		transparent 190deg,
+		color-mix(in oklch, var(--t-bg) 65%, white) 280deg,
+		transparent 360deg
+	);
+	-webkit-mask:
+		linear-gradient(#fff 0 0) content-box,
+		linear-gradient(#fff 0 0);
+	-webkit-mask-composite: xor;
+
+	mask:
+		linear-gradient(#fff 0 0) content-box,
+		linear-gradient(#fff 0 0);
+	mask-composite: exclude;
+
+	transition: opacity 0.5s var(--lm-ease);
+}
+
+/* Reflet de verre */
+.lm-tile::after {
+	z-index: -1;
+	opacity: 0.1;
+
+	background-image: radial-gradient(70% 65% at 100% 0%, oklch(1 0 0 / 0.14), transparent 70%);
+	background-size: 100% 100%;
+	background-position: 100% 0;
+
+	transition:
+		opacity 0.5s var(--lm-ease),
+		transform 0.7s var(--lm-ease);
+}
+
+/* Tons : une couleur franche par usage, texte clair ou encre selon le contraste. */
+.lm-tile[data-tone='violet'] {
+	--t-bg: oklch(0.5 0.25 295);
+	--t-bg2: oklch(0.4 0.23 300);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='violet'] {
+	--t-bg: oklch(0.55 0.22 295);
+	--t-bg2: oklch(0.48 0.21 300);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 295);
+}
+.lm-tile[data-tone='rose'] {
+	--t-bg: oklch(0.52 0.23 355);
+	--t-bg2: oklch(0.43 0.21 355);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='rose'] {
+	--t-bg: oklch(0.57 0.21 355);
+	--t-bg2: oklch(0.5 0.2 355);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 355);
+}
+.lm-tile[data-tone='blue'] {
+	--t-bg: oklch(0.5 0.2 255);
+	--t-bg2: oklch(0.4 0.18 262);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='blue'] {
+	--t-bg: oklch(0.55 0.19 255);
+	--t-bg2: oklch(0.48 0.17 262);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 255);
+}
+.lm-tile[data-tone='orange'] {
+	--t-bg: oklch(0.76 0.17 55);
+	--t-bg2: oklch(0.7 0.18 48);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='orange'] {
+	--t-bg: oklch(0.72 0.18 55);
+	--t-bg2: oklch(0.66 0.19 48);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 55);
+}
+.lm-tile[data-tone='amber'] {
+	--t-bg: oklch(0.85 0.16 85);
+	--t-bg2: oklch(0.79 0.16 78);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='amber'] {
+	--t-bg: oklch(0.81 0.17 85);
+	--t-bg2: oklch(0.75 0.17 78);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 85);
+}
+.lm-tile[data-tone='lime'] {
+	--t-bg: oklch(0.83 0.2 130);
+	--t-bg2: oklch(0.76 0.19 135);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='lime'] {
+	--t-bg: oklch(0.79 0.21 130);
+	--t-bg2: oklch(0.72 0.2 135);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 130);
+}
+.lm-tile[data-tone='cyan'] {
+	--t-bg: oklch(0.81 0.12 205);
+	--t-bg2: oklch(0.74 0.13 213);
+	--t-fg: oklch(0.2 0.02 290);
+	--t-fg2: oklch(0.27 0.03 290);
+}
+.dark .lm-tile[data-tone='cyan'] {
+	--t-bg: oklch(0.77 0.13 205);
+	--t-bg2: oklch(0.7 0.14 213);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.95 0.03 205);
+}
+.lm-tile[data-tone='ink'] {
+	--t-bg: oklch(0.2 0.02 290);
+	--t-bg2: oklch(0.27 0.035 295);
+	--t-fg: oklch(0.995 0 0);
+	--t-fg2: oklch(0.86 0.02 290);
+}
+.dark .lm-tile[data-tone='ink'] {
+	--t-bg: oklch(0.27 0.03 290);
+	--t-bg2: oklch(0.33 0.04 295);
+}
+.lm-tile[data-tone='paper'] {
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.06),
+		0 2px 6px color-mix(in oklch, var(--lm-shadow) 12%, transparent),
+		0 20px 48px -16px color-mix(in oklch, var(--lm-shadow-tint) 65%, transparent);
+}
+
+/* ── Tuile encadrée (design « Jam ») ──────────────────────────────────────
+ * Opt-in : `<Tile framed>` ou `<TileFrame>` autour d'une tuile. Verre sombre,
+ * accent du ton sur la bordure et le texte, ombre portée sous le cadre.
+ *
+ * Règle de performance (mesurée sous Chrome, trace « Paint » au survol) :
+ * rien ne doit repeindre une tuile quand on la survole.
+ *  - Le mouvement se fait sur le cadre, jamais sur la tuile : la tuile est en
+ *    `overflow: hidden`, et un `transform` animé sur un élément qui découpe son
+ *    contenu repeint toute la tuile à chaque image (51 Paint pour 6 tuiles,
+ *    contre 2 une fois le mouvement porté par le cadre).
+ *  - Reste un seul Paint par cadre, au tout premier survol, quand Chrome met
+ *    en place l'animation sur le compositeur ; les survols suivants n'en ont
+ *    aucun. Sur la page Jam, l'animation d'entrée le fait dès le chargement.
+ *  - Au survol, seuls `transform` et `opacity` changent, sur des calques déjà
+ *    promus (`will-change`) : cadre, ombre, liseré (::before), voile (::after).
+ *    Retirer un de ces `will-change` fait revenir les repeintes.
+ *  - Aucun `backdrop-filter` : l'Aurora animée derrière forcerait à recalculer
+ *    le flou à chaque image, survol ou non.
+ *  - Bordure, ombre interne et fond restent identiques au survol : les changer
+ *    repeindrait la tuile. */
+.lm-tile-frame {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	min-width: 0;
+	min-height: 0;
+	overflow: visible;
+	/* Hiérarchie au survol : la tuile survolée passe devant (11) ; celle qu'on
+	   quitte redescend vers 0 pendant qu'elle rétrécit, donc reste sous la
+	   nouvelle mais au-dessus des autres. Pas de chevauchement à contretemps. */
+	z-index: 0;
+	will-change: transform;
+	transition:
+		transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+		z-index 260ms steps(11, jump-start),
+		opacity 0.6s calc(var(--i, 0) * 50ms),
+		translate 0.6s var(--lm-ease) calc(var(--i, 0) * 50ms);
+}
+/* Ombre portée : un aplat flou rastérisé une fois, puis seulement déplacé. */
+.lm-tile-frame::before {
+	content: '';
+	position: absolute;
+	inset: 0.75rem 0.5rem 0.25rem;
+	z-index: 0;
+	border-radius: 1.25rem;
+	background: color-mix(in oklch, var(--lm-shadow) 58%, transparent);
+	filter: blur(14px);
+	opacity: 0.48;
+	transform: translate3d(0, 5px, 0) scale(0.92);
+	transform-origin: center;
+	transition:
+		transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+		opacity 260ms ease;
+	will-change: transform, opacity;
+	pointer-events: none;
+}
+/* La tuile remplit la case unique du cadre, quelle que soit sa taille. */
+.lm-tile-frame > .lm-tile,
+.lm-tile-frame > .lm-tile[data-size] {
+	grid-area: 1 / 1;
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+	min-width: 0;
+	min-height: 0;
+}
+
+/* Accents : une couleur vive par ton, portée par la bordure et le texte. */
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='violet'] {
+	--t-bg: #c4b5fd;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='rose'] {
+	--t-bg: #fb7185;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='blue'] {
+	--t-bg: #60a5fa;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='orange'] {
+	--t-bg: #fb923c;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='amber'] {
+	--t-bg: #facc15;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='lime'] {
+	--t-bg: #a3e635;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='cyan'] {
+	--t-bg: #38bdf8;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='ink'] {
+	--t-bg: #cbd5e1;
+}
+.lm-metro .lm-tile-frame > .lm-tile[data-tone='paper'] {
+	--t-bg: #f5f5f4;
+}
+/* L'événement de la page Jam garde son turquoise, hors palette des tons. */
+.lm-metro .lm-jam-board .lm-tile-frame > .lm-tile.lm-event-tile[data-tone] {
+	--t-bg: #2dd4bf;
+}
+
+.lm-metro .lm-tile-frame > .lm-tile[data-tone] {
+	--t-bg2: var(--t-bg);
+	--t-fg: var(--t-bg);
+	--t-fg2: color-mix(in oklch, var(--t-bg) 78%, white);
+	border-color: color-mix(in oklch, var(--t-bg) 78%, transparent);
+	background: oklch(0 0 0 / 0.25);
+	background-image: linear-gradient(
+		145deg,
+		oklch(1 0 0 / 0.16) 0%,
+		oklch(1 0 0 / 0.025) 28%,
+		transparent 48%,
+		color-mix(in oklch, var(--t-bg) 14%, transparent) 100%
+	);
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.2),
+		inset 0 0 0 1px oklch(1 0 0 / 0.05);
+	/* Tout le mouvement appartient au cadre ; un changement de ton est immédiat. */
+	transition: none;
+}
+.lm-metro .lm-tile-frame > .lm-tile,
+.lm-metro .lm-tile-frame > .lm-tile * {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+}
+/* Liseré conique : présent mais quasi invisible, pour que son calque existe
+   déjà au survol (opacity 0 pourrait le faire retirer). */
+.lm-tile-frame > .lm-tile::before {
+	padding: 1.5px;
+	/* À 1,5 px, le dégradé doit rester lumineux partout pour se voir : l'accent
+	   du ton en continu, avec deux reflets blancs qui font vivre le contour. */
+	background: conic-gradient(
+		from 0deg,
+		color-mix(in oklch, var(--t-bg) 45%, white) 0deg,
+		white 50deg,
+		color-mix(in oklch, var(--t-bg) 55%, white) 110deg,
+		color-mix(in oklch, var(--t-bg) 85%, white) 180deg,
+		white 240deg,
+		white 270deg,
+		color-mix(in oklch, var(--t-bg) 45%, white) 360deg
+	);
+	opacity: 0.001;
+	will-change: opacity;
+	/* Fondu d'entrée et de sortie ; la pulsation prend le relais une fois
+	   le liseré allumé. */
+	transition: opacity 500ms ease;
+}
+/* Voile sombre au survol, sous le contenu. */
+.lm-tile-frame > .lm-tile::after {
+	background-color: oklch(0 0 0);
+	background-image: none;
+	opacity: 0;
+	will-change: opacity;
+	/* Même fondu que le liseré : les deux s'allument ensemble. */
+	transition: opacity 500ms ease;
+}
+
+/* ── Verre clair (mode clair, tuile encadrée) ─────────────────────────────
+ * Même règle de performance que la tuile encadrée : aucun `backdrop-filter`,
+ * rien ne change de bordure, d'ombre ou de fond au survol. Le verre est fait
+ * de couches fixes, peintes une seule fois : remplissage blanc translucide,
+ * reflet spéculaire, bande de reflet diagonale, tranche blanche épaisse sur
+ * les côtés (ombres internes) et liseré conique visible au repos. Au survol,
+ * seules les opacités du liseré et du voile bougent, sur des calques promus.
+ * L'Aurora défile derrière sur son propre calque : le compositeur mélange les
+ * deux sans repeindre la tuile. */
+:root:not(.dark) .lm-metro .lm-tile-frame > .lm-tile[data-tone] {
+	/* L'accent assombri à luminance fixe : lisible sur le verre clair (≥ 4,5:1). */
+	--t-fg: oklch(from var(--t-bg) 0.42 calc(c * 1.15) h);
+	--t-fg2: oklch(from var(--t-bg) 0.36 calc(c * 0.55) h);
+	border-color: oklch(1 0 0 / 0.9);
+	background-color: oklch(1 0 0 / 0.32);
+	background-image:
+		radial-gradient(
+			120% 70% at 0% 0%,
+			oklch(1 0 0 / 0.75),
+			oklch(1 0 0 / 0.18) 45%,
+			transparent 70%
+		),
+		linear-gradient(
+			115deg,
+			transparent 52%,
+			oklch(1 0 0 / 0.35) 58%,
+			oklch(1 0 0 / 0.08) 66%,
+			transparent 72%
+		),
+		linear-gradient(180deg, transparent 40%, color-mix(in oklch, var(--t-bg) 22%, transparent) 100%);
+	box-shadow:
+		/* Tranche du verre : arête blanche franche en haut et sur les côtés. */
+		inset 0 1.5px 0 oklch(1 0 0),
+		inset 2px 0 0 oklch(1 0 0 / 0.85),
+		inset -2px 0 0 oklch(1 0 0 / 0.7),
+		inset 0 -1px 0 color-mix(in oklch, var(--t-bg) 45%, transparent),
+		/* Épaisseur : lueur blanche qui s'estompe vers le centre. */ inset 0 0 22px 2px
+			oklch(1 0 0 / 0.55),
+		/* Fil de couleur sous l'arête blanche, pour la détacher du fond clair. */ 0 0 0 1px
+			color-mix(in oklch, var(--t-bg) 40%, transparent);
+}
+/* Liseré plus épais et déjà visible au repos ; le survol l'allume. */
+:root:not(.dark) .lm-metro .lm-tile-frame > .lm-tile::before {
+	padding: 2px;
+	background: conic-gradient(
+		from 200deg,
+		oklch(1 0 0) 0deg,
+		color-mix(in oklch, var(--t-bg) 60%, white) 70deg,
+		oklch(1 0 0) 140deg,
+		oklch(1 0 0 / 0.6) 200deg,
+		oklch(1 0 0) 260deg,
+		color-mix(in oklch, var(--t-bg) 50%, white) 320deg,
+		oklch(1 0 0) 360deg
+	);
+	opacity: 0.55;
+}
+/* Voile blanc : le verre s'éclaircit au survol au lieu de se ternir. */
+:root:not(.dark) .lm-metro .lm-tile-frame > .lm-tile::after {
+	background-color: oklch(1 0 0);
+}
+/* Étape et pastilles Jam : petites lames de verre, texte à l'accent. */
+:root:not(.dark) .lm-metro :is(.lm-jam-step, .lm-jam-appreciation .lm-pill) {
+	border-color: oklch(1 0 0 / 0.9);
+	background-color: oklch(1 0 0 / 0.45);
+	color: var(--t-fg);
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0),
+		inset 1.5px 0 0 oklch(1 0 0 / 0.7),
+		inset -1.5px 0 0 oklch(1 0 0 / 0.5),
+		0 4px 14px color-mix(in oklch, var(--lm-shadow) 40%, transparent);
+}
+:root:not(.dark) .lm-metro .lm-jam-step span {
+	color: var(--t-fg2);
+}
+@keyframes lm-tile-frame-pulse-light {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0.6;
+	}
+}
+@keyframes lm-tile-frame-veil-light {
+	from {
+		opacity: 0.45;
+	}
+	to {
+		opacity: 0.2;
+	}
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	:root:not(.dark) .lm-metro .lm-tile-frame > .lm-tile:hover::before {
+		animation-name: lm-tile-frame-pulse-light;
+	}
+	:root:not(.dark) .lm-metro .lm-tile-frame > .lm-tile:hover::after {
+		opacity: 0.45;
+		animation-name: lm-tile-frame-veil-light;
+	}
+}
+
+/* Commandes posées dans une tuile encadrée : contour à l'accent, aucun
+   mouvement propre (il serait découpé par la tuile, donc repeint). */
+.lm-tile-frame .lm-btn:focus-visible,
+.lm-tile-frame .lm-pattern-action:focus-visible {
+	outline: 2px solid var(--t-fg);
+	outline-offset: 3px;
+}
+.lm-tile-frame .lm-btn {
+	min-height: 2.75rem;
+	border: 1px solid color-mix(in oklch, var(--t-fg) 72%, transparent);
+	border-radius: 0.7rem;
+	background: transparent;
+	color: var(--t-fg);
+	transition: none;
+}
+.lm-tile-frame .lm-btn:hover {
+	background: transparent;
+	transform: none;
+}
+.lm-tile-frame .lm-btn[aria-pressed='true'] {
+	border-color: var(--t-fg);
+	background: transparent;
+}
+.lm-tile-frame .lm-pattern-action {
+	min-height: 2.5rem;
+	padding: 0.45rem 0.75rem;
+	border: 1px solid color-mix(in oklch, var(--t-fg) 58%, transparent);
+	border-radius: 0.7rem;
+	background: transparent;
+	color: var(--t-fg);
+	text-decoration: none;
+	transition: none;
+}
+.lm-tile-frame .lm-pattern-action:hover {
+	background: transparent;
+	transform: none;
+}
+
+.lm-jam-step,
+.lm-jam-appreciation .lm-pill {
+	background-image: linear-gradient(
+		145deg,
+		oklch(1 0 0 / 0.24) 0%,
+		oklch(1 0 0 / 0.04) 38%,
+		transparent 68%
+	);
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.32),
+		inset 0 0 0 1px oklch(1 0 0 / 0.07),
+		0 6px 18px color-mix(in oklch, var(--lm-shadow) 20%, transparent);
+}
+
+/* Pulsation franche sur un liseré de 1,5 px : il se voit sans s'épaissir. */
+@keyframes lm-tile-frame-pulse {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0.33;
+	}
+}
+/* Voile sombre calé sur le liseré (même durée, même délai) : il fonce quand
+   le liseré brille, s'éclaircit quand il faiblit. */
+@keyframes lm-tile-frame-veil {
+	from {
+		opacity: 0.3;
+	}
+	to {
+		opacity: 0.12;
+	}
+}
+
+/* Tailles de la mosaïque (grille de 4 colonnes) : petite, moyenne, large, haute, grande.
+   Une tuile encadrée laisse la case à son cadre. Rangées basses (4,75 rem) : une
+   tuile large tient en deux rangées, une petite en une, comme les tuiles larges
+   d'un écran d'accueil Metro (rapport 2:1), sans hauteur perdue. */
+.lm-mosaic {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	grid-auto-rows: var(--lm-unit, 4.75rem);
+	gap: var(--lm-gap, 0.6rem);
+}
+.lm-mosaic .lm-tile[data-size='sm'] {
+	padding: 0.65rem 0.8rem;
+}
+.lm-mosaic .lm-tile[data-size='sm'] .lm-tile__title {
+	font-size: 1.15rem;
+}
+.lm-mosaic .lm-tile[data-size='sm'] > svg:not(.lm-tile__mark) {
+	width: 1.15rem;
+	height: 1.15rem;
+}
+
+/* Raccourcis en haut à droite : une icône par entrée, pastille pour ce qui attend. */
+.lm-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+.lm-action {
+	position: relative;
+	display: inline-grid;
+	place-items: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: 0.9rem;
+	color: var(--foreground);
+	background: color-mix(in oklch, var(--foreground) 6%, transparent);
+	border: 1px solid color-mix(in oklch, var(--foreground) 14%, transparent);
+	backdrop-filter: var(--lm-blur-sm);
+	transition:
+		transform 120ms ease,
+		background-color 120ms ease;
+}
+@media (hover: hover) {
+	.lm-action:hover {
+		transform: translateY(-2px);
+		background: color-mix(in oklch, var(--foreground) 12%, transparent);
+	}
+}
+.lm-action:active {
+	transform: scale(0.94);
+}
+.lm-action:focus-visible {
+	outline: 3px solid var(--foreground);
+	outline-offset: 3px;
+}
+.lm-action__count {
+	position: absolute;
+	top: -0.3rem;
+	right: -0.3rem;
+	min-width: 1.25rem;
+	height: 1.25rem;
+	padding: 0 0.3rem;
+	border-radius: 999px;
+	display: grid;
+	place-items: center;
+	font-size: 0.7rem;
+	font-weight: 700;
+	line-height: 1;
+	color: oklch(0.99 0 0);
+	background: oklch(0.6 0.22 15);
+	box-shadow: 0 0 0 2px var(--background);
+}
+@media (prefers-reduced-motion: reduce) {
+	.lm-action {
+		transition: none;
+	}
+}
+.lm-tile[data-size='sm'],
+.lm-tile-frame[data-size='sm'] {
+	grid-column: span 2;
+}
+.lm-tile[data-size='sm'] {
+	padding: 0.85rem;
+}
+.lm-tile[data-size='md'],
+.lm-tile-frame[data-size='md'] {
+	grid-column: span 2;
+	grid-row: span 2;
+}
+.lm-tile[data-size='wide'],
+.lm-tile-frame[data-size='wide'] {
+	grid-column: span 4;
+	grid-row: span 2;
+}
+.lm-tile[data-size='band'],
+.lm-tile-frame[data-size='band'] {
+	grid-column: span 4;
+}
+.lm-tile[data-size='big'],
+.lm-tile-frame[data-size='big'] {
+	grid-column: span 4;
+	grid-row: span 3;
+}
+.lm-tile[data-size='tall'],
+.lm-tile-frame[data-size='tall'] {
+	grid-column: span 2;
+	grid-row: span 3;
+}
+
+.lm-tile__kicker {
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--t-fg2);
+}
+.lm-tile__title {
+	max-width: 100%;
+	overflow-wrap: anywhere;
+	font-family: var(--lm-font-display);
+	font-weight: 300;
+	font-size: 1.65rem;
+	line-height: 1.02;
+	letter-spacing: -0.03em;
+}
+.lm-tile[data-size='sm'] .lm-tile__title {
+	font-size: 1.05rem;
+	font-weight: 500;
+	letter-spacing: -0.01em;
+}
+.lm-tile[data-size='md'] .lm-tile__title,
+.lm-tile[data-size='tall'] .lm-tile__title {
+	font-size: 1.35rem;
+}
+.lm-tile__text {
+	font-size: 0.875rem;
+	line-height: 1.35;
+	color: var(--t-fg2);
+}
+/* Grande icône en filigrane, décorative. */
+.lm-tile__mark {
+	position: absolute;
+	right: -0.8rem;
+	bottom: -1rem;
+	z-index: -1;
+	width: 6.5rem;
+	height: 6.5rem;
+	opacity: 0.1;
+	rotate: -12deg;
+	stroke-width: 1.25;
+}
+.lm-tile[data-size='sm'] .lm-tile__mark {
+	width: 4.2rem;
+	height: 4.2rem;
+}

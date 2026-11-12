@@ -115,7 +115,12 @@ export function renderHelp(markdown: string): RenderedHelp {
 	});
 	const html = (marked.parse(body, { async: false }) as string)
 		// Tableaux : défilement horizontal sur mobile plutôt qu'une page trop large.
-		.replace(/<table>/g, '<div class="aide-table"><table>')
+		// La zone qui défile doit s'atteindre au clavier (axe
+		// `scrollable-region-focusable`) : elle est focalisable et nommée.
+		.replace(
+			/<table>/g,
+			'<div class="aide-table" role="region" tabindex="0" aria-label="Tableau, défile à l’horizontale"><table>'
+		)
 		.replace(/<\/table>/g, '</table></div>');
 	return { title, lead, html, toc };
 }

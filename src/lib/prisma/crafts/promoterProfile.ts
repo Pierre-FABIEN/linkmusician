@@ -12,6 +12,7 @@ import {
 	type PromoterEventKindValue
 } from '#lib/crafts/promoter';
 import { listReferences, normalizeReferences, replaceReferencesOps } from './references';
+import { legacySpecializationOps } from '#lib/prisma/actors/specializations';
 import { UnknownGenreError } from './producerProfile';
 
 export { UnknownGenreError };
@@ -72,6 +73,8 @@ export async function savePromoterProfile(personId: string, input: PromoterProfi
 	const known = await prisma.genre.count({ where: { id: { in: genreIds }, active: true } });
 	if (known !== genreIds.length) throw new UnknownGenreError();
 	const data = { eventKinds: [...new Set(input.eventKinds)], capacity: input.capacity };
+	// ONB-01 : les spécialités suivent aussi dans `person_track_specializations`.
+	const specializationOps = await legacySpecializationOps(personId, TRACK, data.eventKinds);
 	await prisma.$transaction([
 		prisma.promoterProfile.upsert({
 			where: { personId },
@@ -80,7 +83,8 @@ export async function savePromoterProfile(personId: string, input: PromoterProfi
 		}),
 		prisma.promoterGenre.deleteMany({ where: { personId } }),
 		prisma.promoterGenre.createMany({ data: genreIds.map((genreId) => ({ personId, genreId })) }),
-		...replaceReferencesOps(personId, TRACK, references)
+		...replaceReferencesOps(personId, TRACK, references),
+		...specializationOps
 	]);
 	return { ...data, genreIds, references };
 }

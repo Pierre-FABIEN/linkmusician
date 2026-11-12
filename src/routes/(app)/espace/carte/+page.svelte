@@ -1,7 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: carte de carrière (P3-13), voir +page.server.ts.
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { CircleCheck, CloudFog, Flag, Lock, MapPin } from 'lucide-svelte';
 	import { AMBITION_INFO } from '#lib/career/ambition';
 
@@ -19,7 +19,8 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-6">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode carrière"
 			title="Ma carte de carrière"
 			intro="Huit actes, comme le vrai parcours d’un·e artiste. Chacun finit par une épreuve prouvée par quelqu’un d’autre. Pas d’ordre imposé : la carte montre ce que tu as prouvé."
 		/>
@@ -30,7 +31,7 @@
 			</p>
 		{/if}
 		{#if m.soloOnly}
-			<p class="rounded-2xl border bg-card p-4 text-sm">
+			<p class="lm-tile lm-tile--flow p-4 text-sm">
 				Tu as composé seul·e : bravo ! Pour franchir l’acte II, compose un morceau à plusieurs,
 				chacun confirme son rôle, avec une maquette.
 			</p>
@@ -49,7 +50,7 @@
 					<div class="flex flex-wrap items-start justify-between gap-2">
 						<h2 class="flex items-center gap-2 text-lg font-bold">
 							{#if a.status === 'passed'}
-								<CircleCheck class="size-5 text-emerald-600" aria-hidden="true" />
+								<CircleCheck class="size-5 lm-tone-icon" data-tone="lime" aria-hidden="true" />
 							{:else if a.status === 'current'}
 								<MapPin class="size-5 text-primary" aria-hidden="true" />
 							{:else if a.status === 'fog'}
@@ -61,14 +62,9 @@
 						</h2>
 						<span class="flex flex-wrap gap-1">
 							{#if a.highlighted}
-								<span
-									class="rounded-full bg-fuchsia-100 px-2 py-0.5 text-xs font-semibold text-fuchsia-900 dark:bg-fuchsia-950 dark:text-fuchsia-100"
-									>Ton ambition</span
-								>
+								<span class="lm-pill" data-tone="violet">Ton ambition</span>
 							{/if}
-							<span class="rounded-full border px-2 py-0.5 text-xs font-semibold"
-								>{STATUS[a.status]}</span
-							>
+							<span class="lm-pill" data-tone="paper">{STATUS[a.status]}</span>
 						</span>
 					</div>
 					<p class="mt-1 text-sm text-muted-foreground">{a.content}</p>
@@ -108,11 +104,7 @@
 						</div>
 					{/if}
 					{#if a.status === 'current' && a.cta}
-						<a
-							href={a.cta.href}
-							class="mt-3 inline-flex min-h-11 items-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
-							>{a.cta.label}</a
-						>
+						<a href={a.cta.href} class="lm-btn mt-3">{a.cta.label}</a>
 					{:else if a.status === 'fog'}
 						<p class="mt-2 text-xs text-muted-foreground">Bientôt dans LinkMusician.</p>
 					{/if}

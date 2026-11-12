@@ -27,7 +27,7 @@
 	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
 		<header class="flex flex-wrap items-end justify-between gap-3">
 			<div class="space-y-1">
-				<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Annonces</h1>
+				<h1 class="lm-title">Annonces</h1>
 				<p class="text-muted-foreground">
 					Les quêtes des autres{data.commune ? ` autour de ${data.commune}` : ''} : une jam, un groupe
 					qui recrute, une session.
@@ -36,17 +36,11 @@
 			<div class="flex flex-wrap gap-2">
 				{#if data.promoter}
 					<!-- LINKMUSICIAN: plateau (P5-05a), réservé aux organisateur·rices. -->
-					<a
-						href="/plateaux/nouveau"
-						class="inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 font-semibold hover:bg-muted"
-					>
+					<a href="/plateaux/nouveau" class="lm-btn gap-2" data-variant="ghost">
 						<Plus class="size-4" aria-hidden="true" /> Publier un plateau
 					</a>
 				{/if}
-				<a
-					href="/annonces/nouvelle"
-					class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
-				>
+				<a href="/annonces/nouvelle" class="lm-btn gap-2">
 					<Plus class="size-4" aria-hidden="true" /> Publier une annonce
 				</a>
 			</div>
@@ -76,12 +70,12 @@
 		<div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)]">
 			<section class="space-y-3" aria-label="Annonces autour de toi">
 				{#if !data.commune}
-					<p class="rounded-2xl border bg-card p-6 text-center">
+					<p class="lm-tile lm-tile--flow p-6 text-center">
 						Indique ta ville pour voir les annonces près de chez toi.
 						<a href="/profil/ville" class="block pt-2 font-semibold underline">Indiquer ma ville</a>
 					</p>
 				{:else if data.nearby.length === 0}
-					<div class="space-y-2 rounded-2xl border bg-card p-6 text-center">
+					<div class="lm-tile lm-tile--flow space-y-2 p-6 text-center">
 						<Megaphone class="mx-auto size-6 text-primary" aria-hidden="true" />
 						<p class="font-semibold">Pas encore d'annonce autour de toi.</p>
 						<p class="text-sm text-muted-foreground">Lance la première : une jam ce week-end ?</p>
@@ -93,7 +87,7 @@
 							<li>
 								<a
 									href="/annonces/{o.id}"
-									class="block h-full space-y-3 rounded-2xl border bg-card p-5 transition hover:-translate-y-0.5 hover:border-primary hover:shadow-md"
+									class="lm-tile lm-tile--flow block h-full space-y-3 p-5 hover:-translate-y-0.5 hover:shadow-md"
 								>
 									<span class="flex flex-wrap items-center gap-2">
 										<Badge variant="secondary">{OPPORTUNITY_KIND_INFO[o.kind].label}</Badge>
@@ -140,7 +134,7 @@
 										href={a.status === 'ACCEPTED' && a.conversationId
 											? `/messages/${a.conversationId}`
 											: `/annonces/${a.opportunity.id}`}
-										class="flex min-h-11 items-center justify-between gap-3 rounded-xl border bg-card p-3 text-sm hover:border-primary"
+										class="lm-tile lm-tile--flow flex min-h-11 items-center justify-between gap-3 p-3 text-sm"
 									>
 										<span class="truncate"
 											>{a.opportunity.title}{#if a.band}<span class="text-muted-foreground">
@@ -165,7 +159,7 @@
 								<li>
 									<a
 										href="/annonces/{o.id}"
-										class="flex min-h-11 items-center justify-between gap-3 rounded-xl border bg-card p-3 text-sm hover:border-primary"
+										class="lm-tile lm-tile--flow flex min-h-11 items-center justify-between gap-3 p-3 text-sm"
 									>
 										<span class="truncate"
 											>{o.title}{#if o.band}<span class="text-muted-foreground">
@@ -174,7 +168,7 @@
 										>
 										<span class="flex shrink-0 items-center gap-2">
 											{#if o.pendingApplications > 0}
-												<Badge class="bg-fuchsia-600 text-white"
+												<Badge class="lm-pill" data-tone="rose"
 													>{o.pendingApplications} candidature{o.pendingApplications > 1
 														? 's'
 														: ''}</Badge

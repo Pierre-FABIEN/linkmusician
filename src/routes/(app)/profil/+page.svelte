@@ -44,10 +44,10 @@
 <SEO title="Mon profil" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-5xl space-y-8 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-5xl space-y-8">
 		<div>
 			<a href="/espace" class="text-sm text-muted-foreground underline">← Mon espace</a>
-			<h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Mon profil</h1>
+			<h1 class="lm-title mt-2">Mon profil</h1>
 			<p class="text-sm text-muted-foreground">
 				Tout est déclaratif et facultatif. Instruments, genres et influences :
 				<a href="/profil/musical" class="underline">Mon profil musical</a>. Ta commune :
@@ -58,30 +58,18 @@
 			{#if data.managesVenues && !data.promoter}
 				<!-- LINKMUSICIAN: lieux gérés (P5-03b). -->
 				<div class="mt-3 flex flex-wrap gap-2">
-					<a
-						href="/organisations"
-						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
-						>Mes lieux →</a
-					>
+					<a href="/organisations" class="lm-btn" data-variant="ghost">Mes lieux →</a>
 				</div>
 			{/if}
 			{#if data.promoter}
 				<!-- LINKMUSICIAN: organisateur·rice (P5-05a). -->
 				<div class="mt-3 flex flex-wrap gap-2">
-					<a
-						href="/profil/organisateur"
-						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
+					<a href="/profil/organisateur" class="lm-btn" data-variant="ghost"
 						>Mon profil d’organisateur·rice →</a
 					>
-					<a
-						href="/plateaux/nouveau"
-						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
-						>Publier un plateau →</a
-					>
+					<a href="/plateaux/nouveau" class="lm-btn" data-variant="ghost">Publier un plateau →</a>
 					<!-- Association, collectif, festival (P5-05b). -->
-					<a
-						href="/organisations"
-						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
+					<a href="/organisations" class="lm-btn" data-variant="ghost"
 						>{data.managesVenues ? 'Mes organisations et lieux →' : 'Mes organisations →'}</a
 					>
 				</div>
@@ -111,25 +99,15 @@
 			{#if data.soundEngineer || data.producer}
 				<div class="mt-3 flex flex-wrap gap-2">
 					{#if data.soundEngineer}
-						<a
-							href="/profil/son"
-							class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
-							>Mon profil d'ingé son →</a
-						>
+						<a href="/profil/son" class="lm-btn" data-variant="ghost">Mon profil d'ingé son →</a>
 					{/if}
 					{#if data.producer}
-						<a
-							href="/profil/production"
-							class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
+						<a href="/profil/production" class="lm-btn" data-variant="ghost"
 							>Mon profil de producteur·rice →</a
 						>
 					{/if}
 					<!-- Studio (P4-03a) : ouvert aux ingés son et producteur·rices. -->
-					<a
-						href="/studios"
-						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
-						>Mes studios →</a
-					>
+					<a href="/studios" class="lm-btn" data-variant="ghost">Mes studios →</a>
 				</div>
 			{/if}
 		</div>
@@ -144,7 +122,7 @@
 				<textarea
 					id="bio"
 					rows="5"
-					class="w-full rounded-md border bg-background p-2 text-sm"
+					class="lm-field w-full"
 					placeholder="Qui tu es, ce que tu joues, ce que tu aimerais faire…"
 					bind:value={$form.bio}
 				></textarea>
@@ -159,7 +137,7 @@
 				<p class="text-sm text-muted-foreground">Affiché avec la mention « déclaré ».</p>
 				<div class="grid gap-2 sm:grid-cols-2">
 					{#each PRO_STATUSES as status (status)}
-						<label class="flex cursor-pointer items-start gap-2 rounded-lg border p-3">
+						<label class="lm-tile lm-tile--flow flex cursor-pointer items-start gap-2 p-3">
 							<input
 								type="radio"
 								name="proStatus"
@@ -255,7 +233,7 @@
 						min="1940"
 						max={currentYear}
 						placeholder="Année, ex. 2012"
-						class="w-full rounded-md border bg-background p-2 text-sm"
+						class="lm-field w-full"
 						bind:value={$form.practiceSince}
 					/>
 					{#if $errors.practiceSince}
@@ -264,11 +242,7 @@
 				</div>
 				<div class="space-y-2">
 					<label for="travelRadiusKm" class="block font-semibold">Je me déplace jusqu'à</label>
-					<select
-						id="travelRadiusKm"
-						class="w-full rounded-md border bg-background p-2 text-sm"
-						bind:value={$form.travelRadiusKm}
-					>
+					<select id="travelRadiusKm" class="lm-field w-full" bind:value={$form.travelRadiusKm}>
 						<option value={0}>Non précisé</option>
 						{#each TRAVEL_RADII as radius (radius)}
 							<option value={radius}>{radius} km</option>
@@ -291,7 +265,7 @@
 							autocomplete="url"
 							spellcheck="false"
 							placeholder={LINK_INFO[kind].example}
-							class="w-full rounded-md border bg-background p-2 text-sm"
+							class="lm-field w-full"
 							bind:value={$form.links[kind]}
 						/>
 						{#if $errors.links?.[kind]}

@@ -1,4 +1,10 @@
 <script lang="ts">
+	/**
+	 * LINKMUSICIAN: fond Aurora (D55, `docs/design` §4.7) : voiles de couleur
+	 * animés derrière le contenu. Seulement sur les accueils de mode et le
+	 * profil public ; toujours `fade`, intensité `subtle` ou `medium`. Immobile
+	 * si l’appareil demande moins d’animations.
+	 */
 	import type { HTMLAttributes } from 'svelte/elements';
 
 	type Intensity = 'subtle' | 'medium' | 'strong';
@@ -28,10 +34,10 @@
 		...rest
 	}: Props = $props();
 
-	// Prevent invalid or excessively low animation speeds.
+	// Écarte les vitesses invalides ou trop basses.
 	const safeSpeed = $derived(Number.isFinite(speed) && speed > 0 ? Math.max(speed, 0.1) : 1);
 
-	// Base animation duration in milliseconds.
+	// Durée de base de l’animation, en millisecondes.
 	const speedMs = $derived(Math.round(60_000 / safeSpeed));
 
 	const opacityScale = $derived(intensity === 'subtle' ? 0.4 : intensity === 'strong' ? 1 : 0.7);
@@ -52,13 +58,13 @@
 		.join(';')}
 	{...rest}
 >
-	<!-- Primary aurora layer -->
+	<!-- Voile principal -->
 	<div class="lm-aurora__layer lm-aurora__layer--1" aria-hidden="true"></div>
 
-	<!-- Secondary aurora layer -->
+	<!-- Voile secondaire -->
 	<div class="lm-aurora__layer lm-aurora__layer--2" aria-hidden="true"></div>
 
-	<!-- Foreground content -->
+	<!-- Contenu au premier plan -->
 	<div class="lm-aurora__content">
 		{@render children?.()}
 	</div>
@@ -73,7 +79,7 @@
 		--aurora-opacity: 0.7;
 	}
 
-	/* Gradient layers */
+	/* Calques de dégradés */
 	.lm-aurora__layer {
 		position: absolute;
 		inset: 0;
@@ -82,7 +88,7 @@
 		opacity: calc(var(--aurora-opacity) * 0.5);
 	}
 
-	/* Light rays */
+	/* Rayons de lumière */
 	.lm-aurora__layer::before {
 		content: '';
 		position: absolute;
@@ -107,7 +113,7 @@
 		transform: translate3d(0, 0, 0);
 	}
 
-	/* Metro color gradients */
+	/* Dégradés aux tons Metro */
 	.lm-aurora__layer::after {
 		content: '';
 		position: absolute;
@@ -131,7 +137,7 @@
 		transform: translate3d(0, 0, 0);
 	}
 
-	/* Primary layer */
+	/* Calque principal */
 	.lm-aurora__layer--1::before {
 		animation: lm-aurora-rays-forward calc(var(--aurora-speed-ms) * 0.5) linear infinite;
 	}
@@ -140,7 +146,7 @@
 		animation: lm-aurora-colors-forward var(--aurora-speed-ms) linear infinite;
 	}
 
-	/* Secondary layer */
+	/* Calque secondaire */
 	.lm-aurora__layer--2 {
 		opacity: calc(var(--aurora-opacity) * 0.3);
 		mix-blend-mode: screen;
@@ -154,20 +160,20 @@
 		animation: lm-aurora-colors-reverse calc(var(--aurora-speed-ms) * 1.5) linear infinite;
 	}
 
-	/* Radial fade */
+	/* Fondu radial */
 	.lm-aurora--fade .lm-aurora__layer {
 		-webkit-mask-image: radial-gradient(ellipse 70% 100% at 100% 0%, black 20%, transparent 70%);
 
 		mask-image: radial-gradient(ellipse 70% 100% at 100% 0%, black 20%, transparent 70%);
 	}
 
-	/* Foreground content */
+	/* Contenu au premier plan */
 	.lm-aurora__content {
 		position: relative;
 		z-index: 10;
 	}
 
-	/* Primary rays: forward movement */
+	/* Rayons principaux : vers l’avant */
 	@keyframes lm-aurora-rays-forward {
 		from {
 			transform: translate3d(0, 0, 0);
@@ -178,7 +184,7 @@
 		}
 	}
 
-	/* Secondary rays: reverse movement */
+	/* Rayons secondaires : à rebours */
 	@keyframes lm-aurora-rays-reverse {
 		from {
 			transform: translate3d(0, 0, 0);
@@ -189,7 +195,7 @@
 		}
 	}
 
-	/* Primary colors: forward movement */
+	/* Couleurs principales : vers l’avant */
 	@keyframes lm-aurora-colors-forward {
 		from {
 			transform: translate3d(0, 0, 0);
@@ -200,7 +206,7 @@
 		}
 	}
 
-	/* Secondary colors: reverse movement */
+	/* Couleurs secondaires : à rebours */
 	@keyframes lm-aurora-colors-reverse {
 		from {
 			transform: translate3d(0, 0, 0);
@@ -211,7 +217,7 @@
 		}
 	}
 
-	/* Accessibility */
+	/* Mouvement réduit */
 	@media (prefers-reduced-motion: reduce) {
 		.lm-aurora__layer::before,
 		.lm-aurora__layer::after {

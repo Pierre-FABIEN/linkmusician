@@ -98,6 +98,21 @@ model PersonTrack {                             // Phase 1 : tous enregistrables
   @@id([personId, track])
 }
 
+model PersonTrackSpecialization {               // ONB-01 (D56) : spécialités par métier, cascade depuis PersonTrack
+  personId String
+  track    TrackKind
+  code     String                               // référentiel #lib/actors/specializations, validé par l'application
+  @@id([personId, track, code])
+}
+
+model PersonTrackIntent {                       // ONB-01 : « Je propose » (OFFER) / « Je recherche » (NEED), par métier
+  personId  String
+  track     TrackKind
+  direction TrackIntentDirection
+  code      String
+  @@id([personId, track, direction, code])
+}
+
 model Organization {                            // Phase 3 (BAND, P3-01), 4+ (autres)
   actorId    String  @id
   actor      Actor   @relation(fields: [actorId], references: [id])
@@ -439,3 +454,10 @@ model Sanction { id String @id @default(cuid()); actorId String; kind String /* 
   `setPersonTracks` (`src/lib/prisma/actors/tracks.ts`), seul point
   d'écriture, en transaction sérialisable. Libellés et règles pures :
   `src/lib/actors/tracks.ts`.
+- **Spécialités par métier (ONB-01, D56)** : codes en texte validés par
+  `src/lib/actors/specializations.ts`, jamais supprimés (retirés). Les
+  colonnes `specialties` (ingé son, producteur·rice) et `eventKinds`
+  (organisateur·rice) restent la source de la recherche jusqu'à ONB-04, 05
+  et 08. `src/lib/prisma/actors/specializations.ts` écrit les deux
+  ensemble ; retirer un métier efface ses lignes (cascade), le reprendre
+  les recopie depuis le profil.

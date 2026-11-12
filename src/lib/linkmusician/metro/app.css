@@ -1,0 +1,528 @@
+/* LINKMUSICIAN: Metro dans l'app (MET-01, D55) : coquille, tuile de page,
+ * champs, pastilles de ton, composants shadcn et toasts. Chargé après le
+ * reste du système (voir `../metro.css`). */
+
+/* ── Tons en variables ─────────────────────────────────────────────────────
+   Une couleur par ton, pour les pastilles, la pastille du mode et l'Aurora
+   (dont les tons par défaut `var(--tone-*)` n'étaient définis nulle part). */
+.lm-metro {
+	--tone-violet: oklch(0.5 0.25 295);
+	--tone-rose: oklch(0.52 0.23 355);
+	--tone-blue: oklch(0.5 0.2 255);
+	--tone-orange: oklch(0.76 0.17 55);
+	--tone-amber: oklch(0.85 0.16 85);
+	--tone-lime: oklch(0.83 0.2 130);
+	--tone-cyan: oklch(0.81 0.12 205);
+	--tone-ink: oklch(0.2 0.02 290);
+	--tone-paper: var(--card);
+	/* Les boutons et le focus shadcn prennent l'aplat Metro. */
+	--primary: var(--lm-solid);
+	--primary-foreground: var(--lm-solid-fg);
+	--ring: var(--lm-solid);
+}
+.dark .lm-metro {
+	--tone-violet: oklch(0.55 0.22 295);
+	--tone-rose: oklch(0.57 0.21 355);
+	--tone-blue: oklch(0.57 0.18 255);
+	--tone-ink: oklch(0.96 0.005 85);
+}
+
+/* ── Fond commun (`MetroBackdrop`, D56) ────────────────────────────────────
+   L'en-tête, la page et le pied de page vivent dans le même conteneur : le
+   papier (et l'Aurora d'un accueil) court d'un bord à l'autre. Les blocs
+   Metro posés dedans n'ont plus de fond à eux. */
+.lm-backdrop {
+	width: 100%;
+}
+.lm-backdrop__inner,
+.lm-backdrop__inner > .lm-aurora__content {
+	display: flex;
+	flex-direction: column;
+}
+.lm-backdrop__inner {
+	min-height: 100vh;
+	min-height: 100dvh;
+}
+.lm-backdrop__inner > .lm-aurora__content {
+	flex: 1 0 auto;
+}
+.lm-backdrop .lm-metro {
+	background: none;
+}
+.lm-backdrop .lm-app.lm-metro {
+	flex: 1 0 auto;
+	min-height: 0;
+}
+/* Le pied de page garde la place de la barre flottante du boilerplate. */
+.lm-backdrop footer:last-child {
+	padding-bottom: 5rem;
+}
+
+/* ── Coquille ─────────────────────────────────────────────────────────────── */
+.lm-app.lm-metro {
+	/* La coquille est posée dans un conteneur centré du boilerplate (`ccc`). */
+	width: 100%;
+	min-height: 100vh;
+	min-height: 100dvh;
+}
+.lm-shell-header {
+	padding-inline: 1rem;
+	padding-top: max(1rem, env(safe-area-inset-top));
+}
+@media (min-width: 48rem) {
+	.lm-shell-header {
+		padding-top: 1.5rem;
+	}
+}
+/* Le nom de l'app : Raleway léger, à l'encre, comme dans les maquettes (D56). */
+.lm-shell-brand {
+	font-family: var(--lm-font-display);
+	font-weight: 300;
+	font-size: 1.5rem;
+	line-height: 1;
+	letter-spacing: -0.03em;
+	text-decoration: none;
+	color: var(--foreground);
+}
+.lm-shell-brand:focus-visible {
+	outline: 3px solid var(--foreground);
+	outline-offset: 4px;
+	border-radius: 0.25rem;
+}
+/* Pastille du mode : un liseré et un point au ton du mode, le texte en encre. */
+.lm-mode-pill {
+	--p: var(--tone-violet);
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	min-height: 2.75rem;
+	padding: 0 0.85rem;
+	border: 2px solid var(--p);
+	border-radius: 999px;
+	font: inherit;
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	color: var(--foreground);
+	background: color-mix(in oklch, var(--p) 14%, transparent);
+	cursor: pointer;
+	transition:
+		transform 120ms ease,
+		background-color 120ms ease;
+}
+.lm-mode-pill[data-tone='orange'] {
+	--p: var(--tone-orange);
+}
+@media (hover: hover) {
+	.lm-mode-pill:hover {
+		transform: translateY(-2px);
+		background: color-mix(in oklch, var(--p) 26%, transparent);
+	}
+}
+.lm-mode-pill:active {
+	transform: scale(0.96);
+}
+.lm-mode-pill:focus-visible {
+	outline: 3px solid var(--foreground);
+	outline-offset: 3px;
+}
+/* L'aide se replie sur téléphone : l'en-tête doit tenir en 360 px. */
+@media (max-width: 29.99rem) {
+	.lm-action[data-fold] {
+		display: none;
+	}
+}
+.lm-action[aria-current='page'] {
+	background: color-mix(in oklch, var(--foreground) 16%, transparent);
+	border-color: var(--foreground);
+}
+
+/* Fil d'Ariane en pastilles (D52). */
+.lm-crumb {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	min-height: 2.5rem;
+	padding: 0 0.85rem;
+	border-radius: 999px;
+	font-size: 0.875rem;
+	font-weight: 600;
+	text-decoration: none;
+	color: var(--muted-foreground);
+	background: color-mix(in oklch, var(--foreground) 5%, transparent);
+	border: 1px solid color-mix(in oklch, var(--foreground) 12%, transparent);
+	transition:
+		color 120ms ease,
+		background-color 120ms ease;
+}
+a.lm-crumb:hover {
+	color: var(--foreground);
+	background: color-mix(in oklch, var(--foreground) 10%, transparent);
+}
+a.lm-crumb:focus-visible {
+	outline: 3px solid var(--foreground);
+	outline-offset: 2px;
+}
+.lm-crumb[aria-current='page'] {
+	color: var(--lm-solid-fg);
+	background: var(--lm-solid);
+	border-color: transparent;
+}
+
+/* ── Tuile de page ─────────────────────────────────────────────────────────
+   Une section, une carte de liste ou un formulaire posé dans une page : la
+   matière de la tuile (ton, verre, bord, ombre), mais sa mise en page reste
+   celle des utilitaires de la page (`p-4`, `space-y-3`, `grid`…), et rien
+   n'est découpé (les listes de suggestions d'un champ débordent). */
+.lm-tile.lm-tile--flow {
+	display: revert-layer;
+	flex-direction: revert-layer;
+	justify-content: revert-layer;
+	gap: revert-layer;
+	padding: revert-layer;
+	overflow: revert-layer;
+	font: revert-layer;
+	text-align: revert-layer;
+}
+/* Sans ton, le texte suit la page (`text-muted-foreground` d'une note). */
+.lm-tile.lm-tile--flow:not([data-tone]) {
+	color: revert-layer;
+}
+/* Une tuile qui n'est ni un lien ni un bouton ne bouge pas au survol : elle
+   n'invite à aucun geste (`docs/design` §4.3). */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	:is(.lm-app, .lm-celebrations) .lm-tile:not(a, button, .lm-tile-frame > *):hover {
+		transform: none;
+		filter: none;
+		border-color: color-mix(in oklch, var(--t-bg) 35%, transparent);
+		box-shadow:
+			inset 0 1px 0 oklch(1 0 0 / 0.04),
+			0 4px 30px color-mix(in oklch, var(--lm-shadow) 10%, transparent),
+			0 20px 48px -16px color-mix(in oklch, var(--lm-shadow-tint) 45%, transparent);
+	}
+	:is(.lm-app, .lm-celebrations) .lm-tile:not(a, button, .lm-tile-frame > *):hover::before {
+		opacity: 0;
+	}
+	:is(.lm-app, .lm-celebrations) .lm-tile:not(a, button, .lm-tile-frame > *):hover::after {
+		opacity: 0.1;
+	}
+}
+/* Dans une page, la tuile de couleur (`paper` par défaut) garde le texte au
+   contraste du papier. */
+.lm-tile:not([data-tone]) {
+	--t-fg: var(--foreground);
+	--t-fg2: var(--muted-foreground);
+}
+
+/* Alerte d'erreur (`role="alert"`) : encart au liseré destructif. */
+.lm-alert {
+	border-radius: 1.1rem;
+	border: 1px solid var(--destructive);
+	background: color-mix(in oklch, var(--destructive) 8%, var(--lm-paper));
+	color: var(--destructive);
+}
+
+/* Petit titre d'écran, pour une sous-section ou un en-tête dense. */
+.lm-title--sm {
+	font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+}
+
+/* ── Boutons et champs dans l'app ──────────────────────────────────────── */
+.lm-btn:disabled,
+.lm-btn[aria-disabled='true'] {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+}
+.lm-btn[data-variant='ghost']:hover {
+	background: color-mix(in oklch, var(--foreground) 8%, transparent);
+}
+.lm-btn[data-variant='danger'] {
+	color: oklch(0.99 0 0);
+	background: var(--destructive);
+	box-shadow: none;
+}
+/* Le champ garde la largeur que la page lui donne (`w-full`, `w-40`…). */
+.lm-app .lm-field {
+	width: revert-layer;
+}
+.lm-field::placeholder {
+	color: var(--muted-foreground);
+}
+.lm-field:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+.lm-field[aria-invalid='true'] {
+	border-color: var(--destructive);
+}
+
+/* Ton d'un sens hors tuile : `data-tone` pose `--p`, que lisent la pastille,
+   la puce d'icône, la note et l'aplat ci-dessous. */
+.lm-metro [data-tone] {
+	--p: var(--lm-line);
+}
+.lm-metro [data-tone='violet'] {
+	--p: var(--tone-violet);
+}
+.lm-metro [data-tone='rose'] {
+	--p: var(--tone-rose);
+}
+.lm-metro [data-tone='blue'] {
+	--p: var(--tone-blue);
+}
+.lm-metro [data-tone='orange'] {
+	--p: var(--tone-orange);
+}
+.lm-metro [data-tone='amber'] {
+	--p: var(--tone-amber);
+}
+.lm-metro [data-tone='lime'] {
+	--p: var(--tone-lime);
+}
+.lm-metro [data-tone='cyan'] {
+	--p: var(--tone-cyan);
+}
+.lm-metro [data-tone='ink'] {
+	--p: var(--tone-ink);
+}
+
+/* Pastille au ton d'un sens : liseré et teinte légère, texte à l'encre (le
+   contraste ne dépend pas du ton). */
+.lm-pill[data-tone] {
+	color: var(--foreground);
+	background: color-mix(in oklch, var(--p) 22%, transparent);
+	box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--p) 70%, transparent);
+}
+/* Puce d'icône : un carré teinté, l'icône à l'encre. */
+.lm-chip {
+	--p: var(--lm-solid);
+	display: grid;
+	place-items: center;
+	flex-shrink: 0;
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: 0.9rem;
+	color: var(--foreground);
+	background: color-mix(in oklch, var(--p) 22%, transparent);
+	box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--p) 50%, transparent);
+}
+.lm-chip[data-tone] {
+	background: color-mix(in oklch, var(--p) 22%, transparent);
+}
+/* Note : un encart teinté (astuce, démarche, proposition), texte à l'encre. */
+.lm-note {
+	--p: var(--lm-solid);
+	border-radius: 1.1rem;
+	border: 1px solid color-mix(in oklch, var(--p) 60%, transparent);
+	background: color-mix(in oklch, var(--p) 12%, var(--lm-paper));
+	color: var(--foreground);
+}
+/* Aplat au ton : remplissage d'une barre, point d'état. */
+.lm-fill {
+	background: var(--p, var(--lm-solid));
+}
+/* Icône au ton (décorative, jamais seule porteuse du sens). */
+.lm-tone-icon {
+	color: color-mix(in oklch, var(--p, var(--lm-solid)) 60%, var(--foreground));
+}
+.lm-pill--lg {
+	padding: 0.3rem 0.8rem;
+	font-size: 0.85rem;
+}
+
+/* ── Composants shadcn posés dans une page Metro ───────────────────────── */
+.lm-metro [data-slot='badge'] {
+	border-radius: 999px;
+	font-weight: 700;
+}
+.lm-metro [data-slot='button'] {
+	border-radius: 0.9rem;
+	font-weight: 700;
+}
+.lm-metro [data-slot='card'] {
+	border-radius: 1.25rem;
+	border-color: color-mix(in oklch, var(--card) 35%, transparent);
+	background: color-mix(in oklch, var(--card) 12%, transparent);
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.04),
+		0 4px 30px color-mix(in oklch, var(--lm-shadow) 10%, transparent),
+		0 20px 48px -16px color-mix(in oklch, var(--lm-shadow-tint) 45%, transparent);
+}
+
+/* ── Panneau contextuel (`MetroSheet`) ──────────────────────────────────── */
+.lm-sheet__head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+.lm-sheet__title {
+	font-family: var(--lm-font-display);
+	font-weight: 400;
+	font-size: 1.6rem;
+	line-height: 1.1;
+	letter-spacing: -0.02em;
+}
+
+/* ── Choix courts (`MetroChoice`) : boutons bascules ───────────────────── */
+.lm-choice {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+.lm-choice__option {
+	min-height: 2.75rem;
+	padding: 0 1rem;
+	border: 2px solid var(--lm-line);
+	border-radius: 0.9rem;
+	font: inherit;
+	font-weight: 600;
+	color: var(--foreground);
+	background: transparent;
+	cursor: pointer;
+	transition:
+		background-color 120ms ease,
+		border-color 120ms ease;
+}
+.lm-choice__option[aria-pressed='true'] {
+	color: var(--lm-solid-fg);
+	background: var(--lm-solid);
+	border-color: var(--lm-solid);
+}
+.lm-choice__option:focus-visible {
+	outline: 3px solid var(--foreground);
+	outline-offset: 2px;
+}
+
+/* ── Liste en tuile (`MetroList`, `MenuList`) ──────────────────────────── */
+.lm-list {
+	padding: 0;
+}
+.lm-list > li + li {
+	border-top: 1px solid color-mix(in oklch, var(--foreground) 10%, transparent);
+}
+.lm-list__row {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	min-height: 4rem;
+	padding: 0.75rem 1rem;
+	text-decoration: none;
+	color: inherit;
+	transition: background-color 120ms ease;
+}
+a.lm-list__row:hover {
+	background: color-mix(in oklch, var(--foreground) 6%, transparent);
+}
+a.lm-list__row:focus-visible {
+	outline: 3px solid var(--foreground);
+	outline-offset: -3px;
+}
+.lm-list__icon {
+	display: grid;
+	place-items: center;
+	flex-shrink: 0;
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: 0.9rem;
+	color: var(--foreground);
+	background: color-mix(in oklch, var(--p, var(--lm-solid)) 18%, transparent);
+	box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--p, var(--lm-solid)) 45%, transparent);
+}
+.lm-list__row[data-highlight] .lm-list__icon {
+	color: var(--lm-solid-fg);
+	background: var(--lm-solid);
+	box-shadow: none;
+}
+.lm-list__row[data-highlight] {
+	background: color-mix(in oklch, var(--lm-solid) 7%, transparent);
+}
+
+/* ── Menu de tuiles (`MetroMenu`) ──────────────────────────────────────── */
+.lm-menu {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+	gap: 0.75rem;
+}
+.lm-menu > li > .lm-tile {
+	min-height: 9rem;
+}
+.lm-menu > li > .lm-tile {
+	justify-content: flex-start;
+}
+/* Le résumé vient après le titre dans le nom du lien, mais s'affiche en haut
+   à droite de la tuile. */
+.lm-menu__summary {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	max-width: calc(100% - 4.5rem);
+}
+.lm-menu__summary[data-highlight] {
+	color: var(--lm-solid-fg);
+	background: var(--lm-solid);
+}
+
+/* ── Accueil de mode (`MetroHome`) ─────────────────────────────────────── */
+.lm-home__head {
+	padding-inline: var(--lm-rail-inset, clamp(2.5rem, 6vw, 4rem));
+}
+.lm-menu .lm-tile__title {
+	font-size: 1.15rem;
+}
+
+/* ── Célébrations (`Celebrations`) : posées hors de la coquille, opaques ── */
+.lm-metro.lm-celebrations {
+	background: none;
+}
+.lm-celebrations .lm-tile {
+	background: color-mix(in oklch, var(--t-bg) 22%, var(--lm-paper));
+	box-shadow: 0 20px 48px -16px color-mix(in oklch, var(--lm-shadow-tint) 65%, transparent);
+}
+
+/* État vide (`MetroEmpty`). */
+.lm-tile.lm-empty {
+	min-height: 9rem;
+	justify-content: center;
+	gap: 1rem;
+}
+
+/* ── Toasts (`svelte-sonner`) quand une page Metro est affichée ───────── */
+:root:has(.lm-metro) [data-sonner-toast][data-styled='true'] {
+	font-family: 'Open Sans Variable', system-ui, sans-serif;
+	border-radius: 1.1rem;
+	border-width: 1px;
+	box-shadow: 0 20px 48px -16px oklch(0.2 0.1 290 / 0.45);
+}
+:root:has(.lm-metro) [data-sonner-toast][data-styled='true'] [data-title] {
+	font-weight: 700;
+}
+
+/* ── Mouvement réduit et contraste forcé ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+	.lm-mode-pill,
+	.lm-crumb,
+	.lm-choice__option,
+	.lm-list__row {
+		transition: none;
+	}
+	.lm-mode-pill:hover {
+		transform: none;
+	}
+}
+@media (forced-colors: active) {
+	.lm-mode-pill,
+	.lm-crumb,
+	.lm-choice__option,
+	.lm-pill[data-tone] {
+		border: 1px solid CanvasText;
+	}
+	.lm-crumb[aria-current='page'],
+	.lm-choice__option[aria-pressed='true'] {
+		forced-color-adjust: none;
+		color: HighlightText;
+		background: Highlight;
+	}
+}

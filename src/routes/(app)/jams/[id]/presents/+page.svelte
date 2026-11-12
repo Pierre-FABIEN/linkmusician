@@ -36,7 +36,7 @@
 	<article class="mx-auto max-w-6xl space-y-6 lg:space-y-8">
 		<div class="space-y-2">
 			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Qui était là ?</h1>
+			<h1 class="lm-title">Qui était là ?</h1>
 			<p class="font-semibold">{data.jam.title}</p>
 			<p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
 				<span class="inline-flex items-center gap-1"
@@ -52,7 +52,7 @@
 		</div>
 
 		{#if data.removed}
-			<p class="rounded-2xl border bg-card p-4 text-sm">
+			<p class="lm-tile lm-tile--flow p-4 text-sm">
 				L’hôte t’a retiré·e des présent·es de cette jam.
 			</p>
 		{:else if !data.iWasThere}
@@ -67,7 +67,7 @@
 				</form>
 			</section>
 		{:else}
-			<section class="space-y-2 rounded-2xl border bg-card p-4 text-sm">
+			<section class="lm-tile lm-tile--flow space-y-2 p-4 text-sm">
 				<p>
 					Tu y étais. Touche une personne pour lui laisser une appréciation, jusqu’au
 					{day.format(new Date(data.jam.deadline))}.
@@ -86,13 +86,13 @@
 				{data.present.length} présent·e{data.present.length > 1 ? 's' : ''}
 			</h2>
 			{#if others.length === 0}
-				<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+				<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
 					Personne d’autre n’a encore dit qu’il ou elle y était. Reviens dans quelques jours !
 				</p>
 			{:else}
 				<ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4" aria-label="Présent·es">
 					{#each others as p (p.handle)}
-						<li class="rounded-2xl border bg-card">
+						<li class="lm-tile lm-tile--flow">
 							<details class="group">
 								<summary
 									class="flex cursor-pointer list-none flex-col items-center gap-2 p-4 text-center"
@@ -170,7 +170,8 @@
 		{#if data.organizer}
 			<a
 				href="/jams/nouvelle?rejouer={data.jam.id}&lieu={data.jam.venue.id}"
-				class="inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 font-semibold"
+				class="lm-btn gap-2"
+				data-variant="ghost"
 			>
 				<Repeat class="size-4" aria-hidden="true" /> Rejouer ensemble
 			</a>

@@ -58,103 +58,100 @@
 		// L'espace oriente vers `/bienvenue` un compte Google encore sans personne.
 		await authClient.signIn.social({ provider: 'google', callbackURL: APP_HOME });
 	}
+	import MetroPage from '#lib/components/linkmusician/metro/MetroPage.svelte';
 </script>
 
 <SEO pageKey="home" />
 
-<div class="lm-app min-h-screen w-screen px-4 py-24">
-	<div class="mx-auto grid max-w-5xl items-start gap-10 lg:grid-cols-[1fr_24rem]">
-		<header class="space-y-8">
-			<div class="space-y-4">
-				<h1
-					class="bg-[image:var(--lm-gradient)] bg-clip-text text-5xl font-black tracking-tight text-transparent italic uppercase sm:text-6xl"
-				>
-					{BRAND.name}
-				</h1>
-				<p class="text-2xl font-semibold">{BRAND.tagline}</p>
-				<p class="max-w-prose text-muted-foreground">
-					La plateforme des musicien·nes et des pros de la musique : trouve avec qui jouer, monte
-					tes projets, et vois ton parcours grandir.
-				</p>
-				<a
-					href="/auth/signup"
-					class="inline-flex items-center rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-lg transition hover:opacity-90"
-					>Créer un compte</a
-				>
-			</div>
+<MetroPage>
+	<div class="min-h-screen w-screen px-4 py-24">
+		<div class="mx-auto grid max-w-5xl items-start gap-10 lg:grid-cols-[1fr_24rem]">
+			<header class="space-y-8">
+				<div class="space-y-4">
+					<h1 class="lm-display">
+						{BRAND.name}
+					</h1>
+					<p class="lm-title lm-title--sm">{BRAND.tagline}</p>
+					<p class="max-w-prose text-muted-foreground">
+						La plateforme des musicien·nes et des pros de la musique : trouve avec qui jouer, monte
+						tes projets, et vois ton parcours grandir.
+					</p>
+					<a href="/auth/signup" class="lm-btn">Créer un compte</a>
+				</div>
 
-			<ul class="grid gap-4 sm:grid-cols-2" aria-label="Deux façons de jouer">
-				{#each modes as m (m.title)}
-					<li class="space-y-2 rounded-2xl border bg-card p-5 shadow-sm">
-						<m.icon class="size-6 text-primary" aria-hidden="true" />
-						<h2 class="text-lg font-bold">{m.title}</h2>
-						<p class="text-sm text-muted-foreground">{m.text}</p>
-					</li>
-				{/each}
-			</ul>
+				<ul class="grid gap-4 sm:grid-cols-2" aria-label="Deux façons de jouer">
+					{#each modes as m (m.title)}
+						<li class="lm-tile lm-tile--flow space-y-2 p-5">
+							<m.icon class="size-6 text-primary" aria-hidden="true" />
+							<h2 class="text-lg font-bold">{m.title}</h2>
+							<p class="text-sm text-muted-foreground">{m.text}</p>
+						</li>
+					{/each}
+				</ul>
 
-			<ol class="space-y-3" aria-label="Comment ça marche">
-				{#each steps as s, i (s.text)}
-					<li class="flex items-center gap-3">
-						<span
-							class="grid size-9 shrink-0 place-items-center rounded-full bg-primary font-bold text-primary-foreground"
-							>{i + 1}</span
-						>
-						<s.icon class="size-5 text-muted-foreground" aria-hidden="true" />
-						<span>{s.text}</span>
-					</li>
-				{/each}
-			</ol>
-		</header>
+				<ol class="space-y-3" aria-label="Comment ça marche">
+					{#each steps as s, i (s.text)}
+						<li class="flex items-center gap-3">
+							<span
+								class="grid size-9 shrink-0 place-items-center rounded-full bg-primary font-bold text-primary-foreground"
+								>{i + 1}</span
+							>
+							<s.icon class="size-5 text-muted-foreground" aria-hidden="true" />
+							<span>{s.text}</span>
+						</li>
+					{/each}
+				</ol>
+			</header>
 
-		<section class="rounded-2xl border bg-card p-6 shadow-lg" aria-labelledby="login-title">
-			<h2 id="login-title" class="mb-4 text-xl font-semibold">Se connecter</h2>
+			<section class="lm-tile lm-tile--flow p-6" aria-labelledby="login-title">
+				<h2 id="login-title" class="mb-4 text-xl font-semibold">Se connecter</h2>
 
-			<form method="POST" action="/auth/login?/login" use:enhance class="space-y-4">
-				<Form.Field name="email" form={loginForm}>
-					<Form.Control>
-						{#snippet children({ props })}
-							<Form.Label>Email</Form.Label>
-							<Input
-								{...props}
-								type="email"
-								name="email"
-								autocomplete="email"
-								bind:value={$loginData.email}
-								required
-							/>
-						{/snippet}
-					</Form.Control>
-					<Form.FieldErrors />
-				</Form.Field>
+				<form method="POST" action="/auth/login?/login" use:enhance class="space-y-4">
+					<Form.Field name="email" form={loginForm}>
+						<Form.Control>
+							{#snippet children({ props })}
+								<Form.Label>Email</Form.Label>
+								<Input
+									{...props}
+									type="email"
+									name="email"
+									autocomplete="email"
+									bind:value={$loginData.email}
+									required
+								/>
+							{/snippet}
+						</Form.Control>
+						<Form.FieldErrors />
+					</Form.Field>
 
-				<Form.Field name="password" form={loginForm}>
-					<Form.Control>
-						{#snippet children({ props })}
-							<Form.Label>Mot de passe</Form.Label>
-							<Input
-								{...props}
-								type="password"
-								name="password"
-								autocomplete="current-password"
-								bind:value={$loginData.password}
-								required
-							/>
-						{/snippet}
-					</Form.Control>
-					<Form.FieldErrors />
-				</Form.Field>
+					<Form.Field name="password" form={loginForm}>
+						<Form.Control>
+							{#snippet children({ props })}
+								<Form.Label>Mot de passe</Form.Label>
+								<Input
+									{...props}
+									type="password"
+									name="password"
+									autocomplete="current-password"
+									bind:value={$loginData.password}
+									required
+								/>
+							{/snippet}
+						</Form.Control>
+						<Form.FieldErrors />
+					</Form.Field>
 
-				<Button type="submit" class="w-full" disabled={$submitting}>Se connecter</Button>
-				<Button type="button" variant="outline" class="w-full" onclick={signInWithGoogle}>
-					Continuer avec Google
-				</Button>
-			</form>
+					<Button type="submit" class="w-full" disabled={$submitting}>Se connecter</Button>
+					<Button type="button" variant="outline" class="w-full" onclick={signInWithGoogle}>
+						Continuer avec Google
+					</Button>
+				</form>
 
-			<div class="mt-4 flex justify-between text-sm">
-				<a href="/auth/signup" class="underline">Créer un compte</a>
-				<a href="/auth/forgot-password" class="underline">Mot de passe oublié ?</a>
-			</div>
-		</section>
+				<div class="mt-4 flex justify-between text-sm">
+					<a href="/auth/signup" class="underline">Créer un compte</a>
+					<a href="/auth/forgot-password" class="underline">Mot de passe oublié ?</a>
+				</div>
+			</section>
+		</div>
 	</div>
-</div>
+</MetroPage>

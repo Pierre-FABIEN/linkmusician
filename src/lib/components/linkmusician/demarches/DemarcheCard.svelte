@@ -27,11 +27,8 @@
 </script>
 
 {#if nudge && !hidden}
-	<aside
-		class="flex items-start gap-3 rounded-2xl border border-sky-300 bg-sky-50 p-4 text-sm dark:border-sky-800 dark:bg-sky-950/40"
-		aria-label="Démarche"
-	>
-		<Scale class="mt-0.5 size-5 shrink-0 text-sky-700 dark:text-sky-400" aria-hidden="true" />
+	<aside class="lm-note flex items-start gap-3 p-4 text-sm" data-tone="blue" aria-label="Démarche">
+		<Scale class="mt-0.5 size-5 shrink-0" aria-hidden="true" />
 		<div class="min-w-0 flex-1 space-y-2">
 			<p>{nudge.text}</p>
 			<div class="flex flex-wrap items-center gap-x-4 gap-y-1">

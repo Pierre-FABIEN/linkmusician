@@ -95,7 +95,7 @@
 			>
 				<ArrowLeft class="size-5" aria-hidden="true" />
 			</a>
-			<h1 class="min-w-0 flex-1 truncate text-2xl font-black">
+			<h1 class="lm-title lm-title--sm min-w-0 flex-1 truncate">
 				{#if c.other.handle}
 					<a href="/@{c.other.handle}" class="hover:underline">{c.other.displayName}</a>
 				{:else}
@@ -107,7 +107,7 @@
 		<TipCard tip={data.tip} />
 
 		{#if c.myState === 'REQUEST'}
-			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="request-title">
+			<section class="lm-tile lm-tile--flow space-y-3 p-4" aria-labelledby="request-title">
 				<h2 id="request-title" class="font-semibold">
 					{c.other.displayName} t’écrit pour la première fois
 				</h2>
@@ -115,7 +115,7 @@
 					Réponds pour ouvrir la conversation. Refuser la ferme, sans le lui dire.
 				</p>
 				<form method="POST" action="?/decline" use:enhance>
-					<button class="min-h-11 rounded-xl border px-4 font-semibold">Refuser</button>
+					<button class="lm-btn" data-variant="ghost">Refuser</button>
 				</form>
 			</section>
 		{/if}
@@ -125,7 +125,7 @@
 				<h2 id="collabs-title" class="text-sm font-semibold">Collaborations</h2>
 				<ul class="space-y-2" aria-label="Collaborations">
 					{#each data.collaborations as k (k.id)}
-						<li class="space-y-2 rounded-2xl border bg-card p-3 text-sm">
+						<li class="lm-tile lm-tile--flow space-y-2 p-3 text-sm">
 							<div class="flex flex-wrap items-center justify-between gap-2">
 								<span class="font-semibold">{COLLAB_KIND_LABELS[k.kind]} · {k.title}</span>
 								{#if k.work}
@@ -143,9 +143,7 @@
 								>
 							</div>
 							{#if k.step === 'done'}
-								<p class="font-medium text-emerald-700 dark:text-emerald-400">
-									Confirmée par vous deux ✓
-								</p>
+								<p class="font-medium text-foreground">Confirmée par vous deux ✓</p>
 								{#each data.appreciations.byCollab[k.id] ?? [] as p (p.handle)}
 									{#if p.given}
 										<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -194,25 +192,19 @@
 									<form method="POST" action="?/respondCollab" use:enhance>
 										<input type="hidden" name="collaborationId" value={k.id} />
 										<input type="hidden" name="answer" value="yes" />
-										<button
-											class="min-h-11 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
-											>Confirmer</button
-										>
+										<button class="lm-btn">Confirmer</button>
 									</form>
 									<form method="POST" action="?/respondCollab" use:enhance>
 										<input type="hidden" name="collaborationId" value={k.id} />
 										<input type="hidden" name="answer" value="no" />
-										<button class="min-h-11 rounded-xl border px-4">Ce n'est pas exact</button>
+										<button class="lm-btn" data-variant="ghost">Ce n'est pas exact</button>
 									</form>
 								</div>
 							{:else if k.step === 'confirm'}
 								<p>C'est passé : confirme que ça a bien eu lieu.</p>
 								<form method="POST" action="?/confirmCollab" use:enhance>
 									<input type="hidden" name="collaborationId" value={k.id} />
-									<button
-										class="min-h-11 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"
-										>Confirmer</button
-									>
+									<button class="lm-btn">Confirmer</button>
 								</form>
 							{:else}
 								<p class="text-muted-foreground">
@@ -232,7 +224,7 @@
 		{/if}
 
 		{#if c.permission === 'ok' && c.myState === 'ACCEPTED' && c.other.handle}
-			<details class="rounded-2xl border p-3 text-sm">
+			<details class="lm-tile lm-tile--flow p-3 text-sm">
 				<summary class="min-h-11 cursor-pointer content-center font-medium text-primary">
 					Vous avez joué ou travaillé ensemble ? Proposer une collaboration
 				</summary>
@@ -247,11 +239,7 @@
 				>
 					<label class="block space-y-1 font-medium">
 						Type
-						<select
-							name="kind"
-							bind:value={collabKind}
-							class="w-full rounded-md border bg-background p-2"
-						>
+						<select name="kind" bind:value={collabKind} class="lm-field w-full">
 							{#each COLLAB_KINDS as kind (kind)}<option value={kind}
 									>{COLLAB_KIND_LABELS[kind]}</option
 								>{/each}
@@ -264,7 +252,7 @@
 							type="date"
 							value={data.today}
 							required
-							class="w-full rounded-md border bg-background p-2"
+							class="lm-field w-full"
 						/>
 					</label>
 					{#if service}
@@ -336,12 +324,7 @@
 						{:else}
 							<label class="block space-y-1 font-medium">
 								Groupe
-								<select
-									name="band"
-									required
-									class="w-full rounded-md border bg-background p-2"
-									bind:value={gigBand}
-								>
+								<select name="band" required class="lm-field w-full" bind:value={gigBand}>
 									{#each gig.bands as b (b.handle)}
 										<option value={b.handle}>{b.name}</option>
 									{/each}
@@ -349,7 +332,7 @@
 							</label>
 							<label class="block space-y-1 font-medium">
 								Lieu ou organisation
-								<select name="host" required class="w-full rounded-md border bg-background p-2">
+								<select name="host" required class="lm-field w-full">
 									{#each gig.hosts as h (h.handle)}
 										<option value={h.handle} selected={h.handle === gig.defaultHost}
 											>{h.name}{h.verified ? ' (vérifié)' : ''}</option
@@ -379,7 +362,7 @@
 						<!-- Au studio (P4-03c) : une session, une fois confirmée par le ou la client·e. -->
 						<label class="block space-y-1 font-medium sm:col-span-2">
 							Au studio (facultatif)
-							<select name="studio" class="w-full rounded-md border bg-background p-2">
+							<select name="studio" class="lm-field w-full">
 								<option value="">Ailleurs</option>
 								{#each data.collabForm.studios as s (s.handle)}
 									<option value={s.handle} selected={data.collabForm.studios.length === 1}
@@ -395,7 +378,7 @@
 					{#if data.collabForm && data.collabForm.works.length > 0}
 						<label class="block space-y-1 font-medium sm:col-span-2">
 							Morceau concerné (facultatif)
-							<select name="work" class="w-full rounded-md border bg-background p-2">
+							<select name="work" class="lm-field w-full">
 								<option value="">Aucun</option>
 								{#each data.collabForm.works as w (w.id)}
 									<option value={w.id} selected={data.collabForm.defaultWork === w.id}
@@ -414,14 +397,10 @@
 							required
 							maxlength={MAX_COLLAB_TITLE}
 							placeholder="Jam funk au local"
-							class="w-full rounded-md border bg-background p-2"
+							class="lm-field w-full"
 						/>
 					</label>
-					<button
-						type="submit"
-						class="min-h-11 rounded-xl bg-primary px-4 font-semibold text-primary-foreground sm:w-fit"
-						>Proposer</button
-					>
+					<button type="submit" class="lm-btn sm:w-fit">Proposer</button>
 				</form>
 			</details>
 		{/if}
@@ -475,7 +454,7 @@
 						maxlength={MAX_MESSAGE_LENGTH}
 						required
 						placeholder="Écris ton message…"
-						class="w-full resize-y rounded-2xl border bg-background p-3"
+						class="lm-field w-full resize-y"
 					></textarea>
 				</label>
 				<button
@@ -490,7 +469,7 @@
 		{/if}
 
 		{#if !c.blocked}
-			<details class="rounded-lg border p-3 text-sm">
+			<details class="lm-tile lm-tile--flow p-3 text-sm">
 				<summary class="cursor-pointer text-muted-foreground">Bloquer {c.other.displayName}</summary
 				>
 				<p class="mt-2 text-muted-foreground">
@@ -498,25 +477,20 @@
 					n'est pas prévenue. Tu pourras débloquer depuis tes réglages.
 				</p>
 				<form method="POST" action="?/block" use:enhance class="mt-2">
-					<button
-						type="submit"
-						class="min-h-11 rounded-md border border-destructive/50 px-3 text-destructive"
-					>
-						Bloquer
-					</button>
+					<button type="submit" class="lm-btn" data-variant="danger"> Bloquer </button>
 				</form>
 			</details>
 		{/if}
 
 		{#if c.other.handle}
-			<details class="rounded-lg border p-3 text-sm">
+			<details class="lm-tile lm-tile--flow p-3 text-sm">
 				<summary class="cursor-pointer text-muted-foreground"
 					>Signaler {c.other.displayName}</summary
 				>
 				<form method="POST" action="?/report" use:enhance class="mt-3 space-y-3">
 					<label class="block space-y-1 font-medium">
 						Motif
-						<select name="reason" required class="w-full rounded-md border bg-background p-2">
+						<select name="reason" required class="lm-field w-full">
 							<option value="">—</option>
 							{#each REPORT_REASONS as r (r)}<option value={r}>{REPORT_REASON_LABELS[r]}</option
 								>{/each}
@@ -524,15 +498,10 @@
 					</label>
 					<label class="block space-y-1 font-medium">
 						Précisions (facultatif)
-						<textarea
-							name="details"
-							rows="3"
-							maxlength={MAX_REPORT_DETAILS}
-							class="w-full rounded-md border bg-background p-2"
+						<textarea name="details" rows="3" maxlength={MAX_REPORT_DETAILS} class="lm-field w-full"
 						></textarea>
 					</label>
-					<button type="submit" class="rounded-md border px-3 py-1.5">Envoyer le signalement</button
-					>
+					<button type="submit" class="lm-btn" data-variant="ghost">Envoyer le signalement</button>
 				</form>
 			</details>
 		{/if}

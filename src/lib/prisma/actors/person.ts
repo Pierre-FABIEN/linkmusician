@@ -13,6 +13,7 @@ import { suggestHandle } from '#lib/actors/handle';
 import { successorOf } from '#lib/bands/rules';
 import { getMusicalProfile } from '#lib/prisma/skills/musicalProfile';
 import { getProfileDetails } from '#lib/prisma/actors/profile';
+import { getTrackDetails } from '#lib/prisma/actors/specializations';
 import { getActorLocation } from '#lib/server/geo/queries';
 import { getProgress } from '#lib/server/progression/read';
 import { worksExport } from '#lib/server/works/service';
@@ -118,6 +119,8 @@ export async function exportPersonData(userId: string) {
 	const details = await getProfileDetails(person);
 	const location = await getActorLocation(person.actorId);
 	const progress = await getProgress(person.actorId, prisma);
+	// ONB-01 : spécialités, « Je propose » et « Je recherche » par métier.
+	const trackDetails = await getTrackDetails(person.actorId);
 	// Métiers du son (P4-02) : profil d'ingé son et travaux en écoute.
 	const [soundProfile, craftReferences, producerProfile, promoterProfile, bandApplications] =
 		await Promise.all([
@@ -550,6 +553,12 @@ export async function exportPersonData(userId: string) {
 		// Assistant d'inscription (P3-17) : nombre d'analyses, jamais le texte.
 		analyses_assistant_inscription: person.assistantRuns,
 		metiers: person.tracks.map((t) => ({ metier: t.track, principal: t.isPrimary })),
+		specialites_et_intentions_par_metier: trackDetails.map((d) => ({
+			metier: d.track,
+			specialites: d.specializations,
+			je_propose: d.offers,
+			je_recherche: d.needs
+		})),
 		instruments: musical.instruments.map((i) => ({
 			instrument: i.name,
 			niveau_declare: i.level,
@@ -897,6 +906,7 @@ export async function personAnonymizationOps(
 	return [
 		...bandOps,
 		prisma.person.update({ where: { userId }, data: { birthDate: null } }),
+		// Les spécialités et intentions par métier suivent (cascade, ONB-01).
 		prisma.personTrack.deleteMany({ where: { personId: person.actorId } }),
 		prisma.personInstrument.deleteMany({ where: { personId: person.actorId } }),
 		// Métiers du son (P4-02) : tout est déclaratif, rien ne reste.

@@ -1,5 +1,8 @@
 <script lang="ts">
 	import SEO from '#lib/components/SEO.svelte';
+	// LINKMUSICIAN: les pages de compte prennent le papier et les jetons Metro
+	// (MET-07, Q40) ; leur logique ne change pas.
+	import MetroPage from '#lib/components/linkmusician/metro/MetroPage.svelte';
 
 	let { children } = $props();
 </script>
@@ -11,4 +14,5 @@
      future, pour y penser. -->
 <SEO noindex nofollow />
 
-{@render children()}
+<!-- LINKMUSICIAN: MetroPage (MET-07, Q40). -->
+<MetroPage>{@render children()}</MetroPage>

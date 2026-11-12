@@ -40,7 +40,7 @@
 			<p class="text-sm font-semibold text-muted-foreground">
 				{MOMENT_INFO[data.fiche.moment].label}
 			</p>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{c.title}</h1>
+			<h1 class="lm-title">{c.title}</h1>
 			{#if c.lead}<p class="text-lg text-muted-foreground">{c.lead}</p>{/if}
 			<p class="inline-flex items-center gap-2 text-sm text-muted-foreground">
 				<CalendarCheck class="size-4 shrink-0" aria-hidden="true" />
@@ -50,7 +50,7 @@
 
 		<MarkdownContent html={c.html} />
 
-		<section aria-labelledby="sources" class="space-y-2 rounded-2xl border bg-card p-4">
+		<section aria-labelledby="sources" class="lm-tile lm-tile--flow space-y-2 p-4">
 			<h2 id="sources" class="font-bold">Sources officielles</h2>
 			<ul class="space-y-1 text-sm">
 				{#each c.meta.sources as source (source.url)}
@@ -86,10 +86,7 @@
 				<ul class="grid gap-3 sm:grid-cols-2">
 					{#each others as f (f.slug)}
 						<li>
-							<a
-								href={demarcheHref(f.slug)}
-								class="flex h-full flex-col rounded-2xl border p-4 hover:border-primary"
-							>
+							<a href={demarcheHref(f.slug)} class="lm-tile lm-tile--flow flex h-full flex-col p-4">
 								<span class="font-semibold">{f.nav}</span>
 								<span class="text-sm text-muted-foreground">{f.summary}</span>
 							</a>

@@ -43,7 +43,7 @@
 	<Card.Content>
 		<form method="POST" use:enhance class="space-y-5">
 			<div>
-				<h1 class="text-2xl font-black">Tu cherches…</h1>
+				<h1 class="lm-title lm-title--sm">Tu cherches…</h1>
 				<p class="text-sm text-muted-foreground">
 					Plusieurs choix possibles. Cela oriente ce qu'on te montre en premier.
 				</p>
@@ -53,8 +53,8 @@
 				{#each options as o (o.v)}
 					{@const on = selected.includes(o.v)}
 					<label
-						class="flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-fuchsia-400 {on
-							? 'border-fuchsia-500 bg-fuchsia-50 dark:bg-fuchsia-950/30'
+						class="flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary {on
+							? 'border-primary bg-primary/10'
 							: 'border-transparent bg-muted/50'}"
 					>
 						<input
@@ -64,7 +64,7 @@
 							bind:group={selected}
 							class="sr-only"
 						/>
-						<o.icon class="size-5 shrink-0 text-fuchsia-600" aria-hidden="true" /><span
+						<o.icon class="size-5 shrink-0 text-primary" aria-hidden="true" /><span
 							class="font-medium">{o.t}</span
 						>
 					</label>
@@ -78,9 +78,7 @@
 							><Compass class="mr-1 size-4" /> Juste explorer</Button
 						>
 					{:else}
-						<Button type="submit" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white"
-							>Voir qui est près de moi</Button
-						>
+						<Button type="submit">Voir qui est près de moi</Button>
 					{/if}
 				</div>
 			</div>

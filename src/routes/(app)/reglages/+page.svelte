@@ -20,11 +20,11 @@
 	<div class="mx-auto max-w-7xl space-y-8">
 		<div>
 			<a href="/espace" class="text-sm text-muted-foreground underline">← Mon espace</a>
-			<h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Réglages</h1>
+			<h1 class="lm-title mt-2">Réglages</h1>
 		</div>
 
 		<div class="grid items-start gap-5 lg:grid-cols-2">
-			<section class="space-y-3 rounded-2xl border bg-card p-5" aria-labelledby="trust-title">
+			<section class="lm-tile lm-tile--flow space-y-3 p-5" aria-labelledby="trust-title">
 				<h2 id="trust-title" class="text-lg font-semibold">Ton palier de confiance</h2>
 				<p class="text-2xl font-bold">
 					{data.names[t.level]}
@@ -36,7 +36,7 @@
 				</p>
 
 				{#if t.next !== null}
-					<div class="rounded-lg border p-3">
+					<div class="lm-tile lm-tile--flow p-3">
 						<h3 class="mb-2 text-sm font-semibold">Pour passer {data.names[t.next]}</h3>
 						<ul class="space-y-1 text-sm">
 							{#each t.requirements as r (r.label)}
@@ -54,7 +54,7 @@
 				{/if}
 			</section>
 
-			<section class="space-y-2 rounded-2xl border bg-card p-5" aria-labelledby="quotas-title">
+			<section class="lm-tile lm-tile--flow space-y-2 p-5" aria-labelledby="quotas-title">
 				<h2 id="quotas-title" class="text-lg font-semibold">Tes limites actuelles</h2>
 				<table class="w-full text-sm">
 					<tbody>
@@ -86,7 +86,7 @@
 				</table>
 			</section>
 
-			<section class="space-y-3 rounded-2xl border bg-card p-5" aria-labelledby="visibility-title">
+			<section class="lm-tile lm-tile--flow space-y-3 p-5" aria-labelledby="visibility-title">
 				<h2 id="visibility-title" class="text-lg font-semibold">Mon profil public</h2>
 				<p class="text-sm text-muted-foreground">
 					{#if data.hidden}
@@ -102,13 +102,13 @@
 						<input type="checkbox" name="hidden" checked={data.hidden} class="size-4" />
 						Masquer mon profil public
 					</label>
-					<button type="submit" class="rounded-md border px-3 py-1.5 text-sm">Enregistrer</button>
+					<button type="submit" class="lm-btn" data-variant="ghost">Enregistrer</button>
 				</form>
 			</section>
 
 			<section
 				id="notifications"
-				class="scroll-mt-24 space-y-3 rounded-2xl border bg-card p-5"
+				class="lm-tile lm-tile--flow scroll-mt-24 space-y-3 p-5"
 				aria-labelledby="notif-title"
 			>
 				<h2 id="notif-title" class="text-lg font-semibold">Notifications</h2>
@@ -163,24 +163,24 @@
 							{/each}
 						</tbody>
 					</table>
-					<button type="submit" class="rounded-md border px-3 py-1.5 text-sm"
+					<button type="submit" class="lm-btn" data-variant="ghost"
 						>Enregistrer mes notifications</button
 					>
 				</form>
 			</section>
 
-			<section class="space-y-3 rounded-2xl border bg-card p-5" aria-labelledby="blocked-title">
+			<section class="lm-tile lm-tile--flow space-y-3 p-5" aria-labelledby="blocked-title">
 				<h2 id="blocked-title" class="text-lg font-semibold">Personnes bloquées</h2>
 				{#if data.blocked.length === 0}
 					<p class="text-sm text-muted-foreground">Tu n'as bloqué personne.</p>
 				{:else}
 					<ul class="space-y-2" aria-label="Personnes bloquées">
 						{#each data.blocked as b (b.actorId)}
-							<li class="flex items-center justify-between gap-3 rounded-lg border p-2 text-sm">
+							<li class="lm-tile lm-tile--flow flex items-center justify-between gap-3 p-2 text-sm">
 								<span class="truncate">{b.displayName}</span>
 								<form method="POST" action="?/unblock" use:enhance>
 									<input type="hidden" name="actorId" value={b.actorId} />
-									<button type="submit" class="min-h-11 rounded-md border px-3">Débloquer</button>
+									<button type="submit" class="lm-btn" data-variant="ghost">Débloquer</button>
 								</form>
 							</li>
 						{/each}
@@ -188,7 +188,7 @@
 				{/if}
 			</section>
 
-			<section class="space-y-1 rounded-2xl border bg-card p-5">
+			<section class="lm-tile lm-tile--flow space-y-1 p-5">
 				<h2 class="text-lg font-semibold">Mon compte</h2>
 				<ul class="space-y-1 text-sm">
 					<li><a href="/reglages/metiers" class="underline">Mes métiers</a></li>

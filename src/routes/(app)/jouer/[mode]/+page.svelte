@@ -1,7 +1,10 @@
 <script lang="ts">
 	// LINKMUSICIAN: présentation pas à pas d'un mode (P2-12b), voir +page.server.ts.
+	// Metro (MET-02) : une tuile au ton du mode.
 	import SEO from '#lib/components/SEO.svelte';
 	import { Guitar, Trophy } from 'lucide-svelte';
+	import Tile from '#lib/components/linkmusician/metro/Tile.svelte';
+	import { toneOfMode } from '#lib/components/linkmusician/metro/tones';
 	import { PLAY_MODE_INFO } from '#lib/linkmusician/modes';
 
 	let { data } = $props();
@@ -14,74 +17,61 @@
 
 <SEO title={info.label} noindex nofollow />
 
-<div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<section
-		class="mx-auto flex max-w-3xl flex-col gap-6 rounded-3xl p-6 text-white shadow-xl sm:p-8 lg:gap-8 lg:p-10 {data.mode ===
-		'JAM'
-			? 'bg-gradient-to-br from-orange-600 to-pink-600'
-			: 'bg-gradient-to-br from-violet-700 to-fuchsia-600'}"
-		aria-labelledby="intro-title"
-	>
-		<div class="flex items-center justify-between">
-			<p class="flex items-center gap-2 text-sm font-bold uppercase">
-				<Icon class="size-5" aria-hidden="true" />
-				{info.label}
-			</p>
-			<p class="text-sm font-semibold" aria-live="polite">
-				Étape {step + 1} sur {info.intro.length}
-			</p>
-		</div>
+<div class="w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
+	<Tile tone={toneOfMode(data.mode)} icon={Icon} class="mx-auto max-w-3xl">
+		<section class="flex flex-col gap-6 sm:p-2 lg:gap-8 lg:p-4" aria-labelledby="intro-title">
+			<div class="flex items-center justify-between">
+				<p class="lm-tile__kicker flex items-center gap-2">
+					<Icon class="size-5" aria-hidden="true" />
+					{info.label}
+				</p>
+				<p class="text-sm font-semibold" aria-live="polite">
+					Étape {step + 1} sur {info.intro.length}
+				</p>
+			</div>
 
-		<ol class="flex gap-2" aria-hidden="true">
-			{#each info.intro as _, i (i)}
-				<li class="h-1.5 flex-1 rounded-full {i <= step ? 'bg-white' : 'bg-white/30'}"></li>
-			{/each}
-		</ol>
+			<ol class="flex gap-2" aria-hidden="true">
+				{#each info.intro as _, i (i)}
+					<li class="h-1.5 flex-1 rounded-full bg-current {i <= step ? '' : 'opacity-30'}"></li>
+				{/each}
+			</ol>
 
-		<div
-			class="lm-pop min-h-40 space-y-3 lg:min-h-48 lg:space-y-4"
-			role="group"
-			aria-roledescription="étape"
-		>
-			{#key step}
-				<h1 id="intro-title" class="text-3xl font-black tracking-tight sm:text-4xl">
-					{current.title}
-				</h1>
-				<p class="text-lg leading-relaxed text-white/95 lg:text-xl">{current.text}</p>
-				{#if last && data.firstStep}
-					<p class="rounded-2xl bg-black/20 p-4 font-semibold">
-						Ta première étape : {data.firstStep}
-					</p>
-				{/if}
-			{/key}
-		</div>
+			<div
+				class="lm-pop min-h-40 space-y-3 lg:min-h-48 lg:space-y-4"
+				role="group"
+				aria-roledescription="étape"
+			>
+				{#key step}
+					<h1 id="intro-title" class="lm-title">
+						{current.title}
+					</h1>
+					<p class="text-lg leading-relaxed lg:text-xl">{current.text}</p>
+					{#if last && data.firstStep}
+						<p class="lm-note p-4 font-semibold" data-tone="amber">
+							Ta première étape : {data.firstStep}
+						</p>
+					{/if}
+				{/key}
+			</div>
 
-		<div class="flex items-center justify-between gap-3">
-			{#if step > 0}
-				<button
-					type="button"
-					onclick={() => (step -= 1)}
-					class="min-h-11 rounded-xl px-4 font-semibold text-white/90 hover:bg-white/10"
-					>Retour</button
-				>
-			{:else}
-				<form method="POST" action="?/start">
-					<button class="min-h-11 rounded-xl px-4 text-sm text-white/80 underline">Passer</button>
-				</form>
-			{/if}
-			{#if last}
-				<form method="POST" action="?/start">
-					<button class="min-h-11 rounded-xl bg-white px-6 font-black text-violet-800"
-						>C'est parti !</button
+			<div class="flex items-center justify-between gap-3">
+				{#if step > 0}
+					<button type="button" onclick={() => (step -= 1)} class="lm-btn" data-variant="ghost"
+						>Retour</button
 					>
-				</form>
-			{:else}
-				<button
-					type="button"
-					onclick={() => (step += 1)}
-					class="min-h-11 rounded-xl bg-white px-6 font-black text-violet-800">Suivant</button
-				>
-			{/if}
-		</div>
-	</section>
+				{:else}
+					<form method="POST" action="?/start">
+						<button class="min-h-11 px-2 text-sm underline">Passer</button>
+					</form>
+				{/if}
+				{#if last}
+					<form method="POST" action="?/start">
+						<button class="lm-btn">C'est parti !</button>
+					</form>
+				{:else}
+					<button type="button" onclick={() => (step += 1)} class="lm-btn">Suivant</button>
+				{/if}
+			</div>
+		</section>
+	</Tile>
 </div>

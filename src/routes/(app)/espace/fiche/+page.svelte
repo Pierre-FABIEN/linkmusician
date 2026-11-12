@@ -1,7 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: fiche privée de carrière (P3-14), voir +page.server.ts.
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import CareerSheetCard from '#lib/components/linkmusician/CareerSheetCard.svelte';
 
 	let { data } = $props();
@@ -11,7 +11,8 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-6">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode carrière"
 			title="Ma fiche de carrière"
 			intro="Tes rencontres et tes étapes musicales. Les données privées restent visibles par toi seul·e."
 		/>
@@ -25,19 +26,19 @@
 				</p>
 			</div>
 			<dl class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-				<div class="rounded-xl border bg-card p-3">
+				<div class="lm-tile lm-tile--flow p-3">
 					<dt class="text-xs text-muted-foreground">Jams où tu as dit « J’y étais »</dt>
 					<dd class="mt-1 font-semibold">{data.sheet.jamsAttended}</dd>
 				</div>
-				<div class="rounded-xl border bg-card p-3">
+				<div class="lm-tile lm-tile--flow p-3">
 					<dt class="text-xs text-muted-foreground">Morceaux composés seul·e</dt>
 					<dd class="mt-1 font-semibold">{data.sheet.worksSolo}</dd>
 				</div>
-				<div class="rounded-xl border bg-card p-3">
+				<div class="lm-tile lm-tile--flow p-3">
 					<dt class="text-xs text-muted-foreground">XP</dt>
 					<dd class="mt-1 font-semibold">{data.sheet.xp}</dd>
 				</div>
-				<div class="rounded-xl border bg-card p-3">
+				<div class="lm-tile lm-tile--flow p-3">
 					<dt class="text-xs text-muted-foreground">Niveau</dt>
 					<dd class="mt-1 font-semibold">{data.sheet.level}</dd>
 				</div>

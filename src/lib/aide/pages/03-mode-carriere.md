@@ -55,18 +55,22 @@ franchis une épreuve, on la fête, et la carte te montre ce qui s’ouvre.
 ## 1. Ton écran de carrière {#mon-parcours}
 
 C’est ton accueil en mode carrière : ton niveau, tes points et ton palier
-en haut, ta **prochaine étape**, puis un **menu** qui mène chacun à son
-écran :
+en haut, puis un **menu de tuiles** rangé en quatre volets que tu fais
+glisser du doigt (ou que tu choisis par leur nom) ; chaque tuile mène à
+son écran :
 
-- **À confirmer** (quand quelque chose t’attend) : collaborations, crédits
-  de morceaux, invitations de groupe ;
-- **Mon ambition** : ce que tu vises (voir ci-dessous) ;
-- **Mes objectifs** : les trois prochaines étapes atteignables ;
-- **Campagnes en cours** : tes morceaux, leur état et leurs places libres ;
-- **Mon équipe** : tes groupes et tes partenaires réguliers ;
-- **Agenda** : tes jams et collaborations à venir ;
-- **Journal de bord** : chaque gain et sa raison ;
-- **Points, succès et confiance**.
+- **avancer** : ta **prochaine étape**, puis **À confirmer** (quand
+  quelque chose t’attend : collaborations, crédits de morceaux,
+  invitations de groupe), **Mes objectifs** (les trois prochaines étapes
+  atteignables), **Mon ambition** (ce que tu vises, voir ci-dessous) et,
+  si tu n’avances plus, **Un coup de pouce** ;
+- **parcours** : **Ma carte de carrière**, **Campagnes en cours** (tes
+  morceaux, leur état et leurs places libres), **Agenda** (tes jams et
+  collaborations à venir) et **Ma fiche de carrière** ;
+- **réseau** : **Mon équipe** (tes groupes et tes partenaires réguliers)
+  et, au palier Pilier local, **Parrainer** ;
+- **repères** : **Points, succès et confiance**, **Journal de bord**
+  (chaque gain et sa raison) et **Les démarches**.
 
 ### Ton ambition {#ambition}
 

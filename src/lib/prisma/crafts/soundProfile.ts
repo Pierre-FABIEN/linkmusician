@@ -12,6 +12,7 @@ import {
 	type SoundSpecialtyValue
 } from '#lib/crafts/sound';
 import { listReferences, normalizeReferences, replaceReferencesOps } from './references';
+import { legacySpecializationOps } from '#lib/prisma/actors/specializations';
 
 const TRACK = 'SOUND_ENGINEER' as const;
 
@@ -52,13 +53,16 @@ export async function saveSoundProfile(personId: string, input: SoundProfileInpu
 		mobility: [...new Set(input.mobility)],
 		gear: normalizeGear(input.gear)
 	};
+	// ONB-01 : les spécialités suivent aussi dans `person_track_specializations`.
+	const specializationOps = await legacySpecializationOps(personId, TRACK, data.specialties);
 	await prisma.$transaction([
 		prisma.soundEngineerProfile.upsert({
 			where: { personId },
 			create: { personId, ...data },
 			update: data
 		}),
-		...replaceReferencesOps(personId, TRACK, references)
+		...replaceReferencesOps(personId, TRACK, references),
+		...specializationOps
 	]);
 	return { ...data, references };
 }

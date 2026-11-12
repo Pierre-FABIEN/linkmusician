@@ -2,8 +2,11 @@
 	/**
 	 * LINKMUSICIAN: « Ta prochaine étape » (P2-12b) : une seule action à la fois,
 	 * avec l'avancement (« Étape X sur N »). Contenu calculé côté serveur.
+	 * Héros Metro (MET-01) : une tuile au ton du mode, cible animée.
 	 */
-	import { ArrowRight } from 'lucide-svelte';
+	import { ArrowRight, Target } from 'lucide-svelte';
+	import Tile from './metro/Tile.svelte';
+	import { toneOfMode } from './metro/tones';
 
 	let {
 		index,
@@ -25,39 +28,32 @@
 	const ratio = $derived(Math.min(1, Math.max(0, (index - 1) / total)));
 </script>
 
-<section
-	class="space-y-3 rounded-3xl border-2 p-5 shadow-sm {tone === 'jam'
-		? 'border-orange-300 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/40'
-		: 'border-violet-300 bg-violet-50 dark:border-violet-800 dark:bg-violet-950/40'}"
-	aria-labelledby="next-step-title"
+<Tile
+	tone={toneOfMode(tone === 'jam' ? 'JAM' : 'CAREER')}
+	icon={Target}
+	fx="target"
+	class="lm-next-step"
 >
-	<div class="flex items-center justify-between gap-3 text-sm">
-		<p class="font-bold uppercase">Ta prochaine étape</p>
-		<p class="text-muted-foreground">Étape {index} sur {total}</p>
-	</div>
-	<div
-		class="h-2 overflow-hidden rounded-full bg-black/10 dark:bg-white/10"
-		role="progressbar"
-		aria-label="Avancement"
-		aria-valuemin={0}
-		aria-valuemax={total}
-		aria-valuenow={index - 1}
-	>
+	<section class="space-y-3" aria-labelledby="next-step-title">
+		<div class="flex items-center justify-between gap-3 text-sm">
+			<p class="lm-tile__kicker">Ta prochaine étape</p>
+			<p class="lm-tile__text">Étape {index} sur {total}</p>
+		</div>
 		<div
-			class="h-full rounded-full {tone === 'jam' ? 'bg-orange-500' : 'bg-violet-600'}"
-			style:width="{ratio * 100}%"
-		></div>
-	</div>
-	<h2 id="next-step-title" class="text-2xl font-black tracking-tight">{title}</h2>
-	<p class="text-muted-foreground">{text}</p>
-	<a
-		{href}
-		class="inline-flex min-h-11 items-center gap-2 rounded-xl px-5 font-bold text-white {tone ===
-		'jam'
-			? 'bg-gradient-to-r from-orange-600 to-pink-600'
-			: 'bg-gradient-to-r from-violet-600 to-fuchsia-600'}"
-	>
-		{cta}
-		<ArrowRight class="size-4" aria-hidden="true" />
-	</a>
-</section>
+			class="lm-bar"
+			role="progressbar"
+			aria-label="Avancement"
+			aria-valuemin={0}
+			aria-valuemax={total}
+			aria-valuenow={index - 1}
+		>
+			<i style:--progress={ratio}></i>
+		</div>
+		<h2 id="next-step-title" class="lm-title lm-title--sm">{title}</h2>
+		<p class="lm-tile__text max-w-prose">{text}</p>
+		<a {href} class="lm-btn">
+			{cta}
+			<ArrowRight class="size-4" aria-hidden="true" />
+		</a>
+	</section>
+</Tile>

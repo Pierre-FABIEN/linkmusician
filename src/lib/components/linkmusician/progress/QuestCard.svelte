@@ -21,13 +21,11 @@
 <svelte:element
 	this={href ? 'a' : 'div'}
 	href={href ?? undefined}
-	class="group flex items-center gap-3 rounded-xl border bg-card p-4 transition {href
-		? 'hover:-translate-y-0.5 hover:border-fuchsia-400 hover:shadow-md'
+	class="lm-tile lm-tile--flow group flex items-center gap-3 p-4 {href
+		? 'hover:-translate-y-0.5 hover:shadow-md'
 		: 'opacity-80'}"
 >
-	<span
-		class="grid size-10 shrink-0 place-items-center rounded-lg bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-950 dark:text-fuchsia-300"
-	>
+	<span class="lm-chip" data-tone="amber">
 		<Target class="size-5" aria-hidden="true" />
 	</span>
 	<span class="min-w-0 flex-1 space-y-1">
@@ -36,16 +34,15 @@
 			<span class="flex items-center gap-2 text-xs text-muted-foreground">
 				<span class="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
 					<span
-						class="block h-full rounded-full bg-fuchsia-500"
+						class="lm-fill block h-full rounded-full"
+						data-tone="amber"
 						style:width="{Math.round((progress.current / progress.target) * 100)}%"
 					></span>
 				</span>
 				{progress.current}/{progress.target}
 			</span>
 		{:else if xp}
-			<span class="block text-xs font-semibold text-fuchsia-700 dark:text-fuchsia-300"
-				>+{xp} XP</span
-			>
+			<span class="block text-xs font-semibold text-foreground">+{xp} XP</span>
 		{/if}
 	</span>
 	{#if href}

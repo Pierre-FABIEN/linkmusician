@@ -57,9 +57,7 @@
 	<div class="mx-auto max-w-6xl space-y-8">
 		<div class="space-y-2">
 			<a href="/morceaux" class="text-sm text-muted-foreground underline">← Mes morceaux</a>
-			<h1
-				class="flex items-center gap-2 text-3xl font-black tracking-tight break-words sm:text-4xl"
-			>
+			<h1 class="lm-title flex items-center gap-2 break-words">
 				<Music class="size-7 shrink-0" aria-hidden="true" />
 				{work.title}
 			</h1>
@@ -93,9 +91,8 @@
 					{#each WORK_STAGES as stage (stage.field)}
 						{@const at = work.stages[stage.field]}
 						<li
-							class="rounded-full border px-3 py-1 {at
-								? 'border-emerald-400 bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100'
-								: 'text-muted-foreground'}"
+							class="lm-pill lm-pill--lg {at ? '' : 'text-muted-foreground'}"
+							data-tone={at ? 'lime' : 'paper'}
 						>
 							{stage.label}{at ? ` le ${day.format(new Date(at))}` : ''}
 						</li>
@@ -111,7 +108,7 @@
 		<DemarcheCard nudge={data.demarche} />
 
 		{#if data.created}
-			<div class="flex gap-3 rounded-2xl border border-primary bg-card p-4 text-sm">
+			<div class="lm-tile lm-tile--flow flex gap-3 border-primary p-4 text-sm">
 				<PartyPopper class="size-5 shrink-0 text-primary" aria-hidden="true" />
 				<p>
 					Ton idée est notée. Crédite celles et ceux qui la jouent avec toi, joins une maquette,
@@ -121,13 +118,13 @@
 		{/if}
 
 		{#if form?.error}
-			<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+			<p role="alert" class="lm-alert p-3 text-sm">
 				{form.error}
 			</p>
 		{/if}
 
 		{#if work.myCredit && !work.myCredit.confirmed}
-			<div class="space-y-3 rounded-2xl border border-primary bg-card p-4">
+			<div class="lm-tile lm-tile--flow space-y-3 border-primary p-4">
 				<p class="text-sm">
 					On te crédite sur ce morceau
 					{#if work.credits.find((c) => c.me)?.roles.length}
@@ -136,20 +133,17 @@
 				</p>
 				<div class="flex flex-wrap gap-2">
 					<form method="POST" action="?/confirm" use:enhance>
-						<button
-							class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-							>C’est bien moi</button
-						>
+						<button class="lm-btn">C’est bien moi</button>
 					</form>
 					<form method="POST" action="?/leave" use:enhance>
-						<button class="min-h-11 rounded-full border px-4">Ce n’est pas moi</button>
+						<button class="lm-btn" data-variant="ghost">Ce n’est pas moi</button>
 					</form>
 				</div>
 			</div>
 		{/if}
 
 		{#if work.manage && !composed}
-			<section class="space-y-4 rounded-2xl border bg-card p-4" aria-labelledby="compose-title">
+			<section class="lm-tile lm-tile--flow space-y-4 p-4" aria-labelledby="compose-title">
 				<h2 id="compose-title" class="text-xl font-bold">Prêt à le déclarer composé ?</h2>
 				<ul class="grid gap-2 text-sm sm:grid-cols-2">
 					<li class="flex items-center gap-2">
@@ -175,9 +169,7 @@
 					</li>
 				</ul>
 				<form method="POST" action="?/compose" use:enhance>
-					<button
-						disabled={Boolean(work.composeBlocker)}
-						class="min-h-11 rounded-full bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-50"
+					<button disabled={Boolean(work.composeBlocker)} class="lm-btn disabled:opacity-50"
 						>C’est composé</button
 					>
 				</form>
@@ -195,7 +187,7 @@
 		<section class="space-y-3" aria-labelledby="demo-title">
 			<h2 id="demo-title" class="text-xl font-bold">Maquette</h2>
 			{#if work.demo}
-				<div class="space-y-2 rounded-2xl border bg-card p-4">
+				<div class="lm-tile lm-tile--flow space-y-2 p-4">
 					<p class="text-sm font-medium">{work.demo.title}</p>
 					{#if work.demo.status === 'PUBLISHED'}
 						<MediaPlayer media={work.demo} />
@@ -213,7 +205,7 @@
 			{/if}
 
 			{#if work.manage}
-				<details class="rounded-2xl border bg-card p-4" open={!work.demo}>
+				<details class="lm-tile lm-tile--flow p-4" open={!work.demo}>
 					<summary class="min-h-11 cursor-pointer content-center font-medium">
 						{work.demo ? 'Changer de maquette' : 'Joindre une maquette'}
 					</summary>
@@ -233,11 +225,7 @@
 							</div>
 						{/if}
 						{#if demoMode === 'existing' && data.candidates.length > 0}
-							<select
-								name="mediaId"
-								required
-								class="block min-h-11 w-full rounded-md border bg-background px-3"
-							>
+							<select name="mediaId" required class="lm-field block min-h-11 w-full">
 								{#each data.candidates as m (m.id)}
 									<option value={m.id}>{m.title}</option>
 								{/each}
@@ -251,17 +239,14 @@
 									required
 									inputmode="url"
 									placeholder="https://soundcloud.com/…"
-									class="block min-h-11 w-full rounded-md border bg-background px-3"
+									class="lm-field block min-h-11 w-full"
 								/>
 							</label>
 							<p class="text-xs text-muted-foreground">
 								Tant que le morceau est une idée, ce lien ne se voit que de l’équipe.
 							</p>
 						{/if}
-						<button
-							class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-							>Joindre</button
-						>
+						<button class="lm-btn">Joindre</button>
 					</form>
 				</details>
 			{/if}
@@ -271,9 +256,7 @@
 			<h2 id="credits-title" class="text-xl font-bold">Crédits</h2>
 			<ul class="grid gap-2 md:grid-cols-2">
 				{#each work.credits as c (c.id)}
-					<li
-						class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border bg-card p-4"
-					>
+					<li class="lm-tile lm-tile--flow flex flex-wrap items-center justify-between gap-2 p-4">
 						<span class="min-w-0">
 							{#if c.handle}
 								<a href="/@{c.handle}" class="font-semibold underline">{c.name}</a>
@@ -288,7 +271,7 @@
 								{#if work.manage && !c.me}
 									<form method="POST" action="?/withdrawCredit" use:enhance>
 										<input type="hidden" name="contributorId" value={c.id} />
-										<button class="min-h-11 rounded-full border px-3 text-sm">Retirer</button>
+										<button class="lm-btn" data-variant="ghost">Retirer</button>
 									</form>
 								{/if}
 							</span>
@@ -314,7 +297,7 @@
 			{/if}
 
 			{#if work.manage}
-				<details class="rounded-2xl border bg-card p-4">
+				<details class="lm-tile lm-tile--flow p-4">
 					<summary class="flex min-h-11 cursor-pointer items-center gap-2 font-medium">
 						<UserPlus class="size-4" aria-hidden="true" /> Créditer quelqu’un
 					</summary>
@@ -326,17 +309,14 @@
 								required
 								autocomplete="off"
 								placeholder="@malik"
-								class="block min-h-11 w-full rounded-md border bg-background px-3"
+								class="lm-field block min-h-11 w-full"
 							/>
 						</label>
 						<RolePicker families={data.families} legend="Son rôle" id="credit" />
 						<p class="text-xs text-muted-foreground">
 							La personne est prévenue et confirme elle-même : rien n’est public sans son accord.
 						</p>
-						<button
-							class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-							>Créditer</button
-						>
+						<button class="lm-btn">Créditer</button>
 					</form>
 				</details>
 			{/if}
@@ -353,24 +333,19 @@
 					<ul class="grid gap-2 md:grid-cols-2">
 						{#each work.openRoles as r (r.id)}
 							<li
-								class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border bg-card p-4"
+								class="lm-tile lm-tile--flow flex flex-wrap items-center justify-between gap-2 p-4"
 							>
 								<span class="font-semibold">{r.label}</span>
 								{#if work.manage}
 									<span class="flex flex-wrap gap-2">
 										{#if r.recruitHref}
-											<a
-												href={r.recruitHref}
-												class="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
-											>
+											<a href={r.recruitHref} class="lm-btn gap-2">
 												<Megaphone class="size-4" aria-hidden="true" /> Recruter
 											</a>
 										{/if}
 										<form method="POST" action="?/removeRole" use:enhance>
 											<input type="hidden" name="roleId" value={r.id} />
-											<button class="min-h-11 rounded-full border px-3 text-sm"
-												>Retirer {r.label}</button
-											>
+											<button class="lm-btn" data-variant="ghost">Retirer {r.label}</button>
 										</form>
 									</span>
 								{/if}
@@ -383,7 +358,7 @@
 						method="POST"
 						action="?/openRole"
 						use:enhance
-						class="space-y-3 rounded-2xl border bg-card p-4"
+						class="lm-tile lm-tile--flow space-y-3 p-4"
 					>
 						<RolePicker
 							families={data.families}
@@ -391,7 +366,7 @@
 							id="open"
 							instrumentOnly
 						/>
-						<button class="min-h-11 rounded-full border px-4 font-medium">Ajouter</button>
+						<button class="lm-btn" data-variant="ghost">Ajouter</button>
 					</form>
 				{/if}
 			</section>
@@ -399,14 +374,15 @@
 
 		{#if work.manage && composed}
 			<!-- LINKMUSICIAN: la suite du morceau, avec les métiers du son (P4-05). -->
-			<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="suite-title">
+			<section class="lm-tile lm-tile--flow space-y-3 p-4" aria-labelledby="suite-title">
 				<h2 id="suite-title" class="font-semibold">La suite du morceau</h2>
 				<p class="text-sm text-muted-foreground">
 					Publie une annonce que seuls les ingés son ou les producteur·rices verront.
 				</p>
 				<div class="flex flex-wrap gap-2">
 					<a
-						class="inline-flex min-h-11 items-center rounded-full border px-4 font-medium hover:bg-muted"
+						class="lm-btn"
+						data-variant="ghost"
 						href={craftAnnounceHref({
 							workId: work.id,
 							workTitle: work.title,
@@ -415,7 +391,8 @@
 						})}>Trouver un·e ingé son</a
 					>
 					<a
-						class="inline-flex min-h-11 items-center rounded-full border px-4 font-medium hover:bg-muted"
+						class="lm-btn"
+						data-variant="ghost"
 						href={craftAnnounceHref({
 							workId: work.id,
 							workTitle: work.title,
@@ -428,7 +405,7 @@
 		{/if}
 
 		{#if work.manage}
-			<details class="rounded-2xl border bg-card p-4">
+			<details class="lm-tile lm-tile--flow p-4">
 				<summary class="min-h-11 cursor-pointer content-center font-medium">
 					Titre, genres et suppression
 				</summary>
@@ -440,7 +417,7 @@
 							required
 							maxlength={MAX_WORK_TITLE}
 							value={work.title}
-							class="block min-h-11 w-full rounded-md border bg-background px-3"
+							class="lm-field block min-h-11 w-full"
 						/>
 					</label>
 					<fieldset class="space-y-2">
@@ -467,10 +444,7 @@
 							{/each}
 						</div>
 					</fieldset>
-					<button
-						class="min-h-11 rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-						>Enregistrer</button
-					>
+					<button class="lm-btn">Enregistrer</button>
 				</form>
 				<div class="mt-6 border-t pt-4">
 					{#if confirmDelete}
@@ -484,7 +458,8 @@
 								>
 								<button
 									type="button"
-									class="min-h-11 rounded-full border px-4"
+									class="lm-btn"
+									data-variant="ghost"
 									onclick={() => (confirmDelete = false)}>Annuler</button
 								>
 							</div>
@@ -506,12 +481,11 @@
 					<form method="POST" action="?/leave" use:enhance class="space-y-2">
 						<p>Retirer ton nom de ce morceau ? Les points déjà gagnés restent.</p>
 						<div class="flex gap-2">
-							<button class="min-h-11 rounded-full border border-destructive px-4 text-destructive"
-								>Retirer mon crédit</button
-							>
+							<button class="lm-btn" data-variant="danger">Retirer mon crédit</button>
 							<button
 								type="button"
-								class="min-h-11 rounded-full border px-4"
+								class="lm-btn"
+								data-variant="ghost"
 								onclick={() => (confirmLeave = false)}>Annuler</button
 							>
 						</div>

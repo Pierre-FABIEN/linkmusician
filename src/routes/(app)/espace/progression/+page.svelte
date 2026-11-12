@@ -1,7 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: points, succès et confiance, voir +page.server.ts.
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import AchievementBadge from '#lib/components/linkmusician/progress/AchievementBadge.svelte';
 	import { ShieldCheck } from 'lucide-svelte';
 
@@ -12,14 +12,15 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-8">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode carrière"
 			title="Points, succès et confiance"
 			intro="Niveau {data.level} · {data.xp} XP. La confiance grandit avec les échanges réels, jamais avec les points."
 		/>
-		<section class="space-y-3 rounded-2xl border bg-card p-4" aria-labelledby="trust-title">
+		<section class="lm-tile lm-tile--flow space-y-3 p-4" aria-labelledby="trust-title">
 			<h2 id="trust-title" class="flex items-center gap-2 text-xl font-bold">
-				<ShieldCheck class="size-5 text-emerald-600" aria-hidden="true" /> Confiance : {data.trust
-					.name}
+				<ShieldCheck class="size-5 lm-tone-icon" data-tone="lime" aria-hidden="true" /> Confiance : {data
+					.trust.name}
 			</h2>
 			<p class="text-sm text-muted-foreground">
 				Jusqu’à {data.trust.dailyFirstMessages} premiers messages par jour.

@@ -1,7 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: campagnes en cours (P3-12), voir +page.server.ts.
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { Badge } from '#shadcn/badge';
 	import { Music } from 'lucide-svelte';
 
@@ -12,7 +12,8 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-6">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode carrière"
 			title="Campagnes en cours"
 			intro="Chaque morceau est une aventure : de l’idée au morceau composé, puis enregistré, joué, sorti. Une place libre ? Recrute la bonne personne depuis la fiche du morceau."
 		/>
@@ -23,7 +24,7 @@
 			</p>
 		{/if}
 		{#if data.works.length === 0}
-			<div class="space-y-2 rounded-2xl border bg-card p-6 text-center">
+			<div class="lm-tile lm-tile--flow space-y-2 p-6 text-center">
 				<Music class="mx-auto size-6 text-primary" aria-hidden="true" />
 				<p class="font-semibold">Pas encore de morceau.</p>
 				<p class="text-sm text-muted-foreground">
@@ -39,7 +40,7 @@
 					<li>
 						<a
 							href="/morceaux/{w.id}"
-							class="flex min-h-16 flex-wrap items-center justify-between gap-2 rounded-2xl border bg-card p-4 hover:border-primary"
+							class="lm-tile lm-tile--flow flex min-h-16 flex-wrap items-center justify-between gap-2 p-4"
 						>
 							<span>
 								<span class="block font-semibold">{w.title}</span>

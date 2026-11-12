@@ -52,11 +52,11 @@
 {#if visible.length > 0 || emptyHint}
 	<section class="space-y-3" aria-labelledby={headingId}>
 		<h2 id={headingId} class="flex items-center gap-2 text-lg font-bold">
-			<Sparkles class="size-5 text-fuchsia-500" aria-hidden="true" />
+			<Sparkles class="lm-tone-icon size-5" data-tone="rose" aria-hidden="true" />
 			{title}
 		</h2>
 		{#if visible.length === 0 && emptyHint}
-			<p class="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+			<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
 				{emptyHint.text}
 				<a href={emptyHint.href} class="font-medium text-primary underline">{emptyHint.label}</a>
 			</p>
@@ -66,11 +66,11 @@
 					<li class="relative">
 						<a
 							href="/@{s.handle}"
-							class="flex h-full flex-col gap-2 rounded-2xl border bg-card p-4 pr-12 transition hover:border-primary hover:shadow-md"
+							class="lm-tile lm-tile--flow flex h-full flex-col gap-2 p-4 pr-12 hover:shadow-md"
 						>
 							<span class="flex items-center gap-3">
 								<Avatar.Root class="size-11">
-									<Avatar.Fallback class="bg-violet-100 font-bold text-violet-800"
+									<Avatar.Fallback class="bg-primary/15 font-bold text-foreground"
 										>{initialsOf(s.displayName)}</Avatar.Fallback
 									>
 								</Avatar.Root>
@@ -85,9 +85,7 @@
 									</span>
 								</span>
 							</span>
-							<span class="text-sm font-medium text-fuchsia-700 dark:text-fuchsia-300"
-								>{s.reason}</span
-							>
+							<span class="text-sm font-medium text-primary">{s.reason}</span>
 							{#if s.instruments.length > 0}
 								<span class="text-sm text-muted-foreground">
 									{#each s.instruments as i, k (i.name)}{k > 0 ? ' · ' : ''}{i.name} ({levelLabel(

@@ -4,7 +4,7 @@
 	import { toast } from 'svelte-sonner';
 	import { BadgeCheck } from 'lucide-svelte';
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import {
 		DEFAULT_INVITE_USES,
 		INVITE_DAYS,
@@ -45,7 +45,7 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-8">
-		<SubPageHeader
+		<MetroPageHeader
 			title={s.name}
 			intro="{SCHOOL_KIND_LABELS[s.kind]}{s.manager
 				? ' · tu la gères'

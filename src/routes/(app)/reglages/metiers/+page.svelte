@@ -31,9 +31,9 @@
 <SEO title="Mes métiers" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-5xl rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-5xl">
 		<a href="/espace" class="text-sm text-muted-foreground underline">← Mon espace</a>
-		<h1 class="mt-2 mb-2 text-3xl font-black tracking-tight sm:text-4xl">Mes métiers</h1>
+		<h1 class="lm-title mt-2 mb-2">Mes métiers</h1>
 		<p class="mb-6 text-sm text-muted-foreground">
 			Au moins un métier, dont un principal : c'est lui qui s'affiche en premier sur ton profil.
 		</p>

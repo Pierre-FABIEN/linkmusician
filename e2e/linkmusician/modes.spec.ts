@@ -78,7 +78,7 @@ test.describe('LinkMusician — modes de jeu', () => {
 			await waitForAppReady(page);
 			await careerChoice.click();
 			await expect(page).toHaveURL(/\/jouer\/carriere$/);
-			await page.getByRole('button', { name: 'Passer' }).click();
+			await page.getByRole('button', { name: 'Passer', exact: true }).click();
 			await expect(page).toHaveURL(/\/espace$/);
 			await expect(page.getByText('Ta prochaine étape')).toBeVisible();
 			const saved = await db.person.findUniqueOrThrow({ where: { actorId: person.actorId } });

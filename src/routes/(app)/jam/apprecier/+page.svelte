@@ -1,7 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: « Apprécier les musicos croisés » (D50), voir +page.server.ts.
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { Badge } from '#shadcn/badge';
 	import { Heart, MapPin } from 'lucide-svelte';
 
@@ -16,15 +16,16 @@
 
 <SEO title="Apprécier les musicos croisés" noindex nofollow />
 
-<div class="min-h-screen w-full bg-muted/20 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
+<div class="min-h-screen w-full px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
 	<div class="mx-auto max-w-3xl space-y-6">
-		<SubPageHeader
+		<MetroPageHeader
+			kicker="Mode jam"
 			title="Apprécier les musicos croisés"
 			intro="Tu joues en ce moment, ou tu as joué cette semaine ? Dis ce que tu as aimé chez les autres : bon groove, à l’écoute, belle impro… C’est ce qui fait monter leurs points."
 		/>
 
 		{#if data.jams.length === 0}
-			<div class="space-y-2 rounded-2xl border bg-card p-6 text-center">
+			<div class="lm-tile lm-tile--flow space-y-2 p-6 text-center">
 				<Heart class="mx-auto size-6 text-primary" aria-hidden="true" />
 				<p class="font-semibold">Pas de jam cette semaine.</p>
 				<p class="text-sm text-muted-foreground">
@@ -41,8 +42,7 @@
 					<li>
 						<a
 							href="/jams/{j.id}/presents"
-							class="block space-y-2 rounded-2xl border bg-card p-4 transition hover:border-primary {j.live ||
-							j.left > 0
+							class="lm-tile lm-tile--flow block space-y-2 p-4 {j.live || j.left > 0
 								? 'border-primary/60'
 								: ''}"
 						>

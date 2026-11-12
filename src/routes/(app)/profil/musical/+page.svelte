@@ -60,10 +60,10 @@
 <SEO title="Mon profil musical" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-7xl space-y-8 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-7xl space-y-8">
 		<div>
 			<a href="/espace" class="text-sm text-muted-foreground underline">← Mon espace</a>
-			<h1 class="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Mon profil musical</h1>
+			<h1 class="lm-title mt-2">Mon profil musical</h1>
 			<p class="text-sm text-muted-foreground">
 				Ce que tu joues, à quel niveau, et ce qui t'inspire. Les niveaux sont déclarés : ils
 				s'affichent toujours avec la mention « déclaré ».
@@ -82,7 +82,7 @@
 				<ul class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
 					{#each $form.instruments as played, index (played.instrumentId)}
 						{@const name = instrumentNames.get(played.instrumentId) ?? '?'}
-						<li class="space-y-2 rounded-lg border p-3">
+						<li class="lm-tile lm-tile--flow space-y-2 p-3">
 							<div class="flex items-center justify-between gap-2">
 								<span class="font-medium">{name}</span>
 								<button
@@ -95,7 +95,7 @@
 								</button>
 							</div>
 							<select
-								class="w-full rounded-md border bg-background p-2 text-sm"
+								class="lm-field w-full"
 								aria-label="Niveau en {name}"
 								bind:value={$form.instruments[index].level}
 							>
@@ -126,7 +126,7 @@
 				{#if $form.instruments.length < MAX_INSTRUMENTS}
 					<div class="flex gap-2">
 						<select
-							class="flex-1 rounded-md border bg-background p-2 text-sm"
+							class="lm-field flex-1"
 							aria-label="Instrument à ajouter"
 							bind:value={toAdd}
 							onchange={addInstrument}
@@ -165,7 +165,7 @@
 				</p>
 				<div class="grid gap-3 sm:grid-cols-2">
 					{#each data.genres as genre (genre.id)}
-						<fieldset class="rounded-lg border p-3">
+						<fieldset class="lm-tile lm-tile--flow p-3">
 							<legend class="sr-only">{genre.name}</legend>
 							{#each [genre, ...genre.children] as item, i (item.id)}
 								{@const checked = $form.genreIds.includes(item.id)}
@@ -201,7 +201,7 @@
 				<textarea
 					id="influences"
 					rows="5"
-					class="w-full rounded-md border bg-background p-2 text-sm"
+					class="lm-field w-full"
 					placeholder="Nina Simone&#10;Radiohead&#10;OK Computer"
 					bind:value={$form.influences}
 				></textarea>

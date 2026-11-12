@@ -65,11 +65,11 @@
 <SEO title="Gérer {v.name}" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-5xl space-y-8 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-5xl space-y-8">
 		<div class="space-y-2">
 			<a href="/lieux/{v.venueId}" class="text-sm text-muted-foreground underline">← Page du lieu</a
 			>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{v.name}</h1>
+			<h1 class="lm-title">{v.name}</h1>
 			<p class="text-sm text-muted-foreground">
 				{v.communeName} · {published ? 'fiche publiée' : 'fiche en brouillon'}
 			</p>
@@ -103,11 +103,7 @@
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<h2 id="dates" class="text-xl font-bold">Dates</h2>
 				{#if published}
-					<a
-						href="/plateaux/nouveau?lieu={v.venueId}"
-						class="inline-flex min-h-11 items-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
-						>Publier une date</a
-					>
+					<a href="/plateaux/nouveau?lieu={v.venueId}" class="lm-btn">Publier une date</a>
 				{/if}
 			</div>
 			{#if !published}
@@ -126,7 +122,7 @@
 						<li>
 							<a
 								href="/annonces/{g.id}"
-								class="flex min-h-11 items-center justify-between gap-3 rounded-xl border p-3 text-sm hover:bg-muted"
+								class="lm-tile lm-tile--flow flex min-h-11 items-center justify-between gap-3 p-3 text-sm"
 							>
 								<span class="truncate"
 									>{g.title}{g.startsAt ? ` · ${day.format(new Date(g.startsAt))}` : ''}</span
@@ -258,7 +254,9 @@
 				<legend class="font-medium">Ce que le lieu propose aux artistes</legend>
 				<div class="flex flex-wrap gap-2">
 					{#each VENUE_CONDITIONS as c (c)}
-						<label class="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border px-3">
+						<label
+							class="lm-tile lm-tile--flow flex min-h-11 cursor-pointer items-center gap-2 px-3"
+						>
 							<input
 								type="checkbox"
 								name="conditions"
@@ -275,7 +273,9 @@
 				<legend class="font-medium">Jours de concerts ou de jams (facultatif)</legend>
 				<div class="flex flex-wrap gap-2">
 					{#each VENUE_WEEKDAYS as d (d)}
-						<label class="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border px-3">
+						<label
+							class="lm-tile lm-tile--flow flex min-h-11 cursor-pointer items-center gap-2 px-3"
+						>
 							<input
 								type="checkbox"
 								name="days"
@@ -300,7 +300,7 @@
 					>
 					<div class="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 						{#each data.genres as genre (genre.id)}
-							<fieldset class="rounded-lg border p-3">
+							<fieldset class="lm-tile lm-tile--flow p-3">
 								<legend class="sr-only">{genre.name}</legend>
 								{#each [genre, ...genre.children] as item, i (item.id)}
 									{@const checked = genreIds.includes(item.id)}
@@ -325,10 +325,7 @@
 					</div>
 				</details>
 			</section>
-			<button
-				class="min-h-11 w-full rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-				>Enregistrer la fiche</button
-			>
+			<button class="lm-btn w-full">Enregistrer la fiche</button>
 		</form>
 
 		<section class="space-y-3" aria-labelledby="publication">
@@ -341,9 +338,7 @@
 					class="flex flex-wrap items-center gap-3"
 				>
 					<p class="text-sm">La fiche est publiée sur la page du lieu.</p>
-					<button class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
-						>Retirer la fiche</button
-					>
+					<button class="lm-btn" data-variant="ghost">Retirer la fiche</button>
 				</form>
 			{:else if v.gaps.length > 0}
 				<p class="rounded-xl border bg-muted/40 p-3 text-sm">
@@ -351,10 +346,7 @@
 				</p>
 			{:else}
 				<form method="POST" action="?/publish" use:enhance>
-					<button
-						class="min-h-11 w-full rounded-full bg-primary px-4 font-semibold text-primary-foreground sm:w-auto"
-						>Publier la fiche</button
-					>
+					<button class="lm-btn w-full sm:w-auto">Publier la fiche</button>
 				</form>
 			{/if}
 		</section>
@@ -383,7 +375,7 @@
 									class="aspect-[4/3] w-full rounded-lg border object-cover"
 								/>
 							{:else}
-								<div class="aspect-[4/3] w-full rounded-lg border bg-muted"></div>
+								<div class="lm-tile lm-tile--flow aspect-[4/3] w-full bg-muted"></div>
 							{/if}
 							<p class="truncate text-sm font-medium">{photo.title}</p>
 							<p class="text-xs text-muted-foreground">
@@ -409,7 +401,7 @@
 		</section>
 
 		<!-- Apprendre le métier (08 §14) : la plateforme guide, elle ne gère rien. -->
-		<details class="rounded-xl border p-4">
+		<details class="lm-tile lm-tile--flow p-4">
 			<summary class="min-h-11 cursor-pointer content-center font-semibold"
 				>Apprendre le métier : licence, GUSO, SACEM</summary
 			>
@@ -446,11 +438,11 @@
 				</p>
 			</div>
 			{#if form?.teamError}
-				<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+				<p role="alert" class="lm-alert p-3 text-sm">
 					{form.teamError}
 				</p>
 			{/if}
-			<ul class="divide-y rounded-xl border">
+			<ul class="lm-tile lm-tile--flow divide-y">
 				{#each v.team as member (member.membershipId)}
 					<li class="flex flex-wrap items-center justify-between gap-3 p-3">
 						<div>
@@ -464,8 +456,7 @@
 						{#if member.isMe || v.role === 'OWNER' || member.status === 'INVITED'}
 							<form method="POST" action="?/removeManager" use:enhance>
 								<input type="hidden" name="membershipId" value={member.membershipId} />
-								<button
-									class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+								<button class="lm-btn" data-variant="ghost"
 									>{member.isMe
 										? 'Quitter la gestion'
 										: member.status === 'INVITED'
@@ -499,9 +490,7 @@
 						>Son nom d’utilisateur, sur son profil. Il faut être majeur·e.</span
 					>
 				</label>
-				<button class="min-h-11 rounded-full border px-5 font-semibold hover:bg-muted"
-					>Inviter</button
-				>
+				<button class="lm-btn" data-variant="ghost">Inviter</button>
 			</form>
 		</section>
 	</div>

@@ -2,6 +2,7 @@
 	// LINKMUSICIAN: page publique ; un membre connecté y garde la navigation de
 	// son espace (P2-12b), un visiteur voit la page seule.
 	import AppShell from '#lib/components/linkmusician/AppShell.svelte';
+	import MetroPage from '#lib/components/linkmusician/metro/MetroPage.svelte';
 
 	let { children, data } = $props();
 </script>
@@ -16,5 +17,5 @@
 		{@render children()}
 	</AppShell>
 {:else}
-	{@render children()}
+	<MetroPage>{@render children()}</MetroPage>
 {/if}

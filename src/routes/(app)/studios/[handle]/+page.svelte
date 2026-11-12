@@ -118,10 +118,10 @@
 <SEO title="Fiche de {data.studio.name}" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-4xl space-y-8 rounded-3xl border bg-card p-5 sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-4xl space-y-8">
 		<header class="space-y-3">
 			<a href="/studios" class="text-sm text-muted-foreground underline">← Mes studios</a>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{data.studio.name}</h1>
+			<h1 class="lm-title">{data.studio.name}</h1>
 			{#if data.created}
 				<p class="rounded-md border border-primary/40 bg-primary/5 p-3 text-sm">
 					La fiche est créée. Remplis-la, puis publie-la pour que les musicien·nes te trouvent.
@@ -130,7 +130,7 @@
 		</header>
 
 		<!-- Statut : publiée (rang) ou brouillon, avec ce qui manque. -->
-		<section aria-labelledby="statut" class="space-y-3 rounded-2xl border p-4 sm:p-5">
+		<section aria-labelledby="statut" class="lm-tile lm-tile--flow space-y-3 p-4 sm:p-5">
 			<h2 id="statut" class="sr-only">Statut de la fiche</h2>
 			{#if published && data.studio.rank.tier}
 				<div class="flex flex-wrap items-center justify-between gap-3">
@@ -154,9 +154,7 @@
 						</p>
 					</div>
 					<form method="POST" action="?/unpublish" use:enhance>
-						<button class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
-							>Retirer la fiche</button
-						>
+						<button class="lm-btn" data-variant="ghost">Retirer la fiche</button>
 					</form>
 				</div>
 			{:else}
@@ -172,10 +170,7 @@
 					</div>
 				{:else}
 					<form method="POST" action="?/publish" use:enhance>
-						<button
-							class="min-h-11 w-full rounded-full bg-primary px-4 font-semibold text-primary-foreground sm:w-auto"
-							>Publier la fiche</button
-						>
+						<button class="lm-btn w-full sm:w-auto">Publier la fiche</button>
 					</form>
 				{/if}
 			{/if}
@@ -190,7 +185,11 @@
 						class="flex items-center gap-3 rounded-xl border p-3 {quest.done ? 'opacity-70' : ''}"
 					>
 						{#if quest.done}
-							<CircleCheck class="size-5 shrink-0 text-emerald-600" aria-hidden="true" />
+							<CircleCheck
+								class="size-5 shrink-0 lm-tone-icon"
+								data-tone="lime"
+								aria-hidden="true"
+							/>
 						{:else}
 							<Circle class="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
 						{/if}
@@ -206,7 +205,7 @@
 		</section>
 
 		{#if form?.error}
-			<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+			<p role="alert" class="lm-alert p-3 text-sm">
 				{form.error}
 			</p>
 		{/if}
@@ -261,7 +260,7 @@
 				<div class="grid gap-2 sm:grid-cols-2">
 					{#each STUDIO_SERVICES as service (service)}
 						<label
-							class="flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+							class="lm-tile lm-tile--flow flex min-h-14 cursor-pointer items-start gap-3 p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
 						>
 							<input type="checkbox" value={service} bind:group={services} class="mt-1 size-4" />
 							<span>
@@ -279,7 +278,7 @@
 				<h2 id="salles" class="text-xl font-bold">Salles et tarifs</h2>
 				<ul class="space-y-3">
 					{#each rooms as room, i (i)}
-						<li class="space-y-2 rounded-xl border p-3">
+						<li class="lm-tile lm-tile--flow space-y-2 p-3">
 							<div class="flex flex-col gap-2 sm:flex-row">
 								<label class="block flex-1 space-y-1 text-sm font-medium">
 									Salle
@@ -339,7 +338,8 @@
 					<button
 						type="button"
 						onclick={() => rooms.push({ name: '', description: '', hourlyRate: '' })}
-						class="inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+						class="lm-btn gap-1.5"
+						data-variant="ghost"
 					>
 						<Plus class="size-4" aria-hidden="true" />Ajouter une salle
 					</button>
@@ -374,7 +374,7 @@
 
 			<fieldset class="space-y-3">
 				<legend class="text-xl font-bold">Horaires d’ouverture</legend>
-				<ul class="divide-y rounded-xl border">
+				<ul class="lm-tile lm-tile--flow divide-y">
 					{#each hours as day (day.weekday)}
 						<li class="flex flex-wrap items-center gap-3 p-3">
 							<label class="flex min-h-11 w-32 cursor-pointer items-center gap-2 font-medium">
@@ -387,14 +387,14 @@
 										type="time"
 										bind:value={day.opensAt}
 										aria-label="{WEEKDAY_LABELS[day.weekday]} : ouverture"
-										class="rounded-md border bg-background p-2"
+										class="lm-field"
 									/>
 									à
 									<input
 										type="time"
 										bind:value={day.closesAt}
 										aria-label="{WEEKDAY_LABELS[day.weekday]} : fermeture"
-										class="rounded-md border bg-background p-2"
+										class="lm-field"
 									/>
 								</span>
 							{:else}
@@ -413,9 +413,7 @@
 			</fieldset>
 
 			<div class="sticky bottom-4 z-10">
-				<button
-					disabled={saving}
-					class="min-h-12 w-full rounded-full bg-primary px-4 font-semibold text-primary-foreground shadow-lg disabled:opacity-60"
+				<button disabled={saving} class="lm-btn w-full disabled:opacity-60"
 					>{saving ? 'Enregistrement…' : 'Enregistrer la fiche'}</button
 				>
 			</div>
@@ -445,7 +443,7 @@
 									class="aspect-[4/3] w-full rounded-lg border object-cover"
 								/>
 							{:else}
-								<div class="aspect-[4/3] w-full rounded-lg border bg-muted"></div>
+								<div class="lm-tile lm-tile--flow aspect-[4/3] w-full bg-muted"></div>
 							{/if}
 							<p class="truncate text-sm font-medium">{photo.title}</p>
 							<p class="text-xs text-muted-foreground">
@@ -494,11 +492,11 @@
 				</p>
 			</div>
 			{#if form?.teamError}
-				<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+				<p role="alert" class="lm-alert p-3 text-sm">
 					{form.teamError}
 				</p>
 			{/if}
-			<ul class="divide-y rounded-xl border">
+			<ul class="lm-tile lm-tile--flow divide-y">
 				{#each data.studio.team as member (member.membershipId)}
 					<li class="flex flex-wrap items-center justify-between gap-3 p-3">
 						<div>
@@ -512,8 +510,7 @@
 						{#if member.isMe || data.studio.role === 'OWNER' || member.status === 'INVITED'}
 							<form method="POST" action="?/removeManager" use:enhance>
 								<input type="hidden" name="membershipId" value={member.membershipId} />
-								<button
-									class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+								<button class="lm-btn" data-variant="ghost"
 									>{member.isMe
 										? 'Quitter la gestion'
 										: member.status === 'INVITED'
@@ -548,9 +545,7 @@
 						producteur·rice.</span
 					>
 				</label>
-				<button class="min-h-11 rounded-full border px-5 font-semibold hover:bg-muted"
-					>Inviter</button
-				>
+				<button class="lm-btn" data-variant="ghost">Inviter</button>
 			</form>
 		</section>
 	</div>

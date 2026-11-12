@@ -1,7 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: agenda (P3-12), voir +page.server.ts.
 	import SEO from '#lib/components/SEO.svelte';
-	import SubPageHeader from '#lib/components/linkmusician/SubPageHeader.svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { CalendarDays, Guitar, Handshake } from 'lucide-svelte';
 
 	let { data } = $props();
@@ -22,9 +22,13 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-6">
-		<SubPageHeader title="Agenda" intro="Tes jams et tes collaborations à venir." />
+		<MetroPageHeader
+			kicker="Mode carrière"
+			title="Agenda"
+			intro="Tes jams et tes collaborations à venir."
+		/>
 		{#if data.items.length === 0}
-			<div class="space-y-2 rounded-2xl border bg-card p-6 text-center">
+			<div class="lm-tile lm-tile--flow space-y-2 p-6 text-center">
 				<CalendarDays class="mx-auto size-6 text-primary" aria-hidden="true" />
 				<p class="font-semibold">Rien de prévu pour l’instant.</p>
 				<p class="text-sm text-muted-foreground">
@@ -39,10 +43,7 @@
 				{#each data.items as it (it.href + it.at)}
 					{@const Icon = it.kind === 'JAM' ? Guitar : Handshake}
 					<li>
-						<a
-							href={it.href}
-							class="flex min-h-16 items-center gap-3 rounded-2xl border bg-card p-4 hover:border-primary"
-						>
+						<a href={it.href} class="lm-tile lm-tile--flow flex min-h-16 items-center gap-3 p-4">
 							<Icon class="size-5 shrink-0 text-primary" aria-hidden="true" />
 							<span class="min-w-0 flex-1">
 								<span class="block font-semibold">{it.title}</span>

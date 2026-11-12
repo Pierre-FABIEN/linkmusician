@@ -25,15 +25,18 @@ indique ta ville, mets-toi dispo (ou repère une jam), écris à un·e
 musicien·ne, trouve un lieu, jouez ensemble… puis, si l’envie vient,
 passe au mode carrière.
 
-En dessous, un **menu** court mène chacun à son écran :
+Tout l’accueil est un **menu de tuiles**, rangé en trois volets que tu
+fais glisser du doigt (ou que tu choisis par leur nom, en haut) ; chaque
+tuile mène à son écran :
 
-- **Apprécier les musicos croisés**, en tête : ta jam en cours et celles
-  de la semaine, avec combien de musicien·nes il te reste à apprécier ;
-- **Les musicos dispo autour de moi** : te mettre dispo, et voir qui l’est ;
-- **Jams à venir** : le calendrier des jams et les lieux du coin ;
-- **Mes jams** : les jams où l’on t’invite, et celles où tu es allé·e ;
-- **Lancer une jam** (si tu es prêt·e à organiser, voir plus bas) ;
-- **Mon carnet et mon réseau**.
+- **jouer** : ta prochaine étape, puis **Apprécier les musicos croisés**
+  (ta jam en cours et celles de la semaine, avec combien de musicien·nes
+  il te reste à apprécier) et **Les musicos dispo autour de moi** (te
+  mettre dispo, et voir qui l’est) ;
+- **mes jams** : **Jams à venir** (le calendrier et les lieux du coin),
+  **Mes jams** (celles où l’on t’invite, celles où tu es allé·e) et
+  **Lancer une jam** (si tu es prêt·e à organiser, voir plus bas) ;
+- **réseau** : **Mon carnet et mon réseau**.
 
 ## 1. Avant la jam {#avant-la-jam}
 

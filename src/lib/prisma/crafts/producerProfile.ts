@@ -13,6 +13,7 @@ import {
 	type ProducerSpecialtyValue
 } from '#lib/crafts/producer';
 import { listReferences, normalizeReferences, replaceReferencesOps } from './references';
+import { legacySpecializationOps } from '#lib/prisma/actors/specializations';
 
 const TRACK = 'PRODUCER' as const;
 
@@ -82,6 +83,8 @@ export async function saveProducerProfile(personId: string, input: ProducerProfi
 		software: normalizeSoftware(input.software),
 		rate: normalizeRate(input.rate)
 	};
+	// ONB-01 : les spécialités suivent aussi dans `person_track_specializations`.
+	const specializationOps = await legacySpecializationOps(personId, TRACK, data.specialties);
 	await prisma.$transaction([
 		prisma.producerProfile.upsert({
 			where: { personId },
@@ -90,7 +93,8 @@ export async function saveProducerProfile(personId: string, input: ProducerProfi
 		}),
 		prisma.producerGenre.deleteMany({ where: { personId } }),
 		prisma.producerGenre.createMany({ data: genreIds.map((genreId) => ({ personId, genreId })) }),
-		...replaceReferencesOps(personId, TRACK, references)
+		...replaceReferencesOps(personId, TRACK, references),
+		...specializationOps
 	]);
 	return { ...data, genreIds, references };
 }

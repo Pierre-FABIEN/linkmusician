@@ -7,7 +7,6 @@
 	 * déconnexion), sans rien de la boutique.
 	 */
 	import * as DropdownMenu from '#shadcn/dropdown-menu';
-	import { buttonVariants } from '#shadcn/button';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import { CircleUser } from 'lucide-svelte';
@@ -27,11 +26,8 @@
 
 {#if user}
 	<DropdownMenu.Root>
-		<DropdownMenu.Trigger
-			class={buttonVariants({ variant: 'ghost', size: 'icon' })}
-			aria-label="Ouvrir le menu du compte"
-		>
-			<CircleUser class="size-7" />
+		<DropdownMenu.Trigger class="lm-action" aria-label="Ouvrir le menu du compte">
+			<CircleUser class="size-6" aria-hidden="true" />
 		</DropdownMenu.Trigger>
 		<DropdownMenu.Content align="end" class="w-56">
 			<DropdownMenu.Label class="truncate">{displayName}</DropdownMenu.Label>
@@ -83,12 +79,7 @@
 	<form bind:this={signOutForm} method="POST" action="/auth?/signout" use:enhance hidden></form>
 {:else}
 	<!-- Icône seule : la barre de navigation est dimensionnée pour l'icône panier. -->
-	<a
-		href="/auth/login"
-		class={buttonVariants({ variant: 'ghost', size: 'icon' })}
-		aria-label="Se connecter"
-		title="Se connecter"
-	>
-		<CircleUser class="size-7" />
+	<a href="/auth/login" class="lm-action" aria-label="Se connecter" title="Se connecter">
+		<CircleUser class="size-6" aria-hidden="true" />
 	</a>
 {/if}

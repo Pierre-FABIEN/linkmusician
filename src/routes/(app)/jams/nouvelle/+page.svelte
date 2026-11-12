@@ -23,10 +23,10 @@
 <SEO title="Publier une jam" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-5xl space-y-6 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-5xl space-y-6">
 		<div class="space-y-2">
 			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">
+			<h1 class="lm-title">
 				{again ? 'Rejouer ensemble' : 'Publier une jam'}
 			</h1>
 			{#if again}
@@ -42,7 +42,7 @@
 		</div>
 
 		{#if form?.error}
-			<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+			<p role="alert" class="lm-alert p-3 text-sm">
 				{form.error}
 			</p>
 		{/if}
@@ -56,11 +56,7 @@
 			<form method="POST" use:enhance class="space-y-4">
 				<label class="block space-y-1 font-medium">
 					Lieu
-					<select
-						name="venueId"
-						required
-						class="w-full rounded-md border bg-background p-2 text-sm font-normal"
-					>
+					<select name="venueId" required class="lm-field w-full">
 						<option value="">—</option>
 						{#each data.venues as v (v.id)}
 							<option value={v.id} selected={(form?.values?.venueId ?? data.venueId) === v.id}
@@ -81,7 +77,7 @@
 						maxlength="80"
 						value={form?.values?.title ?? again?.title ?? ''}
 						placeholder="Bœuf funk du jeudi"
-						class="w-full rounded-md border bg-background p-2 text-sm font-normal"
+						class="lm-field w-full"
 					/>
 				</label>
 				<div class="grid gap-3 sm:grid-cols-3">
@@ -93,7 +89,7 @@
 							required
 							min={data.today}
 							value={form?.values?.day ?? data.today}
-							class="w-full rounded-md border bg-background p-2 text-sm font-normal"
+							class="lm-field w-full"
 						/>
 					</label>
 					<label class="block space-y-1 font-medium">
@@ -103,7 +99,7 @@
 							name="start"
 							required
 							value={form?.values?.start ?? again?.start ?? '20:00'}
-							class="w-full rounded-md border bg-background p-2 text-sm font-normal"
+							class="lm-field w-full"
 						/>
 					</label>
 					<label class="block space-y-1 font-medium">
@@ -113,16 +109,13 @@
 							name="end"
 							required
 							value={form?.values?.end ?? again?.end ?? '23:00'}
-							class="w-full rounded-md border bg-background p-2 text-sm font-normal"
+							class="lm-field w-full"
 						/>
 					</label>
 				</div>
 				<label class="block space-y-1 font-medium">
 					Style (facultatif)
-					<select
-						name="genre"
-						class="w-full rounded-md border bg-background p-2 text-sm font-normal"
-					>
+					<select name="genre" class="lm-field w-full">
 						<option value="">Tous styles</option>
 						{#each data.genres as g (g.slug)}
 							<option value={g.slug} selected={(form?.values?.genre ?? again?.genre) === g.slug}
@@ -143,17 +136,13 @@
 								min="0"
 								max={MAX_SPOTS_PER_INSTRUMENT}
 								value={againCount.get(slug) ?? 1}
-								class="w-20 rounded-md border bg-background p-2"
+								class="lm-field w-20"
 							/>
 						</label>
 					{/each}
 					<div class="flex gap-2">
 						<label for="spot-add" class="sr-only">Instrument à ajouter</label>
-						<select
-							id="spot-add"
-							bind:value={toAdd}
-							class="flex-1 rounded-md border bg-background p-2 text-sm"
-						>
+						<select id="spot-add" bind:value={toAdd} class="lm-field flex-1">
 							<option value="">Choisir un instrument</option>
 							{#each data.instruments.filter((i) => !picked.includes(i.slug)) as i (i.slug)}
 								<option value={i.slug}>{i.name}</option>
@@ -172,15 +161,11 @@
 						rows="3"
 						maxlength="1000"
 						placeholder="Ampli basse et batterie sur place, viens avec ta guitare."
-						class="w-full rounded-md border bg-background p-2 text-sm font-normal"
+						class="lm-field w-full"
 						>{form?.values?.description ?? again?.description ?? ''}</textarea
 					>
 				</label>
-				<button
-					type="submit"
-					class="min-h-11 w-full rounded-xl bg-primary px-5 font-semibold text-primary-foreground"
-					>Publier la jam</button
-				>
+				<button type="submit" class="lm-btn w-full">Publier la jam</button>
 			</form>
 		{/if}
 	</div>

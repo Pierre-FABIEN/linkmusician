@@ -71,6 +71,10 @@
 		border: 1px solid var(--border);
 		border-radius: 1rem;
 	}
+	.aide-content :global(.aide-table:focus-visible) {
+		outline: 3px solid var(--foreground);
+		outline-offset: 2px;
+	}
 	.aide-content :global(table) {
 		width: 100%;
 		border-collapse: collapse;

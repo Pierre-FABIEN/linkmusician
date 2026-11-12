@@ -18,9 +18,9 @@
 <SEO title="Mes organisations" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-3xl space-y-8 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-3xl space-y-8">
 		<div class="space-y-2">
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Mes organisations</h1>
+			<h1 class="lm-title">Mes organisations</h1>
 			<p class="text-sm text-muted-foreground">
 				Ton association, ton collectif ou ton festival, géré à plusieurs. Elle publie des plateaux
 				en son nom ; vérifiée, elle pourra confirmer les concerts qu’elle organise.
@@ -31,29 +31,20 @@
 			<section class="space-y-3" aria-labelledby="invites">
 				<h2 id="invites" class="text-xl font-bold">Invitations</h2>
 				{#if form?.inviteError}
-					<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+					<p role="alert" class="lm-alert p-3 text-sm">
 						{form.inviteError}
 					</p>
 				{/if}
 				<ul class="space-y-2">
 					{#each data.invites as invite (invite.membershipId)}
-						<li class="space-y-3 rounded-xl border p-3">
+						<li class="lm-tile lm-tile--flow space-y-3 p-3">
 							<p>
 								{invite.invitedBy ?? 'Quelqu’un'} t’invite à gérer <strong>{invite.name}</strong>.
 							</p>
 							<form method="POST" action="?/answer" use:enhance class="flex flex-wrap gap-2">
 								<input type="hidden" name="membershipId" value={invite.membershipId} />
-								<button
-									name="accept"
-									value="1"
-									class="min-h-11 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
-									>Accepter</button
-								>
-								<button
-									name="accept"
-									value="0"
-									class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
-									>Décliner</button
+								<button name="accept" value="1" class="lm-btn">Accepter</button>
+								<button name="accept" value="0" class="lm-btn" data-variant="ghost">Décliner</button
 								>
 							</form>
 						</li>
@@ -68,7 +59,7 @@
 					<li>
 						<a
 							href="/organisations/{org.handle}"
-							class="flex min-h-14 items-center justify-between gap-3 rounded-xl border p-3 hover:bg-muted"
+							class="lm-tile lm-tile--flow flex min-h-14 items-center justify-between gap-3 p-3"
 						>
 							<span class="inline-flex items-center gap-1 font-semibold"
 								>{org.name}{#if org.verified}<BadgeCheck
@@ -96,7 +87,7 @@
 						<li>
 							<a
 								href="/lieux/{venue.venueId}/gerer"
-								class="flex min-h-14 items-center justify-between gap-3 rounded-xl border p-3 hover:bg-muted"
+								class="lm-tile lm-tile--flow flex min-h-14 items-center justify-between gap-3 p-3"
 							>
 								<span class="font-semibold">{venue.name}</span>
 								<span class="text-sm text-muted-foreground"
@@ -117,7 +108,7 @@
 					{data.orgs.length > 0 ? 'Créer une autre organisation' : 'Créer ton organisation'}
 				</h2>
 				{#if form?.error}
-					<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+					<p role="alert" class="lm-alert p-3 text-sm">
 						{form.error}
 					</p>
 				{/if}
@@ -142,14 +133,10 @@
 							maxlength={MAX_PROMOTER_ORG_NAME}
 							value={form?.name ?? ''}
 							placeholder="Asso Bruit Rose"
-							class="w-full rounded-md border bg-background p-2 text-sm font-normal"
+							class="lm-field w-full"
 						/>
 					</label>
-					<button
-						disabled={sending}
-						class="min-h-11 rounded-full bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-60"
-						>Créer</button
-					>
+					<button disabled={sending} class="lm-btn disabled:opacity-60">Créer</button>
 				</form>
 				<p class="text-sm text-muted-foreground">
 					Tu en seras la personne responsable, et tu pourras inviter d’autres organisateur·rices à
@@ -157,17 +144,13 @@
 				</p>
 			</section>
 		{:else}
-			<section class="space-y-3 rounded-xl border p-4">
+			<section class="lm-tile lm-tile--flow space-y-3 p-4">
 				<h2 class="font-semibold">Une organisation se gère avec le métier d’organisateur·rice</h2>
 				<p class="text-sm text-muted-foreground">
 					Ajoute le métier « Organisateur·rice » (réservé aux personnes majeures) pour créer la
 					fiche de ton association ou de ton collectif.
 				</p>
-				<a
-					href="/reglages/metiers"
-					class="inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold hover:bg-muted"
-					>Mes métiers →</a
-				>
+				<a href="/reglages/metiers" class="lm-btn" data-variant="ghost">Mes métiers →</a>
 			</section>
 		{/if}
 	</div>

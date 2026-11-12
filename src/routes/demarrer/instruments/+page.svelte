@@ -64,7 +64,7 @@
 <Card.Root class="shadow-xl">
 	<Card.Content class="space-y-5">
 		<div>
-			<h1 class="text-2xl font-black">Tes instruments</h1>
+			<h1 class="lm-title lm-title--sm">Tes instruments</h1>
 			<p class="text-sm text-muted-foreground">
 				1 à {ONBOARDING_MAX_INSTRUMENTS} pour commencer (la voix compte). Le niveau se lit « je peux…
 				» ; il restera affiché comme <em>déclaré</em>.
@@ -75,7 +75,7 @@
 
 		{#each rows as row, i (row.instrumentId)}
 			{@const name = names.get(row.instrumentId) ?? '?'}
-			<div class="space-y-2 rounded-xl border p-3">
+			<div class="lm-tile lm-tile--flow space-y-2 p-3">
 				<div class="flex items-center justify-between">
 					<span class="font-semibold">{name}</span>
 					<button
@@ -87,11 +87,7 @@
 						<X class="size-4" />
 					</button>
 				</div>
-				<select
-					class="w-full rounded-md border bg-background p-2 text-sm"
-					aria-label="Niveau en {name}"
-					bind:value={rows[i].level}
-				>
+				<select class="lm-field w-full" aria-label="Niveau en {name}" bind:value={rows[i].level}>
 					<option value={0} disabled>Choisis ton niveau</option>
 					{#each INSTRUMENT_LEVELS as l (l.level)}<option value={l.level}
 							>{l.level} · {l.label}</option
@@ -116,7 +112,7 @@
 
 		{#if rows.length < ONBOARDING_MAX_INSTRUMENTS}
 			<select
-				class="w-full rounded-md border bg-background p-2 text-sm"
+				class="lm-field w-full"
 				aria-label="Instrument à ajouter"
 				bind:value={toAdd}
 				onchange={add}

@@ -9,10 +9,8 @@
 <SEO title="Ta structure" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-4xl rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
-		<h1 class="mb-2 text-3xl font-black tracking-tight sm:text-4xl">
-			Tu fais partie d'une structure&nbsp;?
-		</h1>
+	<div class="mx-auto max-w-4xl">
+		<h1 class="lm-title mb-2">Tu fais partie d'une structure&nbsp;?</h1>
 		<p class="mb-6 text-sm text-muted-foreground">
 			Un groupe, un studio : rattache-la à ton profil. Les labels, salles et agences arrivent
 			ensuite.
@@ -22,7 +20,7 @@
 			<li>
 				<a
 					href="/groupes/nouveau"
-					class="flex min-h-14 items-center justify-between rounded-lg border p-3 hover:bg-muted"
+					class="lm-tile lm-tile--flow flex min-h-14 items-center justify-between p-3"
 				>
 					<span>Monter ou rejoindre un groupe</span>
 					<span aria-hidden="true">→</span>
@@ -32,7 +30,7 @@
 				<!-- Studio (P4-03a) : ingés son et producteur·rices. -->
 				<a
 					href="/studios"
-					class="flex min-h-14 items-center justify-between rounded-lg border p-3 hover:bg-muted"
+					class="lm-tile lm-tile--flow flex min-h-14 items-center justify-between p-3"
 				>
 					<span>
 						Ouvrir la fiche de ton studio
@@ -43,7 +41,7 @@
 					<span aria-hidden="true">→</span>
 				</a>
 			</li>
-			<li class="flex items-center justify-between rounded-lg border p-3 opacity-70">
+			<li class="lm-tile lm-tile--flow flex items-center justify-between p-3 opacity-70">
 				<span>
 					Une autre structure
 					<span class="block text-sm text-muted-foreground">label, salle, agence…</span>

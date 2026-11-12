@@ -51,12 +51,12 @@
 <SEO title={org.name} noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-5xl space-y-8 rounded-3xl border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+	<div class="mx-auto max-w-5xl space-y-8">
 		<div class="space-y-2">
 			<a href="/organisations" class="text-sm text-muted-foreground underline"
 				>← Mes organisations</a
 			>
-			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">{org.name}</h1>
+			<h1 class="lm-title">{org.name}</h1>
 			<p class="text-sm text-muted-foreground">
 				Ce que tout le monde voit sur
 				<a href="/@{org.handle}" class="underline">sa page publique</a>. On n’enregistre que la
@@ -69,11 +69,7 @@
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<h2 id="plateaux" class="text-xl font-bold">Plateaux</h2>
 				{#if org.gaps.length === 0}
-					<a
-						href="/plateaux/nouveau?au-nom-de={org.handle}"
-						class="inline-flex min-h-11 items-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
-						>Publier un plateau</a
-					>
+					<a href="/plateaux/nouveau?au-nom-de={org.handle}" class="lm-btn">Publier un plateau</a>
 				{/if}
 			</div>
 			{#if org.gaps.length > 0}
@@ -91,7 +87,7 @@
 						<li>
 							<a
 								href="/annonces/{g.id}"
-								class="flex min-h-11 items-center justify-between gap-3 rounded-xl border p-3 text-sm hover:bg-muted"
+								class="lm-tile lm-tile--flow flex min-h-11 items-center justify-between gap-3 p-3 text-sm"
 							>
 								<span class="truncate"
 									>{g.title}{g.startsAt ? ` · ${day.format(new Date(g.startsAt))}` : ''}</span
@@ -109,7 +105,7 @@
 		</section>
 
 		{#if form?.error}
-			<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+			<p role="alert" class="lm-alert p-3 text-sm">
 				{form.error}
 			</p>
 		{/if}
@@ -155,7 +151,7 @@
 				<legend class="font-medium">Ce que vous organisez</legend>
 				<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
 					{#each PROMOTER_EVENT_KINDS as item (item)}
-						<label class="flex cursor-pointer items-start gap-2 rounded-lg border p-3">
+						<label class="lm-tile lm-tile--flow flex cursor-pointer items-start gap-2 p-3">
 							<input
 								type="checkbox"
 								name="eventKinds"
@@ -197,7 +193,7 @@
 					>
 					<div class="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 						{#each data.genres as genre (genre.id)}
-							<fieldset class="rounded-lg border p-3">
+							<fieldset class="lm-tile lm-tile--flow p-3">
 								<legend class="sr-only">{genre.name}</legend>
 								{#each [genre, ...genre.children] as item, i (item.id)}
 									{@const checked = genreIds.includes(item.id)}
@@ -222,10 +218,7 @@
 					</div>
 				</details>
 			</section>
-			<button
-				class="min-h-11 w-full rounded-full bg-primary px-4 font-semibold text-primary-foreground"
-				>Enregistrer la fiche</button
-			>
+			<button class="lm-btn w-full">Enregistrer la fiche</button>
 		</form>
 
 		<!-- Organisation vérifiée (P5-02) : SIRET contrôlé dans Sirene, puis à la main. -->
@@ -248,11 +241,11 @@
 				</p>
 			</div>
 			{#if form?.teamError}
-				<p role="alert" class="rounded-md border border-destructive p-3 text-sm text-destructive">
+				<p role="alert" class="lm-alert p-3 text-sm">
 					{form.teamError}
 				</p>
 			{/if}
-			<ul class="divide-y rounded-xl border">
+			<ul class="lm-tile lm-tile--flow divide-y">
 				{#each org.team as member (member.membershipId)}
 					<li class="flex flex-wrap items-center justify-between gap-3 p-3">
 						<div>
@@ -266,8 +259,7 @@
 						{#if member.isMe || org.role === 'OWNER' || member.status === 'INVITED'}
 							<form method="POST" action="?/removeManager" use:enhance>
 								<input type="hidden" name="membershipId" value={member.membershipId} />
-								<button
-									class="min-h-11 rounded-full border px-4 text-sm font-semibold hover:bg-muted"
+								<button class="lm-btn" data-variant="ghost"
 									>{member.isMe
 										? 'Quitter la gestion'
 										: member.status === 'INVITED'
@@ -302,9 +294,7 @@
 						d’organisateur·rice, et être majeur·e.</span
 					>
 				</label>
-				<button class="min-h-11 rounded-full border px-5 font-semibold hover:bg-muted"
-					>Inviter</button
-				>
+				<button class="lm-btn" data-variant="ghost">Inviter</button>
 			</form>
 		</section>
 	</div>
