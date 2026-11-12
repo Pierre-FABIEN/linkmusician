@@ -16,6 +16,31 @@ cet objectif est optionnelle, ou repoussée en quête.
 | 6   | Intention            | « Je cherche… » : un groupe, des musiciens pour mon groupe, des jams, juste explorer. Cela oriente la première page   | ✅          |
 | 7   | **Premier résultat** | Annonces et profils proches correspondant à l'intention, et la carte de progression qui montre les 3 premières quêtes | —           |
 
+**Parcours adaptatif (ONB-02, D57).** Les écrans dépendent des métiers
+choisis, d'après la fiche de chaque métier (`TRACK_ROLES`,
+`src/lib/actors/roles.ts`) :
+
+```
+Qui es-tu ? → [Instruments si musicien·ne] → Genres → Zone
+           → un écran par autre métier (le principal d'abord)
+           → [Intention si musicien·ne] → Premier résultat
+```
+
+- Musicien·ne seul·e : les 6 écrans ci-dessus, inchangés. Aucun autre
+  métier ne demande d'instrument.
+- Genres et zone sont communs : demandés une fois, quel que soit le
+  nombre de métiers (Q56).
+- Écran d'un métier : ses spécialités (au moins une pour un métier
+  ouvert, facultatives pour un métier « bientôt », Q57), puis « Je
+  propose » et « Je recherche » quand ses catalogues existent (ONB-03 à
+  11). Le valider pose `PersonTrack.detailsConfirmedAt`.
+- L'étape courante est la première qui manque vraiment : une reprise, un
+  retour arrière ou un métier ajouté en cours de route y ramènent. Une
+  étape future est refusée au chargement comme à l'enregistrement.
+- Sans métier musicien·ne, l'onboarding se termine après le dernier
+  écran métier ; le premier résultat montre les objectifs du métier
+  principal (Q58).
+
 Après l'onboarding, des quêtes système guident la suite : ajouter une
 démo (+30 XP), compléter sa bio (comptée dans « profil complété », +50),
 répondre à une annonce, rejoindre ou créer son groupe.

@@ -4,8 +4,8 @@ _Ton compte, ton profil et ton mode de jeu, en cinq minutes._
 
 > **En bref**
 >
-> - Crée ton compte, puis dis qui tu es : ton instrument, tes styles, ta
->   ville.
+> - Crée ton compte, puis dis qui tu es : tes métiers, tes styles, ta
+>   ville, et pour chaque métier ce que tu y fais.
 > - Un profil complet te rapporte tes premiers points et t’ouvre le palier
 >   **Premiers pas**.
 > - Ta ville sert à te montrer les gens et les jams près de chez toi. Ton
@@ -19,6 +19,12 @@ _Ton compte, ton profil et ton mode de jeu, en cinq minutes._
    producteur·rice, organisateur·rice, manager, booker, ou plusieurs à la fois. D’autres métiers arriveront. Tu les changes quand tu veux dans
    **Réglages › Mes métiers**.
 3. Accepte les conditions d’utilisation.
+4. Les écrans suivants dépendent de tes métiers. Tes styles et ta ville
+   ne te sont demandés qu’une fois. Musicien·ne : tes instruments et ce
+   que tu cherches. Chaque autre métier a son écran court, où tu coches
+   tes spécialités (au moins une pour un métier ouvert ; un métier qui
+   arrive bientôt se passe en un clic). Si tu t’arrêtes en route, tu
+   reprends là où il manque quelque chose.
 
 ### Décrire ta situation avec tes mots {#assistant}
 
