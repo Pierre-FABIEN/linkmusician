@@ -1,7 +1,7 @@
 # Préparation technique de la phase 5
 
 > Rédigé le 11/11/2026, après la revue de phase 4. Les sections des lots
-> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-04a, P5-05a, P5-05b, P5-06, P5-08) ont été retirées ; la route complète est
+> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06, P5-07, P5-08) ont été retirées ; la route complète est
 > dans [fin-du-projet.md](./fin-du-projet.md).
 > But : qu'une session de lot n'ait plus à explorer le code. Pour chaque
 > lot : ce qui existe, le modèle à copier, le schéma proposé, les étapes,
@@ -36,8 +36,8 @@ les e2e : fermer le bandeau cookies (« Compris ») avant un bouton collé en
 bas, attendre la fin des toasts avant `expectNoA11yViolations`, et lire
 la carte par `:scope > li`.
 
-**Ordre conseillé** (restant) : P5-07 →
-P5-11 (P5-04b et P5-08 ✅ le 12/11/2026). Les concerts s'appuient sur l'organisateur et la fiche du
+**Ordre conseillé** (restant) : P5-11 (P5-04b, P5-07 et P5-08 ✅ le
+12/11/2026). Les concerts s'appuient sur l'organisateur et la fiche du
 lieu, les jams publiques sur l'organisation du lieu.
 
 ---
@@ -61,62 +61,6 @@ lancement). On peut donc le **reporter après le lancement** (Q20).
 filtre « fini avant 22 h » (`endsBeforeCurfew`) dans le mode jam (P5-04).
 Un lieu n'est jamais mis en avant contre paiement dans le mode jam
 (P5-09).
-
----
-
-## P5-04b — Jams des lieux : animateur·rices
-
-**Existe (P5-04a)** : `JamSeries` et `generateSeriesJams`
-(`server/jam/series.ts`), hôtes d'une jam de lieu (`server/jam/hosts.ts` :
-`hostedBy`, `isHostOf`), `setJamLead` ouvert à toute la gestion du lieu,
-`Person.organizesJams` (D51), `jam.held` et `heldAt`, appréciations (D27),
-`venueForManager` (gestion du lieu), co-gestion commune
-(`server/organizations/comanagement.ts`, modèle de l'invitation).
-
-**À faire** :
-
-1. Animateur·rices affilié·es : `VenueHost` (`orgId`, `personId`,
-   `status` INVITED/ACTIVE, `since`) ; le lieu invite, la personne accepte
-   (copier `inviteManager` / `answerVenueInvite`, notification
-   `ORG_INVITE`). Pas de gestion du lieu pour autant.
-2. « Prêt·e à animer » : réutiliser `organizesJams` (pas de nouveau
-   booléen) ; visible du seul lieu, dans les suggestions.
-3. Suggestions de leads : `suggestJamLeads(orgId)` : personnes
-   `organizesJams`, à moins de 30 km (`actor_locations`, `qualifiedTable`),
-   triées par **appréciations reçues** puis **jams animées**
-   (`leadActorId` sur des jams tenues), jamais par l'XP ; sans mineur·es
-   pour un lieu `ADULTS`, sans personnes bloquées (`isBlockedBetween`).
-4. `JamSeries.leadId?` : lead par défaut, copié par `generateForSeries`.
-5. RGPD : `VenueHost` dans l'export et supprimé à l'anonymisation.
-6. e2e « le lieu invite une animatrice suggérée, elle devient lead du
-   prochain jeudi ».
-
-**Pièges** : D27, une jam ne rapporte rien aux présent·es. Pas de
-notification de masse : seule l'invitation d'animation notifie.
-
----
-
-## P5-07 — Booker et manager
-
-**Existe** : pistes `BOOKER` et `MANAGER` (`available: false`).
-
-**À faire** :
-
-1. `Representation` (`agentId`, `artistId` : personne ou groupe, `kind`
-   `MANAGER` ou `BOOKER`, `status` `PROPOSED`, `CONFIRMED` ou `ENDED`,
-   dates). L'agent propose, l'artiste confirme (pour un groupe : sa
-   gestion). Notification `REPRESENTATION_REQUEST`. **Un
-   accompagnement non confirmé ne rapporte rien** : critère de fin,
-   testé.
-2. Confirmation : `management.confirmed` (P5-01) est émis.
-3. Dates bookées : sur une collaboration `GIG` (P5-06), le champ
-   « Booké par » prend un booker confirmé de l'artiste ; `gig.held` le
-   crédite.
-4. Profils légers (zone, genres, artistes accompagnés, avec les seuls
-   accompagnements confirmés visibles), ouverture des deux pistes, e2e.
-
-**Report** : la « part de 10 % sur un rang franchi par l'artiste » exige
-un événement `tier.crossed`. Ce n'est pas nécessaire au lancement (Q21).
 
 ---
 

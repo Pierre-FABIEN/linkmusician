@@ -12,14 +12,14 @@
 
 ## 1. Où on en est
 
-**94 lots terminés sur 113** (83 %) ; **≈ 90 % du périmètre du
+**95 lots terminés sur 113** (84 %) ; **≈ 90 % du périmètre du
 lancement**. Phases 0 à 2 complètes, phase 3 complète sauf l'ouverture,
 phase 4 complète pour le lancement, phase 5 commencée (P5-01, P5-02,
-P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06, P5-08). La phase 6 vient après le lancement.
+P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06, P5-07, P5-08). La phase 6 vient après le lancement.
 
 | Étape                              | Lots                                                          | Quand                     |
 | ---------------------------------- | ------------------------------------------------------------- | ------------------------- |
-| A. Finir la scène                  | P5-07, P5-11                                                  | Nov. → déc. 2026          |
+| A. Finir la scène                  | P5-11                                                         | Nov. → déc. 2026          |
 | B. Revue de phase 5 et revue UX    | Revue de fin de phase, Metro (MET-01 à 07), suite e2e (P0-01) | Déc. 2026 → janv. 2027    |
 | C. Audit de sécurité (bloquant)    | P3-10a                                                        | Janv. → fév. 2027         |
 | D. Ouverture publique à Toulouse   | P3-10                                                         | Objectif début mars 2027  |
@@ -107,14 +107,18 @@ appel « Candidater à un plateau » ; carte souvenir du concert (groupe,
 hôte, mois) ; radar des pros « bientôt » (P4-11). e2e de l'acte V dans
 `carriere.spec.ts`. Voir [docs/carriere](../carriere/README.md#carte-de-carrière-p3-13-d53).
 
-### P5-07 — Booker et manager
+### P5-07 — Booker et manager ✅
 
-- **Dépend de** : P5-01 ✅ (P5-06 pour les dates).
-- **Tâches** : ouvrir les pistes `BOOKER` et `MANAGER` ; accompagnement
-  confirmé par l'artiste (`management.confirmed`) ; dates bookées
-  (`gig.held`) ; tournée bookée (400) ; rangs `agentTier`. La part de
-  10 % sur un rang franchi reste reportée (Q21).
-- **Fin** : un accompagnement non confirmé ne rapporte rien (test).
+**P5-07 ✅** (12/11/2026) : pistes `MANAGER` et `BOOKER` ouvertes ;
+accompagnement (`Representation`) proposé par l'agent, confirmé par
+l'artiste ou la gestion du groupe (`management.confirmed` : 200 au
+manager, rien au booker) ; **un accompagnement non confirmé ne rapporte
+rien** (test d'intégration) ; « Booké par » sur un concert, parmi les
+bookers confirmés (`gig.held`), tournée bookée (`tour.booked`, 400) ; rang
+`agentTier` (artistes confirmés, groupes passés deux rangs) ; profil
+léger, recherche, carte publique, objectifs, RGPD ; e2e `booker.spec.ts`.
+Q48 à Q51. La part de 10 % reste reportée (Q21). Voir
+[docs/scene](../scene/README.md#booker-et-manager-p5-07).
 
 ### P5-11 — Écoles, MJC, conservatoires (D29)
 
