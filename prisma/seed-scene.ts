@@ -692,6 +692,74 @@ export async function seedOpenStage(
 	);
 }
 
+/**
+ * Animateur·rices du Comptoir Jazz (P5-04b) : Lucas anime et mène le « Bœuf
+ * jazz du mercredi » par défaut (la soirée tenue comprise) ; Clara est
+ * invitée à animer (notification, réponse dans « Mes jams »). Rien si le
+ * lieu a déjà des animateur·rices.
+ */
+export async function seedVenueHosts(
+	prisma: PrismaClient,
+	communes: Commune[],
+	demoHandles: ReadonlyMap<string, string> = new Map()
+) {
+	const org = await prisma.actor.findUnique({
+		where: { handle: 'le-comptoir-jazz' },
+		select: { id: true, displayName: true }
+	});
+	if (!org) return;
+	if (await prisma.venueHost.findFirst({ where: { orgId: org.id } })) {
+		console.log('Animateur·rices du Comptoir Jazz déjà en place : rien à refaire.');
+		return;
+	}
+	const ctx = await demoContext(prisma, communes[0], null, demoHandles);
+	const P = (h: string) => id(ctx, h);
+	await prisma.person.updateMany({
+		where: { actorId: { in: [P('lucas-sax'), P('clara-guitare')] } },
+		data: { organizesJams: true }
+	});
+	await prisma.venueHost.createMany({
+		data: [
+			{
+				orgId: org.id,
+				personId: P('lucas-sax'),
+				status: 'ACTIVE',
+				invitedById: P('sophie-bar'),
+				since: ago(20),
+				createdAt: ago(21)
+			},
+			{
+				orgId: org.id,
+				personId: P('clara-guitare'),
+				invitedById: P('sophie-bar'),
+				createdAt: ago(1)
+			}
+		]
+	});
+	await prisma.notification.create({
+		data: {
+			recipientActorId: P('clara-guitare'),
+			type: 'VENUE_HOST_INVITE',
+			fromActorId: P('sophie-bar'),
+			href: '/jam/mes-jams',
+			title: org.displayName,
+			createdAt: ago(1)
+		}
+	});
+	const boeuf = await prisma.jamSeries.findFirst({
+		where: { issuerActorId: org.id, stoppedAt: null },
+		select: { id: true }
+	});
+	if (boeuf) {
+		await prisma.jamSeries.update({ where: { id: boeuf.id }, data: { leadId: P('lucas-sax') } });
+		await prisma.opportunity.updateMany({
+			where: { seriesId: boeuf.id, leadActorId: null },
+			data: { leadActorId: P('lucas-sax') }
+		});
+	}
+	console.log('  · animation : Lucas mène le Bœuf jazz du mercredi, Clara invitée à animer');
+}
+
 // ─── Le scénario ─────────────────────────────────────────────────────────
 
 export async function seedScene(

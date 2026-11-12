@@ -44,10 +44,10 @@ et 5).
 | `malik-batterie` | Malik, 32 ans, batteur semi-pro     | Musicien                    | Responsable des Rats du Mardi ; batteur de Fanfare Pirate ; organise des jams ; groupes de contacts              |
 | `ines-chant`     | Inès, 27 ans, chanteuse soul        | Musicienne                  | Membre des Rats ; son titre « Lumière » produit par Nora                                                         |
 | `theo-basse`     | Théo, 38 ans, bassiste pro          | Musicien, ingé son          | Co-gère les Rats et La Cave Studio ; profil d'ingé son (home studio)                                             |
-| `clara-guitare`  | Clara, 25 ans, guitariste rock indé | Musicienne                  | Lead d'une jam à venir ; nouvelle venue des Rats                                                                 |
+| `clara-guitare`  | Clara, 25 ans, guitariste rock indé | Musicienne                  | Lead d'une jam à venir ; nouvelle venue des Rats ; **invitée à animer** au Comptoir Jazz                         |
 | `samir-son`      | Samir, 41 ans, ingé son             | Ingé son, musicien          | Responsable de **La Cave Studio** ; enregistre Orbital, mixage à confirmer ; invite Nora à co-gérer le studio    |
 | `nora-prod`      | Nora, 30 ans, productrice           | Productrice, musicienne     | Profil de productrice ; produit « Lumière » ; Néon Lagune en formation ; invitée au studio                       |
-| `lucas-sax`      | Lucas, 34 ans, saxophoniste         | Musicien                    | Responsable de **Fanfare Pirate** : plateau accepté, concerts vérifiés, **tournée**, un concert à confirmer      |
+| `lucas-sax`      | Lucas, 34 ans, saxophoniste         | Musicien                    | Responsable de **Fanfare Pirate** : plateau accepté, concerts vérifiés, **tournée** ; anime au Comptoir Jazz     |
 | `zoe-violon`     | Zoé, 23 ans, violoniste             | Musicienne                  | Responsable des **Lucioles** (groupe neuf) : candidature à une scène découverte, hors conditions ailleurs        |
 | `kevin-metal`    | Kévin, 35 ans, guitariste metal     | Musicien                    | Responsable d'**Orbital** (avec une mineure) : enregistrement vérifié, concert corroboré, candidature en attente |
 | `awa-clavier`    | Awa, 29 ans, claviériste            | Musicienne                  | Co-gère Fanfare Pirate ; **invitée à co-gérer Le Comptoir Jazz**                                                 |
@@ -146,6 +146,9 @@ en jam passée (vie de jam).
 | **Scène ouverte récurrente** (P5-04a) : « Bœuf jazz du mercredi », 20 h 30-23 h 30, ce mercredi et les 3 suivants ; « Arrêter »   | `sophie-bar`               | « Gérer la fiche du lieu », section Scènes ouvertes                               |
 | La scène ouverte dans le calendrier, « Tous les mercredis », hôte : le lieu ; Théo vient au prochain bœuf                         | n'importe qui (à Toulouse) | `/jam/agenda`                                                                     |
 | Le bœuf de mercredi dernier **tenu** (4 « J'y étais ») : 50 points pour Sophie, rien pour les présent·es (D27)                    | `sophie-bar`               | `/espace/objectifs`, historique des points                                        |
+| **Qui anime** (P5-04b) : Lucas anime et mène le bœuf par défaut, Clara invitée ; suggestions de leads autour du lieu, jamais l'XP | `sophie-bar`               | « Gérer la fiche du lieu », section Scènes ouvertes, « Qui anime »                |
+| « Un lieu t'invite à animer » : accepter ou décliner l'invitation du Comptoir Jazz                                                | `clara-guitare`            | notifications, `/jam/mes-jams`                                                    |
+| « Tu animes » : le Comptoir Jazz, Bœuf jazz du mercredi mené par défaut ; « Arrêter d'animer »                                    | `lucas-sax`                | `/jam/mes-jams`                                                                   |
 
 ### Plateaux et candidatures (phase 5, `seed-scene`)
 
