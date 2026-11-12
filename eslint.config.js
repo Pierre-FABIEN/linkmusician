@@ -22,6 +22,10 @@ export default ts.config(
 			// (visible dans la sortie CI, mais ne bloque pas) tant qu'elle n'a pas
 			// été résorbée (voir RESTE_A_FAIRE.md §2.3).
 			'@typescript-eslint/no-explicit-any': 'warn',
+			// LINKMUSICIAN: règle apparue avec eslint-plugin-svelte 3.24 (#13), qui
+			// demande `resolve()` sur chaque lien interne : 439 occurrences, en
+			// 'warn' comme le reste de la dette tant qu'elles ne sont pas reprises.
+			'svelte/no-navigation-without-resolve': 'warn',
 			// Résorbé (0 occurrence) — promu en 'error' pour éviter toute régression.
 			'svelte/prefer-writable-derived': 'error',
 			// 2 usages revus et acceptés (contenu de confiance interne) — voir
