@@ -9,6 +9,7 @@
 	import SoundEngineerCard from '#lib/components/linkmusician/crafts/SoundEngineerCard.svelte';
 	import ProducerCard from '#lib/components/linkmusician/crafts/ProducerCard.svelte';
 	import PromoterCard from '#lib/components/linkmusician/crafts/PromoterCard.svelte';
+	import AgentCard from '#lib/components/linkmusician/crafts/AgentCard.svelte';
 	import CareerSheetCard from '#lib/components/linkmusician/CareerSheetCard.svelte';
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
@@ -161,6 +162,7 @@
 		signedIn={data.signedIn}
 		canReport={data.canReport}
 		memberShell={Boolean(data.memberShell)}
+		representHref={data.representHref ?? null}
 	/>
 {:else if data.studio}
 	<StudioPublic
@@ -244,6 +246,12 @@
 									>Connecte-toi pour écrire à {p.displayName}</a
 								>
 							{/if}
+							{#if data.representHref}
+								<!-- LINKMUSICIAN: manager, booker (P5-07). -->
+								<a href={data.representHref} class="block text-sm font-semibold underline"
+									>Proposer d’accompagner {p.displayName}</a
+								>
+							{/if}
 						</Card.Content>
 					</Card.Root>
 
@@ -259,6 +267,7 @@
 					{#if p.soundEngineer}<SoundEngineerCard profile={p.soundEngineer} />{/if}
 					{#if p.producer}<ProducerCard profile={p.producer} />{/if}
 					{#if p.promoter}<PromoterCard profile={p.promoter} />{/if}
+					{#if p.agent}<AgentCard profile={p.agent} />{/if}
 					{#if data.studios.length > 0}
 						<!-- Studios publiés que la personne gère (P4-03a). -->
 						<Card.Root>

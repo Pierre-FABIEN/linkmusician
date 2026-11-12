@@ -7,6 +7,7 @@ import { linkable } from '#lib/server/career/service';
 import { ambitionPriorities } from '#lib/career/ambition';
 import { prisma } from '#lib/server';
 import {
+	getAgentProgress,
 	getProducerProgress,
 	getPromoterProgress,
 	getSoundEngineerProgress
@@ -32,6 +33,19 @@ const CRAFTS = [
 		title: 'Organisateur·rice',
 		tierPrefix: 'Rang d’organisateur·rice :',
 		read: getPromoterProgress
+	},
+	// Manager et booker (P5-07).
+	{
+		track: 'MANAGER',
+		title: 'Manager',
+		tierPrefix: 'Rang de manager :',
+		read: (id: string, db: typeof prisma) => getAgentProgress(id, 'MANAGER', db)
+	},
+	{
+		track: 'BOOKER',
+		title: 'Booker',
+		tierPrefix: 'Rang de booker :',
+		read: (id: string, db: typeof prisma) => getAgentProgress(id, 'BOOKER', db)
 	}
 ] as const;
 

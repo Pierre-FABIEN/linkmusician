@@ -67,6 +67,11 @@ export async function searchMusicianIds(
 			WHERE op."personId" = a.id AND cardinality(op."eventKinds") > 0
 			${filters.specialty ? Prisma.sql`AND ${filters.specialty} = ANY(op."eventKinds"::text[])` : Prisma.empty})`);
 	}
+	if (filters.track === 'MANAGER' || filters.track === 'BOOKER') {
+		// Un·e manager ou booker se trouve dès qu'un genre est choisi (P5-07).
+		conditions.push(Prisma.sql`EXISTS (
+			SELECT 1 FROM ${t('agent_genres')} ag2 WHERE ag2."personId" = a.id)`);
+	}
 	if (filters.track === 'SOUND_ENGINEER') {
 		// Un·e ingé son se trouve dès qu'une spécialité est cochée (P4-02).
 		conditions.push(Prisma.sql`EXISTS (
@@ -86,7 +91,7 @@ export async function searchMusicianIds(
 	}
 	if (filters.genre) {
 		// Un genre parent inclut ses sous-genres.
-		// Styles joués, produits (P4-04) ou programmés (P5-05a).
+		// Styles joués, produits (P4-04), programmés (P5-05a) ou suivis (P5-07).
 		conditions.push(Prisma.sql`EXISTS (
 			SELECT 1 FROM (
 				SELECT ag."genreId" FROM ${t('actor_genres')} ag WHERE ag."actorId" = a.id
@@ -94,6 +99,8 @@ export async function searchMusicianIds(
 				SELECT pg."genreId" FROM ${t('producer_genres')} pg WHERE pg."personId" = a.id
 				UNION ALL
 				SELECT og."genreId" FROM ${t('promoter_genres')} og WHERE og."personId" = a.id
+				UNION ALL
+				SELECT mg."genreId" FROM ${t('agent_genres')} mg WHERE mg."personId" = a.id
 			) mine JOIN ${t('genres')} g ON g.id = mine."genreId"
 			LEFT JOIN ${t('genres')} parent ON parent.id = g."parentId"
 			WHERE g.slug = ${filters.genre} OR parent.slug = ${filters.genre})`);
@@ -167,6 +174,11 @@ export async function searchMusicians(
 			soundProfile: { select: { specialties: true } },
 			producerProfile: { select: { specialties: true } },
 			promoterProfile: { select: { eventKinds: true } },
+			// Manager, booker (P5-07).
+			agentProfile: {
+				select: { genres: { take: 3, select: { genre: { select: { name: true } } } } }
+			},
+			tracks: { where: { track: { in: ['MANAGER', 'BOOKER'] } }, select: { track: true } },
 			actor: {
 				select: {
 					handle: true,
@@ -205,7 +217,14 @@ export async function searchMusicians(
 				/** Spécialités de producteur·rice déclarées (P4-04), vides sinon. */
 				producerSpecialties: p.producerProfile?.specialties ?? [],
 				/** Ce que la personne organise (P5-05a), vide sinon. */
-				promoterEventKinds: p.promoterProfile?.eventKinds ?? []
+				promoterEventKinds: p.promoterProfile?.eventKinds ?? [],
+				/** Manager ou booker (P5-07), avec les genres suivis ; vide sans fiche. */
+				agent: p.agentProfile?.genres.length
+					? {
+							kinds: p.tracks.map((t) => t.track as 'MANAGER' | 'BOOKER'),
+							genres: p.agentProfile.genres.map((g) => g.genre.name)
+						}
+					: null
 			}
 		];
 	});

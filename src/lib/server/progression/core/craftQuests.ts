@@ -260,3 +260,99 @@ export const promoterQuestProgress = (state: PromoterQuestState) => ({
 	done: PROMOTER.filter((c) => c.done(state)).length,
 	total: PROMOTER.length
 });
+
+/**
+ * Objectifs du manager et du booker (P5-07, conception 08 §9 et §10) : la
+ * fiche, une première proposition, un premier accompagnement **confirmé**,
+ * puis, pour le booker, une date bookée et jouée et une tournée ; pour le
+ * manager, un artiste qui franchit deux rangs. Lus dans le profil, les
+ * accompagnements et les événements ; jamais l'XP.
+ */
+export type AgentQuestState = {
+	kind: 'MANAGER' | 'BOOKER';
+	genres: number;
+	hasZone: boolean;
+	/** Propositions envoyées, quelle que soit la réponse. */
+	proposals: number;
+	/** Artistes dont l'accompagnement est confirmé, et développés. */
+	artists: number;
+	developedArtists: number;
+	/** Dates bookées et jouées, tournées bookées (booker). */
+	bookedDates: number;
+	bookedTours: number;
+};
+
+type AgentCandidate = Objective & {
+	done: (s: AgentQuestState) => boolean;
+	only?: AgentQuestState['kind'];
+};
+
+const AGENT: readonly AgentCandidate[] = [
+	{
+		id: 'agent.profile',
+		label: 'Remplis ta fiche : les genres que tu suis',
+		href: '/profil/accompagnement',
+		done: (s) => s.genres > 0
+	},
+	{ id: 'agent.zone', label: 'Indique ta ville', href: '/profil/ville', done: (s) => s.hasZone },
+	{
+		id: 'agent.proposal',
+		label: 'Propose d’accompagner un artiste avec qui tu travailles',
+		href: '/accompagnement',
+		done: (s) => s.proposals >= 1
+	},
+	{
+		id: 'agent.first',
+		label: 'Premier accompagnement confirmé par l’artiste',
+		href: '/accompagnement',
+		xp: BAREME.managementConfirmed,
+		only: 'MANAGER',
+		done: (s) => s.artists >= 1
+	},
+	{
+		id: 'agent.first',
+		label: 'Premier accompagnement confirmé par l’artiste',
+		href: '/accompagnement',
+		only: 'BOOKER',
+		done: (s) => s.artists >= 1
+	},
+	{
+		id: 'agent.date',
+		label: 'Une première date bookée et jouée, confirmée par le groupe',
+		href: '/accompagnement',
+		xp: BAREME.gigBooked,
+		only: 'BOOKER',
+		done: (s) => s.bookedDates >= 1
+	},
+	{
+		id: 'agent.tour',
+		label: 'Booke une tournée : 3 dates dans 3 villes en 30 jours',
+		href: '/accompagnement',
+		xp: BAREME.tourBooked,
+		only: 'BOOKER',
+		done: (s) => s.bookedTours >= 1
+	},
+	{
+		id: 'agent.developed',
+		label: 'Aide un groupe accompagné à franchir deux rangs',
+		href: '/accompagnement',
+		only: 'MANAGER',
+		done: (s) => s.developedArtists >= 1
+	}
+];
+
+const agentCandidates = (kind: AgentQuestState['kind']) =>
+	AGENT.filter((c) => !c.only || c.only === kind);
+
+/** Les prochains objectifs du manager ou du booker, dans l'ordre du parcours. */
+export function nextAgentObjectives(state: AgentQuestState, limit = 3): Objective[] {
+	return agentCandidates(state.kind)
+		.filter((c) => !c.done(state))
+		.slice(0, limit)
+		.map(({ done: _done, only: _only, ...objective }) => objective);
+}
+
+export const agentQuestProgress = (state: AgentQuestState) => {
+	const list = agentCandidates(state.kind);
+	return { done: list.filter((c) => c.done(state)).length, total: list.length };
+};

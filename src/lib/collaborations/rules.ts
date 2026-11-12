@@ -158,6 +158,12 @@ export function collaborationSchema(today: string) {
 			.regex(/^[a-z0-9][a-z0-9_-]{1,59}$/)
 			.optional()
 			.or(z.literal('').transform(() => undefined)),
+		/** Booker confirmé du groupe qui a booké la date (P5-07), relu côté serveur. */
+		booker: z
+			.string()
+			.regex(/^[a-z0-9][a-z0-9_-]{1,59}$/)
+			.optional()
+			.or(z.literal('').transform(() => undefined)),
 		/** Morceau concerné (P4-06), relu côté serveur. */
 		work: z
 			.string()
@@ -179,10 +185,12 @@ export function collaborationSchema(today: string) {
  */
 export function checkGigParties(
 	kind: CollabKindValue,
-	parties: { band?: string; host?: string }
+	parties: { band?: string; host?: string; booker?: string }
 ): string | null {
 	if (kind !== 'GIG') {
-		return parties.band || parties.host ? 'Seul un concert dit son groupe et son lieu.' : null;
+		return parties.band || parties.host || parties.booker
+			? 'Seul un concert dit son groupe et son lieu.'
+			: null;
 	}
 	if (!parties.band) return 'Choisis le groupe qui a joué.';
 	if (!parties.host) return 'Choisis le lieu ou l’organisation qui accueille le concert.';

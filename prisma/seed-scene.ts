@@ -760,6 +760,118 @@ export async function seedVenueHosts(
 	console.log('  · animation : Lucas mène le Bœuf jazz du mercredi, Clara invitée à animer');
 }
 
+/**
+ * Manager et booker (P5-07) : Élise est booker de Fanfare Pirate (confirmé
+ * par Lucas) et a booké l'apéro-concert des Coteaux, à confirmer par Yanis :
+ * sa confirmation crédite Élise (vrai service). Sa proposition aux Lucioles
+ * attend Zoé. Marc manage Les Rats du Mardi depuis leurs débuts (confirmé
+ * par Malik) : 200 points, et le groupe a passé des rangs depuis. Rien si
+ * un accompagnement existe déjà.
+ */
+export async function seedRepresentations(
+	prisma: PrismaClient,
+	communes: Commune[],
+	demoHandles: ReadonlyMap<string, string> = new Map()
+) {
+	if (await prisma.representation.findFirst({ select: { id: true } })) {
+		console.log('Accompagnements déjà en place : rien à refaire.');
+		return;
+	}
+	const ctx = await demoContext(prisma, communes[0], null, demoHandles);
+	const P = (h: string) => id(ctx, h);
+	const band = async (handle: string) =>
+		(await prisma.actor.findUnique({ where: { handle }, select: { id: true } }))?.id ?? null;
+	const [fanfare, rats, lucioles] = await Promise.all([
+		band('fanfare-pirate'),
+		band('les-rats-du-mardi'),
+		band('les-lucioles')
+	]);
+	if (!fanfare || !rats || !lucioles) return;
+	const genres = async (slugs: string[]) =>
+		(await prisma.genre.findMany({ where: { slug: { in: slugs } }, select: { id: true } })).map(
+			(g) => ({ genreId: g.id })
+		);
+	await prisma.agentProfile.create({
+		data: {
+			personId: P('elise-booker'),
+			pitch:
+				'Fanfares, jazz et funk : je cherche des dates en Occitanie, salles de 80 à 400 places.',
+			genres: { create: await genres(['jazz', 'funk']) }
+		}
+	});
+	await prisma.agentProfile.create({
+		data: {
+			personId: P('marc-manager'),
+			pitch: 'J’accompagne des groupes rock et soul qui veulent passer à la scène.',
+			genres: { create: await genres(['rock', 'soul']) }
+		}
+	});
+	// Les confirmations passent par le moteur : `management.confirmed`.
+	const confirm = async (
+		agent: string,
+		artistId: string,
+		kind: 'MANAGER' | 'BOOKER',
+		by: string,
+		at: Date
+	) => {
+		await prisma.representation.create({
+			data: {
+				agentId: P(agent),
+				artistId,
+				kind,
+				status: 'CONFIRMED',
+				confirmedAt: at,
+				confirmedById: P(by),
+				createdAt: new Date(at.getTime() - DAY)
+			}
+		});
+		await emit(prisma, {
+			type: 'management.confirmed',
+			managerId: P(agent),
+			artistId,
+			confirmedById: P(by),
+			kind,
+			occurredAt: at
+		});
+	};
+	const ratsFormed = (
+		await prisma.organization.findUniqueOrThrow({
+			where: { actorId: rats },
+			select: { formedAt: true }
+		})
+	).formedAt;
+	await confirm('marc-manager', rats, 'MANAGER', 'malik-batterie', ratsFormed ?? ago(70));
+	await confirm('elise-booker', fanfare, 'BOOKER', 'lucas-sax', ago(40));
+	// Le concert des Coteaux, à confirmer par Yanis, a été booké par Élise.
+	await prisma.collaboration.updateMany({
+		where: { bandId: fanfare, status: { not: 'COMPLETED' }, kind: 'GIG' },
+		data: { bookedById: P('elise-booker') }
+	});
+	// Une proposition en attente, que Zoé tranche pour Les Lucioles.
+	await prisma.representation.create({
+		data: {
+			agentId: P('elise-booker'),
+			artistId: lucioles,
+			kind: 'BOOKER',
+			message: 'Votre scène découverte m’a plu : je peux vous trouver quelques dates cet hiver.',
+			createdAt: ago(1)
+		}
+	});
+	await prisma.notification.create({
+		data: {
+			recipientActorId: P('zoe-violon'),
+			type: 'REPRESENTATION_REQUEST',
+			fromActorId: P('elise-booker'),
+			href: '/accompagnement',
+			title: 'Les Lucioles, comme booker',
+			createdAt: ago(1)
+		}
+	});
+	console.log(
+		'  · accompagnement : Marc manage Les Rats, Élise booke Fanfare Pirate (concert des Coteaux booké), proposition aux Lucioles'
+	);
+}
+
 // ─── Le scénario ─────────────────────────────────────────────────────────
 
 export async function seedScene(

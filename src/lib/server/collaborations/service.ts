@@ -48,6 +48,7 @@ import {
 	verifyRecordingFromCollaboration
 } from '#lib/server/milestones/service';
 import { markSucceeded } from '#lib/server/career/introductions';
+import { confirmedBookerOf, confirmedBookersOf } from '#lib/server/representation/service';
 
 /**
  * Studios publiés que gère l'une des deux personnes (P4-03c), pour y
@@ -223,6 +224,8 @@ export async function proposeCollaboration(
 		/** Concert (P5-06) : groupe et hôte, par leurs noms d'utilisateur. */
 		band?: string;
 		host?: string;
+		/** Booker confirmé du groupe qui a booké la date (P5-07). */
+		booker?: string;
 	},
 	now = new Date()
 ) {
@@ -290,7 +293,12 @@ export async function proposeCollaboration(
 	// Concert (P5-06) : l'une joue dans le groupe, l'autre gère l'hôte.
 	const gigError = checkGigParties(input.kind, input);
 	if (gigError) throw new CollaborationError(gigError);
-	let gig: { bandId: string; hostOrgId: string; communeCode: string | null } | null = null;
+	let gig: {
+		bandId: string;
+		hostOrgId: string;
+		communeCode: string | null;
+		bookedById: string | null;
+	} | null = null;
 	if (input.kind === 'GIG') {
 		const parties = await gigPartiesOfPair(proposerId, other.actorId);
 		const band = parties.bands.find((b) => b.handle === input.band);
@@ -310,7 +318,15 @@ export async function proposeCollaboration(
 				'Un concert se confirme à deux : l’une joue dans le groupe, l’autre gère le lieu ou l’organisation.'
 			);
 		}
-		gig = { bandId: band.id, hostOrgId: host.id, communeCode: host.communeCode };
+		// Booké par (P5-07) : seul un·e booker dont l'accompagnement est confirmé.
+		const bookedById = input.booker ? await confirmedBookerOf(prisma, band.id, input.booker) : null;
+		if (input.booker && !bookedById) {
+			throw new CollaborationError(
+				'Cette personne n’est pas booker du groupe : l’accompagnement doit être confirmé.',
+				403
+			);
+		}
+		gig = { bandId: band.id, hostOrgId: host.id, communeCode: host.communeCode, bookedById };
 	}
 	const happened = hasHappened(input.happenedOn, now);
 	const created = await prisma.collaboration.create({
@@ -326,6 +342,7 @@ export async function proposeCollaboration(
 			bandId: gig?.bandId ?? null,
 			hostOrgId: gig?.hostOrgId ?? null,
 			communeCode: gig?.communeCode ?? null,
+			bookedById: gig?.bookedById ?? null,
 			participants: {
 				create: [
 					// Proposer vaut accord, et confirmation si c'est déjà passé.
@@ -449,6 +466,7 @@ async function settle(collaborationId: string, now: Date) {
 						hostOrgId: collab.hostOrgId,
 						happenedOn: collab.happenedOn,
 						communeCode: collab.communeCode,
+						bookedById: collab.bookedById,
 						participantIds: collab.participants.map((p) => p.actorId)
 					},
 					now
@@ -636,6 +654,7 @@ export async function collabFormContext(actorId: string, conversationId: string)
 			gigPartiesOfPair(actorId, otherId)
 		]
 	);
+	const bookers = await confirmedBookersOf(gigParties.bands.map((b) => b.id));
 	// Venu d'un plateau (P5-05a) : le groupe retenu et l'hôte sont préremplis.
 	const fromPlateau = opportunity?.kind === 'GIG_SLOT' ? opportunity : null;
 	const defaultBand =
@@ -667,7 +686,12 @@ export async function collabFormContext(actorId: string, conversationId: string)
 		studios: studios.map(({ handle, name, mine }) => ({ handle, name, mine })),
 		// Concert (P5-06) : groupes et hôtes possibles, sans identifiant.
 		gig: {
-			bands: gigParties.bands.map(({ handle, name }) => ({ handle, name })),
+			// Bookers confirmé·es de chaque groupe (P5-07), pour « Booké par ».
+			bands: gigParties.bands.map(({ id, handle, name }) => ({
+				handle,
+				name,
+				bookers: bookers.get(id) ?? []
+			})),
 			hosts: gigParties.hosts.map(({ handle, name, isVenue, verified }) => ({
 				handle,
 				name,

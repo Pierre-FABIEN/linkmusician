@@ -22,7 +22,9 @@ export const SEARCH_TRACKS = {
 	musicien: 'MUSICIAN',
 	'inge-son': 'SOUND_ENGINEER',
 	producteur: 'PRODUCER',
-	organisateur: 'PROMOTER'
+	organisateur: 'PROMOTER',
+	manager: 'MANAGER',
+	booker: 'BOOKER'
 } as const;
 export type SearchTrackSlug = keyof typeof SEARCH_TRACKS;
 export type SearchTrack = (typeof SEARCH_TRACKS)[SearchTrackSlug];
@@ -30,7 +32,9 @@ export const SEARCH_TRACK_LABELS: Readonly<Record<SearchTrackSlug, string>> = {
 	musicien: 'Musicien·ne',
 	'inge-son': 'Ingé son',
 	producteur: 'Producteur·rice',
-	organisateur: 'Organisateur·rice'
+	organisateur: 'Organisateur·rice',
+	manager: 'Manager',
+	booker: 'Booker'
 };
 
 /** Spécialité d'un métier ; pour l'organisateur·rice, ce qu'il ou elle organise (P5-05a). */

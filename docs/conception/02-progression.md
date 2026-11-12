@@ -114,6 +114,7 @@ sur la piste organisateur·rice.
 | Événement tenu, confirmé par l'affiche, par personne qui organise | 200 × multiplicateurs       | Organisateur·rice | rendement par artiste sur 12 mois × confiance de qui confirme      |
 | Artiste programmé pour sa toute première date                     | 100 par artiste × confiance | Organisateur·rice | confiance de qui confirme (une première date n'arrive qu'une fois) |
 | Date bookée et jouée, par personne qui a booké (sans organiser)   | 150 × multiplicateurs       | Booker            | rendement par artiste **et par lieu** sur 12 mois × confiance      |
+| Tournée bookée (≥3 dates dans 3 communes en 30 jours, P5-07)      | 400 × confiance             | Booker            | meilleure confiance de qui a confirmé les dates (Q51)              |
 | Accompagnement confirmé par l'artiste                             | 200 × multiplicateurs       | Manager           | rendement par artiste sur 12 mois × confiance de qui confirme      |
 | Jam publique tenue (P5-04a), par personne qui l'a publiée         | 50 × confiance              | Organisateur·rice | au moins 3 présent·es hors organisation ; meilleure confiance      |
 
@@ -381,8 +382,9 @@ vérifiées enregistrées sur place).
 | Scène locale            | ≥20 événements, ≥30 artistes distincts                        |
 | Festival                | ≥1 événement de ≥10 artistes, vérifié (organisation vérifiée) |
 
-**Manager / booker** (phase 5, `agentTier`, P5-01), mêmes rangs, comptés
-sur les accompagnements confirmés par les artistes
+**Manager / booker** (phase 5, `agentTier`, P5-01, lu dans les faits en
+P5-07), mêmes rangs, comptés sur les accompagnements confirmés par les
+artistes ; « développé » se mesure sur les groupes (Q48)
 
 | Palier                   | Conditions                                                |
 | ------------------------ | --------------------------------------------------------- |

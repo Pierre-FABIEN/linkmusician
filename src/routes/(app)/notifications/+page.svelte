@@ -16,7 +16,8 @@
 		Flag,
 		MessagesSquare,
 		Mic,
-		HandHelping
+		HandHelping,
+		Briefcase
 	} from 'lucide-svelte';
 	import type { NotificationTypeValue } from '#lib/notifications/types';
 
@@ -38,6 +39,7 @@
 		STUDIO_INVITE: Mic,
 		ORG_INVITE: CalendarCheck,
 		VENUE_HOST_INVITE: Guitar,
+		REPRESENTATION_REQUEST: Briefcase,
 		VENUE_CLAIM: Flag,
 		INTRODUCTION: HandHelping
 	};

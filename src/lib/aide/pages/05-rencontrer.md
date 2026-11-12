@@ -14,8 +14,8 @@ _Trouver la bonne personne, lui écrire, et jouer._
 ## 1. Découvrir
 
 1. Ouvre **Découvrir**.
-2. Filtre par **métier** (musicien·ne, ingé son, producteur·rice ou
-   organisateur·rice), **instrument**, **style**, **niveau** et
+2. Filtre par **métier** (musicien·ne, ingé son, producteur·rice,
+   organisateur·rice, manager ou booker), **instrument**, **style**, **niveau** et
    **distance**. Pour un·e ingé son ou un·e producteur·rice, choisis aussi
    la **spécialité** (mixage, façade, beatmaking…) ; pour un·e
    organisateur·rice, ce qu’elle ou il organise (concerts, scènes

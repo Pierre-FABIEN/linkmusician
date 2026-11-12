@@ -48,7 +48,7 @@ describe('filtres de recherche (P2-01)', () => {
 		['reciproque=oui', { reciprocal: false }],
 		[`page=${MAX_PAGE + 1}`, { page: 1 }],
 		['page=-2', { page: 1 }],
-		['metier=booker', { track: null }],
+		['metier=editeur', { track: null }],
 		['metier=constructor', { track: null }],
 		['specialite=mixage', { specialty: null }],
 		['metier=inge-son&specialite=cuisine', { track: 'SOUND_ENGINEER', specialty: null }]
@@ -80,6 +80,12 @@ describe('filtres de recherche (P2-01)', () => {
 			specialty: 'OPEN_STAGES'
 		});
 		expect(parse('metier=organisateur&specialite=mixage').specialty).toBeNull();
+		// Manager et booker (P5-07) : sans spécialité.
+		expect(parse('metier=booker')).toMatchObject({ track: 'BOOKER', specialty: null });
+		expect(parse('metier=manager&specialite=mixage')).toMatchObject({
+			track: 'MANAGER',
+			specialty: null
+		});
 		const query = 'metier=inge-son&specialite=facade&rayon=50';
 		expect(filtersToParams(parse(query)).toString()).toBe(query);
 	});

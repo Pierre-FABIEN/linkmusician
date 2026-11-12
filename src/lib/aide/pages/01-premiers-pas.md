@@ -16,7 +16,7 @@ _Ton compte, ton profil et ton mode de jeu, en cinq minutes._
 
 1. Inscris-toi avec ton email et confirme-le avec le code reçu.
 2. Réponds à « **Qui es-tu ?** » : musicien·ne, ingé son,
-   producteur·rice, organisateur·rice, ou plusieurs à la fois. D’autres métiers arriveront. Tu les changes quand tu veux dans
+   producteur·rice, organisateur·rice, manager, booker, ou plusieurs à la fois. D’autres métiers arriveront. Tu les changes quand tu veux dans
    **Réglages › Mes métiers**.
 3. Accepte les conditions d’utilisation.
 
@@ -125,6 +125,30 @@ Pour trouver des groupes, **publie un plateau** (voir
 [Les plateaux](./05-rencontrer.md#plateaux)). Ton rang d’organisateur·rice
 viendra des dates tenues et confirmées par les groupes, jamais des points.
 Il faut être majeur·e pour publier un plateau.
+
+### Si tu es manager ou booker {#accompagnement}
+
+Ouvre **Mon profil › Mon profil de manager ou de booker** : choisis
+jusqu’à cinq **genres que tu suis** et dis en une phrase **ce que tu
+cherches**. Dès qu’un genre est choisi, les artistes te trouvent dans
+**Découvrir**.
+
+Pour accompagner un groupe ou un·e musicien·ne, ouvre sa page et choisis
+**Proposer d’accompagner** (ou **Mon espace › Accompagnement**). L’artiste,
+ou une personne qui gère le groupe, confirme. **Tant qu’il n’a pas
+confirmé, rien ne compte** : ni points, ni rang, ni mention sur ton
+profil.
+
+- **Manager** : un accompagnement confirmé te rapporte des points.
+- **Booker** : tes points viennent des **dates** que tu bookes. Quand le
+  groupe propose un concert, il choisit **Booké par** et ton nom ; une fois
+  le concert confirmé, il compte pour toi. Trois dates bookées dans trois
+  villes en 30 jours font une **tournée bookée**.
+
+Ton rang (Premier artiste, Développement d’artistes, Agence) vient des
+artistes qui ont confirmé et des rangs que leurs groupes passent pendant
+l’accompagnement, jamais des points. Il faut être majeur·e, et on
+n’accompagne pas un groupe dont on fait partie.
 
 ### Si tu as un studio {#studio}
 

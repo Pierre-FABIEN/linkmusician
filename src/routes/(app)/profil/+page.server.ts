@@ -34,6 +34,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		producer: person.tracks.some((t) => t.track === 'PRODUCER'),
 		/** Lien vers « Mon profil d'organisateur·rice » (P5-05a). */
 		promoter: person.tracks.some((t) => t.track === 'PROMOTER'),
+		/** Lien vers « Mon profil de manager ou de booker » (P5-07). */
+		agent: person.tracks.some((t) => t.track === 'MANAGER' || t.track === 'BOOKER'),
 		/** Lien « Mes lieux » : la personne gère un lieu revendiqué (P5-03b). */
 		managesVenues:
 			(await prisma.membership.count({

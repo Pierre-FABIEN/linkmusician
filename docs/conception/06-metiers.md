@@ -123,18 +123,19 @@ producteurs ou ingés son.
 
 - **Besoin immédiat** : repérer des projets qui avancent.
 - **Apporte** : accompagnement, structuration, réseau.
-- **Profil spécifique** _(proposé)_ : artistes accompagnés (liens vers
-  leurs profils, confirmés par eux), genres, zone, ce qu'il cherche
-  (nouveaux projets, collaborations).
+- **Profil spécifique** (P5-07) : artistes accompagnés (liens vers
+  leurs profils, **seulement ceux qui ont confirmé**), genres (5), zone (sa
+  ville), ce qu'il cherche (une phrase). Un seul profil pour les métiers de
+  manager et de booker.
 - **Organisation liée** : `MANAGEMENT` (agence), facultative.
 - **Preuves apportées aux autres** : peu de preuves directes ; il
   consomme surtout le signal (paliers et vitesse de progression des
   groupes).
 - **Paliers** (02 §5) : Premier artiste → Développeur (≥1 artiste ayant
   franchi 2 paliers sous son accompagnement) → Agence.
-- **Sources d'XP** _(proposé)_ : relation d'accompagnement confirmée par
+- **Sources d'XP** (P5-07) : relation d'accompagnement confirmée par
   l'artiste ; palier franchi par un artiste accompagné (part faible,
-  comme les 25 % des membres de groupe).
+  comme les 25 % des membres de groupe, reportée : Q21).
 - **Fonctionnalités** : flux « projets qui montent », recherche avancée
   et alertes (abonnement Scout, phases 5-6).
 - **Garde-fous** : l'accompagnement doit être confirmé par l'artiste ;
@@ -145,15 +146,17 @@ producteurs ou ingés son.
 - **Besoin immédiat** : trouver des dates pour ses artistes, ou des
   artistes pour ses dates.
 - **Apporte** : des dates.
-- **Profil spécifique** _(proposé)_ : salles ou festivals programmés
-  (organisations liées), jauges, genres programmés, zone, période de
-  programmation.
+- **Profil spécifique** (P5-07) : celui du manager (genres, zone, ce
+  qu'il cherche, artistes qui ont confirmé). Salles ou festivals
+  programmés : par les organisations (P5-05b) ; jauges et période de
+  programmation : _(proposé)_, plus tard.
 - **Organisation liée** : `PROMOTER` (salle, festival) ou `MANAGEMENT`.
 - **Preuves apportées aux autres** : un concert confirmé par la salle
   vérifiée **vérifie** l'étape « Premier concert » (02 §2.2).
 - **Paliers** : ceux du manager / booker (02 §5).
-- **Sources d'XP** _(proposé)_ : date bookée et jouée, confirmée des deux
-  côtés.
+- **Sources d'XP** (P5-07) : date bookée et jouée, confirmée des deux
+  côtés (« Booké par » sur le concert, parmi les bookers confirmés du
+  groupe) ; tournée bookée (≥3 dates dans 3 communes en 30 jours).
 - **Fonctionnalités** : annonces « plateau » et appels à projets avec
   conditions d'éligibilité (palier, genre, zone) ; abonnement Scout.
 - **Garde-fous** : un concert ne rapporte qu'une fois qu'il a eu lieu et

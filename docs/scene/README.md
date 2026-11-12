@@ -1,6 +1,6 @@
 # Métiers de la scène (phase 5)
 
-L'organisateur·rice (P5-05), puis le booker et le manager (P5-07).
+L'organisateur·rice (P5-05), le booker et le manager (P5-07).
 Conception : [06 §3.6](../conception/06-metiers.md#36-organisateurrice--promoter--phase-5)
 et [08 §8](../conception/08-carrieres-par-role.md#8-organisateurrice--promoter--phase-5) ;
 barème en [02 §2.2](../conception/02-progression.md#22-barème-première-version-à-calibrer).
@@ -103,6 +103,67 @@ Le lieu a sa propre doc ([docs/jam](../jam/README.md#revendication-dun-lieu-nive
 - **Tests** : `src/lib/organizations/promoter.test.ts` ; intégration
   `organizations/promoters.integration.test.ts` ; e2e
   `e2e/linkmusician/organisation-organisateurs.spec.ts`.
+
+## Booker et manager (P5-07)
+
+- **Métiers ouverts** : `MANAGER` et `BOOKER`, `available: true`.
+- **Accompagnement** : `Representation` (`agentId`, `artistId` : personne
+  ou groupe, `kind` `MANAGER` ou `BOOKER`, `status` `PROPOSED`,
+  `CONFIRMED`, `ENDED`). Service : `src/lib/server/representation/service.ts`,
+  seul point d'écriture ; règles pures : `src/lib/representation/rules.ts`.
+  - **Proposer** : une personne majeure qui a le métier propose
+    d'accompagner une personne majeure ou un groupe dont elle ne fait pas
+    partie (Q48, Q49) ; 10 propositions en attente au plus. Notification
+    `REPRESENTATION_REQUEST` à l'artiste, ou à la gestion du groupe.
+  - **Confirmer** : l'artiste, ou une personne majeure de la gestion du
+    groupe (OWNER, ADMIN). Émet `management.confirmed` : 200 au manager
+    (rendement par artiste, confiance de qui confirme), rien au booker.
+  - **Un accompagnement non confirmé ne rapporte rien** : ni XP, ni rang,
+    ni mention publique, ni « Booké par » (test d'intégration
+    `representation.integration.test.ts`).
+  - **Décliner** ou **retirer** supprime la proposition ; **mettre fin**
+    (l'une ou l'autre partie) passe à `ENDED` : l'accompagnement compte
+    toujours pour le rang, mais ne permet plus de booker.
+  - Écran : `/accompagnement` (propositions à trancher, qui m'accompagne,
+    proposer, mes artistes) ; lien « Proposer d'accompagner » sur la page
+    d'un groupe ou d'un·e musicien·ne, pour qui a l'un des métiers ;
+    entrée dans `/espace` et dans « À confirmer ».
+- **Dates bookées** : `Collaboration.bookedById`. Dans le formulaire de
+  concert (`/messages/[id]`), « Booké par » ne propose que les bookers
+  confirmé·es du groupe choisi (`confirmedBookersOf`), revérifié côté
+  serveur. À la fin du concert, `verifyGigFromCollaboration` met le booker
+  dans `gig.held.bookerIds` s'il l'est encore : 150 × rendement par
+  artiste **et par lieu** × confiance (règle `gigHeld`).
+- **Tournée bookée** : `creditBookedTour` relit les `gig.held` où le
+  booker a été crédité pour ce groupe, après sa dernière tournée bookée ;
+  s'ils font une tournée (`firstTour` : ≥3 dates dans ≥3 communes en 30
+  jours), il émet `tour.booked` : 400 × meilleure confiance des personnes
+  qui ont confirmé (règle `tourBooked`, Q51).
+- **Rang** (`getAgentTier`, `core/agentSummary.ts`, `AGENT_TIERS`) :
+  artistes distincts dont l'accompagnement a été confirmé ; « développé » :
+  un **groupe** qui a passé au moins deux rangs (`bandTier`, lu dans ses
+  étapes prouvées et datées) entre la confirmation et la fin. **Jamais
+  l'XP.** La part de 10 % sur un rang franchi reste reportée (Q21).
+- **Profil** : `AgentProfile` (« ce que je cherche », 280 caractères) et
+  `AgentGenre` (5 au plus), un seul pour les deux métiers ; écran
+  `/profil/accompagnement` ; données `src/lib/prisma/crafts/agentProfile.ts`.
+  Zone : la ville de l'acteur.
+- **Recherche** : `/decouvrir?metier=manager` ou `?metier=booker`, dès qu'un
+  genre est choisi ; les genres suivis comptent dans le filtre Genre.
+- **Profil public** : carte « Manager / Booker » (`AgentCard`) : rang, ce
+  qu'elle ou il cherche, genres, **artistes qui ont confirmé** (pas les
+  propositions, ni un artiste masqué, dissous ou bloqué).
+- **Objectifs** (`nextAgentObjectives`) : fiche, ville, première
+  proposition, premier accompagnement confirmé ; booker : date bookée,
+  tournée bookée ; manager : un groupe qui passe deux rangs.
+- **RGPD** : fiche et accompagnements (comme agent ou artiste) dans
+  l'export ; à l'anonymisation, la fiche est supprimée, les propositions
+  aussi, un accompagnement en cours se termine, sans mot ni personne qui a
+  confirmé ou terminé.
+- **Tests** : `core/agentSummary.test.ts`, `core/personas-scene.test.ts`
+  (`tour.booked`), `core/craftQuests.test.ts`, `representation/rules.test.ts` ;
+  intégration `server/representation/representation.integration.test.ts`,
+  recherche ; e2e `e2e/linkmusician/booker.spec.ts`.
 
 ## À venir
 

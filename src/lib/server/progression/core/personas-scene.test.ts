@@ -428,6 +428,27 @@ describe('règles de la scène', () => {
 		expect(confirm('bk', 'artiste', 'BOOKER')).toEqual([]);
 	});
 
+	it('tour.booked : 400 au booker × confiance de qui confirme, rien sans confirmation extérieure', () => {
+		const l = new MemoryLedger({ 'g-membre': 2, 'g-neuf': 0, bk: 2 });
+		const tour = (confirmerIds: string[]) =>
+			l.apply({
+				id: `e${++seq}`,
+				occurredAt: day(30),
+				type: 'tour.booked',
+				bookerId: 'bk',
+				artistId: 'g',
+				gigIds: ['c1', 'c2', 'c3'],
+				confirmerIds,
+				from: '2026-02-01',
+				to: '2026-02-20'
+			});
+		expect(tour(['g-membre'])).toMatchObject([
+			{ actorId: 'bk', track: 'BOOKER', amount: 400, multiplier: 1 }
+		]);
+		expect(tour(['g-neuf'])).toMatchObject([{ amount: 40 }]);
+		expect(tour(['bk'])).toEqual([]);
+	});
+
 	it('rangs de la scène : des conditions, pas un seuil d’XP', () => {
 		expect(promoterTier({ events: 0, distinctArtists: 0, verifiedFestivals: 0 }).tier).toBeNull();
 		expect(promoterTier({ events: 40, distinctArtists: 12, verifiedFestivals: 0 }).tier?.id).toBe(

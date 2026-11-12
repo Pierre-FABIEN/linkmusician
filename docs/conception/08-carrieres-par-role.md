@@ -299,12 +299,19 @@ hors de sa région.
 
 **Gains** (calibrés en P5-01, 02 §2.2) : date bookée et jouée, confirmée
 des deux côtés 150 × rendement **par artiste et par lieu** et confiance ·
-tournée bookée (≥3 dates jouées) 400 _(avec P5-07)_ · rang franchi par
+tournée bookée (≥3 dates jouées dans 3 communes en 30 jours) 400 (P5-07) · rang franchi par
 un artiste accompagné : part faible (10 %) _(reportée, Q21)_.
 L'accompagnement d'un booker compte pour son rang, sans XP.
 
 **Épreuves qu'il valide** : les concerts qu'il a bookés, avec la salle ;
 la tournée.
+
+**Accompagnement (P5-07)** : le booker propose, l'artiste (ou la gestion
+du groupe) confirme ; il ou elle ne peut être membre du groupe (Q49).
+Confirmé, le booker apparaît dans « Booké par » quand le groupe propose un
+concert ; le concert terminé le crédite (`gig.held`), et trois dates en
+font une tournée (`tour.booked`). « Développé » : un groupe qui passe au
+moins deux rangs pendant l'accompagnement (Q48).
 
 **Déblocages** : radar des pros (groupes au rang Live et au-delà) ·
 alertes de disponibilité des groupes · offre Scout (phase 5).
@@ -332,6 +339,10 @@ relation qui aboutit à une collaboration : succès _Passeur_.
 
 **Épreuves qu'il valide** : aucune directement ; sa carrière monte avec
 celle des artistes qu'il accompagne.
+
+**Accompagnement (P5-07)** : proposé par le manager, confirmé par
+l'artiste ou la gestion du groupe ; seul un accompagnement confirmé
+rapporte, compte pour le rang et s'affiche sur le profil.
 
 **Déblocages** : flux « projets qui montent » (rangs et vitesse de
 progression) · recherche avancée et alertes (offre Scout, phases 5-6).

@@ -17,6 +17,7 @@ import { getPublicPromoterOrg } from '#lib/server/organizations/promoters';
 import { BandError, requestToJoin } from '#lib/server/bands/service';
 import { MilestoneError } from '#lib/server/milestones/service';
 import { contestMilestone } from '#lib/server/milestones/disputes';
+import { agentKindsOf } from '#lib/server/representation/service';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -25,6 +26,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	if (handle !== params.handle) redirect(301, `/@${handle}`);
 
 	const viewer = locals.user ? await getPersonByUserId(locals.user.id) : null;
+	// Manager ou booker (P5-07) : proposer d'accompagner l'artiste regardé.
+	const isAgent = viewer ? (await agentKindsOf(viewer.actorId)).length > 0 : false;
+	const representHref = (target: string) =>
+		isAgent ? `/accompagnement?artiste=${encodeURIComponent(target)}` : null;
 	// Blocage (P2-05) : 404 dans les deux sens, sans dire pourquoi.
 	const profile = await getPublicProfile(handle, new Date(), viewer?.actorId);
 	if (!profile) {
@@ -88,7 +93,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			suggestions: [],
 			isOwner: false,
 			signedIn: Boolean(viewer?.onboardedAt),
-			canReport: Boolean(viewer)
+			canReport: Boolean(viewer),
+			representHref: representHref(handle)
 		};
 	}
 
@@ -122,7 +128,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		signedIn: Boolean(viewer?.onboardedAt),
 		suggestions,
 		isOwner,
-		canReport: Boolean(viewer) && !isOwner
+		canReport: Boolean(viewer) && !isOwner,
+		representHref: isOwner ? null : representHref(handle)
 	};
 };
 

@@ -222,6 +222,10 @@ groupe et le lieu, puis elle confirme :
 - trois concerts vérifiés dans trois villes en 30 jours vérifient la
   **Première tournée**.
 
+Un·e **booker** vous a trouvé la date ? Si ton groupe a confirmé son
+accompagnement (**Mon espace › Accompagnement**), choisis son nom dans
+**Booké par** : le concert compte aussi pour son parcours.
+
 > 💡 **Astuce** : on te demande de confirmer l’étape d’un groupe ? Réponds
 > seulement si tu y étais. C’est ce qui donne de la valeur aux parcours de
 > tout le monde.

@@ -28,6 +28,14 @@
 	let collabKind = $state<(typeof COLLAB_KINDS)[number]>(
 		data.collabForm?.gig.fromPlateau ? 'GIG' : 'REHEARSAL'
 	);
+	// Concert (P5-07) : « Booké par » propose les bookers confirmé·es du groupe choisi.
+	// svelte-ignore state_referenced_locally
+	let gigBand = $state(
+		data.collabForm?.gig.defaultBand ?? data.collabForm?.gig.bands[0]?.handle ?? ''
+	);
+	const gigBookers = $derived(
+		data.collabForm?.gig.bands.find((b) => b.handle === gigBand)?.bookers ?? []
+	);
 	const service = $derived(KIND_SERVICE[collabKind] ?? null);
 	const can = (who: 'me' | 'other') =>
 		Boolean(service && data.collabForm?.tracks[who].includes(service.track));
@@ -328,11 +336,14 @@
 						{:else}
 							<label class="block space-y-1 font-medium">
 								Groupe
-								<select name="band" required class="w-full rounded-md border bg-background p-2">
+								<select
+									name="band"
+									required
+									class="w-full rounded-md border bg-background p-2"
+									bind:value={gigBand}
+								>
 									{#each gig.bands as b (b.handle)}
-										<option value={b.handle} selected={b.handle === gig.defaultBand}
-											>{b.name}</option
-										>
+										<option value={b.handle}>{b.name}</option>
 									{/each}
 								</select>
 							</label>
@@ -346,6 +357,18 @@
 									{/each}
 								</select>
 							</label>
+							{#if gigBookers.length > 0}
+								<!-- Booké par (P5-07) : un·e booker dont le groupe a confirmé l'accompagnement. -->
+								<label class="block space-y-1 font-medium sm:col-span-2">
+									Booké par (facultatif)
+									<select name="booker" class="w-full rounded-md border bg-background p-2">
+										<option value="">Personne : on s’est organisés seuls</option>
+										{#each gigBookers as bk (bk.handle)}
+											<option value={bk.handle}>{bk.name}</option>
+										{/each}
+									</select>
+								</label>
+							{/if}
 							<p class="text-sm text-muted-foreground sm:col-span-2">
 								Confirmé des deux côtés, le concert compte pour le groupe : vérifié si le lieu ou
 								l’organisation l’est, corroboré sinon.

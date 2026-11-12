@@ -202,6 +202,25 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		confirmedById: id,
 		kind: z.enum(AGENT_KINDS)
 	}),
+	/**
+	 * Tournée bookée (P5-07, 08 §9) : un·e booker confirmé·e de l'artiste a
+	 * booké au moins 3 dates jouées dans 3 communes en 30 jours (`firstTour`).
+	 * Émis une fois par tournée, à la fin du concert qui la complète.
+	 */
+	z.object({
+		...base,
+		type: z.literal('tour.booked'),
+		bookerId: id,
+		/** Artiste en tournée (un groupe). */
+		artistId: id,
+		/** Concerts de la tournée (collaborations `GIG`). */
+		gigIds: z.array(id).min(3),
+		/** Personnes qui ont confirmé ces dates pour l'artiste : leur confiance pondère. */
+		confirmerIds: z.array(id).min(1),
+		/** Premier et dernier jour (AAAA-MM-JJ). */
+		from: z.string(),
+		to: z.string()
+	}),
 	z.object({
 		...base,
 		type: z.literal('endorsement.received'),

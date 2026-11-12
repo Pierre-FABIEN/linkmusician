@@ -23,6 +23,8 @@ import { getProducerProfile } from '#lib/prisma/crafts/producerProfile';
 import { getPromoterProfile } from '#lib/prisma/crafts/promoterProfile';
 import { getPromoterTier } from '#lib/server/progression/crafts';
 import { promoterOrgsOfPerson } from '#lib/server/organizations/promoters';
+import { getAgentProfile } from '#lib/prisma/crafts/agentProfile';
+import { confirmedArtistsOf, getAgentTier } from '#lib/server/representation/service';
 import { getCraftTier, getSoundEngineerTier } from '#lib/server/progression/crafts';
 import { publicActorWhere } from './visibility';
 import { SOUND_ROLE_LABELS, type SoundRoleKind } from '#lib/works/rules';
@@ -89,7 +91,8 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 		works,
 		sound,
 		producer,
-		promoter
+		promoter,
+		agent
 	] = await Promise.all([
 		getMusicalProfile({ actorId: actor.id }),
 		getActorLocation(actor.id),
@@ -141,6 +144,14 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 					// Organisations qu'elle ou il gère (P5-05b).
 					promoterOrgsOfPerson(actor.id, now, viewerId)
 				])
+			: null,
+		// Manager, booker (P5-07) : fiche, rang et artistes qui ont confirmé.
+		hasTrack('MANAGER') || hasTrack('BOOKER')
+			? Promise.all([
+					getAgentProfile(actor.id),
+					getAgentTier(actor.id, now),
+					confirmedArtistsOf(actor.id, viewerId ?? undefined)
+				])
 			: null
 	]);
 
@@ -191,6 +202,16 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 					tier: promoter[1],
 					gigSlots: promoter[2].map(({ venue, ...g }) => ({ ...g, venue: venue?.name ?? null })),
 					orgs: promoter[3]
+				}
+			: null,
+		agent: agent
+			? {
+					kinds: (['MANAGER', 'BOOKER'] as const).filter(hasTrack),
+					pitch: agent[0]?.pitch ?? null,
+					genres: agent[0]?.genres ?? [],
+					tier: agent[1],
+					// Un artiste bloqué avec qui regarde n'y figure pas.
+					artists: agent[2]
 				}
 			: null,
 		media: media.slice(0, PROFILE_MEDIA_LIMIT).map(({ instrumentId: _i, ...m }) => m),

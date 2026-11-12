@@ -8,6 +8,8 @@ import type { PrismaClient } from '@prisma/client';
 import { craftSummary } from './core/craftSummary';
 import type { CraftTrack } from './core/crafts';
 import {
+	agentQuestProgress,
+	nextAgentObjectives,
 	nextProducerObjectives,
 	nextPromoterObjectives,
 	nextSoundObjectives,
@@ -15,7 +17,8 @@ import {
 	promoterQuestProgress,
 	soundQuestProgress
 } from './core/craftQuests';
-import { craftTier, promoterTier } from './core/tiers';
+import { agentTier, craftTier, promoterTier } from './core/tiers';
+import { agentFacts } from '#lib/server/representation/service';
 import { promoterSummary } from './core/promoterSummary';
 import { toDomainEvent } from './events';
 
@@ -136,5 +139,51 @@ export async function getPromoterProgress(actorId: string, db: PromoterDb) {
 		tier: promoterTier(facts).tier,
 		objectives: nextPromoterObjectives(state),
 		questProgress: promoterQuestProgress(state)
+	};
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Manager et booker (P5-07)                                                 */
+/* -------------------------------------------------------------------------- */
+
+type AgentDb = Pick<
+	PrismaClient,
+	'domainEvent' | 'agentGenre' | 'actorLocation' | 'representation' | 'milestone' | 'organization'
+>;
+
+/** Rang, prochains objectifs et avancement du manager ou du booker (espace). */
+export async function getAgentProgress(actorId: string, kind: 'MANAGER' | 'BOOKER', db: AgentDb) {
+	const [facts, genres, zone, proposals, events] = await Promise.all([
+		agentFacts(actorId),
+		db.agentGenre.count({ where: { personId: actorId } }),
+		db.actorLocation.count({ where: { actorId } }),
+		db.representation.count({ where: { agentId: actorId, kind } }),
+		kind === 'BOOKER'
+			? db.domainEvent.findMany({
+					where: { actorIds: { has: actorId }, type: { in: ['gig.held', 'tour.booked'] } },
+					select: { type: true, payload: true }
+				})
+			: Promise.resolve([])
+	]);
+	const payloadOf = (e: { payload: unknown }) => e.payload as Record<string, unknown>;
+	const state = {
+		kind,
+		genres,
+		hasZone: zone > 0,
+		proposals,
+		artists: facts.artists,
+		developedArtists: facts.developedArtists,
+		bookedDates: events.filter(
+			(e) =>
+				e.type === 'gig.held' &&
+				((payloadOf(e).bookerIds as string[] | undefined) ?? []).includes(actorId)
+		).length,
+		bookedTours: events.filter((e) => e.type === 'tour.booked' && payloadOf(e).bookerId === actorId)
+			.length
+	};
+	return {
+		tier: agentTier(facts).tier,
+		objectives: nextAgentObjectives(state),
+		questProgress: agentQuestProgress(state)
 	};
 }

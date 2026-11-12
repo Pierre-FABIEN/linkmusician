@@ -26,7 +26,7 @@
 // Mot de passe des comptes : SEED_DEMO_PASSWORD, ou celui de `seed.js`.
 // Jamais en production (VERCEL_ENV=production refusé).
 import { seedJamLife } from './seed-jam-life';
-import { seedOpenStage, seedScene, seedVenueHosts } from './seed-scene';
+import { seedOpenStage, seedRepresentations, seedScene, seedVenueHosts } from './seed-scene';
 import dotenv from 'dotenv';
 import { PrismaClient, type LookingFor, type ProStatus, type TrackKind } from '@prisma/client';
 import { hash } from '@node-rs/argon2';
@@ -386,6 +386,39 @@ const CAST: Demo[] = [
 		practiceSince: 1995,
 		radius: 25
 	},
+	// Manager et booker (seed-scene.ts, P5-07).
+	{
+		handle: 'elise-booker',
+		name: 'Élise Fournier',
+		born: '1990-02-11',
+		since: 50,
+		near: 1,
+		tracks: ['BOOKER'],
+		instruments: [],
+		genres: ['jazz', 'funk', 'folk'],
+		influences: ['Jazz in Marciac'],
+		bio: 'Je booke des fanfares et des groupes de jazz dans le Sud-Ouest.',
+		pro: 'PROFESSIONAL',
+		looking: ['COLLABORATION'],
+		practiceSince: 2014,
+		radius: 100
+	},
+	{
+		handle: 'marc-manager',
+		name: 'Marc Lefèvre',
+		born: '1981-07-30',
+		since: 90,
+		near: 3,
+		tracks: ['MANAGER', 'MUSICIAN'],
+		instruments: [['guitare-electrique', 2]],
+		genres: ['rock', 'soul'],
+		influences: ['Peter Grant'],
+		bio: 'Manager de groupes de la scène toulousaine. J’aide à structurer, je ne joue plus beaucoup.',
+		pro: 'SEMI_PRO',
+		looking: ['COLLABORATION'],
+		practiceSince: 1998,
+		radius: 50
+	},
 	// Mineure (D5) : sa dispo n'est montrée à personne, jams finies avant 22 h,
 	// pas de demande d'inconnu·es, pas de discussion de groupe.
 	{
@@ -686,6 +719,7 @@ try {
 	await seedScene(prisma, communes, handleMap);
 	await seedOpenStage(prisma, communes, handleMap);
 	await seedVenueHosts(prisma, communes, handleMap);
+	await seedRepresentations(prisma, communes, handleMap);
 	// Organisateurs de jams (D51) : les personnes qui en ont publié une.
 	const hosts = await prisma.opportunity.findMany({
 		where: { kind: 'JAM' },

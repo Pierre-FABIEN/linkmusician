@@ -28,6 +28,7 @@
 	import { SOUND_SPECIALTY_INFO } from '#lib/crafts/sound';
 	import { PRODUCER_SPECIALTY_INFO } from '#lib/crafts/producer';
 	import { PROMOTER_EVENT_KIND_INFO } from '#lib/crafts/promoter';
+	import { AGENT_KIND_INFO } from '#lib/representation/rules';
 
 	import { untrack } from 'svelte';
 
@@ -63,7 +64,7 @@
 		<header class="space-y-1">
 			<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Découvrir</h1>
 			<p class="text-muted-foreground">
-				Trouve avec qui jouer, enregistrer ou produire{data.commune
+				Trouve avec qui jouer, enregistrer, produire ou tourner{data.commune
 					? ` autour de ${data.commune}`
 					: ''}.
 			</p>
@@ -259,6 +260,15 @@
 													.map((k) => PROMOTER_EVENT_KIND_INFO[k].label)
 													.join(', ')}</span
 											>
+										</span>
+									{/if}
+									{#if r.agent && r.agent.kinds.length > 0}
+										<!-- LINKMUSICIAN: manager, booker (P5-07). -->
+										<span class="text-sm">
+											<span class="font-semibold"
+												>{r.agent.kinds.map((k) => AGENT_KIND_INFO[k].label).join(' et ')}</span
+											>
+											<span class="text-muted-foreground">· {r.agent.genres.join(', ')}</span>
 										</span>
 									{/if}
 									{#if r.instruments.length > 0}

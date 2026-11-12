@@ -64,6 +64,8 @@ export const BAREME = {
 	jamHeldMinPresent: 3,
 	/** Accompagnement confirmé par l'artiste (piste manager). */
 	managementConfirmed: 200,
+	/** Tournée bookée : ≥3 dates jouées dans 3 communes en 30 jours (piste booker, P5-07). */
+	tourBooked: 400,
 
 	// Anti-abus (§6)
 	/** k-ième occurrence avec la même contrepartie : 1, 0,5, 0,25, puis 0. */

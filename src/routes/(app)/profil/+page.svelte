@@ -86,6 +86,21 @@
 					>
 				</div>
 			{/if}
+			{#if data.agent}
+				<!-- LINKMUSICIAN: manager, booker (P5-07). -->
+				<div class="mt-3 flex flex-wrap gap-2">
+					<a
+						href="/profil/accompagnement"
+						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
+						>Mon profil de manager ou de booker →</a
+					>
+					<a
+						href="/accompagnement"
+						class="inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold hover:bg-muted"
+						>Les artistes que j’accompagne →</a
+					>
+				</div>
+			{/if}
 			{#if data.soundEngineer || data.producer}
 				<div class="mt-3 flex flex-wrap gap-2">
 					{#if data.soundEngineer}

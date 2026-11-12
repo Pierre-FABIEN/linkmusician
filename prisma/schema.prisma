@@ -1463,6 +1463,14 @@ model Actor {
   /// Lieux que la personne anime, ou où on l'invite à animer (P5-04b).
   venueHostings              VenueHost[]              @relation("VenueHostPerson")
   venueHostInvitesSent       VenueHost[]              @relation("VenueHostInviter")
+  /// Accompagnements (P5-07) : comme manager ou booker, comme artiste, et
+  /// ceux confirmés ou terminés au nom d'un artiste.
+  representationsAsAgent     Representation[]         @relation("RepresentationAgent")
+  representationsAsArtist    Representation[]         @relation("RepresentationArtist")
+  representationsConfirmed   Representation[]         @relation("RepresentationConfirmer")
+  representationsEnded       Representation[]         @relation("RepresentationEnder")
+  /// Concerts bookés (P5-07).
+  gigsBooked                 Collaboration[]          @relation("CollaborationBooker")
   /// Candidatures envoyées au nom d'un groupe (P5-05a).
   applicationsSent           Application[]            @relation("ApplicationSender")
   works                      Work[]                   @relation("WorkOwner")
@@ -1551,6 +1559,8 @@ model Person {
   producerProfile ProducerProfile?
   /// Profil d'organisateur·rice (P5-05a).
   promoterProfile PromoterProfile?
+  /// Profil de manager ou de booker (P5-07).
+  agentProfile    AgentProfile?
 
   @@map("persons")
 }
@@ -1624,6 +1634,7 @@ model Genre {
   works     WorkGenre[]
   producers ProducerGenre[]
   promoters PromoterGenre[]
+  agents    AgentGenre[]
   sortOrder Int
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -2276,6 +2287,9 @@ model Collaboration {
   hostOrg        Organization?              @relation("CollaborationHost", fields: [hostOrgId], references: [actorId], onDelete: SetNull)
   /// Commune du concert (code INSEE), pour la tournée : ≥3 communes en 30 jours.
   communeCode    String?
+  /// Booker du groupe qui a booké la date (P5-07) : accompagnement confirmé.
+  bookedById     String?
+  bookedBy       Actor?                     @relation("CollaborationBooker", fields: [bookedById], references: [id], onDelete: SetNull)
   completedAt    DateTime?
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
@@ -2287,6 +2301,7 @@ model Collaboration {
   @@index([studioId])
   @@index([bandId, kind, status])
   @@index([hostOrgId])
+  @@index([bookedById])
   @@map("collaborations")
 }
 
@@ -2644,6 +2659,8 @@ enum NotificationType {
   ORG_INVITE
   /// Un lieu t'invite à animer ses scènes ouvertes (P5-04b).
   VENUE_HOST_INVITE
+  /// Un·e manager ou un·e booker propose d'accompagner l'artiste (P5-07).
+  REPRESENTATION_REQUEST
   /// Décision sur une revendication de lieu (P5-03b, Q29).
   VENUE_CLAIM
   /// Quelqu'un de ton réseau te présente une personne (P4-13b).
@@ -3621,4 +3638,75 @@ model VenueHost {
   @@unique([orgId, personId])
   @@index([personId, status])
   @@map("venue_hosts")
+}
+
+// ─── ACCOMPAGNEMENT : MANAGER ET BOOKER (P5-07) ─────────────────────────────
+
+/// Métier de qui accompagne un artiste (conception 08 §9 et §10).
+enum AgentKind {
+  MANAGER
+  BOOKER
+}
+
+/// PROPOSED : en attente de l'artiste ; CONFIRMED : en cours ; ENDED : terminé
+/// (par l'une ou l'autre partie). Décliner supprime la proposition.
+enum RepresentationStatus {
+  PROPOSED
+  CONFIRMED
+  ENDED
+}
+
+/// Accompagnement d'un artiste (personne ou groupe) par un·e manager ou un·e
+/// booker (P5-07). L'agent propose, l'artiste confirme (pour un groupe : sa
+/// gestion) ; seule la confirmation compte (`management.confirmed`). Un
+/// accompagnement repris après la fin est une nouvelle ligne.
+model Representation {
+  id            String               @id @default(cuid())
+  agentId       String
+  agent         Actor                @relation("RepresentationAgent", fields: [agentId], references: [id], onDelete: Cascade)
+  artistId      String
+  artist        Actor                @relation("RepresentationArtist", fields: [artistId], references: [id], onDelete: Cascade)
+  kind          AgentKind
+  status        RepresentationStatus @default(PROPOSED)
+  /// Mot de l'agent à l'artiste, facultatif ; effacé à l'anonymisation.
+  message       String?
+  confirmedAt   DateTime?
+  /// Personne qui a confirmé pour l'artiste ; oubliée à l'anonymisation.
+  confirmedById String?
+  confirmedBy   Actor?               @relation("RepresentationConfirmer", fields: [confirmedById], references: [id], onDelete: SetNull)
+  endedAt       DateTime?
+  endedById     String?
+  endedBy       Actor?               @relation("RepresentationEnder", fields: [endedById], references: [id], onDelete: SetNull)
+  createdAt     DateTime             @default(now())
+
+  @@index([agentId, status])
+  @@index([artistId, status])
+  @@map("representations")
+}
+
+/// Profil léger de manager ou de booker (P5-07, conception 06 §3.4 et §3.5) :
+/// ce que la personne cherche et ses genres. La zone est la ville de
+/// l'acteur ; les artistes accompagnés sont lus dans `Representation`.
+model AgentProfile {
+  personId  String       @id
+  person    Person       @relation(fields: [personId], references: [actorId], onDelete: Cascade)
+  /// Ce que la personne cherche ou propose, texte brut, facultatif.
+  pitch     String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  genres    AgentGenre[]
+
+  @@map("agent_profiles")
+}
+
+/// Genres d'un·e manager ou booker (5 au plus).
+model AgentGenre {
+  personId String
+  profile  AgentProfile @relation(fields: [personId], references: [personId], onDelete: Cascade)
+  genreId  String
+  genre    Genre        @relation(fields: [genreId], references: [id], onDelete: Restrict)
+
+  @@id([personId, genreId])
+  @@index([genreId])
+  @@map("agent_genres")
 }

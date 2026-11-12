@@ -12,6 +12,7 @@ import { releaseCreditVerified } from './releaseCreditVerified';
 import { gigFirstDates, gigHeld } from './gigHeld';
 import { managementConfirmed } from './managementConfirmed';
 import { jamHeld } from './jamHeld';
+import { tourBooked } from './tourBooked';
 
 export const RULES: readonly Rule[] = [
 	profileCompleted,
@@ -29,5 +30,6 @@ export const RULES: readonly Rule[] = [
 	gigHeld,
 	gigFirstDates,
 	jamHeld,
-	managementConfirmed
+	managementConfirmed,
+	tourBooked
 ] as Rule[];

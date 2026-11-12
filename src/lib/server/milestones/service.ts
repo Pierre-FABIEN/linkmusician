@@ -31,7 +31,8 @@ import { isManager } from '#lib/bands/rules';
 import { bandTier } from '#lib/server/progression/core/tiers';
 import { checkReleaseReference, type ReleaseReferenceKind } from '#lib/milestones/verification';
 import { verifyMusicBrainzRelease, type ReleaseMilestoneKey } from './release-verification';
-import { firstTour } from '#lib/milestones/tour';
+import { firstTour, TOUR_MIN_GIGS } from '#lib/milestones/tour';
+import { isConfirmedBooker } from '#lib/server/representation/service';
 import {
 	compositionProof,
 	creditDate,
@@ -503,6 +504,8 @@ export async function verifyGigFromCollaboration(
 		hostOrgId: string;
 		happenedOn: Date;
 		communeCode: string | null;
+		/** « Booké par » (P5-07) : crédité s'il est encore booker confirmé du groupe. */
+		bookedById?: string | null;
 		participantIds: string[];
 	},
 	now: Date
@@ -542,6 +545,13 @@ export async function verifyGigFromCollaboration(
 	if (hosts.length === 0 || confirmers.length === 0) return null;
 	const verified = host.verifiedAt !== null;
 	const day = collab.happenedOn.toISOString().slice(0, 10);
+	// Booker (P5-07) : seulement si son accompagnement est confirmé et en cours.
+	const bookerIds =
+		collab.bookedById &&
+		!players.has(collab.bookedById) &&
+		(await isConfirmedBooker(tx, collab.bookedById, collab.bandId))
+			? [collab.bookedById]
+			: [];
 
 	// Toute première date du groupe : ni concert terminé avant, ni étape déclarée.
 	const [earlierGigs, firstGig] = await Promise.all([
@@ -559,13 +569,15 @@ export async function verifyGigFromCollaboration(
 		type: 'gig.held',
 		gigId: collab.id,
 		organizerIds: hosts,
-		bookerIds: [],
+		bookerIds,
 		performerIds: [collab.bandId],
 		confirmerIds: confirmers,
 		...(host.kind === 'VENUE' ? { venueOrgId: collab.hostOrgId } : {}),
 		firstDateIds: earlierGigs === 0 && firstGig === 0 ? [collab.bandId] : [],
 		verified
 	});
+
+	for (const bookerId of bookerIds) await creditBookedTour(tx, bookerId, collab.bandId, now);
 
 	if (!band.formedAt || band.dissolvedAt) return null;
 	const formed = { id: collab.bandId, formedAt: band.formedAt };
@@ -588,6 +600,57 @@ export async function verifyGigFromCollaboration(
 	);
 	if (tour) await raiseMilestone(tx, formed, 'FIRST_TOUR', 'VERIFIED', tour.from, now);
 	return null;
+}
+
+/**
+ * Tournée bookée (P5-07, 08 §9) : les dates que le booker a bookées pour le
+ * groupe et qui l'ont crédité (`gig.held`), après sa dernière tournée
+ * bookée avec ce groupe, font-elles une tournée (`firstTour`) ? Si oui,
+ * `tour.booked` est émis une fois : 400 × confiance de qui a confirmé.
+ */
+async function creditBookedTour(tx: Tx, bookerId: string, bandId: string, now: Date) {
+	const events = await tx.domainEvent.findMany({
+		where: { actorIds: { has: bookerId }, type: { in: ['gig.held', 'tour.booked'] } },
+		select: { type: true, payload: true }
+	});
+	const payloads = events.map((e) => ({ type: e.type, p: e.payload as Record<string, unknown> }));
+	const lastTo = payloads
+		.filter((e) => e.type === 'tour.booked' && e.p.bookerId === bookerId && e.p.artistId === bandId)
+		.map((e) => String(e.p.to))
+		.sort()
+		.at(-1);
+	const booked = new Map<string, string[]>();
+	for (const { type, p } of payloads) {
+		if (type !== 'gig.held') continue;
+		if (!(p.bookerIds as string[]).includes(bookerId)) continue;
+		if (!(p.performerIds as string[]).includes(bandId)) continue;
+		booked.set(String(p.gigId), p.confirmerIds as string[]);
+	}
+	if (booked.size < TOUR_MIN_GIGS) return;
+	const gigs = await tx.collaboration.findMany({
+		where: { id: { in: [...booked.keys()] }, communeCode: { not: null } },
+		select: { id: true, happenedOn: true, communeCode: true }
+	});
+	const dated = gigs
+		.map((g) => ({
+			id: g.id,
+			day: g.happenedOn.toISOString().slice(0, 10),
+			communeCode: g.communeCode!
+		}))
+		.filter((g) => !lastTo || g.day > lastTo);
+	const tour = firstTour(dated);
+	if (!tour) return;
+	const inTour = dated.filter((g) => g.day >= tour.from && g.day <= tour.to);
+	await emitAndProcess(tx, {
+		type: 'tour.booked',
+		bookerId,
+		artistId: bandId,
+		gigIds: inTour.map((g) => g.id),
+		confirmerIds: [...new Set(inTour.flatMap((g) => booked.get(g.id) ?? []))],
+		from: tour.from,
+		to: tour.to,
+		occurredAt: now
+	});
 }
 
 export async function updateMilestoneDetails(

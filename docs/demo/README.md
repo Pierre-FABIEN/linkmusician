@@ -2,7 +2,7 @@
 
 > Le guide pour **voir chaque situation de l'app** avec des comptes fictifs :
 > qui se connecte, où aller, ce qu'on doit y voir. Mis à jour le 11/11/2026
-> (phases 1 à 5 : jusqu'aux scènes ouvertes récurrentes, P5-04a).
+> (phases 1 à 5 : jusqu'au booker et au manager, P5-07).
 
 ## 1. Lancer
 
@@ -37,7 +37,7 @@ Fichiers : [`prisma/seed-demo.ts`](../../prisma/seed-demo.ts) (comptes),
 [`seed-scene.ts`](../../prisma/seed-scene.ts) (vie pro et scène, phases 4
 et 5).
 
-## 2. Les personnages (17)
+## 2. Les personnages (19)
 
 | Handle           | Qui                                 | Métiers                     | Ce qu'il ou elle illustre                                                                                        |
 | ---------------- | ----------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -53,6 +53,8 @@ et 5).
 | `awa-clavier`    | Awa, 29 ans, claviériste            | Musicienne                  | Co-gère Fanfare Pirate ; **invitée à co-gérer Le Comptoir Jazz**                                                 |
 | `hugo-dj`        | Hugo, 28 ans, DJ et organisateur    | Musicien, organisateur      | **Soirées Disco Club** (vérification en attente) ; invité à co-gérer Bruit Rose ; « Je suis dispo »              |
 | `manon-ukulele`  | Manon, 19 ans, débutante            | Musicienne                  | Membre des Lucioles ; messagerie (premier contact à répondre)                                                    |
+| `elise-booker`   | Élise, 36 ans, booker               | Booker                      | **Booker de Fanfare Pirate** (confirmé par Lucas) ; a booké l'apéro-concert des Coteaux ; propose aux Lucioles   |
+| `marc-manager`   | Marc, 45 ans, manager               | Manager, musicien           | **Manager des Rats du Mardi** depuis leurs débuts : 200 points, rang « Développement d'artistes »                |
 | `jade-batterie`  | Jade, **16 ans**                    | Musicienne                  | **Mineure (D5)** : jams finies avant 22 h, jamais dispo affichée, batteuse d'Orbital (ne candidate pas)          |
 | `yanis-orga`     | Yanis, 39 ans, programmateur        | Organisateur, musicien      | Responsable de **l'Asso Bruit Rose** et du **Festival des Coteaux** (vérifiés) ; plateau rock                    |
 | `lina-orga`      | Lina, 33 ans, organisatrice         | Organisatrice, musicienne   | Co-gère Bruit Rose ; **Collectif Nuits Courtes** (vérifié) ; scène découverte **à son nom**                      |
@@ -69,14 +71,14 @@ voir.
 
 ### Profils, découverte, messagerie (phases 1 et 2)
 
-| Situation                                            | Se connecter avec               | Où                                                                         |
-| ---------------------------------------------------- | ------------------------------- | -------------------------------------------------------------------------- |
-| Profils complets, démos, niveaux, influences         | n'importe qui                   | `/@malik-batterie`, `/decouvrir`                                           |
-| Recherche par métier (son, production, organisation) | n'importe qui                   | `/decouvrir?metier=inge-son`, `?metier=producteur`, `?metier=organisateur` |
-| Messagerie : 3 messages sans réponse (D44)           | `hugo-dj`                       | `/messages`                                                                |
-| Premier contact à accepter ou refuser                | `manon-ukulele`                 | `/messages`                                                                |
-| Contacts et groupes de contacts                      | `malik-batterie`, `awa-clavier` | `/messages/contacts`                                                       |
-| Suggestions, indicateurs vivants                     | n'importe qui                   | `/espace`                                                                  |
+| Situation                                                            | Se connecter avec               | Où                                                                                           |
+| -------------------------------------------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------- |
+| Profils complets, démos, niveaux, influences                         | n'importe qui                   | `/@malik-batterie`, `/decouvrir`                                                             |
+| Recherche par métier (son, production, organisation, accompagnement) | n'importe qui                   | `/decouvrir?metier=inge-son`, `?metier=producteur`, `?metier=organisateur`, `?metier=booker` |
+| Messagerie : 3 messages sans réponse (D44)                           | `hugo-dj`                       | `/messages`                                                                                  |
+| Premier contact à accepter ou refuser                                | `manon-ukulele`                 | `/messages`                                                                                  |
+| Contacts et groupes de contacts                                      | `malik-batterie`, `awa-clavier` | `/messages/contacts`                                                                         |
+| Suggestions, indicateurs vivants                                     | n'importe qui                   | `/espace`                                                                                    |
 
 ### Mode jam (phase 2, `seed-scenarios` et `seed-jam-life`)
 
@@ -182,6 +184,19 @@ en jam passée (vie de jam).
 | Carte, **acte V franchi** et tournée faite (« Faite ! ») ; carte souvenir du concert sur la fiche                                                   | `lucas-sax`, `awa-clavier`, `malik-batterie`       | `/espace/carte`, `/espace/fiche`                     |
 | Carte, **acte V ouvert** : le concert d'Orbital n'est que corroboré ; « Candidater à un plateau »                                                   | `kevin-metal`                                      | `/espace/carte`                                      |
 
+### Booker et manager (phase 5, `seed-scene`)
+
+| Situation                                                                                                                            | Se connecter avec | Où                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------ | ----------------- | ------------------------------------------------------------- |
+| Profil de booker : genres, ce qu'elle cherche, **Fanfare Pirate** dans « Artistes accompagnés » (confirmé), rang « Premier artiste » | n'importe qui     | `/@elise-booker`                                              |
+| Profil de manager : **Les Rats du Mardi**, rang « Développement d'artistes » (le groupe est passé de Projet à Live depuis)           | n'importe qui     | `/@marc-manager`                                              |
+| **Proposition d'accompagnement à trancher** (Élise, comme booker) : confirmer ou décliner                                            | `zoe-violon`      | notifications, `/accompagnement`, `/espace` (« À confirmer ») |
+| Qui accompagne le groupe ; « Mettre fin »                                                                                            | `lucas-sax`       | `/accompagnement`                                             |
+| Les artistes que j'accompagne, la proposition en attente ; « Retirer »                                                               | `elise-booker`    | `/accompagnement`, `/espace/objectifs`                        |
+| **Concert booké par Élise** à confirmer : Yanis confirme, et Élise gagne « Date bookée et jouée » (piste booker)                     | `yanis-orga`      | `/espace` (« À confirmer »), conversation avec Lucas          |
+| « Proposer d'accompagner » sur la page d'un groupe, pour une personne qui a le métier                                                | `marc-manager`    | `/@orbital-prog`                                              |
+| « Booké par » dans le formulaire de concert (seulement les bookers confirmés du groupe)                                              | `lucas-sax`       | conversation avec Sophie, type « Concert »                    |
+
 ### Mineur·es (D5)
 
 | Situation                                                  | Se connecter avec | Où                      |
@@ -195,9 +210,6 @@ en jam passée (vie de jam).
 
 Les lots suivants n'existent pas encore dans l'app :
 
-- jams publiques **récurrentes** des lieux, animateur·rices (P5-04) ;
-- photos des lieux (P5-03d) ;
-- booker et manager (P5-07) ;
 - écoles, MJC, conservatoires (P5-11) ;
 - tout ce qui est payant (P5-09, P5-10).
 

@@ -329,4 +329,45 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 		]);
 		expect(await search('metier=organisateur&specialite=festival')).toEqual([]);
 	});
+
+	it('manager et booker (P5-07) : trouvables avec un genre suivi, jamais sans fiche', async () => {
+		const jazz = await db.genre.findUniqueOrThrow({ where: { slug: 'jazz' } });
+		const agent = async (name: string, track: 'MANAGER' | 'BOOKER', withGenre: boolean) => {
+			const user = await db.user.create({
+				data: { email: `${PREFIX}${name}@example.test`, referralCode: `${PREFIX}${name}` }
+			});
+			const actor = await db.actor.create({
+				data: {
+					kind: 'PERSON',
+					handle: `${PREFIX}${name}`,
+					displayName: name,
+					person: {
+						create: {
+							userId: user.id,
+							termsAcceptedAt: new Date(),
+							onboardedAt: new Date(),
+							tracks: { create: { track, isPrimary: true } },
+							agentProfile: {
+								create: withGenre ? { genres: { create: { genreId: jazz.id } } } : {}
+							}
+						}
+					}
+				}
+			});
+			ids[name] = actor.id;
+			await setActorLocation(actor.id, commune('Blagnac'), { db, schema: 'e2e' });
+		};
+		await agent('bk', 'BOOKER', true);
+		await agent('mgr', 'MANAGER', false);
+		expect(await search('metier=booker')).toEqual(['bk']);
+		expect(await search('metier=booker&genre=jazz')).toEqual(['bk']);
+		expect(await search('metier=manager')).toEqual([]);
+		const [hit] = (
+			await searchMusicians(ids.moi, parseFilters(new URLSearchParams('metier=booker')), {
+				db,
+				schema: 'e2e'
+			})
+		).results;
+		expect(hit.agent).toEqual({ kinds: ['BOOKER'], genres: [jazz.name] });
+	});
 });

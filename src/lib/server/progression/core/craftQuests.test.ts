@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { craftSummary } from './craftSummary';
 import {
+	agentQuestProgress,
+	nextAgentObjectives,
 	nextProducerObjectives,
 	nextPromoterObjectives,
 	nextSoundObjectives,
@@ -221,5 +223,37 @@ describe('objectifs de l’organisateur·rice (P5-05a)', () => {
 			'promoter.jam'
 		]);
 		expect(next[1].progress).toEqual({ current: 1, target: 3 });
+	});
+});
+
+describe('objectifs du manager et du booker (P5-07)', () => {
+	const base = {
+		genres: 0,
+		hasZone: false,
+		proposals: 0,
+		artists: 0,
+		developedArtists: 0,
+		bookedDates: 0,
+		bookedTours: 0
+	};
+
+	it('une proposition sans confirmation ne valide pas « premier accompagnement »', () => {
+		const state = { ...base, kind: 'MANAGER' as const, genres: 2, hasZone: true, proposals: 1 };
+		expect(nextAgentObjectives(state).map((o) => o.id)).toEqual(['agent.first', 'agent.developed']);
+		expect(agentQuestProgress(state)).toEqual({ done: 3, total: 5 });
+	});
+
+	it('le booker vise la date bookée puis la tournée', () => {
+		const state = {
+			...base,
+			kind: 'BOOKER' as const,
+			genres: 1,
+			hasZone: true,
+			proposals: 1,
+			artists: 1
+		};
+		const next = nextAgentObjectives(state);
+		expect(next.map((o) => o.id)).toEqual(['agent.date', 'agent.tour']);
+		expect(next[1].xp).toBe(400);
 	});
 });

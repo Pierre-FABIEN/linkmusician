@@ -165,6 +165,32 @@ export async function exportPersonData(userId: string) {
 				}
 			})
 		]);
+	// Manager, booker (P5-07) : fiche, et accompagnements (comme agent ou artiste).
+	const [agentProfile, representations] = await Promise.all([
+		prisma.agentProfile.findUnique({
+			where: { personId: person.actorId },
+			select: {
+				pitch: true,
+				updatedAt: true,
+				genres: { select: { genre: { select: { name: true } } } }
+			}
+		}),
+		prisma.representation.findMany({
+			where: { OR: [{ agentId: person.actorId }, { artistId: person.actorId }] },
+			orderBy: { createdAt: 'asc' },
+			select: {
+				agentId: true,
+				kind: true,
+				status: true,
+				message: true,
+				createdAt: true,
+				confirmedAt: true,
+				endedAt: true,
+				agent: { select: { displayName: true } },
+				artist: { select: { displayName: true } }
+			}
+		})
+	]);
 	const [
 		ledger,
 		reportsFiled,
@@ -564,6 +590,23 @@ export async function exportPersonData(userId: string) {
 					modifie_le: promoterProfile.updatedAt
 				}
 			: null,
+		profil_manager_booker: agentProfile
+			? {
+					ce_que_je_cherche: agentProfile.pitch,
+					genres: agentProfile.genres.map((g) => g.genre.name),
+					modifie_le: agentProfile.updatedAt
+				}
+			: null,
+		accompagnements: representations.map((r) => ({
+			role: r.agentId === person.actorId ? 'agent' : 'artiste',
+			metier: r.kind,
+			avec: r.agentId === person.actorId ? r.artist.displayName : r.agent.displayName,
+			statut: r.status,
+			mot: r.message,
+			propose_le: r.createdAt,
+			confirme_le: r.confirmedAt,
+			termine_le: r.endedAt
+		})),
 		travaux_en_ecoute: craftReferences.map((r) => ({
 			metier: r.track,
 			titre: r.title,
@@ -853,6 +896,36 @@ export async function personAnonymizationOps(
 		prisma.producerProfile.deleteMany({ where: { personId: person.actorId } }),
 		// Organisateur·rice (P5-05a) : les genres suivent le profil (cascade).
 		prisma.promoterProfile.deleteMany({ where: { personId: person.actorId } }),
+		// Manager, booker (P5-07) : la fiche part (genres en cascade) ; les
+		// propositions en attente disparaissent ; un accompagnement confirmé
+		// se termine et garde sa trace pour l'autre partie (« Compte supprimé »),
+		// sans mot ni personne qui a confirmé ou terminé.
+		prisma.agentProfile.deleteMany({ where: { personId: person.actorId } }),
+		prisma.representation.deleteMany({
+			where: {
+				status: 'PROPOSED',
+				OR: [{ agentId: person.actorId }, { artistId: person.actorId }]
+			}
+		}),
+		prisma.representation.updateMany({
+			where: {
+				status: 'CONFIRMED',
+				OR: [{ agentId: person.actorId }, { artistId: person.actorId }]
+			},
+			data: { status: 'ENDED', endedAt: new Date() }
+		}),
+		prisma.representation.updateMany({
+			where: { OR: [{ agentId: person.actorId }, { artistId: person.actorId }] },
+			data: { message: null }
+		}),
+		prisma.representation.updateMany({
+			where: { confirmedById: person.actorId },
+			data: { confirmedById: null }
+		}),
+		prisma.representation.updateMany({
+			where: { endedById: person.actorId },
+			data: { endedById: null }
+		}),
 		prisma.actorGenre.deleteMany({ where: { actorId: person.actorId } }),
 		// Morceaux (P3-11) : ceux que la personne porte sont supprimés ; ses
 		// crédits confirmés sur ceux des autres restent (« Compte supprimé »),

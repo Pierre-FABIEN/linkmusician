@@ -6,7 +6,10 @@
 
 	let { data } = $props();
 	const empty = $derived(
-		data.toConfirm.length === 0 && data.bandInvitations === 0 && data.workCredits === 0
+		data.toConfirm.length === 0 &&
+			data.bandInvitations === 0 &&
+			data.workCredits === 0 &&
+			data.representations === 0
 	);
 </script>
 
@@ -50,6 +53,21 @@
 					>{plural(data.workCredits, 'crédit de morceau', 'crédits de morceaux')}</span
 				>
 				<span class="text-sm font-semibold text-primary">Confirmer mon rôle →</span>
+			</a>
+		{/if}
+		{#if data.representations > 0}
+			<a
+				href="/accompagnement"
+				class="flex min-h-14 items-center justify-between rounded-2xl border bg-card p-4 hover:border-primary"
+			>
+				<span class="font-semibold"
+					>{plural(
+						data.representations,
+						'proposition d’accompagnement',
+						'propositions d’accompagnement'
+					)}</span
+				>
+				<span class="text-sm font-semibold text-primary">Répondre →</span>
 			</a>
 		{/if}
 		{#if data.bandInvitations > 0}

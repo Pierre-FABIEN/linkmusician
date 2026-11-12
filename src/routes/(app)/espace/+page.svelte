@@ -6,6 +6,7 @@
 	import * as Avatar from '#shadcn/avatar';
 	import {
 		BookOpen,
+		Briefcase,
 		CalendarDays,
 		CircleCheck,
 		Compass,
@@ -48,7 +49,7 @@
 						href: '/espace/a-confirmer',
 						icon: CircleCheck,
 						title: 'À confirmer',
-						text: 'Des collaborations, crédits ou invitations attendent ta réponse.',
+						text: 'Des collaborations, crédits, invitations ou propositions attendent ta réponse.',
 						badge: String(c.toConfirm),
 						highlight: true
 					}
@@ -128,6 +129,26 @@
 			text: 'Jams et collaborations à venir.',
 			badge: c.agenda > 0 ? `${c.agenda} à venir` : null
 		},
+		// Accompagnement (P5-07) : managers, bookers, et les artistes accompagnés.
+		...(data.representation
+			? [
+					{
+						href: '/accompagnement',
+						icon: Briefcase,
+						title: 'Accompagnement',
+						text: data.representation.isAgent
+							? 'Les artistes que tu accompagnes, comme manager ou booker.'
+							: 'Les managers et bookers qui t’accompagnent.',
+						badge:
+							data.representation.pending > 0
+								? `${data.representation.pending} à trancher`
+								: data.representation.current > 0
+									? plural(data.representation.current, 'en cours', 'en cours')
+									: null,
+						highlight: data.representation.pending > 0
+					}
+				]
+			: []),
 		// Parrainage (P4-13b) : à partir du palier Pilier local.
 		...(d.canSponsor
 			? [

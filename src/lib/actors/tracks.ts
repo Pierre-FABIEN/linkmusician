@@ -1,7 +1,7 @@
 /**
  * Métiers (pistes) d'une personne : référentiel et règles de sélection.
  * Ouverts : musicien·ne (lancement), ingé son (P4-02), producteur·rice (P4-04),
- * organisateur·rice (P5-05a).
+ * organisateur·rice (P5-05a), manager et booker (P5-07).
  *
  * Module pur, partagé par le serveur et le navigateur. Les libellés vivent
  * ici, jamais en dur dans les composants. Décision D15 : tous les métiers
@@ -61,13 +61,13 @@ export const TRACKS: Readonly<Record<TrackKindValue, TrackInfo>> = {
 		kind: 'MANAGER',
 		label: 'Manager',
 		description: "Tu accompagnes la carrière d'artistes.",
-		available: false
+		available: true
 	},
 	BOOKER: {
 		kind: 'BOOKER',
 		label: 'Booker / programmateur·rice',
 		description: 'Tu trouves des dates ou tu programmes une salle, un festival.',
-		available: false
+		available: true
 	},
 	PROMOTER: {
 		kind: 'PROMOTER',

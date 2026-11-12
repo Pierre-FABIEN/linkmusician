@@ -32,12 +32,15 @@
 		band,
 		signedIn,
 		canReport,
-		memberShell
+		memberShell,
+		representHref = null
 	}: {
 		band: Omit<PublicBand, 'id'>;
 		signedIn: boolean;
 		canReport: boolean;
 		memberShell: boolean;
+		/** LINKMUSICIAN: proposer de l'accompagner (manager, booker, P5-07). */
+		representHref?: string | null;
 	} = $props();
 
 	/** Étapes déclarées par le groupe, encore en ligne (P3-06). */
@@ -187,6 +190,11 @@
 							{:else if band.viewer.status === 'INVITED'}
 								<a href="/groupes" class="inline-block text-sm font-semibold underline"
 									>Le groupe t’invite : répondre</a
+								>
+							{/if}
+							{#if representHref && band.viewer.status !== 'ACTIVE'}
+								<a href={representHref} class="inline-block text-sm font-semibold underline"
+									>Proposer d’accompagner {band.displayName}</a
 								>
 							{/if}
 						{/if}
