@@ -95,6 +95,70 @@ ou au plateau), pas d'organisation revendiquée par saisie d'un nom (elle
 se crée et se vérifie à part), aucune audience, aucun crédit, aucun droit
 ni mandat déduits d'une déclaration.
 
+### 1.3 Qualification pour la mise en relation (#29, ONB-12b, D61 à D64)
+
+Chaque information demandée doit servir une mise en relation précise.
+Trois objets, à ne pas mélanger :
+
+- **profil métier** (la personne, par métier) : ce qu'elle sait faire, ce
+  qu'elle propose, ce qu'elle cherche, où et comment elle travaille ;
+- **projet ou structure** (`Organization` : groupe, studio, lieu,
+  organisateur·rices, école) : membres et rôles, formation et répertoire
+  du groupe (D64) ; un membre ne représente pas la structure, un
+  accompagnement se confirme (`Representation`) ;
+- **opportunité** (`Opportunity`) : un besoin daté, ses critères
+  **bloquants** (métier, spécialité, rayon, formation, engagement,
+  présence, rémunération : D63) ; genres et ambition restent des
+  affinités.
+
+Règles : une spécialité ne vaut pas une offre (D62) ; une information
+absente est **inconnue**, jamais « non » ; l'XP n'entre dans aucun
+critère ; les données communes (commune, rayon, genres) sont demandées
+une fois.
+
+**Visibilité (D61)** : par métier, trois blocs réglables (public, membres,
+privé) ; défauts en Q64 et Q65.
+
+| Bloc                      | Contenu                                       | Par défaut |
+| ------------------------- | --------------------------------------------- | ---------- |
+| Spécialités et intentions | spécialités, « Je propose », « Je recherche » | membres    |
+| Précisions                | champs propres du catalogue                   | membres    |
+| Conditions                | champs marqués `block: 'conditions'`          | privé      |
+
+**Matrice** (I : inscription, P : profil avancé, A : annonce ; R : requis,
+C : conditionnel, F : facultatif ; « existe » : déjà dans le code).
+
+| Métier                | Information                                               | Sert à                                    | Où  | Requis | Bloc             | Existe                       |
+| --------------------- | --------------------------------------------------------- | ----------------------------------------- | --- | ------ | ---------------- | ---------------------------- |
+| Tous                  | Commune, rayon                                            | distance (tranches)                       | I   | R      | public (tranche) | oui                          |
+| Tous                  | Genres                                                    | affinité                                  | I   | R      | public           | oui (écran commun, Q56)      |
+| Tous                  | Spécialités, « Je propose », « Je recherche »             | être trouvé·e pour une prestation (D62)   | I   | F      | intentions       | oui                          |
+| Tous                  | Ouvert aux sollicitations                                 | ne pas solliciter qui ne veut pas         | P   | F      | membres          | ONB-12b                      |
+| Tous                  | Références, portfolio (`CraftReference`, médias)          | confiance (déclaré)                       | P   | F      | public           | oui (son, production)        |
+| Musicien·ne           | Instruments et niveau déclaré                             | critère bloquant d'une annonce            | I   | R      | public           | oui                          |
+| Musicien·ne           | Expérience, engagement                                    | engagement compatible (scénario 1)        | I   | R      | intentions       | oui (D58)                    |
+| Groupe                | Formation, répertoire                                     | duo, groupe de reprises (scénarios 3, 4)  | P   | F      | public           | ONB-12c (D64)                |
+| Ingé son              | Où tu travailles ; `mobility`                             | à distance ou sur place (scénario 2)      | I   | R      | précisions       | oui (Q59 tranchée par D62)   |
+| Ingé son              | Formats, livrables, consoles, jauge tenue                 | prestation adaptée au besoin              | I   | C      | précisions       | oui                          |
+| Ingé son              | Révisions de mixage                                       | conditions de la prestation               | I   | C      | conditions       | oui                          |
+| Producteur·rice       | Degré d'intervention, formats de beat                     | beat contre production complète           | I   | C      | précisions       | oui                          |
+| Producteur·rice       | Ce que tu souhaites (beats)                               | conditions                                | I   | C      | conditions       | oui                          |
+| Producteur·rice       | Tarifs indicatifs (`rate`)                                | conditions                                | P   | F      | page historique  | oui (visibilité : ONB-12c)   |
+| Manager               | Statut, territoire, nouveaux projets, stade ciblé         | prospection d'artistes                    | I   | R ou C | précisions       | oui                          |
+| Manager               | Capacité d'accompagnement                                 | conditions                                | I   | C      | conditions       | oui                          |
+| Booker                | Structure, jauge, formations, types d'événements          | programmation contre booking (scénario 3) | I   | R ou C | précisions       | oui                          |
+| Booker                | Ce que tu fournis (accueil)                               | conditions                                | I   | C      | conditions       | oui                          |
+| Organisateur·rice     | Situation, formats de jam, jauge, régie                   | distinguer personne, lieu et événement    | I   | R ou C | précisions       | oui                          |
+| Organisateur·rice     | Rémunération envisagée                                    | conditions habituelles                    | I   | C      | conditions       | oui                          |
+| Annonce               | Métier, spécialité, instrument, rayon                     | critères bloquants                        | A   | R ou F | annonce          | oui                          |
+| Annonce               | Rémunération, fourchette, formation, engagement, présence | critères bloquants (scénarios 1 à 4)      | A   | F      | annonce          | ONB-13b (D63)                |
+| Label, édition, comms | A&R, démos, soumissions, synchro, formats                 | scénarios 5, 6 (métiers fermés, Q62)      | I   | C      | précisions       | oui, non exigé (« bientôt ») |
+
+La **complétude** d'un métier (`#lib/actors/completeness`, sur
+`/profil/metier/[slug]` et « Ma pratique ») liste ce qui manque pour être
+exploitable, avec le bénéfice de chaque ajout ; les champs facultatifs
+sont proposés « pour aller plus loin », sans pénalité ni pourcentage.
+
 ## 2. En attendant leur phase (D15)
 
 Tant que son métier n'est pas ouvert, la personne a un **profil de base**,
