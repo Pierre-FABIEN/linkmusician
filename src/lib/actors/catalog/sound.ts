@@ -80,6 +80,7 @@ export const soundCatalog: TrackCatalog = {
 		},
 		{
 			id: 'mixing_revisions',
+			block: 'conditions',
 			label: 'Mixage : révisions',
 			kind: 'single',
 			when: { specializations: ['MIXING'] },

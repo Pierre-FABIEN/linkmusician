@@ -60,7 +60,11 @@
 			{#if data.trackPages.length > 0}
 				<nav aria-label="Mes métiers" class="mt-3 flex flex-wrap gap-2">
 					{#each data.trackPages as page (page.href)}
-						<a href={page.href} class="lm-btn" data-variant="ghost">{page.label} →</a>
+						<a href={page.href} class="lm-btn" data-variant="ghost"
+							>{page.label}{#if page.missing > 0}<span class="ml-1 text-xs"
+									>· {page.missing} à compléter</span
+								>{/if} →</a
+						>
 					{/each}
 				</nav>
 			{/if}

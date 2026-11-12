@@ -4,6 +4,9 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import MusicianStepForm from '#lib/components/linkmusician/musician/MusicianStepForm.svelte';
 
+	import TrackCompletenessCard from '#lib/components/linkmusician/profile/TrackCompletenessCard.svelte';
+	import TrackSettingsForm from '#lib/components/linkmusician/profile/TrackSettingsForm.svelte';
+
 	let { data } = $props();
 </script>
 
@@ -20,6 +23,7 @@
 			</p>
 		</div>
 		{#if data.hasTrack}
+			<TrackCompletenessCard completeness={data.completeness} common={data.commonMissing} />
 			<MusicianStepForm
 				form={data.form}
 				offers={data.offers}
@@ -31,6 +35,11 @@
 					<Button type="submit" disabled={submitting}>Enregistrer</Button>
 				{/snippet}
 			</MusicianStepForm>
+			<TrackSettingsForm
+				slug={data.settingsSlug}
+				settings={data.settings}
+				saved={data.settingsSaved}
+			/>
 		{:else}
 			<div class="space-y-3">
 				<p class="text-sm text-muted-foreground">

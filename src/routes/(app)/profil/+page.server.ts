@@ -19,24 +19,33 @@ import { onProfileChanged } from '#lib/server/progression/profile';
 import { currentTip } from '#lib/server/guide/service';
 import { prisma } from '#lib/server';
 import { TRACK_KINDS, TRACKS } from '#lib/actors/tracks';
-import { TRACK_ROLES } from '#lib/actors/roles';
+import { trackProfileHref } from '#lib/actors/completeness';
+import { completenessOf } from '#lib/server/actors/trackSheets';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const person = await requirePerson(locals);
-	const details = await getProfileDetails(person);
+	const [details, completeness] = await Promise.all([
+		getProfileDetails(person),
+		completenessOf(person.actorId)
+	]);
 	return {
 		form: await superValidate(profileFormValues(details), zod(profileSchema), { errors: false }),
 		mayOrganize: details.mayOrganize,
 		/** Arrivé·e depuis « Lancer une jam » sans avoir coché (D51). */
 		askOrganize: url.searchParams.has('organiser'),
-		/** Une page par métier (D59) ; musicien·ne : « Ma pratique ». */
-		trackPages: TRACK_KINDS.filter((t) => person.tracks.some((p) => p.track === t)).map((t) => ({
-			href: TRACK_ROLES[t].onboarding.ownStep
-				? `/profil/metier/${TRACK_ROLES[t].slug}`
-				: '/profil/pratique',
-			label: TRACKS[t].label
-		})),
+		/**
+		 * Une page par métier (D59) ; musicien·ne : « Ma pratique ». Avec son
+		 * état de complétude (ONB-12b) : le nombre de manques, communs compris.
+		 */
+		trackPages: TRACK_KINDS.filter((t) => person.tracks.some((p) => p.track === t)).map((t) => {
+			const c = completeness.tracks.find((x) => x.track === t);
+			return {
+				href: trackProfileHref(t),
+				label: TRACKS[t].label,
+				missing: c && !c.soon ? completeness.common.length + c.missing.length : 0
+			};
+		}),
 		/** Lien vers « Mon profil d'ingé son » (P4-02). */
 		soundEngineer: person.tracks.some((t) => t.track === 'SOUND_ENGINEER'),
 		/** Lien vers « Mon profil de producteur·rice » (P4-04). */

@@ -18,6 +18,7 @@ import { BandError, requestToJoin } from '#lib/server/bands/service';
 import { MilestoneError } from '#lib/server/milestones/service';
 import { contestMilestone } from '#lib/server/milestones/disputes';
 import { agentKindsOf } from '#lib/server/representation/service';
+import { publicTrackSheets } from '#lib/server/actors/trackSheets';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -50,6 +51,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 						studio: null,
 						promoterOrg: publicOrg,
 						studios: [],
+						trackSheets: [],
 						careerSheet: null,
 						suggestions: [],
 						isOwner: false,
@@ -73,6 +75,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 				studio: publicStudio,
 				promoterOrg: null,
 				studios: [],
+				trackSheets: [],
 				careerSheet: null,
 				suggestions: [],
 				isOwner: false,
@@ -89,6 +92,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			studio: null,
 			promoterOrg: null,
 			studios: [],
+			trackSheets: [],
 			careerSheet: null,
 			suggestions: [],
 			isOwner: false,
@@ -101,9 +105,11 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	// L'identifiant interne reste côté serveur.
 	const { id: actorId, ...publicProfile } = profile;
 	const isOwner = viewer?.actorId === actorId;
+	// Fiches des métiers (ONB-12b, D61) : seulement les blocs que ce lecteur voit.
+	const audience = isOwner ? 'owner' : viewer?.onboardedAt ? 'members' : 'public';
 	// Suggestions (P2-18), pour un membre seulement : les siennes sur son
 	// profil, « Dans le même style » sur celui d'un autre.
-	const [suggestions, careerSheet, studios] = await Promise.all([
+	const [suggestions, careerSheet, studios, trackSheets] = await Promise.all([
 		viewer?.onboardedAt && profile.kind === 'PERSON'
 			? suggestMusicians(
 					viewer.actorId,
@@ -116,14 +122,20 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			: [],
 		profile.kind === 'PERSON' ? publicCareerSheet(actorId, viewer?.actorId) : null,
 		// Studios publiés que la personne gère (P4-03a).
-		profile.kind === 'PERSON' ? studiosOfPerson(actorId, new Date(), viewer?.actorId) : []
+		profile.kind === 'PERSON' ? studiosOfPerson(actorId, new Date(), viewer?.actorId) : [],
+		profile.kind === 'PERSON' ? publicTrackSheets(actorId, audience) : []
 	]);
+	// « Cherche » (`lookingFor`) copie le « Je recherche » musicien·ne (D58) :
+	// il suit la visibilité de ce bloc.
+	const musicianSheet = trackSheets.find((s) => s.track === 'MUSICIAN');
+	if (musicianSheet && !musicianSheet.offersVisible) publicProfile.lookingFor = [];
 	return {
 		profile: publicProfile,
 		band: null,
 		studio: null,
 		promoterOrg: null,
 		studios,
+		trackSheets,
 		careerSheet,
 		signedIn: Boolean(viewer?.onboardedAt),
 		suggestions,

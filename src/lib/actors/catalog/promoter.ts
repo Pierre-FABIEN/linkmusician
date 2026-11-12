@@ -103,6 +103,7 @@ export const promoterCatalog: TrackCatalog = {
 		},
 		{
 			id: 'concert_pay',
+			block: 'conditions',
 			label: 'Concerts : rémunération envisagée',
 			kind: 'multi',
 			when: { specializations: ['CONCERTS'] },

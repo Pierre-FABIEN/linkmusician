@@ -24,6 +24,11 @@ export type TrackField = {
 	/** Requis quand il s'affiche, pour un métier ouvert. */
 	required?: boolean;
 	when?: FieldCondition;
+	/**
+	 * Bloc de visibilité (D61) : `conditions` (privé par défaut, Q65) pour une
+	 * condition de collaboration ; sinon le bloc « précisions ».
+	 */
+	block?: 'conditions';
 };
 
 /** Ce qu'un métier propose de déclarer, en plus de ses spécialités. */

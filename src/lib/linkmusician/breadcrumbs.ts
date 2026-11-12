@@ -99,6 +99,7 @@ const ROUTES: Record<string, Node> = {
 	'/profil/musical': { label: 'Profil musical', parent: '/profil' },
 	'/profil/pratique': { label: 'Ma pratique', parent: '/profil' },
 	'/profil/metier/[slug]': { label: 'Mon métier', parent: '/profil' },
+	'/profil/metier/[slug]/reglages': { label: 'Qui voit quoi', parent: '/profil/metier/[slug]' },
 	'/profil/medias': { label: 'Médias', parent: '/profil' },
 	'/profil/ville': { label: 'Ma ville', parent: '/profil' },
 	'/profil/son': { label: 'Profil d’ingé son', parent: '/profil' },

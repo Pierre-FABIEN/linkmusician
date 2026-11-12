@@ -564,7 +564,15 @@ export async function exportPersonData(userId: string) {
 		conseils_masques: person.tipsDismissed,
 		// Assistant d'inscription (P3-17) : nombre d'analyses, jamais le texte.
 		analyses_assistant_inscription: person.assistantRuns,
-		metiers: person.tracks.map((t) => ({ metier: t.track, principal: t.isPrimary })),
+		// ONB-12b (D61) : visibilité par bloc et « ouvert aux sollicitations ».
+		metiers: person.tracks.map((t) => ({
+			metier: t.track,
+			principal: t.isPrimary,
+			visibilite_specialites_et_intentions: t.offersVisibility,
+			visibilite_precisions: t.detailsVisibility,
+			visibilite_conditions: t.conditionsVisibility,
+			ouvert_aux_sollicitations: t.openToRequests
+		})),
 		profil_musicien: musicianProfile
 			? {
 					experience_declaree: musicianProfile.practiceExperience,

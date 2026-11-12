@@ -112,6 +112,7 @@ export const bookerCatalog: TrackCatalog = {
 		},
 		{
 			id: 'hosting',
+			block: 'conditions',
 			label: 'Programmation : ce que tu fournis',
 			kind: 'multi',
 			when: PROGRAMMING,

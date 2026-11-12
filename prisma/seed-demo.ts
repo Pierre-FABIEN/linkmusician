@@ -76,6 +76,46 @@ type Demo = {
 	demo?: { title: string; url: string; provider: 'YOUTUBE' | 'SOUNDCLOUD' | 'BANDCAMP' };
 };
 
+/**
+ * Fiches de métier de démo (ONB-12b) : Élise montre une fiche booker dont les
+ * intentions sont publiques, les précisions réservées aux membres, les
+ * conditions privées.
+ */
+const DEMO_TRACK_SHEETS: Record<
+	string,
+	{
+		track: TrackKind;
+		specializations: string[];
+		offers: string[];
+		needs: string[];
+		answers: Record<string, string[]>;
+		settings: {
+			offersVisibility: 'PUBLIC' | 'MEMBERS' | 'PRIVATE';
+			detailsVisibility: 'PUBLIC' | 'MEMBERS' | 'PRIVATE';
+			conditionsVisibility: 'PUBLIC' | 'MEMBERS' | 'PRIVATE';
+			openToRequests: boolean | null;
+		};
+	}
+> = {
+	'elise-booker': {
+		track: 'BOOKER',
+		specializations: ['ARTIST_BOOKING'],
+		offers: ['FIND_DATES'],
+		needs: ['FIND_VENUES_DATES'],
+		answers: {
+			structure: ['INDEPENDENT'],
+			territory: ['REGIONAL'],
+			artist_categories: ['EMERGING']
+		},
+		settings: {
+			offersVisibility: 'PUBLIC',
+			detailsVisibility: 'MEMBERS',
+			conditionsVisibility: 'PRIVATE',
+			openToRequests: true
+		}
+	}
+};
+
 /** Distribution fictive : instruments, niveaux, styles et envies variés. */
 const CAST: Demo[] = [
 	{
@@ -653,6 +693,32 @@ async function createDemo(demo: Demo, handle: string, commune: Commune, password
 		});
 	});
 	await setActorLocation(actor.id, commune, { db: prisma });
+	// Fiche de métier (ONB-12b, D61) : spécialité, intentions, précisions, réglages.
+	const sheet = DEMO_TRACK_SHEETS[demo.handle];
+	if (sheet) {
+		const where = { personId: actor.id, track: sheet.track };
+		await prisma.personTrackSpecialization.createMany({
+			data: sheet.specializations.map((code) => ({ ...where, code })),
+			skipDuplicates: true
+		});
+		await prisma.personTrackIntent.createMany({
+			data: [
+				...sheet.offers.map((code) => ({ ...where, direction: 'OFFER' as const, code })),
+				...sheet.needs.map((code) => ({ ...where, direction: 'NEED' as const, code }))
+			],
+			skipDuplicates: true
+		});
+		await prisma.personTrackAttribute.createMany({
+			data: Object.entries(sheet.answers).flatMap(([field, codes]) =>
+				codes.map((code) => ({ ...where, field, code }))
+			),
+			skipDuplicates: true
+		});
+		await prisma.personTrack.update({
+			where: { personId_track: where },
+			data: { ...sheet.settings, detailsConfirmedAt: new Date() }
+		});
+	}
 
 	// Progression : profil complété, puis démo publiée, par le vrai moteur.
 	await onProfileChanged(actor.id, prisma);

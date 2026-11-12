@@ -59,6 +59,8 @@
 	// Une personne ; la page d'un groupe (P3-02) passe par `BandProfile`. Les
 	// valeurs dérivées ci-dessous ne sont lues que dans la branche « personne ».
 	const p = $derived(data.profile!);
+	// Fiches des métiers (ONB-12b) : celles qui ont au moins un bloc visible.
+	const visibleSheets = $derived(data.trackSheets.filter((s) => s.blocks.length > 0));
 	const plural = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`;
 	const trackLabels = $derived(p.tracks.map((t) => TRACKS[t.track].label));
 	const practiceYears = $derived(p.practiceSince ? yearsOfPractice(p.practiceSince) : null);
@@ -391,6 +393,44 @@
 										</li>
 									{/each}
 								</ul>
+							</Card.Content>
+						</Card.Root>
+					{/if}
+
+					<!-- LINKMUSICIAN: fiches des métiers (ONB-12b, D61), blocs filtrés par le serveur. -->
+					{#if visibleSheets.length > 0}
+						<Card.Root>
+							<Card.Header><Card.Title><h2>Métiers</h2></Card.Title></Card.Header>
+							<Card.Content class="space-y-5">
+								{#each visibleSheets as sheet (sheet.track)}
+									<section class="space-y-2" data-testid="fiche-metier">
+										<h3 class="font-semibold">
+											{sheet.label}{#if sheet.isPrimary}<span
+													class="ml-2 text-sm font-normal text-muted-foreground"
+													>métier principal</span
+												>{/if}
+										</h3>
+										{#if sheet.openToRequests === true}<Badge variant="secondary"
+												>Ouvert·e aux sollicitations</Badge
+											>{:else if sheet.openToRequests === false}<Badge variant="outline"
+												>Pas de sollicitations en ce moment</Badge
+											>{/if}
+										{#each sheet.blocks as block (block.block)}
+											<dl class="space-y-1 text-sm" data-bloc={block.block}>
+												{#each block.lines as line (line.label)}
+													<div>
+														<dt class="text-muted-foreground">{line.label}</dt>
+														<dd class="flex flex-wrap gap-1">
+															{#each line.values as v (v)}<Badge variant="outline">{v}</Badge
+																>{/each}
+														</dd>
+													</div>
+												{/each}
+											</dl>
+										{/each}
+									</section>
+								{/each}
+								<p class="text-xs text-muted-foreground">Déclaré par la personne.</p>
 							</Card.Content>
 						</Card.Root>
 					{/if}

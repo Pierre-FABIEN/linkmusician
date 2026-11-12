@@ -71,6 +71,21 @@ Bandcamp, ou un fichier), tes influences, tes liens.
 > ⚠️ **Important** : ta démo est relue par la modération si ton compte est
 > récent. Elle apparaît dès qu’elle est validée.
 
+### Un métier, une fiche {#fiche-metier}
+
+Chaque métier que tu as choisi a sa page (**Mon profil** → le nom du
+métier ; pour les musicien·nes, **Ma pratique**). En haut, elle te dit ce
+qui manque pour qu’on te trouve, et pourquoi : sans offre cochée dans « Je
+propose », par exemple, tu n’apparais pas comme prestataire. Le reste est
+facultatif : rien ne te pénalise si tu ne le remplis pas.
+
+En bas, **Qui voit quoi** règle, pour ce métier, trois parties de ta fiche
+publique : tes spécialités et intentions, tes précisions, tes conditions
+(rémunération, capacité, accueil). Pour chacune : tout le monde, les membres
+inscrits, ou toi seulement. Par défaut, les conditions ne sont visibles que
+de toi. Tu peux aussi dire si tu es ouvert·e aux sollicitations pour ce
+métier.
+
 ### Si tu es ingé son {#inge-son}
 
 Ouvre **Mon profil › Mon profil d’ingé son** :
@@ -219,7 +234,9 @@ confirmation ; l’icône **Messages** affiche les conversations non lues.
 <details><summary>Qui voit mon profil ?</summary>
 
 Ton profil public (`/@ton-identifiant`) est visible par tout le monde,
-sauf si tu le masques dans tes réglages. Il ne montre jamais tes points,
+sauf si tu le masques dans tes réglages. Pour chaque métier, tu choisis
+qui voit tes intentions, tes précisions et tes conditions
+([Un métier, une fiche](#fiche-metier)). Il ne montre jamais tes points,
 ta date de naissance ni ton adresse. Pour un·e mineur·e, certaines
 informations ne sont montrées qu’aux personnes connectées.
 

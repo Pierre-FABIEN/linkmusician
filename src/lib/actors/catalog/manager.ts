@@ -63,6 +63,7 @@ export const managerCatalog: TrackCatalog = {
 		},
 		{
 			id: 'artist_capacity',
+			block: 'conditions',
 			label: 'Combien d’artistes tu peux accompagner',
 			kind: 'single',
 			when: { specializations: ['ARTIST_MANAGEMENT'] },

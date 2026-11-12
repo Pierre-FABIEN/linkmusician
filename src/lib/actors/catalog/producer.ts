@@ -52,6 +52,7 @@ export const producerCatalog: TrackCatalog = {
 		},
 		{
 			id: 'beat_terms',
+			block: 'conditions',
 			label: 'Beatmaking : ce que tu souhaites',
 			hint: 'Une indication : aucun contrat ne se crée ici.',
 			kind: 'multi',

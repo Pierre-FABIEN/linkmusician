@@ -47,6 +47,14 @@ Module LinkMusician (lot P1-11, décisions D1 et D19, maquettes P1-02
   n'est pas encore projeté dans `ActorProgress.tier`.
 - **Objectifs** : `nextObjectives` (noyau pur). Un objectif dont l'écran
   n'existe pas encore (annonces, groupes) s'affiche « Bientôt », sans lien.
+- **Fiches des métiers (ONB-12b, D61)** : une carte par métier, construite
+  par `publicTrackSheets` (`src/lib/server/actors/trackSheets.ts`, mise en
+  forme pure `#lib/actors/trackSheet`). Trois blocs réglés par la personne
+  (spécialités et intentions, précisions, conditions) : un·e visiteur·se
+  reçoit les blocs publics, un membre inscrit aussi ceux des membres, la
+  personne tout. Un bloc invisible ne quitte pas le serveur, même dans
+  `__data.json`. « Cherche » (`lookingFor`, copie D58) suit le bloc des
+  intentions musicien·ne. Toujours marqué « Déclaré par la personne ».
 - **Signaler** : le profil d'un·e autre se signale depuis `/@handle`
   (personne connectée, P1-12).
 - **RGPD** : `hidden` figure dans l'export (`profil_public_masque`) ; un
@@ -60,4 +68,7 @@ Pur : `core/summary.test.ts` (résumé et palier), `src/lib/actors/display.test.
 tableau de bord (raison, montant, objectif retiré), profil public sans XP
 avec JSON-LD `Person`, redirection des majuscules, masquage depuis
 `/reglages` puis 404 du profil et de ses médias, handle inconnu en 404,
-contrôle axe du tableau de bord et du profil.
+contrôle axe du tableau de bord et du profil. Fiches des métiers :
+`src/lib/actors/trackSheet.test.ts`, `trackSettings.integration.test.ts`
+et `e2e/linkmusician/profil-metiers.spec.ts` (visiteur, membre, personne,
+réglage d'un métier non détenu refusé).

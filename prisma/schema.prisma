@@ -1571,14 +1571,22 @@ model Person {
 
 /// Métier d'une personne. Un seul métier principal par personne.
 model PersonTrack {
-  personId  String
-  person    Person    @relation(fields: [personId], references: [actorId], onDelete: Cascade)
-  track     TrackKind
-  isPrimary Boolean   @default(false)
-  createdAt DateTime  @default(now())
+  personId             String
+  person               Person          @relation(fields: [personId], references: [actorId], onDelete: Cascade)
+  track                TrackKind
+  isPrimary            Boolean         @default(false)
+  createdAt            DateTime        @default(now())
   /// Étape de ce métier validée à l'onboarding (ONB-02, D57), même passée sans
   /// rien cocher pour un métier « bientôt ». `null` : à faire.
-  detailsConfirmedAt DateTime?
+  detailsConfirmedAt   DateTime?
+  /// Visibilité par bloc (ONB-12b, D61) : spécialités et intentions,
+  /// précisions (champs propres), conditions. Défauts : Q64.
+  offersVisibility     TrackVisibility @default(MEMBERS)
+  detailsVisibility    TrackVisibility @default(MEMBERS)
+  conditionsVisibility TrackVisibility @default(PRIVATE)
+  /// Ouvert·e aux sollicitations pour ce métier ; `null` : non précisé (Q66),
+  /// jamais lu comme « non ».
+  openToRequests       Boolean?
 
   specializations PersonTrackSpecialization[]
   intents         PersonTrackIntent[]
@@ -1601,6 +1609,14 @@ model PersonTrackSpecialization {
 
   @@id([personId, track, code])
   @@map("person_track_specializations")
+}
+
+/// Qui voit un bloc d'un métier (ONB-12b, D61) : tout le monde, les membres
+/// inscrits, ou la personne seule.
+enum TrackVisibility {
+  PUBLIC
+  MEMBERS
+  PRIVATE
 }
 
 /// « Je propose » (`OFFER`) ou « Je recherche » (`NEED`), par métier (ONB-01).

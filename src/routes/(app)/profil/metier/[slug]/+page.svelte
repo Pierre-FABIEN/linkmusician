@@ -4,6 +4,9 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import TrackStepForm from '#lib/components/linkmusician/onboarding/TrackStepForm.svelte';
 
+	import TrackCompletenessCard from '#lib/components/linkmusician/profile/TrackCompletenessCard.svelte';
+	import TrackSettingsForm from '#lib/components/linkmusician/profile/TrackSettingsForm.svelte';
+
 	let { data } = $props();
 </script>
 
@@ -26,12 +29,18 @@
 								</p>
 							{/if}
 						</div>
+						<TrackCompletenessCard completeness={data.completeness} common={data.commonMissing} />
 					{/snippet}
 					{#snippet actions({ missing, submitting })}
 						<Button type="submit" disabled={submitting || missing}>Enregistrer</Button>
 					{/snippet}
 				</TrackStepForm>
 			{/key}
+			<TrackSettingsForm
+				slug={data.settingsSlug}
+				settings={data.settings}
+				saved={data.settingsSaved}
+			/>
 		{:else}
 			<h1 class="lm-title">Ce métier n’est pas le tien</h1>
 			<p class="text-sm text-muted-foreground">Ajoute-le pour remplir cette page.</p>

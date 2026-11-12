@@ -9,9 +9,10 @@ import { message } from 'sveltekit-superforms';
 import { requirePerson } from '#server/actors/tracksForm';
 import { stepTrackOf, submitTrackStep, trackStepData } from '#lib/server/actors/trackStep';
 import { TRACK_ROLES } from '#lib/actors/roles';
+import { trackPageExtras } from '#lib/server/actors/trackSheets';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals, params }) => {
+export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const person = await requirePerson(locals);
 	const track = stepTrackOf(params.slug);
 	if (!track) error(404, 'Métier inconnu');
@@ -21,7 +22,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		held: true as const,
 		/** Page historique du métier (ingé son, production…), quand elle existe. */
 		profilePath: TRACK_ROLES[track].profilePath,
-		...(await trackStepData(person.actorId, track))
+		...(await trackStepData(person.actorId, track)),
+		// Complétude et « Qui voit quoi » (ONB-12b, D61).
+		...(await trackPageExtras(person.actorId, track, url))
 	};
 };
 
