@@ -1,7 +1,7 @@
 # Préparation technique de la phase 5
 
 > Rédigé le 11/11/2026, après la revue de phase 4. Les sections des lots
-> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06, P5-07, P5-08) ont été retirées ; la route complète est
+> terminés (P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06, P5-07, P5-08, P5-11) ont été retirées ; la route complète est
 > dans [fin-du-projet.md](./fin-du-projet.md).
 > But : qu'une session de lot n'ait plus à explorer le code. Pour chaque
 > lot : ce qui existe, le modèle à copier, le schéma proposé, les étapes,
@@ -36,8 +36,9 @@ les e2e : fermer le bandeau cookies (« Compris ») avant un bouton collé en
 bas, attendre la fin des toasts avant `expectNoA11yViolations`, et lire
 la carte par `:scope > li`.
 
-**Ordre conseillé** (restant) : P5-11 (P5-04b, P5-07 et P5-08 ✅ le
-12/11/2026). Les concerts s'appuient sur l'organisateur et la fiche du
+**Ordre conseillé** : l'étape A est finie (P5-04b, P5-07, P5-08 et P5-11
+✅ le 12/11/2026). Restent P5-03c (après le lancement, Q20), P5-09 et
+P5-10 (payants). Les concerts s'appuient sur l'organisateur et la fiche du
 lieu, les jams publiques sur l'organisation du lieu.
 
 ---
@@ -61,31 +62,6 @@ lancement). On peut donc le **reporter après le lancement** (Q20).
 filtre « fini avant 22 h » (`endsBeforeCurfew`) dans le mode jam (P5-04).
 Un lieu n'est jamais mis en avant contre paiement dans le mode jam
 (P5-09).
-
----
-
-## P5-11 — Écoles, MJC, conservatoires (D29)
-
-**À faire** :
-
-1. `OrgKind` ajoute `SCHOOL`, géré comme un studio (le ou la prof ou
-   responsable en OWNER). La vérification (P5-02) est recommandée, pas
-   exigée.
-2. Invitation des élèves : lien signé (`SchoolInvite` : jeton haché,
-   expiration 30 jours, plafond d'usages). La personne qui le suit
-   devient `MEMBER` de l'école (`Membership`). **Aucune liste d'élèves
-   publique.**
-3. Ateliers jam : des jams (P2-14b) publiées par l'école, `lead` = le
-   prof, réservées aux membres (champ `audience: 'SCHOOL'` sur
-   `Opportunity`). Mineur·es : seulement les ateliers finis avant 22 h
-   (règle existante `endsBeforeCurfew`, testée).
-4. Quête « De l'atelier à la scène » (`craftQuests` ou objectifs du
-   musicien) : premier atelier, puis première jam publique.
-5. _Passeur_ : un prof qui présente des élèves l'obtient déjà par P4-13b
-   s'il est Pilier local. Sinon, Q23 : ouvrir le parrainage aux
-   responsables d'école vérifiée.
-6. e2e « la prof invite un élève, il rejoint l'atelier puis une jam
-   publique ».
 
 ---
 

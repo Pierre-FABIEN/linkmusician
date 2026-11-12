@@ -12,14 +12,14 @@
 
 ## 1. Où on en est
 
-**95 lots terminés sur 113** (84 %) ; **≈ 90 % du périmètre du
+**96 lots terminés sur 113** (85 %) ; **≈ 90 % du périmètre du
 lancement**. Phases 0 à 2 complètes, phase 3 complète sauf l'ouverture,
 phase 4 complète pour le lancement, phase 5 commencée (P5-01, P5-02,
-P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06, P5-07, P5-08). La phase 6 vient après le lancement.
+P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06, P5-07, P5-08, P5-11). La phase 6 vient après le lancement.
 
 | Étape                              | Lots                                                          | Quand                     |
 | ---------------------------------- | ------------------------------------------------------------- | ------------------------- |
-| A. Finir la scène                  | P5-11                                                         | Nov. → déc. 2026          |
+| A. Finir la scène                  | ✅ (P5-07, P5-11 le 12/11/2026)                               | Nov. → déc. 2026          |
 | B. Revue de phase 5 et revue UX    | Revue de fin de phase, Metro (MET-01 à 07), suite e2e (P0-01) | Déc. 2026 → janv. 2027    |
 | C. Audit de sécurité (bloquant)    | P3-10a                                                        | Janv. → fév. 2027         |
 | D. Ouverture publique à Toulouse   | P3-10                                                         | Objectif début mars 2027  |
@@ -120,17 +120,18 @@ léger, recherche, carte publique, objectifs, RGPD ; e2e `booker.spec.ts`.
 Q48 à Q51. La part de 10 % reste reportée (Q21). Voir
 [docs/scene](../scene/README.md#booker-et-manager-p5-07).
 
-### P5-11 — Écoles, MJC, conservatoires (D29)
+### P5-11 — Écoles, MJC, conservatoires (D29) ✅
 
-- **Dépend de** : P5-02 ✅, P2-14c ✅.
-- **Tâches** : organisation `SCHOOL` ; un·e prof invite ses élèves (lien
-  d'invitation) et publie des **ateliers jam** (lead = le prof) ; quête
-  « De l'atelier à la scène » ; réputation des confirmé·es qui animent
-  ou parrainent (_Passeur_) ; aucune liste d'élèves publique ; mineur·es
-  (D5) inchangé ; parrainage des responsables d'école : non (Q23).
-- **Fin** : e2e « la prof invite un élève, il rejoint l'atelier puis une
-  jam publique » ; un·e mineur·e ne voit que les ateliers finis avant
-  22 h (test).
+**P5-11 ✅** (12/11/2026) : organisation `SCHOOL` (un·e responsable
+majeur·e, Q52) ; lien d'invitation des élèves (jeton haché, 30 jours,
+plafond d'usages, révocable), page publique `/ecole/[token]` reprise
+après l'inscription ; ateliers jam publiés au nom de l'école, réservés à
+ses membres (`audience: SCHOOL`, lead = le prof), jamais « tenus » (Q53) ;
+mineur·es : seuls les ateliers finis avant 22 h (test d'intégration) ;
+quête « De l'atelier à la scène » ; aucune liste d'élèves publique ;
+RGPD (l'école ne passe jamais à un·e élève) ; parrainage des
+responsables : non (Q23). e2e `ecole.spec.ts`. Voir
+[docs/ecoles](../ecoles/README.md).
 
 ## 3. Étape B — Revue de fin de phase 5 et revue UX
 
