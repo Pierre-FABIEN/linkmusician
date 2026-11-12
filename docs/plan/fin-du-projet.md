@@ -216,7 +216,7 @@ Reste à faire, dans l'ordre :
 
 #### ONB-13 — Découverte selon offres et besoins (découpé : 13a, 13b)
 
-- **ONB-13a — Recherche par offres** (D62) : `searchMusicianIds` filtre
+- **ONB-13a — Recherche par offres ✅** (D62) : `searchMusicianIds` filtre
   sur `person_track_intents` (offre ou besoin, métier, spécialité), source
   de distance `CraftMobility`, respect du bloc « spécialités et
   intentions » d'ONB-12b. Sans migration. Scénarios #29 : 2 et 7.
