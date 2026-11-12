@@ -35,7 +35,7 @@
 
 <MetroPage>
 	<div class="min-h-screen w-screen px-4 py-24">
-		<div class="mx-auto mb-6 max-w-lg"><StepBar current="metiers" /></div>
+		<div class="mx-auto mb-6 max-w-lg"><StepBar current="metiers" steps={data.steps} /></div>
 		<div class="lm-tile lm-tile--flow mx-auto max-w-lg p-6">
 			<h1 class="lm-title lm-title--sm mb-2">Qui es-tu&nbsp;?</h1>
 			<p class="mb-6 text-sm text-muted-foreground">

@@ -1,6 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: onboarding, étape « Intention » (P1-10).
 	import { untrack } from 'svelte';
+	import { previousStepPath } from '#lib/onboarding/steps';
 	import { enhance } from '$app/forms';
 	import { Users, Mic2, Guitar, Repeat, Handshake, GraduationCap, Compass } from 'lucide-svelte';
 	import * as Card from '#shadcn/card';
@@ -71,7 +72,9 @@
 				{/each}
 			</div>
 			<div class="flex flex-wrap justify-between gap-2">
-				<Button variant="ghost" href="/demarrer/ville">Retour</Button>
+				<Button variant="ghost" href={previousStepPath(data.steps, 'intention') ?? '/qui-es-tu'}
+					>Retour</Button
+				>
 				<div class="flex gap-2">
 					{#if selected.length === 0}
 						<Button type="submit" variant="outline"

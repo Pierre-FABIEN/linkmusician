@@ -1574,6 +1574,9 @@ model PersonTrack {
   track     TrackKind
   isPrimary Boolean   @default(false)
   createdAt DateTime  @default(now())
+  /// Étape de ce métier validée à l'onboarding (ONB-02, D57), même passée sans
+  /// rien cocher pour un métier « bientôt ». `null` : à faire.
+  detailsConfirmedAt DateTime?
 
   specializations PersonTrackSpecialization[]
   intents         PersonTrackIntent[]

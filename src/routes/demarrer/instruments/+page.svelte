@@ -1,6 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: onboarding, étape « Instruments » (P1-10).
 	import { untrack } from 'svelte';
+	import { previousStepPath } from '#lib/onboarding/steps';
 	import { enhance } from '$app/forms';
 	import { X } from 'lucide-svelte';
 	import * as Card from '#shadcn/card';
@@ -133,7 +134,9 @@
 
 		<form method="POST" use:enhance class="flex justify-between pt-2">
 			<input type="hidden" name="payload" value={payload} />
-			<Button variant="ghost" href="/qui-es-tu">Retour</Button>
+			<Button variant="ghost" href={previousStepPath(data.steps, 'instruments') ?? '/qui-es-tu'}
+				>Retour</Button
+			>
 			<Button type="submit" disabled={!ready}>Continuer</Button>
 		</form>
 	</Card.Content>

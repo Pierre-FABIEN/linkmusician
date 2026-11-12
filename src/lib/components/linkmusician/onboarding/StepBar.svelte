@@ -1,15 +1,20 @@
 <script lang="ts">
-	/** LINKMUSICIAN: barre des 6 étapes de l'onboarding (P1-10, maquette P1-02). */
+	/**
+	 * LINKMUSICIAN: barre des étapes de l'onboarding (P1-10, maquette P1-02).
+	 * Les étapes dépendent des métiers choisis (ONB-02) : 6 pour un·e
+	 * musicien·ne, une de plus par autre métier.
+	 */
 	import { Check } from 'lucide-svelte';
-	import { ONBOARDING_STEPS, stepNumber, type OnboardingStepId } from '#lib/onboarding/steps';
+	import type { OnboardingStep, OnboardingStepId } from '#lib/onboarding/steps';
 
-	let { current }: { current: OnboardingStepId } = $props();
-	const n = $derived(stepNumber(current));
+	let { current, steps }: { current: OnboardingStepId; steps: readonly OnboardingStep[] } =
+		$props();
+	const n = $derived(steps.findIndex((s) => s.id === current) + 1);
 </script>
 
 <nav aria-label="Étapes de l'inscription">
 	<ol class="flex items-center gap-1">
-		{#each ONBOARDING_STEPS as s, i (s.id)}
+		{#each steps as s, i (s.id)}
 			<li
 				class="flex flex-1 flex-col items-center gap-1.5"
 				aria-current={i + 1 === n ? 'step' : undefined}
@@ -29,5 +34,5 @@
 			</li>
 		{/each}
 	</ol>
-	<p class="mt-2 text-center text-xs text-muted-foreground">Étape {n} sur 6</p>
+	<p class="mt-2 text-center text-xs text-muted-foreground">Étape {n} sur {steps.length}</p>
 </nav>

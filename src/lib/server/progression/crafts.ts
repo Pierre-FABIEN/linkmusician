@@ -4,7 +4,8 @@
  * événements de domaine (prestations confirmées, crédits de sortie) et dans
  * le profil (spécialités, travaux en écoute, ville). Jamais l'XP.
  */
-import type { PrismaClient } from '@prisma/client';
+import type { PrismaClient, TrackKind } from '@prisma/client';
+import type { Objective } from './core/quests';
 import { craftSummary } from './core/craftSummary';
 import type { CraftTrack } from './core/crafts';
 import {
@@ -187,3 +188,18 @@ export async function getAgentProgress(actorId: string, kind: 'MANAGER' | 'BOOKE
 		questProgress: agentQuestProgress(state)
 	};
 }
+
+/**
+ * Prochains objectifs de chaque métier qui en a (ONB-02) : premier résultat
+ * de l'onboarding, adapté au métier principal. Les autres métiers n'ont pas
+ * encore d'objectifs propres.
+ */
+export const CRAFT_OBJECTIVES: Partial<
+	Record<TrackKind, (actorId: string, db: PrismaClient) => Promise<{ objectives: Objective[] }>>
+> = {
+	SOUND_ENGINEER: getSoundEngineerProgress,
+	PRODUCER: getProducerProgress,
+	PROMOTER: getPromoterProgress,
+	MANAGER: (actorId, db) => getAgentProgress(actorId, 'MANAGER', db),
+	BOOKER: (actorId, db) => getAgentProgress(actorId, 'BOOKER', db)
+};

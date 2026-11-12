@@ -2,7 +2,7 @@
  * Métiers d'une personne (`PersonTrack`). Règles pures dans
  * `#lib/actors/tracks` (D15).
  */
-import type { TrackKind } from '@prisma/client';
+import { Prisma, type TrackKind } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { checkTrackSelection, type TrackKindValue, type TrackSelection } from '#lib/actors/tracks';
 import { syncLegacySpecializations } from './specializations';
@@ -10,6 +10,13 @@ import { syncLegacySpecializations } from './specializations';
 type Equals<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 /** Échoue à la compilation si le référentiel pur et l'enum Prisma divergent. */
 export const TRACK_KINDS_MATCH_PRISMA: Equals<TrackKind, TrackKindValue> = true;
+
+const MAX_ATTEMPTS = 3;
+
+/** Conflit d'écriture ou interblocage d'une transaction sérialisable (Prisma P2034). */
+function isWriteConflict(err: unknown): boolean {
+	return err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2034';
+}
 
 /**
  * Remplace les métiers d'une personne, en une transaction.
@@ -27,20 +34,30 @@ export async function setPersonTracks(personId: string, selection: TrackSelectio
 	if (!result.ok) throw new Error(`Sélection de métiers invalide (${result.reason})`);
 	const { tracks, primary } = result.selection;
 
-	await prisma.$transaction(
-		[
-			prisma.personTrack.deleteMany({ where: { personId, track: { notIn: tracks } } }),
-			prisma.personTrack.updateMany({ where: { personId }, data: { isPrimary: false } }),
-			...tracks.map((track) =>
-				prisma.personTrack.upsert({
-					where: { personId_track: { personId, track } },
-					create: { personId, track, isPrimary: track === primary },
-					update: { isPrimary: track === primary }
-				})
-			)
-		],
-		{ isolationLevel: 'Serializable' }
-	); // deux enregistrements simultanés ne laissent pas deux principaux
+	const ops = () => [
+		prisma.personTrack.deleteMany({ where: { personId, track: { notIn: tracks } } }),
+		prisma.personTrack.updateMany({ where: { personId }, data: { isPrimary: false } }),
+		...tracks.map((track) =>
+			prisma.personTrack.upsert({
+				where: { personId_track: { personId, track } },
+				create: { personId, track, isPrimary: track === primary },
+				// `detailsConfirmedAt` (ONB-02) et les spécialités restent.
+				update: { isPrimary: track === primary }
+			})
+		)
+	];
+	// Deux enregistrements simultanés ne laissent pas deux principaux
+	// (sérialisable). Une transaction sérialisable peut échouer par conflit
+	// avec celle d'une autre personne (verrous de prédicat) : on la rejoue.
+	for (let attempt = 1; ; attempt++) {
+		try {
+			await prisma.$transaction(ops(), { isolationLevel: 'Serializable' });
+			break;
+		} catch (err) {
+			if (attempt < MAX_ATTEMPTS && isWriteConflict(err)) continue;
+			throw err;
+		}
+	}
 	// ONB-01 : retirer un métier efface ses spécialités (cascade) mais pas son
 	// profil ; s'il est repris, on recopie les spécialités du profil.
 	await syncLegacySpecializations(personId);

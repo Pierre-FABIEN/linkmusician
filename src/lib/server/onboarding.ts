@@ -1,25 +1,38 @@
 /**
- * Onboarding (P1-10) côté serveur : état déduit du profil, et « premier
- * résultat » (musiciens proches, requête simple : la recherche complète
- * arrive en P2-01).
+ * Onboarding (P1-10, ONB-02) côté serveur : état déduit du profil, fin de
+ * l'onboarding, et « premier résultat » (personnes proches, requête simple :
+ * la recherche complète arrive en P2-01).
  */
 import { prisma } from '#lib/server';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { findActorsNear } from '#lib/server/geo/queries';
-import { currentStep, type OnboardingState } from '#lib/onboarding/steps';
+import { redirect } from '@sveltejs/kit';
+import {
+	currentStep,
+	readyToFinish,
+	stepAfter,
+	stepPath,
+	type OnboardingState,
+	type OnboardingStepId
+} from '#lib/onboarding/steps';
 
 export async function onboardingStateOf(actorId: string): Promise<OnboardingState> {
 	const [person, instrumentCount, genreCount, zoneCount] = await Promise.all([
 		prisma.person.findUniqueOrThrow({
 			where: { actorId },
-			select: { onboardedAt: true, _count: { select: { tracks: true } } }
+			select: {
+				onboardedAt: true,
+				tracks: { select: { track: true, isPrimary: true, detailsConfirmedAt: true } }
+			}
 		}),
 		prisma.personInstrument.count({ where: { personId: actorId } }),
 		prisma.actorGenre.count({ where: { actorId } }),
 		prisma.actorLocation.count({ where: { actorId } })
 	]);
 	return {
-		hasTracks: person._count.tracks > 0,
+		tracks: person.tracks.map((t) => t.track),
+		primary: person.tracks.find((t) => t.isPrimary)?.track ?? null,
+		confirmedTracks: person.tracks.filter((t) => t.detailsConfirmedAt).map((t) => t.track),
 		instrumentCount,
 		genreCount,
 		hasZone: zoneCount > 0,
@@ -33,6 +46,31 @@ export async function onboardingFor(userId: string) {
 	if (!person) return null;
 	const state = await onboardingStateOf(person.actorId);
 	return { person, state, step: currentStep(state) };
+}
+
+/**
+ * Marque l'onboarding fini si plus rien ne manque et qu'il n'y a pas d'étape
+ * « intention » pour le faire (pas de métier musicien·ne, ou retiré en cours
+ * de route). Renvoie `true` si l'onboarding est fini (avant ou maintenant).
+ */
+export async function finishIfComplete(actorId: string): Promise<boolean> {
+	const state = await onboardingStateOf(actorId);
+	if (state.onboarded) return true;
+	if (!readyToFinish(state)) return false;
+	await prisma.person.updateMany({
+		where: { actorId, onboardedAt: null },
+		data: { onboardedAt: new Date() }
+	});
+	return true;
+}
+
+/**
+ * Après l'enregistrement d'une étape : termine l'onboarding s'il ne manque
+ * plus rien, puis redirige vers l'étape suivante (ou le résultat).
+ */
+export async function redirectAfterStep(actorId: string, from: OnboardingStepId): Promise<never> {
+	await finishIfComplete(actorId);
+	redirect(303, stepPath(stepAfter(from, await onboardingStateOf(actorId))));
 }
 
 /** Rayon de recherche du premier résultat : celui de la personne, sinon 25 km. */

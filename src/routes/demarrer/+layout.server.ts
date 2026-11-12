@@ -4,6 +4,7 @@
  */
 import { redirect } from '@sveltejs/kit';
 import { onboardingFor } from '#lib/server/onboarding';
+import { onboardingSteps } from '#lib/onboarding/steps';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
@@ -15,6 +16,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	return {
 		actorId: onboarding.person.actorId,
 		state: onboarding.state,
-		step: onboarding.step
+		step: onboarding.step,
+		/** Étapes de cette personne (ONB-02), pour la barre d'étapes. */
+		steps: onboardingSteps(onboarding.state)
 	};
 };

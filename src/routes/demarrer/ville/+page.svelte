@@ -2,6 +2,7 @@
 	// LINKMUSICIAN: onboarding, étape « Ville » (P1-10). Seulement la commune,
 	// jamais une position (P1-05).
 	import { untrack } from 'svelte';
+	import { previousStepPath } from '#lib/onboarding/steps';
 	import { enhance } from '$app/forms';
 	import { MapPin } from 'lucide-svelte';
 	import * as Card from '#shadcn/card';
@@ -140,7 +141,9 @@
 			<input type="hidden" name="communeCode" value={chosen?.code ?? ''} />
 			{#if form?.error}<p class="text-sm text-destructive" role="alert">{form.error}</p>{/if}
 			<div class="flex justify-between">
-				<Button variant="ghost" href="/demarrer/genres">Retour</Button>
+				<Button variant="ghost" href={previousStepPath(data.steps, 'ville') ?? '/qui-es-tu'}
+					>Retour</Button
+				>
 				<Button type="submit" disabled={!ready}>Continuer</Button>
 			</div>
 		</form>

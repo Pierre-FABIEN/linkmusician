@@ -1,6 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: onboarding, étape « Genres » (P1-10).
 	import { untrack } from 'svelte';
+	import { previousStepPath } from '#lib/onboarding/steps';
 	import { enhance } from '$app/forms';
 	import * as Card from '#shadcn/card';
 	import { Button } from '#shadcn/button';
@@ -84,7 +85,9 @@
 			</div>
 			{#if form?.error}<p class="text-sm text-destructive" role="alert">{form.error}</p>{/if}
 			<div class="flex justify-between">
-				<Button variant="ghost" href="/demarrer/instruments">Retour</Button>
+				<Button variant="ghost" href={previousStepPath(data.steps, 'genres') ?? '/qui-es-tu'}
+					>Retour</Button
+				>
 				<Button type="submit" disabled={selected.length === 0}>Continuer</Button>
 			</div>
 		</form>

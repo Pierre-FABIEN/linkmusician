@@ -13,6 +13,8 @@ import { tracksSchema } from '#lib/schema/actors/tracksSchema';
 import { setPersonTracks } from '#lib/prisma/actors/tracks';
 import { requirePerson, tracksFormFor } from '#server/actors/tracksForm';
 import { assistantState } from '#lib/server/onboarding-assistant';
+import { onboardingStateOf } from '#lib/server/onboarding';
+import { onboardingSteps } from '#lib/onboarding/steps';
 import type { Actions, PageServerLoad } from './$types';
 
 // LINKMUSICIAN: le menu du jeu est le point d'entrée de l'espace (P2-12b).
@@ -27,7 +29,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 	return {
 		form: await tracksFormFor(person.tracks),
 		// Assistant d'inscription facultatif (P3-17, D47).
-		assistant: await assistantState(person.actorId)
+		assistant: await assistantState(person.actorId),
+		/** Étapes selon les métiers déjà enregistrés (ONB-02). */
+		steps: onboardingSteps(await onboardingStateOf(person.actorId))
 	};
 };
 

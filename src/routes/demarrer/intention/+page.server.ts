@@ -22,6 +22,8 @@ export const actions: Actions = {
 	default: async ({ request, locals }) => {
 		const onboarding = await onboardingFor(locals.user!.id);
 		if (!onboarding) redirect(303, '/bienvenue');
+		// Pas d'enregistrement d'une étape future ou absente du parcours (ONB-02).
+		guardStep('intention', onboarding);
 		const chosen = (await request.formData())
 			.getAll('lookingFor')
 			.map(String)

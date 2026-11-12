@@ -175,8 +175,13 @@ function legacyMirrorOps(
  * Remplace les spécialités, offres et besoins d'un métier, en une
  * transaction. Revérifie tout : métier déclaré, codes du catalogue de ce
  * métier, pas d'ajout d'un code retiré (ceux déjà détenus restent).
+ * `confirm` marque aussi l'étape du métier comme faite (onboarding, ONB-02).
  */
-export async function setTrackDetails(personId: string, details: TrackDetails) {
+export async function setTrackDetails(
+	personId: string,
+	details: TrackDetails,
+	options: { confirm?: boolean } = {}
+) {
 	const { track } = details;
 	const held = await prisma.personTrack.findUnique({
 		where: { personId_track: { personId, track } },
@@ -202,6 +207,14 @@ export async function setTrackDetails(personId: string, details: TrackDetails) {
 		ops.push(...replaceOps(personId, track, list, check.codes, scope));
 	}
 	if (isLegacyTrack(track)) ops.push(...legacyMirrorOps(personId, track, saved.specializations));
+	// Onboarding (ONB-02) : l'étape de ce métier est faite.
+	if (options.confirm)
+		ops.push(
+			prisma.personTrack.update({
+				where: { personId_track: { personId, track } },
+				data: { detailsConfirmedAt: new Date() }
+			})
+		);
 	await prisma.$transaction(ops);
 	return saved;
 }

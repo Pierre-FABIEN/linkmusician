@@ -38,6 +38,8 @@
 			</h1>
 			<p class="text-muted-foreground">
 				Dans un rayon de {data.radius} km autour de {data.commune}.
+				{#if data.primaryLabel}Les musicien·nes sont les premières personnes avec qui tu
+					travailleras comme {data.primaryLabel.toLowerCase()}.{/if}
 			</p>
 		</div>
 	{/if}

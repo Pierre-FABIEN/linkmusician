@@ -4,10 +4,9 @@ import { prisma } from '#lib/server';
 import { listGenreTree } from '#lib/prisma/skills/referentials';
 import { saveGenres, UnknownReferenceError } from '#lib/prisma/skills/musicalProfile';
 import { onProfileChanged } from '#lib/server/progression/profile';
-import { onboardingFor } from '#lib/server/onboarding';
+import { onboardingFor, redirectAfterStep } from '#lib/server/onboarding';
 import { guardStep } from '#lib/server/onboarding-guard';
 import { checkGenresInput, MUSICAL_PROFILE_MESSAGES } from '#lib/skills/profile';
-import { stepPath } from '#lib/onboarding/steps';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ parent }) => {
@@ -34,6 +33,8 @@ export const actions: Actions = {
 	default: async ({ request, locals }) => {
 		const onboarding = await onboardingFor(locals.user!.id);
 		if (!onboarding) redirect(303, '/bienvenue');
+		// Pas d'enregistrement d'une étape future ou absente du parcours (ONB-02).
+		guardStep('genres', onboarding);
 		const data = await request.formData();
 		const genreIds = data.getAll('genreIds').map(String);
 		const influences = String(data.get('influences') ?? '');
@@ -56,6 +57,6 @@ export const actions: Actions = {
 			throw err;
 		}
 		await onProfileChanged(onboarding.person.actorId);
-		redirect(303, stepPath('ville'));
+		return redirectAfterStep(onboarding.person.actorId, 'genres');
 	}
 };

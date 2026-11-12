@@ -5,10 +5,10 @@ import { prisma } from '#lib/server';
 import { listInstrumentsByFamily } from '#lib/prisma/skills/referentials';
 import { saveInstruments, UnknownReferenceError } from '#lib/prisma/skills/musicalProfile';
 import { onProfileChanged } from '#lib/server/progression/profile';
-import { onboardingFor } from '#lib/server/onboarding';
+import { onboardingFor, redirectAfterStep } from '#lib/server/onboarding';
 import { guardStep } from '#lib/server/onboarding-guard';
 import { checkInstrumentsInput, MUSICAL_PROFILE_MESSAGES } from '#lib/skills/profile';
-import { ONBOARDING_MAX_INSTRUMENTS, stepPath } from '#lib/onboarding/steps';
+import { ONBOARDING_MAX_INSTRUMENTS } from '#lib/onboarding/steps';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ parent }) => {
@@ -43,6 +43,8 @@ export const actions: Actions = {
 	default: async ({ request, locals }) => {
 		const onboarding = await onboardingFor(locals.user!.id);
 		if (!onboarding) redirect(303, '/bienvenue');
+		// Pas d'enregistrement d'une étape future ou absente du parcours (ONB-02).
+		guardStep('instruments', onboarding);
 		let payload;
 		try {
 			payload = payloadSchema.parse(
@@ -61,6 +63,6 @@ export const actions: Actions = {
 			throw err;
 		}
 		await onProfileChanged(onboarding.person.actorId);
-		redirect(303, stepPath('genres'));
+		return redirectAfterStep(onboarding.person.actorId, 'instruments');
 	}
 };
