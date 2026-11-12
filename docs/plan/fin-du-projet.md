@@ -12,19 +12,19 @@
 
 ## 1. Où on en est
 
-**96 lots terminés sur 113** (85 %) ; **≈ 90 % du périmètre du
+**111 lots terminés sur 129** (86 %) ; **≈ 90 % du périmètre du
 lancement**. Phases 0 à 2 complètes, phase 3 complète sauf l'ouverture,
 phase 4 complète pour le lancement, phase 5 commencée (P5-01, P5-02,
 P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06, P5-07, P5-08, P5-11). La phase 6 vient après le lancement.
 
-| Étape                              | Lots                                                          | Quand                     |
-| ---------------------------------- | ------------------------------------------------------------- | ------------------------- |
-| A. Finir la scène                  | ✅ (P5-07, P5-11 le 12/11/2026)                               | Nov. → déc. 2026          |
-| B. Revue de phase 5 et revue UX    | Revue de fin de phase, Metro (MET-01 à 07), suite e2e (P0-01) | Déc. 2026 → janv. 2027    |
-| C. Audit de sécurité (bloquant)    | P3-10a                                                        | Janv. → fév. 2027         |
-| D. Ouverture publique à Toulouse   | P3-10                                                         | Objectif début mars 2027  |
-| E. Après le lancement              | P5-00, P5-09, P5-10, P5-03c, P4-08, P4-11, P4-12              | Après 3 mois d'usage réel |
-| F. Phase 6 : sortie, développement | P6-01 à P6-07                                                 | Selon les indicateurs     |
+| Étape                              | Lots                                                                                      | Quand                     |
+| ---------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------- |
+| A. Finir la scène                  | ✅ (P5-07, P5-11 le 12/11/2026)                                                           | Nov. → déc. 2026          |
+| B. Revue de phase 5 et revue UX    | Revue de fin de phase, Metro (MET-01 à 07), suite e2e (P0-01), inscription (ONB-12b à 14) | Déc. 2026 → janv. 2027    |
+| C. Audit de sécurité (bloquant)    | P3-10a                                                                                    | Janv. → fév. 2027         |
+| D. Ouverture publique à Toulouse   | P3-10                                                                                     | Objectif début mars 2027  |
+| E. Après le lancement              | P5-00, P5-09, P5-10, P5-03c, P4-08, P4-11, P4-12                                          | Après 3 mois d'usage réel |
+| F. Phase 6 : sortie, développement | P6-01 à P6-07                                                                             | Selon les indicateurs     |
 
 On a de l'avance sur la feuille de route (D28, février pour la phase 5) :
 le temps gagné va à la revue UX et à l'audit, **pas** à de nouveaux lots.
@@ -164,6 +164,79 @@ Une session de revue, puis des lots courts de corrections si besoin
   - vocabulaire du mode Carrière : « projet » plutôt que « groupe » dans
     les interfaces, sans renommer les modèles ;
   - relecture des 8 fiches `/demarches` par quelqu'un du métier (V1, V2).
+
+### 3.1 Inscription adaptative multirôle (épopée #14)
+
+**Fait** : ONB-01 à ONB-11 (référentiel, moteur d'étapes, écran de chaque
+métier, catalogues des 9 métiers en données, D56 à D59) et **ONB-12a ✅**
+(12/11/2026) : récapitulatif `/demarrer/recapitulatif` qui termine
+l'onboarding, « Modifier » sans perte, spécialité « Graphisme » (D60, Q62,
+Q63). Label, éditeur·rice et communication restent « bientôt » (D15, Q62) :
+les ouvrir est une décision produit à part.
+
+Reste à faire, dans l'ordre :
+
+#### ONB-12b — Profil : complétude et visibilité par métier
+
+- **Ticket** #26. Dépend d'ONB-12a.
+- **À faire** : sur `/profil`, une fiche de complétude **par métier**
+  (spécialités, « Je propose », « Je recherche », champs requis et
+  facultatifs non remplis), avec le bénéfice concret de chaque ajout ;
+  jamais d'XP ni de rang pour la complétude. Visibilité par champ
+  (public, membres, privé ; privé par défaut pour le sensible), lue par
+  `/@handle` et la recherche. Rouvrir Q63 (texte libre court par métier
+  et par direction, privé par défaut) avec la visibilité.
+- **Migration** : additive seulement (colonne de visibilité, table de
+  notes si Q63 est acceptée). Stratégie à présenter **avant** de
+  l'exécuter ; `--create-only`, `db:nettoyer-migration`, relecture,
+  `db:deploy` puis `db:deploy:e2e`.
+- **Acceptation** : compte à 2 métiers, complétudes séparées, ville
+  demandée une fois ; export et anonymisation RGPD couvrent les nouvelles
+  colonnes ; aucune donnée privée dans `/@handle`.
+
+#### ONB-12c — Profil : informations avancées par métier
+
+- **Ticket** #26. Dépend d'ONB-12b.
+- **À faire** : portfolio et médias, matériel, logiciels, références,
+  disponibilités, conditions et tarifs indicatifs, par métier, en
+  **réutilisant** `/profil/son`, `/profil/production`,
+  `/profil/organisateur` et « Ma pratique » (pas de doublon). Invitation à
+  compléter au moment où le champ sert (candidature, annonce), sans
+  bloquer l'application. Distinguer déclaré, confirmé et vérifié.
+- **Questions** : fusion de `mobility` et « Où tu travailles » (Q59) ;
+  « postproduction » de l'ingé son (exige un code d'enum
+  `SoundSpecialty`, donc une migration).
+- **Acceptation** : une spécialité retirée ne détruit aucun crédit ;
+  profils existants intacts ; mobile et clavier.
+
+#### ONB-13 — Découverte selon offres et besoins
+
+- **Ticket** #27. Dépend d'ONB-12a (ONB-12b pour la visibilité).
+- **À faire** : `/decouvrir` et le moteur géographique existants filtrés
+  par codes « Je propose » / « Je recherche » **par métier**, spécialités,
+  champs et zone. Filtres stricts seulement si le besoin les exige, puis
+  affinités souples ; pondération propre au besoin, jamais l'XP. Un champ
+  absent reste « inconnu », jamais « non ». Exclure comptes suspendus,
+  masqués, bloqués ; règles des mineur·es.
+- **Acceptation** : les 3 scénarios du ticket (batteur rock pour un
+  groupe, ingé enregistrement à Toulouse, programmateur qui cherche un
+  duo acoustique) ; un métier sans offre n'apparaît pas comme
+  prestataire ; aucune donnée privée dans les réponses.
+
+#### ONB-14 — Inscription : E2E transverse
+
+- **Ticket** #28. Dépend d'ONB-12a, en continu jusqu'à ONB-13.
+- **Déjà couvert** : musicien·ne seul·e, ingé son sans instrument,
+  producteur·rice, manager, organisateur·rice, métier « bientôt »,
+  musicien·ne + producteur·rice + booker (récapitulatif par métier),
+  reprise dans un second navigateur, correction sans perte, axe.
+- **Reste** : label, éditeur·rice, communication ; booker programmateur
+  contre booker d'artistes ; organisateur·rice jam contre festival ;
+  mutation refusée sur le métier d'un autre compte et sur un métier non
+  choisi ; codes d'un autre métier refusés côté serveur (E2E) ; parcours
+  à 390 px de large ; non-régression assistant D47 et règles des
+  mineur·es.
+- **Limites de la machine** : M1, T1 et T2 (`a-trancher.md`).
 
 ## 4. Étape C — P3-10a Audit de sécurité avant production
 
