@@ -66,7 +66,10 @@
 			<h1 class="lm-title mt-2">Mon profil musical</h1>
 			<p class="text-sm text-muted-foreground">
 				Ce que tu joues, à quel niveau, et ce qui t'inspire. Les niveaux sont déclarés : ils
-				s'affichent toujours avec la mention « déclaré ».
+				s'affichent toujours avec la mention « déclaré ». Ce que tu cherches, ce que tu proposes et
+				les précisions sur tes instruments : <a href="/profil/pratique" class="underline"
+					>Ma pratique</a
+				>.
 			</p>
 		</div>
 

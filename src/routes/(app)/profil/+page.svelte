@@ -50,7 +50,9 @@
 			<h1 class="lm-title mt-2">Mon profil</h1>
 			<p class="text-sm text-muted-foreground">
 				Tout est déclaratif et facultatif. Instruments, genres et influences :
-				<a href="/profil/musical" class="underline">Mon profil musical</a>. Ta commune :
+				<a href="/profil/musical" class="underline">Mon profil musical</a>. Où tu en es, ce que tu
+				cherches et proposes : <a href="/profil/pratique" class="underline">Ma pratique</a>. Ta
+				commune :
 				<a href="/profil/ville" class="underline">Ma ville</a>. Démos et vidéos :
 				<a href="/profil/medias" class="underline">Mes médias</a>.
 			</p>

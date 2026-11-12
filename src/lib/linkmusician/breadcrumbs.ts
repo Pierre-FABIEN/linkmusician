@@ -97,6 +97,7 @@ const ROUTES: Record<string, Node> = {
 	'/notifications': { label: 'Notifications' },
 	'/profil': { label: 'Mon profil' },
 	'/profil/musical': { label: 'Profil musical', parent: '/profil' },
+	'/profil/pratique': { label: 'Ma pratique', parent: '/profil' },
 	'/profil/medias': { label: 'Médias', parent: '/profil' },
 	'/profil/ville': { label: 'Ma ville', parent: '/profil' },
 	'/profil/son': { label: 'Profil d’ingé son', parent: '/profil' },

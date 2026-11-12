@@ -121,6 +121,18 @@ export async function exportPersonData(userId: string) {
 	const progress = await getProgress(person.actorId, prisma);
 	// ONB-01 : spécialités, « Je propose » et « Je recherche » par métier.
 	const trackDetails = await getTrackDetails(person.actorId);
+	// ONB-03 : profil de musicien·ne et précisions déclarées par métier.
+	const [musicianProfile, trackAttributes] = await Promise.all([
+		prisma.musicianProfile.findUnique({
+			where: { personId: person.actorId },
+			select: { practiceExperience: true, commitment: true, updatedAt: true }
+		}),
+		prisma.personTrackAttribute.findMany({
+			where: { personId: person.actorId },
+			select: { track: true, field: true, code: true },
+			orderBy: [{ track: 'asc' }, { field: 'asc' }, { code: 'asc' }]
+		})
+	]);
 	// Métiers du son (P4-02) : profil d'ingé son et travaux en écoute.
 	const [soundProfile, craftReferences, producerProfile, promoterProfile, bandApplications] =
 		await Promise.all([
@@ -553,6 +565,18 @@ export async function exportPersonData(userId: string) {
 		// Assistant d'inscription (P3-17) : nombre d'analyses, jamais le texte.
 		analyses_assistant_inscription: person.assistantRuns,
 		metiers: person.tracks.map((t) => ({ metier: t.track, principal: t.isPrimary })),
+		profil_musicien: musicianProfile
+			? {
+					experience_declaree: musicianProfile.practiceExperience,
+					engagement_souhaite: musicianProfile.commitment,
+					modifie_le: musicianProfile.updatedAt
+				}
+			: null,
+		precisions_par_metier: trackAttributes.map((a) => ({
+			metier: a.track,
+			champ: a.field,
+			valeur: a.code
+		})),
 		specialites_et_intentions_par_metier: trackDetails.map((d) => ({
 			metier: d.track,
 			specialites: d.specializations,
@@ -906,8 +930,10 @@ export async function personAnonymizationOps(
 	return [
 		...bandOps,
 		prisma.person.update({ where: { userId }, data: { birthDate: null } }),
-		// Les spécialités et intentions par métier suivent (cascade, ONB-01).
+		// Les spécialités, intentions et précisions par métier suivent
+		// (cascade, ONB-01, ONB-03).
 		prisma.personTrack.deleteMany({ where: { personId: person.actorId } }),
+		prisma.musicianProfile.deleteMany({ where: { personId: person.actorId } }),
 		prisma.personInstrument.deleteMany({ where: { personId: person.actorId } }),
 		// Métiers du son (P4-02) : tout est déclaratif, rien ne reste.
 		prisma.soundEngineerProfile.deleteMany({ where: { personId: person.actorId } }),

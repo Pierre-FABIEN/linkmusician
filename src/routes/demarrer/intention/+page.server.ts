@@ -1,21 +1,17 @@
-// LINKMUSICIAN: onboarding, étape « Intention » (P1-10). Dernière étape à
-// remplir : marque la fin de l'onboarding (`Person.onboardedAt`).
+// LINKMUSICIAN: onboarding, dernier écran du métier musicien·ne (P1-10,
+// ONB-03) : « Ton profil de musicien·ne ». Expérience et engagement requis ;
+// « Je recherche », « Je propose », écriture et précisions facultatifs.
+// L'enregistrer termine l'onboarding (`Person.onboardedAt`).
 import { redirect } from '@sveltejs/kit';
-import { prisma } from '#lib/server';
-import { onboardingFor } from '#lib/server/onboarding';
+import { onboardingFor, redirectAfterStep } from '#lib/server/onboarding';
 import { guardStep } from '#lib/server/onboarding-guard';
-import { LOOKING_FOR, type LookingForValue } from '#lib/actors/profile';
-import { stepPath } from '#lib/onboarding/steps';
+import { musicianStepData, submitMusicianStep } from '#lib/server/musician/step';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ parent }) => {
 	const data = await parent();
 	guardStep('intention', data);
-	const person = await prisma.person.findUniqueOrThrow({
-		where: { actorId: data.actorId },
-		select: { lookingFor: true }
-	});
-	return { stepId: 'intention' as const, lookingFor: person.lookingFor };
+	return { stepId: 'intention' as const, ...(await musicianStepData(data.actorId)) };
 };
 
 export const actions: Actions = {
@@ -24,14 +20,9 @@ export const actions: Actions = {
 		if (!onboarding) redirect(303, '/bienvenue');
 		// Pas d'enregistrement d'une étape future ou absente du parcours (ONB-02).
 		guardStep('intention', onboarding);
-		const chosen = (await request.formData())
-			.getAll('lookingFor')
-			.map(String)
-			.filter((v): v is LookingForValue => (LOOKING_FOR as readonly string[]).includes(v));
-		await prisma.person.update({
-			where: { actorId: onboarding.person.actorId },
-			data: { lookingFor: [...new Set(chosen)], onboardedAt: new Date() }
-		});
-		redirect(303, stepPath('resultat'));
+		const actorId = onboarding.person.actorId;
+		const result = await submitMusicianStep(request, actorId, { finishOnboarding: true });
+		if ('failure' in result) return result.failure;
+		return redirectAfterStep(actorId, 'intention');
 	}
 };

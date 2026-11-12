@@ -6,8 +6,8 @@
  * - **spécialité** : ce que la personne exerce dans un métier (ici) ;
  * - **compétences** : les référentiels existants (instruments, genres) ;
  * - **je propose** (`OFFER`) et **je recherche** (`NEED`) : deux listes de
- *   codes par métier, indépendantes. Elles sont vides ici : chaque lot de
- *   métier (ONB-03 à ONB-11) remplit les siennes.
+ *   codes par métier, indépendantes, remplies par le lot de chaque métier
+ *   (musicien·ne : ONB-03 ; les autres : ONB-04 à ONB-11).
  *
  * Une entrée est identifiée par la paire `(métier, code)` : `ARRANGEMENT`
  * existe pour les producteur·rices, `ARRANGER` pour les musicien·nes, sans
@@ -22,8 +22,11 @@
  * Le statut suit le métier : un métier « bientôt » (D15) a des spécialités
  * « bientôt ». Ce module n'ouvre aucun métier.
  *
- * Aucune spécialité n'impose un instrument (Epic ONB). Les spécialités
- * musicien·ne ne sont jamais exigées ni déduites des instruments (Q54).
+ * Aucune spécialité n'impose un instrument (Epic ONB). Musicien·ne (Q54,
+ * D58) : les spécialités instrument, voix et DJ sont **retirées**, car le
+ * référentiel des instruments les dit déjà (guitare électrique, chant, DJ…) ;
+ * restent les rôles d'écriture (composition, paroles, arrangement),
+ * facultatifs, dont on ne déduit jamais une part d'auteur.
  */
 import { TRACK_KINDS, TRACKS, type TrackKindValue } from './tracks';
 import { SOUND_SPECIALTIES, SOUND_SPECIALTY_INFO } from '#lib/crafts/sound';
@@ -90,65 +93,76 @@ const DEFINITIONS: Readonly<Record<TrackKindValue, readonly Definition[]>> = {
 		{
 			code: 'GUITARIST',
 			group: 'instrument',
+			retired: true,
 			label: 'Guitariste',
 			description: 'Guitare électrique, acoustique ou classique.'
 		},
 		{
 			code: 'BASSIST',
 			group: 'instrument',
+			retired: true,
 			label: 'Bassiste',
 			description: 'Basse électrique, contrebasse.'
 		},
 		{
 			code: 'DRUMMER',
 			group: 'instrument',
+			retired: true,
 			label: 'Batteur·se',
 			description: 'Batterie acoustique ou électronique.'
 		},
 		{
 			code: 'PERCUSSIONIST',
 			group: 'instrument',
+			retired: true,
 			label: 'Percussionniste',
 			description: 'Percussions à main, d’orchestre ou du monde.'
 		},
 		{
 			code: 'PIANIST',
 			group: 'instrument',
+			retired: true,
 			label: 'Pianiste',
 			description: 'Piano acoustique ou numérique.'
 		},
 		{
 			code: 'KEYBOARDIST',
 			group: 'instrument',
+			retired: true,
 			label: 'Claviériste',
 			description: 'Synthés, orgue, claviers de scène.'
 		},
 		{
 			code: 'SINGER',
 			group: 'voice',
+			retired: true,
 			label: 'Chanteur·se ou choriste',
 			description: 'Chant lead, chœurs, rap, spoken word.'
 		},
 		{
 			code: 'STRINGS',
 			group: 'instrument',
+			retired: true,
 			label: 'Cordes frottées',
 			description: 'Violon, alto, violoncelle.'
 		},
 		{
 			code: 'BRASS',
 			group: 'instrument',
+			retired: true,
 			label: 'Cuivres',
 			description: 'Trompette, trombone, tuba, cor.'
 		},
 		{
 			code: 'WOODWINDS',
 			group: 'instrument',
+			retired: true,
 			label: 'Bois',
 			description: 'Saxophone, flûte, clarinette, hautbois.'
 		},
 		{
 			code: 'DJ',
+			retired: true,
 			group: 'role',
 			label: 'DJ',
 			description: 'Tu mixes des morceaux en soirée ou en set.'
@@ -462,9 +476,90 @@ export type IntentInfo = {
  * l'offre n'est pas un code de la demande, même à libellé voisin.
  * Remplis par ONB-03 (musicien·ne) à ONB-11 (communication).
  */
+/**
+ * Catalogues remplis, par métier (ONB-03 pour les musicien·nes). Les codes
+ * de l'offre et de la demande sont tous différents, même à sens voisin
+ * (« donner des cours » / « prendre des cours »).
+ */
+const INTENT_CATALOGS: Partial<
+	Record<TrackKindValue, Readonly<Record<IntentDirection, readonly IntentInfo[]>>>
+> = {
+	MUSICIAN: {
+		OFFER: [
+			{
+				code: 'PLAY_JAMS',
+				label: 'Jouer en jam',
+				description: 'Venir faire le bœuf, animer, tenir une place.'
+			},
+			{
+				code: 'JOIN_BAND',
+				label: 'Rejoindre un groupe',
+				description: 'Tenir ta place dans un groupe qui cherche.'
+			},
+			{
+				code: 'DO_REPLACEMENTS',
+				label: 'Faire des remplacements',
+				description: 'Dépanner un groupe pour une date ou une tournée.'
+			},
+			{
+				code: 'WRITING',
+				label: 'Composer ou arranger',
+				description: 'Apporter des morceaux, des parties, des arrangements.'
+			},
+			{
+				code: 'SESSIONS',
+				label: 'Jouer en session',
+				description: 'Enregistrer ou jouer pour d’autres artistes.'
+			},
+			{
+				code: 'GIVE_LESSONS',
+				label: 'Donner des cours',
+				description: 'Transmettre ton instrument ou ta voix.'
+			}
+		],
+		NEED: [
+			{
+				code: 'FIND_JAMS',
+				label: 'Des jams',
+				description: 'Des bœufs et des scènes ouvertes près de toi.'
+			},
+			{
+				code: 'FIND_PARTNERS',
+				label: 'Des partenaires',
+				description: 'Des musicien·nes avec qui jouer régulièrement.'
+			},
+			{
+				code: 'FIND_BAND',
+				label: 'Rejoindre ou monter un groupe',
+				description: 'Un projet à plusieurs, à rejoindre ou à créer.'
+			},
+			{
+				code: 'FIND_REPLACEMENT',
+				label: 'Un·e remplaçant·e',
+				description: 'Quelqu’un pour tenir une place le temps d’une date.'
+			},
+			{
+				code: 'CO_WRITING',
+				label: 'Composer à plusieurs',
+				description: 'Écrire avec d’autres : morceaux, paroles, featuring.'
+			},
+			{
+				code: 'FIND_STUDIO',
+				label: 'Des sessions studio',
+				description: 'Enregistrer, en studio ou chez quelqu’un.'
+			},
+			{
+				code: 'TAKE_LESSONS',
+				label: 'Prendre des cours',
+				description: 'Progresser avec un·e prof.'
+			}
+		]
+	}
+};
+
 export const INTENTS: Readonly<
 	Record<TrackKindValue, Readonly<Record<IntentDirection, readonly IntentInfo[]>>>
-> = byTrack(() => ({ OFFER: [], NEED: [] }));
+> = byTrack((track) => INTENT_CATALOGS[track] ?? { OFFER: [], NEED: [] });
 
 // ─── Sélection d'une personne pour un métier ─────────────────────────────────
 

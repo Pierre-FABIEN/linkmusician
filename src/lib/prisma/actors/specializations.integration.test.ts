@@ -92,7 +92,7 @@ describe.skipIf(!enabled)('spécialités par métier (schéma e2e)', { timeout: 
 	it('relit exactement 2+ métiers avec 2+ spécialités chacun', async () => {
 		await setTrackDetails(personId, {
 			track: 'MUSICIAN',
-			specializations: ['SINGER', 'GUITARIST', 'SINGER'],
+			specializations: ['LYRICIST', 'COMPOSER', 'LYRICIST'],
 			offers: [],
 			needs: []
 		});
@@ -109,7 +109,7 @@ describe.skipIf(!enabled)('spécialités par métier (schéma e2e)', { timeout: 
 			needs: []
 		});
 		expect(await getTrackDetails(personId)).toEqual([
-			{ track: 'MUSICIAN', specializations: ['GUITARIST', 'SINGER'], offers: [], needs: [] },
+			{ track: 'MUSICIAN', specializations: ['COMPOSER', 'LYRICIST'], offers: [], needs: [] },
 			{
 				track: 'SOUND_ENGINEER',
 				specializations: ['MIXING', 'LIVE_FOH', 'RF'],

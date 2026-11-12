@@ -1555,6 +1555,8 @@ model Person {
   organizesJams  Boolean          @default(false)
   links          ProfileLink[]
   /// Métiers du son (P4-02).
+  /// Profil de musicien·ne (ONB-03).
+  musicianProfile MusicianProfile?
   soundProfile    SoundEngineerProfile?
   craftReferences CraftReference[]
   /// Producteur·rice (P4-04).
@@ -1580,6 +1582,7 @@ model PersonTrack {
 
   specializations PersonTrackSpecialization[]
   intents         PersonTrackIntent[]
+  attributes      PersonTrackAttribute[]
 
   @@id([personId, track])
   @@map("person_tracks")
@@ -1618,6 +1621,49 @@ model PersonTrackIntent {
 
   @@id([personId, track, direction, code])
   @@map("person_track_intents")
+}
+
+/// Précision déclarée pour un métier (ONB-03, D58) : un code d'un champ du
+/// référentiel (`voice.languages` = `FR`…), sans JSON ni texte libre. Seules
+/// les réponses données sont stockées : une absence vaut « inconnu ». Table
+/// commune à tous les métiers (champs propres d'ONB-04 à 11). Suit le métier.
+model PersonTrackAttribute {
+  personId    String
+  track       TrackKind
+  personTrack PersonTrack @relation(fields: [personId, track], references: [personId, track], onDelete: Cascade)
+  field       String
+  code        String
+  createdAt   DateTime    @default(now())
+
+  @@id([personId, track, field, code])
+  @@map("person_track_attributes")
+}
+
+/// Pratique d'un·e musicien·ne, déclarée (ONB-03).
+enum PracticeExperience {
+  SOLO
+  WITH_OTHERS
+  STAGE
+}
+
+/// Engagement souhaité (ONB-03), distinct du statut déclaré (`ProStatus`).
+enum MusicCommitment {
+  OCCASIONAL
+  REGULAR
+  PROFESSIONAL_PROJECT
+}
+
+/// Profil de musicien·ne (ONB-03, D58), déclaratif. `null` : inconnu (profils
+/// créés avant ONB-03), jamais interprété comme une réponse.
+model MusicianProfile {
+  personId           String              @id
+  person             Person              @relation(fields: [personId], references: [actorId], onDelete: Cascade)
+  practiceExperience PracticeExperience?
+  commitment         MusicCommitment?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@map("musician_profiles")
 }
 
 // ─── COMPÉTENCES : référentiels (P1-04) ─────────────────────────────────────

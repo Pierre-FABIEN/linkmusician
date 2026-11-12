@@ -63,11 +63,24 @@ describe('référentiel des spécialités', () => {
 	it('suit le statut du métier (D15) sans en ouvrir aucun', () => {
 		for (const track of TRACK_KINDS) {
 			const expected = TRACKS[track].available ? 'active' : 'soon';
-			for (const s of SPECIALIZATIONS[track]) expect(s.status).toBe(expected);
+			for (const s of SPECIALIZATIONS[track].filter((x) => x.status !== 'retired'))
+				expect(s.status).toBe(expected);
 		}
 		// MANAGER est ouvert depuis P5-07 ; PUBLISHER reste fermé jusqu'à P6-03.
 		expect(findSpecialization('MANAGER', 'TOUR_MANAGEMENT')?.status).toBe('active');
 		expect(SPECIALIZATIONS.PUBLISHER.every((s) => s.status === 'soon')).toBe(true);
+	});
+
+	it('musicien·ne : retire instrument, voix et DJ (doublons des instruments), garde l’écriture (Q54)', () => {
+		const retired = SPECIALIZATIONS.MUSICIAN.filter((s) => s.status === 'retired');
+		expect(retired.map((s) => s.code)).toContain('GUITARIST');
+		expect(retired.map((s) => s.code)).toContain('DJ');
+		expect(retired.every((s) => s.group !== 'role' || s.code === 'DJ')).toBe(true);
+		expect(selectableSpecializations('MUSICIAN').map((s) => s.code)).toEqual([
+			'COMPOSER',
+			'LYRICIST',
+			'ARRANGER'
+		]);
 	});
 
 	it('distingue instrument, voix et profession chez les musicien·nes, et seulement chez eux', () => {
@@ -83,11 +96,20 @@ describe('référentiel des spécialités', () => {
 		expect(findSpecialization('SOUND_ENGINEER', 'BEATMAKING')).toBeNull();
 	});
 
-	it('garde des catalogues « Je propose » et « Je recherche » séparés, vides pour l’instant', () => {
+	it('garde des catalogues « Je propose » et « Je recherche » séparés, aux codes distincts', () => {
 		for (const track of TRACK_KINDS) {
-			expect(INTENTS[track].OFFER).toEqual([]);
-			expect(INTENTS[track].NEED).toEqual([]);
+			const offers = INTENTS[track].OFFER.map((i) => i.code);
+			const needs = INTENTS[track].NEED.map((i) => i.code);
+			expect(new Set(offers).size).toBe(offers.length);
+			expect(new Set(needs).size).toBe(needs.length);
+			expect(offers.filter((c) => needs.includes(c))).toEqual([]);
+			for (const i of [...INTENTS[track].OFFER, ...INTENTS[track].NEED]) {
+				expect(i.code).toMatch(/^[A-Z][A-Z0-9_]*$/);
+				expect(i.label.trim()).not.toBe('');
+			}
 		}
+		expect(INTENTS.MUSICIAN.OFFER.length).toBeGreaterThan(0);
+		expect(INTENTS.MUSICIAN.NEED.length).toBeGreaterThan(0);
 	});
 
 	it('ne propose que les spécialités non retirées', () => {

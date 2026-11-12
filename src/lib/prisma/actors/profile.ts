@@ -6,6 +6,8 @@
 import { mayOfferToOrganize } from '#lib/jam/organizer';
 import type { Equipment, LinkKind, LookingFor, ProStatus } from '@prisma/client';
 import { prisma } from '#lib/server';
+import { intentsOfLookingFor, LOOKING_FOR_CODES } from '#lib/musician/profile';
+import { intentSubsetOps } from '#lib/prisma/actors/specializations';
 import {
 	checkLink,
 	LINK_KINDS,
@@ -93,13 +95,34 @@ export async function saveProfileDetails(person: { actorId: string }, form: Prof
 		return result.ok ? [{ personId: person.actorId, kind, url: result.url }] : [];
 	});
 
+	// ONB-03 (D58) : `lookingFor` est la copie de « Je propose » / « Je
+	// recherche » du métier musicien·ne ; on met à jour les deux ensemble.
+	const lookingFor = [...new Set(form.lookingFor)];
+	const intents = intentsOfLookingFor(lookingFor);
+	const intentOps = [
+		...(await intentSubsetOps(
+			person.actorId,
+			'MUSICIAN',
+			'offers',
+			intents.offers,
+			LOOKING_FOR_CODES.offers
+		)),
+		...(await intentSubsetOps(
+			person.actorId,
+			'MUSICIAN',
+			'needs',
+			intents.needs,
+			LOOKING_FOR_CODES.needs
+		))
+	];
+
 	await prisma.$transaction([
 		prisma.actor.update({ where: { id: person.actorId }, data: { bio: bio === '' ? null : bio } }),
 		prisma.person.update({
 			where: { actorId: person.actorId },
 			data: {
 				proStatus: form.proStatus === '' ? null : form.proStatus,
-				lookingFor: [...new Set(form.lookingFor)],
+				lookingFor,
 				equipment: [...new Set(form.equipment)],
 				practiceSince: form.practiceSince,
 				travelRadiusKm: form.travelRadiusKm === 0 ? null : form.travelRadiusKm,
@@ -107,7 +130,8 @@ export async function saveProfileDetails(person: { actorId: string }, form: Prof
 			}
 		}),
 		prisma.profileLink.deleteMany({ where: { personId: person.actorId } }),
-		prisma.profileLink.createMany({ data: links })
+		prisma.profileLink.createMany({ data: links }),
+		...intentOps
 	]);
 	return { bio, links };
 }

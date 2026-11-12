@@ -34,6 +34,7 @@ import type { TrackKindValue } from '#lib/actors/tracks';
 import type { SoundSpecialtyValue } from '#lib/crafts/sound';
 import type { ProducerSpecialtyValue } from '#lib/crafts/producer';
 import type { PromoterEventKindValue } from '#lib/crafts/promoter';
+import { intentsOfLookingFor } from '#lib/musician/profile';
 
 type Equals<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 /** Échouent à la compilation si un référentiel pur et son enum Prisma divergent. */
@@ -172,16 +173,13 @@ function legacyMirrorOps(
 }
 
 /**
- * Remplace les spécialités, offres et besoins d'un métier, en une
- * transaction. Revérifie tout : métier déclaré, codes du catalogue de ce
- * métier, pas d'ajout d'un code retiré (ceux déjà détenus restent).
- * `confirm` marque aussi l'étape du métier comme faite (onboarding, ONB-02).
+ * Prépare le remplacement des spécialités, offres et besoins d'un métier :
+ * revérifie tout (métier déclaré, codes du catalogue de ce métier, pas
+ * d'ajout d'un code retiré, ceux déjà détenus restent) et renvoie les
+ * opérations, à passer dans une transaction (`setTrackDetails`, ou celle
+ * d'un profil de métier qui enregistre d'autres choses en même temps).
  */
-export async function setTrackDetails(
-	personId: string,
-	details: TrackDetails,
-	options: { confirm?: boolean } = {}
-) {
+export async function trackDetailsOps(personId: string, details: TrackDetails) {
 	const { track } = details;
 	const held = await prisma.personTrack.findUnique({
 		where: { personId_track: { personId, track } },
@@ -207,16 +205,52 @@ export async function setTrackDetails(
 		ops.push(...replaceOps(personId, track, list, check.codes, scope));
 	}
 	if (isLegacyTrack(track)) ops.push(...legacyMirrorOps(personId, track, saved.specializations));
-	// Onboarding (ONB-02) : l'étape de ce métier est faite.
-	if (options.confirm)
-		ops.push(
-			prisma.personTrack.update({
-				where: { personId_track: { personId, track } },
-				data: { detailsConfirmedAt: new Date() }
-			})
-		);
+	return { saved, ops };
+}
+
+/** Marque l'étape d'un métier comme faite (onboarding, ONB-02). */
+export function confirmTrackOp(personId: string, track: TrackKindValue) {
+	return prisma.personTrack.update({
+		where: { personId_track: { personId, track } },
+		data: { detailsConfirmedAt: new Date() }
+	});
+}
+
+/**
+ * Remplace les spécialités, offres et besoins d'un métier, en une
+ * transaction (`trackDetailsOps`). `confirm` marque aussi l'étape du métier
+ * comme faite (onboarding, ONB-02).
+ */
+export async function setTrackDetails(
+	personId: string,
+	details: TrackDetails,
+	options: { confirm?: boolean } = {}
+) {
+	const { saved, ops } = await trackDetailsOps(personId, details);
+	if (options.confirm) ops.push(confirmTrackOp(personId, details.track));
 	await prisma.$transaction(ops);
 	return saved;
+}
+
+/**
+ * Remplace, dans « Je propose » ou « Je recherche », les seuls codes de
+ * `scope` (les autres restent) : pour un champ historique qui n'en couvre
+ * qu'une partie (`lookingFor`, ONB-03). Rien si le métier n'est pas déclaré.
+ */
+export async function intentSubsetOps(
+	personId: string,
+	track: TrackKindValue,
+	list: 'offers' | 'needs',
+	codes: readonly string[],
+	scope: readonly string[]
+): Promise<PrismaPromise<unknown>[]> {
+	const held = await prisma.personTrack.findUnique({
+		where: { personId_track: { personId, track } },
+		select: { personId: true }
+	});
+	if (!held) return [];
+	const kept = scope.filter((c) => codes.includes(c));
+	return replaceOps(personId, track, list, kept, scope);
 }
 
 /**
@@ -246,11 +280,12 @@ export async function legacySpecializationOps(
  * `specialites_par_metier`.
  */
 export async function syncLegacySpecializations(personId: string) {
-	const [tracks, sound, producer, promoter] = await Promise.all([
+	const [tracks, sound, producer, promoter, person] = await Promise.all([
 		prisma.personTrack.findMany({ where: { personId }, select: { track: true } }),
 		prisma.soundEngineerProfile.findUnique({ where: { personId }, select: { specialties: true } }),
 		prisma.producerProfile.findUnique({ where: { personId }, select: { specialties: true } }),
-		prisma.promoterProfile.findUnique({ where: { personId }, select: { eventKinds: true } })
+		prisma.promoterProfile.findUnique({ where: { personId }, select: { eventKinds: true } }),
+		prisma.person.findUnique({ where: { actorId: personId }, select: { lookingFor: true } })
 	]);
 	const held = new Set(tracks.map((t) => t.track));
 	const from: Record<LegacyTrack, readonly string[]> = {
@@ -261,6 +296,28 @@ export async function syncLegacySpecializations(personId: string) {
 	const data = LEGACY_TRACKS.filter((track) => held.has(track)).flatMap((track) =>
 		from[track].map((code) => ({ personId, track, code }))
 	);
-	if (data.length === 0) return;
-	await prisma.personTrackSpecialization.createMany({ data, skipDuplicates: true });
+	if (data.length > 0)
+		await prisma.personTrackSpecialization.createMany({ data, skipDuplicates: true });
+	// ONB-03 : « Je propose » / « Je recherche » du métier musicien·ne, depuis
+	// sa copie `lookingFor` (même règle que la migration `profil_musicien`).
+	if (held.has('MUSICIAN') && person && person.lookingFor.length > 0) {
+		const intents = intentsOfLookingFor(person.lookingFor);
+		await prisma.personTrackIntent.createMany({
+			data: [
+				...intents.offers.map((code) => ({
+					personId,
+					track: 'MUSICIAN' as const,
+					direction: 'OFFER' as const,
+					code
+				})),
+				...intents.needs.map((code) => ({
+					personId,
+					track: 'MUSICIAN' as const,
+					direction: 'NEED' as const,
+					code
+				}))
+			],
+			skipDuplicates: true
+		});
+	}
 }
