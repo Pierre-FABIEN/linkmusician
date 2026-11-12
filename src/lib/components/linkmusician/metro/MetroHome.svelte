@@ -27,12 +27,14 @@
 		label,
 		pivots,
 		header,
-		hero
+		hero,
+		priorities
 	}: {
 		label: string;
 		pivots: MetroPivot[];
 		header: Snippet;
 		hero?: Snippet;
+		priorities?: Snippet;
 	} = $props();
 </script>
 
@@ -42,6 +44,9 @@
 		<!-- Le rail ne reprend pas `label` : un second landmark « Sections de Mode jam »
 			     rendrait le nom ambigu. -->
 		<Panorama label="cet accueil">
+			{#if priorities}
+				<Pivot id="priorites" title="priorités">{@render priorities()}</Pivot>
+			{/if}
 			{#each pivots as pivot, i (pivot.id)}
 				<Pivot id={pivot.id} title={pivot.title}>
 					<MetroMenu items={pivot.items} hero={i === 0 ? hero : undefined} />

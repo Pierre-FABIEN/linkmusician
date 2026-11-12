@@ -2,6 +2,7 @@
 	// LINKMUSICIAN: écran de carrière (P3-12), page-menu (D50) en panorama
 	// Metro (MET-02, D55), voir +page.server.ts. Les valeurs viennent toutes du
 	// serveur.
+	import PriorityActions from '#lib/components/linkmusician/metro/PriorityActions.svelte';
 	import RoleSpace from '#lib/components/linkmusician/RoleSpace.svelte';
 	import SEO from '#lib/components/SEO.svelte';
 	import * as Avatar from '#shadcn/avatar';
@@ -9,7 +10,6 @@
 		BookOpen,
 		Briefcase,
 		CalendarDays,
-		CircleCheck,
 		Compass,
 		EyeOff,
 		FileText,
@@ -54,15 +54,6 @@
 			id: 'avancer',
 			title: 'avancer',
 			items: only([
-				c.toConfirm > 0 && {
-					href: '/espace/a-confirmer',
-					icon: CircleCheck,
-					tone: TONE_OF.nextStep,
-					title: 'À confirmer',
-					text: 'Des collaborations, crédits, invitations ou propositions attendent ta réponse.',
-					summary: String(c.toConfirm),
-					highlight: true
-				},
 				{
 					href: '/espace/objectifs',
 					icon: Sparkles,
@@ -126,8 +117,7 @@
 					icon: CalendarDays,
 					tone: TONE_OF.agenda,
 					title: 'Agenda',
-					text: 'Jams et collaborations à venir.',
-					summary: c.agenda > 0 ? `${c.agenda} à venir` : null
+					text: 'Jams et collaborations à venir.'
 				},
 				{
 					href: '/espace/fiche',
@@ -210,9 +200,10 @@
 <SEO title="Mon espace" noindex nofollow />
 
 {#if data.roleSpace}
-	<RoleSpace {...data.roleSpace} pending={c.toConfirm} />
+	<RoleSpace {...data.roleSpace} priorities={data.priorities} />
 {:else}
 	<MetroHome label="Mode carrière" {pivots}>
+		{#snippet priorities()}<PriorityActions actions={data.priorities} />{/snippet}
 		{#snippet header()}
 			<!-- En-tête : identité et progression -->
 			<header class="flex max-w-3xl flex-col gap-4">

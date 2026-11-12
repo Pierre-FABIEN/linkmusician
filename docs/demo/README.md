@@ -260,3 +260,38 @@ chargement. Les scénarios techniques de métier non détenu, cookie invalide
 et métiers bientôt sont dans `navigation-metiers.spec.ts` et les tests
 unitaires ; il n'est pas nécessaire d'ajouter des métiers fictifs aux
 comptes de démo.
+
+### Actions prioritaires métier — DASH-03 (#33)
+
+Réutilise le seed existant (`npm run seed:demo`) : aucun compteur ou scénario
+professionnel futur n'est fabriqué pour cet accueil. Les dates de démo sont
+relatives au lancement du seed ; le relancer pour disposer de dates à venir.
+
+1. `yanis-orga` : ouvrir `/espace`, volet **priorités**. Les candidatures des
+   annonces personnelles et des organisations gérées apparaissent dans
+   **Candidatures reçues** ; ouvrir **Annonces**, puis une annonce pour répondre.
+   Le concert avec Lucas attend aussi une validation. L'accueil ne marque
+   aucune candidature comme vue.
+2. `kevin-metal` : **Collaborations à valider** mène au mixage de Samir via
+   **À confirmer**. Ne pas attendre ce même signal pour Samir : il a déjà
+   répondu de son côté. Ce sont les réponses réellement attendues qui comptent.
+3. `manon-ukulele` : **Demandes de contact** ouvre les demandes dans Messages.
+   Les invitations aux discussions restent dans Messages, sans faux compteur
+   professionnel ajouté.
+4. `samir-son`, puis Musicien·ne dans **Mon espace** : les mêmes faits du compte
+   restent partagés, tandis que les outils et l'ordre à égalité changent. Aucun
+   doublon de collaboration ni modification du métier principal.
+5. `nora-prod`, `marc-manager`, `elise-booker` : une catégorie sans réponse
+   attendue l'explique ; chaque tuile ouvre l'écran existant. Les accompagnements
+   et studios restent dans les menus habituels, sans réservation inventée.
+6. `jade-batterie` : la tuile des demandes explique la restriction aux adultes ;
+   elle ouvre les échanges existants. Aucun appel à recevoir des sollicitations.
+7. Compte neuf avec un métier ouvert : quatre phrases d'absence, aucun zéro
+   présenté comme une activité ni bouton inactif. Label/édition/communication :
+   aucun volet de priorités professionnelles.
+
+Recette automatisée dédiée : `e2e/linkmusician/actions-metiers.spec.ts` crée des
+comptes et objets dans le schéma e2e pour les six métiers, les états vides,
+la perte de gestion, les blocages dans les deux sens, un profil masqué, un
+compte mineur, le clavier et le mobile 390 px. Elle conserve des captures du
+mobile et du bureau dans le rapport Playwright.

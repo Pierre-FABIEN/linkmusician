@@ -91,3 +91,4 @@ L'ordre de réalisation, les fiches de lots et l'état d'avancement sont
 dans le [plan d'exécution](../plan/README.md).
 
 Navigation métier : [DASH-01 et contextes de session](./10-navigation-metiers.md).
+Actions réelles et widgets partagés : [audit DASH-03](./11-actions-metiers.md).

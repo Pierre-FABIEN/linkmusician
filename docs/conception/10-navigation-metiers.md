@@ -91,3 +91,12 @@ Contrôle visuel avec Samir sur 1 440, 390 et 320 px : aucun débordement de
 page ni erreur JavaScript. ESLint ciblé : aucune erreur, avertissements de
 navigation Svelte non bloquants. L’issue GitHub n’est pas clôturée
 par cette validation locale.
+
+## Actions prioritaires — DASH-03
+
+Les six espaces ouverts partagent désormais un premier pivot « priorités » :
+candidatures reçues, demandes de contact, collaborations à valider et dates
+prévues. L'ordre est configuré par métier, puis ajusté aux réponses réelles.
+Les données restent communes au compte ; le contexte n'accorde aucun droit.
+Audit des services, limites de lecture et règles de filtrage :
+[Actions prioritaires métier](./11-actions-metiers.md).

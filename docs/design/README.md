@@ -630,3 +630,10 @@ sont fournis par la coquille pour éviter un deuxième jeu de navigation.
 L'aide des premiers pas décrit les quatre volets. Le parcours e2e
 `modes.spec.ts` vérifie les pivots, le choix de mode, sa mémorisation, les
 introductions et le basculement depuis la coquille.
+
+DASH-03 ajoute au panorama `/espace` le pivot **priorités** : le composant
+partagé `metro/PriorityActions.svelte` configure un `MetroMenu` avec les actions
+réelles du compte. Les tuiles restent des liens vers un seul écran ; l'état
+vide utilise la même entrée avec une phrase explicative, sans chiffre fictif.
+Aucun formulaire ni liste métier complète n'est ajouté aux accueils.
+Voir l'[audit métier](../conception/11-actions-metiers.md).

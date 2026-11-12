@@ -287,6 +287,13 @@ async function findVisibleJam(id: string, viewerId: string, now: Date) {
 	return row ?? null;
 }
 
+/** DASH-03 : mêmes règles que la fiche, pour les dates d'un aperçu privé. */
+export async function visibleJamIds(ids: string[], viewerId: string, now = new Date()) {
+	if (ids.length === 0) return [];
+	const rows = await findJams(viewerId, { id: { in: ids } }, now, ids.length);
+	return (await forViewer(viewerId, rows)).map((j) => j.id);
+}
+
 /** L'instrument que la personne jouera : son invitation, son « Je viens », sinon son instrument principal. */
 async function viewerInstrument(row: JamRow, viewerId: string) {
 	const invite = row.jamInvites.find((i) => i.actorId === viewerId && holdsSpot(i.status));

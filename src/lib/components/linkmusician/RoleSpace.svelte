@@ -1,6 +1,8 @@
 <script lang="ts">
 	/** DASH-01 : menu du métier actif, basé uniquement sur les écrans livrés. */
-	import { Briefcase, CircleCheck, FileText, Sparkles, Trophy } from 'lucide-svelte';
+	import { Briefcase, FileText, Sparkles, Trophy } from 'lucide-svelte';
+	import PriorityActions from './metro/PriorityActions.svelte';
+	import type { PriorityAction } from '#lib/linkmusician/priorityActions';
 	import MetroHome from './metro/MetroHome.svelte';
 	import TierBadge from './progress/TierBadge.svelte';
 	import type { RoleMenuEntry } from '#lib/linkmusician/navigation';
@@ -10,31 +12,19 @@
 		available,
 		entries,
 		tier,
-		pending = 0
+		priorities
 	}: {
 		title: string;
 		available: boolean;
 		entries: RoleMenuEntry[];
 		tier: { id: string; label: string } | null;
-		pending?: number;
+		priorities: PriorityAction[];
 	} = $props();
 	const pivots = $derived([
 		{
 			id: 'activite',
 			title: 'activité',
 			items: [
-				...(available && pending > 0
-					? [
-							{
-								href: '/espace/a-confirmer',
-								title: 'À confirmer',
-								text: 'Des collaborations, crédits ou invitations attendent ta réponse.',
-								icon: CircleCheck,
-								summary: String(pending),
-								highlight: true
-							}
-						]
-					: []),
 				...entries.map((entry) => ({
 					...entry,
 					icon: entry.href === '/espace/objectifs' ? Sparkles : Briefcase
@@ -62,7 +52,11 @@
 	]);
 </script>
 
-<MetroHome label="Espace {title}" {pivots}>
+{#snippet actionsSnippet()}
+	{#if available}<PriorityActions actions={priorities} />{/if}
+{/snippet}
+
+<MetroHome label="Espace {title}" {pivots} priorities={available ? actionsSnippet : undefined}>
 	{#snippet header()}
 		<header class="max-w-3xl space-y-3">
 			<p class="lm-kicker text-muted-foreground">Mon espace</p>

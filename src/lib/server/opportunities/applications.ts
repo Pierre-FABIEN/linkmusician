@@ -426,3 +426,38 @@ export async function decideApplication(
 		return { conversationId, joinedBand: Boolean(bandId && o.kind === 'RECRUIT_MEMBER') };
 	}, BAND_TX);
 }
+
+/** DASH-03 : lecture seule, ne marque jamais les candidatures comme vues. */
+export async function pendingVisibleApplications(
+	actorId: string,
+	opportunityIds: string[],
+	now = new Date()
+) {
+	// Revalider les permissions en base, sans une requête par annonce.
+	const memberships = await prisma.membership.findMany({
+		where: {
+			personId: actorId,
+			status: 'ACTIVE',
+			role: { in: ['OWNER', 'ADMIN'] },
+			org: { dissolvedAt: null }
+		},
+		select: { orgId: true }
+	});
+	const visible = publicActorWhere(now, actorId);
+	return prisma.application.count({
+		where: {
+			opportunityId: { in: opportunityIds },
+			status: { in: ['SENT', 'SEEN', 'SHORTLISTED'] },
+			opportunity: {
+				status: 'OPEN',
+				expiresAt: { gt: now },
+				issuerActorId: { in: [actorId, ...memberships.map((m) => m.orgId)] }
+			},
+			applicant: visible,
+			OR: [
+				{ opportunity: { kind: { not: 'GIG_SLOT' } } },
+				{ opportunity: { kind: 'GIG_SLOT' }, sentBy: visible }
+			]
+		}
+	});
+}

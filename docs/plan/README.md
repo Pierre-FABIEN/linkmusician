@@ -148,10 +148,22 @@ dans le `git log` (messages préfixés par l'ID).
 Suivi complémentaire des tickets DASH créés sur GitHub. Ne pas les confondre
 avec les lots d'inscription encore ouverts dans #26 et #27.
 
-| Lot     | Issue                                                          | État     | Périmètre                                                                                                                                                               |
-| ------- | -------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DASH-01 | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement |
+| Lot     | Issue                                                          | État     | Périmètre                                                                                                                                                                                 |
+| ------- | -------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DASH-01 | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
+| DASH-03 | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ local | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
 
 Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
 Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,
 annonces qualifiées) restent dans leurs lots ; ce socle ne les remplace pas.
+
+Recette DASH-03 (12/11/2026) : 1 319 tests unitaires réussis (247 tests
+conditionnels non exécutés), deux tests d'intégration sur le
+schéma e2e (gestion des annonces et visibilité des dates) et cinq E2E réussis :
+six métiers/données/vides/clavier/mobile 390 px, navigation DASH-01, choix des
+modes Jam/Carrière et deux parcours d’aide. Contrôle des types sans erreur ni avertissement.
+Les scripts locaux préexistants `.shot-metro.mjs` et `.shot-tmp.mjs` restent
+inchangés : le lint global y signale du formatage, et ESLint signale une
+variable inutilisée dans `.shot-metro.mjs`. Formatage et ESLint passent hors
+ces fichiers (avertissements de navigation Svelte préexistants conservés).
+Audit et limites : [actions métier](../conception/11-actions-metiers.md).

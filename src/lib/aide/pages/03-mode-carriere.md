@@ -19,6 +19,32 @@ activité. Pour retrouver ce parcours musical, choisis **Musicien·ne**
 dans le sélecteur en haut si ce métier fait partie de ton profil.
 [Comprendre les contextes métier](./01-premiers-pas.md#metier-actif).
 
+## Tes actions prioritaires {#priorites}
+
+Le premier volet **priorités** de **Mon espace** rassemble quatre entrées :
+
+- **Collaborations à valider** : les propositions ou réalisations qui attendent
+  ta réponse. Le lien ouvre **À confirmer**, où tu retrouves aussi tes crédits
+  de morceaux et invitations de groupe.
+- **Candidatures reçues** : les réponses encore à traiter sur tes annonces
+  ouvertes ou celles des structures que tu gères. Ouvre l'annonce pour répondre.
+- **Demandes de contact** : les personnes qui souhaitent échanger avec toi.
+  Le lien ouvre **Messages**. Les demandes sont réservées aux adultes ; les
+  échanges existants restent accessibles aux mineur·es.
+- **Prochaines dates** : la prochaine jam ou collaboration acceptée dans ton
+  agenda. Ce sont des dates prévues, pas des délais de réponse.
+
+Ces aperçus sont limités aux éléments examinés par l'app : le nombre affiché
+n'est pas un total exhaustif. Une phrase explique chaque absence et le lien
+permet d'ouvrir l'écran correspondant. Les réponses en attente passent avant
+les dates et les entrées vides. À égalité, l'ordre dépend du métier actif.
+Tes points et ton niveau n'interviennent pas dans cet ordre.
+
+Ces actions sont communes à ton compte : changer de métier ne crée pas de
+nouvelles demandes et ne t'accorde pas de droits sur une structure. Les
+échanges bloqués et les profils indisponibles sont exclus des nouveaux
+aperçus. Les parcours label, édition et communication restent « bientôt ».
+
 ## La carrière, en un coup d’œil
 
 Une carrière dans la musique passe par des grandes étapes. LinkMusician
@@ -64,13 +90,12 @@ franchis une épreuve, on la fête, et la carte te montre ce qui s’ouvre.
 ## 1. Ton écran de carrière {#mon-parcours}
 
 C’est ton accueil en mode carrière : ton niveau, tes points et ton palier
-en haut, puis un **menu de tuiles** rangé en quatre volets que tu fais
+en haut, puis un **menu de tuiles** rangé en cinq volets que tu fais
 glisser du doigt (ou que tu choisis par leur nom) ; chaque tuile mène à
 son écran :
 
-- **avancer** : ta **prochaine étape**, puis **À confirmer** (quand
-  quelque chose t’attend : collaborations, crédits de morceaux,
-  invitations de groupe), **Mes objectifs** (les trois prochaines étapes
+- **priorités** : tes [actions prioritaires](#priorites), communes au compte ;
+- **avancer** : ta **prochaine étape**, **Mes objectifs** (les trois prochaines étapes
   atteignables), **Mon ambition** (ce que tu vises, voir ci-dessous) et,
   si tu n’avances plus, **Un coup de pouce** ;
 - **parcours** : **Ma carte de carrière**, **Campagnes en cours** (tes
