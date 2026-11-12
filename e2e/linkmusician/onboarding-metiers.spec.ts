@@ -31,11 +31,34 @@ async function pickCity(page: Page) {
 	await page.getByRole('button', { name: 'Continuer' }).click();
 }
 
+/** Un seul métier ouvert, sans instrument : genres, ville, puis son étape. */
+async function soloTrackUntilStep(page: Page, label: string, slug: string) {
+	await page.goto('/qui-es-tu');
+	await waitForAppReady(page);
+	// La case du métier : son nom commence par le libellé (puis sa description).
+	const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	await page.getByRole('checkbox', { name: new RegExp(`^${escaped} `) }).check();
+	await page.getByRole('button', { name: 'Continuer' }).click();
+	await screen(page, '/demarrer/genres');
+	await expect(page.getByText('Étape 2 sur 5')).toBeVisible();
+	await pickGenre(page);
+	await waitForPath(page, '/demarrer/ville');
+	await pickCity(page);
+	await screen(page, `/demarrer/metier/${slug}`);
+}
+
+function answers(track: { attributes: { field: string; code: string }[] } | undefined) {
+	return track?.attributes.map((a) => `${a.field}=${a.code}`).sort();
+}
+
 async function personOf(email: string) {
 	const user = await requireUser(email);
 	return db.person.findUniqueOrThrow({
 		where: { userId: user.id },
-		include: { tracks: { include: { specializations: true, attributes: true } }, instruments: true }
+		include: {
+			tracks: { include: { specializations: true, attributes: true, intents: true } },
+			instruments: true
+		}
 	});
 }
 
@@ -247,5 +270,112 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 		expect(publisher?.attributes.map((a) => `${a.field}=${a.code}`)).toEqual([
 			'sync_media=VIDEO_GAMES'
 		]);
+	});
+
+	test('manager en tour management : aucun artiste à recruter exigé', async ({ page, account }) => {
+		await signUpAndVerify(page, account);
+		await soloTrackUntilStep(page, 'Manager', 'manager');
+
+		await test.step('1. Tour management, sans besoin d’artistes', async () => {
+			await page.getByRole('checkbox', { name: /^Tour management/ }).check();
+			await expect(page.getByText('Tournée : ce que tu prends en charge')).toBeVisible();
+			// Le stade ciblé n'apparaît que si l'on cherche des artistes.
+			await page.getByRole('checkbox', { name: /^Des bookers/ }).check();
+			await expect(page.getByText('Stade des artistes que tu cherches')).toHaveCount(0);
+			await page.getByRole('checkbox', { name: /^Des groupes/ }).check();
+			await expect(page.getByText('Stade des artistes que tu cherches')).toBeVisible();
+			await page.getByRole('checkbox', { name: /^Des groupes/ }).uncheck();
+			await expect(page.getByText('Stade des artistes que tu cherches')).toHaveCount(0);
+		});
+
+		await test.step('2. Statut, territoire, nouveaux projets', async () => {
+			await page.getByRole('radio', { name: 'Indépendant·e', exact: true }).check();
+			await page.getByRole('checkbox', { name: 'National', exact: true }).check();
+			await page.getByRole('radio', { name: 'Oui', exact: true }).check();
+			await page.getByRole('checkbox', { name: 'Logistique', exact: true }).check();
+			await page.getByRole('button', { name: 'Continuer' }).click();
+			await screen(page, '/demarrer/resultat');
+		});
+
+		const person = await personOf(account.email);
+		const manager = person.tracks.find((t) => t.track === 'MANAGER');
+		expect(person.onboardedAt).not.toBeNull();
+		expect(person.instruments).toEqual([]);
+		expect(manager?.specializations.map((s) => s.code)).toEqual(['TOUR_MANAGEMENT']);
+		expect(manager?.intents.map((i) => `${i.direction}=${i.code}`)).toEqual(['NEED=FIND_BOOKERS']);
+		expect(answers(manager)).toEqual([
+			'accepts_projects=YES',
+			'status=INDEPENDENT',
+			'territory=NATIONAL',
+			'tour_scope=LOGISTICS'
+		]);
+	});
+
+	test('organisateur·rice seul·e : sans instrument, aucune fiche d’événement', async ({
+		page,
+		account
+	}) => {
+		await signUpAndVerify(page, account);
+		await soloTrackUntilStep(page, 'Organisateur·rice', 'organisateur');
+
+		await test.step('1. Scènes ouvertes : le bloc jams', async () => {
+			const submit = page.getByRole('button', { name: 'Continuer' });
+			await expect(submit).toBeDisabled();
+			await page.getByRole('checkbox', { name: /^Scènes ouvertes/ }).check();
+			await expect(page.getByText('Jams : format')).toBeVisible();
+			await expect(page.getByText('Festival : jauge')).toHaveCount(0);
+			await page.getByRole('radio', { name: 'Association', exact: true }).check();
+			await page.getByRole('checkbox', { name: 'Local', exact: true }).check();
+			await page.getByRole('checkbox', { name: 'Scène ouverte', exact: true }).check();
+			await page.getByRole('radio', { name: 'Tous niveaux', exact: true }).check();
+			await submit.click();
+			await screen(page, '/demarrer/resultat');
+		});
+
+		const person = await personOf(account.email);
+		const promoter = person.tracks.find((t) => t.track === 'PROMOTER');
+		expect(person.onboardedAt).not.toBeNull();
+		expect(person.instruments).toEqual([]);
+		expect(promoter?.detailsConfirmedAt).not.toBeNull();
+		expect(promoter?.specializations.map((s) => s.code)).toEqual(['OPEN_STAGES']);
+		expect(answers(promoter)).toEqual([
+			'jam_format=OPEN_STAGE',
+			'jam_level=ALL',
+			'structure=ASSOCIATION',
+			'territory=LOCAL'
+		]);
+	});
+
+	test('producteur·rice : deux spécialités et deux intentions persistées', async ({
+		page,
+		account
+	}) => {
+		await signUpAndVerify(page, account);
+		await soloTrackUntilStep(page, 'Producteur·rice', 'producteur');
+
+		await test.step('1. Spécialités, une offre, un besoin', async () => {
+			await page.getByRole('checkbox', { name: /^Beatmaking/ }).check();
+			await page.getByRole('checkbox', { name: /^Arrangement/ }).check();
+			await expect(page.getByText('Beatmaking : ce que tu souhaites')).toBeVisible();
+			await expect(page.getByText('Arrangement : ce que tu arranges')).toBeVisible();
+			await page.getByRole('checkbox', { name: /^Des beats/ }).check();
+			await page.getByRole('checkbox', { name: /^Des voix, des topliners/ }).check();
+			await page.getByRole('checkbox', { name: 'Home studio', exact: true }).check();
+			await page.getByRole('checkbox', { name: 'Cuivres', exact: true }).check();
+			await page.getByRole('button', { name: 'Continuer' }).click();
+			await screen(page, '/demarrer/resultat');
+		});
+
+		const person = await personOf(account.email);
+		const producer = person.tracks.find((t) => t.track === 'PRODUCER');
+		expect(producer?.specializations.map((s) => s.code).sort()).toEqual([
+			'ARRANGEMENT',
+			'BEATMAKING'
+		]);
+		expect(producer?.intents.map((i) => `${i.direction}=${i.code}`).sort()).toEqual([
+			'NEED=FIND_TOPLINERS',
+			'OFFER=BEATS'
+		]);
+		expect(answers(producer)).toEqual(['arrangement_colors=BRASS', 'environment=HOME_STUDIO']);
 	});
 });
