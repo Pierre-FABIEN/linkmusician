@@ -14,6 +14,11 @@ export type QuestState = MusicianSummary & {
 	demos: number;
 	/** Morceaux composés où l'on est crédité·e et confirmé·e (P3-11). */
 	works: number;
+	/**
+	 * Élève d'une école (P5-11) : écoles où l'on est membre, ateliers et jams
+	 * publiques où l'on vient. Sans école, la quête n'est pas proposée.
+	 */
+	school?: { schools: number; workshops: number; publicJams: number };
 };
 
 export type Objective = {
@@ -26,7 +31,13 @@ export type Objective = {
 	progress?: { current: number; target: number };
 };
 
-type Candidate = Objective & { done: (s: QuestState) => boolean };
+type Candidate = Objective & {
+	done: (s: QuestState) => boolean;
+	/** Proposé seulement si… (par défaut, toujours). */
+	offered?: (s: QuestState) => boolean;
+};
+
+const isStudent = (s: QuestState) => (s.school?.schools ?? 0) > 0;
 
 const CANDIDATES: readonly Candidate[] = [
 	{
@@ -95,8 +106,25 @@ const CANDIDATES: readonly Candidate[] = [
 		label: 'Joue 3 concerts corroborés',
 		href: '/groupes',
 		done: (s) => s.corroboratedGigs >= 3
+	},
+	// Quête « De l'atelier à la scène » (P5-11) : pour les élèves d'une école.
+	{
+		id: 'school.workshop',
+		label: 'De l’atelier à la scène : viens à un atelier de ton école',
+		href: '/ecoles',
+		offered: isStudent,
+		done: (s) => (s.school?.workshops ?? 0) >= 1
+	},
+	{
+		id: 'school.stage',
+		label: 'De l’atelier à la scène : rejoins une jam publique',
+		href: '/jam/agenda',
+		offered: isStudent,
+		done: (s) => (s.school?.workshops ?? 0) >= 1 && (s.school?.publicJams ?? 0) >= 1
 	}
 ];
+
+const offeredTo = (s: QuestState) => CANDIDATES.filter((c) => !c.offered || c.offered(s));
 
 function progressOf(id: string, s: QuestState): Objective['progress'] {
 	if (id === 'tier.collaborator') return { current: Math.min(s.collaborations, 3), target: 3 };
@@ -122,11 +150,12 @@ export function nextObjectives(
 		const i = priorities.indexOf(id);
 		return i === -1 ? priorities.length : i;
 	};
-	return CANDIDATES.map((c, order) => ({ c, order }))
+	return offeredTo(state)
+		.map((c, order) => ({ c, order }))
 		.filter(({ c }) => !c.done(state))
 		.sort((a, b) => rank(a.c.id) - rank(b.c.id) || a.order - b.order)
 		.slice(0, limit)
-		.map(({ c: { done: _done, ...objective } }) => {
+		.map(({ c: { done: _done, offered: _offered, ...objective } }) => {
 			const progress = progressOf(objective.id, state);
 			return progress ? { ...objective, progress } : objective;
 		});
@@ -134,8 +163,9 @@ export function nextObjectives(
 
 /** Avancement sur l'ensemble des objectifs système : « Étape X sur N » (P2-12b). */
 export function questProgress(state: QuestState): { done: number; total: number } {
+	const list = offeredTo(state);
 	return {
-		done: CANDIDATES.filter((c) => c.done(state)).length,
-		total: CANDIDATES.length
+		done: list.filter((c) => c.done(state)).length,
+		total: list.length
 	};
 }

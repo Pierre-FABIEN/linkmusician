@@ -17,9 +17,11 @@ import { pendingActCelebrations } from '#lib/server/career/map';
 import { unreadTotal } from '#lib/server/messaging/service';
 import { unreadNotifications } from '#lib/server/notifications/service';
 import { prisma } from '#lib/server';
+import { SCHOOL_INVITE_COOKIE } from '#lib/server/schools/cookie';
+import { INVITE_TOKEN } from '#lib/schools/rules';
 import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ locals }) => {
+export const load: LayoutServerLoad = async ({ locals, cookies }) => {
 	const user = locals.user;
 	if (!user) redirect(302, '/auth/login');
 	if (!user.emailVerified) redirect(302, '/auth/verify-email');
@@ -30,6 +32,12 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	if (await currentSuspension(person.actorId)) redirect(302, '/suspendu');
 	// Onboarding (P1-10) : tant qu'il n'est pas terminé, on y reprend.
 	if (!person.onboardedAt) redirect(302, '/demarrer');
+	// Lien d'invitation d'école suivi avant d'avoir un compte (P5-11) : repris une fois.
+	const schoolInvite = cookies.get(SCHOOL_INVITE_COOKIE);
+	if (schoolInvite) {
+		cookies.delete(SCHOOL_INVITE_COOKIE, { path: '/' });
+		if (INVITE_TOKEN.test(schoolInvite)) redirect(303, `/ecole/${schoolInvite}`);
+	}
 	// Indicateurs (P1-13) : « venu aujourd'hui », une ligne par jour au plus.
 	await recordActivity(person.actorId);
 

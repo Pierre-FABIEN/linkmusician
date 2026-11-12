@@ -86,6 +86,13 @@
 					>
 				</div>
 			{/if}
+			<!-- LINKMUSICIAN: écoles (P5-11) : profs et élèves. -->
+			<p class="mt-3 text-sm">
+				<a href="/ecoles" class="font-semibold underline">Mes écoles</a>
+				<span class="text-muted-foreground"
+					>: tu enseignes, ou ton école t’a invité·e ? Ses ateliers jam sont là.</span
+				>
+			</p>
 			{#if data.agent}
 				<!-- LINKMUSICIAN: manager, booker (P5-07). -->
 				<div class="mt-3 flex flex-wrap gap-2">

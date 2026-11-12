@@ -31,7 +31,7 @@ import {
 	isAfterJamOpen,
 	type EndorseForm
 } from '#lib/jam/afterJam';
-import { JamError, isAdult } from './publicJams';
+import { audienceWhere, JamError, isAdult } from './publicJams';
 import { networkIdsOf } from '#lib/server/network/service';
 import { hostedBy, hostIdsOf, isHostOf, issuerManagersSelect } from './hosts';
 import { BAREME } from '#lib/server/progression/core/bareme';
@@ -51,10 +51,13 @@ async function findRecentJam(id: string, viewerId: string, now: Date) {
 			venue: { removedAt: null, validatedAt: { not: null } },
 			startsAt: { lte: now },
 			endsAt: { gte: new Date(now.getTime() - AFTER_JAM_DAYS * DAY_MS) },
-			issuer: publicActorWhere(now, viewerId)
+			issuer: publicActorWhere(now, viewerId),
+			// Atelier d'école (P5-11) : ses seuls membres.
+			AND: [audienceWhere(viewerId)]
 		},
 		select: {
 			id: true,
+			audience: true,
 			title: true,
 			startsAt: true,
 			endsAt: true,
@@ -197,7 +200,8 @@ type RecentJam = NonNullable<Awaited<ReturnType<typeof findRecentJam>>>;
  * un·e musicien·ne en son nom n'est jamais « tenue » (Q42).
  */
 async function markHeldIfReady(tx: Tx, jam: RecentJam, now: Date) {
-	if (jam.heldAt || !jam.issuer.organization) return;
+	// Un atelier d'école n'est pas une jam publique : il n'est jamais « tenu » (Q53).
+	if (jam.heldAt || !jam.issuer.organization || jam.audience === 'SCHOOL') return;
 	const hosts = new Set(hostIdsOf(jam));
 	const present = await tx.jamAttendance.findMany({
 		where: { opportunityId: jam.id, ...presentWhere },

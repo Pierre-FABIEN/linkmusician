@@ -598,6 +598,38 @@ describe('quêtes (§8)', () => {
 		};
 		expect(nextObjectives(all)).toEqual([]);
 	});
+
+	it('« De l’atelier à la scène » (P5-11) : seulement pour un·e élève, l’atelier puis la jam publique', () => {
+		const all = {
+			...fresh,
+			hasInstrument: true,
+			hasGenre: true,
+			hasZone: true,
+			hasBio: true,
+			demos: 2,
+			reciprocalConversations: 2,
+			bands: 1,
+			collaborations: 3,
+			distinctCollaborators: 2,
+			corroboratedGigs: 3,
+			works: 1
+		};
+		const student = (workshops: number, publicJams: number) => ({
+			...all,
+			school: { schools: 1, workshops, publicJams }
+		});
+		expect(questProgress(all).total).toBe(questProgress({ ...all, school: undefined }).total);
+		expect(nextObjectives(student(0, 3)).map((o) => o.id)).toEqual([
+			'school.workshop',
+			'school.stage'
+		]);
+		expect(nextObjectives(student(1, 0)).map((o) => o.id)).toEqual(['school.stage']);
+		expect(nextObjectives(student(1, 1))).toEqual([]);
+		expect(questProgress(student(1, 1))).toEqual({
+			done: questProgress(all).total + 2,
+			total: questProgress(all).total + 2
+		});
+	});
 });
 
 describe('avancement des objectifs (P2-12b)', () => {

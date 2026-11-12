@@ -26,7 +26,13 @@
 // Mot de passe des comptes : SEED_DEMO_PASSWORD, ou celui de `seed.js`.
 // Jamais en production (VERCEL_ENV=production refusé).
 import { seedJamLife } from './seed-jam-life';
-import { seedOpenStage, seedRepresentations, seedScene, seedVenueHosts } from './seed-scene';
+import {
+	seedOpenStage,
+	seedRepresentations,
+	seedScene,
+	seedSchool,
+	seedVenueHosts
+} from './seed-scene';
 import dotenv from 'dotenv';
 import { PrismaClient, type LookingFor, type ProStatus, type TrackKind } from '@prisma/client';
 import { hash } from '@node-rs/argon2';
@@ -720,6 +726,7 @@ try {
 	await seedOpenStage(prisma, communes, handleMap);
 	await seedVenueHosts(prisma, communes, handleMap);
 	await seedRepresentations(prisma, communes, handleMap);
+	const schoolLink = await seedSchool(prisma, communes, handleMap);
 	// Organisateurs de jams (D51) : les personnes qui en ont publié une.
 	const hosts = await prisma.opportunity.findMany({
 		where: { kind: 'JAM' },
@@ -730,6 +737,9 @@ try {
 		where: { actorId: { in: hosts.map((h) => h.issuerActorId) } },
 		data: { organizesJams: true }
 	});
+	if (schoolLink) {
+		console.log(`\nLien d’invitation de l’École du Faubourg (30 usages, 25 jours) : ${schoolLink}`);
+	}
 	console.log(`\nComptes de connexion (mot de passe : ${PASSWORD}) :`);
 	for (const handle of demoHandles.values()) console.log(`  ${handle}@${DOMAIN}`);
 } catch (error) {

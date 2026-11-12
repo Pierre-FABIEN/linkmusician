@@ -2,7 +2,7 @@
 
 > Le guide pour **voir chaque situation de l'app** avec des comptes fictifs :
 > qui se connecte, où aller, ce qu'on doit y voir. Mis à jour le 11/11/2026
-> (phases 1 à 5 : jusqu'au booker et au manager, P5-07).
+> (phases 1 à 5 : jusqu'aux écoles, P5-11).
 
 ## 1. Lancer
 
@@ -39,27 +39,27 @@ et 5).
 
 ## 2. Les personnages (19)
 
-| Handle           | Qui                                 | Métiers                     | Ce qu'il ou elle illustre                                                                                        |
-| ---------------- | ----------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `malik-batterie` | Malik, 32 ans, batteur semi-pro     | Musicien                    | Responsable des Rats du Mardi ; batteur de Fanfare Pirate ; organise des jams ; groupes de contacts              |
-| `ines-chant`     | Inès, 27 ans, chanteuse soul        | Musicienne                  | Membre des Rats ; son titre « Lumière » produit par Nora                                                         |
-| `theo-basse`     | Théo, 38 ans, bassiste pro          | Musicien, ingé son          | Co-gère les Rats et La Cave Studio ; profil d'ingé son (home studio)                                             |
-| `clara-guitare`  | Clara, 25 ans, guitariste rock indé | Musicienne                  | Lead d'une jam à venir ; nouvelle venue des Rats ; **invitée à animer** au Comptoir Jazz                         |
-| `samir-son`      | Samir, 41 ans, ingé son             | Ingé son, musicien          | Responsable de **La Cave Studio** ; enregistre Orbital, mixage à confirmer ; invite Nora à co-gérer le studio    |
-| `nora-prod`      | Nora, 30 ans, productrice           | Productrice, musicienne     | Profil de productrice ; produit « Lumière » ; Néon Lagune en formation ; invitée au studio                       |
-| `lucas-sax`      | Lucas, 34 ans, saxophoniste         | Musicien                    | Responsable de **Fanfare Pirate** : plateau accepté, concerts vérifiés, **tournée** ; anime au Comptoir Jazz     |
-| `zoe-violon`     | Zoé, 23 ans, violoniste             | Musicienne                  | Responsable des **Lucioles** (groupe neuf) : candidature à une scène découverte, hors conditions ailleurs        |
-| `kevin-metal`    | Kévin, 35 ans, guitariste metal     | Musicien                    | Responsable d'**Orbital** (avec une mineure) : enregistrement vérifié, concert corroboré, candidature en attente |
-| `awa-clavier`    | Awa, 29 ans, claviériste            | Musicienne                  | Co-gère Fanfare Pirate ; **invitée à co-gérer Le Comptoir Jazz**                                                 |
-| `hugo-dj`        | Hugo, 28 ans, DJ et organisateur    | Musicien, organisateur      | **Soirées Disco Club** (vérification en attente) ; invité à co-gérer Bruit Rose ; « Je suis dispo »              |
-| `manon-ukulele`  | Manon, 19 ans, débutante            | Musicienne                  | Membre des Lucioles ; messagerie (premier contact à répondre)                                                    |
-| `elise-booker`   | Élise, 36 ans, booker               | Booker                      | **Booker de Fanfare Pirate** (confirmé par Lucas) ; a booké l'apéro-concert des Coteaux ; propose aux Lucioles   |
-| `marc-manager`   | Marc, 45 ans, manager               | Manager, musicien           | **Manager des Rats du Mardi** depuis leurs débuts : 200 points, rang « Développement d'artistes »                |
-| `jade-batterie`  | Jade, **16 ans**                    | Musicienne                  | **Mineure (D5)** : jams finies avant 22 h, jamais dispo affichée, batteuse d'Orbital (ne candidate pas)          |
-| `yanis-orga`     | Yanis, 39 ans, programmateur        | Organisateur, musicien      | Responsable de **l'Asso Bruit Rose** et du **Festival des Coteaux** (vérifiés) ; plateau rock                    |
-| `lina-orga`      | Lina, 33 ans, organisatrice         | Organisatrice, musicienne   | Co-gère Bruit Rose ; **Collectif Nuits Courtes** (vérifié) ; scène découverte **à son nom**                      |
-| `sophie-bar`     | Sophie, 42 ans, gérante de bar      | Musicienne (sans le métier) | **Le Comptoir Jazz** revendiqué, fiche publiée, vérifié ; publie ses dates **sans être organisatrice** (Q34)     |
-| `paul-salle`     | Paul, 47 ans, gérant de café        | Musicien                    | **Revendication du Café des Sons en attente** de la modération                                                   |
+| Handle           | Qui                                 | Métiers                     | Ce qu'il ou elle illustre                                                                                                              |
+| ---------------- | ----------------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `malik-batterie` | Malik, 32 ans, batteur semi-pro     | Musicien                    | Responsable des Rats du Mardi ; batteur de Fanfare Pirate ; organise des jams ; groupes de contacts                                    |
+| `ines-chant`     | Inès, 27 ans, chanteuse soul        | Musicienne                  | Membre des Rats ; son titre « Lumière » produit par Nora                                                                               |
+| `theo-basse`     | Théo, 38 ans, bassiste pro          | Musicien, ingé son          | Co-gère les Rats et La Cave Studio ; profil d'ingé son (home studio) ; responsable de l'**École du Faubourg**                          |
+| `clara-guitare`  | Clara, 25 ans, guitariste rock indé | Musicienne                  | Lead d'une jam à venir ; nouvelle venue des Rats ; **invitée à animer** au Comptoir Jazz                                               |
+| `samir-son`      | Samir, 41 ans, ingé son             | Ingé son, musicien          | Responsable de **La Cave Studio** ; enregistre Orbital, mixage à confirmer ; invite Nora à co-gérer le studio                          |
+| `nora-prod`      | Nora, 30 ans, productrice           | Productrice, musicienne     | Profil de productrice ; produit « Lumière » ; Néon Lagune en formation ; invitée au studio                                             |
+| `lucas-sax`      | Lucas, 34 ans, saxophoniste         | Musicien                    | Responsable de **Fanfare Pirate** : plateau accepté, concerts vérifiés, **tournée** ; anime au Comptoir Jazz                           |
+| `zoe-violon`     | Zoé, 23 ans, violoniste             | Musicienne                  | Responsable des **Lucioles** (groupe neuf) : candidature à une scène découverte, hors conditions ailleurs                              |
+| `kevin-metal`    | Kévin, 35 ans, guitariste metal     | Musicien                    | Responsable d'**Orbital** (avec une mineure) : enregistrement vérifié, concert corroboré, candidature en attente                       |
+| `awa-clavier`    | Awa, 29 ans, claviériste            | Musicienne                  | Co-gère Fanfare Pirate ; **invitée à co-gérer Le Comptoir Jazz**                                                                       |
+| `hugo-dj`        | Hugo, 28 ans, DJ et organisateur    | Musicien, organisateur      | **Soirées Disco Club** (vérification en attente) ; invité à co-gérer Bruit Rose ; « Je suis dispo »                                    |
+| `manon-ukulele`  | Manon, 19 ans, débutante            | Musicienne                  | Membre des Lucioles ; messagerie (premier contact à répondre) ; élève de l'École du Faubourg                                           |
+| `elise-booker`   | Élise, 36 ans, booker               | Booker                      | **Booker de Fanfare Pirate** (confirmé par Lucas) ; a booké l'apéro-concert des Coteaux ; propose aux Lucioles                         |
+| `marc-manager`   | Marc, 45 ans, manager               | Manager, musicien           | **Manager des Rats du Mardi** depuis leurs débuts : 200 points, rang « Développement d'artistes »                                      |
+| `jade-batterie`  | Jade, **16 ans**                    | Musicienne                  | **Mineure (D5)** : jams finies avant 22 h, jamais dispo affichée, batteuse d'Orbital (ne candidate pas) ; élève de l'École du Faubourg |
+| `yanis-orga`     | Yanis, 39 ans, programmateur        | Organisateur, musicien      | Responsable de **l'Asso Bruit Rose** et du **Festival des Coteaux** (vérifiés) ; plateau rock                                          |
+| `lina-orga`      | Lina, 33 ans, organisatrice         | Organisatrice, musicienne   | Co-gère Bruit Rose ; **Collectif Nuits Courtes** (vérifié) ; scène découverte **à son nom**                                            |
+| `sophie-bar`     | Sophie, 42 ans, gérante de bar      | Musicienne (sans le métier) | **Le Comptoir Jazz** revendiqué, fiche publiée, vérifié ; publie ses dates **sans être organisatrice** (Q34)                           |
+| `paul-salle`     | Paul, 47 ans, gérant de café        | Musicien                    | **Revendication du Café des Sons en attente** de la modération                                                                         |
 
 Un compte de modération n'est pas créé par `seed:demo` : passe un compte
 en rôle admin (`/admin`) pour voir les files de `/moderation`.
@@ -197,6 +197,17 @@ en jam passée (vie de jam).
 | « Proposer d'accompagner » sur la page d'un groupe, pour une personne qui a le métier                                                | `marc-manager`    | `/@orbital-prog`                                              |
 | « Booké par » dans le formulaire de concert (seulement les bookers confirmés du groupe)                                              | `lucas-sax`       | conversation avec Sophie, type « Concert »                    |
 
+### École (phase 5, `seed-scene`)
+
+| Situation                                                                                                | Se connecter avec | Où                                         |
+| -------------------------------------------------------------------------------------------------------- | ----------------- | ------------------------------------------ |
+| **École de musique du Faubourg** gérée par Théo : lien d'invitation actif, élèves (visibles de lui seul) | `theo-basse`      | `/ecoles`, `/ecoles/ecole-du-faubourg`     |
+| Publier un atelier jam réservé aux élèves                                                                | `theo-basse`      | « Publier un atelier »                     |
+| Élève : les deux ateliers à venir, « Je viens » déjà dit au premier ; quête « De l'atelier à la scène »  | `manon-ukulele`   | Mode jam › Mon école, `/espace/objectifs`  |
+| Élève **mineure** : seul l'atelier de 17 h 30 apparaît (celui de 20 h finit à 22 h 30)                   | `jade-batterie`   | Mode jam › Mon école                       |
+| Rejoindre l'école par le lien (affiché à la fin de `seed:demo` quand l'école est créée)                  | un·e autre        | `/ecole/…`                                 |
+| Hors de l'école : ni l'atelier dans l'agenda, ni la page de l'école (404)                                | `hugo-dj`         | `/jam/agenda`, `/ecoles/ecole-du-faubourg` |
+
 ### Mineur·es (D5)
 
 | Situation                                                  | Se connecter avec | Où                      |
@@ -210,7 +221,6 @@ en jam passée (vie de jam).
 
 Les lots suivants n'existent pas encore dans l'app :
 
-- écoles, MJC, conservatoires (P5-11) ;
 - tout ce qui est payant (P5-09, P5-10).
 
 Chaque lot qui ajoute une situation l'ajoute à la démo **et** à ce guide

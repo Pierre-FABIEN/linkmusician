@@ -4,7 +4,17 @@
 	import NextStep from '#lib/components/linkmusician/NextStep.svelte';
 	import MenuList, { type MenuItem } from '#lib/components/linkmusician/MenuList.svelte';
 	import { SLOT_LABELS } from '#lib/jam/availability';
-	import { BookUser, CalendarDays, Guitar, Heart, MapPin, Music, Plus, Radio } from 'lucide-svelte';
+	import {
+		BookUser,
+		CalendarDays,
+		GraduationCap,
+		Guitar,
+		Heart,
+		MapPin,
+		Music,
+		Plus,
+		Radio
+	} from 'lucide-svelte';
 
 	let { data } = $props();
 	const plural = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`;
@@ -55,6 +65,17 @@
 						: null,
 			highlight: data.inviteCount > 0
 		},
+		// Écoles (P5-11) : les ateliers réservés aux élèves.
+		...(data.schools > 0
+			? [
+					{
+						href: '/ecoles',
+						icon: GraduationCap,
+						title: data.schools > 1 ? 'Mes écoles' : 'Mon école',
+						text: 'Les ateliers jam de ton école, pour jouer avec d’autres avant la scène.'
+					}
+				]
+			: []),
 		// Organisateurs seulement (D51) ; les autres s'écrivent pour jouer ensemble.
 		...(data.organizer
 			? [

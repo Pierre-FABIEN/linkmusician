@@ -15,13 +15,14 @@ import {
 } from './core/trust';
 import { achievementCatalog, getMusicianTier, getProgress, getXpHistory } from './read';
 import { trustSummaryFor } from './trust';
+import { workshopQuestFacts } from '#lib/server/schools/service';
 
 /** État du profil utile aux objectifs (ce que le résumé d'événements ne dit pas). */
 export async function questStateFor(
 	actorId: string,
 	summary: MusicianSummary
 ): Promise<QuestState> {
-	const [instruments, genres, location, actor, demos, works] = await Promise.all([
+	const [instruments, genres, location, actor, demos, works, school] = await Promise.all([
 		prisma.personInstrument.count({ where: { personId: actorId } }),
 		prisma.actorGenre.count({ where: { actorId } }),
 		prisma.actorLocation.count({ where: { actorId } }),
@@ -30,7 +31,9 @@ export async function questStateFor(
 		// Morceaux composés où l'on est crédité·e et confirmé·e (P3-11).
 		prisma.workContributor.count({
 			where: { personId: actorId, confirmedAt: { not: null }, work: { state: 'COMPOSED' } }
-		})
+		}),
+		// « De l'atelier à la scène » (P5-11).
+		workshopQuestFacts(actorId)
 	]);
 	return {
 		...summary,
@@ -39,7 +42,8 @@ export async function questStateFor(
 		hasZone: location > 0,
 		hasBio: Boolean(actor.bio?.trim()),
 		demos,
-		works
+		works,
+		school
 	};
 }
 

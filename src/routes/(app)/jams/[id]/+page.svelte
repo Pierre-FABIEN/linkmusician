@@ -68,7 +68,10 @@
 				· {jam.venue.communeName}
 			</p>
 			<p class="text-sm text-muted-foreground">
-				{#if jam.recurring}<span class="font-semibold text-foreground">{jam.recurring}</span> ·
+				{#if jam.workshop}<span class="font-semibold text-foreground"
+						>Atelier réservé aux élèves</span
+					> ·
+				{/if}{#if jam.recurring}<span class="font-semibold text-foreground">{jam.recurring}</span> ·
 				{/if}Hôte : <a href={jam.host.href} class="underline">{jam.host.displayName}</a>
 				{#if jam.hasDesignatedLead}
 					· Lead : <a href={jam.lead.href} class="underline">{jam.lead.displayName}</a>

@@ -1471,6 +1471,8 @@ model Actor {
   representationsEnded       Representation[]         @relation("RepresentationEnder")
   /// Concerts bookés (P5-07).
   gigsBooked                 Collaboration[]          @relation("CollaborationBooker")
+  /// Liens d'invitation d'école créés (P5-11).
+  schoolInvitesCreated       SchoolInvite[]           @relation("SchoolInviteCreator")
   /// Candidatures envoyées au nom d'un groupe (P5-05a).
   applicationsSent           Application[]            @relation("ApplicationSender")
   works                      Work[]                   @relation("WorkOwner")
@@ -2164,6 +2166,8 @@ model Opportunity {
   /// Jam publique tenue (P5-04a, 02 §2.2) : au moins 3 présent·es hors
   /// organisation ont dit « J'y étais ». Posé une seule fois (`jam.held`).
   heldAt          DateTime?
+  /// Atelier d'école (P5-11) : `SCHOOL` le réserve aux membres de l'école émettrice.
+  audience        OpportunityAudience @default(PUBLIC)
   expiresAt     DateTime
   closedAt      DateTime?
   createdAt     DateTime          @default(now())
@@ -2765,6 +2769,9 @@ enum OrgKind {
   VENUE
   /// Organisateur·rices (P5-05b) : association, collectif, festival.
   PROMOTER
+  /// École, MJC, conservatoire (P5-11, D29) : les profs gèrent, les élèves
+  /// sont membres (MEMBER), jamais listé·es en public.
+  SCHOOL
 }
 
 enum OrgRole {
@@ -2817,6 +2824,9 @@ model Organization {
   venueProfile VenueProfile?
   /// Animateur·rices affilié·es à un lieu (P5-04b).
   venueHosts   VenueHost[]
+  /// École, MJC, conservatoire (P5-11) : fiche et liens d'invitation des élèves.
+  school        SchoolProfile?
+  schoolInvites SchoolInvite[]
 
   @@map("organizations")
 }
@@ -3709,4 +3719,51 @@ model AgentGenre {
   @@id([personId, genreId])
   @@index([genreId])
   @@map("agent_genres")
+}
+
+
+// ─── ÉCOLES, MJC, CONSERVATOIRES (P5-11, D29) ───────────────────────────────
+
+/// Qui voit une annonce : tout le monde, ou les membres de l'école émettrice.
+enum OpportunityAudience {
+  PUBLIC
+  SCHOOL
+}
+
+enum SchoolKind {
+  MUSIC_SCHOOL
+  MJC
+  CONSERVATORY
+  ASSOCIATION
+}
+
+/// Fiche d'une école (organisation `SCHOOL`).
+model SchoolProfile {
+  orgId     String       @id
+  org       Organization @relation(fields: [orgId], references: [actorId], onDelete: Cascade)
+  kind      SchoolKind
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@map("school_profiles")
+}
+
+/// Lien d'invitation des élèves (P5-11) : seul le hachage du jeton est
+/// stocké ; 30 jours, un plafond d'usages, révocable.
+model SchoolInvite {
+  id          String       @id @default(cuid())
+  orgId       String
+  org         Organization @relation(fields: [orgId], references: [actorId], onDelete: Cascade)
+  tokenHash   String       @unique
+  /// Personne de la gestion qui l'a créé ; oubliée à l'anonymisation.
+  createdById String?
+  createdBy   Actor?       @relation("SchoolInviteCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  expiresAt   DateTime
+  maxUses     Int
+  uses        Int          @default(0)
+  revokedAt   DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([orgId])
+  @@map("school_invites")
 }

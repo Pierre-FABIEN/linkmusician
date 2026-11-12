@@ -11,7 +11,11 @@
  * finies le jour même avant 22 h, et jamais dans un lieu réservé aux adultes.
  * Scène ouverte récurrente (P5-04a) : la jam est publiée au nom du lieu, et
  * les personnes qui le gèrent en sont hôtes (`./hosts`).
+ * Atelier d'école (P5-11) : une jam `audience: SCHOOL`, publiée au nom de
+ * l'école ; seuls ses membres la voient, la rejoignent ou y sont invités
+ * (`audienceWhere`). Le filtre des mineur·es s'y applique comme ailleurs.
  */
+import type { Prisma } from '@prisma/client';
 import { canOrganizeJams, NOT_ORGANIZER_ERROR } from '#lib/jam/organizer';
 import { prisma } from '#lib/server';
 import { isIndexable } from '#lib/actors/visibility';
@@ -119,6 +123,26 @@ export async function createJam(actorId: string, form: JamForm, now = new Date()
 	});
 }
 
+/**
+ * Qui voit une jam (P5-11) : une jam publique, tout le monde ; un atelier
+ * d'école, les seuls membres actifs de l'école (élèves et gestion).
+ */
+export const audienceWhere = (viewerId: string): Prisma.OpportunityWhereInput => ({
+	OR: [
+		{ audience: 'PUBLIC' },
+		{
+			audience: 'SCHOOL',
+			issuer: {
+				organization: {
+					kind: 'SCHOOL',
+					dissolvedAt: null,
+					memberships: { some: { personId: viewerId, status: 'ACTIVE' } }
+				}
+			}
+		}
+	]
+});
+
 const jamInclude = {
 	venue: {
 		select: {
@@ -162,6 +186,7 @@ function findJams(viewerId: string, where: object, now: Date, take = 30) {
 			venue: { removedAt: null, validatedAt: { not: null } },
 			endsAt: { gt: now },
 			issuer: publicActorWhere(now, viewerId),
+			AND: [audienceWhere(viewerId)],
 			...where
 		},
 		orderBy: { startsAt: 'asc' },
@@ -197,10 +222,14 @@ function toCard(j: JamRow, viewerId: string) {
 			displayName: j.issuer.displayName,
 			// Jam publiée au nom du lieu (P5-04a) : sa page est celle du lieu.
 			href:
-				j.issuerActorId === j.venue!.claimedByActorId
-					? `/lieux/${j.venue!.id}`
-					: `/@${j.issuer.handle}`
+				j.audience === 'SCHOOL'
+					? `/ecoles/${j.issuer.handle}`
+					: j.issuerActorId === j.venue!.claimedByActorId
+						? `/lieux/${j.venue!.id}`
+						: `/@${j.issuer.handle}`
 		},
+		/** Atelier réservé aux membres d'une école (P5-11). */
+		workshop: j.audience === 'SCHOOL',
 		/** Scène ouverte récurrente : « Tous les jeudis ». */
 		recurring: j.series ? seriesLabel(j.series.weekday) : null,
 		isHost: isHostOf(j, viewerId),
@@ -235,6 +264,12 @@ export async function upcomingJamsNear(viewerId: string, now = new Date()): Prom
 export async function upcomingJamsAt(venueId: string, viewerId: string, now = new Date()) {
 	const rows = await forViewer(viewerId, await findJams(viewerId, { venueId }, now));
 	return rows.map((j) => toCard(j, viewerId));
+}
+
+/** Ateliers à venir d'une école (P5-11), pour ses membres ; mineur·es : finis avant 22 h. */
+export async function upcomingSchoolJams(orgId: string, viewerId: string, now = new Date()) {
+	const rows = await findJams(viewerId, { issuerActorId: orgId, audience: 'SCHOOL' }, now);
+	return (await forViewer(viewerId, rows)).map((j) => toCard(j, viewerId));
 }
 
 /** Jams à venir où la personne est invitée et n'a pas encore répondu. */
@@ -401,6 +436,15 @@ export async function inviteToJam(id: string, leadId: string, form: InviteForm, 
 	const invitee = await findMusician(form.handle, leadId, now);
 	if (invitee.id === leadId || isHostOf(row, invitee.id)) {
 		throw new JamError('Tu ne peux pas t’inviter toi-même.');
+	}
+	// Atelier d'école (P5-11) : on n'y invite que ses membres.
+	if (
+		row.audience === 'SCHOOL' &&
+		(await prisma.membership.count({
+			where: { orgId: row.issuerActorId, personId: invitee.id, status: 'ACTIVE' }
+		})) === 0
+	) {
+		throw new JamError(`${invitee.displayName} n’est pas membre de l’école : envoie-lui le lien.`);
 	}
 	const instrument = await prisma.instrument.findFirst({
 		where: { slug: form.instrument, active: true },

@@ -303,6 +303,14 @@ occasions** aux autres. À mesurer avant de construire (§2).
 | **Tremplin, concours**                                     | Sélections, prix, premières grandes scènes                             | Participation et résultat vérifiés par l'organisateur     | Épreuves spéciales, cartes souvenirs                |
 | **Radio associative, webzine local**                       | Diffusion, interviews (voir communication musicale, §3.9)              | Diffusion corroborant une sortie                          | Acte VI                                             |
 
+**Écoles (P5-11, D29)** : l'école, la MJC ou le conservatoire est une
+organisation `SCHOOL` gérée par ses profs ; les élèves la rejoignent par
+un lien d'invitation et ne sont listé·es nulle part en public. Ses
+**ateliers jam** sont réservés à ses membres ; ils ne rapportent rien et
+ne sont pas « tenus » (Q53).
+La quête « De l'atelier à la scène » mène l'élève vers une jam publique.
+Voir [docs/ecoles](../ecoles/README.md).
+
 ## 4. La chaîne d'un morceau : du jam au producteur
 
 Les métiers ne sont pas des îlots. Ils se relaient autour d'un **même

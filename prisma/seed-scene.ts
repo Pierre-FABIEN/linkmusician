@@ -872,6 +872,109 @@ export async function seedRepresentations(
 	);
 }
 
+/**
+ * École (P5-11) : Théo ouvre l'« École de musique du Faubourg » ; Manon et
+ * Jade (16 ans) en sont élèves. Deux ateliers jam à la MJC des Arts : celui
+ * de 17 h 30 (Manon vient), et celui de 20 h qui finit à 22 h 30, que Jade
+ * ne voit pas (D5). Un lien d'invitation actif est affiché en fin de seed
+ * (seul son hachage est en base). Rien si l'école existe déjà.
+ */
+export async function seedSchool(
+	prisma: PrismaClient,
+	communes: Commune[],
+	demoHandles: ReadonlyMap<string, string> = new Map()
+): Promise<string | null> {
+	const HANDLE = 'ecole-du-faubourg';
+	if (await prisma.actor.findUnique({ where: { handle: HANDLE }, select: { id: true } })) {
+		console.log('École du Faubourg déjà en place : rien à refaire.');
+		return null;
+	}
+	const ctx = await demoContext(prisma, communes[0], null, demoHandles);
+	const P = (h: string) => id(ctx, h);
+	const mjc = await prisma.venue.findFirst({
+		where: { name: 'MJC des Arts', removedAt: null },
+		select: { id: true }
+	});
+	if (!mjc) return null;
+	const school = await prisma.actor.create({
+		data: {
+			kind: 'ORGANIZATION',
+			handle: HANDLE,
+			displayName: 'École de musique du Faubourg',
+			bio: 'Cours de musiques actuelles et ateliers jam tous niveaux.',
+			organization: { create: { kind: 'SCHOOL', school: { create: { kind: 'MUSIC_SCHOOL' } } } }
+		},
+		select: { id: true }
+	});
+	await prisma.membership.createMany({
+		data: [
+			{
+				orgId: school.id,
+				personId: P('theo-basse'),
+				role: 'OWNER',
+				status: 'ACTIVE',
+				startedAt: ago(30)
+			},
+			{
+				orgId: school.id,
+				personId: P('manon-ukulele'),
+				role: 'MEMBER',
+				status: 'ACTIVE',
+				startedAt: ago(20)
+			},
+			{
+				orgId: school.id,
+				personId: P('jade-batterie'),
+				role: 'MEMBER',
+				status: 'ACTIVE',
+				startedAt: ago(12)
+			}
+		]
+	});
+	// Le lien : comme `createSchoolInvite`, le jeton n'est jamais stocké.
+	const { createHash, randomBytes } = await import('node:crypto');
+	const token = randomBytes(24).toString('base64url');
+	await prisma.schoolInvite.create({
+		data: {
+			orgId: school.id,
+			tokenHash: createHash('sha256').update(token).digest('hex'),
+			createdById: P('theo-basse'),
+			maxUses: 30,
+			uses: 2,
+			expiresAt: inDays(25),
+			createdAt: ago(5)
+		}
+	});
+	const workshop = (title: string, start: Date, hours: number) =>
+		prisma.opportunity.create({
+			data: {
+				issuerActorId: school.id,
+				postedById: P('theo-basse'),
+				leadActorId: P('theo-basse'),
+				audience: 'SCHOOL',
+				kind: 'JAM',
+				title,
+				description: 'Atelier des élèves : on travaille un morceau, puis on improvise ensemble.',
+				venueId: mjc.id,
+				startsAt: start,
+				endsAt: new Date(start.getTime() + hours * 3_600_000),
+				expiresAt: new Date(start.getTime() + hours * 3_600_000),
+				createdAt: ago(3)
+			},
+			select: { id: true }
+		});
+	// Heures UTC : 17 h 30 et 20 h à Paris (heure d'hiver).
+	const early = await workshop('Atelier jam du mercredi', nextWeekday(3, 2, 16, 30), 2);
+	await workshop('Atelier jam du soir (adultes)', nextWeekday(4, 2, 19, 0), 2.5);
+	await prisma.jamAttendance.create({
+		data: { opportunityId: early.id, actorId: P('manon-ukulele'), createdAt: ago(1) }
+	});
+	console.log(
+		'  · école : Théo et l’École du Faubourg, Manon et Jade élèves, deux ateliers (Jade ne voit que le premier)'
+	);
+	return `/ecole/${token}`;
+}
+
 // ─── Le scénario ─────────────────────────────────────────────────────────
 
 export async function seedScene(

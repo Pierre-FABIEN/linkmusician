@@ -10,12 +10,13 @@ import { venuesNear } from '#lib/server/venues/service';
 import { isJamOrganizer, myJamInvites, upcomingJamsNear } from '#lib/server/jam/publicJams';
 import { crossedJams, myRecentJams } from '#lib/server/jam/afterJam';
 import { appreciateBadge } from '#lib/jam/afterJam';
+import { mySchools } from '#lib/server/schools/service';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const person = (await getPersonByUserId(locals.user!.id))!;
 	const location = await getActorLocation(person.actorId);
-	const [mine, canBeDispo, available, jams, invites, recent, organizer, crossed] =
+	const [mine, canBeDispo, available, jams, invites, recent, organizer, crossed, schools] =
 		await Promise.all([
 			myAvailability(person.actorId),
 			canBeAvailable(person.actorId),
@@ -24,7 +25,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 			myJamInvites(person.actorId),
 			myRecentJams(person.actorId),
 			isJamOrganizer(person.actorId),
-			crossedJams(person.actorId)
+			crossedJams(person.actorId),
+			// Écoles (P5-11) : l'entrée n'apparaît que pour qui en fait partie.
+			mySchools(person.actorId)
 		]);
 	// Guide « Ta prochaine étape » (P2-12b).
 	const [conversations, playedTogether, venuesAdded, nearbyVenues] = await Promise.all([
@@ -58,6 +61,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		/** « Apprécier les musicos croisés » : jam en cours ou personnes à apprécier. */
 		appreciate: appreciateBadge(crossed),
 		crossedCount: crossed.length,
+		schools: schools.length,
 		nextStep: jamNextStep({
 			hasCity: Boolean(location),
 			canBeDispo,

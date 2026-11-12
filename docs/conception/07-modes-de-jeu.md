@@ -352,14 +352,14 @@ le bar qui fait son bœuf du jeudi, la MJC qui anime un atelier, le
 festival qui ouvre la scène après les concerts, ou un·e musicien·ne qui
 anime la scène ouverte d'un bar (D27). Les situations courantes :
 
-| Situation                                                | Hôte                            |
-| -------------------------------------------------------- | ------------------------------- |
-| Scène ouverte, bœuf d'un bar ou d'un café-concert        | Le lieu                         |
-| Jam animée par un·e musicien·ne dans un bar              | Le ou la musicien·ne animateur  |
-| Atelier jam d'une MJC, d'une école, d'une association    | La structure ou l'encadrant·e   |
-| Bœuf de fin de concert ou de festival                    | L'organisateur                  |
-| Fête de la musique, scène de rue                         | L'organisateur, la collectivité |
-| Quelques musicien·nes dans un local de répète, un studio | L'un ou l'une d'entre eux       |
+| Situation                                                | Hôte                                                         |
+| -------------------------------------------------------- | ------------------------------------------------------------ |
+| Scène ouverte, bœuf d'un bar ou d'un café-concert        | Le lieu                                                      |
+| Jam animée par un·e musicien·ne dans un bar              | Le ou la musicien·ne animateur                               |
+| Atelier jam d'une MJC, d'une école, d'une association    | La structure ou l'encadrant·e (P5-11 : réservé à ses élèves) |
+| Bœuf de fin de concert ou de festival                    | L'organisateur                                               |
+| Fête de la musique, scène de rue                         | L'organisateur, la collectivité                              |
+| Quelques musicien·nes dans un local de répète, un studio | L'un ou l'une d'entre eux                                    |
 
 1. **« Je suis dispo »** : un interrupteur sur l'accueil, avec un
    créneau (ce soir, demain, ce week-end) et ce qu'on a envie de jouer.

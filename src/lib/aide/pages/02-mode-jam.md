@@ -130,6 +130,28 @@ revendiquer. Une fois la demande acceptée, **Gérer la fiche du lieu** :
 > attente, le temps qu’un membre confirmé ou la modération le valide.
 > C’est ce qui garantit que les jams ont lieu dans de vrais lieux.
 
+### Ton école, ta MJC, ton conservatoire {#ecole}
+
+Ton prof t’a envoyé un **lien d’invitation** ? Ouvre-le et choisis
+**Rejoindre l’école** (crée d’abord ton compte si besoin : on te ramène au
+lien ensuite). Tu retrouves ton école dans **Mode jam › Mon école** :
+
+- ses **ateliers jam**, que seuls ses élèves voient. Dis « Je viens »
+  comme pour une jam ;
+- la quête **De l’atelier à la scène** : un premier atelier, puis une
+  première **jam publique** autour de toi, pour jouer avec d’autres.
+
+Personne ne voit la liste des élèves, sauf la personne qui gère l’école.
+Tu peux **quitter l’école** quand tu veux.
+
+Tu enseignes ? Ouvre **Mon profil › Mes écoles** et crée ton école (il
+faut être majeur·e). Crée un **lien d’invitation** (30 jours, pour le
+nombre d’élèves que tu choisis) : copie-le tout de suite, il ne s’affiche
+qu’une fois. Puis **publie un atelier** dans un lieu de l’annuaire : tu en
+es le lead. Pour tes élèves mineur·es, il doit finir avant 22 h. Un
+atelier ne rapporte pas de points : ce qui compte, c’est que tes élèves
+jouent ensuite avec d’autres.
+
 ## 2. Pendant la jam
 
 On joue ! L’app s’efface : rien à faire sur ton téléphone.
@@ -198,7 +220,8 @@ Pour le plaisir, sans points :
 ## Pour les mineur·es
 
 - Tu vois et tu rejoins les jams qui **finissent avant 22 h**, sauf dans
-  les lieux réservés aux adultes.
+  les lieux réservés aux adultes. C’est pareil pour les ateliers de ton
+  école.
 - Ta dispo n’est montrée à personne : on ne peut pas te solliciter. Tu
   choisis toi-même les jams où tu vas.
 - Pour écrire ou recevoir un message, les règles sont plus protectrices.

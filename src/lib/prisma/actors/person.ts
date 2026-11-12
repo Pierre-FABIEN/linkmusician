@@ -822,6 +822,16 @@ export async function exportPersonData(userId: string) {
 				debut: m.startedAt,
 				fin: m.endedAt
 			})),
+		// Écoles (P5-11) : comme prof (gestion) ou comme élève (MEMBER).
+		ecoles: memberships
+			.filter((m) => m.org.kind === 'SCHOOL')
+			.map((m) => ({
+				ecole: m.org.actor.displayName,
+				role: m.role === 'MEMBER' ? 'élève' : m.role,
+				statut: m.status,
+				debut: m.startedAt,
+				fin: m.endedAt
+			})),
 		// Studios gérés (P4-03) : la fiche appartient au studio, seule la
 		// gestion est une donnée de la personne.
 		studios: memberships
@@ -1141,6 +1151,7 @@ async function bandAnonymizationOps(actorId: string): Promise<Prisma.PrismaPromi
 			orgId: true,
 			org: {
 				select: {
+					kind: true,
 					memberships: {
 						where: { status: 'ACTIVE' },
 						select: { id: true, personId: true, role: true, startedAt: true }
@@ -1151,7 +1162,12 @@ async function bandAnonymizationOps(actorId: string): Promise<Prisma.PrismaPromi
 	});
 	const ops: Prisma.PrismaPromise<unknown>[] = [];
 	for (const band of owned) {
-		const next = successorOf(actorId, band.org.memberships);
+		// Une école (P5-11) ne passe jamais à un·e élève : à la gestion, sinon dissoute.
+		const candidates =
+			band.org.kind === 'SCHOOL'
+				? band.org.memberships.filter((m) => m.role !== 'MEMBER')
+				: band.org.memberships;
+		const next = successorOf(actorId, candidates);
 		if (next) {
 			ops.push(prisma.membership.update({ where: { id: next.id }, data: { role: 'OWNER' } }));
 		} else {
@@ -1173,7 +1189,9 @@ async function bandAnonymizationOps(actorId: string): Promise<Prisma.PrismaPromi
 			where: { personId: actorId, status: { in: ['INVITED', 'REQUESTED'] } }
 		}),
 		// Invitations envoyées : on oublie qui a invité.
-		prisma.membership.updateMany({ where: { invitedById: actorId }, data: { invitedById: null } })
+		prisma.membership.updateMany({ where: { invitedById: actorId }, data: { invitedById: null } }),
+		// Liens d'invitation d'école (P5-11) : on oublie qui les a créés.
+		prisma.schoolInvite.updateMany({ where: { createdById: actorId }, data: { createdById: null } })
 	);
 	return ops;
 }
