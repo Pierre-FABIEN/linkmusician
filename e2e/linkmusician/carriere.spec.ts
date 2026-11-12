@@ -170,4 +170,102 @@ test.describe('LinkMusician — écran de carrière', () => {
 			await db.actor.delete({ where: { id: peer.id } });
 		}
 	});
+	test('acte V : un concert vérifié franchit la scène, la tournée reste à faire', async ({
+		page,
+		account
+	}) => {
+		await signUpAndVerify(page, account);
+		await skipOnboarding(page, account.email);
+		const person = await db.person.findUniqueOrThrow({
+			where: { userId: (await requireUser(account.email)).id },
+			include: { actor: true }
+		});
+		const suffix = Math.random().toString(36).slice(2, 8);
+		const bandName = `E2E Les Rats ${suffix}`;
+		// Concert préparé en base : le groupe de la personne, son « Premier
+		// concert » vérifié par un hôte vérifié, et l'attestation qui la crédite.
+		const band = await db.actor.create({
+			data: {
+				kind: 'ORGANIZATION',
+				handle: `e2e-scene-${suffix}`,
+				displayName: bandName,
+				organization: {
+					create: {
+						kind: 'BAND',
+						formedAt: new Date(Date.now() - 60 * 86_400_000),
+						memberships: {
+							create: [
+								{
+									personId: person.actorId,
+									role: 'OWNER',
+									status: 'ACTIVE',
+									startedAt: new Date(Date.now() - 60 * 86_400_000)
+								}
+							]
+						}
+					}
+				}
+			}
+		});
+		const acts = page.getByRole('list', { name: 'Actes de la carrière' });
+		const act5 = acts.locator(':scope > li').nth(4);
+		try {
+			await test.step('1. Avant le concert : l’acte V est ouvert, on candidate à un plateau', async () => {
+				await page.goto('/espace/carte');
+				await waitForAppReady(page);
+				await expect(act5).toContainText('Acte V · La scène');
+				await expect(act5).toContainText('Ouvert');
+				await expect(act5).toContainText(/Pour aller plus loin :.*tournée/);
+			});
+
+			await test.step('2. Concert vérifié : épreuve franchie, la tournée reste à faire', async () => {
+				const definition = await db.milestoneDefinition.findUniqueOrThrow({
+					where: { id: 'FIRST_GIG' }
+				});
+				const occurredAt = new Date(Date.now() - 7 * 86_400_000);
+				await db.milestone.create({
+					data: {
+						definitionId: 'FIRST_GIG',
+						bandId: band.id,
+						proof: 'VERIFIED',
+						occurredAt,
+						definitionVersion: definition.version
+					}
+				});
+				await db.domainEvent.create({
+					data: {
+						type: 'milestone.attested',
+						actorIds: [band.id, person.actorId],
+						processedAt: new Date(),
+						payload: {
+							type: 'milestone.attested',
+							bandId: band.id,
+							milestone: 'FIRST_GIG',
+							from: null,
+							to: 'VERIFIED',
+							memberIds: [person.actorId],
+							occurredAt: occurredAt.toISOString()
+						}
+					}
+				});
+				await page.reload();
+				await waitForAppReady(page);
+				await expect(act5).toContainText('Épreuve franchie');
+				await expect(act5).not.toContainText('Faite !');
+				await expect(act5.getByRole('link', { name: /carte souvenir du concert/ })).toBeVisible();
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+			});
+
+			await test.step('3. La carte souvenir du concert se partage', async () => {
+				const response = await page.request.get(
+					`/api/carriere/souvenir/${person.actor.handle}/5.png`
+				);
+				expect(response.status()).toBe(200);
+				expect(response.headers()['content-type']).toBe('image/png');
+			});
+		} finally {
+			await db.domainEvent.deleteMany({ where: { actorIds: { has: band.id } } });
+			await db.actor.delete({ where: { id: band.id } });
+		}
+	});
 });

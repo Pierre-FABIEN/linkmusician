@@ -1,7 +1,7 @@
 import { error, redirect } from '@sveltejs/kit';
 import { careerMap } from '#lib/career/map';
 import { getPublicProfile } from '#lib/server/actors/publicProfile';
-import { careerFacts } from '#lib/server/career/map';
+import { careerFacts, firstVerifiedGig } from '#lib/server/career/map';
 import { renderSouvenir } from '#lib/server/career/souvenir';
 import type { RequestHandler } from './$types';
 
@@ -21,11 +21,21 @@ export const GET: RequestHandler = async ({ params }) => {
 	);
 	if (!act || act.status !== 'passed') error(404, 'Carte souvenir introuvable');
 
+	const month = (d: Date) =>
+		new Intl.DateTimeFormat('fr-FR', {
+			month: 'long',
+			year: 'numeric',
+			timeZone: 'Europe/Paris'
+		}).format(d);
+	// Acte V (P5-08) : la carte souvenir du concert, avec le groupe et l'hôte.
+	const gig = actNumber === 5 ? await firstVerifiedGig(profile.id) : null;
 	const png = await renderSouvenir({
 		displayName: profile.displayName,
 		actTitle: `Acte ${act.roman} · ${act.name}`,
-		trial: act.trial,
-		date: `créée en ${new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(new Date())}`
+		trial: gig
+			? `Premier concert vérifié avec ${gig.bandName}${gig.hostName ? `, accueilli par ${gig.hostName}` : ''}.`
+			: act.trial,
+		date: gig ? `concert de ${month(gig.occurredAt)}` : `créée en ${month(new Date())}`
 	});
 
 	return new Response(new Uint8Array(png), {

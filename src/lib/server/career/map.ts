@@ -12,7 +12,10 @@
  * - acte IV (P4-10) : morceau **produit** (collaboration de production
  *   terminée, donc confirmée par le ou la producteur·rice) où l'on joue ou
  *   écrit (crédit confirmé hors rôles du son) ou dont on est membre du
- *   groupe qui le porte.
+ *   groupe qui le porte ;
+ * - acte V (P5-08) : « Premier concert » **vérifié** (hôte vérifié, P5-06)
+ *   d'un groupe dont on était membre à la date ; la « Première tournée »
+ *   vérifiée est une épreuve de plus, affichée, pas bloquante.
  *
  * Célébration d'épreuve (P2-11) : une seule fois par acte
  * (`Person.actsCelebrated`).
@@ -22,8 +25,51 @@ import { getMusicianTier } from '#lib/server/progression/read';
 import { actTitle, actsToCelebrate, careerMap, type CareerFacts } from '#lib/career/map';
 import type { AmbitionValue } from '#lib/career/ambition';
 
+/** Étapes de groupe qui comptent sur la carte (actes III et V). */
+const SCENE_MILESTONES = ['FIRST_RECORDING', 'FIRST_GIG', 'FIRST_TOUR'] as const;
+type SceneMilestone = (typeof SCENE_MILESTONES)[number];
+
+/**
+ * Groupes, par étape, dont une attestation au moins corroborée crédite la
+ * personne (membre à la date de l'étape).
+ */
+function creditedBands(events: { payload: unknown }[], actorId: string) {
+	const out = Object.fromEntries(SCENE_MILESTONES.map((k) => [k, new Set<string>()])) as Record<
+		SceneMilestone,
+		Set<string>
+	>;
+	for (const e of events) {
+		const p = e.payload as {
+			milestone?: string;
+			bandId?: string;
+			to?: string;
+			memberIds?: string[];
+		};
+		if (!p.bandId || p.to === 'DECLARED' || !p.memberIds?.includes(actorId)) continue;
+		out[p.milestone as SceneMilestone]?.add(p.bandId);
+	}
+	return out;
+}
+
+/** L'étape doit être toujours là (pas retirée par une contestation) et non gelée. */
+async function countMilestones(
+	bands: Set<string>,
+	key: SceneMilestone,
+	proofs: ('CORROBORATED' | 'VERIFIED')[]
+) {
+	if (bands.size === 0) return 0;
+	return prisma.milestone.count({
+		where: {
+			bandId: { in: [...bands] },
+			definitionId: key,
+			proof: { in: proofs },
+			frozenAt: null
+		}
+	});
+}
+
 async function careerEvidence(actorId: string) {
-	const [tier, together, solo, recordingEvents, productions] = await Promise.all([
+	const [tier, together, solo, attestations, productions] = await Promise.all([
 		getMusicianTier(actorId, prisma),
 		prisma.workContributor.count({
 			where: {
@@ -43,7 +89,7 @@ async function careerEvidence(actorId: string) {
 			where: {
 				type: 'milestone.attested',
 				actorIds: { has: actorId },
-				payload: { path: ['milestone'], equals: 'FIRST_RECORDING' }
+				OR: SCENE_MILESTONES.map((key) => ({ payload: { path: ['milestone'], equals: key } }))
 			},
 			select: { payload: true }
 		}),
@@ -74,34 +120,62 @@ async function careerEvidence(actorId: string) {
 			}
 		})
 	]);
-	// Attestations où la personne est créditée, au moins corroborées.
-	const bands = new Set(
-		recordingEvents
-			.map((e) => e.payload as { bandId?: string; to?: string; memberIds?: string[] })
-			.filter((p) => p.bandId && p.to !== 'DECLARED' && p.memberIds?.includes(actorId))
-			.map((p) => p.bandId!)
-	);
-	// L'étape doit être toujours là (pas retirée par une contestation) et non gelée.
-	const recordings = bands.size
-		? await prisma.milestone.count({
-				where: {
-					bandId: { in: [...bands] },
-					definitionId: 'FIRST_RECORDING',
-					proof: { in: ['CORROBORATED', 'VERIFIED'] },
-					frozenAt: null
-				}
-			})
-		: 0;
+	const bands = creditedBands(attestations, actorId);
+	const [recordings, verifiedGigs, tours] = await Promise.all([
+		countMilestones(bands.FIRST_RECORDING, 'FIRST_RECORDING', ['CORROBORATED', 'VERIFIED']),
+		countMilestones(bands.FIRST_GIG, 'FIRST_GIG', ['VERIFIED']),
+		countMilestones(bands.FIRST_TOUR, 'FIRST_TOUR', ['VERIFIED'])
+	]);
 	return {
 		tier,
+		gigBands: [...bands.FIRST_GIG],
 		facts: {
 			jamAppreciations: tier.summary.jamAppreciations,
 			collaborations: tier.summary.collaborations,
 			worksTogether: together,
 			worksSolo: solo,
 			recordings,
-			productions
+			productions,
+			verifiedGigs,
+			tours
 		} satisfies CareerFacts
+	};
+}
+
+/**
+ * Carte souvenir de l'acte V (P5-08) : le premier concert vérifié, avec le
+ * groupe, l'hôte et la date. Seulement des faits publics (la page du groupe
+ * montre l'étape, l'hôte est une organisation publique). `null` si l'acte
+ * n'est pas franchi.
+ */
+export async function firstVerifiedGig(actorId: string) {
+	const { gigBands } = await careerEvidence(actorId);
+	if (gigBands.length === 0) return null;
+	const milestone = await prisma.milestone.findFirst({
+		where: {
+			bandId: { in: gigBands },
+			definitionId: 'FIRST_GIG',
+			proof: 'VERIFIED',
+			frozenAt: null
+		},
+		orderBy: { occurredAt: 'asc' },
+		select: { bandId: true, occurredAt: true, band: { select: { displayName: true } } }
+	});
+	if (!milestone) return null;
+	const gig = await prisma.collaboration.findFirst({
+		where: {
+			bandId: milestone.bandId,
+			kind: 'GIG',
+			status: 'COMPLETED',
+			hostOrg: { verifiedAt: { not: null } }
+		},
+		orderBy: { happenedOn: 'asc' },
+		select: { hostOrg: { select: { actor: { select: { displayName: true } } } } }
+	});
+	return {
+		bandName: milestone.band.displayName,
+		hostName: gig?.hostOrg?.actor.displayName ?? null,
+		occurredAt: milestone.occurredAt
 	};
 }
 

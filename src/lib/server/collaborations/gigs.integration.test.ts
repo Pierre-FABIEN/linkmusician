@@ -5,7 +5,9 @@
  * concert » est corroboré ; seule une organisation vérifiée le fait passer
  * `VERIFIED` ; trois concerts vérifiés dans trois communes en 30 jours
  * vérifient « Première tournée ». `gig.held` crédite qui organise, jamais
- * en collaboration de musicien·ne. Désactivé par défaut :
+ * en collaboration de musicien·ne. Carte de carrière (P5-08) : l'acte V se
+ * franchit au concert vérifié, pas au corroboré ; la tournée s'affiche en
+ * plus ; l'hôte ne franchit rien. Désactivé par défaut :
  *
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/collaborations/gigs
  */
@@ -29,6 +31,8 @@ vi.mock('#lib/server', () => ({ prisma: db }));
 const service = await import('./service');
 const bands = await import('../bands/service');
 const { setActorLocation } = await import('../geo/queries');
+const { careerFacts, firstVerifiedGig } = await import('../career/map');
+const { careerMap } = await import('#lib/career/map');
 
 const PREFIX = 'gig-test-';
 const YEAR = 365.25 * 86_400_000;
@@ -249,12 +253,26 @@ describe.skipIf(!enabled)('concerts vérifiés (schéma e2e)', { timeout: 120_00
 		expect(await xp(ids.patron, 'gig.held')).toEqual(['PROMOTER']);
 		expect(await xp(ids.patron, 'collaboration.completed')).toEqual([]);
 		expect(await xp(ids.lea, 'collaboration.completed')).toEqual(['MUSICIAN']);
+		// Corroboré seulement : l'acte V reste à franchir (P5-08).
+		expect((await careerFacts(ids.lea)).verifiedGigs).toBe(0);
+		expect(await firstVerifiedGig(ids.lea)).toBeNull();
 	});
 
 	it('seule une organisation vérifiée fait passer le concert `VERIFIED`', async () => {
 		await gig('asso1', 'orga', daysAgo(20));
 		expect(await milestone('FIRST_GIG')).toEqual({ proof: 'VERIFIED' });
 		expect(await milestone('FIRST_TOUR')).toBeNull();
+		// Acte V franchi par les membres, pas par qui accueille (P5-08).
+		for (const name of ['lea', 'malik']) {
+			const act5 = careerMap(await careerFacts(ids[name])).acts[4];
+			expect(act5.status).toBe('passed');
+			expect(act5.bonusTrial?.done).toBe(false);
+		}
+		expect((await careerFacts(ids.orga)).verifiedGigs).toBe(0);
+		expect(await firstVerifiedGig(ids.lea)).toMatchObject({
+			bandName: `${PREFIX}Les Rats`,
+			hostName: expect.stringContaining('asso1')
+		});
 	});
 
 	it('trois concerts vérifiés dans trois communes en 30 jours : « Première tournée » vérifiée', async () => {
@@ -266,5 +284,6 @@ describe.skipIf(!enabled)('concerts vérifiés (schéma e2e)', { timeout: 120_00
 			where: { type: 'gig.held', actorIds: { has: band.id } }
 		});
 		expect(events).toBe(4);
+		expect(careerMap(await careerFacts(ids.malik)).acts[4].bonusTrial?.done).toBe(true);
 	});
 });

@@ -2,7 +2,8 @@
  * Carte de carrière (P3-13, conception 07 §2 et §4.5, D53) : règle pure,
  * partagée par le serveur et le navigateur.
  *
- * Huit actes ; les actes I à IV se jouent (I à III au MVP, IV depuis P4-10). Chaque acte se termine
+ * Huit actes ; les actes I à V se jouent (I à III au MVP, IV depuis P4-10,
+ * V depuis P5-08). Chaque acte se termine
  * par une **épreuve** prouvée par quelqu'un d'autre. La carte est calculée
  * depuis des **faits** (appréciations, collaborations, morceaux, étapes),
  * **jamais depuis l'XP**. Les actes suivants restent dans le brouillard, mais
@@ -30,6 +31,13 @@ export type CareerFacts = {
 	 * ou membre du groupe qui le porte (P4-10).
 	 */
 	productions: number;
+	/**
+	 * Groupes dont on était membre à la date de leur « Premier concert »
+	 * **vérifié** par un hôte vérifié (P5-06, P5-08).
+	 */
+	verifiedGigs: number;
+	/** Groupes dont on était membre à la date de leur « Première tournée » vérifiée. */
+	tours: number;
 };
 
 export type ActStatus = 'passed' | 'current' | 'open' | 'fog';
@@ -42,9 +50,14 @@ export type Act = {
 	content: string;
 	/** L'épreuve de fin d'acte. */
 	trial: string;
+	/**
+	 * Épreuve de plus, affichée mais pas bloquante (acte V : la tournée).
+	 * `done` : déjà prouvée.
+	 */
+	bonusTrial: { label: string; done: boolean } | null;
 	/** Ce que franchir l'épreuve ouvre (D53 : affiché, sans verrou au MVP). */
 	unlocks: { label: string; href: string | null }[];
-	/** Jouable (actes I à IV). */
+	/** Jouable (actes I à V). */
 	playable: boolean;
 	status: ActStatus;
 	/** Mis en avant par l'ambition. */
@@ -53,7 +66,10 @@ export type Act = {
 	cta: { label: string; href: string } | null;
 };
 
-type ActDef = Omit<Act, 'status' | 'highlighted'> & { passed?: (f: CareerFacts) => boolean };
+type ActDef = Omit<Act, 'status' | 'highlighted' | 'bonusTrial'> & {
+	passed?: (f: CareerFacts) => boolean;
+	bonus?: { label: string; done: (f: CareerFacts) => boolean };
+};
 
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
 
@@ -123,10 +139,18 @@ const ACTS: ActDef[] = [
 		roman: 'V',
 		name: 'La scène',
 		content: 'Tremplins, premières parties, dates locales, puis une tournée.',
-		trial: 'Un concert vérifié par l’organisateur ; une tournée de trois villes.',
-		unlocks: [{ label: 'Entrer dans le radar des pros', href: null }],
-		playable: false,
-		cta: null
+		trial: 'Un concert de ton groupe vérifié par le lieu ou l’organisation qui l’accueille.',
+		unlocks: [
+			{ label: 'Ta carte souvenir du concert, à partager', href: '/espace/fiche' },
+			{ label: 'Entrer dans le radar des pros (bientôt)', href: null }
+		],
+		playable: true,
+		cta: { label: 'Candidater à un plateau', href: '/annonces?type=GIG_SLOT' },
+		passed: (f) => f.verifiedGigs >= 1,
+		bonus: {
+			label: 'Une tournée : trois concerts vérifiés dans trois villes en un mois.',
+			done: (f) => f.tours >= 1
+		}
 	},
 	{
 		number: 6,
@@ -165,8 +189,9 @@ export function careerMap(facts: CareerFacts, ambition: AmbitionValue | null = n
 	const highlighted = new Set(ambition ? AMBITION_INFO[ambition].acts : []);
 	const passed = new Set(ACTS.filter((a) => a.passed?.(facts)).map((a) => a.number));
 	const current = ACTS.find((a) => a.playable && !passed.has(a.number))?.number ?? null;
-	const acts: Act[] = ACTS.map(({ passed: _p, ...a }) => ({
+	const acts: Act[] = ACTS.map(({ passed: _p, bonus, ...a }) => ({
 		...a,
+		bonusTrial: bonus ? { label: bonus.label, done: bonus.done(facts) } : null,
 		roman: ROMAN[a.number - 1],
 		status: passed.has(a.number)
 			? 'passed'

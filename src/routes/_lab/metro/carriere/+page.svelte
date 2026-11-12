@@ -31,7 +31,9 @@
 			worksTogether: 1,
 			worksSolo: 1,
 			recordings: 0,
-			productions: 0
+			productions: 0,
+			verifiedGigs: 0,
+			tours: 0
 		},
 		'RECORD'
 	);

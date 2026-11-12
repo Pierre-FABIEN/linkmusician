@@ -73,6 +73,18 @@
 					</div>
 					<p class="mt-1 text-sm text-muted-foreground">{a.content}</p>
 					<p class="mt-2 text-sm"><strong>Épreuve :</strong> {a.trial}</p>
+					{#if a.bonusTrial}
+						<p class="mt-1 flex items-start gap-1.5 text-sm">
+							{#if a.bonusTrial.done}
+								<CircleCheck class="mt-0.5 size-4 shrink-0 text-emerald-600" aria-hidden="true" />
+							{/if}
+							<span>
+								<strong>Pour aller plus loin :</strong>
+								{a.bonusTrial.label}
+								{#if a.bonusTrial.done}<span class="font-semibold">Faite !</span>{/if}
+							</span>
+						</p>
+					{/if}
 					{#if a.unlocks.length > 0}
 						<div class="mt-2 text-sm">
 							<p class="font-medium">
