@@ -48,21 +48,17 @@ export async function musicianStepData(personId: string) {
  * Valide et enregistre. Renvoie `{ form }` en cas d'erreur (à renvoyer tel
  * quel, statut 400 déjà posé), `{ saved }` sinon.
  */
-export async function submitMusicianStep(
-	request: Request,
-	personId: string,
-	options: { finishOnboarding?: boolean } = {}
-) {
+export async function submitMusicianStep(request: Request, personId: string) {
 	const form = await superValidate(request, zod(musicianStepSchema));
 	if (!form.valid) return { failure: fail(400, { form }) };
 	const { practiceExperience, commitment } = form.data;
 	if (!practiceExperience || !commitment) return { failure: fail(400, { form }) };
 	try {
-		const saved = await saveMusicianStep(
-			personId,
-			{ ...form.data, practiceExperience, commitment },
-			options
-		);
+		const saved = await saveMusicianStep(personId, {
+			...form.data,
+			practiceExperience,
+			commitment
+		});
 		return { form, saved };
 	} catch (err) {
 		if (err instanceof InvalidTrackCodeError)

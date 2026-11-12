@@ -195,4 +195,13 @@ describe('communication (ONB-11)', () => {
 		expect(cm).toContain('platforms');
 		expect(cm).not.toContain('journalism_formats');
 	});
+
+	it('le graphisme (ONB-12a) ouvre ses supports, sans les questions photo-vidéo', () => {
+		const graphic = ids('MUSIC_COMMS', choices({ specializations: ['GRAPHIC_DESIGN'] }));
+		expect(graphic).toContain('graphic_media');
+		expect(graphic).not.toContain('visual_formats');
+		expect(ids('MUSIC_COMMS', choices({ specializations: ['PHOTO'] }))).not.toContain(
+			'graphic_media'
+		);
+	});
 });

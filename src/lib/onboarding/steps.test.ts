@@ -4,7 +4,7 @@ import {
 	currentStep,
 	minSpecializations,
 	onboardingSteps,
-	readyToFinish,
+	stepAfter,
 	stepNumber,
 	stepPath,
 	trackOfSlug,
@@ -25,7 +25,7 @@ const musician: OnboardingState = {
 
 const ids = (s: OnboardingState) => onboardingSteps(s).map((x) => x.id);
 
-describe('parcours musicien·ne : les 6 écrans d’origine', () => {
+describe('parcours musicien·ne : les 6 écrans d’origine et le récapitulatif', () => {
 	it('garde l’ordre et les adresses', () => {
 		expect(ids(musician)).toEqual([
 			'metiers',
@@ -33,6 +33,7 @@ describe('parcours musicien·ne : les 6 écrans d’origine', () => {
 			'genres',
 			'ville',
 			'intention',
+			'recap',
 			'resultat'
 		]);
 		expect(onboardingSteps(musician).map((s) => s.path)).toEqual([
@@ -41,12 +42,13 @@ describe('parcours musicien·ne : les 6 écrans d’origine', () => {
 			'/demarrer/genres',
 			'/demarrer/ville',
 			'/demarrer/intention',
+			'/demarrer/recapitulatif',
 			'/demarrer/resultat'
 		]);
 	});
 
 	it('sans métier encore choisi, montre ce même parcours', () => {
-		expect(ids({ ...musician, tracks: [], primary: null })).toHaveLength(6);
+		expect(ids({ ...musician, tracks: [], primary: null })).toHaveLength(7);
 	});
 
 	it.each([
@@ -55,6 +57,7 @@ describe('parcours musicien·ne : les 6 écrans d’origine', () => {
 		[{ genreCount: 0 }, 'genres'],
 		[{ hasZone: false }, 'ville'],
 		[{ onboarded: false }, 'intention'],
+		[{ onboarded: false, confirmedTracks: ['MUSICIAN'] }, 'recap'],
 		[{}, null]
 	] as const)('%o → %s', (patch, step) => {
 		expect(currentStep({ ...musician, ...patch })).toBe(step);
@@ -84,18 +87,26 @@ describe('ingé son seul·e', () => {
 	};
 
 	it('ne demande ni instrument ni intention de musicien·ne', () => {
-		expect(ids(sound)).toEqual(['metiers', 'genres', 'ville', 'metier:SOUND_ENGINEER', 'resultat']);
+		expect(ids(sound)).toEqual([
+			'metiers',
+			'genres',
+			'ville',
+			'metier:SOUND_ENGINEER',
+			'recap',
+			'resultat'
+		]);
 		expect(stepPath('metier:SOUND_ENGINEER')).toBe('/demarrer/metier/inge-son');
 		expect(canVisit('instruments', sound)).toBe(false);
 	});
 
-	it('termine après l’étape de son métier', () => {
+	it('passe par le récapitulatif après l’étape de son métier', () => {
 		expect(currentStep(sound)).toBe('metier:SOUND_ENGINEER');
-		expect(readyToFinish(sound)).toBe(false);
+		expect(canVisit('recap', sound)).toBe(false);
 		const confirmed = { ...sound, confirmedTracks: ['SOUND_ENGINEER' as const] };
-		expect(currentStep(confirmed)).toBeNull();
-		expect(readyToFinish(confirmed)).toBe(true);
-		expect(readyToFinish({ ...confirmed, onboarded: true })).toBe(false);
+		expect(currentStep(confirmed)).toBe('recap');
+		expect(stepAfter('metier:SOUND_ENGINEER', confirmed)).toBe('recap');
+		expect(canVisit('resultat', confirmed)).toBe(false);
+		expect(currentStep({ ...confirmed, onboarded: true })).toBeNull();
 	});
 });
 
@@ -114,13 +125,13 @@ describe('plusieurs métiers', () => {
 			'ville',
 			'metier:PRODUCER',
 			'intention',
+			'recap',
 			'resultat'
 		]);
 		expect(currentStep(both)).toBe('metier:PRODUCER');
 		expect(canVisit('intention', both)).toBe(false);
 		expect(currentStep({ ...both, confirmedTracks: ['PRODUCER'] })).toBe('intention');
-		// L'intention finit l'onboarding : rien à terminer de plus.
-		expect(readyToFinish({ ...both, confirmedTracks: ['PRODUCER'] })).toBe(false);
+		expect(currentStep({ ...both, confirmedTracks: ['PRODUCER', 'MUSICIAN'] })).toBe('recap');
 	});
 
 	it('le métier principal passe en premier, puis l’ordre du référentiel', () => {
@@ -144,14 +155,23 @@ describe('plusieurs métiers', () => {
 		expect(canVisit('metier:BOOKER', both)).toBe(false);
 	});
 
-	it('retirer le métier musicien·ne avant l’intention permet de terminer', () => {
+	it('retirer le métier musicien·ne avant l’intention mène au récapitulatif', () => {
 		const left: OnboardingState = {
 			...both,
 			tracks: ['PRODUCER'],
 			primary: 'PRODUCER',
 			confirmedTracks: ['PRODUCER']
 		};
-		expect(readyToFinish(left)).toBe(true);
+		expect(currentStep(left)).toBe('recap');
+	});
+
+	it('une correction depuis le récapitulatif y ramène, sans repasser les étapes suivantes', () => {
+		const done: OnboardingState = { ...both, confirmedTracks: ['PRODUCER', 'MUSICIAN'] };
+		expect(canVisit('genres', done)).toBe(true);
+		expect(stepAfter('genres', done)).toBe('recap');
+		// Un métier ajouté en chemin : son étape d'abord.
+		const added = { ...done, tracks: [...done.tracks, 'BOOKER' as const] };
+		expect(stepAfter('genres', added)).toBe('ville');
 	});
 });
 

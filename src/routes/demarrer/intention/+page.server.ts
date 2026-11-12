@@ -1,7 +1,8 @@
 // LINKMUSICIAN: onboarding, dernier écran du métier musicien·ne (P1-10,
 // ONB-03) : « Ton profil de musicien·ne ». Expérience et engagement requis ;
 // « Je recherche », « Je propose », écriture et précisions facultatifs.
-// L'enregistrer termine l'onboarding (`Person.onboardedAt`).
+// L'enregistrer confirme le métier ; le récapitulatif termine l'onboarding
+// (ONB-12a).
 import { redirect } from '@sveltejs/kit';
 import { onboardingFor, redirectAfterStep } from '#lib/server/onboarding';
 import { guardStep } from '#lib/server/onboarding-guard';
@@ -21,7 +22,7 @@ export const actions: Actions = {
 		// Pas d'enregistrement d'une étape future ou absente du parcours (ONB-02).
 		guardStep('intention', onboarding);
 		const actorId = onboarding.person.actorId;
-		const result = await submitMusicianStep(request, actorId, { finishOnboarding: true });
+		const result = await submitMusicianStep(request, actorId);
 		if ('failure' in result) return result.failure;
 		return redirectAfterStep(actorId, 'intention');
 	}

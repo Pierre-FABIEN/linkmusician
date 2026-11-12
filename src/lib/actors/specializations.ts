@@ -411,6 +411,11 @@ const DEFINITIONS: Readonly<Record<TrackKindValue, readonly Definition[]>> = {
 		{ code: 'PHOTO', label: 'Photo', description: 'Photos de concert, de presse, de pochette.' },
 		{ code: 'VIDEO', label: 'Vidéo', description: 'Clips, captations, live sessions.' },
 		{
+			code: 'GRAPHIC_DESIGN',
+			label: 'Graphisme',
+			description: 'Pochettes, affiches, logos, visuels pour les réseaux.'
+		},
+		{
 			code: 'COMMUNICATION',
 			label: 'Communication',
 			description: 'Identité, supports, stratégie de communication.'

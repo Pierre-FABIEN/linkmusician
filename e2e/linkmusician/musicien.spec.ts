@@ -1,6 +1,7 @@
 import { test, expect } from '../support/fixtures';
 import { signUpAndVerify } from '../support/admin';
 import { db, requireUser } from '../support/db';
+import { finishRecap } from '../support/linkmusician';
 import { waitForAppReady, waitForPath } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
 
@@ -70,8 +71,8 @@ test.describe('LinkMusician — profil de musicien·ne', () => {
 			await page.locator('summary', { hasText: 'Ta guitare' }).click();
 			await page.getByRole('checkbox', { name: 'Solo' }).check();
 
-			await page.getByRole('button', { name: 'Voir qui est près de moi' }).click();
-			await waitForPath(page, '/demarrer/resultat');
+			await page.getByRole('button', { name: 'Continuer' }).click();
+			await finishRecap(page);
 		});
 
 		const user = await requireUser(account.email);

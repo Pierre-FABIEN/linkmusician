@@ -1,24 +1,27 @@
 /**
- * Onboarding adaptatif (P1-10, ONB-02, D57). Les étapes se calculent à
- * partir des métiers choisis, et l'étape courante **se déduit du profil**
+ * Onboarding adaptatif (P1-10, ONB-02, D57, ONB-12a). Les étapes se calculent
+ * à partir des métiers choisis, et l'étape courante **se déduit du profil**
  * (métiers, instruments, genres, ville, confirmation de chaque métier).
  * Seule la fin de l'onboarding est mémorisée (`Person.onboardedAt`).
  * Module pur.
  *
  *   metiers → [instruments si musicien·ne] → genres → ville
  *           → une étape par autre métier (principal d'abord)
- *           → [intention si musicien·ne] → resultat
+ *           → [intention si musicien·ne] → recap → resultat
  *
- * Musicien·ne seul·e : les 6 écrans d'origine, inchangés. Aucun autre
- * métier ne demande d'instrument. Les informations communes (genres, ville)
- * ne sont demandées qu'une fois.
+ * Le récapitulatif, commun à tous, termine l'onboarding : il relit chaque
+ * étape et permet d'y revenir. Une fois tout rempli, enregistrer une étape
+ * ramène au récapitulatif. Aucun métier autre que musicien·ne ne demande
+ * d'instrument. Les informations communes (genres, ville) ne sont demandées
+ * qu'une fois.
  */
 import { TRACK_KINDS, TRACKS, type TrackKindValue } from '#lib/actors/tracks';
 import { TRACK_ROLES } from '#lib/actors/roles';
 
 export { minSpecializations, trackOfSlug } from '#lib/actors/roles';
 
-type FixedStepId = 'metiers' | 'instruments' | 'genres' | 'ville' | 'intention' | 'resultat';
+type FixedStepId =
+	'metiers' | 'instruments' | 'genres' | 'ville' | 'intention' | 'recap' | 'resultat';
 export type TrackStepId = `metier:${TrackKindValue}`;
 export type OnboardingStepId = FixedStepId | TrackStepId;
 /** Étape à remplir (le « premier résultat » n'en est pas une). */
@@ -38,6 +41,7 @@ const FIXED: Readonly<Record<FixedStepId, OnboardingStep>> = {
 	genres: { id: 'genres', path: '/demarrer/genres', label: 'Genres' },
 	ville: { id: 'ville', path: '/demarrer/ville', label: 'Ville' },
 	intention: { id: 'intention', path: '/demarrer/intention', label: 'Intention' },
+	recap: { id: 'recap', path: '/demarrer/recapitulatif', label: 'Récapitulatif' },
 	resultat: { id: 'resultat', path: '/demarrer/resultat', label: 'Près de toi' }
 };
 
@@ -94,6 +98,7 @@ export function onboardingSteps(state: OnboardingState): OnboardingStep[] {
 		FIXED.ville,
 		...stepTracks(state).map(trackStep),
 		...(asks(state, 'intention') ? [FIXED.intention] : []),
+		FIXED.recap,
 		FIXED.resultat
 	];
 }
@@ -110,6 +115,9 @@ function isDone(step: OnboardingStep, state: OnboardingState): boolean {
 		case 'ville':
 			return state.hasZone;
 		case 'intention':
+			// Enregistrer l'écran musicien·ne confirme ce métier (`detailsConfirmedAt`).
+			return state.onboarded || state.confirmedTracks.includes('MUSICIAN');
+		case 'recap':
 			return state.onboarded;
 		default:
 			return true;
@@ -120,15 +128,6 @@ function isDone(step: OnboardingStep, state: OnboardingState): boolean {
 export function currentStep(state: OnboardingState): FillStepId | null {
 	const step = onboardingSteps(state).find((s) => s.id !== 'resultat' && !isDone(s, state));
 	return (step?.id as FillStepId | undefined) ?? null;
-}
-
-/**
- * Tout est rempli mais l'onboarding n'est pas marqué fini : cas d'une
- * personne sans métier musicien·ne (pas d'étape « intention ») après sa
- * dernière étape, ou qui a retiré ce métier en cours de route.
- */
-export function readyToFinish(state: OnboardingState): boolean {
-	return !state.onboarded && currentStep(state) === null;
 }
 
 export function stepById(state: OnboardingState, id: OnboardingStepId): OnboardingStep | null {
@@ -168,11 +167,13 @@ export function previousStepPath(
 }
 
 /**
- * Où aller après avoir enregistré l'étape `from` : l'étape suivante du
+ * Où aller après avoir enregistré l'étape `from` : le récapitulatif s'il ne
+ * reste que lui (on revient d'une correction), sinon l'étape suivante du
  * parcours si elle est accessible, sinon la première étape manquante (un
  * retour en arrière ne fait pas sauter d'étape). Tout fait : le résultat.
  */
 export function stepAfter(from: OnboardingStepId, state: OnboardingState): OnboardingStepId {
+	if (currentStep(state) === 'recap') return 'recap';
 	const steps = onboardingSteps(state);
 	const next = steps[steps.findIndex((s) => s.id === from) + 1];
 	if (next && canVisit(next.id, state)) return next.id;

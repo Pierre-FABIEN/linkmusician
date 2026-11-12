@@ -104,8 +104,8 @@ describe.skipIf(!enabled)('profil de musicien·ne (schéma e2e)', { timeout: 60_
 		await db.$disconnect();
 	});
 
-	it('Thomas : relu à l’identique, lookingFor tenu à jour, onboarding fini', async () => {
-		await saveMusicianStep(personId, thomas, { finishOnboarding: true });
+	it('Thomas : relu à l’identique, lookingFor tenu à jour, métier confirmé', async () => {
+		await saveMusicianStep(personId, thomas);
 		expect(await getMusicianStep(personId)).toEqual({
 			practiceExperience: 'WITH_OTHERS',
 			commitment: 'REGULAR',
@@ -120,7 +120,12 @@ describe.skipIf(!enabled)('profil de musicien·ne (schéma e2e)', { timeout: 60_
 		});
 		const person = await db.person.findUniqueOrThrow({ where: { actorId: personId } });
 		expect(person.lookingFor).toEqual(['JAMS']);
-		expect(person.onboardedAt).not.toBeNull();
+		// Le récapitulatif termine l'onboarding (ONB-12a), pas cet écran.
+		expect(person.onboardedAt).toBeNull();
+		const track = await db.personTrack.findUniqueOrThrow({
+			where: { personId_track: { personId, track: 'MUSICIAN' } }
+		});
+		expect(track.detailsConfirmedAt).not.toBeNull();
 	});
 
 	it('refuse une précision d’un instrument qu’il n’a pas, et une spécialité retirée', async () => {

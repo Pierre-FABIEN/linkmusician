@@ -29,6 +29,9 @@ _Ton compte, ton profil et ton mode de jeu, en cinq minutes._
    tes spécialités (au moins une pour un métier ouvert ; un métier qui
    arrive bientôt se passe en un clic). Si tu t’arrêtes en route, tu
    reprends là où il manque quelque chose.
+5. Un **récapitulatif** te montre tout ce que tu as rempli, métier par
+   métier. « Modifier » te ramène à l’écran voulu, puis au récapitulatif :
+   rien n’est perdu. « Terminer mon inscription » ouvre ton espace.
 
 ### Décrire ta situation avec tes mots {#assistant}
 

@@ -125,14 +125,10 @@ export async function getMusicianStep(personId: string): Promise<MusicianStep> {
  * Enregistre l'écran musicien·ne, en une transaction. Revérifie tout :
  * métier déclaré, codes des catalogues, précisions des instruments de la
  * personne (celles d'un instrument qu'elle n'a plus sont gardées telles
- * quelles, sans s'appliquer). `finishOnboarding` termine l'onboarding (dernier
- * écran du parcours, ONB-02).
+ * quelles, sans s'appliquer). Confirme le métier (`detailsConfirmedAt`) ; le
+ * récapitulatif termine l'onboarding (ONB-12a).
  */
-export async function saveMusicianStep(
-	personId: string,
-	input: MusicianStepInput,
-	options: { finishOnboarding?: boolean } = {}
-) {
+export async function saveMusicianStep(personId: string, input: MusicianStepInput) {
 	const instruments = await instrumentRefsOf(personId);
 	const checked = checkDetails(input.details, instruments);
 	if (!checked.ok) throw new InvalidDetailError(checked.field, checked.message);
@@ -167,10 +163,7 @@ export async function saveMusicianStep(
 		}),
 		prisma.person.update({
 			where: { actorId: personId },
-			data: {
-				lookingFor: lookingForOf(saved),
-				...(options.finishOnboarding ? { onboardedAt: new Date() } : {})
-			}
+			data: { lookingFor: lookingForOf(saved) }
 		}),
 		confirmTrackOp(personId, TRACK)
 	]);

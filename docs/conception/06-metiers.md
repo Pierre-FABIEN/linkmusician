@@ -288,7 +288,9 @@ community managers et journalistes musicaux.
 - **Besoin immédiat** : trouver des artistes à accompagner ou à couvrir.
 - **Apporte** : visibilité, presse, contenus.
 - **Profil spécifique** _(proposé)_ : spécialité (presse, réseaux,
-  journalisme, radio), médias ou clients, genres couverts, zone.
+  journalisme, radio, photo, vidéo, graphisme), médias ou clients, genres
+  couverts, zone. Le graphisme (ONB-12a) demande ses supports (pochettes,
+  affiches, identité, visuels pour les réseaux, merch).
 - **Organisation liée** : `MEDIA` (webzine, radio, agence).
 - **Preuves apportées aux autres** _(proposé)_ : un article ou une
   diffusion publiés, liés au profil de l'artiste et confirmés par lui,

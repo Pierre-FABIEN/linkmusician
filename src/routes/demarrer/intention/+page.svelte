@@ -39,7 +39,7 @@
 							><Compass class="mr-1 size-4" /> Juste explorer</Button
 						>
 					{:else}
-						<Button type="submit" disabled={submitting}>Voir qui est près de moi</Button>
+						<Button type="submit" disabled={submitting}>Continuer</Button>
 					{/if}
 				</div>
 			{/snippet}

@@ -23,11 +23,16 @@ choisis, d'après la fiche de chaque métier (`TRACK_ROLES`,
 ```
 Qui es-tu ? → [Instruments si musicien·ne] → Genres → Zone
            → un écran par autre métier (le principal d'abord)
-           → [Intention si musicien·ne] → Premier résultat
+           → [Intention si musicien·ne] → Récapitulatif → Premier résultat
 ```
 
-- Musicien·ne seul·e : les 6 écrans ci-dessus, inchangés. Aucun autre
-  métier ne demande d'instrument.
+- Musicien·ne seul·e : les 6 écrans ci-dessus, plus le récapitulatif.
+  Aucun autre métier ne demande d'instrument.
+- **Récapitulatif (ONB-12a, D60)** : une section par écran rempli, avec
+  « Modifier » qui y ramène. Tout est déjà enregistré à chaque écran : une
+  correction ne perd rien, et ramène directement au récapitulatif (sauf
+  métier ajouté en route, dont l'écran vient d'abord). Le valider termine
+  l'onboarding (`Person.onboardedAt`), pour tous les métiers.
 - Genres et zone sont communs : demandés une fois, quel que soit le
   nombre de métiers (Q56).
 - Écran d'un métier : ses spécialités (au moins une pour un métier
@@ -37,9 +42,8 @@ Qui es-tu ? → [Instruments si musicien·ne] → Genres → Zone
 - L'étape courante est la première qui manque vraiment : une reprise, un
   retour arrière ou un métier ajouté en cours de route y ramènent. Une
   étape future est refusée au chargement comme à l'enregistrement.
-- Sans métier musicien·ne, l'onboarding se termine après le dernier
-  écran métier ; le premier résultat montre les objectifs du métier
-  principal (Q58).
+- Le premier résultat montre les objectifs du métier principal quand ce
+  n'est pas musicien·ne (Q58).
 
 Après l'onboarding, des quêtes système guident la suite : ajouter une
 démo (+30 XP), compléter sa bio (comptée dans « profil complété », +50),
@@ -129,7 +133,8 @@ d'acceptation sont vérifiables par un test automatisé ou une mesure.
   progression** est développé et testé en premier.
 - **Dépendances** : phase 0.
 - **Acceptation** :
-  - Un nouvel inscrit termine l'onboarding en ≤6 écrans et voit son
+  - Un nouvel inscrit termine l'onboarding en ≤6 écrans (plus le
+    récapitulatif, ONB-12a) et voit son
     niveau, sa barre d'XP et 3 quêtes.
   - Rejouer le registre reconstruit exactement `ActorProgress` (test de
     cohérence).

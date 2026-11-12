@@ -112,6 +112,19 @@ export const commsCatalog: TrackCatalog = {
 			]
 		},
 		{
+			id: 'graphic_media',
+			label: 'Graphisme : supports',
+			kind: 'multi',
+			when: { specializations: ['GRAPHIC_DESIGN'] },
+			options: [
+				opt('COVER', 'Pochettes'),
+				opt('POSTER', 'Affiches, flyers'),
+				opt('IDENTITY', 'Logos, identité visuelle'),
+				opt('SOCIAL', 'Visuels pour les réseaux'),
+				opt('MERCH', 'Merch')
+			]
+		},
+		{
 			id: 'visual_mobility',
 			label: 'Photo, vidéo : déplacements',
 			kind: 'single',

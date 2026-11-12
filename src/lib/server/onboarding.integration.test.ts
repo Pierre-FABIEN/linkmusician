@@ -20,7 +20,7 @@ const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
 
 vi.mock('#lib/server', () => ({ prisma: db }));
 
-const { onboardingStateOf, finishIfComplete } = await import('./onboarding');
+const { onboardingStateOf, finishOnboarding } = await import('./onboarding');
 const { setTrackDetails } = await import('#lib/prisma/actors/specializations');
 const { setPersonTracks } = await import('#lib/prisma/actors/tracks');
 const { currentStep } = await import('#lib/onboarding/steps');
@@ -97,18 +97,19 @@ describe.skipIf(!enabled)('onboarding adaptatif (schéma e2e)', { timeout: 60_00
 			{ confirm: true }
 		);
 		expect((await onboardingStateOf(personId)).confirmedTracks).toEqual(['SOUND_ENGINEER']);
-		// L'étape « intention » reste à faire : pas de fin d'onboarding ici.
-		expect(await finishIfComplete(personId)).toBe(false);
+		// Les instruments et l'intention restent à faire : le récapitulatif refuse de terminer.
+		expect(await finishOnboarding(personId)).toBe(false);
+		expect((await onboardingStateOf(personId)).onboarded).toBe(false);
 	});
 
-	it('retirer le métier musicien·ne en cours de route permet de terminer', async () => {
+	it('retirer le métier musicien·ne en cours de route mène au récapitulatif, qui termine', async () => {
 		await setPersonTracks(personId, { tracks: ['SOUND_ENGINEER'], primary: 'SOUND_ENGINEER' });
 		const state = await onboardingStateOf(personId);
-		expect(currentStep(state)).toBeNull();
-		expect(await finishIfComplete(personId)).toBe(true);
+		expect(currentStep(state)).toBe('recap');
+		expect(await finishOnboarding(personId)).toBe(true);
 		expect((await onboardingStateOf(personId)).onboarded).toBe(true);
 		// Rejouable sans effet.
-		expect(await finishIfComplete(personId)).toBe(true);
+		expect(await finishOnboarding(personId)).toBe(true);
 	});
 
 	it('un métier ajouté ensuite a son étape à faire', async () => {

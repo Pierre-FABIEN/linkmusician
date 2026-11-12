@@ -5,9 +5,10 @@ import { waitForAppReady, waitForPath } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
 
 /**
- * P1-10 — Onboarding : de la vérification de l'email au tableau de bord en
- * 6 écrans au plus ; une reprise après fermeture ramène à la bonne étape ;
- * chaque écran passe le contrôle d'accessibilité (axe).
+ * P1-10, ONB-12a — Onboarding : de la vérification de l'email au tableau de
+ * bord en 7 écrans (dont le récapitulatif) ; une reprise après fermeture
+ * ramène à la bonne étape ; une correction depuis le récapitulatif y ramène
+ * sans rien perdre ; chaque écran passe le contrôle d'accessibilité (axe).
  */
 test.describe('LinkMusician — onboarding', () => {
 	test.setTimeout(8 * 60_000);
@@ -67,17 +68,45 @@ test.describe('LinkMusician — onboarding', () => {
 			await page.getByRole('radio', { name: /^Avec d’autres/ }).check();
 			await page.getByRole('radio', { name: /^Régulier/ }).check();
 			await page.getByText('Des jams').click();
-			await page.getByRole('button', { name: 'Voir qui est près de moi' }).click();
+			await page.getByRole('button', { name: 'Continuer' }).click();
 		});
 
-		await test.step('6. Premier résultat, puis le menu du jeu', async () => {
+		await test.step('6. Récapitulatif : une correction y ramène, sans perte', async () => {
+			await visit('/demarrer/recapitulatif');
+			const genres = page.getByRole('region', { name: 'Genres' });
+			await expect(genres).toContainText('Funk');
+			await expect(page.getByRole('region', { name: 'Ville' })).toContainText('Toulouse');
+			await expect(page.getByRole('region', { name: 'Musicien·ne' })).toContainText(
+				'Avec d’autres'
+			);
+
+			await page.getByRole('link', { name: 'Modifier : Genres' }).click();
+			await waitForPath(page, '/demarrer/genres');
+			await waitForAppReady(page);
+			// « Rock » est un genre parent, avec une légende cachée du même nom : on vise l'étiquette.
+			await page
+				.locator('label')
+				.filter({ has: page.getByRole('checkbox', { name: 'Rock', exact: true }) })
+				.click();
+			await page.getByRole('button', { name: 'Continuer' }).click();
+
+			// Retour direct au récapitulatif, l'intention n'est pas redemandée.
+			await waitForPath(page, '/demarrer/recapitulatif');
+			await waitForAppReady(page);
+			await expect(genres).toContainText('Funk');
+			await expect(genres).toContainText('Rock');
+			await expect(page.getByRole('region', { name: 'Musicien·ne' })).toContainText('Régulier');
+			await page.getByRole('button', { name: 'Terminer mon inscription' }).click();
+		});
+
+		await test.step('7. Premier résultat, puis le menu du jeu', async () => {
 			await visit('/demarrer/resultat');
 			await page.getByRole('link', { name: 'C’est parti !'.replace('’', "'") }).click();
 			// Le menu du jeu est le point d'entrée de l'espace (P2-12b).
 			await waitForPath(page, '/jouer');
 		});
 
-		expect(screens).toHaveLength(6);
+		expect(screens).toHaveLength(7);
 		const user = await requireUser(account.email);
 		const person = await db.person.findUniqueOrThrow({ where: { userId: user.id } });
 		expect(person.onboardedAt).not.toBeNull();

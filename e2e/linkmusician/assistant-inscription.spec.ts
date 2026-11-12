@@ -1,6 +1,7 @@
 import { test, expect } from '../support/fixtures';
 import { signUpAndVerify } from '../support/admin';
 import { db, requireUser } from '../support/db';
+import { finishRecap } from '../support/linkmusician';
 import { waitForAppReady, waitForPath } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
 
@@ -90,8 +91,8 @@ test.describe('LinkMusician — assistant d’inscription', () => {
 			await expect(page.getByText('Pré-rempli d’après ta description')).toBeVisible();
 			await page.getByRole('radio', { name: /^Avec d’autres/ }).check();
 			await page.getByRole('radio', { name: /^Régulier/ }).check();
-			await page.getByRole('button', { name: 'Voir qui est près de moi' }).click();
-			await waitForPath(page, '/demarrer/resultat');
+			await page.getByRole('button', { name: 'Continuer' }).click();
+			await finishRecap(page);
 		});
 
 		const after = await person();

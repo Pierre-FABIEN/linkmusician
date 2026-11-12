@@ -20,6 +20,13 @@ async function screen(page: Page, path: string) {
 	await expectNoA11yViolations(page, ['.cartButton']);
 }
 
+/** Récapitulatif (ONB-12a) : accessible, puis il termine et mène au premier résultat. */
+async function finish(page: Page) {
+	await screen(page, '/demarrer/recapitulatif');
+	await page.getByRole('button', { name: 'Terminer mon inscription' }).click();
+	await screen(page, '/demarrer/resultat');
+}
+
 async function pickGenre(page: Page) {
 	await page.getByText('Funk', { exact: true }).click();
 	await page.getByRole('button', { name: 'Continuer' }).click();
@@ -40,7 +47,7 @@ async function soloTrackUntilStep(page: Page, label: string, slug: string) {
 	await page.getByRole('checkbox', { name: new RegExp(`^${escaped} `) }).check();
 	await page.getByRole('button', { name: 'Continuer' }).click();
 	await screen(page, '/demarrer/genres');
-	await expect(page.getByText('Étape 2 sur 5')).toBeVisible();
+	await expect(page.getByText('Étape 2 sur 6')).toBeVisible();
 	await pickGenre(page);
 	await waitForPath(page, '/demarrer/ville');
 	await pickCity(page);
@@ -81,7 +88,7 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 
 		await test.step('2. Genres directement, sans écran « Instruments »', async () => {
 			await screen(page, '/demarrer/genres');
-			await expect(page.getByText('Étape 2 sur 5')).toBeVisible();
+			await expect(page.getByText('Étape 2 sur 6')).toBeVisible();
 			// Étape absente du parcours, puis étape future : renvoi à l'étape à faire.
 			await page.goto('/demarrer/instruments');
 			await waitForPath(page, '/demarrer/genres');
@@ -130,8 +137,8 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 			await submit.click();
 		});
 
-		await test.step('5. Premier résultat, puis le menu du jeu', async () => {
-			await screen(page, '/demarrer/resultat');
+		await test.step('5. Récapitulatif, premier résultat, puis le menu du jeu', async () => {
+			await finish(page);
 			await page.getByRole('link', { name: 'C’est parti !'.replace('’', "'") }).click();
 			await waitForPath(page, '/jouer');
 		});
@@ -171,7 +178,7 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 
 		await test.step('2. Instruments, genres, ville : une seule fois', async () => {
 			await screen(page, '/demarrer/instruments');
-			await expect(page.getByText('Étape 2 sur 7')).toBeVisible();
+			await expect(page.getByText('Étape 2 sur 8')).toBeVisible();
 			await page.getByLabel('Instrument à ajouter').selectOption({ label: 'Basse électrique' });
 			await page.getByLabel('Niveau en Basse électrique').selectOption('3');
 			await page.getByRole('button', { name: 'Continuer' }).click();
@@ -189,7 +196,7 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 			await page.getByRole('button', { name: 'Continuer' }).click();
 			// Instruments, genres et ville sont faits : on reprend à la première étape métier.
 			await waitForPath(page, '/demarrer/metier/producteur');
-			await expect(page.getByText('Étape 5 sur 8')).toBeVisible();
+			await expect(page.getByText('Étape 5 sur 9')).toBeVisible();
 		});
 
 		await test.step('4. Producteur·rice, puis booker', async () => {
@@ -212,7 +219,24 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 			await page.getByRole('radio', { name: /^Avec d’autres/ }).check();
 			await page.getByRole('radio', { name: /^Régulier/ }).check();
 			await page.getByText('Des jams').click();
-			await page.getByRole('button', { name: 'Voir qui est près de moi' }).click();
+			await page.getByRole('button', { name: 'Continuer' }).click();
+		});
+
+		await test.step('6. Récapitulatif : trois métiers, trois ensembles distincts', async () => {
+			await screen(page, '/demarrer/recapitulatif');
+			const producer = page.getByRole('region', { name: 'Producteur·rice' });
+			await expect(producer).toContainText('Beatmaking');
+			await expect(producer).toContainText('À distance');
+			await expect(page.getByRole('region', { name: 'Booker / programmateur·rice' })).toContainText(
+				'Émergents'
+			);
+			await expect(page.getByRole('region', { name: 'Musicien·ne' })).not.toContainText(
+				'Beatmaking'
+			);
+			await expect(page.getByRole('region', { name: 'Instruments' })).toContainText(
+				'Basse électrique'
+			);
+			await page.getByRole('button', { name: 'Terminer mon inscription' }).click();
 			await screen(page, '/demarrer/resultat');
 		});
 
@@ -247,7 +271,7 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 		await test.step('1. Rien d’exigé : « Passer cette étape »', async () => {
 			await screen(page, '/demarrer/metier/edition');
 			await page.getByRole('button', { name: 'Passer cette étape' }).click();
-			await waitForPath(page, '/demarrer/resultat');
+			await finish(page);
 		});
 
 		await test.step('2. Page du métier : la synchro ouvre ses questions', async () => {
@@ -294,7 +318,7 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 			await page.getByRole('radio', { name: 'Oui', exact: true }).check();
 			await page.getByRole('checkbox', { name: 'Logistique', exact: true }).check();
 			await page.getByRole('button', { name: 'Continuer' }).click();
-			await screen(page, '/demarrer/resultat');
+			await finish(page);
 		});
 
 		const person = await personOf(account.email);
@@ -329,7 +353,7 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 			await page.getByRole('checkbox', { name: 'Scène ouverte', exact: true }).check();
 			await page.getByRole('radio', { name: 'Tous niveaux', exact: true }).check();
 			await submit.click();
-			await screen(page, '/demarrer/resultat');
+			await finish(page);
 		});
 
 		const person = await personOf(account.email);
@@ -363,7 +387,7 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 			await page.getByRole('checkbox', { name: 'Home studio', exact: true }).check();
 			await page.getByRole('checkbox', { name: 'Cuivres', exact: true }).check();
 			await page.getByRole('button', { name: 'Continuer' }).click();
-			await screen(page, '/demarrer/resultat');
+			await finish(page);
 		});
 
 		const person = await personOf(account.email);

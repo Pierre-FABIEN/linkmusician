@@ -3,6 +3,17 @@ import { db, requireUser } from './db';
 import { waitForAppReady, waitForPath } from './flows';
 
 /**
+ * LINKMUSICIAN: récapitulatif de l'onboarding (ONB-12a) : le termine, puis
+ * attend le premier résultat.
+ */
+export async function finishRecap(page: Page) {
+	await waitForPath(page, '/demarrer/recapitulatif');
+	await waitForAppReady(page);
+	await page.getByRole('button', { name: 'Terminer mon inscription' }).click();
+	await waitForPath(page, '/demarrer/resultat');
+}
+
+/**
  * LINKMUSICIAN: raccourci pour les specs qui ne testent pas l'onboarding
  * (P1-10) : choisit le métier musicien, puis marque l'onboarding terminé en
  * base. Le parcours complet est couvert par `onboarding.spec.ts`.
