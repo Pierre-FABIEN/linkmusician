@@ -5,7 +5,8 @@
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/jobs/digest
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../../../../prisma/client.js';
 import dotenv from 'dotenv';
 import { runDigestJob, type DigestMail } from './digest';
 
@@ -63,7 +64,7 @@ describe.skipIf(!enabled)('digest email (schéma e2e)', () => {
 		process.env.BETTER_AUTH_SECRET ??= env.BETTER_AUTH_SECRET ?? 'secret-de-test';
 		const url = new URL(env.DATABASE_URL ?? process.env.DATABASE_URL ?? '');
 		url.searchParams.set('schema', 'e2e');
-		db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
+		db = createPrismaClient(url.toString());
 		await cleanup();
 		lea = await person('lea');
 		max = await person('max');

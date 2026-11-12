@@ -14,7 +14,7 @@
 //   node prisma/seed-webhook-fixtures.js --clean → supprime les Order créées ici
 // -----------------------------------------------------------------------------
 
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from './client.js';
 import { writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -22,7 +22,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 const ORDER_COUNT = Number(process.env.PERF_WEBHOOK_ORDERS ?? 200);
 // Marqueur pour retrouver/nettoyer sans ambiguïté ces `Order`, sans toucher

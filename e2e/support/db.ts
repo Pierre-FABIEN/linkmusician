@@ -1,15 +1,14 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { createHash, randomBytes } from 'node:crypto';
 import { symmetricDecrypt } from 'better-auth/crypto';
+// LINKMUSICIAN: Prisma 7 ignore `?schema=` sans la fabrique (DT-01a).
+import { createPrismaClient } from '../../prisma/client.js';
 
 /**
  * Client Prisma dédié aux tests, branché explicitement sur l'URL de `.env.test`
  * (schéma PostgreSQL `e2e`), afin de ne jamais toucher les données de dev.
  */
-export const db = new PrismaClient({
-	datasources: { db: { url: process.env.DATABASE_URL } },
-	log: ['error']
-});
+export const db = createPrismaClient(process.env.DATABASE_URL, { log: ['error'] });
 
 /**
  * Conversion `Prisma.Decimal` → `number`, même sémantique que `toNumber()`

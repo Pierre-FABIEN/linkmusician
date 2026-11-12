@@ -5,7 +5,8 @@
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/jobs/collusion
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../../../../prisma/client.js';
 import dotenv from 'dotenv';
 import { runCollusionJob } from './collusion';
 
@@ -84,7 +85,7 @@ describe.skipIf(!enabled)('détection de collusion (schéma e2e)', () => {
 			dotenv.config({ quiet: true }).parsed?.DATABASE_URL ?? process.env.DATABASE_URL ?? ''
 		);
 		url.searchParams.set('schema', 'e2e');
-		db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
+		db = createPrismaClient(url.toString());
 		await cleanup();
 		// Clique : trois comptes, deux sur la même connexion.
 		await person('a', '10.0.0.1');

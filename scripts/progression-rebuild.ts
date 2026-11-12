@@ -4,11 +4,11 @@
 //
 //   npm run progression:rebuild
 import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../prisma/client.js';
 import { rebuildAll } from '../src/lib/server/progression/projector';
 
 dotenv.config({ quiet: true });
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 try {
 	const result = await prisma.$transaction((tx) => rebuildAll(tx), { timeout: 120_000 });

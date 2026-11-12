@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from './client.js';
 import { hash } from '@node-rs/argon2';
 import { randomBytes } from 'crypto';
 import { symmetricEncrypt } from 'better-auth/crypto';
@@ -27,7 +27,7 @@ if (process.env.VERCEL_ENV === 'production' && process.env.FORCE_SEED !== '1') {
 }
 
 const BETTER_AUTH_SECRET = process.env.BETTER_AUTH_SECRET;
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 /**
  * Mot de passe commun aux comptes email de démonstration — surchargeable

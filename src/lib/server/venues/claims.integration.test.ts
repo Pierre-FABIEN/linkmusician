@@ -9,7 +9,7 @@
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/venues
  */
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../../../../prisma/client.js';
 import dotenv from 'dotenv';
 
 const enabled = process.env.PROGRESSION_INTEGRATION === '1';
@@ -19,7 +19,7 @@ const url = new URL(
 		'postgresql://x/y'
 );
 url.searchParams.set('schema', 'e2e');
-const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
+const db = createPrismaClient(url.toString());
 
 vi.mock('#lib/server', () => ({ prisma: db }));
 vi.mock('$app/env/private', () => ({ SECRET_ADDRESS_SEARCH_MODE: 'e2e' }));

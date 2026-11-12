@@ -1,11 +1,12 @@
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  // LINKMUSICIAN: une seule URL dans `.env`, celle du pooler Neon. Les
-  // migrations, elles, ne passent JAMAIS par le pooler (il transmet le schéma
-  // d'une connexion à l'autre) : `npm run db:migrate` / `db:deploy` /
-  // `db:status` / `reset` passent par `scripts/prisma-direct.mjs`, qui en
-  // déduit l'URL directe. Ne pas lancer `npx prisma migrate …` directement.
+  // LINKMUSICIAN: Prisma 7 (DT-01a) lit l'URL dans `prisma.config.ts`, plus
+  // ici. Une seule URL dans `.env`, celle du pooler Neon. Les migrations,
+  // elles, ne passent JAMAIS par le pooler (il transmet le schéma d'une
+  // connexion à l'autre) : `npm run db:migrate` / `db:deploy` / `db:status` /
+  // `reset` passent par `scripts/prisma-direct.mjs`, qui en déduit l'URL
+  // directe. Ne pas lancer `npx prisma migrate …` directement. Le client de
+  // l'application se crée par `createPrismaClient` (`prisma/client.js`).
 }
 
 generator client {

@@ -6,7 +6,7 @@
  *   GEO_INTEGRATION=1 npx vitest --run src/lib/server/career/nudges
  */
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../../../../prisma/client.js';
 import dotenv from 'dotenv';
 import { E2E_COMMUNES } from '#lib/geo/communes-e2e';
 
@@ -17,7 +17,7 @@ const url = new URL(
 		'postgresql://x/y'
 );
 url.searchParams.set('schema', 'e2e');
-const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
+const db = createPrismaClient(url.toString());
 
 vi.mock('#lib/server', () => ({ prisma: db }));
 

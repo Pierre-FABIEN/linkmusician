@@ -9,7 +9,7 @@
 // ni d'adresse : enseigne, activité et commune seulement (`establishmentsOf`).
 // L'API limite à 7 requêtes par seconde : on attend entre deux pages.
 import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from './client.js';
 import {
 	NAF_KINDS,
 	SIRET_API,
@@ -60,7 +60,7 @@ async function collect(params: Record<string, string>, keep: (e: EstablishmentDa
 }
 
 async function main() {
-	const prisma = new PrismaClient();
+	const prisma = createPrismaClient();
 	try {
 		const all = new Map<string, EstablishmentData>();
 		for (const naf of Object.keys(NAF_KINDS)) {

@@ -6,7 +6,8 @@
  *   GEO_INTEGRATION=1 npx vitest --run src/lib/server/geo
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../../../../prisma/client.js';
 import dotenv from 'dotenv';
 import { E2E_COMMUNES } from '#lib/geo/communes-e2e';
 import { clearActorLocation, findActorsNear, getActorLocation, setActorLocation } from './queries';
@@ -23,7 +24,7 @@ describe.skipIf(!enabled)('localisation PostGIS (schéma e2e)', () => {
 			dotenv.config({ quiet: true }).parsed?.DATABASE_URL ?? process.env.DATABASE_URL ?? ''
 		);
 		url.searchParams.set('schema', 'e2e');
-		db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
+		db = createPrismaClient(url.toString());
 		await db.actor.deleteMany({ where: { handle: { startsWith: PREFIX } } });
 		for (const commune of E2E_COMMUNES) {
 			const actor = await db.actor.create({

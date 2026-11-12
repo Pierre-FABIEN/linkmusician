@@ -6,7 +6,8 @@
  *   GEO_INTEGRATION=1 npx vitest --run src/lib/server/search
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../../../../prisma/client.js';
 import dotenv from 'dotenv';
 import { E2E_COMMUNES } from '#lib/geo/communes-e2e';
 import { parseFilters } from '#lib/search/filters';
@@ -72,7 +73,7 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 			dotenv.config({ quiet: true }).parsed?.DATABASE_URL ?? process.env.DATABASE_URL ?? ''
 		);
 		url.searchParams.set('schema', 'e2e');
-		db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
+		db = createPrismaClient(url.toString());
 		await cleanup();
 		for (const spec of PEOPLE) {
 			const user = await db.user.create({

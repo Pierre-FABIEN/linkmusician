@@ -12,7 +12,7 @@
 //   node prisma/seed-perf.js --clean    → supprime uniquement les lignes perf
 // -----------------------------------------------------------------------------
 
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from './client.js';
 import { faker } from '@faker-js/faker';
 import { hash } from '@node-rs/argon2';
 import { randomUUID } from 'crypto';
@@ -20,7 +20,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 const ARGON2 = { memoryCost: 19456, timeCost: 2, outputLen: 32, parallelism: 1 };
 const PERF_PASSWORD = 'PerfSeed!2026';

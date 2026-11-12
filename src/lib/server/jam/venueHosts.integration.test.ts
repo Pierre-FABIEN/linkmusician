@@ -8,7 +8,7 @@
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/jam/venueHosts
  */
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../../../../prisma/client.js';
 import dotenv from 'dotenv';
 import { setActorLocation } from '../geo/queries';
 
@@ -20,7 +20,7 @@ const url = new URL(
 );
 url.searchParams.set('schema', 'e2e');
 if (enabled) process.env.DATABASE_URL = url.toString();
-const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
+const db = createPrismaClient(url.toString());
 
 vi.mock('#lib/server', () => ({ prisma: db }));
 

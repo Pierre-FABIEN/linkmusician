@@ -10,7 +10,7 @@
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/organizations
  */
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../../../../prisma/client.js';
 import dotenv from 'dotenv';
 import { seedMilestones } from '../../../../prisma/seed-referentials.js';
 
@@ -21,7 +21,7 @@ const url = new URL(
 		'postgresql://x/y'
 );
 url.searchParams.set('schema', 'e2e');
-const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
+const db = createPrismaClient(url.toString());
 
 vi.mock('#lib/server', () => ({ prisma: db }));
 // Recherche d'établissements en mode e2e : la table seule, jamais le réseau.

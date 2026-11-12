@@ -8,6 +8,8 @@
  */
 import { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
+// Le champ en conflit : `meta.target` en Prisma 5, le nom de l'index en Prisma 7.
+import { isUniqueViolation } from '#lib/server/db-errors';
 import { civilDateToUtc } from '#lib/actors/age';
 import { suggestHandle } from '#lib/actors/handle';
 import { successorOf } from '#lib/bands/rules';
@@ -51,14 +53,6 @@ export async function getPersonByUserId(userId: string) {
 export async function hasPerson(userId: string): Promise<boolean> {
 	const person = await prisma.person.findUnique({ where: { userId }, select: { actorId: true } });
 	return person !== null;
-}
-
-function isUniqueViolation(err: unknown, field: string): boolean {
-	return (
-		err instanceof Prisma.PrismaClientKnownRequestError &&
-		err.code === 'P2002' &&
-		JSON.stringify(err.meta?.target ?? '').includes(field)
-	);
 }
 
 /**

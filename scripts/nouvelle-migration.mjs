@@ -24,9 +24,10 @@ const result = spawnSync(
 		'prisma',
 		'migrate',
 		'diff',
-		'--from-schema-datasource',
-		'prisma/schema.prisma',
-		'--to-schema-datamodel',
+		// Prisma 7 (DT-01a) : la base vient de `prisma.config.ts`, qui lit
+		// `DATABASE_URL` (ici l'URL directe).
+		'--from-config-datasource',
+		'--to-schema',
 		'prisma/schema.prisma',
 		'--script'
 	],

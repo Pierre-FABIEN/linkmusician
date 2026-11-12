@@ -8,7 +8,7 @@
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/opportunities/gigSlots
  */
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../../../../prisma/client.js';
 import dotenv from 'dotenv';
 import { E2E_COMMUNES } from '#lib/geo/communes-e2e';
 
@@ -21,7 +21,7 @@ const url = new URL(
 url.searchParams.set('schema', 'e2e');
 // Le SQL brut (villes, PostGIS) lit son schéma dans l'URL de connexion.
 if (enabled) process.env.DATABASE_URL = url.toString();
-const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
+const db = createPrismaClient(url.toString());
 
 vi.mock('#lib/server', () => ({ prisma: db }));
 

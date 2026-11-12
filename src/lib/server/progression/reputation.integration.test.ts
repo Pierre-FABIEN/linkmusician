@@ -4,7 +4,8 @@
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/progression
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
+import { createPrismaClient } from '../../../../prisma/client.js';
 import dotenv from 'dotenv';
 import { emitAndProcess } from './processor';
 import { getPublicReputation, recomputeReputation } from './reputation';
@@ -63,7 +64,7 @@ describe.skipIf(!enabled)('réputation (schéma e2e)', () => {
 			dotenv.config({ quiet: true }).parsed?.DATABASE_URL ?? process.env.DATABASE_URL ?? ''
 		);
 		url.searchParams.set('schema', 'e2e');
-		db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
+		db = createPrismaClient(url.toString());
 		await cleanup();
 		lea = await person('lea');
 		max = await person('max');

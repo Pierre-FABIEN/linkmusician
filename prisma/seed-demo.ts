@@ -34,7 +34,8 @@ import {
 	seedVenueHosts
 } from './seed-scene';
 import dotenv from 'dotenv';
-import { PrismaClient, type LookingFor, type ProStatus, type TrackKind } from '@prisma/client';
+import { type LookingFor, type ProStatus, type TrackKind } from '@prisma/client';
+import { createPrismaClient } from './client.js';
 import { hash } from '@node-rs/argon2';
 import { randomBytes } from 'node:crypto';
 import type { Commune } from '../src/lib/geo/fuzz';
@@ -50,7 +51,7 @@ if (process.env.VERCEL_ENV === 'production') {
 	throw new Error('seed:demo refusé en production.');
 }
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 const DOMAIN = 'demo.linkmusician.test';
 const PASSWORD = process.env.SEED_DEMO_PASSWORD ?? 'DemoPass!2026';
 const ARGON2 = { memoryCost: 19456, timeCost: 2, outputLen: 32, parallelism: 1 };

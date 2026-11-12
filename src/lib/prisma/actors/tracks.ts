@@ -2,8 +2,10 @@
  * Métiers d'une personne (`PersonTrack`). Règles pures dans
  * `#lib/actors/tracks` (D15).
  */
-import { Prisma, type TrackKind } from '@prisma/client';
+import type { TrackKind } from '@prisma/client';
 import { prisma } from '#lib/server';
+// Conflit sérialisable : P2034 en Prisma 5, `DriverAdapterError` en Prisma 7.
+import { isWriteConflict } from '#lib/server/db-errors';
 import { checkTrackSelection, type TrackKindValue, type TrackSelection } from '#lib/actors/tracks';
 import { syncLegacySpecializations } from './specializations';
 
@@ -12,11 +14,6 @@ type Equals<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 export const TRACK_KINDS_MATCH_PRISMA: Equals<TrackKind, TrackKindValue> = true;
 
 const MAX_ATTEMPTS = 3;
-
-/** Conflit d'écriture ou interblocage d'une transaction sérialisable (Prisma P2034). */
-function isWriteConflict(err: unknown): boolean {
-	return err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2034';
-}
 
 /**
  * Remplace les métiers d'une personne, en une transaction.

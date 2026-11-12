@@ -6,7 +6,8 @@
 // `slug` et mise à jour, une entrée retirée de `prisma/seed-data/` est
 // désactivée (`active = false`), jamais supprimée. Aussi appelé en fin de
 // `prisma/seed.js`, donc par `npm run reset`.
-import { PrismaClient } from '@prisma/client';
+/** @typedef {import('@prisma/client').PrismaClient} PrismaClient */
+import { createPrismaClient } from './client.js';
 import { pathToFileURL } from 'node:url';
 import dotenv from 'dotenv';
 import { instrumentsByFamily } from './seed-data/instruments.js';
@@ -93,7 +94,7 @@ export async function seedReferentials(prisma) {
 // Lancé directement (`node prisma/seed-referentials.js`), pas importé.
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
 	dotenv.config();
-	const prisma = new PrismaClient();
+	const prisma = createPrismaClient();
 	seedReferentials(prisma)
 		.catch((error) => {
 			console.error('Échec du chargement des référentiels :', error);
