@@ -56,6 +56,14 @@
 				<a href="/profil/ville" class="underline">Ma ville</a>. Démos et vidéos :
 				<a href="/profil/medias" class="underline">Mes médias</a>.
 			</p>
+			<!-- LINKMUSICIAN: une page par métier (D59). -->
+			{#if data.trackPages.length > 0}
+				<nav aria-label="Mes métiers" class="mt-3 flex flex-wrap gap-2">
+					{#each data.trackPages as page (page.href)}
+						<a href={page.href} class="lm-btn" data-variant="ghost">{page.label} →</a>
+					{/each}
+				</nav>
+			{/if}
 			<!-- LINKMUSICIAN: métiers du son (P4-02, P4-04). -->
 			{#if data.managesVenues && !data.promoter}
 				<!-- LINKMUSICIAN: lieux gérés (P5-03b). -->

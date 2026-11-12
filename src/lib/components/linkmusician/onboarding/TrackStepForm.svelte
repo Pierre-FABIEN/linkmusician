@@ -1,29 +1,13 @@
-<script lang="ts">
-	/**
-	 * LINKMUSICIAN: formulaire de l'étape d'un métier (ONB-02). La page le
-	 * recrée à chaque métier (`{#key}`) : SvelteKit réutilise la page d'une
-	 * étape métier à la suivante, et le formulaire garderait l'état du métier
-	 * précédent.
-	 */
-	import { untrack } from 'svelte';
-	import { superForm } from 'sveltekit-superforms/client';
-	import { zodClient } from 'sveltekit-superforms/adapters';
-	import * as Card from '#shadcn/card';
-	import { Button } from '#shadcn/button';
-	import { trackDetailsSchema } from '#lib/schema/actors/trackDetailsSchema';
-	import { INTENT_DIRECTION_LABELS } from '#lib/actors/specializations';
-	import { previousStepPath } from '#lib/onboarding/steps';
-	import { RETRY_FRIENDLY_FORM } from '#lib/forms/superformOptions';
+<script lang="ts" module>
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { IntentInfo } from '#lib/actors/specializations';
-	import type { OnboardingStep, OnboardingStepId } from '#lib/onboarding/steps';
+	import type { TrackField } from '#lib/actors/trackFields';
 	import type { TrackDetailsForm } from '#lib/schema/actors/trackDetailsSchema';
 	import type { TrackKindValue } from '#lib/actors/tracks';
 
+	/** Données d'un écran métier (`trackStepData`, `#lib/server/actors/trackStep`). */
 	export type TrackStepData = {
 		form: SuperValidated<TrackDetailsForm>;
-		steps: OnboardingStep[];
-		stepId: OnboardingStepId;
 		track: TrackKindValue;
 		label: string;
 		description: string;
@@ -32,9 +16,41 @@
 		specializations: { code: string; label: string; description: string }[];
 		offers: readonly IntentInfo[];
 		needs: readonly IntentInfo[];
+		fields: readonly TrackField[];
 	};
+</script>
 
-	let { data }: { data: TrackStepData } = $props();
+<script lang="ts">
+	/**
+	 * LINKMUSICIAN: formulaire d'un métier (ONB-02, D59) : spécialités,
+	 * « Je propose », « Je recherche », puis les champs propres du métier,
+	 * affichés selon ce qui est coché. Partagé par l'étape de l'onboarding et
+	 * la page du métier ; la page le recrée à chaque métier (`{#key}`), car
+	 * SvelteKit réutilise la page d'un métier au suivant.
+	 *
+	 * Pas de `bind:group` dans les boucles : Svelte réunirait les listes d'une
+	 * même boucle en un seul groupe (offres et besoins liés, constaté en ONB-03).
+	 */
+	import { untrack, type Snippet } from 'svelte';
+	import { superForm } from 'sveltekit-superforms/client';
+	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { toast } from 'svelte-sonner';
+	import { trackDetailsSchema } from '#lib/schema/actors/trackDetailsSchema';
+	import { INTENT_DIRECTION_LABELS } from '#lib/actors/specializations';
+	import { isRequired, visibleFields } from '#lib/actors/trackFields';
+	import { RETRY_FRIENDLY_FORM } from '#lib/forms/superformOptions';
+
+	let {
+		data,
+		heading,
+		actions
+	}: {
+		data: TrackStepData;
+		/** Titre de l'écran (l'onboarding le met dans sa carte). */
+		heading?: Snippet;
+		/** Boutons du bas ; reçoit « spécialité manquante », « rien coché », « envoi en cours ». */
+		actions: Snippet<[{ missing: boolean; empty: boolean; submitting: boolean }]>;
+	} = $props();
 
 	const stepForm = superForm(
 		untrack(() => data.form),
@@ -43,20 +59,43 @@
 			id: untrack(() => `trackStepForm-${data.track}`),
 			dataType: 'json',
 			resetForm: false,
-			...RETRY_FRIENDLY_FORM
+			...RETRY_FRIENDLY_FORM,
+			onUpdated: ({ form }) => {
+				if (form.valid && form.message) toast.success(form.message);
+			}
 		}
 	);
 	const { form, errors, enhance, submitting } = stepForm;
 
-	const back = $derived(previousStepPath(data.steps, data.stepId) ?? '/qui-es-tu');
 	const missing = $derived($form.specializations.length < data.minSpecializations);
-	/** Erreur d'une liste : message global ou premier message d'un élément. */
-	function listError(list: 'specializations' | 'offers' | 'needs'): string | null {
-		const e = $errors[list] as unknown;
+	const empty = $derived($form.specializations.length === 0);
+	const shown = $derived(visibleFields(data.track, $form));
+
+	type List = 'specializations' | 'offers' | 'needs';
+	function toggle(list: List, code: string) {
+		$form[list] = $form[list].includes(code)
+			? $form[list].filter((c) => c !== code)
+			: [...$form[list], code];
+	}
+	function toggleAnswer(id: string, code: string, single: boolean) {
+		const current = $form.details[id] ?? [];
+		const next = current.includes(code)
+			? current.filter((c) => c !== code)
+			: single
+				? [code]
+				: [...current, code];
+		$form.details = { ...$form.details, [id]: next };
+	}
+	/** Premier message d'une erreur, quelle que soit sa forme (liste, élément, formulaire). */
+	function firstError(e: unknown): string | null {
 		if (!e) return null;
+		if (typeof e === 'string') return e;
 		if (Array.isArray(e)) return e.find((m) => typeof m === 'string') ?? null;
-		const obj = e as { _errors?: string[] } & Record<string, string[] | undefined>;
-		return obj._errors?.[0] ?? Object.values(obj).flat().find(Boolean) ?? null;
+		for (const value of Object.values(e as Record<string, unknown>)) {
+			const found = firstError(value);
+			if (found) return found;
+		}
+		return null;
 	}
 	const intentLists = $derived(
 		[
@@ -66,93 +105,112 @@
 	);
 </script>
 
-<Card.Root class="shadow-xl">
-	<Card.Content>
-		<form method="POST" use:enhance class="space-y-6">
-			<input type="hidden" name="track" value={data.track} />
-			<div>
-				<h1 class="lm-title lm-title--sm">{data.label}</h1>
-				<p class="text-sm text-muted-foreground">{data.description}</p>
-				{#if data.soon}
-					<p class="mt-2 text-sm text-muted-foreground">
-						Ce métier arrive bientôt sur LinkMusician. Coche ce qui te correspond pour qu’on sache
-						qui l’attend, ou passe cette étape.
-					</p>
-				{/if}
-			</div>
+<form method="POST" use:enhance class="space-y-6">
+	{@render heading?.()}
+	{#if data.soon}
+		<p class="text-sm text-muted-foreground">
+			Ce métier arrive bientôt sur LinkMusician. Coche ce qui te correspond pour qu’on sache qui
+			l’attend ; rien n’est obligatoire.
+		</p>
+	{/if}
 
-			<fieldset
-				class="space-y-2"
-				aria-describedby={listError('specializations') ? 'specializations-error' : undefined}
-			>
-				<legend class="font-semibold">
-					Tes spécialités
-					<span class="font-normal text-muted-foreground">
-						{data.minSpecializations > 0 ? '(au moins une)' : '(facultatif)'}
+	<fieldset
+		class="space-y-2"
+		aria-describedby={firstError($errors.specializations) ? 'specializations-error' : undefined}
+	>
+		<legend class="font-semibold">
+			Tes spécialités
+			<span class="font-normal text-muted-foreground">
+				{data.minSpecializations > 0 ? '(au moins une)' : '(facultatif)'}
+			</span>
+		</legend>
+		<div class="grid gap-2 sm:grid-cols-2">
+			{#each data.specializations as item (item.code)}
+				<label class="lm-tile lm-tile--flow flex cursor-pointer items-start gap-2 p-3">
+					<input
+						type="checkbox"
+						value={item.code}
+						class="mt-1 size-4"
+						checked={$form.specializations.includes(item.code)}
+						onchange={() => toggle('specializations', item.code)}
+					/>
+					<span>
+						<span class="font-medium">{item.label}</span>
+						<span class="block text-sm text-muted-foreground">{item.description}</span>
 					</span>
-				</legend>
-				<div class="grid gap-2 sm:grid-cols-2">
-					{#each data.specializations as item (item.code)}
-						<label class="lm-tile lm-tile--flow flex cursor-pointer items-start gap-2 p-3">
-							<input
-								type="checkbox"
-								value={item.code}
-								class="mt-1 size-4"
-								bind:group={$form.specializations}
-							/>
-							<span>
-								<span class="font-medium">{item.label}</span>
-								<span class="block text-sm text-muted-foreground">{item.description}</span>
-							</span>
-						</label>
-					{/each}
-				</div>
-				{#if listError('specializations')}
-					<p id="specializations-error" class="text-sm text-destructive" role="alert">
-						{listError('specializations')}
-					</p>
-				{/if}
-			</fieldset>
-
-			{#each intentLists as list (list.key)}
-				<fieldset
-					class="space-y-2"
-					aria-describedby={listError(list.key) ? `${list.key}-error` : undefined}
-				>
-					<legend class="font-semibold">
-						{list.legend} <span class="font-normal text-muted-foreground">(facultatif)</span>
-					</legend>
-					<div class="flex flex-wrap gap-2">
-						{#each list.items as item (item.code)}
-							<label class="lm-tile lm-tile--flow flex cursor-pointer items-center gap-2 px-3 py-2">
-								<input
-									type="checkbox"
-									value={item.code}
-									class="size-4"
-									bind:group={$form[list.key]}
-								/>
-								{item.label}
-							</label>
-						{/each}
-					</div>
-					{#if listError(list.key)}
-						<p id="{list.key}-error" class="text-sm text-destructive" role="alert">
-							{listError(list.key)}
-						</p>
-					{/if}
-				</fieldset>
+				</label>
 			{/each}
-
-			<p class="text-xs text-muted-foreground">
-				Tout est déclaratif et modifiable ensuite depuis ton profil.
+		</div>
+		{#if firstError($errors.specializations)}
+			<p id="specializations-error" class="text-sm text-destructive" role="alert">
+				{firstError($errors.specializations)}
 			</p>
+		{/if}
+	</fieldset>
 
-			<div class="flex justify-between">
-				<Button variant="ghost" href={back}>Retour</Button>
-				<Button type="submit" disabled={$submitting || missing}>
-					{data.soon && $form.specializations.length === 0 ? 'Passer cette étape' : 'Continuer'}
-				</Button>
+	{#each intentLists as list (list.key)}
+		<fieldset class="space-y-2">
+			<legend class="font-semibold">
+				{list.legend} <span class="font-normal text-muted-foreground">(facultatif)</span>
+			</legend>
+			<div class="grid gap-2 sm:grid-cols-2">
+				{#each list.items as item (item.code)}
+					<label class="lm-tile lm-tile--flow flex cursor-pointer items-start gap-2 p-3">
+						<input
+							type="checkbox"
+							value={item.code}
+							class="mt-1 size-4"
+							checked={$form[list.key].includes(item.code)}
+							onchange={() => toggle(list.key, item.code)}
+						/>
+						<span>
+							<span class="font-medium">{item.label}</span>
+							<span class="block text-sm text-muted-foreground">{item.description}</span>
+						</span>
+					</label>
+				{/each}
 			</div>
-		</form>
-	</Card.Content>
-</Card.Root>
+			{#if firstError($errors[list.key])}
+				<p class="text-sm text-destructive" role="alert">{firstError($errors[list.key])}</p>
+			{/if}
+		</fieldset>
+	{/each}
+
+	{#each shown as field (field.id)}
+		{@const required = isRequired(data.track, field)}
+		<fieldset class="space-y-2">
+			<legend class="font-semibold">
+				{field.label}
+				<span class="font-normal text-muted-foreground">
+					{required ? '(requis)' : '(facultatif)'}
+				</span>
+			</legend>
+			{#if field.hint}<p class="text-xs text-muted-foreground">{field.hint}</p>{/if}
+			<div class="flex flex-wrap gap-2">
+				{#each field.options as o (o.code)}
+					<label class="lm-tile lm-tile--flow flex cursor-pointer items-center gap-2 px-3 py-2">
+						<input
+							type={field.kind === 'single' ? 'radio' : 'checkbox'}
+							name="field-{field.id}"
+							value={o.code}
+							class="size-4"
+							checked={($form.details[field.id] ?? []).includes(o.code)}
+							onchange={() => toggleAnswer(field.id, o.code, field.kind === 'single')}
+						/>
+						{o.label}
+					</label>
+				{/each}
+			</div>
+		</fieldset>
+	{/each}
+
+	{#if firstError($errors._errors)}
+		<p class="text-sm text-destructive" role="alert">{firstError($errors._errors)}</p>
+	{/if}
+
+	<p class="text-xs text-muted-foreground">
+		Tout est déclaratif : rien n’est vérifié ni revendiqué par cette fiche.
+	</p>
+
+	{@render actions({ missing, empty, submitting: $submitting })}
+</form>

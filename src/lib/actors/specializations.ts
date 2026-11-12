@@ -29,6 +29,7 @@
  * facultatifs, dont on ne déduit jamais une part d'auteur.
  */
 import { TRACK_KINDS, TRACKS, type TrackKindValue } from './tracks';
+import { TRACK_CATALOGS } from './catalog';
 import { SOUND_SPECIALTIES, SOUND_SPECIALTY_INFO } from '#lib/crafts/sound';
 import { PRODUCER_SPECIALTIES, PRODUCER_SPECIALTY_INFO } from '#lib/crafts/producer';
 import { PROMOTER_EVENT_KINDS, PROMOTER_EVENT_KIND_INFO } from '#lib/crafts/promoter';
@@ -476,90 +477,12 @@ export type IntentInfo = {
  * l'offre n'est pas un code de la demande, même à libellé voisin.
  * Remplis par ONB-03 (musicien·ne) à ONB-11 (communication).
  */
-/**
- * Catalogues remplis, par métier (ONB-03 pour les musicien·nes). Les codes
- * de l'offre et de la demande sont tous différents, même à sens voisin
- * (« donner des cours » / « prendre des cours »).
- */
-const INTENT_CATALOGS: Partial<
-	Record<TrackKindValue, Readonly<Record<IntentDirection, readonly IntentInfo[]>>>
-> = {
-	MUSICIAN: {
-		OFFER: [
-			{
-				code: 'PLAY_JAMS',
-				label: 'Jouer en jam',
-				description: 'Venir faire le bœuf, animer, tenir une place.'
-			},
-			{
-				code: 'JOIN_BAND',
-				label: 'Rejoindre un groupe',
-				description: 'Tenir ta place dans un groupe qui cherche.'
-			},
-			{
-				code: 'DO_REPLACEMENTS',
-				label: 'Faire des remplacements',
-				description: 'Dépanner un groupe pour une date ou une tournée.'
-			},
-			{
-				code: 'WRITING',
-				label: 'Composer ou arranger',
-				description: 'Apporter des morceaux, des parties, des arrangements.'
-			},
-			{
-				code: 'SESSIONS',
-				label: 'Jouer en session',
-				description: 'Enregistrer ou jouer pour d’autres artistes.'
-			},
-			{
-				code: 'GIVE_LESSONS',
-				label: 'Donner des cours',
-				description: 'Transmettre ton instrument ou ta voix.'
-			}
-		],
-		NEED: [
-			{
-				code: 'FIND_JAMS',
-				label: 'Des jams',
-				description: 'Des bœufs et des scènes ouvertes près de toi.'
-			},
-			{
-				code: 'FIND_PARTNERS',
-				label: 'Des partenaires',
-				description: 'Des musicien·nes avec qui jouer régulièrement.'
-			},
-			{
-				code: 'FIND_BAND',
-				label: 'Rejoindre ou monter un groupe',
-				description: 'Un projet à plusieurs, à rejoindre ou à créer.'
-			},
-			{
-				code: 'FIND_REPLACEMENT',
-				label: 'Un·e remplaçant·e',
-				description: 'Quelqu’un pour tenir une place le temps d’une date.'
-			},
-			{
-				code: 'CO_WRITING',
-				label: 'Composer à plusieurs',
-				description: 'Écrire avec d’autres : morceaux, paroles, featuring.'
-			},
-			{
-				code: 'FIND_STUDIO',
-				label: 'Des sessions studio',
-				description: 'Enregistrer, en studio ou chez quelqu’un.'
-			},
-			{
-				code: 'TAKE_LESSONS',
-				label: 'Prendre des cours',
-				description: 'Progresser avec un·e prof.'
-			}
-		]
-	}
-};
-
 export const INTENTS: Readonly<
 	Record<TrackKindValue, Readonly<Record<IntentDirection, readonly IntentInfo[]>>>
-> = byTrack((track) => INTENT_CATALOGS[track] ?? { OFFER: [], NEED: [] });
+> = byTrack((track) => ({
+	OFFER: TRACK_CATALOGS[track].offers,
+	NEED: TRACK_CATALOGS[track].needs
+}));
 
 // ─── Sélection d'une personne pour un métier ─────────────────────────────────
 

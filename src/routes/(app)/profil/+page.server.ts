@@ -18,6 +18,8 @@ import { onProfileChanged } from '#lib/server/progression/profile';
 
 import { currentTip } from '#lib/server/guide/service';
 import { prisma } from '#lib/server';
+import { TRACK_KINDS, TRACKS } from '#lib/actors/tracks';
+import { TRACK_ROLES } from '#lib/actors/roles';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -28,6 +30,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		mayOrganize: details.mayOrganize,
 		/** Arrivé·e depuis « Lancer une jam » sans avoir coché (D51). */
 		askOrganize: url.searchParams.has('organiser'),
+		/** Une page par métier (D59) ; musicien·ne : « Ma pratique ». */
+		trackPages: TRACK_KINDS.filter((t) => person.tracks.some((p) => p.track === t)).map((t) => ({
+			href: TRACK_ROLES[t].onboarding.ownStep
+				? `/profil/metier/${TRACK_ROLES[t].slug}`
+				: '/profil/pratique',
+			label: TRACKS[t].label
+		})),
 		/** Lien vers « Mon profil d'ingé son » (P4-02). */
 		soundEngineer: person.tracks.some((t) => t.track === 'SOUND_ENGINEER'),
 		/** Lien vers « Mon profil de producteur·rice » (P4-04). */

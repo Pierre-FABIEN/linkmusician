@@ -20,7 +20,9 @@ export const trackDetailsSchema = z
 		track: z.enum(TRACK_KINDS),
 		specializations: codes,
 		offers: codes,
-		needs: codes
+		needs: codes,
+		/** Champs propres au métier (D59), revérifiés côté serveur (`checkFields`). */
+		details: z.record(z.string(), z.array(z.string().max(60)).max(20)).default({})
 	})
 	.superRefine((value, ctx) => {
 		for (const list of SELECTION_LISTS) {

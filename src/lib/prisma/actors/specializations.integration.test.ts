@@ -22,8 +22,14 @@ const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
 
 vi.mock('#lib/server', () => ({ prisma: db }));
 
-const { getTrackDetails, setTrackDetails, InvalidTrackCodeError, TrackNotHeldError } =
-	await import('./specializations');
+const {
+	getTrackAnswers,
+	getTrackDetails,
+	setTrackDetails,
+	InvalidFieldError,
+	InvalidTrackCodeError,
+	TrackNotHeldError
+} = await import('./specializations');
 const { setPersonTracks } = await import('./tracks');
 const { saveSoundProfile, getSoundProfile } = await import('#lib/prisma/crafts/soundProfile');
 const { exportPersonData, personAnonymizationOps } = await import('./person');
@@ -192,6 +198,35 @@ describe.skipIf(!enabled)('spécialités par métier (schéma e2e)', { timeout: 
 				select: { code: true }
 			})
 		).toEqual([{ code: 'MASTERING' }]);
+	});
+
+	it('champs propres (D59) : enregistrés, relus, requis vérifiés, masqués retirés', async () => {
+		const sound = {
+			track: 'SOUND_ENGINEER' as const,
+			specializations: ['MIXING', 'LIVE_FOH'],
+			offers: ['MIXING_SERVICE'],
+			needs: ['FIND_LIVE_DATES']
+		};
+		await expect(setTrackDetails(personId, sound, { answers: {} })).rejects.toBeInstanceOf(
+			InvalidFieldError
+		);
+		await setTrackDetails(personId, sound, {
+			answers: {
+				environment: ['LIVE', 'HOME_STUDIO'],
+				live_capacity: ['UP_TO_500'],
+				mastering_targets: ['VINYL']
+			}
+		});
+		expect(await getTrackAnswers(personId, 'SOUND_ENGINEER')).toEqual({
+			environment: ['HOME_STUDIO', 'LIVE'],
+			live_capacity: ['UP_TO_500']
+		});
+		const exported = await exportPersonData(userId);
+		expect(exported?.precisions_par_metier).toContainEqual({
+			metier: 'SOUND_ENGINEER',
+			champ: 'live_capacity',
+			valeur: 'UP_TO_500'
+		});
 	});
 
 	it('RGPD : exporté, puis plus rien après l’anonymisation', async () => {

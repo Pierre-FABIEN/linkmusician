@@ -35,7 +35,7 @@ async function personOf(email: string) {
 	const user = await requireUser(email);
 	return db.person.findUniqueOrThrow({
 		where: { userId: user.id },
-		include: { tracks: { include: { specializations: true } }, instruments: true }
+		include: { tracks: { include: { specializations: true, attributes: true } }, instruments: true }
 	});
 }
 
@@ -92,8 +92,18 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 			await waitForPath(resumed, '/demarrer/metier/inge-son');
 			await other.close();
 
-			await page.getByLabel('Mixage').check();
-			await page.getByLabel('Façade').check();
+			await page.getByRole('checkbox', { name: /^Mixage/ }).check();
+			await page.getByRole('checkbox', { name: /^Façade/ }).check();
+			// Champs propres (D59) : un bloc par spécialité cochée, sans doublon.
+			await expect(page.getByText('Mixage : formats')).toBeVisible();
+			await expect(page.getByText('Live : types de scène')).toBeVisible();
+			await expect(page.getByText('Mastering : destinations')).toHaveCount(0);
+			// « Où tu travailles » est requis : refusé, avec un message.
+			await submit.click();
+			await expect(page.getByText('Où tu travailles : Ce champ est requis.')).toBeVisible();
+			await page.getByRole('checkbox', { name: 'Home studio', exact: true }).check();
+			await page.getByRole('checkbox', { name: 'En live', exact: true }).check();
+			await page.getByRole('radio', { name: '100 à 500', exact: true }).check();
 			await submit.click();
 		});
 
@@ -114,6 +124,11 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 			where: { personId: person.actorId }
 		});
 		expect(profile?.specialties).toEqual(['MIXING', 'LIVE_FOH']);
+		expect(sound?.attributes.map((a) => `${a.field}=${a.code}`).sort()).toEqual([
+			'environment=HOME_STUDIO',
+			'environment=LIVE',
+			'live_capacity=UP_TO_500'
+		]);
 	});
 
 	test('musicien·ne + producteur·rice, puis un métier ajouté en route', async ({
@@ -155,11 +170,17 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 		});
 
 		await test.step('4. Producteur·rice, puis booker', async () => {
-			await page.getByLabel('Beatmaking').check();
-			await page.getByLabel('Réalisation artistique').check();
+			await page.getByRole('checkbox', { name: /^Beatmaking/ }).check();
+			await page.getByRole('checkbox', { name: /^Réalisation artistique/ }).check();
+			await page.getByRole('checkbox', { name: 'À distance', exact: true }).check();
 			await page.getByRole('button', { name: 'Continuer' }).click();
 			await screen(page, '/demarrer/metier/booker');
-			await page.getByLabel('Booking de tournée').check();
+			await page.getByRole('checkbox', { name: /^Booking de tournée/ }).check();
+			// Un booker répond aux questions du booking, pas à celles de la programmation.
+			await expect(page.getByText('Programmation : jauge')).toHaveCount(0);
+			await page.getByRole('radio', { name: 'Indépendant·e', exact: true }).check();
+			await page.getByRole('checkbox', { name: 'Régional', exact: true }).check();
+			await page.getByRole('checkbox', { name: 'Émergents', exact: true }).check();
 			await page.getByRole('button', { name: 'Continuer' }).click();
 		});
 
@@ -183,5 +204,48 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 			BOOKER: ['TOUR_BOOKING']
 		});
 		expect(person.instruments).toHaveLength(1);
+	});
+
+	test('métier « bientôt » passé en un clic, puis complété sur sa page', async ({
+		page,
+		account
+	}) => {
+		await signUpAndVerify(page, account);
+		await page.goto('/qui-es-tu');
+		await waitForAppReady(page);
+		await page.getByLabel('Éditeur·rice').check();
+		await page.getByRole('button', { name: 'Continuer' }).click();
+		await waitForPath(page, '/demarrer/genres');
+		await waitForAppReady(page);
+		await pickGenre(page);
+		await waitForPath(page, '/demarrer/ville');
+		await pickCity(page);
+
+		await test.step('1. Rien d’exigé : « Passer cette étape »', async () => {
+			await screen(page, '/demarrer/metier/edition');
+			await page.getByRole('button', { name: 'Passer cette étape' }).click();
+			await waitForPath(page, '/demarrer/resultat');
+		});
+
+		await test.step('2. Page du métier : la synchro ouvre ses questions', async () => {
+			await page.goto('/profil/metier/edition');
+			await waitForAppReady(page);
+			await expectNoA11yViolations(page, ['.cartButton']);
+			await expect(page.getByText('Synchro : supports')).toHaveCount(0);
+			await page.getByRole('checkbox', { name: /^Synchronisation/ }).check();
+			await page.getByRole('checkbox', { name: 'Jeux vidéo', exact: true }).check();
+			await page.getByRole('checkbox', { name: /^Des œuvres/ }).check();
+			await expect(page.getByText('Soumissions d’œuvres')).toBeVisible();
+			await page.getByRole('button', { name: 'Enregistrer' }).click();
+			await expect(page.getByText('Ton métier est enregistré.').first()).toBeVisible();
+		});
+
+		const person = await personOf(account.email);
+		const publisher = person.tracks.find((t) => t.track === 'PUBLISHER');
+		expect(person.onboardedAt).not.toBeNull();
+		expect(publisher?.specializations.map((s) => s.code)).toEqual(['SYNC']);
+		expect(publisher?.attributes.map((a) => `${a.field}=${a.code}`)).toEqual([
+			'sync_media=VIDEO_GAMES'
+		]);
 	});
 });

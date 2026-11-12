@@ -35,6 +35,7 @@ import type { SoundSpecialtyValue } from '#lib/crafts/sound';
 import type { ProducerSpecialtyValue } from '#lib/crafts/producer';
 import type { PromoterEventKindValue } from '#lib/crafts/promoter';
 import { intentsOfLookingFor } from '#lib/musician/profile';
+import { checkFields, trackFields, type FieldAnswers } from '#lib/actors/trackFields';
 
 type Equals<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 /** Échouent à la compilation si un référentiel pur et son enum Prisma divergent. */
@@ -224,12 +225,68 @@ export function confirmTrackOp(personId: string, track: TrackKindValue) {
 export async function setTrackDetails(
 	personId: string,
 	details: TrackDetails,
-	options: { confirm?: boolean } = {}
+	options: { confirm?: boolean; answers?: FieldAnswers } = {}
 ) {
 	const { saved, ops } = await trackDetailsOps(personId, details);
+	let answers: FieldAnswers | undefined;
+	if (options.answers) {
+		const fields = trackFieldOps(personId, saved, options.answers);
+		answers = fields.answers;
+		ops.push(...fields.ops);
+	}
 	if (options.confirm) ops.push(confirmTrackOp(personId, details.track));
 	await prisma.$transaction(ops);
-	return saved;
+	return { ...saved, answers };
+}
+
+export class InvalidFieldError extends Error {
+	constructor(
+		readonly field: string,
+		message: string
+	) {
+		super(message);
+	}
+}
+
+/**
+ * Remplace les réponses aux champs propres d'un métier (D59), vérifiées
+ * contre ce qui est coché (`checkFields`). Champs du catalogue de ce métier
+ * seulement : les précisions du musicien·ne (selon l'instrument) ont leur
+ * propre écriture (`saveMusicianStep`).
+ */
+export function trackFieldOps(personId: string, choices: TrackDetails, input: FieldAnswers) {
+	const { track } = choices;
+	const checked = checkFields(track, choices, input);
+	if (!checked.ok) throw new InvalidFieldError(checked.field, checked.message);
+	const scope = trackFields(track).map((f) => f.id);
+	const ops: PrismaPromise<unknown>[] = [
+		prisma.personTrackAttribute.deleteMany({ where: { personId, track, field: { in: scope } } }),
+		prisma.personTrackAttribute.createMany({
+			data: Object.entries(checked.answers).flatMap(([field, codes]) =>
+				codes.map((code) => ({ personId, track, field, code }))
+			)
+		})
+	];
+	return { answers: checked.answers, ops };
+}
+
+/** Réponses aux champs propres d'un métier, dans l'ordre du catalogue. */
+export async function getTrackAnswers(
+	personId: string,
+	track: TrackKindValue
+): Promise<FieldAnswers> {
+	const rows = await prisma.personTrackAttribute.findMany({
+		where: { personId, track },
+		select: { field: true, code: true }
+	});
+	const answers: FieldAnswers = {};
+	for (const field of trackFields(track)) {
+		const codes = field.options
+			.map((o) => o.code)
+			.filter((c) => rows.some((r) => r.field === field.id && r.code === c));
+		if (codes.length > 0) answers[field.id] = codes;
+	}
+	return answers;
 }
 
 /**

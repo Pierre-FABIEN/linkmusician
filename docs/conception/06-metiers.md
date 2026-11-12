@@ -71,6 +71,30 @@ la recherche jusqu'à ONB-04, 05 et 08. Les catalogues « Je propose » et
 « Je recherche » sont remplis par les lots de chaque métier (ONB-03 à
 ONB-11).
 
+### 1.2 Fiche et gabarit de chaque métier (ONB-04 à 11, D59)
+
+Un métier se décrit par des **données**, sans code d'écran à écrire :
+
+- `TRACK_ROLES` (`src/lib/actors/roles.ts`) : adresse lisible, page de
+  profil, écrans d'onboarding demandés ;
+- ses spécialités (`src/lib/actors/specializations.ts`) ;
+- son catalogue (`src/lib/actors/catalog/<métier>.ts`) : « Je propose »,
+  « Je recherche » et ses **champs propres**. Un champ est un choix unique
+  ou multiple parmi des codes ; il peut être requis et ne s'afficher que si
+  une spécialité, une offre ou un besoin est coché (« si A&R : politique de
+  démos », « si programmation : jauge »).
+
+L'écran du métier (`/demarrer/metier/[slug]` à l'inscription,
+`/profil/metier/[slug]` ensuite) se construit à partir de ces données ;
+le serveur revérifie tout (`checkFields`). Les réponses vont dans
+`person_track_attributes`. Un métier « bientôt » (D15) n'impose rien.
+
+Ce que le gabarit ne fait pas, volontairement : pas de texte libre, pas
+de fiche d'événement, de brief ou de date (ils appartiennent à l'annonce
+ou au plateau), pas d'organisation revendiquée par saisie d'un nom (elle
+se crée et se vérifie à part), aucune audience, aucun crédit, aucun droit
+ni mandat déduits d'une déclaration.
+
 ## 2. En attendant leur phase (D15)
 
 Tant que son métier n'est pas ouvert, la personne a un **profil de base**,
