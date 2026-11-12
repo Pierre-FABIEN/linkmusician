@@ -252,6 +252,40 @@ Reste à faire, dans l'ordre :
   mineur·es.
 - **Limites de la machine** : M1, T1 et T2 (`a-trancher.md`).
 
+### DT-01 — Prisma 7 (découpé : 01a, 01b)
+
+Dette technique, avancée avant l'audit P3-10a à la demande de
+l'utilisateur (12/11/2026) : Prisma 5.22 date de 2024, son moteur Rust
+alourdit les fonctions Vercel, et le SQL brut PostGIS n'est pas typé (D7).
+
+#### DT-01a — Passage à Prisma 7.10 🟡 (e2e à rejouer)
+
+- `prisma`, `@prisma/client` 7.10.1 et `@prisma/adapter-pg` (pilote `pg`).
+  Générateur `prisma-client-js` gardé : les imports `@prisma/client` du
+  boilerplate restent tels quels (pas de conflit de fusion).
+- URL de la CLI dans `prisma.config.ts` (plus dans `schema.prisma`).
+  `scripts/prisma-direct.mjs` reste le seul chemin des migrations.
+- **Fabrique unique `createPrismaClient`** (`prisma/client.js`) pour
+  l'application, les seeds, les scripts, les tests d'intégration et l'e2e.
+  Mesuré : l'adaptateur **ignore `?schema=`** ; la fabrique le passe en
+  option, sinon les tests écriraient dans `public`.
+- **Erreurs changées**, reconnues par `src/lib/server/db-errors.ts` : un
+  conflit sérialisable remonte en `DriverAdapterError` (plus `P2034`), et
+  `P2002` ne porte plus `meta.target`, seulement le nom de l'index. Sans
+  ce module, la relance de `setPersonTracks` et la reprise des collisions
+  de pseudo à l'inscription (`createPersonForUser`) ne jouaient plus.
+- Passage par la version 6 sans migration : aucune relation n-n implicite.
+- Critères de fin : `check`, `lint`, unitaires, 210 tests d'intégration et
+  build au vert (fait) ; **e2e complet à rejouer par l'utilisateur**.
+
+#### DT-01b — SQL brut typé et nouveau générateur
+
+- Les 33 requêtes brutes (22 fichiers, PostGIS d'abord) en fichiers `.sql`
+  typés (TypedSQL), en gardant `qualifiedTable` pour le schéma.
+- Générateur `prisma-client` (le `prisma-client-js` sera retiré), à faire
+  d'abord dans le boilerplate (Q70 du tableau T).
+- Dépend de DT-01a ; après le lancement si P3-10a presse.
+
 ## 4. Étape C — P3-10a Audit de sécurité avant production
 
 - **Dépend de** : toute l'étape A. **Bloquant** pour P3-10 : aucune

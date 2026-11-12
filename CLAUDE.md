@@ -85,7 +85,7 @@ supprimée (décision D6).
 ## Stack et conventions (rappel)
 
 SvelteKit et Svelte 5 en **runes uniquement**, TypeScript strict, Prisma
-5.22 et PostgreSQL (Neon, PostGIS), Better Auth, Zod et superforms,
+7 (adaptateur `pg`, client par `createPrismaClient`) et PostgreSQL (Neon, PostGIS), Better Auth, Zod et superforms,
 shadcn-svelte et Tailwind 4, Cloudinary, Upstash (Redis pour le rate
 limiting, QStash pour les jobs), déploiement Vercel. Organisation par
 domaine : `src/lib/prisma/<domaine>/` (données),
