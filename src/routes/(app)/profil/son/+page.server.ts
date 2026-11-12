@@ -12,6 +12,12 @@ import { getSoundProfile, saveSoundProfile } from '#lib/prisma/crafts/soundProfi
 import { requirePerson } from '#server/actors/tracksForm';
 import { MAX_REFERENCES } from '#lib/crafts/sound';
 
+import { completenessFor } from '#lib/server/actors/trackSheets';
+import { hasOfferIn } from '#lib/prisma/actors/trackSettings';
+
+/** D62 : sans offre cochée, la recherche par métier ne trouve pas la personne. */
+const NO_OFFER =
+	'Enregistré. Coche ce que tu proposes (page de ton métier) pour apparaître dans la recherche.';
 import type { Actions, PageServerLoad } from './$types';
 
 const hasTrack = (person: { tracks: { track: string }[] }) =>
@@ -36,7 +42,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 		zod(soundProfileSchema),
 		{ errors: false }
 	);
-	return { hasTrack: true, form };
+	return {
+		hasTrack: true,
+		form,
+		// Complétude (ONB-13a) : sans offre cochée, pas de résultat en recherche (D62).
+		...(await completenessFor(person.actorId, ['SOUND_ENGINEER']))
+	};
 };
 
 export const actions: Actions = {
@@ -55,9 +66,9 @@ export const actions: Actions = {
 		};
 		return message(
 			form,
-			saved.specialties.length > 0
+			(await hasOfferIn(person.actorId, ['SOUND_ENGINEER']))
 				? 'Ton profil d’ingé son est enregistré : on te trouve dans la recherche.'
-				: 'Enregistré. Coche au moins une spécialité pour apparaître dans la recherche.'
+				: NO_OFFER
 		);
 	}
 };

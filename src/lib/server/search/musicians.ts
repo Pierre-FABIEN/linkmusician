@@ -13,11 +13,15 @@
  * (`distanceBand`). D'où une pagination par numéro de page, pas par curseur
  * (un curseur porterait la distance).
  *
+ * Par métier (ONB-13a, D62) : une offre cochée dans ce métier (« Je
+ * propose »), jamais la seule spécialité ; bloc « spécialités et intentions »
+ * non privé (D61) ; « à distance » lit `CraftMobility`, sans limite de rayon.
+ *
  * Imports relatifs : utilisé aussi par le test d'intégration, hors SvelteKit.
  */
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { DISTANCE_BANDS, distanceBand } from '../../geo/distance';
-import { PAGE_SIZE, type SearchFilters } from '../../search/filters';
+import { offersOf, PAGE_SIZE, type SearchFilters } from '../../search/filters';
 import { qualifiedTable, schemaOf } from '../db-schema';
 
 /** Rayon de déplacement supposé quand la personne n'en a pas indiqué. */
@@ -49,35 +53,48 @@ export async function searchMusicianIds(
 	const radiusM = filters.radius * 1000;
 	const conditions: Prisma.Sql[] = [];
 	if (filters.track) {
+		// Le métier, avec son bloc « spécialités et intentions » visible des
+		// membres (D61) ; « pas de sollicitations en ce moment » l'écarte, une
+		// réponse non précisée non (Q66).
 		conditions.push(Prisma.sql`EXISTS (
 			SELECT 1 FROM ${t('person_tracks')} pt
-			WHERE pt."personId" = a.id AND pt.track::text = ${filters.track})`);
+			WHERE pt."personId" = a.id AND pt.track::text = ${filters.track}
+				AND pt."offersVisibility"::text <> 'PRIVATE'
+				AND pt."openToRequests" IS DISTINCT FROM false)`);
 	}
-	if (filters.track === 'PRODUCER') {
-		// Un·e producteur·rice se trouve dès qu'une spécialité est cochée (P4-04).
+	if (filters.track && filters.track !== 'MUSICIAN') {
+		// D62 : une spécialité ne vaut pas une prestation. On n'est trouvé·e
+		// comme prestataire qu'avec une offre cochée dans ce métier.
 		conditions.push(Prisma.sql`EXISTS (
-			SELECT 1 FROM ${t('producer_profiles')} pp
-			WHERE pp."personId" = a.id AND cardinality(pp.specialties) > 0
-			${filters.specialty ? Prisma.sql`AND ${filters.specialty} = ANY(pp.specialties::text[])` : Prisma.empty})`);
+			SELECT 1 FROM ${t('person_track_intents')} pti
+			WHERE pti."personId" = a.id AND pti.track::text = ${filters.track}
+				AND pti.direction::text = 'OFFER'
+				${filters.offer ? Prisma.sql`AND pti.code = ${filters.offer}` : Prisma.empty})`);
+	} else if (filters.track === 'MUSICIAN' && filters.offer) {
+		conditions.push(Prisma.sql`EXISTS (
+			SELECT 1 FROM ${t('person_track_intents')} pti
+			WHERE pti."personId" = a.id AND pti.track::text = 'MUSICIAN'
+				AND pti.direction::text = 'OFFER' AND pti.code = ${filters.offer})`);
 	}
-	if (filters.track === 'PROMOTER') {
-		// Un·e organisateur·rice se trouve dès qu'un type d'événement est coché (P5-05a).
+	if (filters.track && filters.specialty) {
+		// Spécialités par métier (ONB-01) : les codes historiques y sont recopiés.
 		conditions.push(Prisma.sql`EXISTS (
-			SELECT 1 FROM ${t('promoter_profiles')} op
-			WHERE op."personId" = a.id AND cardinality(op."eventKinds") > 0
-			${filters.specialty ? Prisma.sql`AND ${filters.specialty} = ANY(op."eventKinds"::text[])` : Prisma.empty})`);
+			SELECT 1 FROM ${t('person_track_specializations')} pts
+			WHERE pts."personId" = a.id AND pts.track::text = ${filters.track}
+				AND pts.code = ${filters.specialty})`);
 	}
-	if (filters.track === 'MANAGER' || filters.track === 'BOOKER') {
-		// Un·e manager ou booker se trouve dès qu'un genre est choisi (P5-07).
+	if (filters.remote) {
+		// « À distance » (D62) : la mobilité déclarée du métier, sans limite de rayon.
+		const profile =
+			filters.track === 'PRODUCER' ? t('producer_profiles') : t('sound_engineer_profiles');
 		conditions.push(Prisma.sql`EXISTS (
-			SELECT 1 FROM ${t('agent_genres')} ag2 WHERE ag2."personId" = a.id)`);
+			SELECT 1 FROM ${profile} cp
+			WHERE cp."personId" = a.id AND 'REMOTE' = ANY(cp.mobility::text[]))`);
 	}
-	if (filters.track === 'SOUND_ENGINEER') {
-		// Un·e ingé son se trouve dès qu'une spécialité est cochée (P4-02).
+	if (filters.references && filters.track) {
 		conditions.push(Prisma.sql`EXISTS (
-			SELECT 1 FROM ${t('sound_engineer_profiles')} sp
-			WHERE sp."personId" = a.id AND cardinality(sp.specialties) > 0
-			${filters.specialty ? Prisma.sql`AND ${filters.specialty} = ANY(sp.specialties::text[])` : Prisma.empty})`);
+			SELECT 1 FROM ${t('craft_references')} cr
+			WHERE cr."personId" = a.id AND cr.track::text = ${filters.track})`);
 	}
 	if (filters.instrument) {
 		conditions.push(Prisma.sql`EXISTS (
@@ -106,7 +123,13 @@ export async function searchMusicianIds(
 			WHERE g.slug = ${filters.genre} OR parent.slug = ${filters.genre})`);
 	}
 	if (filters.lookingFor) {
-		conditions.push(Prisma.sql`${filters.lookingFor} = ANY(p."lookingFor"::text[])`);
+		// `lookingFor` copie le « Je recherche » musicien·ne (D58) : il suit la
+		// visibilité de ce bloc (D61).
+		conditions.push(Prisma.sql`${filters.lookingFor} = ANY(p."lookingFor"::text[])
+			AND NOT EXISTS (
+				SELECT 1 FROM ${t('person_tracks')} mpt
+				WHERE mpt."personId" = a.id AND mpt.track::text = 'MUSICIAN'
+					AND mpt."offersVisibility"::text = 'PRIVATE')`);
 	}
 	if (filters.proStatus) {
 		conditions.push(Prisma.sql`p."proStatus"::text = ${filters.proStatus}`);
@@ -130,7 +153,8 @@ export async function searchMusicianIds(
 				COALESCE(rs."internalScore", 0) AS rank_score
 			FROM ${t('actor_locations')} me
 			JOIN ${t('actor_locations')} other
-				ON other."actorId" <> me."actorId" AND public.ST_DWithin(me.point, other.point, ${radiusM})
+				ON other."actorId" <> me."actorId"
+				AND ${filters.remote ? Prisma.sql`TRUE` : Prisma.sql`public.ST_DWithin(me.point, other.point, ${radiusM})`}
 			JOIN ${t('actors')} a ON a.id = other."actorId"
 			JOIN ${t('persons')} p ON p."actorId" = a.id
 			LEFT JOIN ${t('reputation_snapshots')} rs ON rs."actorId" = a.id
@@ -178,7 +202,14 @@ export async function searchMusicians(
 			agentProfile: {
 				select: { genres: { take: 3, select: { genre: { select: { name: true } } } } }
 			},
-			tracks: { where: { track: { in: ['MANAGER', 'BOOKER'] } }, select: { track: true } },
+			tracks: {
+				select: {
+					track: true,
+					offersVisibility: true,
+					// « Je propose » (ONB-13a) : affiché pour le métier cherché seulement.
+					intents: { where: { direction: 'OFFER' }, select: { code: true } }
+				}
+			},
 			actor: {
 				select: {
 					handle: true,
@@ -198,6 +229,11 @@ export async function searchMusicians(
 	const results = hits.flatMap((hit) => {
 		const p = byId.get(hit.actorId);
 		if (!p) return [];
+		const musicianPrivate = p.tracks.some(
+			(t) => t.track === 'MUSICIAN' && t.offersVisibility === 'PRIVATE'
+		);
+		const offerCodes =
+			p.tracks.find((t) => t.track === filters.track)?.intents.map((i) => i.code) ?? [];
 		return [
 			{
 				handle: p.actor.handle,
@@ -211,7 +247,14 @@ export async function searchMusicians(
 				})),
 				genres: p.actor.genres.map((g) => g.genre.name),
 				proStatus: p.proStatus,
-				lookingFor: p.lookingFor,
+				// Copie du « Je recherche » musicien·ne (D58) : suit sa visibilité (D61).
+				lookingFor: musicianPrivate ? [] : p.lookingFor,
+				/** Ce que la personne propose dans le métier cherché (D62), libellés. */
+				offers: filters.track
+					? offersOf(filters.track)
+							.filter((o) => offerCodes.includes(o.code))
+							.map((o) => o.label)
+					: [],
 				/** Spécialités d'ingé son déclarées (P4-02), vides sinon. */
 				soundSpecialties: p.soundProfile?.specialties ?? [],
 				/** Spécialités de producteur·rice déclarées (P4-04), vides sinon. */
@@ -221,7 +264,9 @@ export async function searchMusicians(
 				/** Manager ou booker (P5-07), avec les genres suivis ; vide sans fiche. */
 				agent: p.agentProfile?.genres.length
 					? {
-							kinds: p.tracks.map((t) => t.track as 'MANAGER' | 'BOOKER'),
+							kinds: p.tracks
+								.map((t) => t.track)
+								.filter((t): t is 'MANAGER' | 'BOOKER' => t === 'MANAGER' || t === 'BOOKER'),
 							genres: p.agentProfile.genres.map((g) => g.genre.name)
 						}
 					: null

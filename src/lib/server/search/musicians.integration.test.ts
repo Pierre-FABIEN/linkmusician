@@ -135,6 +135,22 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 			})
 		).results.map((r) => r.handle.replace(PREFIX, ''));
 
+	/** Spécialités et « Je propose » d'un métier (ONB-01, D62), comme les écrans les écrivent. */
+	const declare = async (
+		key: string,
+		track: 'SOUND_ENGINEER' | 'PRODUCER' | 'PROMOTER' | 'MANAGER' | 'BOOKER',
+		specializations: readonly string[],
+		offers: readonly string[]
+	) => {
+		const personId = ids[key];
+		await db.personTrackSpecialization.createMany({
+			data: specializations.map((code) => ({ personId, track, code }))
+		});
+		await db.personTrackIntent.createMany({
+			data: offers.map((code) => ({ personId, track, direction: 'OFFER' as const, code }))
+		});
+	};
+
 	it('par rayon, du plus proche au plus lointain, profils publics seulement', async () => {
 		expect(await search('rayon=10')).toEqual(['blagnac']);
 		expect(await search('rayon=25')).toEqual(['blagnac', 'muret']);
@@ -230,7 +246,9 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 		// En dernier : ces deux personnes s'ajoutent aux résultats des autres tests.
 		for (const [key, specialties] of [
 			['ingeson', ['MIXING', 'MASTERING']],
-			['ingevide', []]
+			['ingevide', []],
+			// D62 : une spécialité sans offre ne fait pas un·e prestataire.
+			['ingesansoffre', ['MIXING']]
 		] as const) {
 			const user = await db.user.create({
 				data: { email: `${PREFIX}${key}@example.test`, referralCode: `${PREFIX}${key}` }
@@ -253,8 +271,16 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 			});
 			ids[key] = actor.id;
 			await setActorLocation(actor.id, commune('Blagnac'), { db, schema: 'e2e' });
+			await declare(
+				key,
+				'SOUND_ENGINEER',
+				specialties,
+				key === 'ingeson' ? ['MIXING_SERVICE'] : []
+			);
 		}
 		expect(await search('metier=inge-son')).toEqual(['ingeson']);
+		expect(await search('metier=inge-son&propose=mixing-service')).toEqual(['ingeson']);
+		expect(await search('metier=inge-son&propose=mastering-service')).toEqual([]);
 		expect(await search('metier=inge-son&specialite=mastering')).toEqual(['ingeson']);
 		expect(await search('metier=inge-son&specialite=facade')).toEqual([]);
 		expect(await search('metier=musicien&rayon=10')).not.toContain('ingeson');
@@ -288,6 +314,7 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 		});
 		ids.prod = actor.id;
 		await setActorLocation(actor.id, commune('Blagnac'), { db, schema: 'e2e' });
+		await declare('prod', 'PRODUCER', ['BEATMAKING'], ['BEATS']);
 		expect(await search('metier=producteur')).toEqual(['prod']);
 		expect(await search('metier=producteur&specialite=beatmaking&genre=funk')).toEqual(['prod']);
 		expect(await search('metier=producteur&specialite=production')).toEqual([]);
@@ -323,6 +350,7 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 		});
 		ids.orga = actor.id;
 		await setActorLocation(actor.id, commune('Blagnac'), { db, schema: 'e2e' });
+		await declare('orga', 'PROMOTER', ['OPEN_STAGES'], ['HOST_JAMS']);
 		expect(await search('metier=organisateur')).toEqual(['orga']);
 		expect(await search('metier=organisateur&specialite=scenes-ouvertes&genre=reggae')).toEqual([
 			'orga'
@@ -330,7 +358,7 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 		expect(await search('metier=organisateur&specialite=festival')).toEqual([]);
 	});
 
-	it('manager et booker (P5-07) : trouvables avec un genre suivi, jamais sans fiche', async () => {
+	it('manager et booker (P5-07, D62) : trouvables avec une offre, jamais sans', async () => {
 		const jazz = await db.genre.findUniqueOrThrow({ where: { slug: 'jazz' } });
 		const agent = async (name: string, track: 'MANAGER' | 'BOOKER', withGenre: boolean) => {
 			const user = await db.user.create({
@@ -356,6 +384,8 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 			});
 			ids[name] = actor.id;
 			await setActorLocation(actor.id, commune('Blagnac'), { db, schema: 'e2e' });
+			// D62 : trouvable avec une offre cochée (le genre suivi n'y suffit plus).
+			if (withGenre) await declare(name, track, [], ['FIND_DATES']);
 		};
 		await agent('bk', 'BOOKER', true);
 		await agent('mgr', 'MANAGER', false);
@@ -369,5 +399,80 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 			})
 		).results;
 		expect(hit.agent).toEqual({ kinds: ['BOOKER'], genres: [jazz.name] });
+	});
+
+	it('#29, scénario 2 (D62) : mixage à distance avec références ; privé et « pas en ce moment » exclus', async () => {
+		const engineer = async (
+			key: string,
+			where: string,
+			extra: { remote?: boolean; reference?: boolean; settings?: object } = {}
+		) => {
+			const user = await db.user.create({
+				data: { email: `${PREFIX}${key}@example.test`, referralCode: `${PREFIX}${key}` }
+			});
+			const actor = await db.actor.create({
+				data: {
+					kind: 'PERSON',
+					handle: PREFIX + key,
+					displayName: key,
+					person: {
+						create: {
+							userId: user.id,
+							termsAcceptedAt: new Date(),
+							onboardedAt: new Date(),
+							tracks: {
+								create: { track: 'SOUND_ENGINEER', isPrimary: true, ...extra.settings }
+							},
+							soundProfile: {
+								create: { specialties: ['MIXING'], mobility: extra.remote ? ['REMOTE'] : [] }
+							}
+						}
+					}
+				}
+			});
+			ids[key] = actor.id;
+			await setActorLocation(actor.id, commune(where), { db, schema: 'e2e' });
+			await declare(key, 'SOUND_ENGINEER', ['MIXING'], ['MIXING_SERVICE']);
+			if (extra.reference)
+				await db.craftReference.create({
+					data: {
+						personId: actor.id,
+						track: 'SOUND_ENGINEER',
+						title: 'EP mixé',
+						url: 'https://example.test/ep',
+						position: 0
+					}
+				});
+		};
+		await engineer('mixloin', 'Montauban', { remote: true, reference: true });
+		await engineer('mixprive', 'Blagnac', { settings: { offersVisibility: 'PRIVATE' } });
+		await engineer('mixnon', 'Blagnac', { settings: { openToRequests: false } });
+
+		const mixing = 'metier=inge-son&propose=mixing-service';
+		// Près de moi : ni le bloc privé, ni « pas de sollicitations en ce moment ».
+		expect(await search(`${mixing}&rayon=10`)).toEqual(['ingeson']);
+		// À distance : au-delà du rayon, seulement qui travaille à distance.
+		expect(await search(`${mixing}&a-distance=1`)).toEqual(['mixloin']);
+		expect(await search(`${mixing}&rayon=100&references=1`)).toEqual(['mixloin']);
+		const [hit] = (
+			await searchMusicians(ids.moi, parseFilters(new URLSearchParams(`${mixing}&a-distance=1`)), {
+				db,
+				schema: 'e2e'
+			})
+		).results;
+		expect(hit.offers).toEqual(['Mixer']);
+		// Distance toujours en tranche, même à distance.
+		expect(JSON.stringify(hit)).not.toMatch(/meters|"\d{4,}"/);
+	});
+
+	it('« Envie de » suit la visibilité du bloc musicien·ne (D61)', async () => {
+		const where = { personId_track: { personId: ids.blagnac, track: 'MUSICIAN' as const } };
+		await db.personTrack.update({ where, data: { offersVisibility: 'PRIVATE' } });
+		try {
+			expect(await search('recherche=JAMS')).not.toContain('blagnac');
+		} finally {
+			await db.personTrack.update({ where, data: { offersVisibility: 'PUBLIC' } });
+		}
+		expect(await search('recherche=JAMS')).toContain('blagnac');
 	});
 });

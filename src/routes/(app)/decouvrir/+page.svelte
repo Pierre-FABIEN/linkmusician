@@ -22,6 +22,9 @@
 		SEARCH_TRACK_LABELS,
 		SPECIALTY_SLUGS,
 		filtersToParams,
+		hasRemoteFilters,
+		offerSlug,
+		offersOf,
 		specialtiesOf,
 		type SearchTrackSlug
 	} from '#lib/search/filters';
@@ -41,9 +44,10 @@
 	let trackChoice = $state(
 		untrack(() => trackSlugs.find((k) => SEARCH_TRACKS[k] === data.filters.track) ?? '')
 	);
-	const specialtyChoices = $derived(
-		specialtiesOf(trackChoice ? SEARCH_TRACKS[trackChoice as SearchTrackSlug] : null)
-	);
+	const chosenTrack = $derived(trackChoice ? SEARCH_TRACKS[trackChoice as SearchTrackSlug] : null);
+	const specialtyChoices = $derived(specialtiesOf(chosenTrack));
+	/** « Ce que la personne propose » du métier choisi (ONB-13a, D62). */
+	const offerChoices = $derived(offersOf(chosenTrack));
 	const SPECIALTY_LABELS: Record<string, string> = Object.fromEntries(
 		[
 			...Object.entries(SOUND_SPECIALTY_INFO),
@@ -97,6 +101,39 @@
 									>
 								{/each}
 							</select>
+						</label>
+					{/if}
+					{#if offerChoices.length > 0}
+						<label class="space-y-1 text-sm font-medium">
+							Ce que la personne propose
+							<select name="propose" class={select}>
+								<option value="">Toutes ses offres</option>
+								{#each offerChoices as o (o.code)}
+									<option value={offerSlug(o.code)} selected={f.offer === o.code}>{o.label}</option>
+								{/each}
+							</select>
+						</label>
+					{/if}
+					{#if hasRemoteFilters(chosenTrack)}
+						<label class="flex items-center gap-2 self-end pb-2 text-sm">
+							<input
+								type="checkbox"
+								name="a-distance"
+								value="1"
+								checked={f.remote}
+								class="size-5"
+							/>
+							À distance (sans limite de distance)
+						</label>
+						<label class="flex items-center gap-2 self-end pb-2 text-sm">
+							<input
+								type="checkbox"
+								name="references"
+								value="1"
+								checked={f.references}
+								class="size-5"
+							/>
+							Avec des travaux en écoute
 						</label>
 					{/if}
 					<label class="space-y-1 text-sm font-medium">
@@ -201,6 +238,11 @@
 						<p class="font-semibold">Personne ne correspond pour l'instant.</p>
 						<p class="text-sm text-muted-foreground">
 							Élargis la distance ou retire un filtre. La communauté grandit : reviens bientôt !
+							{#if f.track && f.track !== 'MUSICIAN'}
+								<span class="block pt-1"
+									>On ne montre que les personnes qui proposent vraiment ce métier.</span
+								>
+							{/if}
 						</p>
 					</div>
 				{:else}
@@ -229,6 +271,13 @@
 											</span>
 										</span>
 									</span>
+									{#if r.offers.length > 0}
+										<!-- LINKMUSICIAN: ce que la personne propose dans ce métier (ONB-13a). -->
+										<span class="text-sm">
+											<span class="font-semibold">Propose</span>
+											<span class="text-muted-foreground">· {r.offers.join(', ')}</span>
+										</span>
+									{/if}
 									{#if r.soundSpecialties.length > 0}
 										<span class="text-sm">
 											<span class="font-semibold">Ingé son</span>

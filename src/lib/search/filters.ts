@@ -13,6 +13,7 @@ import { isInstrumentLevel, type InstrumentLevel } from '#lib/skills/levels';
 import { SOUND_SPECIALTIES, type SoundSpecialtyValue } from '#lib/crafts/sound';
 import { PRODUCER_SPECIALTIES, type ProducerSpecialtyValue } from '#lib/crafts/producer';
 import { PROMOTER_EVENT_KINDS, type PromoterEventKindValue } from '#lib/crafts/promoter';
+import { INTENTS, type IntentInfo } from '#lib/actors/specializations';
 
 /**
  * Métiers cherchables (P4-02) : ceux qui sont ouverts. Valeur d'URL lisible
@@ -65,6 +66,24 @@ export function specialtiesOf(track: SearchTrack | null): readonly SearchSpecial
 	return [];
 }
 
+/**
+ * « Ce que la personne propose » (ONB-13a, D62) : offres non retirées du
+ * métier, dans l'URL en minuscules (`?propose=mixing-service`).
+ */
+export function offersOf(track: SearchTrack | null): readonly IntentInfo[] {
+	return track ? INTENTS[track].OFFER.filter((o) => !o.retired) : [];
+}
+
+export const offerSlug = (code: string) => code.toLowerCase().replaceAll('_', '-');
+
+/**
+ * Métiers où une prestation peut se faire à distance (`CraftMobility`, D62)
+ * et dont les travaux en écoute (`CraftReference`) font référence.
+ */
+export const REMOTE_TRACKS: readonly SearchTrack[] = ['SOUND_ENGINEER', 'PRODUCER'];
+export const hasRemoteFilters = (track: SearchTrack | null) =>
+	track !== null && REMOTE_TRACKS.includes(track);
+
 /** Rayons proposés (km), alignés sur les tranches de distance. */
 export const SEARCH_RADII = [5, 10, 25, 50, 100] as const;
 export type SearchRadius = (typeof SEARCH_RADII)[number];
@@ -81,6 +100,12 @@ export type SearchFilters = {
 	track: SearchTrack | null;
 	/** Spécialité du métier choisi (ingé son, producteur·rice). */
 	specialty: SearchSpecialty | null;
+	/** Offre du métier choisi (ONB-13a) : ce que la personne propose vraiment. */
+	offer: string | null;
+	/** Prestations à distance, sans limite de rayon (ingé son, producteur·rice). */
+	remote: boolean;
+	/** Avec des travaux en écoute pour ce métier (ingé son, producteur·rice). */
+	references: boolean;
 	instrument: string | null;
 	minLevel: InstrumentLevel | null;
 	genre: string | null;
@@ -110,9 +135,15 @@ export function parseFilters(params: URLSearchParams): SearchFilters {
 			: null;
 	const specialtySlug = params.get('specialite');
 	const specialty = specialtiesOf(track).find((s) => SPECIALTY_SLUGS[s] === specialtySlug) ?? null;
+	const offerParam = params.get('propose');
+	const offer = offersOf(track).find((o) => offerSlug(o.code) === offerParam)?.code ?? null;
+	const remoteOk = hasRemoteFilters(track);
 	return {
 		track,
 		specialty,
+		offer,
+		remote: remoteOk && params.get('a-distance') === '1',
+		references: remoteOk && params.get('references') === '1',
 		instrument: slug('instrument'),
 		minLevel: isInstrumentLevel(level) ? level : null,
 		genre: slug('genre'),
@@ -134,6 +165,9 @@ export function filtersToParams(filters: SearchFilters): URLSearchParams {
 	);
 	if (trackSlug) params.set('metier', trackSlug);
 	if (filters.specialty) params.set('specialite', SPECIALTY_SLUGS[filters.specialty]);
+	if (filters.offer) params.set('propose', offerSlug(filters.offer));
+	if (filters.remote) params.set('a-distance', '1');
+	if (filters.references) params.set('references', '1');
 	if (filters.instrument) params.set('instrument', filters.instrument);
 	if (filters.minLevel) params.set('niveau', String(filters.minLevel));
 	if (filters.genre) params.set('genre', filters.genre);

@@ -8,16 +8,21 @@ Module LinkMusician (lot P2-01, conception 05 §3 phase 2). Page
 Lus dans l'URL (partageable), validés par `src/lib/search/filters.ts`
 (pur, testé) ; une valeur invalide est ignorée.
 
-| Paramètre    | Effet                                                                                   |
-| ------------ | --------------------------------------------------------------------------------------- |
-| `instrument` | joue cet instrument (slug du référentiel)                                               |
-| `niveau`     | niveau déclaré minimal (1 à 5), sur cet instrument ou n'importe lequel                  |
-| `genre`      | ce genre ; **un genre parent inclut ses sous-genres**                                   |
-| `rayon`      | 5, 10, 25 (défaut), 50 ou 100 km autour de **ma** commune                               |
-| `recherche`  | « ce que je recherche » (jams, groupe, remplacements…)                                  |
-| `statut`     | statut pro déclaré                                                                      |
-| `reciproque` | seulement les personnes dont le rayon de déplacement me couvre aussi (25 km par défaut) |
-| `page`       | 20 résultats par page, 10 pages au plus                                                 |
+| Paramètre    | Effet                                                                                                                                           |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `metier`     | ce métier (`musicien`, `inge-son`, `producteur`, `organisateur`, `manager`, `booker`) ; hors musicien·ne, **une offre cochée** est exigée (D62) |
+| `specialite` | spécialité du métier (`person_track_specializations`, codes historiques recopiés)                                                               |
+| `propose`    | une offre précise du métier (« Je propose », ONB-13a), en minuscules                                                                            |
+| `a-distance` | ingé son, producteur·rice : travaille à distance (`CraftMobility`), **sans limite de rayon**                                                    |
+| `references` | ingé son, producteur·rice : a des travaux en écoute pour ce métier (`CraftReference`)                                                           |
+| `instrument` | joue cet instrument (slug du référentiel)                                                                                                       |
+| `niveau`     | niveau déclaré minimal (1 à 5), sur cet instrument ou n'importe lequel                                                                          |
+| `genre`      | ce genre ; **un genre parent inclut ses sous-genres**                                                                                           |
+| `rayon`      | 5, 10, 25 (défaut), 50 ou 100 km autour de **ma** commune                                                                                       |
+| `recherche`  | « ce que je recherche » (jams, groupe, remplacements…)                                                                                          |
+| `statut`     | statut pro déclaré                                                                                                                              |
+| `reciproque` | seulement les personnes dont le rayon de déplacement me couvre aussi (25 km par défaut)                                                         |
+| `page`       | 20 résultats par page, 10 pages au plus                                                                                                         |
 
 ## Règles
 
@@ -34,6 +39,14 @@ Lus dans l'URL (partageable), validés par `src/lib/search/filters.ts`
 - **Anti-aspiration** : réservée aux membres connectés, limitée à 60
   recherches d'affilée puis une toutes les 2 s par personne
   (`RefillingTokenBucket`).
+- **Par métier (ONB-13a, D62)** : une spécialité ne vaut pas une
+  prestation. Hors musicien·ne, la personne doit avoir coché au moins une
+  offre de ce métier. Un bloc « spécialités et intentions » privé (D61) ou
+  « pas de sollicitations en ce moment » l'écarte ; une réponse non précisée
+  ne l'écarte pas (Q66). « Envie de » (`lookingFor`) suit le bloc
+  musicien·ne. Les résultats affichent ce qu'elle propose dans le métier
+  cherché. Les pages historiques (`/profil/son`…) montrent la complétude et
+  invitent à cocher une offre.
 - Sans ville : invitation à l'indiquer (`/profil/ville`).
 - Mobile d'abord : Instrument, Distance et Chercher visibles, les autres
   filtres repliés (ouverts d'office s'ils sont actifs).

@@ -18,6 +18,12 @@ import { listGenreTree } from '#lib/prisma/skills/referentials';
 import { requirePerson } from '#server/actors/tracksForm';
 import { MAX_REFERENCES } from '#lib/crafts/common';
 
+import { completenessFor } from '#lib/server/actors/trackSheets';
+import { hasOfferIn } from '#lib/prisma/actors/trackSettings';
+
+/** D62 : sans offre cochée, la recherche par métier ne trouve pas la personne. */
+const NO_OFFER =
+	'Enregistré. Coche ce que tu proposes (page de ton métier) pour apparaître dans la recherche.';
 import type { Actions, PageServerLoad } from './$types';
 
 const hasTrack = (person: { tracks: { track: string }[] }) =>
@@ -51,7 +57,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 		zod(producerProfileSchema),
 		{ errors: false }
 	);
-	return { hasTrack: true, genres, form };
+	return {
+		hasTrack: true,
+		genres,
+		form,
+		// Complétude (ONB-13a) : sans offre cochée, pas de résultat en recherche (D62).
+		...(await completenessFor(person.actorId, ['PRODUCER']))
+	};
 };
 
 export const actions: Actions = {
@@ -76,9 +88,9 @@ export const actions: Actions = {
 		form.data = { ...saved, references: withBlank(saved.references) };
 		return message(
 			form,
-			saved.specialties.length > 0
+			(await hasOfferIn(person.actorId, ['PRODUCER']))
 				? 'Ton profil de producteur·rice est enregistré : on te trouve dans la recherche.'
-				: 'Enregistré. Coche au moins une spécialité pour apparaître dans la recherche.'
+				: NO_OFFER
 		);
 	}
 };

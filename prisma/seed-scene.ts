@@ -1053,6 +1053,39 @@ export async function seedScene(
 	]);
 	console.log('  · profils : organisateur·rices (Hugo, Yanis, Lina)');
 
+	// ── 2 bis. Spécialités par métier et « Je propose » (ONB-01, ONB-13a, D62) ──
+	// La recherche par métier ne trouve que qui propose quelque chose.
+	for (const [h, track, specializations, offers] of [
+		[
+			'samir-son',
+			'SOUND_ENGINEER',
+			['RECORDING', 'MIXING', 'MASTERING', 'LIVE_FOH'],
+			['RECORDING_SERVICE', 'MIXING_SERVICE', 'MASTERING_SERVICE', 'LIVE_FOH_SERVICE']
+		],
+		[
+			'theo-basse',
+			'SOUND_ENGINEER',
+			['RECORDING', 'LIVE_MONITORS'],
+			['RECORDING_SERVICE', 'LIVE_MONITORS_SERVICE']
+		],
+		['nora-prod', 'PRODUCER', ['PRODUCTION', 'BEATMAKING', 'ARRANGEMENT'], ['BEATS', 'ARRANGING']],
+		['hugo-dj', 'PROMOTER', ['CLUB_NIGHTS'], ['CONCERT_DATES']],
+		['yanis-orga', 'PROMOTER', ['CONCERTS', 'FESTIVAL'], ['LINEUPS', 'CONCERT_DATES']],
+		['lina-orga', 'PROMOTER', ['CONCERTS', 'OPEN_STAGES'], ['HOST_JAMS', 'CONCERT_DATES']],
+		['marc-manager', 'MANAGER', [], ['DEVELOPMENT']]
+	] as const) {
+		const personId = P(h);
+		await prisma.personTrackSpecialization.createMany({
+			data: specializations.map((code) => ({ personId, track, code })),
+			skipDuplicates: true
+		});
+		await prisma.personTrackIntent.createMany({
+			data: offers.map((code) => ({ personId, track, direction: 'OFFER' as const, code })),
+			skipDuplicates: true
+		});
+	}
+	console.log('  · « Je propose » des métiers (D62)');
+
 	// ── 3. Groupes de la scène ──
 	const fanfare = await formedBand(ctx, {
 		handle: 'fanfare-pirate',

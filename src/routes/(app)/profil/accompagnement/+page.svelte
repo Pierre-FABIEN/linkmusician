@@ -1,5 +1,6 @@
 <script lang="ts">
 	// LINKMUSICIAN: « Mon profil de manager ou de booker » (P5-07), voir +page.server.ts.
+	import TrackCompletenessCard from '#lib/components/linkmusician/profile/TrackCompletenessCard.svelte';
 	import { untrack } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms/client';
@@ -45,6 +46,13 @@
 				<a href="/accompagnement" class="underline">Accompagnement</a>.
 			</p>
 		</div>
+
+		<!-- LINKMUSICIAN: complétude du métier (ONB-13a, D62) : sans offre, pas de recherche. -->
+		{#if 'completeness' in data}
+			{#each data.completeness as c (c.track)}
+				<TrackCompletenessCard completeness={c} common={data.commonMissing} />
+			{/each}
+		{/if}
 
 		{#if !data.hasTrack}
 			<div class="space-y-3 rounded-2xl border bg-muted/40 p-5">

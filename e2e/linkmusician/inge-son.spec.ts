@@ -69,6 +69,19 @@ test.describe('LinkMusician — ingé son', () => {
 					.first()
 					.fill('soundcloud.com/e2e/nuit-blanche');
 				await page.getByRole('button', { name: 'Enregistrer' }).click();
+				// D62 (ONB-13a) : une spécialité ne suffit pas, il faut une offre cochée.
+				await expect(page.getByText(/Coche ce que tu proposes/).first()).toBeVisible();
+				await expect(page.getByTestId('completude')).toContainText('Ce que tu proposes');
+				// L'écran du métier est couvert par onboarding-metiers.spec.ts : l'offre en base.
+				await db.personTrackIntent.create({
+					data: {
+						personId: me.actorId,
+						track: 'SOUND_ENGINEER',
+						direction: 'OFFER',
+						code: 'MIXING_SERVICE'
+					}
+				});
+				await page.getByRole('button', { name: 'Enregistrer' }).click();
 				await expect(page.getByText(/on te trouve dans la recherche/).first()).toBeVisible();
 				await expectNoA11yViolations(page, ['.cartButton']);
 			});

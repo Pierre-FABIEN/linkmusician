@@ -38,3 +38,11 @@ export async function setTrackSettings(
 	});
 	if (count === 0) throw new TrackNotHeldError(track);
 }
+
+/** A-t-elle coché au moins une offre dans l'un de ces métiers (D62 : condition de la recherche) ? */
+export async function hasOfferIn(personId: string, tracks: readonly TrackKindValue[]) {
+	const count = await prisma.personTrackIntent.count({
+		where: { personId, track: { in: [...tracks] }, direction: 'OFFER' }
+	});
+	return count > 0;
+}

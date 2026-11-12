@@ -8,6 +8,9 @@ describe('filtres de recherche (P2-01)', () => {
 		expect(parse('')).toEqual({
 			track: null,
 			specialty: null,
+			offer: null,
+			remote: false,
+			references: false,
 			instrument: null,
 			minLevel: null,
 			genre: null,
@@ -27,6 +30,9 @@ describe('filtres de recherche (P2-01)', () => {
 		).toEqual({
 			track: null,
 			specialty: null,
+			offer: null,
+			remote: false,
+			references: false,
 			instrument: 'batterie',
 			minLevel: 3,
 			genre: 'funk',
@@ -88,5 +94,26 @@ describe('filtres de recherche (P2-01)', () => {
 		});
 		const query = 'metier=inge-son&specialite=facade&rayon=50';
 		expect(filtersToParams(parse(query)).toString()).toBe(query);
+	});
+
+	it('ce que la personne propose, à distance, avec références (ONB-13a)', () => {
+		const f = parse('metier=inge-son&propose=mixing-service&a-distance=1&references=1');
+		expect(f).toMatchObject({
+			track: 'SOUND_ENGINEER',
+			offer: 'MIXING_SERVICE',
+			remote: true,
+			references: true
+		});
+		expect(filtersToParams(f).toString()).toBe(
+			'metier=inge-son&propose=mixing-service&a-distance=1&references=1'
+		);
+		// Une offre d'un autre métier, ou sans métier, est ignorée.
+		expect(parse('metier=inge-son&propose=concert-dates').offer).toBeNull();
+		expect(parse('propose=mixing-service').offer).toBeNull();
+		// « À distance » n'a de sens que pour l'ingé son et le producteur·rice.
+		expect(parse('metier=organisateur&a-distance=1&references=1')).toMatchObject({
+			remote: false,
+			references: false
+		});
 	});
 });

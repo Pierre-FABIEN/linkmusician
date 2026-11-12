@@ -1,5 +1,6 @@
 <script lang="ts">
 	// LINKMUSICIAN: « Mon profil d'organisateur·rice » (P5-05a), voir +page.server.ts.
+	import TrackCompletenessCard from '#lib/components/linkmusician/profile/TrackCompletenessCard.svelte';
 	import { untrack } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms/client';
@@ -50,9 +51,17 @@
 			<h1 class="lm-title mt-2">Mon profil d’organisateur·rice</h1>
 			<p class="text-sm text-muted-foreground">
 				Ce que tu organises et ce que tu programmes. Les groupes et les pros te trouvent dans la
-				recherche dès que tu as coché un type d’événement.
+				recherche dès que tu as coché
+				<a href="/profil/metier/organisateur" class="underline">ce que tu proposes</a>.
 			</p>
 		</div>
+
+		<!-- LINKMUSICIAN: complétude du métier (ONB-13a, D62) : sans offre, pas de recherche. -->
+		{#if 'completeness' in data}
+			{#each data.completeness as c (c.track)}
+				<TrackCompletenessCard completeness={c} common={data.commonMissing} />
+			{/each}
+		{/if}
 
 		{#if !data.hasTrack}
 			<div class="lm-tile lm-tile--flow space-y-3 p-5">

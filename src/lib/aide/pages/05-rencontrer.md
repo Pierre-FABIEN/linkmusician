@@ -19,7 +19,15 @@ _Trouver la bonne personne, lui écrire, et jouer._
    **distance**. Pour un·e ingé son ou un·e producteur·rice, choisis aussi
    la **spécialité** (mixage, façade, beatmaking…) ; pour un·e
    organisateur·rice, ce qu’elle ou il organise (concerts, scènes
-   ouvertes…).
+   ouvertes…). **Ce que la personne propose** affine encore (mixer,
+   des beats, des dates…). Pour un·e ingé son ou un·e producteur·rice,
+   **À distance** cherche sans limite de distance, et **Avec des travaux
+   en écoute** ne garde que les profils qui en montrent.
+
+   On ne te montre, pour un métier, que les personnes qui **proposent
+   vraiment** ce métier. Si tu veux qu’on te trouve, coche « Je propose »
+   sur la page de ton métier ([Un métier, une fiche](./01-premiers-pas.md#fiche-metier)).
+
 3. Ouvre un profil pour écouter ses démos, voir ses groupes et ce que
    d’autres confirment de lui ou d’elle.
 

@@ -88,3 +88,12 @@ export async function trackPageExtras(actorId: string, track: TrackKindValue, ur
 		settingsSaved: url.searchParams.has('reglages')
 	};
 }
+
+/** Complétude de quelques métiers, pour une page historique (`/profil/son`…). */
+export async function completenessFor(actorId: string, tracks: readonly TrackKindValue[]) {
+	const all = await completenessOf(actorId);
+	return {
+		completeness: all.tracks.filter((t) => tracks.includes(t.track)),
+		commonMissing: all.common
+	};
+}

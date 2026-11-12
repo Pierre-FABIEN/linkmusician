@@ -79,6 +79,19 @@ test.describe('LinkMusician — organisateur·rice', () => {
 				await page.getByLabel('Rock', { exact: true }).check();
 				await page.getByLabel('Ma jauge habituelle').fill('120');
 				await page.getByRole('button', { name: 'Enregistrer' }).click();
+				// D62 (ONB-13a) : une spécialité ne suffit pas, il faut une offre cochée.
+				await expect(page.getByText(/Coche ce que tu proposes/).first()).toBeVisible();
+				await expect(page.getByTestId('completude')).toContainText('Ce que tu proposes');
+				// L'écran du métier est couvert par onboarding-metiers.spec.ts : l'offre en base.
+				await db.personTrackIntent.create({
+					data: {
+						personId: me.actorId,
+						track: 'PROMOTER',
+						direction: 'OFFER',
+						code: 'CONCERT_DATES'
+					}
+				});
+				await page.getByRole('button', { name: 'Enregistrer' }).click();
 				await expect(page.getByText(/on te trouve dans la recherche/).first()).toBeVisible();
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
 			});
