@@ -458,6 +458,10 @@ date d'un groupe 100, 02 §2.2) ; la jam publique tenue, confirmée par ≥3
 participants (P5-04a), rapporte 50 à la personne qui l'a publiée au nom du
 lieu. Une **scène ouverte récurrente** (« tous les jeudis ») se publie
 une fois : les jams des 4 semaines à venir apparaissent dans le mode jam.
+Le lieu peut s'affilier des **animateur·rices** (P5-04b) : il invite une
+personne prête à organiser des jams (suggestions triées par appréciations
+et jams animées, jamais l'XP), elle accepte, et mène par défaut une scène
+ouverte. Animer ne donne ni la gestion du lieu ni de points (D27).
 Groupe passé ensuite au rang Live :
 succès _Tremplin_ _(proposé)_.
 

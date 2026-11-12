@@ -79,8 +79,10 @@ Tu tiens une scène ouverte, ou tu veux réunir quelques musicien·nes ?
 
 D’abord, dans **Mon profil**, coche **Je suis prêt·e à organiser des
 jams** et enregistre. C’est ce qui fait apparaître **Lancer une jam** dans
-le mode jam, et les lieux et organisateurs pourront te proposer d’en
-animer. Tu n’as pas envie d’organiser ? Pas besoin : écris aux musicos
+le mode jam, et les lieux autour de toi peuvent t’inviter à animer leurs
+scènes ouvertes : l’invitation arrive dans **Mes jams**, tu acceptes ou tu
+déclines. Animer, c’est mener la soirée (composer la formation, accueillir
+les musicos), pas gérer le lieu ; tu peux arrêter quand tu veux. Tu n’as pas envie d’organiser ? Pas besoin : écris aux musicos
 dispos, et jouez ensemble.
 
 1. Touche **Lancer une jam**.
@@ -115,6 +117,10 @@ revendiquer. Une fois la demande acceptée, **Gérer la fiche du lieu** :
   venir apparaissent dans le mode jam des musicien·nes autour, les
   suivantes arrivent d’elles-mêmes. Toutes les personnes qui gèrent le
   lieu en sont hôtes. **Arrêter** annule les soirées à venir ;
+- **Qui anime** : des musicien·nes prêt·es à organiser des jams autour de
+  toi te sont suggéré·es, d’abord les plus appréciées par les autres.
+  Invite une personne ; quand elle a accepté, choisis-la comme lead d’une
+  scène ouverte : elle mène toutes les prochaines soirées ;
 - ajoute jusqu’à huit **photos** : la salle, la scène, l’ambiance ;
 - invite les personnes qui travaillent avec toi à gérer le lieu ;
 - **Apprendre le métier** te guide vers la licence de spectacles, le GUSO

@@ -385,9 +385,11 @@ anime la scène ouverte d'un bar (D27). Les situations courantes :
      sono, micros, câbles), repris de la fiche du lieu et ajustable pour
      la jam : chacun sait s'il doit apporter son instrument, son ampli ou
      seulement ses baguettes.
-   - Les lieux pourront recevoir des **suggestions de leads** parmi les
-     musicien·nes « prêt·es à animer », triées par réputation
-     (appréciations, jams animées), jamais par l'XP (P5-04).
+   - Les lieux reçoivent des **suggestions de leads** parmi les
+     musicien·nes « prêt·es à organiser des jams » (D51) à moins de 30 km,
+     triées par réputation (appréciations reçues, jams animées), jamais par
+     l'XP. Le lieu invite, la personne accepte : elle devient animatrice du
+     lieu et peut mener ses scènes ouvertes par défaut (P5-04b).
 3. **Trouve-moi une jam** : un bouton qui propose les jams à venir et
    les personnes dispos près de soi, selon son instrument et ses
    genres. On dit « Je viens » ; on peut venir seul, sans connaître

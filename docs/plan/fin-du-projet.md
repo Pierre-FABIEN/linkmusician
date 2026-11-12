@@ -12,14 +12,14 @@
 
 ## 1. Où on en est
 
-**92 lots terminés sur 113** (81 %) ; **≈ 90 % du périmètre du
+**93 lots terminés sur 113** (82 %) ; **≈ 90 % du périmètre du
 lancement**. Phases 0 à 2 complètes, phase 3 complète sauf l'ouverture,
 phase 4 complète pour le lancement, phase 5 commencée (P5-01, P5-02,
-P5-03a, P5-03b, P5-03d, P5-04a, P5-05a, P5-05b, P5-06). La phase 6 vient après le lancement.
+P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06). La phase 6 vient après le lancement.
 
 | Étape                              | Lots                                                          | Quand                     |
 | ---------------------------------- | ------------------------------------------------------------- | ------------------------- |
-| A. Finir la scène                  | P5-04b, P5-08, P5-07, P5-11                                   | Nov. → déc. 2026          |
+| A. Finir la scène                  | P5-08, P5-07, P5-11                                           | Nov. → déc. 2026          |
 | B. Revue de phase 5 et revue UX    | Revue de fin de phase, Metro (MET-01 à 07), suite e2e (P0-01) | Déc. 2026 → janv. 2027    |
 | C. Audit de sécurité (bloquant)    | P3-10a                                                        | Janv. → fév. 2027         |
 | D. Ouverture publique à Toulouse   | P3-10                                                         | Objectif début mars 2027  |
@@ -88,19 +88,14 @@ pour le rang du lieu ; rien pour les présent·es, D27) ; mineur·es : lieu
 `ADULTS` caché ; `lieux.spec.ts` corrigé (Q30) ; e2e « je trouve la scène
 ouverte du jeudi dans le mode jam ». Voir [docs/jam](../jam/README.md).
 
-**P5-04b — Animateur·rices**
-
-- **Dépend de** : P5-04a ✅.
-- **Tâches** : animateur·rices affilié·es au lieu (`VenueHost` : le lieu
-  invite, la personne accepte, comme la co-gestion) ; « prêt·e à animer »
-  = la case D51 existante (`Person.organizesJams`), visible du seul lieu ;
-  suggestions de leads triées par **appréciations reçues** et **jams
-  animées** (faits), à moins de 30 km, **jamais l'XP**, sans mineur·es pour
-  un lieu `ADULTS` ni personnes bloquées ; lead par défaut d'une série
-  (copié sur chaque jam créée). Les appréciations restent la seule source
-  de points des présent·es (D27).
-- **Fin** : e2e « le lieu invite une animatrice suggérée, elle devient
-  lead du prochain jeudi ».
+**P5-04b ✅** (12/11/2026) : animateur·rices affilié·es au lieu
+(`VenueHost` : la gestion invite une personne D51, elle accepte dans « Mes
+jams », notification `VENUE_HOST_INVITE`) ; page « Qui anime »
+(`/lieux/[id]/gerer/animation`) avec suggestions à moins de 30 km, triées
+par appréciations reçues puis jams animées, jamais l'XP, sans mineur·e ni
+personne bloquée ; lead par défaut d'une série (`JamSeries.leadId`),
+copié sur les jams à venir et suivantes ; RGPD ; e2e « le lieu invite une
+animatrice suggérée, elle devient lead du prochain jeudi ». Q45 à Q47.
 
 ### P5-08 — Carte : acte V
 

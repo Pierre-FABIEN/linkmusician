@@ -36,8 +36,8 @@ les e2e : fermer le bandeau cookies (« Compris ») avant un bouton collé en
 bas, attendre la fin des toasts avant `expectNoA11yViolations`, et lire
 la carte par `:scope > li`.
 
-**Ordre conseillé** (restant) : P5-04b → P5-08 →
-P5-07 → P5-11. Les concerts s'appuient sur l'organisateur et la fiche du
+**Ordre conseillé** (restant) : P5-08 → P5-07 →
+P5-11 (P5-04b ✅ le 12/11/2026). Les concerts s'appuient sur l'organisateur et la fiche du
 lieu, les jams publiques sur l'organisation du lieu.
 
 ---

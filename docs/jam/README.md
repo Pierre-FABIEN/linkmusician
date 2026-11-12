@@ -233,6 +233,40 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   `core.test.ts`, persona « Bar à scène ouverte » ; e2e
   `scene-ouverte.spec.ts`.
 
+## Animateur·rices des lieux (P5-04b)
+
+- **Données** : `VenueHost` (`orgId` du lieu, `personId`, `status`
+  `INVITED` ou `ACTIVE`, `invitedById`, `since`), une ligne par lieu et par
+  personne ; décliner, partir ou être retiré·e la supprime.
+  `JamSeries.leadId` : lead par défaut d'une scène ouverte.
+- **Inviter** : `/lieux/[id]/gerer/animation` (« Qui anime »), pour la
+  gestion du lieu. Seule une personne « prête à organiser des jams » (D51,
+  donc majeure) peut être invitée ; ni soi-même, ni la gestion, ni une
+  personne bloquée ; 5 invitations en attente et 10 animateur·rices au plus.
+  Notification `VENUE_HOST_INVITE`, la seule du lot. Animer ne donne pas la
+  gestion du lieu.
+- **Répondre** : « Mes jams » (`/jam/mes-jams`) : « Un lieu t'invite à
+  animer » (Accepter, Décliner), puis « Tu animes » (scènes menées,
+  « Arrêter d'animer »).
+- **Suggestions** (`suggestJamLeads`, visibles de la seule gestion) :
+  personnes D51 à moins de 30 km du lieu, triées par **personnes
+  différentes qui les ont appréciées** (jams et collaborations, non
+  reprises), puis **jams de lieu tenues menées** (Q46), puis la distance
+  (par tranches). Jamais l'XP. Ni mineur·e, ni profil masqué ou suspendu, ni
+  personne bloquée avec qui regarde ; ni la gestion, ni les personnes déjà
+  invitées ou animatrices.
+- **Lead par défaut** (`setSeriesLead`) : une personne qui anime au lieu ;
+  copiée sur chaque jam créée par le job, et sur les jams à venir sans lead
+  ou menées par l'ancien lead par défaut (un lead choisi pour une soirée
+  précise reste). Quand elle part, elle n'est plus lead des jams à venir.
+- **Gains** : aucun. Être lead ne rapporte rien (D27) ; seule la jam tenue
+  rapporte à qui a publié la série.
+- **RGPD** : export `lieux_ou_j_anime` et `scenes_ouvertes_menees_par_defaut` ;
+  à l'anonymisation, les lignes `VenueHost` sont supprimées, `leadId` et
+  `invitedById` oubliés.
+- **Tests** : `#lib/jam/venueHosts.test.ts`,
+  `venueHosts.integration.test.ts` ; e2e `animation-lieu.spec.ts`.
+
 ## Formation du lead et matériel sur place (P2-14c)
 
 - **Lead** : `Opportunity.leadActorId`, désigné par l'hôte sur la fiche
