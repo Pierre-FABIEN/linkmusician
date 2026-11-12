@@ -38,6 +38,34 @@ avec des personas de calibrage comme pour le musicien.
 - **Monétisation** : outillage et accès au signal, jamais de visibilité
   organique ni d'XP à acheter (01 §5).
 
+### 1.1 Spécialités et intentions par métier (ONB-01, D56)
+
+Pour chaque métier, une personne déclare trois listes **distinctes** de
+codes stables, en sélection multiple :
+
+- ses **spécialités** (ce qu'elle exerce : mixage, booking de tournée…) ;
+- **Je propose** : les prestations qu'elle offre ;
+- **Je recherche** : ce qu'elle cherche.
+
+Les **compétences** restent les référentiels existants (instruments,
+genres). Une spécialité n'impose jamais d'instrument. Chez les
+musicien·nes, instrument, voix et profession (DJ, composition…) sont des
+groupes distincts. Ces spécialités ne sont ni exigées ni déduites des
+instruments (Q42).
+
+Le référentiel vit dans `#lib/actors/specializations`. Une entrée est
+identifiée par la paire `(métier, code)`. Un code n'est jamais supprimé ni
+renommé : on le **retire**. La personne qui l'avait le garde, mais
+personne ne peut plus l'ajouter. Le statut suit le métier : un métier
+« bientôt » (D15) a des spécialités « bientôt ».
+
+Les codes des profils existants sont repris à l'identique : ingé son
+(`SoundSpecialty`), producteur·rice (`ProducerSpecialty`) et
+organisateur·rice (`PromoterEventKind`). Ces colonnes restent la source de
+la recherche jusqu'à ONB-04, 05 et 08. Les catalogues « Je propose » et
+« Je recherche » sont remplis par les lots de chaque métier (ONB-03 à
+ONB-11).
+
 ## 2. En attendant leur phase (D15)
 
 Tant que son métier n'est pas ouvert, la personne a un **profil de base**,
