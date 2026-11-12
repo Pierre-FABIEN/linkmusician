@@ -1,8 +1,9 @@
 # Centre d'aide — contenu des pages de l'app
 
-> Le centre d'aide de LinkMusician (`/aide`), mis à jour le 10/11/2026
-> (état de l'app après P4-06 : métiers du son, démarches, assistant d'inscription). Les pages s'adressent aux
-> **utilisateur·rices** (tutoiement, comme dans l'app).
+> Le centre d'aide de LinkMusician (`/aide`), mis à jour le 12/11/2026.
+> Relecture des parcours disponibles : inscription adaptative, fiches métier,
+> recherche et visibilité, jams, carrière, scène, progression et confidentialité.
+> Les pages s'adressent aux **utilisateur·rices** (tutoiement, comme dans l'app).
 
 ## Comment c'est fait
 
@@ -30,7 +31,7 @@
 | `/aide`               | [00-accueil.md](../../src/lib/aide/pages/00-accueil.md)                             | La porte d'entrée : LinkMusician en 30 secondes, les deux modes, les questions fréquentes |
 | `/aide/premiers-pas`  | [01-premiers-pas.md](../../src/lib/aide/pages/01-premiers-pas.md)                   | Créer son compte, remplir son profil, choisir son mode                                    |
 | `/aide/mode-jam`      | [02-mode-jam.md](../../src/lib/aide/pages/02-mode-jam.md)                           | Jouer pour le plaisir : se mettre dispo, trouver une jam, l'après-jam, le carnet          |
-| `/aide/mode-carriere` | [03-mode-carriere.md](../../src/lib/aide/pages/03-mode-carriere.md)                 | Monter un projet : tableau de bord, quêtes, collaborations, groupes, morceaux, étapes     |
+| `/aide/mode-carriere` | [03-mode-carriere.md](../../src/lib/aide/pages/03-mode-carriere.md)                 | Monter un projet : accueil, quêtes, collaborations, groupes, morceaux, étapes             |
 | `/aide/points`        | [04-points-et-progression.md](../../src/lib/aide/pages/04-points-et-progression.md) | Ce qui rapporte (et ce qui ne rapporte rien), niveaux, paliers, succès, confiance         |
 | `/aide/rencontrer`    | [05-rencontrer.md](../../src/lib/aide/pages/05-rencontrer.md)                       | Découvrir, annonces, candidatures, messages, réseau musical                               |
 | `/aide/securite`      | [06-securite.md](../../src/lib/aide/pages/06-securite.md)                           | Lieux sûrs, mineur·es, bloquer, signaler, tes données                                     |
@@ -86,3 +87,26 @@ d'écran (elles vieillissent vite). Sur ordinateur, la liste des pages est
   change dans le code, il change ici.
 - Les chiffres (points, quotas) viennent du barème (`progression/core`) :
   à revérifier à chaque calibrage.
+
+## Repères de relecture
+
+- L'accueil oriente par besoin et explique les mots de l'app. Chaque parcours
+  précise où aller, quoi renseigner ou confirmer, et le résultat attendu.
+- L'inscription distingue les métiers ouverts et « bientôt », les spécialités,
+  offres et besoins, les champs obligatoires et facultatifs, puis la reprise
+  et le récapitulatif. Les fiches détaillées complètent les pages métier.
+- La complétude par métier (`actors/completeness.ts`) est distincte du profil
+  complet qui déclenche les points de musicien·ne.
+- Les conditions de présence dans une recherche viennent de
+  `server/search/musicians.ts` : offre pour un prestataire, visibilité du bloc
+  et sollicitations, en plus du profil public et des blocages.
+- Barème et quotas relus dans `server/progression/core/bareme.ts` et
+  `trust.ts` : quatre niveaux de confiance, valeurs de base et multiplicateurs
+  explicités ; ne pas présenter une valeur maximale comme un gain garanti.
+- Les fonctions disponibles (tournée, manager, booker) sont distinguées des
+  actes de carte encore à venir. Une fonctionnalité disponible ailleurs
+  n'implique pas que son acte soit déjà jouable sur la carte.
+
+Pour les prochaines mises à jour : vérifier les libellés dans les écrans,
+les règles dans le code métier, puis lancer au minimum le test de rendu
+`src/lib/server/aide/render.test.ts` (fichiers, structure, liens et ancres).

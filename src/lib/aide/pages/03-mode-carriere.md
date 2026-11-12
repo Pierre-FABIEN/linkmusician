@@ -18,16 +18,16 @@ _Ta carrière musicale, comme dans un jeu : une étape à la fois, et chaque
 Une carrière dans la musique passe par des grandes étapes. LinkMusician
 les suit dans l’ordre où elles arrivent souvent, sans les imposer :
 
-| Acte                      | Ce qui s’y passe                                  | Dans l’app aujourd’hui                                       |
-| ------------------------- | ------------------------------------------------- | ------------------------------------------------------------ |
-| **I. La rencontre**       | Trouver avec qui jouer                            | ✅ Annonces, messages, jams, collaborations                  |
-| **II. La création**       | Monter un groupe, composer, répéter, une maquette | ✅ Groupes, morceaux, étapes du groupe                       |
-| **III. Le studio**        | Enregistrer, mixer                                | Étape « Premier enregistrement » ; fiches des studios        |
-| **IV. La production**     | Arranger, produire                                | ✅ Producteur·rices, récap de campagne                       |
-| **V. La scène**           | Premiers concerts, puis une tournée               | ✅ Concerts vérifiés par les lieux et organisateurs, tournée |
-| **VI. La sortie**         | Sortir un titre, un EP                            | ✅ Étapes EP/album vérifiées par UPC ou ISRC                 |
-| **VII. Le développement** | Manager, booker, éditeur, label                   | 🔜                                                           |
-| **VIII. La carrière**     | Album, tournées, en vivre                         | 🔜                                                           |
+| Acte                      | Ce qui s’y passe                                  | Dans l’app aujourd’hui                                                          |
+| ------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------- |
+| **I. La rencontre**       | Trouver avec qui jouer                            | ✅ Annonces, messages, jams, collaborations                                     |
+| **II. La création**       | Monter un groupe, composer, répéter, une maquette | ✅ Groupes, morceaux, étapes du groupe                                          |
+| **III. Le studio**        | Enregistrer, mixer                                | Étape « Premier enregistrement » ; fiches des studios                           |
+| **IV. La production**     | Arranger, produire                                | ✅ Producteur·rices, récap de campagne                                          |
+| **V. La scène**           | Premiers concerts, puis une tournée               | ✅ Concerts vérifiés par les lieux et organisateurs, tournée                    |
+| **VI. La sortie**         | Sortir un titre, un EP                            | ✅ Étapes EP/album vérifiées par UPC ou ISRC                                    |
+| **VII. Le développement** | Manager, booker, éditeur, label                   | Manager et booker disponibles ; acte de carte et parcours label/édition à venir |
+| **VIII. La carrière**     | Album, tournées, en vivre                         | 🔜                                                                              |
 
 Ta **carte de carrière** (dans l’écran de carrière, **Ma carte de
 carrière**) montre ces actes : ceux que tu as franchis, celui en cours, et
@@ -48,6 +48,9 @@ par quelqu’un d’autre, jamais par tes points :
   l’organisation qui l’accueille (vérifiée elle aussi). Pour aller plus
   loin, une **tournée** : trois concerts vérifiés dans trois villes en un
   mois. Ta carte souvenir nomme le groupe, l’hôte et le mois du concert.
+
+Les actes VI à VIII n’ont pas encore leur épreuve jouable sur la carte.
+Les fonctions déjà disponibles restent utilisables depuis les autres écrans.
 
 Pas d’ordre imposé : tu peux franchir l’acte II avant l’acte I. Quand tu
 franchis une épreuve, on la fête, et la carte te montre ce qui s’ouvre.
@@ -123,6 +126,17 @@ ensemble**.
 > moins (sur 12 mois) : c’est fait pour récompenser les rencontres, pas
 > les allers-retours entre ami·es.
 
+### Retrouver une confirmation en attente
+
+Dans **Mon espace › À confirmer**, ouvre la demande pour la relire. Une
+invitation dans un groupe, un crédit sur un morceau et une collaboration
+sont trois demandes différentes : accepter l'une ne confirme pas les autres.
+
+Pour une collaboration, vérifie le type, la date et les personnes avant de
+confirmer. Si la session n'a pas eu lieu, ne la confirme pas. Si la date
+est future, attends qu'elle soit passée pour attester que vous avez joué.
+Une proposition envoyée ne suffit donc pas à gagner des points.
+
 ## 3. Ton groupe {#groupe}
 
 ### Monter un groupe
@@ -133,8 +147,8 @@ ensemble**.
 3. Dès que la première personne accepte, le groupe est **formé** : vous
    gagnez des points tous les deux.
 
-Depuis **Groupes**, le raccourci **Annonces**, à côté du switch de mode,
-ouvre directement les annonces de recrutement et de jam.
+Pour recruter, utilise les **Annonces**. Pour organiser une jam, passe par
+le **mode jam**.
 
 Le groupe a sa **page publique** (`/@nom-du-groupe`) : son effectif
 actuel et passé avec les dates (comme un club), sa présentation, ses
@@ -172,8 +186,9 @@ votre histoire :
 | **Première démo publique** | La gestion la déclare                                          |
 | **Premier concert**        | La gestion la déclare (« Au bar du coin, en première partie ») |
 
-La première tournée et la signature viendront plus tard. Pour un EP ou un
-album, la gestion du groupe peut déjà soumettre sa date et un UPC ou un
+La première tournée peut être vérifiée à partir des concerts confirmés
+avec leurs hôtes (voir ci-dessous). La signature n’a pas encore de parcours
+complet. Pour un EP ou un album, la gestion du groupe peut déjà soumettre sa date et un UPC ou un
 ISRC : MusicBrainz vérifie la référence, le type de sortie et le nom du
 groupe. Une correspondance valide l’étape automatiquement.
 
@@ -210,8 +225,8 @@ Touche **Prouver** :
    la différence de points (pour un concert : 350 de plus), et chaque
    membre présent sa part. Rien ne compte deux fois.
 
-Une personne extérieure doit être inscrite depuis au moins une semaine,
-avec un profil complet. Un membre ou ancien membre du groupe ne compte
+La personne extérieure doit avoir atteint la confiance **Membre** : au
+moins une semaine d’ancienneté, un profil complet et un échange réciproque. Un membre ou ancien membre du groupe ne compte
 jamais comme extérieur.
 
 ### Un concert confirmé avec le lieu {#concert-confirme}

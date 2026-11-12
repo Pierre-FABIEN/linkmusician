@@ -50,7 +50,8 @@ LinkMusician est ouvert aux mineur·es, avec des règles en plus :
 
 - **Personne d’inconnu ne peut t’écrire en premier.** Toi, tu peux écrire.
 - **Les jams** : tu vois et tu rejoins seulement celles qui finissent
-  **avant 22 h**. Ta dispo n’est montrée à personne.
+  **avant 22 h**, dans les lieux qui accueillent les mineur·es. Cela
+  vaut aussi pour les ateliers de ton école. Ta dispo n’est montrée à personne.
 - **Les groupes** : on ne peut t’inviter ou te créditer sur un morceau que
   si on te connaît déjà (une conversation acceptée, ou une jam ensemble).
 - **Ta page** : ton nom n’apparaît sur les pages publiques des groupes et
@@ -61,16 +62,42 @@ LinkMusician est ouvert aux mineur·es, avec des règles en plus :
 > [Jouer sur scène avant 18 ans](/demarches/mineurs-sur-scene) explique
 > comment ça marche, pour toi et tes parents.
 
-## 5. Tes données
+## 5. Choisir ce que ton profil montre {#visibilite}
+
+Il y a deux réglages complémentaires :
+
+1. **Tout le profil** : dans [Réglages](/reglages), coche **Masquer mon
+   profil public**, puis **Enregistrer**. Ta page publique et tes médias
+   ne sont alors plus consultables. Décoche et enregistre pour les rendre visibles.
+2. **Un bloc d'un métier** : dans **Mon profil** → le métier (ou **Ma
+   pratique**), descends à **Qui voit quoi**. Pour les spécialités et
+   intentions, les précisions et les conditions, choisis séparément :
+   **Tout le monde**, **Les membres inscrits** ou **Moi seulement**.
+   Termine par **Appliquer ces réglages**.
+
+Par exemple, tu peux montrer que tu proposes du mixage à tout le monde,
+réserver tes précisions aux membres et garder tes conditions privées.
+Les conditions sont **privées par défaut**. Un bloc caché n'est pas envoyé
+aux autres personnes qui consultent ta fiche.
+
+**Ouvert·e aux sollicitations pour ce métier ?** indique si tu souhaites
+être contacté·e pour cette activité. Choisir **Pas en ce moment** t'écarte
+de la recherche par ce métier ; cela ne remplace pas un blocage. Pour ne
+plus échanger avec une personne précise, utilise **Bloquer**.
+
+Pour retrouver les personnes bloquées ou revenir sur ton choix :
+**Réglages › Personnes bloquées › Débloquer**.
+
+## 6. Tes données
 
 - **Ce qui est public** : ton profil (`/@ton-identifiant`), sauf si tu le
   masques (**Réglages** → **Masquer mon profil public**). Jamais tes
   points, ta date de naissance, ton adresse.
 - **Ce qui reste privé** : tes messages, ton carnet, tes contacts et leurs groupes, tes
   points, ta confiance.
-- **Télécharger tes données** : **Mes données** → **Télécharger mes
+- **Télécharger tes données** : [Mes données](/auth/settings/donnees) → **Télécharger mes
   données** : tout ce que l’app sait de toi, dans un fichier.
-- **Supprimer ton compte** : **Mes données** → **Supprimer mon compte**.
+- **Supprimer ton compte** : [Mes données](/auth/settings/donnees) → **Supprimer mon compte**.
   Tes informations sont effacées. Ce que tu as fait avec d’autres reste
   pour eux, sans ton nom (« Compte supprimé ») : par exemple ton passage
   dans un groupe ou ton crédit confirmé sur un morceau.

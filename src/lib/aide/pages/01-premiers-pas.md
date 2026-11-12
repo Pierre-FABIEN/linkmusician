@@ -1,6 +1,6 @@
 # Premiers pas
 
-_Ton compte, ton profil et ton mode de jeu, en cinq minutes._
+_Créer ton compte, décrire tes activités et trouver les bons réglages, pas à pas._
 
 > **En bref**
 >
@@ -14,24 +14,59 @@ _Ton compte, ton profil et ton mode de jeu, en cinq minutes._
 
 ## 1. Créer ton compte
 
-1. Inscris-toi avec ton email et confirme-le avec le code reçu.
-2. Réponds à « **Qui es-tu ?** » : musicien·ne, ingé son,
-   producteur·rice, organisateur·rice, manager, booker, ou plusieurs à la fois. D’autres métiers arriveront. Tu les changes quand tu veux dans
-   **Réglages › Mes métiers**.
-3. Accepte les conditions d’utilisation.
-4. Les écrans suivants dépendent de tes métiers. Tes styles et ta ville
-   ne te sont demandés qu’une fois. Musicien·ne : tes instruments, où tu
-   en es (seul·e, avec d’autres, sur scène) et l’engagement que tu
-   cherches ; ce que tu cherches et ce que tu proposes est facultatif, et
-   se complète ensuite dans **Mon profil › Ma pratique**. Chaque autre
-   métier a sa page dans **Mon profil**, pour compléter ou modifier ce que
-   tu as coché. Chaque autre métier a son écran court, où tu coches
-   tes spécialités (au moins une pour un métier ouvert ; un métier qui
-   arrive bientôt se passe en un clic). Si tu t’arrêtes en route, tu
-   reprends là où il manque quelque chose.
-5. Un **récapitulatif** te montre tout ce que tu as rempli, métier par
-   métier. « Modifier » te ramène à l’écran voulu, puis au récapitulatif :
-   rien n’est perdu. « Terminer mon inscription » ouvre ton espace.
+1. Crée ton compte avec ton email, puis confirme-le avec le code reçu.
+2. Sur **Qui es-tu ?**, coche tes métiers. Tu peux en choisir plusieurs :
+   jouer de la guitare et mixer, par exemple. Si tu en choisis plusieurs,
+   indique ton **métier principal**. Il sert à adapter ton parcours ; il
+   n'efface pas les autres activités.
+3. Accepte les conditions d'utilisation.
+4. Remplis les écrans proposés : ils dépendent de tes métiers. Le tableau
+   ci-dessous t'explique ce qui est demandé. Ta ville et tes styles sont
+   communs à tes métiers : tu ne les saisis qu'une fois.
+5. Relis le **récapitulatif**, métier par métier. **Modifier** te ramène à
+   l'écran concerné, puis au récapitulatif après enregistrement.
+6. Choisis **Terminer mon inscription**. L'app te présente les personnes
+   proches et tes premiers objectifs. Si personne n'est encore près de
+   chez toi, tu peux élargir ton rayon ou inviter des musicien·nes que tu connais.
+
+| Écran                                                 | Ce que tu renseignes                                                                              | À quoi ça sert                                                       |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| **Instruments** (musicien·ne)                         | Un à trois instruments, ton niveau pour chacun et ton instrument principal                        | Trouver des partenaires adaptés à ce que tu joues                    |
+| **Genres**                                            | Un à cinq styles, et des influences si tu veux                                                    | Repérer les affinités musicales                                      |
+| **Ville**                                             | Une commune choisie dans la liste et ton rayon de déplacement                                     | Chercher autour de toi sans donner ton adresse                       |
+| **Ton métier** (un écran par métier hors musicien·ne) | Tes spécialités, tes offres, tes besoins et les précisions utiles                                 | Décrire concrètement ce que tu fais                                  |
+| **Ta pratique** (musicien·ne)                         | Ton expérience et l'engagement recherché ; tes offres et besoins sont facultatifs à l'inscription | Distinguer une envie de jouer occasionnellement d'un projet régulier |
+
+Tu t'arrêtes avant la fin ? À ton retour, l'app reprend au premier écran
+incomplet. Pour ajouter ou retirer un métier ensuite, ouvre
+[Réglages › Mes métiers](/reglages/metiers).
+
+### Spécialité, offre, besoin : quelle différence ? {#intentions}
+
+- Une **spécialité**, c'est ton domaine : « mixage », par exemple.
+- **Je propose**, c'est ce que tu peux faire pour quelqu'un : mixer son morceau.
+- **Je recherche**, c'est ce dont tu as besoin : des artistes avec qui travailler,
+  ou une personne pour compléter ton projet.
+- Les **précisions** décrivent ta façon de travailler. Certains champs
+  n'apparaissent qu'après avoir choisi une spécialité ou une intention.
+
+Pour un métier ouvert autre que musicien·ne, au moins une spécialité est
+requise. Complète aussi les champs marqués obligatoires. Les offres et
+besoins peuvent se compléter ensuite ; **pour apparaître comme prestataire
+lors d'une recherche par métier, il te faut une offre cochée**.
+
+Par exemple, si tu es bassiste et ingé son, tes instruments sont dans ton
+profil musical, tes envies de groupe dans **Ma pratique**, et ton offre de
+mixage dans ta fiche **Ingé son**. Tu gardes un seul compte.
+
+### Les métiers indiqués « bientôt » {#metiers-bientot}
+
+**Professionnel·le de label**, **Éditeur·rice** et **Communication musicale**
+peuvent être choisis dès l'inscription. Tu peux décrire ton activité et
+compléter les champs proposés, mais leur parcours métier complet n'est pas
+encore ouvert. Leur étape peut être passée sans tout renseigner. Les
+choisir ne donne pas accès à des fonctions de label, d'édition ou de
+communication qui ne sont pas encore disponibles.
 
 ### Décrire ta situation avec tes mots {#assistant}
 
@@ -52,7 +87,20 @@ joues, tes styles, ta ville, ce que tu cherches), et elle prépare des
 
 ## 2. Remplir ton profil
 
-Ton profil, c’est ta carte de visite. Il est complet quand il a :
+Ton profil, c'est ta carte de visite. Tu peux le modifier depuis
+[Mon profil](/profil). Voici où retrouver chaque information :
+
+| Pour modifier…                                                                     | Ouvre…                                |
+| ---------------------------------------------------------------------------------- | ------------------------------------- |
+| Ta présentation, tes liens, ton matériel, ton rayon de déplacement                 | **Mon profil**, puis **Enregistrer**  |
+| Tes instruments, niveaux, genres et influences                                     | [Mon profil musical](/profil/musical) |
+| Ton expérience, ton engagement, ce que tu proposes ou recherches comme musicien·ne | [Ma pratique](/profil/pratique)       |
+| Ta commune                                                                         | [Ma ville](/profil/ville)             |
+| Tes démos et vidéos                                                                | [Mes médias](/profil/medias)          |
+| Tes spécialités, intentions et précisions d'un autre métier                        | **Mon profil** → le nom du métier     |
+
+Pour la progression de musicien·ne, le profil complet correspond à ces
+quatre éléments :
 
 | Élément             | Pourquoi                                                                  |
 | ------------------- | ------------------------------------------------------------------------- |
@@ -79,20 +127,30 @@ qui manque pour qu’on te trouve, et pourquoi : sans offre cochée dans « Je
 propose », par exemple, tu n’apparais pas comme prestataire. Le reste est
 facultatif : rien ne te pénalise si tu ne le remplis pas.
 
-En bas, **Qui voit quoi** règle, pour ce métier, trois parties de ta fiche
+L'indication « à compléter » décrit ce qui manque pour une mise en relation
+utile. Ce n'est pas une note : renseigner davantage de champs facultatifs
+ne donne ni points ni rang supplémentaire. Cette indication par métier est
+distincte du profil complet utilisé pour la progression de musicien·ne.
+
+En bas de **Ma pratique** ou de la page du métier, **Qui voit quoi** règle, pour ce métier, trois parties de ta fiche
 publique : tes spécialités et intentions, tes précisions, tes conditions
 (rémunération, capacité, accueil). Pour chacune : tout le monde, les membres
 inscrits, ou toi seulement. Par défaut, les conditions ne sont visibles que
 de toi. Tu peux aussi dire si tu es ouvert·e aux sollicitations pour ce
-métier.
+métier. Choisis **Appliquer ces réglages** pour enregistrer cette partie :
+le bouton **Enregistrer** du formulaire métier enregistre les autres informations.
+
+La page du métier peut aussi proposer **ta fiche détaillée** : c'est là que
+tu ajoutes tes travaux en écoute, ton matériel ou tes tarifs. Les liens
+ci-dessous mènent à ces fiches complémentaires.
 
 ### Si tu es ingé son {#inge-son}
 
 Ouvre **Mon profil › Mon profil d’ingé son** :
 
 - coche tes **spécialités** (prise de son, mixage, mastering, façade,
-  retours). Dès qu’il y en a une, les artistes te trouvent dans
-  **Découvrir** ;
+  retours), puis une offre dans **Je propose** sur ta page métier pour
+  apparaître comme prestataire dans **Découvrir** ;
 - dis **où tu travailles** : dans ton studio, en te déplaçant, ou à
   distance ;
 - liste ton **matériel** ;
@@ -135,7 +193,7 @@ Ouvre **Mon profil › Mon profil d’organisateur·rice** :
 
 - coche **ce que tu organises** (concerts, soirées, festival, tournées,
   scènes ouvertes) : les groupes et les pros te trouvent alors dans
-  **Découvrir** ;
+  **Découvrir**, avec une offre cochée sur ta page métier ;
 - choisis jusqu’à cinq **genres que tu programmes** et, si tu veux, ta
   **jauge habituelle** ;
 - ajoute jusqu’à six **événements passés**, avec un lien (page
@@ -158,8 +216,9 @@ Il faut être majeur·e pour publier un plateau.
 
 Ouvre **Mon profil › Mon profil de manager ou de booker** : choisis
 jusqu’à cinq **genres que tu suis** et dis en une phrase **ce que tu
-cherches**. Dès qu’un genre est choisi, les artistes te trouvent dans
-**Découvrir**.
+cherches**. Complète aussi la page de ton métier : spécialités, offres,
+territoire et précisions demandées. Pour être trouvé·e comme prestataire dans
+**Découvrir**, coche une offre dans **Je propose**.
 
 Pour accompagner un groupe ou un·e musicien·ne, ouvre sa page et choisis
 **Proposer d’accompagner** (ou **Mon espace › Accompagnement**). L’artiste,
@@ -229,6 +288,19 @@ accessible depuis `/espace` (carrière) ou `/jam`.
 La **cloche** te prévient quand quelqu’un t’invite ou attend une
 confirmation ; l’icône **Messages** affiche les conversations non lues.
 
+## 5. Régler les notifications {#notifications}
+
+Ouvre [Réglages › Notifications](/reglages#notifications) : pour chaque
+sujet, choisis ce que tu souhaites voir **dans l'app** et recevoir **par
+email**, puis touche **Enregistrer mes notifications**.
+
+- La **cloche** rassemble les demandes et nouvelles des autres personnes.
+  Ouvre une notification pour aller à la conversation, à la jam ou à l'annonce concernée.
+- Les nouveaux **messages** ont leur propre pastille sur l'icône Messages.
+- Les **gains et succès** sont annoncés quand tu reviens dans l'app.
+- L'email est un **résumé**, au plus une fois par jour et seulement s'il y a du neuf.
+  Ce n'est pas un email immédiat pour chaque message.
+
 ## Questions fréquentes
 
 <details><summary>Qui voit mon profil ?</summary>
@@ -246,5 +318,22 @@ informations ne sont montrées qu’aux personnes connectées.
 
 Oui, à tout moment depuis ton profil. Les distances se recalculent tout
 de suite.
+
+</details>
+
+<details><summary>Un bouton reste désactivé pendant l'inscription</summary>
+
+Vérifie les champs obligatoires de l'écran, y compris ceux apparus après
+une nouvelle sélection. Sur la ville, choisis une commune dans les
+résultats : écrire son nom sans la sélectionner ne suffit pas.
+
+</details>
+
+<details><summary>Je ne retrouve pas une information sur ma fiche publique</summary>
+
+Vérifie que tu as enregistré le bon formulaire, puis regarde **Qui voit
+quoi** sur la page du métier. Un bloc réservé aux membres n'est pas visible
+sans connexion ; **Moi seulement** le garde privé. Vérifie aussi que ton
+profil entier n'est pas masqué dans **Réglages**.
 
 </details>

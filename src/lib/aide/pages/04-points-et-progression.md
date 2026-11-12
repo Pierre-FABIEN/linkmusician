@@ -35,7 +35,8 @@ Deux règles protègent tout le monde contre les points gonflés :
   moitié, la 3ᵉ un quart, puis plus rien. Même chose pour les
   appréciations.
 - **La confiance de l’autre compte.** Avec un compte tout neuf, une
-  collaboration rapporte un dixième ; avec un compte installé, tout.
+  collaboration rapporte un dixième ; avec la confiance **Membre**, la
+  moitié ; avec **Confirmé** ou **Pilier**, la totalité.
   Deux faux comptes ne peuvent donc pas se faire monter l’un l’autre.
 
 ## Ce qui ne rapporte rien
@@ -107,11 +108,40 @@ visite, une seule fois.
 En plus des points, ton compte a un **niveau de confiance**. Il monte avec
 le temps et les échanges réels, et il ouvre des possibilités :
 
-| Niveau de confiance | Comment                                                       | Ce que ça ouvre                                                                         |
-| ------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| **Nouveau**         | Email vérifié                                                 | 10 premiers messages par jour, 1 annonce active, 3 médias                               |
-| **Membre**          | Une semaine, un profil complet, un premier échange réciproque | 30 premiers messages par jour, 3 annonces, laisser des appréciations, confirmer un lieu |
-| **Confirmé·e**      | Un mois, une collaboration confirmée avec un membre           | Des limites plus larges, 10 médias                                                      |
+Les quatre niveaux sont **Nouveau**, **Membre**, **Confirmé** et **Pilier**.
+Ils se construisent dans cet ordre :
+
+| Niveau       | Conditions principales, en plus des précédentes                                                                                         |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **Nouveau**  | Ton compte commence ici ; vérifie ton email                                                                                             |
+| **Membre**   | Email vérifié, au moins 7 jours d'ancienneté, profil complet, un échange réciproque, aucune sanction ni blocages répétés                |
+| **Confirmé** | Au moins 30 jours, une collaboration confirmée avec un membre de confiance, et un taux de demandes de contact refusées qui reste limité |
+| **Pilier**   | Au moins 90 jours, 5 partenaires de collaboration différents et très peu de signalements retenus                                        |
+
+Un **échange réciproque**, c'est une conversation où l'autre personne a
+répondu : envoyer plusieurs messages sans réponse ne le crée pas.
+L'ancienneté seule ne suffit pas à changer de niveau.
+
+| Confiance    | Nouvelles personnes contactées par jour | Annonces actives | Médias publiés | Donner une appréciation | Corroborer les étapes d'autres groupes |
+| ------------ | --------------------------------------- | ---------------- | -------------- | ----------------------- | -------------------------------------- |
+| **Nouveau**  | 10                                      | 1                | 3              | Pas encore              | Pas encore                             |
+| **Membre**   | 30                                      | 3                | 3              | Oui                     | Pas encore                             |
+| **Confirmé** | 60                                      | 5                | 10             | Oui                     | Oui                                    |
+| **Pilier**   | 100                                     | 10               | 20             | Oui                     | Oui                                    |
+
+Pour les preuves d'étapes, une confirmation demandée à une personne
+extérieure qui était présente suit une règle particulière : la confiance
+**Membre** suffit. Un membre du groupe peut aussi confirmer sa répétition.
+L'écran de la demande vérifie ces conditions.
+
+La limite quotidienne concerne les **premiers messages à des inconnus**,
+pas chaque réponse dans une conversation ouverte. Les annonces et médias
+sont des limites de quantité : attendre le lendemain ne libère pas une
+place occupée par un élément encore actif ou publié.
+
+Dans [Réglages](/reglages), **Ton palier de confiance** indique ce qui
+manque pour la suite, et **Tes limites actuelles** affiche tes droits.
+Les protections liées à l'âge et aux blocages s'appliquent aussi.
 
 Elle peut aussi redescendre : une sanction, ou plusieurs personnes qui
 te bloquent, te ramènent au début.
@@ -120,12 +150,36 @@ te bloquent, te ramènent au début.
 > réputation ou le tri des recherches. Avoir beaucoup de points ne donne
 > aucun droit sur les autres.
 
+## Les points des autres métiers {#points-metiers}
+
+Les points vont sur la piste du métier exercé. Une fiche bien remplie ou
+un travail ajouté à ton portfolio ne remplace pas une prestation confirmée.
+Voici les valeurs de base, **avant** les réductions liées aux partenaires
+répétés et à leur confiance :
+
+| Travail confirmé                                                     | Points de base | Piste             |
+| -------------------------------------------------------------------- | -------------- | ----------------- |
+| Enregistrement ou mixage                                             | 300            | Ingé son          |
+| Mastering ou sonorisation                                            | 150            | Ingé son          |
+| Production                                                           | 400            | Producteur·rice   |
+| Arrangement                                                          | 200            | Producteur·rice   |
+| Accompagnement d'un artiste confirmé par celui-ci                    | 200            | Manager           |
+| Date bookée et jouée                                                 | 150            | Booker            |
+| Tournée bookée (3 villes en 30 jours)                                | 400            | Booker            |
+| Concert tenu et confirmé par les artistes                            | 200            | Organisateur·rice |
+| Jam publique d'un lieu, avec au moins 3 présent·es hors organisation | 50             | Organisateur·rice |
+
+Le **rang métier** se fonde sur les réalisations confirmées, pas sur cette
+somme. Sur un mixage ou un mastering, seul le prestataire gagne les points
+de la prestation : l'artiste n'y a pas joué. Un lieu ou un studio progresse
+par ses sessions ou ses événements ; son rang ne s'achète pas en points.
+
 ## Questions fréquentes
 
 <details><summary>Où vois-je mes points ?</summary>
 
-Dans **Mon espace** (mode carrière), avec l’historique de tes gains et
-leur raison. Ton profil public ne les montre jamais.
+Dans **Mon espace** (mode carrière). Ouvre **Journal de bord** pour
+retrouver chaque gain, sa raison et une éventuelle correction. Ton profil public ne les montre jamais.
 
 </details>
 
@@ -140,8 +194,8 @@ ton historique. Une pause ou un départ de groupe ne te fait rien perdre.
 <details><summary>Pourquoi ma collaboration affiche « ×0,1 » ?</summary>
 
 L’autre personne vient d’arriver : sa confiance est encore au plus bas.
-C’est temporaire pour elle, et c’est ce qui empêche les faux comptes de
-gonfler les points.
+Les prochains gains suivront son niveau de confiance au moment de
+l’action ; les anciens gains ne sont pas augmentés rétroactivement.
 
 </details>
 

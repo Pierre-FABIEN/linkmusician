@@ -185,16 +185,16 @@ Puis, avec les gens avec qui le courant est passé :
 
 ### Ce que ça rapporte
 
-| Ce que tu fais                                       | Points                                               |
-| ---------------------------------------------------- | ---------------------------------------------------- |
-| Te mettre dispo, venir, dire « J’y étais »           | Rien : la présence seule ne rapporte pas             |
-| **Recevoir** une appréciation                        | Environ **40 points**                                |
-| Recevoir plusieurs appréciations de la même personne | De moins en moins sur 12 mois (la 2ᵉ compte moitié…) |
-| Organiser, animer, ajouter un lieu                   | Rien en points, mais des **succès** (ci-dessous)     |
-| Tenir la scène ouverte d’un lieu que tu gères        | **50 points** quand 3 personnes disent « J’y étais » |
+| Ce que tu fais                                       | Points                                                                                      |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Te mettre dispo, venir, dire « J’y étais »           | Rien : la présence seule ne rapporte pas                                                    |
+| **Recevoir** une appréciation                        | Environ **40 points**                                                                       |
+| Recevoir plusieurs appréciations de la même personne | De moins en moins sur 12 mois (la 2ᵉ compte moitié…)                                        |
+| Organiser, animer, ajouter un lieu                   | Rien en points, mais des **succès** (ci-dessous)                                            |
+| Tenir la scène ouverte d’un lieu que tu gères        | Jusqu’à **50 points**, avec au moins 3 présent·es hors organisation et selon leur confiance |
 
-Pourquoi ? Parce que **venir ne suffit pas, il faut être remarqué·e** :
-celle qui fait groover la salle avance. Les appréciations sont toujours
+Les points reconnaissent un retour positif d’une autre personne. Tu peux
+aussi venir simplement pour le plaisir, sans chercher à en gagner. Les appréciations sont toujours
 positives : pas de note, pas d’avis négatif. Un souci se signale en
 privé.
 
@@ -259,6 +259,24 @@ elle, vient d’une autre personne qui t’a entendu jouer.
 Oui. Les appréciations reçues comptent pour tes points et pour le palier
 **En réseau**, et tes contacts t’aident à monter un projet. Mais le
 mode jam ne te fixe aucun objectif.
+
+</details>
+
+<details><summary>Je suis inscrit·e, mais je ne peux plus venir</summary>
+
+Ouvre la fiche de la jam et retire ton **Je viens** pour libérer la place.
+Si tu avais convenu de quelque chose avec l'hôte, préviens-le aussi par
+message. Une inscription et un **J'y étais** sont différents : ne confirme
+pas ta présence si tu n'as pas participé.
+
+</details>
+
+<details><summary>Je ne peux pas laisser d'appréciation</summary>
+
+Vérifie que vous avez déclaré votre présence à la même jam, que tu es dans
+la période autorisée (du début de la jam jusqu'à sept jours après) et que
+ton compte a atteint la confiance **Membre**. Tes droits actuels sont dans
+**Réglages**. Un blocage ou une présence retirée peut aussi empêcher l'action.
 
 </details>
 

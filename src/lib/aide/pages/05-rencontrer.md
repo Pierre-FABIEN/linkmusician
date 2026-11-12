@@ -34,6 +34,23 @@ _Trouver la bonne personne, lui écrire, et jouer._
 Les gens que tu as gardés après avoir joué arrivent **en tête** des résultats. Les distances sont
 arrondies par tranches, et seule la commune est affichée.
 
+### Tu n'apparais pas dans une recherche ? {#etre-trouve}
+
+1. Vérifie ta **ville**, puis élargis le rayon ou enlève des filtres pour
+   comprendre ce qui limite les résultats.
+2. Dans **Réglages**, vérifie que **Masquer mon profil public** n'est pas coché.
+3. Sur la page du métier, vérifie tes spécialités et **Je propose**.
+   Pour un métier autre que musicien·ne, une spécialité seule ne suffit pas :
+   il faut une offre pour apparaître comme prestataire.
+4. Dans **Qui voit quoi**, le bloc **Spécialités et intentions** doit être
+   visible des membres ou de tout le monde. **Moi seulement** l'écarte
+   de la recherche par métier.
+5. Vérifie **Ouvert·e aux sollicitations pour ce métier ?** : **Pas en ce
+   moment** t'écarte de cette recherche. **Je ne précise pas** ne signifie pas un refus.
+
+Un blocage entre deux personnes empêche aussi de se retrouver. Ne conclus
+pas qu'un profil a disparu pour tout le monde à partir d'une seule recherche.
+
 ### Des musicien·nes pour toi
 
 Sur **Mon parcours** et sur ton profil, l’app te propose des gens qui te
@@ -92,7 +109,8 @@ organisateur·rice cherche des groupes.
 1. **Annonces** → **Publier une annonce** : le type, un titre, ce que tu
    cherches, et si tu veux un instrument et un niveau minimal.
 2. Choisis sa durée (7, 14 ou 30 jours).
-3. Elle s’affiche autour de ta ville. Tu la clôtures quand tu as trouvé.
+3. Elle s’affiche autour de ta ville. Tu la clôtures quand tu as trouvé. À la fin de sa durée, elle expire :
+   elle ne reste pas une offre active indéfiniment.
 
 ### Répondre
 
@@ -164,6 +182,17 @@ Tes discussions et invitations sont dans **Messages**. Chacun·e peut
 **quitter** une discussion quand il ou elle veut ; ses messages restent
 pour les autres. Si tu as bloqué quelqu’un, vous ne vous retrouvez pas dans
 la même discussion.
+
+## 5. Préparer un premier échange
+
+Un message court et précis aide l'autre à te répondre. Par exemple :
+« Salut, je joue de la basse, plutôt soul et funk. J'ai écouté ta démo.
+Ça te dirait une jam samedi dans un lieu du centre ? »
+
+Avant une session ou une prestation, mettez-vous d'accord sur la date, le
+lieu, le matériel, ce qui doit être livré et les conditions de rémunération
+s'il y en a. Une annonce, un tarif indicatif ou une collaboration confirmée
+dans l'app ne remplace pas cet accord entre vous.
 
 ## Questions fréquentes
 
