@@ -119,6 +119,43 @@ Bandcamp, ou un fichier), tes influences, tes liens.
 > ⚠️ **Important** : ta démo est relue par la modération si ton compte est
 > récent. Elle apparaît dès qu’elle est validée.
 
+### Ajouter une démo, une vidéo ou une photo {#medias}
+
+Ouvre [Mon profil › Mes médias](/profil/medias). Deux possibilités :
+
+1. **Ajouter un lien** : colle une adresse YouTube, SoundCloud ou Bandcamp.
+   Tu peux préciser le titre et l'instrument joué. Coche **C'est une démo
+   de moi (je joue ou chante dessus)** seulement si c'est bien ton cas,
+   puis touche **Ajouter**.
+2. **Envoyer un fichier** : sélectionne ton fichier, renseigne les
+   informations proposées, puis lance l'envoi. Attends la fin de la barre
+   de progression et le résultat de la vérification.
+
+| Fichier | Formats acceptés              | Taille maximale | Durée maximale |
+| ------- | ----------------------------- | --------------- | -------------- |
+| Photo   | JPEG, PNG, WebP, AVIF         | 10 Mo           | —              |
+| Audio   | MP3, WAV, M4A, AAC, OGG, FLAC | 100 Mo          | 10 minutes     |
+| Vidéo   | MP4, MOV, WebM                | 200 Mo          | 3 minutes      |
+
+La liste de tes médias indique leur état : **Envoi en cours**, **Traitement
+en cours**, **En attente de validation**, **Publié** ou **Refusé**. Un
+média en attente n'est pas encore visible publiquement. À partir de la
+confiance **Membre**, un média prêt est publié sans cette attente initiale.
+
+Quand il est publié, **Lien public** ouvre sa page de partage. **Supprimer**
+retire le média ; si tu l'avais envoyé comme fichier, ce fichier est aussi
+supprimé. La visibilité de ton profil reste applicable.
+
+La quantité autorisée s'affiche en haut. Les envois et les médias en
+attente occupent aussi une place ; les refusés ne comptent pas dans le
+quota. En cas de fichier refusé pour sa durée ou sa taille, prépare une
+version plus courte ou plus légère. Si la durée ne peut pas être lue,
+essaie un autre format.
+
+Seule une **démo publiée** peut rapporter les points correspondants. Une
+photo, un portfolio de prestataire et la maquette ajoutée depuis un morceau
+ne déclenchent pas automatiquement ce gain.
+
 ### Un métier, une fiche {#fiche-metier}
 
 Chaque métier que tu as choisi a sa page (**Mon profil** → le nom du
@@ -212,6 +249,14 @@ Pour trouver des groupes, **publie un plateau** (voir
 viendra des dates tenues et confirmées par les groupes, jamais des points.
 Il faut être majeur·e pour publier un plateau.
 
+Une invitation à co-gérer une association, un collectif ou un festival se
+traite dans [Mes organisations](/organisations). La personne invitée doit
+être majeure et avoir le métier d'organisateur·rice. Les personnes de la
+gestion peuvent traiter les candidatures aux plateaux de l'organisation ;
+la conversation s'ouvre avec celle qui accepte la candidature. Pour
+quitter la responsabilité, transmets-la : on ne peut pas partir en laissant
+l'organisation sans gestion.
+
 ### Si tu es manager ou booker {#accompagnement}
 
 Ouvre **Mon profil › Mon profil de manager ou de booker** : choisis
@@ -236,6 +281,13 @@ Ton rang (Premier artiste, Développement d’artistes, Agence) vient des
 artistes qui ont confirmé et des rangs que leurs groupes passent pendant
 l’accompagnement, jamais des points. Il faut être majeur·e, et on
 n’accompagne pas un groupe dont on fait partie.
+
+Pour décliner une proposition, la retirer avant accord ou mettre fin à un
+accompagnement, ouvre [Accompagnement](/accompagnement). L'artiste et le
+professionnel peuvent mettre fin à un accompagnement confirmé. Il ne
+permet alors plus de sélectionner ce booker pour de nouvelles dates,
+mais le travail déjà confirmé reste dans son parcours. Un accompagnement
+dans l'app ne remplace pas votre accord professionnel.
 
 ### Si tu as un studio {#studio}
 
@@ -265,6 +317,17 @@ conversation, choisis **Au studio**. Une fois confirmée par ton ou ta
 client·e, elle compte comme une session : _Actif_ à 5 sessions, _Reconnu_
 à 20 avec 10 client·es différent·es. Les **objectifs du studio** sont sur
 sa fiche.
+
+Pour publier, complète les éléments demandés sur la fiche : ville,
+service, salle, tarif ou conditions, matériel et horaires ou « sur
+rendez-vous ». Si un élément indispensable manque, la fiche indique
+pourquoi elle ne peut pas être publiée. Une fiche redevenue incomplète
+peut repasser en brouillon.
+
+Une invitation à gérer un studio se traite dans **Mes studios**. Le ou la
+responsable peut retirer une personne de la gestion ; pour quitter la
+responsabilité, il faut la transmettre. On ne peut pas abandonner seul·e
+la gestion du studio.
 
 ## 3. Choisir ton mode
 
@@ -300,6 +363,18 @@ email**, puis touche **Enregistrer mes notifications**.
 - Les **gains et succès** sont annoncés quand tu reviens dans l'app.
 - L'email est un **résumé**, au plus une fois par jour et seulement s'il y a du neuf.
   Ce n'est pas un email immédiat pour chaque message.
+
+Dans un email de résumé, un lien permet aussi de se désinscrire d'un sujet
+ou de tous ces résumés. Ouvrir le lien ne suffit pas : valide avec
+**Confirmer** sur la page de désinscription. Tu peux ensuite modifier tes
+préférences dans les réglages.
+
+### Les petits conseils sur les écrans
+
+Un conseil peut apparaître dans la recherche, les annonces, les messages,
+ton profil ou ton carnet. **J'ai compris** masque ce conseil pour ton
+compte ; un autre conseil utile peut prendre sa place. Ces conseils ne
+sont pas des tâches obligatoires et ne rapportent pas de points.
 
 ## Questions fréquentes
 

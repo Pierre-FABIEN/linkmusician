@@ -24,6 +24,13 @@
   place le focus sur le titre visé.
 - **E2E** : `e2e/linkmusician/aide.spec.ts`.
 
+## Couverture des fonctionnalités
+
+L’[inventaire des écrans et des fonctions](./couverture.md) relie les
+parcours disponibles à leurs explications dans `/aide`, avec les limites
+et les fonctions encore à venir. Le mettre à jour si un écran ou une
+action est ajouté.
+
 ## Les pages
 
 | Page de l'app         | Fichier                                                                             | Pour qui, pour quoi                                                                       |

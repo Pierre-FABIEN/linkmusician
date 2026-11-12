@@ -102,6 +102,61 @@ Pour retrouver les personnes bloquées ou revenir sur ton choix :
   pour eux, sans ton nom (« Compte supprimé ») : par exemple ton passage
   dans un groupe ou ton crédit confirmé sur un morceau.
 
+## 7. Connexion et sécurité du compte {#compte}
+
+Les [Réglages](/reglages) concernent ton usage de LinkMusician. Le lien
+**Email, mot de passe, sécurité** ouvre les
+[Paramètres du compte](/auth/settings) pour tes accès.
+
+### Email, mot de passe ou connexion Google
+
+- Pour un compte avec mot de passe, **Mettre à jour l'email** permet
+  d'indiquer une nouvelle adresse ; termine la vérification demandée avec
+  le code reçu.
+- **Changer le mot de passe** demande ton mot de passe actuel et le nouveau.
+- Si tu l'as oublié, ouvre [Mot de passe oublié](/auth/forgot-password),
+  saisis l'email de ton compte et suis les écrans de récupération.
+- Si tu as créé ton compte avec **Google**, reconnecte-toi avec le bouton
+  Google. Les formulaires de changement d'email et de mot de passe local
+  ne sont pas proposés pour ce compte.
+
+Si un code de vérification ne fonctionne plus, demande un nouvel envoi
+sur l'écran concerné et utilise le dernier code reçu. Pour la vérification
+de l'email, un nouvel envoi invalide le précédent. Vérifie aussi les
+courriers indésirables et l'adresse utilisée.
+
+### Voir et fermer les connexions de tes appareils
+
+Ouvre [Mes sessions](/auth/settings/sessions). Une **session** correspond
+à un appareil ou navigateur connecté à ton compte. Tu peux consulter les
+sessions actives et les dernières connexions, déconnecter un autre
+appareil ou toutes les autres sessions. Ta session actuelle reste ouverte
+quand tu déconnectes les autres.
+
+Un appareil inconnu ? Ferme sa session et change ton mot de passe si ton
+compte en utilise un. Un email d'alerte de connexion peut aussi proposer
+**Ce n'était pas moi** : suis la page de confirmation pour révoquer la
+connexion concernée.
+
+### Si un deuxième code t'est demandé
+
+Certains comptes utilisent la **double authentification** : après le mot
+de passe, tu saisis le code de ton application d'authentification. Lors de
+la configuration, scanne le QR code avec cette application puis valide
+son code. Conserve le **code de secours** dans un endroit sûr : il est
+présenté à ce moment et permet de récupérer l'accès si tu perds ton
+application. Il ne faut pas le communiquer à quelqu'un.
+
+### Avant de supprimer ton compte
+
+Si tu veux une copie de tes informations, télécharge-les d'abord dans
+[Mes données](/auth/settings/donnees). **Supprimer mon compte** ouvre une
+confirmation : saisis ton mot de passe actuel si tu en as un, ou le mot
+**SUPPRIMER** pour un compte sans mot de passe, puis confirme. La
+suppression du profil est immédiate et te déconnecte de tes appareils.
+Masquer son profil, quitter un groupe et supprimer son compte sont trois
+actions différentes.
+
 ## Questions fréquentes
 
 <details><summary>La personne bloquée sait-elle que je l’ai bloquée ?</summary>

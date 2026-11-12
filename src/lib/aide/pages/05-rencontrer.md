@@ -155,6 +155,11 @@ Pour chacun, tu vois comment vous vous êtes rencontrés (« 3 jams
 ensemble »), vos projets en commun (un groupe, des morceaux), et un bouton
 **Écrire**. Pas besoin d’échanger vos numéros : tout passe par l’app.
 
+**Retirer de mon carnet** enlève une personne que tu avais gardée après
+avoir joué ensemble. Cela ne bloque pas son compte et ne supprime pas une
+conversation ouverte : elle peut donc rester dans la liste des contacts
+au titre de cette conversation.
+
 ### Les groupes de contacts
 
 Rassemble des contacts autour d’un projet : « Projet funk »,
@@ -166,6 +171,7 @@ Rassemble des contacts autour d’un projet : « Projet funk »,
    le supprimer.
 
 Tes groupes sont privés : personne ne sait dans quel groupe tu l’as mis.
+Tu peux créer jusqu’à vingt groupes, avec trente contacts au maximum dans chacun.
 
 ### Les discussions de groupe
 
@@ -176,12 +182,18 @@ travailler) :
 2. Chaque personne du groupe reçoit une **invitation**. Elle ne voit rien
    de la discussion tant qu’elle ne l’a pas rejointe, et choisit
    **Rejoindre** ou **Non merci** (personne n’est prévenu).
-3. Tu peux inviter d’autres contacts depuis **Qui est là**.
+3. Si tu as créé la discussion, tu peux inviter d’autres contacts depuis **Qui est là**.
 
 Tes discussions et invitations sont dans **Messages**. Chacun·e peut
 **quitter** une discussion quand il ou elle veut ; ses messages restent
-pour les autres. Si tu as bloqué quelqu’un, vous ne vous retrouvez pas dans
-la même discussion.
+pour les autres. Un blocage empêche l'invitation ou l'entrée si la personne concernée
+est déjà présente. **Si tu bloques quelqu'un après avoir rejoint une
+discussion, elle ne se ferme pas automatiquement : quitte-la si besoin.**
+
+Les discussions de groupe sont réservées aux adultes pour le moment.
+Elles accueillent au maximum trente personnes, invitations comprises.
+Après **Non merci** ou un départ, il n'est pas possible de te réinviter
+dans cette même discussion.
 
 ## 5. Préparer un premier échange
 

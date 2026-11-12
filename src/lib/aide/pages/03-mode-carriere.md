@@ -104,6 +104,62 @@ toujours d’abord, puis ceux de ton ambition, puis les autres :
 > 💡 **Astuce** : pas besoin de tout faire d’un coup. Une étape par
 > semaine, c’est déjà une belle progression.
 
+### Objectifs, campagnes, équipe et agenda {#organiser-son-parcours}
+
+- [Mes objectifs](/espace/objectifs) présente les prochaines actions
+  atteignables et leur avancement. Les objectifs des métiers du son, de
+  l'organisation et de l'accompagnement dépendent de tes activités.
+  Choisir une ambition change les priorités, sans supprimer les autres objectifs.
+- [Campagnes en cours](/espace/campagnes) rassemble tes morceaux et ceux
+  de ton équipe : idées, état d'avancement, rôles encore libres et crédits
+  à confirmer. Ouvre un morceau pour agir dessus.
+- [Mon équipe](/espace/equipe) retrouve tes groupes actifs et les
+  partenaires avec qui tu collabores régulièrement. Un groupe de musique
+  et un groupe privé de contacts sont deux choses différentes.
+- [Agenda](/espace/agenda) réunit tes jams à venir et tes collaborations
+  acceptées à date future. Une proposition encore en attente n'est pas une
+  session confirmée.
+
+### Ta fiche de carrière et les cartes souvenirs {#fiche-et-souvenirs}
+
+Dans [Ma fiche de carrière](/espace/fiche), tu retrouves les faits confirmés
+de ton parcours. La partie **Rien que pour toi** ajoute tes présences
+déclarées en jam, tes morceaux solo, tes points et ton niveau : ces
+informations restent privées.
+
+Quand une épreuve de la carte est franchie, la section **Cartes souvenirs
+à partager** propose **Télécharger** pour cet acte. Tu récupères une
+image PNG que tu peux partager toi-même. Il faut un profil public visible
+pour partager une carte ; elle ne contient pas tes points ni tes données
+privées. Si aucune épreuve n'est encore franchie, il n'y a pas encore de
+carte à télécharger.
+
+### Quand tu ne sais plus quoi faire {#coups-de-pouce}
+
+Ouvre [Coups de pouce](/espace/coups-de-pouce). L'app peut suggérer une personne de ton réseau pour un rôle
+libre dans l'un de tes morceaux, un pro du son pour l'enregistrer ou une
+jam proche. Chaque idée mène à l'écran correspondant. Il peut n'y avoir aucune
+suggestion : elles dépendent de ton réseau et des occasions disponibles.
+Ce sont des propositions facultatives, sans pénalité si tu ne les suis pas.
+
+### Présenter deux personnes : le parrainage musical {#parrainage}
+
+Au palier musical **Pilier local** ou **Référence**, ouvre
+[Parrainer](/espace/parrainage) :
+
+1. Choisis deux personnes différentes de ton réseau musical.
+2. Ajoute, si tu veux, un mot expliquant pourquoi elles pourraient jouer ensemble.
+3. Touche **Les présenter**. Chacune reçoit une notification avec le
+   profil de l'autre ; elles choisissent librement de se contacter.
+4. Retrouve le résultat dans **Mes présentations**. Si elles réalisent
+   ensuite une collaboration confirmée ensemble, tu débloques le succès
+   **Passeur**, sans points supplémentaires.
+
+Tu peux faire jusqu'à dix présentations sur trente jours. Les personnes
+mineures, les personnes séparées par un blocage, celles qui ont déjà joué
+ensemble et les paires que tu as déjà présentées ne peuvent pas être
+proposées. Ce palier musical est distinct de la confiance **Pilier**.
+
 ## 2. Rencontrer et collaborer {#collaborer}
 
 C’est le cœur du mode carrière : **ce qui fait monter, c’est de jouer
@@ -120,6 +176,13 @@ ensemble**.
 5. Confirmée des deux côtés : vous gagnez des points tous les deux, et
    vous pouvez vous laisser une **appréciation** (**fiable**,
    **à l’heure**, **bien préparé·e**, **bonne ambiance**).
+
+Si la proposition est inexacte, choisis **Ce n'est pas exact**. Pour un
+projet abandonné, utilise **Annuler** tant que la collaboration n'est pas
+terminée. Les propositions sont limitées à une par conversation et par
+jour, avec une date jusqu'à 60 jours dans le passé ou 90 jours à venir.
+Un rendez-vous prévu, son acceptation et la confirmation qu'il a eu lieu
+sont des étapes distinctes.
 
 > ⚠️ **Important** : une collaboration rapporte le plus avec des gens
 > différents. Rejouer souvent avec la même personne compte de moins en
@@ -161,6 +224,24 @@ groupe, accepter des demandes pour le rejoindre.
 | **Responsable** | Tout, y compris confier la co-gestion et transmettre le groupe       |
 | **Co-gestion**  | Inviter, accepter, retirer un membre, gérer la fiche et les étapes   |
 | **Membre**      | Voir les morceaux et le parcours du groupe, le quitter quand il veut |
+
+### Rejoindre, gérer ou quitter un groupe {#gerer-groupe}
+
+Dans [Mes groupes](/groupes), retrouve tes invitations et tes demandes en
+attente. Sur la page d'un groupe, **Demander à rejoindre** envoie une
+demande à sa gestion : tu deviens membre une fois qu'elle est acceptée.
+Une invitation reçue doit également être acceptée.
+
+La gestion ouvre **Modifier la fiche du groupe** pour changer le nom,
+la présentation, les styles, la ville et les liens d'écoute. Sur la fiche
+de gestion, elle traite les demandes et invitations et gère l'effectif.
+Le ou la responsable peut confier la co-gestion et transmettre la responsabilité.
+
+Pour partir, choisis **Quitter le groupe**, puis confirme. Si tu es
+responsable et qu'il reste d'autres membres, transmets d'abord la
+responsabilité. Si tu es seul·e, le départ dissout le groupe : son
+historique reste. Un retour ultérieur constitue une nouvelle période,
+sans effacer les dates de ta participation précédente.
 
 ### Faire vérifier ton groupe {#verifier}
 
@@ -290,6 +371,20 @@ sur la page du groupe.
 > 💡 **Astuce** : un morceau écrit à plusieurs ? Notez qui a fait quoi
 > **avant** qu’il soit joué en public. Les [démarches](/demarches)
 > expliquent comment le protéger et le déclarer.
+
+### Accepter, refuser ou retirer un crédit {#gerer-credits}
+
+Une demande de crédit apparaît dans **Morceaux** ou **À confirmer**.
+Vérifie le morceau et ton rôle avant de confirmer : ton nom devient
+public avec ce rôle seulement après ton accord. **Ce n'est pas moi**
+refuse le crédit et rend les rôles concernés à nouveau disponibles.
+
+La personne qui gère le morceau peut retirer un crédit encore en attente.
+Après confirmation, c'est la personne créditée qui choisit **Retirer mon
+crédit** pour retirer son nom et ses rôles. La gestion peut aussi renommer
+le morceau, retirer des rôles libres ou **Supprimer le morceau**, après
+confirmation, pour toute l'équipe. Retirer son crédit ou supprimer un
+morceau ne reprend pas les points déjà gagnés.
 
 ### La suite du morceau : enregistrer, mixer, produire {#suite-du-morceau}
 

@@ -105,6 +105,24 @@ Sur la fiche de ta jam, tu peux :
 - ajuster le **matériel sur place** (batterie, amplis, clavier, sono et
   micros, câbles), pour que chacun sache quoi apporter.
 
+### Trouver, ajouter ou confirmer un lieu {#annuaire-lieux}
+
+Dans [Lieux de jam](/lieux), cherche un lieu par son nom ou parcours ceux
+près de ta commune. Sa fiche présente son matériel et ses jams à venir ;
+si sa gestion a complété sa fiche, tu retrouves aussi ses conditions
+d'accueil, ses photos et les dates ouvertes aux groupes.
+
+Le lieu n'existe pas dans l'annuaire ? Choisis **Ajouter un lieu**, indique
+son nom, son type et sa commune. Ajouter un lieu n'en fait pas de toi le
+responsable. Si ton ajout reste dans **Tes lieux en attente**, il attend
+la confirmation d'un autre membre ou de la modération avant de pouvoir
+accueillir des jams.
+
+Si l'écran te propose de confirmer un lieu que tu connais, ouvre sa fiche
+et confirme seulement s'il existe vraiment. Cette confirmation de
+l'annuaire est différente de la revendication de sa gestion et de la
+vérification de son organisation.
+
 ### Tu gères un lieu ? {#gerer-un-lieu}
 
 Sur la page de ton bar ou de ta salle, touche **C’est mon lieu** pour le
@@ -154,6 +172,13 @@ qu’une fois. Puis **publie un atelier** dans un lieu de l’annuaire : tu en
 es le lead. Pour tes élèves mineur·es, il doit finir avant 22 h. Un
 atelier ne rapporte pas de points : ce qui compte, c’est que tes élèves
 jouent ensuite avec d’autres.
+
+Si un lien d'école ne fonctionne plus, il peut avoir expiré, atteint son
+nombre d'utilisations ou avoir été révoqué. Demande un nouveau lien au
+responsable. Celui-ci peut révoquer un lien depuis la fiche de l'école
+pour empêcher de nouvelles inscriptions avec ce lien. Un seul responsable
+gère l'école pour le moment : la co-gestion par plusieurs profs n'est pas
+encore disponible.
 
 ## 2. Pendant la jam
 

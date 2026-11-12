@@ -19,18 +19,21 @@ simplement._
 Tu peux lire cette aide sans compte. Les liens vers ton profil ou ton
 espace te demanderont de te connecter si nécessaire.
 
-| Tu veux…                                                        | Commence ici                                                         |
-| --------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Créer ton compte ou comprendre les écrans d'inscription         | [Premiers pas](./01-premiers-pas.md)                                 |
-| Ajouter un métier, une offre ou modifier ton profil             | [Ton profil et tes fiches métier](./01-premiers-pas.md#fiche-metier) |
-| Comprendre qui voit tes informations                            | [Visibilité du profil](./06-securite.md#visibilite)                  |
-| Trouver une jam, t'inscrire ou savoir quoi apporter             | [Avant la jam](./02-mode-jam.md#avant-la-jam)                        |
-| Retrouver les gens avec qui tu as joué                          | [Après la jam](./02-mode-jam.md#apres-la-jam)                        |
-| Monter un groupe et inviter des membres                         | [Ton groupe](./03-mode-carriere.md#groupe)                           |
-| Composer, créditer une personne ou faire avancer un morceau     | [Tes morceaux](./03-mode-carriere.md#morceaux)                       |
-| Comprendre les points, les rangs et les limites de ton compte   | [Points et progression](./04-points-et-progression.md)               |
-| Trouver un partenaire, un prestataire ou répondre à une annonce | [Rencontrer des musicien·nes](./05-rencontrer.md)                    |
-| Bloquer, signaler, récupérer tes données                        | [Sécurité et vie privée](./06-securite.md)                           |
+| Tu veux…                                                        | Commence ici                                                                                                           |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Créer ton compte ou comprendre les écrans d'inscription         | [Premiers pas](./01-premiers-pas.md)                                                                                   |
+| Ajouter un métier, une offre ou modifier ton profil             | [Ton profil et tes fiches métier](./01-premiers-pas.md#fiche-metier)                                                   |
+| Publier une démo, envoyer un fichier ou comprendre un refus     | [Mes médias](./01-premiers-pas.md#medias)                                                                              |
+| Comprendre qui voit tes informations                            | [Visibilité du profil](./06-securite.md#visibilite)                                                                    |
+| Trouver une jam, t'inscrire ou savoir quoi apporter             | [Avant la jam](./02-mode-jam.md#avant-la-jam)                                                                          |
+| Retrouver les gens avec qui tu as joué                          | [Après la jam](./02-mode-jam.md#apres-la-jam)                                                                          |
+| Monter un groupe et inviter des membres                         | [Ton groupe](./03-mode-carriere.md#groupe)                                                                             |
+| Composer, créditer une personne ou faire avancer un morceau     | [Tes morceaux](./03-mode-carriere.md#morceaux)                                                                         |
+| Comprendre les points, les rangs et les limites de ton compte   | [Points et progression](./04-points-et-progression.md)                                                                 |
+| Trouver un partenaire, un prestataire ou répondre à une annonce | [Rencontrer des musicien·nes](./05-rencontrer.md)                                                                      |
+| Retrouver tes cartes souvenirs ou présenter deux personnes      | [Fiche et souvenirs](./03-mode-carriere.md#fiche-et-souvenirs), [parrainage musical](./03-mode-carriere.md#parrainage) |
+| Retrouver l’accès à ton compte ou fermer une session            | [Connexion et sécurité](./06-securite.md#compte)                                                                       |
+| Bloquer, signaler, récupérer tes données                        | [Sécurité et vie privée](./06-securite.md)                                                                             |
 
 Sur chaque page, le **sommaire** mène directement au sujet voulu. Les
 **questions fréquentes** se déplient en touchant leur titre. Dans les
