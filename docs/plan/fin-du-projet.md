@@ -176,7 +176,7 @@ les ouvrir est une décision produit à part.
 
 Reste à faire, dans l'ordre :
 
-#### ONB-12b — Profil : complétude et visibilité par métier
+#### ONB-12b — Profil : complétude et visibilité par métier ✅
 
 - **Ticket** #26. Dépend d'ONB-12a.
 - **À faire** : sur `/profil`, une fiche de complétude **par métier**
@@ -193,6 +193,11 @@ Reste à faire, dans l'ordre :
 - **Acceptation** : compte à 2 métiers, complétudes séparées, ville
   demandée une fois ; export et anonymisation RGPD couvrent les nouvelles
   colonnes ; aucune donnée privée dans `/@handle`.
+- **État (12/11/2026)** : D61 à D64 consignées après l'audit #29
+  (matrice : [conception/06 §1.3](../conception/06-metiers.md#13-qualification-pour-la-mise-en-relation-29-onb-12b-d61-à-d64)) ;
+  Q63 et Q59 tranchées, Q64 à Q66 ouvertes. Terminé : migration
+  `20261112170320_visibilite_par_metier` appliquée (`public`, `e2e`),
+  intégration et E2E (`profil-metiers.spec.ts` et specs voisines) au vert.
 
 #### ONB-12c — Profil : informations avancées par métier
 
@@ -203,13 +208,22 @@ Reste à faire, dans l'ordre :
   `/profil/organisateur` et « Ma pratique » (pas de doublon). Invitation à
   compléter au moment où le champ sert (candidature, annonce), sans
   bloquer l'application. Distinguer déclaré, confirmé et vérifié.
-- **Questions** : fusion de `mobility` et « Où tu travailles » (Q59) ;
+- **Questions** : visibilité de `rate` et `gear` des pages historiques ; formation et répertoire du groupe (D64) ;
   « postproduction » de l'ingé son (exige un code d'enum
   `SoundSpecialty`, donc une migration).
 - **Acceptation** : une spécialité retirée ne détruit aucun crédit ;
   profils existants intacts ; mobile et clavier.
 
-#### ONB-13 — Découverte selon offres et besoins
+#### ONB-13 — Découverte selon offres et besoins (découpé : 13a, 13b)
+
+- **ONB-13a — Recherche par offres** (D62) : `searchMusicianIds` filtre
+  sur `person_track_intents` (offre ou besoin, métier, spécialité), source
+  de distance `CraftMobility`, respect du bloc « spécialités et
+  intentions » d'ONB-12b. Sans migration. Scénarios #29 : 2 et 7.
+- **ONB-13b — Annonces qualifiées** (D63) : rémunération, formation,
+  engagement, présence sur `opportunities` (migration additive), puis
+  rapprochement annonces et profils. Scénarios #29 : 1, 3 et 4 ; 5 et 6
+  (métiers fermés, Q62) en tests unitaires seulement.
 
 - **Ticket** #27. Dépend d'ONB-12a (ONB-12b pour la visibilité).
 - **À faire** : `/decouvrir` et le moteur géographique existants filtrés
