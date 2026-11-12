@@ -8,6 +8,7 @@
  * boilerplate (et sa suite e2e, qui crée des comptes sans personne) restent
  * accessibles telles quelles.
  */
+import { readNavigation } from '#lib/server/actors/navigation';
 import { redirect } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { currentSuspension } from '#lib/server/moderation/service';
@@ -54,6 +55,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies }) => {
 	const acts = await pendingActCelebrations(person.actorId, celebrations.items.length > 0);
 
 	return {
+		navigation: readNavigation(person, cookies),
 		person: {
 			handle: person.actor.handle,
 			displayName: person.actor.displayName,

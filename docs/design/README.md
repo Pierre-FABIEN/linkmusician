@@ -610,3 +610,23 @@ on code avec le défaut sans attendre.
 - Plan : étape B de [fin-du-projet.md](../plan/fin-du-projet.md#3-étape-b--revue-de-fin-de-phase-5-et-revue-ux).
 - Démo pour vérifier chaque écran avec des données riches :
   [docs/demo](../demo/README.md).
+
+## Accueil `/jouer` : panorama de référence (12/11/2026)
+
+À la demande de l'utilisateur, `/jouer` reprend le panorama de
+`/_lab/metro` : héros LinkMusician, Aurora multicolore, pivots jouer / jam /
+actualité / progrès, tuiles encadrées aux mêmes tons et effets. Le choix
+des modes garde ses actions serveur, le mode préféré et les introductions.
+Les autres pivots utilisent les services existants : jams proches, réseau,
+annonces ciblées et progression privée. Les états vides remplacent les
+exemples fictifs du laboratoire ; les liens ouvrent les écrans réels.
+
+Cet accueil est une exception explicite à la règle des pages-menus D50 :
+les aperçus restent bornés (2 jams, 2 contacts, 4 annonces, 4 succès), sans
+formulaire métier ni liste complète. Les blocs de démonstration
+« fondations » restent dans le laboratoire. Les raccourcis et le compte
+sont fournis par la coquille pour éviter un deuxième jeu de navigation.
+
+L'aide des premiers pas décrit les quatre volets. Le parcours e2e
+`modes.spec.ts` vérifie les pivots, le choix de mode, sa mémorisation, les
+introductions et le basculement depuis la coquille.

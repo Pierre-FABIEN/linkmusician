@@ -10,13 +10,15 @@
 	 */
 	import '#lib/linkmusician/theme.css';
 	import type { Snippet } from 'svelte';
-	import { page } from '$app/state';
+	import { page, navigating } from '$app/state';
 	import { ArrowLeftRight, Guitar, Megaphone, Trophy } from 'lucide-svelte';
 	import MetroActions from './metro/MetroActions.svelte';
 	import { toneOfMode } from './metro/tones';
 	import { modeFor, PLAY_MODE_INFO, type PlayModeValue } from '#lib/linkmusician/modes';
 	import { breadcrumbs } from '#lib/linkmusician/breadcrumbs';
 	import Breadcrumbs from './Breadcrumbs.svelte';
+	import type { NavigationContext } from '#lib/linkmusician/navigation';
+	import { badgeLabel } from '#lib/notifications/types';
 	import { BRAND } from '#lib/linkmusician/brand';
 	import AccountMenu from './AccountMenu.svelte';
 
@@ -26,13 +28,15 @@
 		user,
 		unread = 0,
 		notifications = 0,
-		preferredMode = null
+		preferredMode = null,
+		navigation = null
 	}: {
 		children: Snippet;
 		user: ShellUser | null;
 		unread?: number;
 		notifications?: number;
 		preferredMode?: PlayModeValue | null;
+		navigation?: NavigationContext | null;
 	} = $props();
 
 	/** Pastilles relues après le chargement (`/api/notifications/badge`). */
@@ -132,10 +136,72 @@
 				</a>
 			{/if}
 			<div class="ml-auto flex shrink-0 items-center gap-1.5">
-				<MetroActions {messages} notifications={bell} {current} />
+				<MetroActions {messages} notifications={bell} {current} primaryLinks={!navigation} />
 				<AccountMenu {user} />
 			</div>
 		</div>
+		{#if navigation}
+			<div
+				class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-3 pt-3"
+			>
+				<nav
+					aria-label="Navigation principale"
+					class="flex w-full max-w-full items-center gap-x-4 overflow-x-auto text-sm lg:w-auto"
+				>
+					{#each [{ href: '/jouer', label: 'Accueil', active: path === '/jouer' }, { href: '/decouvrir', label: 'Découvrir', active: path.startsWith('/decouvrir') }, { href: '/annonces', label: 'Annonces', active: path.startsWith('/annonces') || path.startsWith('/plateaux') }, { href: '/messages', label: 'Messages', active: path.startsWith('/messages') }, { href: navigation.profileHref, label: 'Profil', active: path.startsWith('/profil') }] as item (item.href)}
+						<a
+							href={item.href}
+							aria-current={item.active ? 'page' : undefined}
+							class="inline-flex min-h-11 shrink-0 items-center gap-1 font-semibold underline-offset-4 hover:underline {item.active
+								? 'underline'
+								: ''}"
+						>
+							{item.label}
+							{#if item.href === '/messages' && messages > 0}<span
+									class="lm-pill"
+									aria-label="{messages} non lus">{badgeLabel(messages)}</span
+								>{/if}
+						</a>
+					{/each}
+				</nav>
+				<form
+					method="POST"
+					action="/jouer?/switchTrack"
+					class="flex w-full max-w-full items-center gap-2 lg:w-auto"
+				>
+					<input
+						type="hidden"
+						name="returnTo"
+						value={page.url.pathname + page.url.search + page.url.hash}
+					/>
+					<label for="active-track" class="sr-only">Mon espace</label>
+					<a
+						href="/espace"
+						aria-label="Ouvrir mon espace"
+						class="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold underline"
+						>Mon espace</a
+					>
+					<select
+						id="active-track"
+						name="track"
+						class="lm-field min-h-11 min-w-0 flex-1 text-sm lg:max-w-64"
+						value={navigation.active}
+						disabled={Boolean(navigating.to)}
+					>
+						{#each navigation.tracks as track (track.track)}
+							<option value={track.track}>{track.label}{track.available ? '' : ' · bientôt'}</option
+							>
+						{/each}
+					</select>
+					<button
+						type="submit"
+						class="lm-btn"
+						data-variant="ghost"
+						disabled={Boolean(navigating.to)}>Changer</button
+					>
+				</form>
+			</div>
+		{/if}
 	</header>
 
 	<Breadcrumbs {crumbs} />

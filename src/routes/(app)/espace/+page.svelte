@@ -2,6 +2,7 @@
 	// LINKMUSICIAN: écran de carrière (P3-12), page-menu (D50) en panorama
 	// Metro (MET-02, D55), voir +page.server.ts. Les valeurs viennent toutes du
 	// serveur.
+	import RoleSpace from '#lib/components/linkmusician/RoleSpace.svelte';
 	import SEO from '#lib/components/SEO.svelte';
 	import * as Avatar from '#shadcn/avatar';
 	import {
@@ -208,63 +209,67 @@
 
 <SEO title="Mon espace" noindex nofollow />
 
-<MetroHome label="Mode carrière" {pivots}>
-	{#snippet header()}
-		<!-- En-tête : identité et progression -->
-		<header class="flex max-w-3xl flex-col gap-4">
-			<div class="flex items-center gap-4">
-				<Avatar.Root class="size-16 shrink-0 shadow-lg">
-					<Avatar.Fallback class="bg-primary/15 text-xl font-bold text-foreground"
-						>{initialsOf(data.person.displayName)}</Avatar.Fallback
-					>
-				</Avatar.Root>
-				<div class="min-w-0 space-y-1">
-					<p class="lm-kicker flex items-center gap-2 text-muted-foreground">
-						<Trophy class="size-4" aria-hidden="true" /> Mode carrière
-					</p>
-					<h1 class="lm-title">Salut {firstName} !</h1>
+{#if data.roleSpace}
+	<RoleSpace {...data.roleSpace} pending={c.toConfirm} />
+{:else}
+	<MetroHome label="Mode carrière" {pivots}>
+		{#snippet header()}
+			<!-- En-tête : identité et progression -->
+			<header class="flex max-w-3xl flex-col gap-4">
+				<div class="flex items-center gap-4">
+					<Avatar.Root class="size-16 shrink-0 shadow-lg">
+						<Avatar.Fallback class="bg-primary/15 text-xl font-bold text-foreground"
+							>{initialsOf(data.person.displayName)}</Avatar.Fallback
+						>
+					</Avatar.Root>
+					<div class="min-w-0 space-y-1">
+						<p class="lm-kicker flex items-center gap-2 text-muted-foreground">
+							<Trophy class="size-4" aria-hidden="true" /> Mode carrière
+						</p>
+						<h1 class="lm-title">Salut {firstName} !</h1>
+					</div>
 				</div>
-			</div>
-			<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-				<p class="text-sm text-muted-foreground">{subtitle}</p>
-				{#if d.tier}<TierBadge {...d.tier} />{/if}
-			</div>
-			<div class="flex items-center gap-4">
-				<LevelBadge level={d.level} />
-				<div class="max-w-md flex-1">
-					<XpBar
-						level={d.level}
-						xp={d.xp}
-						xpIntoLevel={d.xpIntoLevel}
-						xpForNextLevel={d.xpForNextLevel}
-					/>
+				<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+					<p class="text-sm text-muted-foreground">{subtitle}</p>
+					{#if d.tier}<TierBadge {...d.tier} />{/if}
 				</div>
-			</div>
-			<div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-				{#if data.hidden}
-					<span class="flex items-center gap-1 text-muted-foreground"
-						><EyeOff class="size-4" aria-hidden="true" /> Profil public masqué</span
-					>
-				{:else}
-					<a href="/@{data.person.handle}" class="underline">Voir mon profil public</a>
-				{/if}
-				<a href="/profil" class="underline">Mon profil</a>
-			</div>
-		</header>
-	{/snippet}
-	{#snippet hero()}
-		{#if d.objectives[0]}
-			{@const o = d.objectives[0]}
-			<NextStep
-				index={Math.min(d.questProgress.done + 1, d.questProgress.total)}
-				total={d.questProgress.total}
-				title={o.label}
-				text={o.xp
-					? `Une étape réelle de ta carrière : environ ${o.xp} XP à la clé.`
-					: 'Une étape réelle de ta carrière, à franchir avec d’autres.'}
-				href={o.href ?? '/annonces'}
-				cta={o.href ? 'J’y vais' : 'Bientôt disponible'}
-			/>
-		{/if}
-	{/snippet}
-</MetroHome>
+				<div class="flex items-center gap-4">
+					<LevelBadge level={d.level} />
+					<div class="max-w-md flex-1">
+						<XpBar
+							level={d.level}
+							xp={d.xp}
+							xpIntoLevel={d.xpIntoLevel}
+							xpForNextLevel={d.xpForNextLevel}
+						/>
+					</div>
+				</div>
+				<div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+					{#if data.hidden}
+						<span class="flex items-center gap-1 text-muted-foreground"
+							><EyeOff class="size-4" aria-hidden="true" /> Profil public masqué</span
+						>
+					{:else}
+						<a href="/@{data.person.handle}" class="underline">Voir mon profil public</a>
+					{/if}
+					<a href="/profil" class="underline">Mon profil</a>
+				</div>
+			</header>
+		{/snippet}
+		{#snippet hero()}
+			{#if d.objectives[0]}
+				{@const o = d.objectives[0]}
+				<NextStep
+					index={Math.min(d.questProgress.done + 1, d.questProgress.total)}
+					total={d.questProgress.total}
+					title={o.label}
+					text={o.xp
+						? `Une étape réelle de ta carrière : environ ${o.xp} XP à la clé.`
+						: 'Une étape réelle de ta carrière, à franchir avec d’autres.'}
+					href={o.href ?? '/annonces'}
+					cta={o.href ? 'J’y vais' : 'Bientôt disponible'}
+				/>
+			{/if}
+		{/snippet}
+	</MetroHome>
+{/if}

@@ -1,6 +1,16 @@
 // LINKMUSICIAN: écran de carrière (P3-12, conception 07 §4.2), page-menu
 // (D50) : identité et progression, « Ta prochaine étape » selon l'ambition,
 // puis une entrée par écran. Seulement des compteurs, aucun contenu.
+import { readNavigation } from '#lib/server/actors/navigation';
+import { roleMenu } from '#lib/linkmusician/navigation';
+import { TRACKS } from '#lib/actors/tracks';
+import { prisma } from '#lib/server';
+import {
+	getSoundEngineerProgress,
+	getProducerProgress,
+	getPromoterProgress,
+	getAgentProgress
+} from '#lib/server/progression/crafts';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { getActorLocation } from '#lib/server/geo/queries';
 import { getDashboard } from '#lib/server/progression/dashboard';
@@ -14,10 +24,23 @@ import { nudgesFor } from '#lib/server/career/nudges';
 import { representationsForMe } from '#lib/server/representation/service';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, cookies }) => {
 	// La garde de `(app)/+layout.server.ts` a déjà vérifié compte et personne.
 	const person = (await getPersonByUserId(locals.user!.id))!;
+	const navigation = readNavigation(person, cookies)!;
+	const track = navigation.active;
+	const roleProgress =
+		track === 'SOUND_ENGINEER'
+			? getSoundEngineerProgress(person.actorId, prisma)
+			: track === 'PRODUCER'
+				? getProducerProgress(person.actorId, prisma)
+				: track === 'PROMOTER'
+					? getPromoterProgress(person.actorId, prisma)
+					: track === 'MANAGER' || track === 'BOOKER'
+						? getAgentProgress(person.actorId, track, prisma)
+						: Promise.resolve(null);
 	const [
+		professional,
 		dashboard,
 		location,
 		toConfirm,
@@ -29,6 +52,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		nudges,
 		representations
 	] = await Promise.all([
+		roleProgress,
 		getDashboard(person.actorId, ambitionPriorities(person.ambition)),
 		getActorLocation(person.actorId),
 		pendingForMe(person.actorId),
@@ -47,6 +71,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const isAgent = person.tracks.some((t) => t.track === 'MANAGER' || t.track === 'BOOKER');
 	const inProgress = works.works.filter((w) => w.state === 'IDEA');
 	return {
+		roleSpace:
+			track === 'MUSICIAN'
+				? null
+				: {
+						title: TRACKS[track].label,
+						available: TRACKS[track].available,
+						entries: roleMenu(track),
+						tier: professional?.tier ?? null
+					},
 		dashboard: { ...dashboard, objectives: linkable(dashboard.objectives) },
 		commune: location?.communeName ?? null,
 		ambition: person.ambition,

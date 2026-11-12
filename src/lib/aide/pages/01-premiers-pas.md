@@ -331,22 +331,62 @@ la gestion du studio.
 
 ## 3. Choisir ton mode
 
-Après ton profil, l’app te propose ses deux modes. Une courte
-présentation en trois écrans t’explique chacun la première fois.
+L'accueil [Jouer](/jouer) reprend quatre volets que tu peux faire défiler
+horizontalement ou choisir par leur nom :
 
-- **Mode jam** : pour jouer bientôt, sans projet. [Voir le mode jam](./02-mode-jam.md)
-- **Mode carrière** : pour monter un projet. [Voir le mode carrière](./03-mode-carriere.md)
+- **jouer** : les deux modes. Choisis **carrière** pour monter un projet,
+  ou **jam** pour jouer sans engagement. Le dernier mode choisi porte la
+  mention **Reprendre**. Une présentation en trois écrans s'ouvre la
+  première fois ; ensuite, tu accèdes directement au mode.
+- **jam** : jusqu'à deux jams proches à venir et des personnes de ton
+  réseau musical. Ouvre une jam pour voir les places et t'inscrire, ou un
+  profil pour reprendre contact. Sans jam disponible, un lien permet de
+  consulter l'agenda ; sans ville renseignée, complète d'abord ta commune.
+- **actualité** : les annonces récentes autour de toi et un accès à
+  **Découvrir**. Ouvre une annonce pour lire les conditions et candidater.
+- **progrès** : ton niveau, tes points, ta prochaine étape et des succès
+  obtenus. Les tuiles ouvrent le journal de bord, les objectifs ou la
+  progression détaillée. Ces informations restent dans ton espace privé.
 
-L’app retient ton dernier choix. Pour basculer, touche la pastille du
-mode en haut de l’écran : elle t’emmène directement vers l’autre mode.
+Les aperçus dépendent des données disponibles : l'app n'invente pas de jam,
+d'annonce ni de succès si tu n'en as pas encore.
+
+L'app retient ton dernier choix de mode. Pour basculer ensuite, touche la
+pastille du mode en haut de l'écran. [Comprendre le mode jam](./02-mode-jam.md)
+ou [le mode carrière](./03-mode-carriere.md).
+
+### Ton métier actif et ton métier principal {#metier-actif}
+
+En haut de l'app, le sélecteur **Mon espace** contient les métiers de ton
+profil. Choisis celui avec lequel tu veux travailler, puis **Changer**.
+Le lien **Mon espace**, à côté du sélecteur, affiche ensuite ses outils : tes studios si tu es
+ingé son, tes productions si tu es producteur·rice, tes plateaux si tu
+organises, tes accompagnements si tu es manager ou booker. Comme
+musicien·ne, tu retrouves le parcours carrière habituel.
+
+Le **métier actif** est ton contexte de navigation du moment. Le **métier
+principal** reste celui de ton profil : changer d'espace ne le modifie
+pas, n'efface rien et ne crée pas un deuxième compte. Pour ajouter un
+métier ou changer le principal, utilise **Réglages › Mes métiers**.
+
+Sur une recherche, changer d'espace conserve tes filtres : chercher un
+producteur ne te fait pas devenir producteur. Sur une fiche métier, le
+sélecteur ouvre celle du métier choisi. Le lien **Profil** de la
+navigation ouvre ta fiche du métier actif ; **Mon profil** dans le menu
+du compte donne accès à toutes tes informations.
+
+Le choix est retenu pour la session du navigateur. Si tu retires ce
+métier, l'app revient à ton métier principal. Pour un métier indiqué
+**bientôt**, tu peux compléter ta fiche, mais ses futurs outils ne sont
+pas encore disponibles.
 
 ## 4. Te repérer dans l’app
 
-Dans l’en-tête, tu retrouves les raccourcis **Découvrir**, **Messages**,
-**Notifications** et **Aide** dans les deux modes (sur un petit écran,
-l’aide est dans le menu du compte). Le menu du compte contient ton
-profil, tes paramètres et l’aide. L’accueil du mode sélectionné est
-accessible depuis `/espace` (carrière) ou `/jam`.
+La navigation principale garde **Accueil**, **Découvrir**, **Annonces**,
+**Messages** et **Profil**, quel que soit ton métier actif. **Accueil**
+ouvre le panorama de `/jouer`. Les raccourcis **Notifications** et **Aide**
+restent en haut (sur un petit écran, l'aide est dans le menu du compte).
+Le menu du compte contient aussi ton profil complet et tes paramètres.
 
 La **cloche** te prévient quand quelqu’un t’invite ou attend une
 confirmation ; l’icône **Messages** affiche les conversations non lues.

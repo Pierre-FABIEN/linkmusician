@@ -13,6 +13,12 @@ _Ta carrière musicale, comme dans un jeu : une étape à la fois, et chaque
 > - Plus une étape est **prouvée**, plus elle compte. Les points ne
 >   s’achètent pas.
 
+Si ton métier actif est ingé son, producteur·rice, organisateur·rice,
+manager ou booker, **Mon espace** présente d'abord les liens utiles à cette
+activité. Pour retrouver ce parcours musical, choisis **Musicien·ne**
+dans le sélecteur en haut si ce métier fait partie de ton profil.
+[Comprendre les contextes métier](./01-premiers-pas.md#metier-actif).
+
 ## La carrière, en un coup d’œil
 
 Une carrière dans la musique passe par des grandes étapes. LinkMusician

@@ -1,6 +1,7 @@
 // LINKMUSICIAN: mes objectifs (P1-11, P3-12) : les trois prochains, mis en
 // avant selon l'ambition, et l'avancement global. Une section par métier du
 // son (P4-02b, P4-04), le métier principal en premier.
+import { readNavigation } from '#lib/server/actors/navigation';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { getDashboard } from '#lib/server/progression/dashboard';
 import { linkable } from '#lib/server/career/service';
@@ -49,10 +50,10 @@ const CRAFTS = [
 	}
 ] as const;
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, cookies }) => {
 	const person = (await getPersonByUserId(locals.user!.id))!;
 	const has = (track: string) => person.tracks.some((t) => t.track === track);
-	const primary = person.tracks.find((t) => t.isPrimary)?.track;
+	const primary = readNavigation(person, cookies)?.active;
 	const chosen = CRAFTS.filter((c) => has(c.track));
 	const [d, ...progress] = await Promise.all([
 		getDashboard(person.actorId, ambitionPriorities(person.ambition)),

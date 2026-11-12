@@ -13,6 +13,7 @@
 		unread={data.memberShell.unread}
 		notifications={data.memberShell.notifications}
 		preferredMode={data.memberShell.preferredMode}
+		navigation={data.memberShell.navigation}
 	>
 		{@render children()}
 	</AppShell>

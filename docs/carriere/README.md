@@ -85,3 +85,16 @@ Conception : [07 §4.1 et §4.2](../conception/07-modes-de-jeu.md#41-choisir-son
   image Open Graph.
 - Rendu serveur par Satori et resvg, police Open Sans embarquée ; tests
   purs de séparation public/privé et de signature/dimensions PNG.
+
+## Navigation par métier (DASH-01, #31)
+
+Depuis le 12/11/2026, `/espace` sélectionne son menu d'après le contexte
+métier de session, validé contre les métiers détenus. Musicien·ne conserve
+le panorama historique ci-dessus. Les autres métiers utilisent `RoleSpace`
+et les entrées existantes de `linkmusician/navigation.ts` ; leur rang est
+lu par les services métier existants, jamais déduit de l'XP.
+
+Voir [la conception et les limites](../conception/10-navigation-metiers.md).
+Les objectifs placent le métier actif en premier ; cela ne change pas le
+métier principal du profil. Les nouveaux outils des autres issues DASH
+restent hors de ce lot.

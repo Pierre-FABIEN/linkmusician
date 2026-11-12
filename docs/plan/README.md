@@ -142,3 +142,16 @@ dans le `git log` (messages préfixés par l'ID).
 | Fin de session   | Mettre le tableau à jour, consigner les questions dans `a-trancher.md`  | 5 min  |
 | Chaque semaine   | Relire le tableau. Un lot 🟡 depuis plus d'une semaine est découpé      | 15 min |
 | Fin d'étape      | Démo du parcours livré, critères vérifiés, questions ouvertes tranchées | ½ jour |
+
+## 6. Navigation et espaces métier — épopée #30
+
+Suivi complémentaire des tickets DASH créés sur GitHub. Ne pas les confondre
+avec les lots d'inscription encore ouverts dans #26 et #27.
+
+| Lot     | Issue                                                          | État     | Périmètre                                                                                                                                                               |
+| ------- | -------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DASH-01 | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement |
+
+Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
+Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,
+annonces qualifiées) restent dans leurs lots ; ce socle ne les remplace pas.

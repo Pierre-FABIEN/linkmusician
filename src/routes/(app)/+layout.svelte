@@ -14,6 +14,7 @@
 	unread={data.unread}
 	notifications={data.notifications}
 	preferredMode={data.preferredMode}
+	navigation={data.navigation}
 >
 	{@render children()}
 	<Celebrations items={data.celebrations.items} upTo={data.celebrations.upTo} />

@@ -65,3 +65,6 @@ Cette table sert de contrôle éditorial : elle ne prouve pas à elle seule que 
 - Ajouts : médias (formats, quotas, états), fiche et souvenirs, objectifs/campagnes/équipe/agenda, coups de pouce, parrainage musical, départ et transmission du groupe, refus/retrait des crédits, annuaire des lieux, invitations et liens révoqués, fin d’accompagnement, accès et sessions du compte.
 - Correction : un blocage posé après l’entrée dans une discussion ne ferme pas celle-ci automatiquement ; les discussions collectives sont réservées aux adultes et un départ/refus est définitif pour cette discussion.
 - Le test de rendu `src/lib/server/aide/render.test.ts` vérifie les fichiers, l’en-tête, les liens et les ancres entre pages d’aide. Il ne remplace pas une validation fonctionnelle de chaque parcours.
+
+Le sélecteur multirôle et les menus de `/espace` (DASH-01, #31) sont
+expliqués dans [Métier actif et principal](../../src/lib/aide/pages/01-premiers-pas.md#metier-actif).

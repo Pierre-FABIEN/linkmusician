@@ -3,6 +3,6 @@
 import { memberShell } from '#lib/server/actors/shell';
 import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ locals }) => ({
-	memberShell: await memberShell(locals)
+export const load: LayoutServerLoad = async ({ locals, cookies }) => ({
+	memberShell: await memberShell(locals, cookies)
 });

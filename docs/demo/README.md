@@ -238,3 +238,25 @@ Chaque lot qui ajoute une situation l'ajoute à la démo **et** à ce guide
    doit montrer ce que l'app ferait vraiment.
 4. Garder le bloc rejouable (un repère : un handle, un titre).
 5. Ajouter la ligne au §3 : qui, où, ce qu'on voit.
+
+## Navigation multirôle (DASH-01, #31)
+
+Les comptes existants du seed permettent de jouer ce parcours sans nouvelle
+donnée ni modification des faits de progression :
+
+| Compte (adresse exacte affichée par le seed) | Ouvrir `/espace`                             | Vérifier                                                                 |
+| -------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------ |
+| `samir-son`                                  | Ingé son principal, puis choisir Musicien·ne | Travaux/matériel et studios, puis retour au parcours musical             |
+| `nora-prod`                                  | Producteur·rice, puis Musicien·ne            | Productions, studios, morceaux/crédits ; données conservées              |
+| `yanis-orga`                                 | Organisateur·rice                            | Plateaux, organisations/lieux et événements passés                       |
+| `elise-booker`                               | Booker seul                                  | Accompagnements, échanges et annonces ; pas de carte de musicien imposée |
+| `marc-manager`                               | Manager, puis Musicien·ne                    | Accompagnements ; bascule sans modifier le principal                     |
+
+Dans le sélecteur **Mon espace**, choisir puis **Changer**. Ouvrir une
+recherche, poser des filtres, changer de contexte : les filtres restent.
+Sur `/aide`, le sélecteur et la navigation restent disponibles. Retirer
+un métier actif depuis les réglages fait revenir au principal au prochain
+chargement. Les scénarios techniques de métier non détenu, cookie invalide
+et métiers bientôt sont dans `navigation-metiers.spec.ts` et les tests
+unitaires ; il n'est pas nécessaire d'ajouter des métiers fictifs aux
+comptes de démo.

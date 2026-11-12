@@ -28,9 +28,26 @@ test.describe('LinkMusician — modes de jeu', () => {
 		await test.step('1. Le menu du jeu', async () => {
 			await page.goto('/jouer');
 			await waitForAppReady(page);
-			await expect(page.getByRole('heading', { level: 1, name: 'Choisis ton mode' })).toBeVisible();
-			await expect(careerChoice).toContainText('en complétant ton profil');
-			await expect(jamChoice).toContainText('tes points montent');
+			await expect(page.getByRole('heading', { level: 1, name: 'LinkMusician' })).toBeVisible();
+			await expect(careerChoice).toHaveAccessibleName('Mode carrière');
+			await expect(jamChoice).toHaveAccessibleName('Mode jam');
+			const sections = page.getByRole('navigation', {
+				name: 'Sections de l’application'.replace('’', "'")
+			});
+			await expect(sections.getByRole('button')).toHaveText([
+				'jouer',
+				'jam',
+				'actualité',
+				'progrès'
+			]);
+			for (const title of ['jam', 'actualité', 'progrès', 'jouer']) {
+				await sections.getByRole('button', { name: title, exact: true }).click();
+				await expect(sections.getByRole('button', { name: title, exact: true })).toHaveAttribute(
+					'aria-current',
+					'true'
+				);
+			}
+			await expect(page.locator('.lm-panorama a[href^="/_lab"]')).toHaveCount(0);
 			const initialViewport = page.viewportSize();
 			await page.setViewportSize({ width: 1440, height: 900 });
 			const careerCard = await careerChoice.boundingBox();
@@ -38,8 +55,9 @@ test.describe('LinkMusician — modes de jeu', () => {
 			expect(careerCard).not.toBeNull();
 			expect(jamCard).not.toBeNull();
 			if (!careerCard || !jamCard) throw new Error('Les cartes de mode doivent être visibles.');
-			expect(careerCard.width).toBeGreaterThan(500);
-			expect(Math.abs(careerCard.y - jamCard.y)).toBeLessThan(2);
+			expect(careerCard.width).toBeGreaterThan(250);
+			expect(Math.abs(careerCard.x - jamCard.x)).toBeLessThan(2);
+			expect(jamCard.y).toBeGreaterThan(careerCard.y);
 			await page.setViewportSize({ width: 320, height: 800 });
 			expect(
 				await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
@@ -67,7 +85,7 @@ test.describe('LinkMusician — modes de jeu', () => {
 		await test.step('3. Ensuite : accès direct, « Reprendre »', async () => {
 			await page.goto('/jouer');
 			await waitForAppReady(page);
-			await expect(jamChoice).toContainText('Mode jam');
+			await expect(jamChoice).toHaveAccessibleName('Mode jam');
 			await expect(jamChoice).toContainText('Reprendre');
 			await jamChoice.click();
 			await expect(page).toHaveURL(/\/jam$/);
