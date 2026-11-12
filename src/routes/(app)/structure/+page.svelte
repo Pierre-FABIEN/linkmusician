@@ -1,55 +1,45 @@
 <script lang="ts">
-	// LINKMUSICIAN: étape proposée après le choix des métiers (P1-03b) : groupe
-	// (P3-01) et studio (P4-03a) ; les autres structures arrivent ensuite.
-	import { Badge } from '#shadcn/badge';
-	import { Button } from '#shadcn/button';
+	/** DASH-02a : mes participations, communes à tous les contextes métier. */
 	import SEO from '#lib/components/SEO.svelte';
+	import { Building2 } from 'lucide-svelte';
+	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
+	import MetroEmpty from '#lib/components/linkmusician/metro/MetroEmpty.svelte';
+	import MenuList from '#lib/components/linkmusician/MenuList.svelte';
+	let { data } = $props();
+	const items = $derived(
+		data.structures.map((s) => ({
+			href: `/structure/${s.id}`,
+			title: s.name,
+			text: `${s.typeLabel} · ${s.roleLabel}`,
+			icon: Building2
+		}))
+	);
 </script>
 
-<SEO title="Ta structure" noindex nofollow />
-
+<SEO title="Mes structures" noindex nofollow />
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-4xl">
-		<h1 class="lm-title mb-2">Tu fais partie d'une structure&nbsp;?</h1>
-		<p class="mb-6 text-sm text-muted-foreground">
-			Un groupe, un studio : rattache-la à ton profil. Les labels, salles et agences arrivent
-			ensuite.
+	<div class="mx-auto max-w-3xl space-y-6">
+		<MetroPageHeader
+			title="Mes structures"
+			intro="Tes groupes, studios, lieux, organisations et écoles. Ces participations sont communes à tes métiers."
+		/>
+		<p class="text-sm text-muted-foreground">
+			Rejoindre une structure ne donne pas accès à sa gestion. Une invitation doit être acceptée
+			avant de commencer.
 		</p>
-
-		<ul class="mb-6 space-y-2">
-			<li>
-				<a
-					href="/groupes/nouveau"
-					class="lm-tile lm-tile--flow flex min-h-14 items-center justify-between p-3"
-				>
-					<span>Monter ou rejoindre un groupe</span>
-					<span aria-hidden="true">→</span>
-				</a>
-			</li>
-			<li>
-				<!-- Studio (P4-03a) : ingés son et producteur·rices. -->
-				<a
-					href="/studios"
-					class="lm-tile lm-tile--flow flex min-h-14 items-center justify-between p-3"
-				>
-					<span>
-						Ouvrir la fiche de ton studio
-						<span class="block text-sm text-muted-foreground"
-							>pour les ingés son et producteur·rices</span
-						>
-					</span>
-					<span aria-hidden="true">→</span>
-				</a>
-			</li>
-			<li class="lm-tile lm-tile--flow flex items-center justify-between p-3 opacity-70">
-				<span>
-					Une autre structure
-					<span class="block text-sm text-muted-foreground">label, salle, agence…</span>
-				</span>
-				<Badge variant="secondary">plus tard</Badge>
-			</li>
-		</ul>
-
-		<Button href="/espace" class="w-full">Continuer vers mon espace</Button>
+		{#if items.length}
+			<MenuList {items} label="Mes participations" />
+		{:else}
+			<MetroEmpty
+				icon={Building2}
+				title="Aucune structure pour l’instant"
+				text="Tu n’as pas encore de participation ou d’invitation en attente."
+				action={{ href: '/groupes', label: 'Voir mes groupes et invitations' }}
+			/>
+		{/if}
+		<MenuList
+			label="Ouvrir une structure"
+			items={data.open.map((item) => ({ ...item, icon: Building2 }))}
+		/>
 	</div>
 </div>

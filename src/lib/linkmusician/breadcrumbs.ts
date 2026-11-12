@@ -77,7 +77,12 @@ const ROUTES: Record<string, Node> = {
 	'/morceaux/nouveau': { label: 'Nouvelle idée', parent: '/morceaux' },
 	'/morceaux/[id]': { label: 'Morceau', parent: '/morceaux', name: at('work', 'title') },
 	'/etapes/[id]': { label: 'Confirmer une étape', parent: '/notifications' },
-	'/structure': { label: 'Ma structure' },
+	'/structure': { label: 'Mes structures', parent: '/espace' },
+	'/structure/[id]': {
+		label: 'Ma participation',
+		parent: '/structure',
+		name: at('structure', 'name')
+	},
 
 	// Partout
 	'/decouvrir': { label: 'Découvrir' },

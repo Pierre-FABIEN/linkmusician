@@ -26,6 +26,9 @@ describe('navigation multirôle', () => {
 				'SOUND_ENGINEER'
 			)
 		).toBe('/decouvrir?metier=producteur&genre=funk&page=2#resultats');
+		expect(
+			contextDestination('/structure/une-structure?onglet=fiche#outils', 'SOUND_ENGINEER')
+		).toBe('/structure/une-structure?onglet=fiche#outils');
 		expect(contextDestination('/profil/pratique', 'SOUND_ENGINEER')).toBe(
 			'/profil/metier/inge-son'
 		);

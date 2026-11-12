@@ -16,6 +16,7 @@
  *   par une personne de la gestion (`uploadedById`), validées selon sa
  *   confiance (`finalizeUpload`), huit au plus ; aucune XP.
  */
+import { structureAccess } from '#lib/server/organizations/access';
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { isBlockedBetween } from '#lib/server/blocking/service';
@@ -24,7 +25,6 @@ import { isAdult } from '#lib/server/jam/publicJams';
 import { toDomainEvent } from '#lib/server/progression/events';
 import { venueSummary } from '#lib/server/progression/core/venueSummary';
 import { VENUE_TIERS, venueTier } from '#lib/server/progression/core/tiers';
-import { isManager } from '#lib/bands/rules';
 import { deleteOwnMedia, MediaError } from '#lib/server/media/service';
 import {
 	MAX_VENUE_PHOTOS,
@@ -312,11 +312,8 @@ export async function myVenues(personId: string) {
 export async function venueForManager(venueId: string, personId: string) {
 	const venue = await venueOrg(venueId);
 	if (!venue) return null;
-	const mine = await prisma.membership.findFirst({
-		where: { orgId: venue.orgId, personId, status: 'ACTIVE', org: liveVenueOrg },
-		select: { role: true }
-	});
-	if (!isManager(mine?.role)) return null;
+	const mine = await structureAccess(prisma, venue.orgId, personId, 'VENUE');
+	if (!mine?.permissions.includes('venue.manage')) return null;
 	const [profile, genres, team, gigSlots, bandsProgrammed, publicJams, backline, org, photos] =
 		await Promise.all([
 			prisma.venueProfile.findUnique({ where: { orgId: venue.orgId }, select: profileSelect }),

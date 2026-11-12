@@ -637,3 +637,9 @@ réelles du compte. Les tuiles restent des liens vers un seul écran ; l'état
 vide utilise la même entrée avec une phrase explicative, sans chiffre fictif.
 Aucun formulaire ni liste métier complète n'est ajouté aux accueils.
 Voir l'[audit métier](../conception/11-actions-metiers.md).
+
+DASH-02a utilise les composants Metro existants (`MetroPageHeader`, `MenuList`,
+`MetroEmpty`) pour `/structure` et ses écrans de participation. Ce sont des
+menus vers les outils spécialisés, sans nouvelle liste d'équipe ou formulaire
+imbriqué dans l'accueil. Les invitations portent leur état réel ; un rôle de
+membre n'affiche pas de commande de gestion.

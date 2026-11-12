@@ -60,6 +60,7 @@ export function contextDestination(raw: string, track: TrackKindValue): string {
 		'notifications',
 		'groupes',
 		'morceaux',
+		'structure',
 		'studios',
 		'organisations',
 		'ecoles',

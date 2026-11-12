@@ -36,6 +36,12 @@
 			title: 'repères',
 			items: [
 				{
+					href: '/structure',
+					title: 'Mes structures',
+					text: 'Mes participations et mes invitations, communes à mes métiers.',
+					icon: Briefcase
+				},
+				{
 					href: '/espace/progression',
 					title: 'Points, succès et confiance',
 					text: 'La progression commune de ton compte.',

@@ -16,6 +16,7 @@
  * Il ou elle peut demander à rejoindre un groupe.
  */
 import type { OrgRole, Prisma } from '@prisma/client';
+import { structureAccess } from '#lib/server/organizations/access';
 import { prisma } from '#lib/server';
 import { suggestHandle } from '#lib/actors/handle';
 import { isIndexable } from '#lib/actors/visibility';
@@ -82,8 +83,8 @@ async function activeMembership(tx: Tx, bandId: string, personId: string) {
 }
 
 async function requireManager(tx: Tx, bandId: string, personId: string) {
-	const mine = await activeMembership(tx, bandId, personId);
-	if (!mine || !isManager(mine.role)) {
+	const mine = await structureAccess(tx, bandId, personId, 'BAND');
+	if (!mine?.permissions.includes('band.manage')) {
 		throw new BandError('Seules les personnes qui gèrent le groupe peuvent faire cela.', 403);
 	}
 	return mine;

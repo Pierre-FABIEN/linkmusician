@@ -295,3 +295,26 @@ comptes et objets dans le schéma e2e pour les six métiers, les états vides,
 la perte de gestion, les blocages dans les deux sens, un profil masqué, un
 compte mineur, le clavier et le mobile 390 px. Elle conserve des captures du
 mobile et du bureau dans le rapport Playwright.
+
+### Mes structures et droits de gestion — DASH-02a (#32)
+
+Les données du seed existant suffisent : ne créer aucune structure en double.
+Ouvrir **Mes structures** dans le menu du compte ou dans **Mon espace**.
+
+- `theo-basse` : retrouver ses groupes, La Cave Studio et l'École du Faubourg
+  dans un menu commun. Chaque participation précise son type et son rôle.
+- `samir-son` : ouvrir La Cave Studio, puis ses outils de gestion. Basculer
+  Musicien·ne / Ingé son conserve la participation et ses droits.
+- `nora-prod` : retrouver l'invitation au studio ; la participation en attente
+  ne donne pas accès à sa gestion. Répondre sur l'écran Studios existant.
+- `yanis-orga` et `sophie-bar` : organisations et lieux revendiqués utilisent
+  leurs fiches et leur co-gestion déjà disponibles.
+- `jade-batterie` : sa participation à l'école indique **Élève**, sans liste
+  des camarades ni outil de gestion. Les règles des ateliers restent appliquées.
+- Compte neuf : état vide et chemins de création existants selon l'âge et les
+  métiers réellement détenus. Aucune agence ni délégation nouvelle annoncée.
+
+La recette `structures.spec.ts` ajoute des données isolées dans le schéma e2e
+pour vérifier les cinq types, une invitation acceptée, le retrait immédiat des
+accès, les refus serveur d'un membre et d'un élève, un identifiant étranger,
+une structure dissoute, le contexte multirôle, le clavier et 390 px.

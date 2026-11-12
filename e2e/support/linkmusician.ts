@@ -123,7 +123,7 @@ export async function setCity(page: Page, search = 'toulou') {
 	await page.goto('/profil/ville');
 	await waitForAppReady(page);
 	await page.getByLabel('Ta commune').pressSequentially(search, { delay: 50 });
-	await page.getByRole('option').first().getByRole('button').click();
+	await page.getByRole('listbox').getByRole('option').first().getByRole('button').click();
 	await page.getByRole('button', { name: 'Enregistrer' }).click();
 	await page.getByText('Ta ville est enregistrée').first().waitFor();
 }

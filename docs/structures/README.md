@@ -1,0 +1,27 @@
+# Structures partagées — DASH-02a
+
+`/structure` affiche les participations actives, invitations et demandes du
+compte connecté pour les cinq types en base : groupe, studio, lieu,
+organisation d'organisateurs et école. `/structure/[id]` décrit uniquement
+la participation de cette personne et ouvre les outils existants selon son
+rôle ; aucun roster ni liste d'élèves n'est transmis par ces pages.
+
+- `src/lib/structures/rules.ts` : types, libellés et capacités pures.
+- `src/lib/server/organizations/access.ts` : type attendu, adhésion ACTIVE,
+  structure non dissoute et acteur non supprimé, relus avec le client de
+  transaction fourni. Aucun droit n'est tiré du métier ou de la session de
+  navigation ; aucun cache de permissions.
+- `structures.ts` : projection privée, sans mutation ni nouvel objet.
+- Gardes existantes branchées : groupes, studios, co-gestion des organisations
+  et lieux, écoles et accès aux équipes de co-gestion. Les restrictions par
+  acte (responsable, âge, métier, quota, blocage, lieu revendiqué) restent
+  obligatoires dans les services spécialisés.
+
+Les invitations à un studio ou à une co-gestion sont relues après acquisition
+du verrou : une révocation intervenue pendant l'attente empêche l'acceptation.
+Aucune migration, nouvelle donnée personnelle ou nouvelle notification dans
+ce lot ; export et anonymisation des adhésions existantes conservés.
+
+Voir [l'audit, les tests et le découpage restant](../conception/12-structures-equipes.md).
+DASH-02 reste partiel : les agences et délégations détaillées arrivent dans
+DASH-02b/DASH-04, sans activation des métiers « bientôt ».

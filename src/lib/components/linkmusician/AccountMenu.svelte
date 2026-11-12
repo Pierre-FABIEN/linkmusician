@@ -39,6 +39,11 @@
 			</DropdownMenu.Item>
 			<DropdownMenu.Item>
 				{#snippet child({ props })}
+					<a href="/structure" {...props}>Mes structures</a>
+				{/snippet}
+			</DropdownMenu.Item>
+			<DropdownMenu.Item>
+				{#snippet child({ props })}
 					<a
 						href="/profil"
 						{...props}

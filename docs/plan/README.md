@@ -148,10 +148,12 @@ dans le `git log` (messages préfixés par l'ID).
 Suivi complémentaire des tickets DASH créés sur GitHub. Ne pas les confondre
 avec les lots d'inscription encore ouverts dans #26 et #27.
 
-| Lot     | Issue                                                          | État     | Périmètre                                                                                                                                                                                 |
-| ------- | -------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DASH-01 | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
-| DASH-03 | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ local | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
+| Lot      | Issue                                                          | État       | Périmètre                                                                                                                                                                                 |
+| -------- | -------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DASH-01  | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local   | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
+| DASH-02  | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✂️ partiel | Découpé pour lever la dépendance circulaire avec DASH-04 : socle existant DASH-02a livré ; agences et extensions de délégation dans DASH-02b/DASH-04                                      |
+| DASH-02a | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local   | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
+| DASH-03  | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ local   | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
 
 Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
 Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,
@@ -167,3 +169,15 @@ inchangés : le lint global y signale du formatage, et ESLint signale une
 variable inutilisée dans `.shot-metro.mjs`. Formatage et ESLint passent hors
 ces fichiers (avertissements de navigation Svelte préexistants conservés).
 Audit et limites : [actions métier](../conception/11-actions-metiers.md).
+
+Recette DASH-02a (12/11/2026) : 1 326 tests unitaires réussis (251 tests
+conditionnels non exécutés), 44 tests d'intégration distincts réussis :
+40 non-régressions groupes/studios/organisateurs/lieux/écoles et 4 nouveaux
+tests du socle, dont une révocation pendant l'attente d'un verrou. Six E2E
+ciblés réussis : structures, école, navigation métier, actions prioritaires et
+deux parcours d'aide. Types sans erreur ni avertissement, exécutés séparément
+des E2E. Formatage et ESLint passent hors les deux scripts préexistants déjà
+signalés ci-dessus ; ces fichiers sont préservés. Le sélecteur de commune du
+support E2E est limité à sa liste de résultats pour éviter de sélectionner
+une option du contexte métier.
+Détail et limites : [structures et équipes](../conception/12-structures-equipes.md).

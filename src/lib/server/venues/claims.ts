@@ -14,12 +14,12 @@
  * L'organisation naît à l'approbation, pas à la demande (défaut Q28) : une
  * demande refusée ne laisse pas d'organisation vide. Aucune XP.
  */
+import { structureAccess } from '#lib/server/organizations/access';
 import { prisma } from '#lib/server';
 import { logAdminAction } from '#lib/server/audit-log';
 import { notify } from '#lib/server/notifications/service';
 import { suggestHandle } from '#lib/actors/handle';
 import { adultBirthCutoff } from '#lib/actors/visibility';
-import { isManager } from '#lib/bands/rules';
 import { annuaireUrl } from '#lib/organizations/verification';
 import {
 	claimBlocker,
@@ -56,11 +56,8 @@ function managedVenues(personId: string) {
 
 /** La personne gère-t-elle l'organisation qui a revendiqué ce lieu ? */
 export async function managesVenueOrg(orgId: string, personId: string) {
-	const mine = await prisma.membership.findFirst({
-		where: { orgId, personId, status: 'ACTIVE', org: liveVenueOrg },
-		select: { role: true }
-	});
-	return isManager(mine?.role);
+	const mine = await structureAccess(prisma, orgId, personId, 'VENUE');
+	return mine?.permissions.includes('venue.manage') ?? false;
 }
 
 async function blockerFor(venueId: string, personId: string, now: Date) {

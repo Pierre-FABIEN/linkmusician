@@ -133,6 +133,12 @@
 			title: 'réseau',
 			items: only([
 				{
+					href: '/structure',
+					title: 'Mes structures',
+					text: 'Mes participations et mes invitations, communes à mes métiers.',
+					icon: Briefcase
+				},
+				{
 					href: '/espace/equipe',
 					icon: UsersRound,
 					tone: TONE_OF.people,

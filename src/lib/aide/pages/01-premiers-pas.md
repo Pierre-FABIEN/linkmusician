@@ -355,6 +355,28 @@ L'app retient ton dernier choix de mode. Pour basculer ensuite, touche la
 pastille du mode en haut de l'écran. [Comprendre le mode jam](./02-mode-jam.md)
 ou [le mode carrière](./03-mode-carriere.md).
 
+### Tes structures et tes équipes {#structures}
+
+**Mes structures**, dans le menu du compte ou dans **Mon espace**, rassemble
+les groupes, studios, lieux, organisations et écoles dont tu fais partie,
+ainsi que tes invitations et demandes en attente. Chaque entrée ouvre ta
+participation : son type, ton rôle et les outils disponibles.
+
+Une invitation attend ton acceptation : elle ne donne encore aucun droit.
+Un membre ou un élève n'a pas accès à la gestion. Seules les personnes
+responsables ou de la co-gestion actives peuvent gérer une structure ; les
+règles propres à chaque action continuent de s'appliquer. Les élèves ne
+reçoivent jamais la liste des autres élèves dans cet espace.
+
+Changer de métier conserve ta structure et tes droits actuels. Accompagner
+un artiste comme manager ou booker ne te fait pas devenir gestionnaire de
+son groupe. Après un retrait ou un départ, tes accès sont recalculés côté
+serveur : un ancien lien ne permet pas de continuer à gérer.
+
+Si tu n'as aucune structure, l'écran l'explique et te propose les chemins
+existants pour démarrer. Les agences et nouvelles délégations ne sont pas
+encore disponibles dans cet espace.
+
 ### Ton métier actif et ton métier principal {#metier-actif}
 
 En haut de l'app, le sélecteur **Mon espace** contient les métiers de ton

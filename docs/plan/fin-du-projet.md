@@ -477,3 +477,20 @@ Une ligne réglée est retirée ; le `git log` en garde la trace.
 | Plafond des habitué·es des jams     | Un même cercle donne au plus 70 XP par personne et par an (voulu) : vérifier sur les données                                       | Revue après le pilote                          |
 | Mémoire de `svelte-check`           | Portée à 6 Go ; pistes : types Prisma plus légers, `skipLibCheck` sur `@prisma/client`                                             | Surveiller                                     |
 | Amorcer la communauté               | Lieux relais, écoles, liste d'attente : piste non technique, suivie dans [docs/lancement](../lancement/README.md)                  | En continu                                     |
+
+## Espaces métier — suite du socle de l'épopée #30
+
+Après DASH-01 et DASH-03, **DASH-02a est livré localement** : structures
+existantes et autorisations communes. Les dépendances des issues #32 et #34
+sont circulaires ; le découpage évite de considérer l'une des deux terminée
+avant d'avoir livré ses fonctions.
+
+1. DASH-02a : réutiliser les cinq types actuels, centraliser leurs capacités
+   et les contrôles serveur, fournir le menu privé des participations.
+2. DASH-04 puis DASH-02b : étendre les représentations/délégations et les
+   structures d'agence en cohérence, avec migrations et périmètres explicites.
+3. DASH-05 : journal d'activité commun après les permissions et délégations.
+
+DASH-02a ne clôture pas DASH-02. Les autres modules DASH et les parties ouvertes
+ONB-12c/ONB-13b restent dans leurs lots. Voir
+[l'audit et le découpage](../conception/12-structures-equipes.md).

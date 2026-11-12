@@ -461,3 +461,14 @@ model Sanction { id String @id @default(cuid()); actorId String; kind String /* 
   et 08. `src/lib/prisma/actors/specializations.ts` écrit les deux
   ensemble ; retirer un métier efface ses lignes (cascade), le reprendre
   les recopie depuis le profil.
+
+## Socle partagé des structures — DASH-02a
+
+Les cinq types actuellement implémentés (`BAND`, `STUDIO`, `VENUE`, `PROMOTER`,
+`SCHOOL`) réutilisent `Organization` et `Membership`. Les capacités de gestion
+sont centralisées dans `structures/rules` et relues en base par
+`server/organizations/access` : un simple membre, une invitation ou un ancien
+rôle ne confère pas de droit administratif. Les règles spécialisées des actes
+restent dans leurs services. Ce sous-lot ne crée aucune table, aucun champ ni
+nouvelle donnée personnelle. Audit, périmètre et suite :
+[Structures et équipes](./12-structures-equipes.md).

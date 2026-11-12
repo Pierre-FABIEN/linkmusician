@@ -12,6 +12,7 @@
  * par organisation.
  */
 import type { NotificationType, OrgKind, Prisma } from '@prisma/client';
+import { structureAccess } from './access';
 import { prisma } from '#lib/server';
 import { isBlockedBetween } from '#lib/server/blocking/service';
 import { notify } from '#lib/server/notifications/service';
@@ -59,12 +60,9 @@ export async function requireOrgManager(
 	orgId: string,
 	personId: string
 ) {
-	const mine = await tx.membership.findFirst({
-		where: { orgId, personId, status: 'ACTIVE', org: liveOrgOf(c.kind) },
-		select: { role: true }
-	});
+	const mine = await structureAccess(tx, orgId, personId, c.kind);
 	if (!mine) throw new CoManagementError(`${capitalize(c.noun)} n’existe plus.`, 404);
-	if (!isManager(mine.role))
+	if (!mine.permissions.includes('manage'))
 		throw new CoManagementError(`Seules les personnes qui gèrent ${c.noun} la modifient.`, 403);
 	return mine.role;
 }
@@ -163,6 +161,11 @@ export async function answerInvite(
 		});
 		if (!invite) throw new CoManagementError('Cette invitation n’est plus valable.', 404);
 		await lockOrg(tx, invite.orgId);
+		const current = await tx.membership.findFirst({
+			where: { id: membershipId, personId, status: 'INVITED', org: liveOrgOf(c.kind) },
+			select: { id: true }
+		});
+		if (!current) throw new CoManagementError('Cette invitation n’est plus valable.', 404);
 		if (accept && (await managedCount(c, tx, personId)) >= c.maxManaged) {
 			throw new CoManagementError(`Tu en gères déjà ${c.maxManaged}.`);
 		}
@@ -248,6 +251,9 @@ export async function invitesFor(kind: CoManaged['kind'], personId: string) {
 
 /** L'équipe (gestion active et invitations), pour la page de gestion. */
 export async function teamOf(orgId: string, personId: string) {
+	const access = await structureAccess(prisma, orgId, personId);
+	if (!access?.permissions.includes('manage') || !['PROMOTER', 'VENUE'].includes(access.kind))
+		throw new CoManagementError('Cette équipe est réservée à sa gestion.', 403);
 	const rows = await prisma.membership.findMany({
 		where: { orgId, status: { in: ['ACTIVE', 'INVITED'] } },
 		orderBy: { createdAt: 'asc' },

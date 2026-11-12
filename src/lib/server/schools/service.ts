@@ -20,6 +20,7 @@
  */
 import { createHash, randomBytes } from 'node:crypto';
 import type { Prisma } from '@prisma/client';
+import { structureAccess } from '#lib/server/organizations/access';
 import { prisma } from '#lib/server';
 import { suggestHandle } from '#lib/actors/handle';
 import { isIndexable } from '#lib/actors/visibility';
@@ -73,12 +74,17 @@ async function managedSchool(db: Tx | typeof prisma, handle: string, managerId: 
 	const org = await db.organization.findFirst({
 		where: {
 			...liveSchool,
-			actor: { handle, deletedAt: null },
-			memberships: { some: { personId: managerId, ...MANAGES } }
+			actor: { handle, deletedAt: null }
 		},
 		select: { actorId: true, actor: { select: { displayName: true, handle: true } } }
 	});
-	if (!org) throw new SchoolError('Seules les personnes qui gèrent l’école font cela.', 403);
+	if (
+		!org ||
+		!(await structureAccess(db, org.actorId, managerId, 'SCHOOL'))?.permissions.includes(
+			'school.manage'
+		)
+	)
+		throw new SchoolError('Seules les personnes qui gèrent l’école font cela.', 403);
 	return { id: org.actorId, name: org.actor.displayName, handle: org.actor.handle };
 }
 

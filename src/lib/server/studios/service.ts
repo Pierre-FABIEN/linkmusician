@@ -13,6 +13,7 @@
  * - Aucune adresse : seulement le centre de la commune, comme un groupe.
  */
 import type { Prisma } from '@prisma/client';
+import { structureAccess } from '#lib/server/organizations/access';
 import { prisma } from '#lib/server';
 import { suggestHandle } from '#lib/actors/handle';
 import { publicActorWhere } from '#lib/server/actors/visibility';
@@ -54,12 +55,9 @@ async function lockStudio(tx: Tx, studioId: string) {
 const liveStudio = { kind: 'STUDIO', dissolvedAt: null, actor: { deletedAt: null } } as const;
 
 async function requireManager(tx: Tx, studioId: string, personId: string) {
-	const mine = await tx.membership.findFirst({
-		where: { orgId: studioId, personId, status: 'ACTIVE', org: liveStudio },
-		select: { role: true }
-	});
+	const mine = await structureAccess(tx, studioId, personId, 'STUDIO');
 	if (!mine) throw new StudioError('Ce studio n’existe plus.', 404);
-	if (!isManager(mine.role))
+	if (!mine.permissions.includes('studio.manage'))
 		throw new StudioError('Seules les personnes qui gèrent le studio modifient sa fiche.', 403);
 }
 
@@ -270,6 +268,11 @@ export async function answerStudioInvite(membershipId: string, personId: string,
 		});
 		if (!invite) throw new StudioError('Cette invitation n’est plus valable.', 404);
 		await lockStudio(tx, invite.orgId);
+		const current = await tx.membership.findFirst({
+			where: { id: membershipId, personId, status: 'INVITED', org: liveStudio },
+			select: { id: true }
+		});
+		if (!current) throw new StudioError('Cette invitation n’est plus valable.', 404);
 		if (accept) {
 			const managed = await tx.membership.count({
 				where: { personId, status: 'ACTIVE', role: { in: ['OWNER', 'ADMIN'] }, org: liveStudio }
