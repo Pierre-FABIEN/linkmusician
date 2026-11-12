@@ -20,8 +20,10 @@ _Ton compte, ton profil et ton mode de jeu, en cinq minutes._
    **Réglages › Mes métiers**.
 3. Accepte les conditions d’utilisation.
 4. Les écrans suivants dépendent de tes métiers. Tes styles et ta ville
-   ne te sont demandés qu’une fois. Musicien·ne : tes instruments et ce
-   que tu cherches. Chaque autre métier a son écran court, où tu coches
+   ne te sont demandés qu’une fois. Musicien·ne : tes instruments, où tu
+   en es (seul·e, avec d’autres, sur scène) et l’engagement que tu
+   cherches ; ce que tu cherches et ce que tu proposes est facultatif, et
+   se complète ensuite dans **Mon profil › Ma pratique**. Chaque autre métier a son écran court, où tu coches
    tes spécialités (au moins une pour un métier ouvert ; un métier qui
    arrive bientôt se passe en un clic). Si tu t’arrêtes en route, tu
    reprends là où il manque quelque chose.

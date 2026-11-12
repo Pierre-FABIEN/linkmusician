@@ -165,6 +165,8 @@ test.describe('LinkMusician — onboarding selon les métiers', () => {
 
 		await test.step('5. Intention de musicien·ne, puis résultat', async () => {
 			await screen(page, '/demarrer/intention');
+			await page.getByRole('radio', { name: /^Avec d’autres/ }).check();
+			await page.getByRole('radio', { name: /^Régulier/ }).check();
 			await page.getByText('Des jams').click();
 			await page.getByRole('button', { name: 'Voir qui est près de moi' }).click();
 			await screen(page, '/demarrer/resultat');

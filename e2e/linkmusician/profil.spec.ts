@@ -33,7 +33,7 @@ test.describe('LinkMusician — profil complet', () => {
 			await page.getByLabel('Spotify').fill('');
 			await page.getByLabel('Présentation').fill('Guitariste punk.\n\nCherche un groupe.');
 			await page.getByLabel(/Semi-pro/).check();
-			await page.getByLabel('Jams').check();
+			await page.getByLabel('Jams', { exact: true }).check();
 			await page.getByLabel('Local de répétition').check();
 			await page.getByLabel('Je joue depuis').fill('2012');
 			await page.getByLabel("Je me déplace jusqu'à").selectOption('25');

@@ -64,6 +64,8 @@ test.describe('LinkMusician — onboarding', () => {
 
 		await test.step('5. Intention', async () => {
 			await visit('/demarrer/intention');
+			await page.getByRole('radio', { name: /^Avec d’autres/ }).check();
+			await page.getByRole('radio', { name: /^Régulier/ }).check();
 			await page.getByText('Des jams').click();
 			await page.getByRole('button', { name: 'Voir qui est près de moi' }).click();
 		});

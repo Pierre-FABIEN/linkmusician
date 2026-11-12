@@ -49,9 +49,14 @@ codes stables, en sélection multiple :
 
 Les **compétences** restent les référentiels existants (instruments,
 genres). Une spécialité n'impose jamais d'instrument. Chez les
-musicien·nes, instrument, voix et profession (DJ, composition…) sont des
-groupes distincts. Ces spécialités ne sont ni exigées ni déduites des
-instruments (Q54).
+musicien·nes, les spécialités instrument, voix et DJ sont **retirées**
+(D58) : le référentiel des instruments les dit déjà. Restent les rôles
+d'écriture (composition, paroles, arrangement), facultatifs.
+
+Les **précisions** propres à un métier (langues chantées, jeu au clic,
+plus tard DAW ou livrables) sont des codes rangés dans
+`person_track_attributes`, une table commune à tous les métiers : seules
+les réponses données sont stockées, une absence vaut « inconnu ».
 
 Le référentiel vit dans `#lib/actors/specializations`. Une entrée est
 identifiée par la paire `(métier, code)`. Un code n'est jamais supprimé ni

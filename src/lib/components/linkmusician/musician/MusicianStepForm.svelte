@@ -87,6 +87,13 @@
 		reportUsage('ignored');
 	}
 
+	/** Coche ou décoche un code de « Je recherche » ou « Je propose ». */
+	function toggleCode(list: 'needs' | 'offers', code: string) {
+		$form[list] = $form[list].includes(code)
+			? $form[list].filter((c) => c !== code)
+			: [...$form[list], code];
+	}
+
 	/** Coche ou décoche un code d'une précision (choix unique : remplace). */
 	function toggleDetail(fieldId: string, code: string, single: boolean) {
 		const current = $form.details[fieldId] ?? [];
@@ -101,8 +108,13 @@
 		if (!e) return null;
 		if (typeof e === 'string') return e;
 		if (Array.isArray(e)) return e.find((m) => typeof m === 'string') ?? null;
+		// Erreur de la liste (`_errors`) ou d'un de ses éléments (`{ 0: [...] }`).
 		const obj = e as Record<string, unknown>;
-		return (obj._errors as string[] | undefined)?.[0] ?? null;
+		for (const value of [obj._errors, ...Object.values(obj)]) {
+			const found = firstError(value);
+			if (found) return found;
+		}
+		return null;
 	};
 </script>
 
@@ -120,7 +132,14 @@
 			<div class="grid gap-2 sm:grid-cols-3">
 				{#each values as v (v)}
 					<label class="lm-tile lm-tile--flow flex cursor-pointer items-start gap-2 p-3">
-						<input type="radio" {name} value={v} class="mt-1 size-4" bind:group={$form[name]} />
+						<input
+							type="radio"
+							{name}
+							value={v}
+							class="mt-1 size-4"
+							checked={$form[name] === v}
+							onchange={() => (($form[name] as string | undefined) = v)}
+						/>
 						<span>
 							<span class="font-medium">{info[v].label}</span>
 							<span class="block text-sm text-muted-foreground">{info[v].hint}</span>
@@ -152,7 +171,15 @@
 			<div class="grid gap-2 sm:grid-cols-2">
 				{#each items as item (item.code)}
 					<label class="lm-tile lm-tile--flow flex cursor-pointer items-start gap-2 p-3">
-						<input type="checkbox" value={item.code} class="mt-1 size-4" bind:group={$form[list]} />
+						<!-- Pas de `bind:group` dans un snippet rendu deux fois : Svelte
+						     réunirait les deux listes en un seul groupe. -->
+						<input
+							type="checkbox"
+							value={item.code}
+							class="mt-1 size-4"
+							checked={$form[list].includes(item.code)}
+							onchange={() => toggleCode(list, item.code)}
+						/>
 						<span>
 							<span class="font-medium">{item.label}</span>
 							<span class="block text-sm text-muted-foreground">{item.description}</span>

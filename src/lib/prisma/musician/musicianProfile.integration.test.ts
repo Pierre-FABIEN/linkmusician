@@ -49,9 +49,9 @@ const thomas = {
 	offers: ['PLAY_JAMS'],
 	needs: ['FIND_JAMS', 'FIND_PARTNERS'],
 	details: {
-		'guitar.role': ['LEAD', 'RHYTHM'],
-		'voice.languages': ['EN', 'FR'],
-		'voice.range': ['UNKNOWN']
+		guitar_role: ['LEAD', 'RHYTHM'],
+		voice_languages: ['EN', 'FR'],
+		voice_range: ['UNKNOWN']
 	}
 };
 
@@ -113,9 +113,9 @@ describe.skipIf(!enabled)('profil de musicien·ne (schéma e2e)', { timeout: 60_
 			offers: ['PLAY_JAMS'],
 			needs: ['FIND_JAMS', 'FIND_PARTNERS'],
 			details: {
-				'voice.languages': ['FR', 'EN'],
-				'voice.range': ['UNKNOWN'],
-				'guitar.role': ['RHYTHM', 'LEAD']
+				voice_languages: ['FR', 'EN'],
+				voice_range: ['UNKNOWN'],
+				guitar_role: ['RHYTHM', 'LEAD']
 			}
 		});
 		const person = await db.person.findUniqueOrThrow({ where: { actorId: personId } });
@@ -125,7 +125,7 @@ describe.skipIf(!enabled)('profil de musicien·ne (schéma e2e)', { timeout: 60_
 
 	it('refuse une précision d’un instrument qu’il n’a pas, et une spécialité retirée', async () => {
 		await expect(
-			saveMusicianStep(personId, { ...thomas, details: { 'voice.range': ['TENOR', 'BASS'] } })
+			saveMusicianStep(personId, { ...thomas, details: { voice_range: ['TENOR', 'BASS'] } })
 		).rejects.toBeInstanceOf(InvalidDetailError);
 		await expect(
 			saveMusicianStep(personId, { ...thomas, specializations: ['GUITARIST'] })
@@ -188,7 +188,7 @@ describe.skipIf(!enabled)('profil de musicien·ne (schéma e2e)', { timeout: 60_
 		});
 		expect(exported?.precisions_par_metier).toContainEqual({
 			metier: 'MUSICIAN',
-			champ: 'voice.range',
+			champ: 'voice_range',
 			valeur: 'UNKNOWN'
 		});
 		await db.$transaction(await personAnonymizationOps(userId));

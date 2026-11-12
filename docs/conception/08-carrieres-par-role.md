@@ -61,6 +61,17 @@ intérêts (07 §4.4).
 **Ambitions** : jouer en groupe pour le plaisir · monter sur scène ·
 enregistrer et sortir · devenir pro.
 
+**Profil déclaré (ONB-03, D58)** : instruments et niveaux (D11), genres,
+**expérience** (surtout seul·e, avec d'autres, sur scène) et **engagement
+souhaité** (occasionnel, régulier, projet professionnel, distinct du
+statut `proStatus`), demandés à l'inscription. Facultatifs : « Je
+recherche » et « Je propose » (codes distincts), rôles d'écriture
+(composition, paroles, arrangement, jamais une part d'auteur) et
+précisions selon l'instrument (voix, guitare, batterie, claviers), dans
+« Ma pratique » (`/profil/pratique`). Pas de spécialité « guitariste » :
+les instruments le disent déjà. `lookingFor` est la copie de « Je
+propose » / « Je recherche » lue par la recherche et le profil public.
+
 **Carte (rangs, 02 §5)**
 
 | Rang              | Conditions                                                               |

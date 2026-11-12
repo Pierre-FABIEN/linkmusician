@@ -88,6 +88,8 @@ test.describe('LinkMusician — assistant d’inscription', () => {
 			await waitForPath(page, '/demarrer/intention');
 			await waitForAppReady(page);
 			await expect(page.getByText('Pré-rempli d’après ta description')).toBeVisible();
+			await page.getByRole('radio', { name: /^Avec d’autres/ }).check();
+			await page.getByRole('radio', { name: /^Régulier/ }).check();
 			await page.getByRole('button', { name: 'Voir qui est près de moi' }).click();
 			await waitForPath(page, '/demarrer/resultat');
 		});

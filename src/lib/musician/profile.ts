@@ -51,7 +51,11 @@ export const COMMITMENT_INFO: Readonly<Record<CommitmentValue, { label: string; 
 export type DetailOption = { code: string; label: string };
 
 export type DetailField = {
-	/** Identifiant stable, stocké tel quel (`PersonTrackAttribute.field`). */
+	/**
+	 * Identifiant stable, stocké tel quel (`PersonTrackAttribute.field`) :
+	 * `<groupe>_<champ>`. Jamais de point : superforms lit un point dans une clé
+	 * comme un chemin, et le formulaire ne se validait plus (constaté en E2E).
+	 */
 	id: string;
 	label: string;
 	kind: 'single' | 'multi';
@@ -78,7 +82,7 @@ export const DETAIL_GROUPS: readonly DetailGroup[] = [
 		appliesTo: (i) => i.family === 'VOICE',
 		fields: [
 			{
-				id: 'voice.languages',
+				id: 'voice_languages',
 				label: 'Langues chantées',
 				kind: 'multi',
 				options: [
@@ -95,7 +99,7 @@ export const DETAIL_GROUPS: readonly DetailGroup[] = [
 				]
 			},
 			{
-				id: 'voice.range',
+				id: 'voice_range',
 				label: 'Tessiture',
 				kind: 'single',
 				options: [
@@ -116,7 +120,7 @@ export const DETAIL_GROUPS: readonly DetailGroup[] = [
 		appliesTo: (i) => GUITARS.includes(i.slug),
 		fields: [
 			{
-				id: 'guitar.role',
+				id: 'guitar_role',
 				label: 'Ton rôle',
 				kind: 'multi',
 				options: [
@@ -125,7 +129,7 @@ export const DETAIL_GROUPS: readonly DetailGroup[] = [
 				]
 			},
 			{
-				id: 'guitar.skills',
+				id: 'guitar_skills',
 				label: 'Tu sais',
 				kind: 'multi',
 				options: [{ code: 'IMPROVISATION', label: 'Improviser' }]
@@ -138,7 +142,7 @@ export const DETAIL_GROUPS: readonly DetailGroup[] = [
 		appliesTo: (i) => DRUM_KITS.includes(i.slug),
 		fields: [
 			{
-				id: 'drums.options',
+				id: 'drums_options',
 				label: 'Tu peux',
 				kind: 'multi',
 				options: [
@@ -155,7 +159,7 @@ export const DETAIL_GROUPS: readonly DetailGroup[] = [
 		appliesTo: (i) => i.family === 'KEYBOARDS',
 		fields: [
 			{
-				id: 'keys.options',
+				id: 'keys_options',
 				label: 'Tu peux',
 				kind: 'multi',
 				options: [

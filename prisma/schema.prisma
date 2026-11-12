@@ -1624,7 +1624,7 @@ model PersonTrackIntent {
 }
 
 /// Précision déclarée pour un métier (ONB-03, D58) : un code d'un champ du
-/// référentiel (`voice.languages` = `FR`…), sans JSON ni texte libre. Seules
+/// référentiel (`voice_languages` = `FR`…), sans JSON ni texte libre. Seules
 /// les réponses données sont stockées : une absence vaut « inconnu ». Table
 /// commune à tous les métiers (champs propres d'ONB-04 à 11). Suit le métier.
 model PersonTrackAttribute {

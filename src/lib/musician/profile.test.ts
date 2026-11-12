@@ -27,7 +27,7 @@ describe('référentiel du profil musicien·ne', () => {
 		for (const f of DETAIL_FIELDS) {
 			const codes = f.options.map((o) => o.code);
 			expect(new Set(codes).size).toBe(codes.length);
-			expect(f.id.startsWith(`${DETAIL_GROUPS.find((g) => g.fields.includes(f))!.id}.`)).toBe(true);
+			expect(f.id.startsWith(`${DETAIL_GROUPS.find((g) => g.fields.includes(f))!.id}_`)).toBe(true);
 		}
 		expect(PRACTICE_EXPERIENCES).toHaveLength(3);
 		expect(COMMITMENTS).toHaveLength(3);
@@ -53,27 +53,27 @@ describe('précisions selon l’instrument', () => {
 
 	it('garde les codes cochés, dans l’ordre, et retire les champs vides', () => {
 		expect(
-			checkDetails(
-				{ 'voice.languages': ['EN', 'FR'], 'guitar.role': [], 'voice.range': ['UNKNOWN'] },
-				[guitar, voice]
-			)
+			checkDetails({ voice_languages: ['EN', 'FR'], guitar_role: [], voice_range: ['UNKNOWN'] }, [
+				guitar,
+				voice
+			])
 		).toEqual({
 			ok: true,
-			details: { 'voice.languages': ['FR', 'EN'], 'voice.range': ['UNKNOWN'] }
+			details: { voice_languages: ['FR', 'EN'], voice_range: ['UNKNOWN'] }
 		});
 	});
 
 	it('ignore les champs d’un instrument que la personne n’a plus', () => {
-		expect(checkDetails({ 'drums.options': ['CLICK'] }, [oud])).toEqual({ ok: true, details: {} });
+		expect(checkDetails({ drums_options: ['CLICK'] }, [oud])).toEqual({ ok: true, details: {} });
 	});
 
 	it('refuse un champ ou un code inconnu, et deux valeurs pour un choix unique', () => {
 		expect(checkDetails({ 'voice.color': ['X'] }, [voice])).toMatchObject({ ok: false });
-		expect(checkDetails({ 'voice.languages': ['KLINGON'] }, [voice])).toMatchObject({
+		expect(checkDetails({ voice_languages: ['KLINGON'] }, [voice])).toMatchObject({
 			ok: false,
-			field: 'voice.languages'
+			field: 'voice_languages'
 		});
-		expect(checkDetails({ 'voice.range': ['TENOR', 'BASS'] }, [voice])).toMatchObject({
+		expect(checkDetails({ voice_range: ['TENOR', 'BASS'] }, [voice])).toMatchObject({
 			ok: false,
 			message: 'Un seul choix possible.'
 		});
