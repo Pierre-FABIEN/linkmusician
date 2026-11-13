@@ -61,6 +61,7 @@ export const RESERVED_HANDLES: ReadonlySet<string> = new Set([
 	'system',
 	'undefined',
 	'agences',
+	'delegations',
 	'annonces'
 ]);
 

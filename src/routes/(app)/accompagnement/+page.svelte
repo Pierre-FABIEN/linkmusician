@@ -38,6 +38,7 @@
 			intro="Managers et bookers : un accompagnement ne compte qu’une fois confirmé par l’artiste."
 		/>
 
+		<a href="/delegations" class="lm-btn" data-variant="ghost">Affectations et délégations</a>
 		{#if data.requests.length > 0}
 			<section class="space-y-3" aria-labelledby="requests">
 				<h2 id="requests" class="text-xl font-bold">Propositions à trancher</h2>

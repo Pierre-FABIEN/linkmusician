@@ -96,3 +96,5 @@ Structures, équipes et autorisations : [socle DASH-02a](./12-structures-equipes
 Mandats individuels et périmètres consentis : [DASH-04a](./13-mandats-individuels.md).
 
 Agences privées et équipes : [DASH-02b](./14-agences-equipes.md).
+
+Affectations et délégations consenties : [DASH-04b](./15-affectations-delegations.md).

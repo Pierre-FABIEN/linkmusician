@@ -116,6 +116,13 @@ const ROUTES: Record<string, Node> = {
 	'/profil/production': { label: 'Profil de producteur·rice', parent: '/profil' },
 	'/profil/organisateur': { label: 'Profil d’organisateur·rice', parent: '/profil' },
 	'/profil/accompagnement': { label: 'Profil de manager ou de booker', parent: '/profil' },
+	'/delegations': { label: 'Affectations et délégations', parent: '/accompagnement' },
+	'/delegations/nouvelle': { label: 'Confier un accompagnement', parent: '/delegations' },
+	'/delegations/[id]': {
+		label: 'Affectation',
+		parent: '/delegations',
+		name: at('delegation', 'artistName')
+	},
 	'/accompagnement': { label: 'Accompagnement', parent: '/espace' },
 	'/studios': { label: 'Mes studios', parent: '/profil' },
 	'/studios/[handle]': { label: 'Studio', parent: '/studios', name: at('studio', 'name') },

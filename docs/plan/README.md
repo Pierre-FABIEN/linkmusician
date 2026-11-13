@@ -148,17 +148,16 @@ dans le `git log` (messages préfixés par l'ID).
 Suivi complémentaire des tickets DASH créés sur GitHub. Ne pas les confondre
 avec les lots d'inscription encore ouverts dans #26 et #27.
 
-| Lot      | Issue                                                          | État       | Périmètre                                                                                                                                                                                 |
-| -------- | -------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DASH-01  | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local   | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
-| DASH-02  | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✂️ partiel | Découpé pour lever la dépendance circulaire avec DASH-04 : socles DASH-02a et DASH-02b livrés ; affectations et délégations dans DASH-04b                                                 |
-| DASH-02a | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local   | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
-| DASH-03  | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ local   | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
-
-| DASH-04 | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✂️ partiel | Mandats individuels DASH-04a et agences DASH-02b livrés ; affectations et sous-délégations dans DASH-04b |
-| DASH-04a | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous |
-
-| DASH-02b | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local | Agences privées, invitations et rôles, acceptation, révocation, transmission et fermeture ; aucun droit artistique implicite. Affectations et délégations restent DASH-04b. |
+| Lot      | Issue                                                          | État     | Périmètre                                                                                                                                                                                 |
+| -------- | -------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DASH-01  | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
+| DASH-02  | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local | Structures et agences DASH-02a/02b complétées par les affectations consenties DASH-04b ; aucun droit administratif ou artistique par appartenance.                                        |
+| DASH-02a | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
+| DASH-03  | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ local | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
+| DASH-04  | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local | Mandats individuels DASH-04a et affectations consenties DASH-04b ; les candidatures et le booking avancé restent dans leurs lots.                                                         |
+| DASH-04a | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous                               |
+| DASH-02b | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local | Agences privées, invitations et rôles, acceptation, révocation, transmission et fermeture ; aucun droit artistique implicite. Affectations et délégations complétées par DASH-04b.        |
+| DASH-04b | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local | Affectations nominatives, double accord, droits explicites, périmètre du mandat et adhésions figées ; recette ci-dessous.                                                                 |
 
 Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
 Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,
@@ -217,3 +216,26 @@ Formatage et ESLint passent hors `.shot-metro.mjs` et `.shot-tmp.mjs`,
 défauts préexistants conservés : le lint global reste bloqué sur leur
 formatage. Les sept tests d’intégration des écoles passent également ; le contrôle
 des types passe sans erreur ni avertissement, séparément des E2E. Aucun push. Périmètre : [DASH-02b](../conception/14-agences-equipes.md).
+
+Recette DASH-04b (13/11/2026) : 1 344 tests unitaires réussis, 272 tests
+conditionnels non exécutés (`--maxWorkers=2 --testTimeout=30000`).
+Trente-cinq tests d’intégration distincts réussis : onze mandats existants,
+dix affectations (les dix rejoués après la projection légère de la liste et
+le contrôle des payloads), sept agences et sept écoles. Quatre E2E distincts
+réussis : booker existant, deux parcours d’aide et nouveau parcours à trois
+comptes pour les affectations. Le nouveau parcours a été relancé seul après
+correction de son sélecteur de case de confirmation (retour à la ligne dans
+le label) ; l’action finale, les refus des POST forgés, le retour dans
+l’agence, axe et 390 px sont vérifiés.
+Types sans erreur ni avertissement. Formatage et ESLint au vert hors les
+scripts locaux `.shot-metro.mjs` et `.shot-tmp.mjs` préexistants ; le lint
+global reste bloqué par leur formatage. Migrations additives appliquées sur
+`public` et `e2e`, seed joué et rejoué (une proposition, aucun accord donné).
+L’index partiel est préservé par le nettoyeur de migrations, vérifié par
+assertion Node. Aucun push effectué.
+
+Suivi GitHub : synchroniser les lots au fil des livraisons, avec preuve,
+commit et distinction local/publié. #31 et #33 clôturées ; DASH-02 et
+DASH-04 sont réalisés localement. Les candidatures déléguées (#37/#44),
+le booking avancé (#45) et le journal commun (#35) restent leurs propres lots.
+Détail : [affectations et délégations](../conception/15-affectations-delegations.md).

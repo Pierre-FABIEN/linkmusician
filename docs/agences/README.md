@@ -3,7 +3,7 @@
 `/agences` liste les participations privées du compte ; l’entrée est aussi
 accessible depuis « Mes structures ». Manager ou booker majeur peut ouvrir
 jusqu’à trois agences. Les agences sont des `Organization.AGENCY`, avec les
-`Membership` communes, et restent privées : aucun profil public ni roster.
+`Membership` communes, et restent privées : aucun profil public ni roster global.
 
 - **Responsable (OWNER)** : invite à la co-gestion ou comme collaborateur,
   retire une participation, ferme l’agence ; son départ transmet à la plus
@@ -37,12 +37,18 @@ l’agence et les participations restantes. L’historique reste conservé.
 ## Limites et suite
 
 Aucune XP, aucun mandat artistique ni pouvoir de signature par appartenance.
-Les accompagnements individuels restent indépendants. L’affectation d’un
-artiste et les délégations par mandat restent **DASH-04b**, avant le journal
-commun **DASH-05**. La lecture d’une équipe ne donne aucun droit sur les
+Les accompagnements individuels restent indépendants. Les affectations consenties sont livrées dans **DASH-04b** ; le journal
+commun reste **DASH-05**. La lecture d’une équipe ne donne aucun droit sur les
 conversations, les crédits ou les opportunités d’autrui. Label, édition et
 communication ne sont pas ouverts par ce lot.
 
 Tests : règles pures, intégration `PROGRESSION_INTEGRATION=1 npx vitest --run
 src/lib/server/agencies --maxWorkers=1`, E2E `agences.spec.ts` et non-régression
 `structures.spec.ts`. Les résultats exécutés sont dans `docs/plan/README.md`.
+
+## Affectations consenties (DASH-04b)
+
+L’entrée **Mes affectations** ne liste que les mandats et accords qui te
+concernent. Le titulaire propose, le collaborateur accepte et l’artiste
+approuve les droits explicites. Le rôle dans l’agence ne remplace jamais
+ces accords. Voir [affectations et délégations](../conception/15-affectations-delegations.md).

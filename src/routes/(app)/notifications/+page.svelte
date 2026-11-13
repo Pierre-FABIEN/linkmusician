@@ -24,6 +24,7 @@
 	let { data } = $props();
 
 	const ICONS: Record<NotificationTypeValue, typeof Bell> = {
+		DELEGATION_REQUEST: Handshake,
 		CONTACT_REQUEST: MessageCircle,
 		APPLICATION_RECEIVED: CalendarCheck,
 		APPLICATION_ACCEPTED: PartyPopper,

@@ -33,7 +33,9 @@ supprimée (décision D6).
   étape cohérente, préfixé par l'ID du lot dans le message
   (`feat(geo): … (P1-05)`). L'utilisateur pousse `main` depuis VS Code.
 - Fin de lot : appliquer la « Définition de terminé »
-  (`docs/plan/README.md` §4), puis mettre à jour le tableau §5.
+  (`docs/plan/README.md` §4), puis mettre à jour le tableau §5 et les issues GitHub concernées au fur
+  et à mesure : livré, partiel ou restant, preuves et commit ; distinguer
+  explicitement les commits locaux des commits publiés.
 - Un lot qui déborde est découpé (`P1-05a`, `P1-05b`), pas prolongé.
 - Une règle métier qui change met à jour `docs/conception/` dans le même
   commit. Une décision prise est consignée dans `docs/decisions/`.
@@ -52,8 +54,8 @@ supprimée (décision D6).
 - **Relire chaque migration générée** (`prisma migrate dev`) : Prisma
   propose de supprimer ou recréer des index du boilerplate créés en SQL
   brut et absents de `schema.prisma` (`transactions_*`,
-  `blog_posts_published_createdAt_idx`, et l'index partiel LinkMusician
-  `memberships_open_key`). Les retirer avant d'appliquer la
+  `blog_posts_published_createdAt_idx`, et les index partiels LinkMusician
+  `memberships_open_key` et `delegation_open_key`). Les retirer avant d'appliquer la
   migration : `npm run db:migrate -- --create-only --name <nom>`, puis
   `npm run db:nettoyer-migration`, relire, et `npm run db:deploy` (puis
   `db:deploy:e2e`).

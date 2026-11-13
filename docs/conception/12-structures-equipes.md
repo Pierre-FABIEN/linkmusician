@@ -47,15 +47,14 @@ est encore un ancien écran d'orientation qui annonce des lieux « plus tard ».
 
 ## Suite du découpage
 
-**DASH-02 reste partiel** après DASH-02a. L'extension typée aux agences et
-collaborateurs, les délégations et mandats détaillés, leur durée, territoire et
-activité, ainsi que la traçabilité commune se poursuivent avec DASH-04 puis
-DASH-02b/DASH-05. Aucune agence ni délégation nouvelle n'est ouverte dans ce
-socle. Les métiers label, édition et communication restent « bientôt ».
+DASH-02a ne couvrait que les cinq types existants. Les agences et équipes
+sont livrées dans DASH-02b, puis les affectations et délégations nominatives
+dans DASH-04b. La traçabilité commune se poursuit avec DASH-05. Les métiers
+label, édition et communication restent « bientôt ».
 
 La durée, le territoire et les activités des accompagnements individuels sont
 désormais traités dans [DASH-04a](./13-mandats-individuels.md). Les agences et équipes sont livrées dans [DASH-02b](./14-agences-equipes.md).
-Les affectations d’artistes et sous-délégations restent DASH-04b.
+Les affectations consenties sont livrées dans [DASH-04b](./15-affectations-delegations.md).
 
 ## Vérifications du socle livré
 

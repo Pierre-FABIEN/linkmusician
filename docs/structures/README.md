@@ -23,9 +23,8 @@ Aucune migration, nouvelle donnée personnelle ou nouvelle notification dans
 ce lot ; export et anonymisation des adhésions existantes conservés.
 
 Voir [l'audit, les tests et le découpage restant](../conception/12-structures-equipes.md).
-DASH-02 reste partiel : les agences sont livrées dans DASH-02b ; les
-affectations et délégations détaillées restent DASH-04b, sans activation
-des métiers « bientôt ».
+DASH-02 est complété par les agences DASH-02b et les affectations consenties
+DASH-04b, sans activation des métiers « bientôt ».
 
 ## Mandats individuels (DASH-04a)
 
@@ -33,4 +32,4 @@ Les accompagnements existants portent désormais une durée, un territoire et
 une activité acceptés par l’artiste. Ils ne créent toujours aucune adhésion
 au groupe. Voir [mandats individuels](../conception/13-mandats-individuels.md).
 Les agences et équipes sont livrées dans [DASH-02b](../agences/README.md).
-Les affectations d’artistes et sous-délégations restent DASH-04b.
+Les affectations consenties sont livrées dans [DASH-04b](../conception/15-affectations-delegations.md).

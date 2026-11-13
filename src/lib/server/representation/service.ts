@@ -18,6 +18,7 @@
  * - Rang (`getAgentTier`) : lu dans les accompagnements confirmés et les
  *   étapes des groupes, jamais l'XP (`core/agentSummary.ts`).
  */
+import { delegatedEndAccess } from './delegationAccess';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { isBlockedBetween } from '#lib/server/blocking/service';
@@ -367,7 +368,11 @@ export async function endRepresentation(representationId: string, byId: string, 
 			await tx.representation.delete({ where: { id: representationId } });
 			return;
 		}
-		if (!isAgentSide && !(await answerersOf(tx, current.artistId)).includes(byId))
+		if (
+			!isAgentSide &&
+			!(await answerersOf(tx, current.artistId)).includes(byId) &&
+			!(await delegatedEndAccess(tx, representationId, byId, now))
+		)
 			throw new RepresentationError('Seules les deux parties terminent un accompagnement.', 403);
 		await tx.representation.update({
 			where: { id: representationId },

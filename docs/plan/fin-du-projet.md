@@ -492,10 +492,11 @@ avant d'avoir livré ses fonctions.
    [le cadrage](../conception/13-mandats-individuels.md).
 3. DASH-02b : agences privées et équipes livrées localement, voir
    [le cadrage](../conception/14-agences-equipes.md).
-4. DASH-04b : affectations d’artistes et sous-délégations explicites, en
-   cohérence avec les mandats et les permissions.
+4. DASH-04b : affectations nominatives et droits explicites consentis, voir
+   [le cadrage](../conception/15-affectations-delegations.md).
 5. DASH-05 : journal d'activité commun après les permissions et délégations.
 
-DASH-02a ne clôture pas DASH-02. Les autres modules DASH et les parties ouvertes
+DASH-02a seul ne clôturait pas DASH-02 ; les agences DASH-02b et les
+affectations DASH-04b complètent ce périmètre. Les autres modules DASH et les parties ouvertes
 ONB-12c/ONB-13b restent dans leurs lots. Voir
 [l'audit et le découpage](../conception/12-structures-equipes.md).

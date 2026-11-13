@@ -8,9 +8,9 @@ l’acceptation et la fin. Il ne portait ni durée, ni territoire, ni activités
 La confirmation vérifiait la gestion avant la transaction ; la fin écrivait
 sans verrou. Les concerts ne contrôlaient que le statut confirmé du booker.
 
-DASH-04a étend ce modèle. DASH-04 reste partiel : les agences et équipes sont désormais livrées avec
-[DASH-02b](./14-agences-equipes.md) ; les affectations d’artistes et
-sous-délégations restent DASH-04b.
+DASH-04a étend ce modèle. Il est complété par les agences et équipes
+[DASH-02b](./14-agences-equipes.md) puis les affectations consenties
+[DASH-04b](./15-affectations-delegations.md).
 Le journal d’activité commun reste DASH-05. Aucun métier « bientôt » n’est ouvert.
 
 ## Périmètre consenti
@@ -51,7 +51,8 @@ jouent et accueillent toujours le concert ; un booker ne les remplace pas.
 
 La ligne conserve les termes, la date et l’auteur de la confirmation puis de
 la fin. Les propositions déclinées ou retirées restent supprimées comme en
-P5-07 ; leur journal historique et les sous-délégations ne sont pas livrés.
+P5-07 ; leur journal historique commun reste DASH-05 ; les affectations consenties
+sont traitées dans DASH-04b.
 L’export RGPD inclut les dates, territoires et activités. L’anonymisation
 existante termine les mandats, efface le mot et oublie les auteurs de décision.
 Les périmètres n’ajoutent aucune localisation personnelle précise.

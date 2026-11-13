@@ -398,6 +398,23 @@ doit transmettre à une co-gestion ou fermer l’agence.
 Ces participations n’accordent aucun mandat artistique ni pouvoir de signature.
 Tes accompagnements d’artistes restent indépendants.
 
+### Confier un accompagnement {#delegations}
+
+Dans **Accompagnement › Affectations et délégations**, le titulaire d’un mandat
+confirmé peut proposer de confier son suivi à une personne majeure participant
+à la même agence. Le collaborateur accepte et l’artiste approuve les droits.
+Avant les deux accords, aucune consultation des conditions privées n’est ouverte.
+
+La consultation ne donne accès ni aux messages ni aux projets privés. Le droit
+supplémentaire de **mettre fin à l’accompagnement dans l’app** doit être coché
+puis approuvé explicitement. Il ne donne aucun pouvoir de signature.
+Les activités, le territoire et la durée du mandat parent s’appliquent toujours.
+
+Chacune des parties peut retirer l’affectation. Quitter l’agence, perdre son
+accès ou terminer le mandat retire les droits ; revenir dans l’agence ne les
+réactive pas. Pour changer les droits, retirez puis soumettez une nouvelle
+proposition. Les candidatures pour autrui ne sont pas encore ouvertes.
+
 ### Ton métier actif et ton métier principal {#metier-actif}
 
 En haut de l'app, le sélecteur **Mon espace** contient les métiers de ton

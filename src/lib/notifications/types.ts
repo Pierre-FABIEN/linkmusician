@@ -7,6 +7,7 @@
  */
 
 export const NOTIFICATION_TYPES = [
+	'DELEGATION_REQUEST',
 	'CONTACT_REQUEST',
 	'APPLICATION_RECEIVED',
 	'APPLICATION_ACCEPTED',
@@ -47,6 +48,7 @@ export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, st
 	MILESTONE_ATTEST: 'Étapes de groupe à confirmer',
 	GROUP_DISCUSSION_INVITE: 'Invitations à une discussion de groupe',
 	STUDIO_INVITE: 'Invitations à gérer un studio',
+	DELEGATION_REQUEST: 'Affectations et délégations à confirmer',
 	ORG_INVITE: 'Invitations à rejoindre une organisation, un lieu ou une agence',
 	VENUE_HOST_INVITE: 'Invitations à animer les scènes ouvertes d’un lieu',
 	REPRESENTATION_REQUEST: 'Propositions d’accompagnement (manager, booker)',
@@ -105,6 +107,8 @@ export function notificationText(
 			return `${who} te demande de confirmer${title ? ` : ${title}` : ' une étape de son groupe'}. Réponds seulement si tu y étais.`;
 		case 'STUDIO_INVITE':
 			return `${who} t’invite à gérer le studio${what} à ses côtés.`;
+		case 'DELEGATION_REQUEST':
+			return `${who} propose une affectation${what}. Consulte les droits puis réponds depuis « Affectations et délégations ».`;
 		case 'ORG_INVITE':
 			return `${who} t’invite à rejoindre${what}. Consulte le rôle proposé avant d’accepter.`;
 		case 'VENUE_HOST_INVITE':

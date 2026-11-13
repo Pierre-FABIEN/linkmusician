@@ -5,6 +5,16 @@
 	import { Users, UserRound } from 'lucide-svelte';
 	let { data } = $props();
 	const items = $derived([
+		...(data.agency.status === 'ACTIVE'
+			? [
+					{
+						href: `/delegations?agence=${data.agency.id}`,
+						title: 'Mes affectations',
+						text: 'Tes seuls mandats et accords nominatifs dans cette agence.',
+						icon: UserRound
+					}
+				]
+			: []),
 		{
 			href: `/agences/${data.agency.id}/participation`,
 			title: 'Ma participation',

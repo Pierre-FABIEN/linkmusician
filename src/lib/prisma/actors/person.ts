@@ -204,6 +204,42 @@ export async function exportPersonData(userId: string) {
 			}
 		})
 	]);
+	const mandateDelegations = await prisma.representationDelegation.findMany({
+		where: {
+			OR: [
+				{ delegateId: person.actorId },
+				{ proposedById: person.actorId },
+				{ approvedById: person.actorId },
+				{ endedById: person.actorId },
+				{ representation: { OR: [{ agentId: person.actorId }, { artistId: person.actorId }] } }
+			]
+		},
+		orderBy: { createdAt: 'asc' },
+		select: {
+			actions: true,
+			createdAt: true,
+			acceptedAt: true,
+			approvedAt: true,
+			expiresAt: true,
+			endedAt: true,
+			agency: { select: { actor: { select: { displayName: true } } } },
+			delegate: { select: { displayName: true } },
+			proposedBy: { select: { displayName: true } },
+			approvedBy: { select: { displayName: true } },
+			endedBy: { select: { displayName: true } },
+			representation: {
+				select: {
+					kind: true,
+					startsAt: true,
+					expiresAt: true,
+					departmentCodes: true,
+					allowedActions: true,
+					artist: { select: { displayName: true } },
+					agent: { select: { displayName: true } }
+				}
+			}
+		}
+	});
 	const [
 		ledger,
 		reportsFiled,
@@ -636,6 +672,26 @@ export async function exportPersonData(userId: string) {
 					modifie_le: agentProfile.updatedAt
 				}
 			: null,
+		affectations: mandateDelegations.map((d) => ({
+			agence: d.agency.actor.displayName,
+			artiste: d.representation.artist.displayName,
+			agent: d.representation.agent.displayName,
+			collaborateur: d.delegate.displayName,
+			metier: d.representation.kind,
+			actions: d.actions,
+			activites_parent: d.representation.allowedActions,
+			departements: d.representation.departmentCodes,
+			debut_parent: d.representation.startsAt,
+			fin_parent: d.representation.expiresAt,
+			propose_par: d.proposedBy?.displayName ?? null,
+			approuve_par: d.approvedBy?.displayName ?? null,
+			retire_par: d.endedBy?.displayName ?? null,
+			propose_le: d.createdAt,
+			accepte_le: d.acceptedAt,
+			approuve_le: d.approvedAt,
+			fin_exclue: d.expiresAt,
+			retire_le: d.endedAt
+		})),
 		accompagnements: representations.map((r) => ({
 			role: r.agentId === person.actorId ? 'agent' : 'artiste',
 			metier: r.kind,
@@ -968,6 +1024,30 @@ export async function personAnonymizationOps(
 		// propositions en attente disparaissent ; un accompagnement confirmé
 		// se termine et garde sa trace pour l'autre partie (« Compte supprimé »),
 		// sans mot ni personne qui a confirmé ou terminé.
+		// DASH-04b : retirer les droits, conserver les consentements du groupe et oublier les auteurs.
+		prisma.representationDelegation.updateMany({
+			where: {
+				endedAt: null,
+				OR: [
+					{ delegateId: person.actorId },
+					{ proposedById: person.actorId },
+					{ representation: { OR: [{ agentId: person.actorId }, { artistId: person.actorId }] } }
+				]
+			},
+			data: { endedAt: new Date() }
+		}),
+		prisma.representationDelegation.updateMany({
+			where: { proposedById: person.actorId },
+			data: { proposedById: null }
+		}),
+		prisma.representationDelegation.updateMany({
+			where: { approvedById: person.actorId },
+			data: { approvedById: null }
+		}),
+		prisma.representationDelegation.updateMany({
+			where: { endedById: person.actorId },
+			data: { endedById: null }
+		}),
 		prisma.agentProfile.deleteMany({ where: { personId: person.actorId } }),
 		prisma.representation.deleteMany({
 			where: {

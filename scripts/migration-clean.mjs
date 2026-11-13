@@ -7,7 +7,8 @@ export const BOILERPLATE_INDEXES = [
 	'transactions_userId_idx',
 	'blog_posts_published_createdAt_idx',
 	// LinkMusician : index partiels que Prisma 5 ne sait pas décrire.
-	'memberships_open_key'
+	'memberships_open_key',
+	'delegation_open_key'
 ];
 
 /**

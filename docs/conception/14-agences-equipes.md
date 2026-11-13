@@ -31,8 +31,8 @@ individuels sont indépendants. Au départ ou à l’anonymisation du responsabl
 seule une co-gestion active peut prendre le relais. Sans co-gestion, le départ
 est refusé (fermeture explicite possible), et l’anonymisation ferme l’agence.
 
-DASH-04b reste à réaliser : affectations d’artistes, consentements et
-sous-délégations dans le périmètre d’un mandat. Les candidatures pour autrui
+DASH-04b livre désormais les [affectations consenties](./15-affectations-delegations.md)
+dans le périmètre d’un mandat. Les candidatures pour autrui
 et le cycle de négociation des dates restent dans DASH-07/14/15 ; aucune
 fonction de ces lots n’est exposée comme opérationnelle ici.
 

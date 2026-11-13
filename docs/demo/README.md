@@ -336,3 +336,12 @@ la co-gestion, Nora Production invitée comme collaboratrice. Les trois
 comptes proviennent exclusivement de `@demo.linkmusician.test`. Marc et
 Élise consultent `/agences` et l’équipe ; Nora accepte dans « Ma participation »
 et ne voit pas l’équipe. Aucun artiste ni mandat ne sont rattachés implicitement.
+
+## Affectation d’un mandat (DASH-04b)
+
+Après l’agence de démo, Élise propose de confier son accompagnement de la
+Fanfare Pirate à Marc : consultation des conditions et droit facultatif de terminer la relation
+applicative. La proposition attend les accords de Marc et de Lucas (gestion
+de la Fanfare), dans `/delegations`. Elle ne donne aucun accès avant les deux accords.
+Le seed ne recrée pas la proposition si elle a déjà été retirée ou refusée,
+ne change aucun mandat existant et ne sollicite que les comptes démo.

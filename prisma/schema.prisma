@@ -1394,6 +1394,10 @@ enum TrackKind {
 /// Supertype de tout profil (personne ou structure) : la progression, les
 /// médias, la localisation et les collaborations pointent tous sur `Actor`.
 model Actor {
+  mandateDelegationsReceived RepresentationDelegation[] @relation("DelegationDelegate")
+  mandateDelegationsProposed RepresentationDelegation[] @relation("DelegationProposer")
+  mandateDelegationsApproved RepresentationDelegation[] @relation("DelegationApprover")
+  mandateDelegationsEnded RepresentationDelegation[] @relation("DelegationEnder")
   id          String    @id @default(cuid())
   kind        ActorKind
   /// Identifiant public (`@handle`), unique, en minuscules : voir `src/lib/server/actors/handle.ts`.
@@ -2776,6 +2780,7 @@ enum NotificationType {
   /// Préférence d'email seulement (P2-09b) : jamais une ligne de `Notification`.
   MESSAGES
   PROGRESS
+  DELEGATION_REQUEST
 }
 
 /// Notification dans l'app (cloche). Le texte est composé à l'affichage
@@ -2902,6 +2907,7 @@ enum MembershipStatus {
 /// XP sur la piste BAND). Un groupe a toujours un OWNER tant qu'il n'est pas
 /// dissous (`src/lib/server/bands/service.ts`, seul point d'écriture).
 model Organization {
+  mandateDelegations RepresentationDelegation[]
   actorId     String       @id
   actor       Actor        @relation(fields: [actorId], references: [id], onDelete: Cascade)
   kind        OrgKind
@@ -2941,6 +2947,8 @@ model Organization {
 /// ou une demande en attente. Au plus une ligne ouverte (INVITED, REQUESTED,
 /// ACTIVE) par personne et par groupe, garanti par le service sous verrou.
 model Membership {
+  mandateDelegationsAsAgent RepresentationDelegation[] @relation("DelegationAgentMembership")
+  mandateDelegationsAsDelegate RepresentationDelegation[] @relation("DelegationDelegateMembership")
   id          String           @id @default(cuid())
   orgId       String
   org         Organization     @relation(fields: [orgId], references: [actorId], onDelete: Cascade)
@@ -3777,6 +3785,7 @@ enum RepresentationStatus {
 /// gestion) ; seule la confirmation compte (`management.confirmed`). Un
 /// accompagnement repris après la fin est une nouvelle ligne.
 model Representation {
+  delegations RepresentationDelegation[]
   id            String               @id @default(cuid())
   agentId       String
   agent         Actor                @relation("RepresentationAgent", fields: [agentId], references: [id], onDelete: Cascade)
@@ -3879,4 +3888,36 @@ model SchoolInvite {
 
   @@index([orgId])
   @@map("school_invites")
+}
+
+
+/// DASH-04b : affectation nominative, consentie par l’artiste et le collaborateur.
+/// Les périodes d’adhésion sont figées : un retour dans l’agence ne réactive rien.
+model RepresentationDelegation {
+ id String @id @default(cuid())
+ representationId String
+ representation Representation @relation(fields: [representationId], references: [id], onDelete: Cascade)
+ agencyId String
+ agency Organization @relation(fields: [agencyId], references: [actorId], onDelete: Cascade)
+ delegateId String
+ delegate Actor @relation("DelegationDelegate", fields: [delegateId], references: [id], onDelete: Cascade)
+ agentMembershipId String
+ agentMembership Membership @relation("DelegationAgentMembership", fields: [agentMembershipId], references: [id], onDelete: Cascade)
+ delegateMembershipId String
+ delegateMembership Membership @relation("DelegationDelegateMembership", fields: [delegateMembershipId], references: [id], onDelete: Cascade)
+ proposedById String?
+ proposedBy Actor? @relation("DelegationProposer", fields: [proposedById], references: [id], onDelete: SetNull)
+ approvedById String?
+ approvedBy Actor? @relation("DelegationApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+ approvedAt DateTime?
+ acceptedAt DateTime?
+ expiresAt DateTime?
+ actions String[]
+ endedAt DateTime?
+ endedById String?
+ endedBy Actor? @relation("DelegationEnder", fields: [endedById], references: [id], onDelete: SetNull)
+ createdAt DateTime @default(now())
+ @@index([delegateId, endedAt])
+ @@index([representationId, endedAt])
+ @@map("representation_delegations")
 }
