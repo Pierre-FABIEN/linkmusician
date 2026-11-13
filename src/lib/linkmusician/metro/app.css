@@ -526,3 +526,29 @@ a.lm-list__row:focus-visible {
 		background: Highlight;
 	}
 }
+
+/* Rôle actif : commande native compacte, à côté des raccourcis de la coquille. */
+.lm-role-select {
+	max-width: 10rem;
+	min-height: 2.75rem;
+	padding: 0.35rem 0.25rem;
+	border: 0;
+	border-radius: 0.4rem;
+	background: transparent;
+	color: var(--foreground);
+	font: inherit;
+	font-size: 0.75rem;
+	cursor: pointer;
+}
+.lm-role-select option {
+	background: var(--background);
+	color: var(--foreground);
+}
+.lm-role-select:focus-visible {
+	outline: 2px solid var(--foreground);
+	outline-offset: 2px;
+}
+.lm-role-select:disabled {
+	opacity: 0.6;
+	cursor: wait;
+}

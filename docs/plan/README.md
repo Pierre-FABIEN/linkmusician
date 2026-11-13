@@ -156,6 +156,14 @@ ESLint ciblé sans erreur ; parcours E2E navigation multirôle réussi
 exécution a expiré au chargement initial avant les assertions de navigation ;
 la relance seule passe intégralement.
 
+Correction DASH-01 du 13/11/2026 (suite) : sélecteur de rôle réduit à une liste
+déroulante « Rôle : … » à côté des icônes, qui bascule dès la sélection et
+disparaît quand un seul métier est détenu ; bouton clair/sombre mémorisé dans la
+coquille ; « Mon espace » passe dans le menu du compte. Types : 0 erreur et
+0 avertissement ; parcours E2E navigation multirôle réussi (un seul rôle sans
+sélecteur, thème sombre audité en accessibilité, clavier, filtres). Une première
+exécution a planté à l'ouverture du navigateur (mémoire WSL) ; la relance passe.
+
 | Lot      | Issue                                                          | État     | Périmètre                                                                                                                                                                                 |
 | -------- | -------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | DASH-01  | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |

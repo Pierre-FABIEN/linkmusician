@@ -13,10 +13,15 @@ Implémentation du 12/11/2026, sur les écrans et services déjà livrés.
   restent sur les icônes. La ligne textuelle Accueil/Découvrir/Annonces/Messages/Profil
   ajoutée dans DASH-01 est retirée à la demande produit du 13/11/2026.
   L'accueil reste accessible par la marque et le compte garde son accès au profil.
-- **Mon espace** sélectionne l'un des métiers réellement détenus. **Changer**
-  valide le choix ; le lien **Mon espace** mène à `/espace`. Le métier
+- Un sélecteur compact **Rôle : …**, placé à côté des icônes, choisit l'un
+  des métiers réellement détenus ; changer la sélection bascule aussitôt
+  (sans JavaScript, un bouton **Changer de rôle** prend le relais). Il
+  n'apparaît que si la personne détient au moins deux métiers. `/espace`
+  s'ouvre depuis le menu du compte (**Mon espace**). Le métier
   principal reste celui choisi dans les réglages : changer de contexte
   ne modifie pas le profil.
+- Une icône soleil/lune, à côté des raccourcis, bascule entre les modes
+  clair et sombre ; le choix est mémorisé sur l'appareil.
 - `/espace` garde le parcours musical pour Musicien·ne ; les autres métiers
   affichent un menu propre, composé de liens vers les écrans existants.
   Les objectifs du métier actif passent en premier sur l'écran des objectifs.

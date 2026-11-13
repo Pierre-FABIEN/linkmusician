@@ -11,7 +11,9 @@
 	import '#lib/linkmusician/theme.css';
 	import type { Snippet } from 'svelte';
 	import { page, navigating } from '$app/state';
-	import { ArrowLeftRight, Guitar, Megaphone, Trophy } from 'lucide-svelte';
+	import { enhance } from '$app/forms';
+	import { mode as colorMode, toggleMode as toggleColorMode } from 'mode-watcher';
+	import { ArrowLeftRight, Guitar, Megaphone, Trophy, Sun, Moon } from 'lucide-svelte';
 	import MetroActions from './metro/MetroActions.svelte';
 	import { toneOfMode } from './metro/tones';
 	import { modeFor, PLAY_MODE_INFO, type PlayModeValue } from '#lib/linkmusician/modes';
@@ -72,6 +74,7 @@
 		};
 	});
 
+	let switchingTrack = $state(false);
 	const mode = $derived(modeFor(page.url.pathname, preferredMode));
 	// Fil d'Ariane (D52), sur toutes les pages de la coquille.
 	const crumbs = $derived(
@@ -134,51 +137,64 @@
 					<Megaphone class="size-5" aria-hidden="true" />
 				</a>
 			{/if}
-			<div class="ml-auto flex shrink-0 items-center gap-1.5">
+			<div class="ml-auto flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1.5">
+				{#if navigation && navigation.tracks.length > 1}
+					<form
+						method="POST"
+						action="/jouer?/switchTrack"
+						class="min-w-0 max-w-full"
+						use:enhance={() => {
+							switchingTrack = true;
+							return async ({ update }) => {
+								try {
+									await update();
+								} finally {
+									switchingTrack = false;
+								}
+							};
+						}}
+					>
+						<input
+							type="hidden"
+							name="returnTo"
+							value={page.url.pathname + page.url.search + page.url.hash}
+						/>
+						<label for="active-track" class="sr-only">Rôle</label>
+						<select
+							id="active-track"
+							name="track"
+							class="lm-role-select"
+							value={navigation.active}
+							disabled={switchingTrack || Boolean(navigating.to)}
+							onchange={(event) => event.currentTarget.form?.requestSubmit()}
+						>
+							{#each navigation.tracks as track (track.track)}
+								<option value={track.track}
+									>Rôle : {track.label}{track.available ? '' : ' · bientôt'}</option
+								>
+							{/each}
+						</select>
+						<noscript><button type="submit" class="lm-btn">Changer de rôle</button></noscript>
+					</form>
+				{/if}
 				<MetroActions {messages} notifications={bell} {current} />
+				<button
+					type="button"
+					class="lm-action shrink-0"
+					onclick={toggleColorMode}
+					aria-label={colorMode.current === 'dark'
+						? 'Passer au mode clair'
+						: 'Passer au mode sombre'}
+					title={colorMode.current === 'dark' ? 'Passer au mode clair' : 'Passer au mode sombre'}
+				>
+					{#if colorMode.current === 'dark'}<Sun class="size-5" aria-hidden="true" />{:else}<Moon
+							class="size-5"
+							aria-hidden="true"
+						/>{/if}
+				</button>
 				<AccountMenu {user} />
 			</div>
 		</div>
-		{#if navigation}
-			<div class="mx-auto flex max-w-7xl flex-wrap items-center justify-end gap-x-6 gap-y-3 pt-3">
-				<form
-					method="POST"
-					action="/jouer?/switchTrack"
-					class="flex w-full max-w-full items-center gap-2 lg:w-auto"
-				>
-					<input
-						type="hidden"
-						name="returnTo"
-						value={page.url.pathname + page.url.search + page.url.hash}
-					/>
-					<label for="active-track" class="sr-only">Mon espace</label>
-					<a
-						href="/espace"
-						aria-label="Ouvrir mon espace"
-						class="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold underline"
-						>Mon espace</a
-					>
-					<select
-						id="active-track"
-						name="track"
-						class="lm-field min-h-11 min-w-0 flex-1 text-sm lg:max-w-64"
-						value={navigation.active}
-						disabled={Boolean(navigating.to)}
-					>
-						{#each navigation.tracks as track (track.track)}
-							<option value={track.track}>{track.label}{track.available ? '' : ' · bientôt'}</option
-							>
-						{/each}
-					</select>
-					<button
-						type="submit"
-						class="lm-btn"
-						data-variant="ghost"
-						disabled={Boolean(navigating.to)}>Changer</button
-					>
-				</form>
-			</div>
-		{/if}
 	</header>
 
 	<Breadcrumbs {crumbs} />

@@ -16,12 +16,15 @@ test('navigation multirôle : métier actif, filtres conservés, droits et méti
 	const person = await db.person.findUniqueOrThrow({
 		where: { userId: (await requireUser(account.email)).id }
 	});
-	await db.personTrack.create({ data: { personId: person.actorId, track: 'SOUND_ENGINEER' } });
 	await page.setViewportSize({ width: 390, height: 844 });
+	const selector = page.getByLabel('Rôle', { exact: true });
+	// Un seul rôle : pas de sélecteur.
 	await page.goto('/espace');
 	await waitForAppReady(page);
-	const selector = page.getByLabel('Mon espace', { exact: true });
-	const change = page.getByRole('button', { name: 'Changer', exact: true });
+	await expect(selector).toHaveCount(0);
+	await db.personTrack.create({ data: { personId: person.actorId, track: 'SOUND_ENGINEER' } });
+	await page.goto('/espace');
+	await waitForAppReady(page);
 	await expect(selector).toHaveValue('MUSICIAN');
 	const nav = page.getByRole('navigation', { name: 'Raccourcis', exact: true });
 	for (const name of ['Découvrir', 'Messages', 'Notifications']) {
@@ -31,11 +34,20 @@ test('navigation multirôle : métier actif, filtres conservés, droits et méti
 	}
 	await expect(page.getByRole('navigation', { name: 'Navigation principale' })).toHaveCount(0);
 
+	await test.step('thème clair/sombre mémorisé', async () => {
+		await page.getByRole('button', { name: 'Passer au mode sombre', exact: true }).click();
+		await expect(page.locator('html')).toHaveClass(/dark/);
+		await page.reload();
+		await waitForAppReady(page);
+		await expect(page.locator('html')).toHaveClass(/dark/);
+		await expectNoA11yViolations(page, ['.cartButton']);
+		await page.getByRole('button', { name: 'Passer au mode clair', exact: true }).click();
+		await expect(page.locator('html')).not.toHaveClass(/dark/);
+	});
+
 	await test.step('clavier : ouvrir le métier du son puis recharger', async () => {
-		await selector.selectOption('SOUND_ENGINEER');
 		await selector.focus();
-		await page.keyboard.press('Tab');
-		await expect(change).toBeFocused();
+		await page.keyboard.press('ArrowDown');
 		await page.keyboard.press('Enter');
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ingé son');
 		await expect(
@@ -60,19 +72,18 @@ test('navigation multirôle : métier actif, filtres conservés, droits et méti
 		await page.goto('/decouvrir?genre=funk&rayon=25');
 		const before = new URL(page.url()).search;
 		await selector.selectOption('MUSICIAN');
-		await change.click();
 		await expect(selector).toHaveValue('MUSICIAN');
 		expect(new URL(page.url()).search).toBe(before);
 		await page.goto('/profil/pratique');
 		await expect(page).toHaveURL(/\/profil\/pratique$/);
 		await waitForAppReady(page);
 		await selector.selectOption('SOUND_ENGINEER');
-		await change.click();
 		await expect(page).toHaveURL(/\/profil\/metier\/inge-son$/);
 		// Le sélecteur est aussi disponible sur une page publique vue en membre.
 		await page.goto('/aide');
 		await expect(selector).toHaveValue('SOUND_ENGINEER');
-		await page.getByRole('link', { name: 'Ouvrir mon espace', exact: true }).click();
+		await page.getByRole('button', { name: 'Ouvrir le menu du compte' }).click();
+		await page.getByRole('menuitem', { name: 'Mon espace', exact: true }).click();
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ingé son');
 	});
 
@@ -110,7 +121,6 @@ test('navigation multirôle : métier actif, filtres conservés, droits et méti
 			['LABEL_PRO', 'Professionnel·le de label']
 		]) {
 			await selector.selectOption(track);
-			await change.click();
 			await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
 			await expectNoA11yViolations(page, ['.cartButton']);
 		}
