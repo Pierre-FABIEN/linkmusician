@@ -54,8 +54,8 @@ DASH-02b/DASH-05. Aucune agence ni délégation nouvelle n'est ouverte dans ce
 socle. Les métiers label, édition et communication restent « bientôt ».
 
 La durée, le territoire et les activités des accompagnements individuels sont
-désormais traités dans [DASH-04a](./13-mandats-individuels.md). Les agences,
-collaborateurs et sous-délégations restent dans DASH-04b/DASH-02b.
+désormais traités dans [DASH-04a](./13-mandats-individuels.md). Les agences et équipes sont livrées dans [DASH-02b](./14-agences-equipes.md).
+Les affectations d’artistes et sous-délégations restent DASH-04b.
 
 ## Vérifications du socle livré
 

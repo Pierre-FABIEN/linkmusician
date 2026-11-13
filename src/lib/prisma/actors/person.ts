@@ -865,6 +865,18 @@ export async function exportPersonData(userId: string) {
 				debut: m.startedAt,
 				fin: m.endedAt
 			})),
+		// Agences (DASH-02b) : chaque période de participation, sans mandat implicite.
+		agences: memberships
+			.filter((m) => m.org.kind === 'AGENCY')
+			.map((m) => ({
+				agence: m.org.actor.displayName,
+				role: m.role,
+				statut: m.status,
+				invite_par: m.invitedBy?.displayName ?? null,
+				cree_le: m.createdAt,
+				debut: m.startedAt,
+				fin: m.endedAt
+			})),
 		// Écoles (P5-11) : comme prof (gestion) ou comme élève (MEMBER).
 		ecoles: memberships
 			.filter((m) => m.org.kind === 'SCHOOL')
@@ -1209,14 +1221,21 @@ async function bandAnonymizationOps(actorId: string): Promise<Prisma.PrismaPromi
 	const ops: Prisma.PrismaPromise<unknown>[] = [];
 	for (const band of owned) {
 		// Une école (P5-11) ne passe jamais à un·e élève : à la gestion, sinon dissoute.
-		const candidates =
-			band.org.kind === 'SCHOOL'
-				? band.org.memberships.filter((m) => m.role !== 'MEMBER')
-				: band.org.memberships;
+		const candidates = ['SCHOOL', 'AGENCY'].includes(band.org.kind)
+			? band.org.memberships.filter((m) => m.role !== 'MEMBER')
+			: band.org.memberships;
 		const next = successorOf(actorId, candidates);
 		if (next) {
 			ops.push(prisma.membership.update({ where: { id: next.id }, data: { role: 'OWNER' } }));
 		} else {
+			// DASH-02b : fermer aussi les participations des collaborateurs, sans les promouvoir.
+			if (band.org.kind === 'AGENCY')
+				ops.push(
+					prisma.membership.updateMany({
+						where: { orgId: band.orgId, personId: { not: actorId }, status: 'ACTIVE' },
+						data: { status: 'REMOVED', endedAt: now }
+					})
+				);
 			ops.push(
 				prisma.membership.updateMany({
 					where: { orgId: band.orgId, status: { in: ['INVITED', 'REQUESTED'] } },

@@ -327,3 +327,12 @@ les conditions dans `/accompagnement` avant de confirmer. Les mandats déjà
 présents sont conservés ; ce scénario ne les réécrit pas. L’accompagnement
 confirmé d’Élise auprès de la Fanfare et celui de Marc auprès des Rats restent
 sans échéance et sans limite territoriale.
+
+## Agence et équipe (DASH-02b)
+
+`seed:demo` ajoute « Agence Scène Démo » si son identifiant est libre, sans
+modifier une structure existante : Marc Manager responsable, Élise Booker à
+la co-gestion, Nora Production invitée comme collaboratrice. Les trois
+comptes proviennent exclusivement de `@demo.linkmusician.test`. Marc et
+Élise consultent `/agences` et l’équipe ; Nora accepte dans « Ma participation »
+et ne voit pas l’équipe. Aucun artiste ni mandat ne sont rattachés implicitement.

@@ -2,18 +2,26 @@ import { requirePerson } from '#server/actors/tracksForm';
 import { canOpenStudio } from '#lib/server/studios/service';
 import { isPromoter } from '#lib/server/opportunities/gigSlots';
 import { isIndexable } from '#lib/actors/visibility';
+import { canCreateAgency } from '#server/agencies/service';
 import { myStructures } from '#lib/server/organizations/structures';
 import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ locals }) => {
 	const person = await requirePerson(locals);
-	const [structures, studio, promoter] = await Promise.all([
+	const [structures, studio, promoter, agency] = await Promise.all([
 		myStructures(person.actorId),
 		canOpenStudio(person.actorId),
-		isPromoter(person.actorId)
+		isPromoter(person.actorId),
+		canCreateAgency(person.actorId)
 	]);
 	const open = [
 		{ href: '/groupes/nouveau', title: 'Créer un groupe', text: 'Rassembler ton équipe musicale.' }
 	];
+	if (agency)
+		open.push({
+			href: '/agences',
+			title: 'Ouvrir une agence',
+			text: 'Ton équipe de management ou de booking.'
+		});
 	if (studio)
 		open.push({
 			href: '/studios',

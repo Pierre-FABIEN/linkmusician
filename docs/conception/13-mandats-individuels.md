@@ -8,8 +8,9 @@ l’acceptation et la fin. Il ne portait ni durée, ni territoire, ni activités
 La confirmation vérifiait la gestion avant la transaction ; la fin écrivait
 sans verrou. Les concerts ne contrôlaient que le statut confirmé du booker.
 
-DASH-04a étend ce modèle. DASH-04 reste partiel : agences, collaborateurs et
-sous-délégations seront traités avec DASH-04b/DASH-02b, après ce socle.
+DASH-04a étend ce modèle. DASH-04 reste partiel : les agences et équipes sont désormais livrées avec
+[DASH-02b](./14-agences-equipes.md) ; les affectations d’artistes et
+sous-délégations restent DASH-04b.
 Le journal d’activité commun reste DASH-05. Aucun métier « bientôt » n’est ouvert.
 
 ## Périmètre consenti

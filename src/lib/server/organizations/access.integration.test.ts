@@ -88,7 +88,7 @@ describe.skipIf(!enabled)('structures : gestion et révocation', { timeout: 60_0
 		expect(await myStructures(actors[3])).toEqual([]);
 		expect(await myStructure(orgs[0], actors[3])).toBeNull();
 		const mine = await myStructures(actors[1]);
-		expect(mine).toHaveLength(5);
+		expect(mine).toHaveLength(STRUCTURE_KINDS.length);
 		expect(mine.every((s) => !s.manager)).toBe(true);
 		const school = await myStructure(orgs[4], actors[1]);
 		expect(school).toMatchObject({ roleLabel: 'Élève', manager: false });

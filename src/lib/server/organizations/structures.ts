@@ -46,6 +46,7 @@ export async function myStructure(orgId: string, personId: string) {
 	if (!row) return null;
 	const structure = projection(row);
 	let href: string | null = null;
+	if (structure.kind === 'AGENCY') return { ...structure, href: `/agences/${orgId}` };
 	if (structure.status === 'INVITED' || structure.status === 'REQUESTED') {
 		href =
 			structure.kind === 'BAND'

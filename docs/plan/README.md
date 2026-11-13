@@ -151,12 +151,14 @@ avec les lots d'inscription encore ouverts dans #26 et #27.
 | Lot      | Issue                                                          | État       | Périmètre                                                                                                                                                                                 |
 | -------- | -------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | DASH-01  | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local   | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
-| DASH-02  | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✂️ partiel | Découpé pour lever la dépendance circulaire avec DASH-04 : socle existant DASH-02a livré ; agences et extensions de délégation dans DASH-02b/DASH-04                                      |
+| DASH-02  | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✂️ partiel | Découpé pour lever la dépendance circulaire avec DASH-04 : socles DASH-02a et DASH-02b livrés ; affectations et délégations dans DASH-04b                                                 |
 | DASH-02a | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local   | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
 | DASH-03  | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ local   | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
 
-| DASH-04 | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✂️ partiel | Mandats individuels DASH-04a ; agences, collaborateurs et sous-délégations dans DASH-04b/DASH-02b |
+| DASH-04 | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✂️ partiel | Mandats individuels DASH-04a et agences DASH-02b livrés ; affectations et sous-délégations dans DASH-04b |
 | DASH-04a | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous |
+
+| DASH-02b | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local | Agences privées, invitations et rôles, acceptation, révocation, transmission et fermeture ; aucun droit artistique implicite. Affectations et délégations restent DASH-04b. |
 
 Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
 Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,
@@ -199,3 +201,19 @@ Formatage et ESLint passent hors les deux scripts `.shot-*` préexistants ;
 `npm run lint` global retrouve leur défaut de formatage déjà documenté.
 Les avertissements ESLint préexistants sont conservés. Aucun push effectué.
 Périmètre et limites : [mandats individuels](../conception/13-mandats-individuels.md).
+
+Recette DASH-02b (13/11/2026) : 1 338 tests unitaires réussis, 262 tests
+conditionnels non exécutés (`--maxWorkers=2 --testTimeout=30000`). Onze
+tests d’intégration réussis : sept agences (rôles, quota, invitation,
+blocage, révocation pendant attente du verrou, transmission, fermeture,
+export et anonymisation), quatre non-régressions du socle des structures.
+Quatre E2E Chromium réussis : agences, structures et deux parcours d’aide.
+Le parcours agence teste les refus serveur en GET/POST après révocation,
+l’absence d’équipe pour un collaborateur, le profil privé,
+l’accessibilité axe et la largeur à 390 px.
+Migration enum additive appliquée sur `public` et `e2e`. Scénario agence
+joué en développement puis rejoué sans doublon (comptes démo exclusivement).
+Formatage et ESLint passent hors `.shot-metro.mjs` et `.shot-tmp.mjs`,
+défauts préexistants conservés : le lint global reste bloqué sur leur
+formatage. Les sept tests d’intégration des écoles passent également ; le contrôle
+des types passe sans erreur ni avertissement, séparément des E2E. Aucun push. Périmètre : [DASH-02b](../conception/14-agences-equipes.md).

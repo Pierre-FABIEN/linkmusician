@@ -2876,6 +2876,8 @@ enum OrgKind {
   /// École, MJC, conservatoire (P5-11, D29) : les profs gèrent, les élèves
   /// sont membres (MEMBER), jamais listé·es en public.
   SCHOOL
+  /// Agence privée de management ou booking (DASH-02b).
+  AGENCY
 }
 
 enum OrgRole {

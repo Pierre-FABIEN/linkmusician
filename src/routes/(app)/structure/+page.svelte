@@ -21,7 +21,7 @@
 	<div class="mx-auto max-w-3xl space-y-6">
 		<MetroPageHeader
 			title="Mes structures"
-			intro="Tes groupes, studios, lieux, organisations et écoles. Ces participations sont communes à tes métiers."
+			intro="Tes groupes, studios, lieux, organisations, agences et écoles. Ces participations sont communes à tes métiers."
 		/>
 		<p class="text-sm text-muted-foreground">
 			Rejoindre une structure ne donne pas accès à sa gestion. Une invitation doit être acceptée

@@ -47,7 +47,7 @@ export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, st
 	MILESTONE_ATTEST: 'Étapes de groupe à confirmer',
 	GROUP_DISCUSSION_INVITE: 'Invitations à une discussion de groupe',
 	STUDIO_INVITE: 'Invitations à gérer un studio',
-	ORG_INVITE: 'Invitations à gérer une organisation ou un lieu',
+	ORG_INVITE: 'Invitations à rejoindre une organisation, un lieu ou une agence',
 	VENUE_HOST_INVITE: 'Invitations à animer les scènes ouvertes d’un lieu',
 	REPRESENTATION_REQUEST: 'Propositions d’accompagnement (manager, booker)',
 	VENUE_CLAIM: 'Réponses à mes revendications de lieu',
@@ -106,7 +106,7 @@ export function notificationText(
 		case 'STUDIO_INVITE':
 			return `${who} t’invite à gérer le studio${what} à ses côtés.`;
 		case 'ORG_INVITE':
-			return `${who} t’invite à gérer${what} à ses côtés.`;
+			return `${who} t’invite à rejoindre${what}. Consulte le rôle proposé avant d’accepter.`;
 		case 'VENUE_HOST_INVITE':
 			return `${who} t’invite à animer les scènes ouvertes du lieu${what}. Réponds quand tu veux, depuis « Mes jams ».`;
 		case 'REPRESENTATION_REQUEST':

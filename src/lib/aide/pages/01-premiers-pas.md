@@ -385,6 +385,19 @@ Si tu n'as aucune structure, l'écran l'explique et te propose les chemins
 existants pour démarrer. Les agences et nouvelles délégations ne sont pas
 encore disponibles dans cet espace.
 
+### Travailler en agence {#agences}
+
+Dans **Mes structures › Ouvrir une agence**, un manager ou booker majeur peut
+créer son équipe. Le responsable invite à la co-gestion ou comme collaborateur.
+Chaque personne accepte son invitation depuis **Mes agences › Ma participation**.
+Un collaborateur ne voit pas la liste de l’équipe et n’administre pas l’agence.
+La co-gestion peut inviter des collaborateurs ; seul le responsable invite à la
+co-gestion et retire une personne active. Chacun peut partir ; le responsable
+doit transmettre à une co-gestion ou fermer l’agence.
+
+Ces participations n’accordent aucun mandat artistique ni pouvoir de signature.
+Tes accompagnements d’artistes restent indépendants.
+
 ### Ton métier actif et ton métier principal {#metier-actif}
 
 En haut de l'app, le sélecteur **Mon espace** contient les métiers de ton
