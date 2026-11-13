@@ -148,6 +148,14 @@ dans le `git log` (messages préfixés par l'ID).
 Suivi complémentaire des tickets DASH créés sur GitHub. Ne pas les confondre
 avec les lots d'inscription encore ouverts dans #26 et #27.
 
+Correction DASH-01 du 13/11/2026 : restauration des raccourcis à icônes en haut
+à droite et suppression de la ligne de navigation textuelle, à la demande
+produit. Sélecteur métier conservé. Types : 0 erreur et 0 avertissement ;
+ESLint ciblé sans erreur ; parcours E2E navigation multirôle réussi
+(mobile 390 px, clavier, accessibilité, filtres et fiches métier). Une première
+exécution a expiré au chargement initial avant les assertions de navigation ;
+la relance seule passe intégralement.
+
 | Lot      | Issue                                                          | État     | Périmètre                                                                                                                                                                                 |
 | -------- | -------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | DASH-01  | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |

@@ -15,8 +15,7 @@
 		notifications = 0,
 		hrefs = {},
 		current = null,
-		help = true,
-		primaryLinks = true
+		help = true
 	}: {
 		messages?: number;
 		notifications?: number;
@@ -25,8 +24,6 @@
 		current?: Key | null;
 		/** Montrer le raccourci d'aide (masqué sous 480 px). */
 		help?: boolean;
-		/** La coquille peut afficher découvrir/messages dans sa navigation principale. */
-		primaryLinks?: boolean;
 	} = $props();
 
 	const plural = (n: number, one: string, many: string) => (n > 1 ? many : one);
@@ -60,11 +57,7 @@
 				href: hrefs.notifications ?? '/notifications'
 			},
 			{ key: 'help' as const, label: 'Aide', icon: LifeBuoy, count: 0, href: hrefs.help ?? '/aide' }
-		].filter(
-			(item) =>
-				(help || item.key !== 'help') &&
-				(primaryLinks || !['discover', 'messages'].includes(item.key))
-		)
+		].filter((item) => help || item.key !== 'help')
 	);
 </script>
 

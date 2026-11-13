@@ -23,14 +23,13 @@ test('navigation multirôle : métier actif, filtres conservés, droits et méti
 	const selector = page.getByLabel('Mon espace', { exact: true });
 	const change = page.getByRole('button', { name: 'Changer', exact: true });
 	await expect(selector).toHaveValue('MUSICIAN');
-	const nav = page.getByRole('navigation', { name: 'Navigation principale' });
-	await expect(nav.getByRole('link')).toHaveText([
-		'Accueil',
-		'Découvrir',
-		'Annonces',
-		'Messages',
-		'Profil'
-	]);
+	const nav = page.getByRole('navigation', { name: 'Raccourcis', exact: true });
+	for (const name of ['Découvrir', 'Messages', 'Notifications']) {
+		const link = nav.getByRole('link', { name, exact: true });
+		await expect(link).toBeVisible();
+		await expect(link.locator('svg')).toHaveCount(1);
+	}
+	await expect(page.getByRole('navigation', { name: 'Navigation principale' })).toHaveCount(0);
 
 	await test.step('clavier : ouvrir le métier du son puis recharger', async () => {
 		await selector.selectOption('SOUND_ENGINEER');
@@ -57,18 +56,14 @@ test('navigation multirôle : métier actif, filtres conservés, droits et méti
 		);
 	});
 
-	await test.step('conserver la recherche et adapter le lien de profil', async () => {
+	await test.step('conserver la recherche et adapter la fiche de profil', async () => {
 		await page.goto('/decouvrir?genre=funk&rayon=25');
 		const before = new URL(page.url()).search;
 		await selector.selectOption('MUSICIAN');
 		await change.click();
 		await expect(selector).toHaveValue('MUSICIAN');
 		expect(new URL(page.url()).search).toBe(before);
-		await expect(nav.getByRole('link', { name: 'Profil', exact: true })).toHaveAttribute(
-			'href',
-			'/profil/pratique'
-		);
-		await nav.getByRole('link', { name: 'Profil', exact: true }).click();
+		await page.goto('/profil/pratique');
 		await expect(page).toHaveURL(/\/profil\/pratique$/);
 		await waitForAppReady(page);
 		await selector.selectOption('SOUND_ENGINEER');

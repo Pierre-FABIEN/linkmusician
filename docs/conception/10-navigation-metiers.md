@@ -8,9 +8,11 @@ Implémentation du 12/11/2026, sur les écrans et services déjà livrés.
 
 - `/jouer` reste l'accueil global Metro à quatre pivots. Le choix Jam/Carrière,
   les présentations et la préférence de mode sont conservés.
-- La coquille garde les cinq destinations **Accueil, Découvrir, Annonces,
-  Messages, Profil**, sur ordinateur et mobile. Les notifications et l'aide
-  gardent leurs raccourcis ; les messages gardent leur compteur.
+- La coquille conserve les **icônes en haut à droite** : Découvrir, Messages,
+  Notifications et Aide (cette dernière se replie sur téléphone). Les compteurs
+  restent sur les icônes. La ligne textuelle Accueil/Découvrir/Annonces/Messages/Profil
+  ajoutée dans DASH-01 est retirée à la demande produit du 13/11/2026.
+  L'accueil reste accessible par la marque et le compte garde son accès au profil.
 - **Mon espace** sélectionne l'un des métiers réellement détenus. **Changer**
   valide le choix ; le lien **Mon espace** mène à `/espace`. Le métier
   principal reste celui choisi dans les réglages : changer de contexte
