@@ -1,3 +1,4 @@
+import { departmentOfCommune } from '#lib/representation/rules';
 /**
  * Collaborations (P2-06) : proposer à un contact (conversation acceptée),
  * répondre, confirmer, annuler. Quand chaque participant a confirmé :
@@ -45,6 +46,7 @@ import { creditFromCollaboration, manageableWorks } from '#lib/server/works/serv
 import { isStudioSessionKind } from '#lib/studios/rules';
 import {
 	verifyGigFromCollaboration,
+	lockBand,
 	verifyRecordingFromCollaboration
 } from '#lib/server/milestones/service';
 import { markSucceeded } from '#lib/server/career/introductions';
@@ -319,10 +321,18 @@ export async function proposeCollaboration(
 			);
 		}
 		// Booké par (P5-07) : seul un·e booker dont l'accompagnement est confirmé.
-		const bookedById = input.booker ? await confirmedBookerOf(prisma, band.id, input.booker) : null;
+		const bookedById = input.booker
+			? await confirmedBookerOf(
+					prisma,
+					band.id,
+					input.booker,
+					{ on: day, departmentCode: departmentOfCommune(host.communeCode) },
+					now
+				)
+			: null;
 		if (input.booker && !bookedById) {
 			throw new CollaborationError(
-				'Cette personne n’est pas booker du groupe : l’accompagnement doit être confirmé.',
+				'Cette personne n’est pas booker du groupe : l’accompagnement doit être confirmé et couvrir la date et le territoire.',
 				403
 			);
 		}
@@ -392,6 +402,7 @@ async function settle(collaborationId: string, now: Date) {
 			include: { participants: true }
 		});
 		if (collab.status === 'CANCELLED' || collab.status === 'COMPLETED') return;
+		if (collab.kind === 'GIG' && collab.bandId) await lockBand(tx, collab.bandId);
 		const status = collabStatus(
 			collab.participants.map((p) => ({
 				accepted: p.acceptedAt !== null,

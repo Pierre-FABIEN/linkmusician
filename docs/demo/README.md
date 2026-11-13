@@ -318,3 +318,12 @@ La recette `structures.spec.ts` ajoute des données isolées dans le schéma e2e
 pour vérifier les cinq types, une invitation acceptée, le retrait immédiat des
 accès, les refus serveur d'un membre et d'un élève, un identifiant étranger,
 une structure dissoute, le contexte multirôle, le clavier et 390 px.
+
+## Mandat borné (DASH-04a)
+
+Sur une installation neuve des scénarios, Élise Booker propose aux Lucioles
+un accompagnement limité aux départements 31 et 32 pour 90 jours. Zoé voit
+les conditions dans `/accompagnement` avant de confirmer. Les mandats déjà
+présents sont conservés ; ce scénario ne les réécrit pas. L’accompagnement
+confirmé d’Élise auprès de la Fanfare et celui de Marc auprès des Rats restent
+sans échéance et sans limite territoriale.

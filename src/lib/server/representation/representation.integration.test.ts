@@ -291,6 +291,138 @@ describe.skipIf(!enabled)(
 			expect((await gains(ids.mgr)).map((g) => g.ruleId)).toEqual(['management.confirmed']);
 		});
 
+		it('mandat borné : date, territoire, fin et actions sont refusés côté serveur', async () => {
+			const now = new Date();
+			const start = new Date(now.getTime() - 2 * 86_400_000).toISOString().slice(0, 10);
+			const finish = new Date(now.getTime() + 10 * 86_400_000).toISOString().slice(0, 10);
+			await reps.proposeRepresentation(ids.bk, { artist: band.handle, kind: 'BOOKER' }, now, {
+				startsOn: start,
+				expiresOn: finish,
+				departmentCodes: ['31'],
+				allowedActions: ['BOOKING_CREDIT']
+			});
+			const row = await pendingOf(ids.bk);
+			await reps.answerRepresentation(row.id, ids.lea, true, now);
+			const lookup = (on: Date, departmentCode: string | null) =>
+				reps.confirmedBookerOf(db, band.id, PREFIX + 'bk', { on, departmentCode }, now);
+			expect(await lookup(now, '31')).toBe(ids.bk);
+			expect(await lookup(now, '32')).toBeNull();
+			expect(await lookup(now, null)).toBeNull();
+			expect(await lookup(new Date(finish), '31')).toBeNull();
+			expect(await lookup(new Date('2000-01-01'), '31')).toBeNull();
+			await expect(
+				reps.proposeRepresentation(ids.bk, { artist: PREFIX + 'solo', kind: 'BOOKER' }, now, {
+					departmentCodes: [],
+					allowedActions: ['CAREER_SUPPORT']
+				})
+			).rejects.toThrow(/activité/);
+			// La fin est immédiate, les termes et l’auteur sont conservés.
+			await reps.endRepresentation(row.id, ids.lea, now);
+			expect(await lookup(now, '31')).toBeNull();
+			expect(await db.representation.findUnique({ where: { id: row.id } })).toMatchObject({
+				status: 'ENDED',
+				endedById: ids.lea,
+				departmentCodes: ['31'],
+				allowedActions: ['BOOKING_CREDIT']
+			});
+		});
+
+		it('plusieurs bookers peuvent être confirmés sans se déléguer leurs droits', async () => {
+			const other = await person('bk2', ['BOOKER']);
+			for (const agent of [ids.bk, other]) {
+				await reps.proposeRepresentation(agent, { artist: band.handle, kind: 'BOOKER' });
+				await reps.answerRepresentation((await pendingOf(agent)).id, ids.lea, true);
+			}
+			expect((await reps.confirmedBookersOf([band.id])).get(band.id)).toHaveLength(2);
+			const first = await db.representation.findFirstOrThrow({
+				where: { agentId: ids.bk, artistId: band.id, status: 'CONFIRMED' }
+			});
+			await expect(reps.endRepresentation(first.id, other)).rejects.toThrow(/deux parties/);
+			await reps.endRepresentation(first.id, ids.bk);
+			expect((await reps.confirmedBookersOf([band.id])).get(band.id)).toEqual([
+				{ handle: PREFIX + 'bk2', name: 'bk2' }
+			]);
+			const second = await db.representation.findFirstOrThrow({
+				where: { agentId: other, artistId: band.id, status: 'CONFIRMED' }
+			});
+			await reps.endRepresentation(second.id, ids.lea);
+		});
+
+		it('une proposition expirée ou un agent sans métier ne se confirme pas', async () => {
+			const now = new Date();
+			await reps.proposeRepresentation(ids.bk, { artist: PREFIX + 'solo', kind: 'BOOKER' }, now, {
+				expiresOn: new Date(now.getTime() + 2 * 86_400_000).toISOString().slice(0, 10),
+				departmentCodes: [],
+				allowedActions: ['BOOKING_CREDIT']
+			});
+			const row = await pendingOf(ids.bk);
+			await expect(
+				reps.answerRepresentation(row.id, ids.solo, true, new Date(now.getTime() + 3 * 86_400_000))
+			).rejects.toThrow(/expiré/);
+			await db.personTrack.deleteMany({ where: { personId: ids.bk, track: 'BOOKER' } });
+			try {
+				await expect(reps.answerRepresentation(row.id, ids.solo, true, now)).rejects.toThrow(
+					/métier/
+				);
+			} finally {
+				await db.personTrack.create({ data: { personId: ids.bk, track: 'BOOKER' } });
+			}
+			await reps.endRepresentation(row.id, ids.bk);
+		});
+
+		it('la confirmation attend le verrou puis refuse une gestion révoquée', async () => {
+			await reps.proposeRepresentation(ids.bk, { artist: band.handle, kind: 'BOOKER' });
+			const row = await pendingOf(ids.bk);
+			let release!: () => void;
+			let ready!: () => void;
+			const held = new Promise<void>((r) => {
+				ready = r;
+			});
+			const gate = new Promise<void>((r) => {
+				release = r;
+			});
+			const revoke = db.$transaction(
+				async (tx) => {
+					await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`band:${band.id}`}))`;
+					await tx.membership.updateMany({
+						where: { personId: ids.lea, orgId: band.id },
+						data: { role: 'MEMBER' }
+					});
+					ready();
+					await gate;
+				},
+				{ timeout: 20_000 }
+			);
+			await held;
+			const answer = reps.answerRepresentation(row.id, ids.lea, true).then(
+				() => null,
+				(error: unknown) => error
+			);
+			try {
+				await vi.waitFor(
+					async () => {
+						const [lock] = await db.$queryRaw<
+							{ waiting: boolean }[]
+						>`SELECT EXISTS (SELECT 1 FROM pg_locks WHERE locktype = 'advisory' AND NOT granted AND objid = hashtext(${`band:${band.id}`})::oid) AS waiting`;
+						expect(lock.waiting).toBe(true);
+					},
+					{ timeout: 5000, interval: 50 }
+				);
+			} finally {
+				release();
+				await revoke;
+			}
+			try {
+				expect(await answer).toMatchObject({ status: 403 });
+			} finally {
+				await db.membership.updateMany({
+					where: { personId: ids.lea, orgId: band.id },
+					data: { role: 'OWNER' }
+				});
+				await reps.endRepresentation(row.id, ids.bk);
+			}
+		});
+
 		it('RGPD : fiche et accompagnements exportés ; après l’anonymisation, la fiche part et l’accompagnement se termine', async () => {
 			const rock = (
 				await db.genre.findFirstOrThrow({ where: { active: true }, select: { id: true } })
@@ -305,7 +437,13 @@ describe.skipIf(!enabled)(
 				'Je cherche des groupes rock.'
 			);
 			expect(exported?.accompagnements).toMatchObject([
-				{ role: 'agent', metier: 'MANAGER', statut: 'CONFIRMED' }
+				{
+					role: 'agent',
+					metier: 'MANAGER',
+					statut: 'CONFIRMED',
+					actions_autorisees: ['CAREER_SUPPORT'],
+					departements: []
+				}
 			]);
 
 			await db.$transaction(await personAnonymizationOps(userId));

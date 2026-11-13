@@ -155,6 +155,9 @@ avec les lots d'inscription encore ouverts dans #26 et #27.
 | DASH-02a | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local   | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
 | DASH-03  | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ local   | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
 
+| DASH-04 | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✂️ partiel | Mandats individuels DASH-04a ; agences, collaborateurs et sous-délégations dans DASH-04b/DASH-02b |
+| DASH-04a | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous |
+
 Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
 Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,
 annonces qualifiées) restent dans leurs lots ; ce socle ne les remplace pas.
@@ -181,3 +184,18 @@ signalés ci-dessus ; ces fichiers sont préservés. Le sélecteur de commune du
 support E2E est limité à sa liste de résultats pour éviter de sélectionner
 une option du contexte métier.
 Détail et limites : [structures et équipes](../conception/12-structures-equipes.md).
+
+Recette DASH-04a (13/11/2026) : types sans erreur ni avertissement,
+1 329 tests unitaires réussis, 255 tests conditionnels non exécutés
+(`npm run test:unit -- --run --maxWorkers=2 --testTimeout=30000`). Les
+premiers passages avec le délai par défaut ont dépassé les délais de tests
+du socle (jobs et imports à froid) ; aucun de ces tests n’a été modifié.
+Quinze tests d’intégration réussis en séquence : onze d’accompagnement et
+quatre de concerts. Trois E2E Chromium réussis : parcours booker avec
+périmètre consenti, crédit concert, révocation, refus du POST forgé et
+mobile 390 px/accessibilité ; deux parcours d’aide. Les migrations ont été
+appliquées sur le développement et sur e2e ; schéma Prisma validé.
+Formatage et ESLint passent hors les deux scripts `.shot-*` préexistants ;
+`npm run lint` global retrouve leur défaut de formatage déjà documenté.
+Les avertissements ESLint préexistants sont conservés. Aucun push effectué.
+Périmètre et limites : [mandats individuels](../conception/13-mandats-individuels.md).

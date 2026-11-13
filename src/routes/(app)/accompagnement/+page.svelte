@@ -7,7 +7,8 @@
 	import {
 		AGENT_KIND_INFO,
 		MAX_REPRESENTATION_MESSAGE,
-		REPRESENTATION_STATUS_LABELS
+		REPRESENTATION_STATUS_LABELS,
+		mandateSummary
 	} from '#lib/representation/rules';
 
 	let { data, form } = $props();
@@ -48,6 +49,8 @@
 								propose d’accompagner {r.artist ?? 'toi'}
 								<strong>{AGENT_KIND_INFO[r.kind].as}</strong>.
 							</p>
+							<p class="text-sm text-muted-foreground">{mandateSummary(r)}</p>
+							<p class="text-sm">Aucun pouvoir de signature ni accès à la gestion du groupe.</p>
 							{#if r.message}
 								<blockquote class="border-l-2 pl-3 text-sm text-muted-foreground">
 									{r.message}
@@ -89,6 +92,7 @@
 									>
 								{/if}
 							</span>
+							<p class="w-full text-sm text-muted-foreground">{mandateSummary(r)}</p>
 							<form method="POST" action="?/end" use:enhance>
 								<input type="hidden" name="id" value={r.id} />
 								<button class="{btn} border hover:bg-muted">Mettre fin</button>
@@ -145,6 +149,40 @@
 							{/each}
 						</select>
 					</label>
+					<label class="block space-y-1 font-medium">
+						Début (facultatif)
+						<input
+							type="date"
+							name="startsOn"
+							class="w-full rounded-md border bg-background p-2 text-sm font-normal"
+						/>
+					</label>
+					<label class="block space-y-1 font-medium">
+						Fin exclue (facultatif)
+						<input
+							type="date"
+							name="expiresOn"
+							class="w-full rounded-md border bg-background p-2 text-sm font-normal"
+						/>
+					</label>
+					<label class="block space-y-1 font-medium sm:col-span-2">
+						Départements (facultatif)
+						<input
+							name="departments"
+							placeholder="31, 32, 2A"
+							aria-describedby="departments-help"
+							class="w-full rounded-md border bg-background p-2 text-sm font-normal"
+						/>
+						<span id="departments-help" class="block text-sm font-normal text-muted-foreground"
+							>Codes séparés par des virgules. Vide : tous territoires. L’activité correspond au
+							métier choisi : accompagnement de carrière pour un manager, attribution des concerts
+							pour un booker.</span
+						>
+					</label>
+					<p class="text-sm text-muted-foreground sm:col-span-2">
+						Le périmètre est soumis à l’artiste avant confirmation. Aucun pouvoir de signature. Pour
+						modifier le périmètre, terminez l’accompagnement et envoyez une nouvelle proposition.
+					</p>
 					<label class="block space-y-1 font-medium sm:col-span-2">
 						Un mot (facultatif)
 						<textarea
@@ -181,6 +219,7 @@
 									>
 								</span>
 								{#if r.status !== 'ENDED'}
+									<p class="w-full text-sm text-muted-foreground">{mandateSummary(r)}</p>
 									<form method="POST" action="?/end" use:enhance>
 										<input type="hidden" name="id" value={r.id} />
 										<button class="{btn} border hover:bg-muted"

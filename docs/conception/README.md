@@ -93,3 +93,4 @@ dans le [plan d'exécution](../plan/README.md).
 Navigation métier : [DASH-01 et contextes de session](./10-navigation-metiers.md).
 Actions réelles et widgets partagés : [audit DASH-03](./11-actions-metiers.md).
 Structures, équipes et autorisations : [socle DASH-02a](./12-structures-equipes.md).
+Mandats individuels et périmètres consentis : [DASH-04a](./13-mandats-individuels.md).

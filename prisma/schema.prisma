@@ -3784,6 +3784,13 @@ model Representation {
   status        RepresentationStatus @default(PROPOSED)
   /// Mot de l'agent à l'artiste, facultatif ; effacé à l'anonymisation.
   message       String?
+  /// DASH-04a : périmètre accepté, immuable ; fin exclusive (UTC).
+  startsAt      DateTime?
+  expiresAt     DateTime?
+  /// Vide : tous départements ; sinon codes de départements français.
+  departmentCodes String[] @default([])
+  /// Activité CAREER_SUPPORT ou BOOKING_CREDIT ; aucun droit de signature.
+  allowedActions String[] @default([])
   confirmedAt   DateTime?
   /// Personne qui a confirmé pour l'artiste ; oubliée à l'anonymisation.
   confirmedById String?

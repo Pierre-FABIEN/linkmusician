@@ -112,6 +112,10 @@ test.describe('LinkMusician — booker et manager', () => {
 				})
 			).id;
 
+			const host = await db.actor.findUniqueOrThrow({ where: { handle: assoHandle } });
+			// Localisation de commune uniquement, sur le schéma e2e explicite.
+			await db.$executeRaw`INSERT INTO "e2e"."actor_locations" ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt") VALUES (${host.id}, '31555', 'Toulouse', '31', ST_SetSRID(ST_MakePoint(1.43, 43.60), 4326)::geography, NOW())`;
+
 			await test.step('1. Nina propose d’accompagner Les Rats depuis leur page', async () => {
 				await page.goto(`/@${bandHandle}`);
 				await waitForAppReady(page);
@@ -122,6 +126,9 @@ test.describe('LinkMusician — booker et manager', () => {
 					.getByLabel('Un mot (facultatif)')
 					.fill('Je vous trouve des dates dans le Sud-Ouest.');
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+				await page.getByLabel('Départements (facultatif)').fill('31, 32');
+				const expires = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
+				await page.getByLabel('Fin exclue (facultatif)').fill(expires);
 				await page.getByRole('button', { name: 'Envoyer la proposition' }).click();
 				const mine = page.getByRole('region', { name: 'Les artistes que j’accompagne' });
 				await expect(mine).toContainText(bandName);
@@ -148,6 +155,8 @@ test.describe('LinkMusician — booker et manager', () => {
 				const request = leaPage.getByRole('region', { name: 'Propositions à trancher' });
 				await expect(request).toContainText(nina.actor.displayName);
 				await expect(request).toContainText('comme booker');
+				await expect(request).toContainText('Départements 31, 32');
+				await expect(request).toContainText('Aucun pouvoir de signature');
 				await expectNoA11yViolations(leaPage, A11Y_EXCLUDE);
 				await request.getByRole('button', { name: 'Confirmer' }).click();
 				await expect(leaPage.getByRole('region', { name: 'Qui m’accompagne' })).toContainText(
@@ -188,6 +197,41 @@ test.describe('LinkMusician — booker et manager', () => {
 						})
 					)
 					.toBe(1);
+			});
+			await test.step('6. Léa révoque : Nina disparaît du choix des bookers', async () => {
+				await leaPage.goto('/accompagnement');
+				await waitForAppReady(leaPage);
+				await leaPage
+					.getByRole('region', { name: 'Qui m’accompagne' })
+					.getByRole('button', { name: 'Mettre fin' })
+					.click();
+				await expect(leaPage.getByRole('region', { name: 'Qui m’accompagne' })).toHaveCount(0);
+				await leaPage.goto(`/messages/${conversationId}`);
+				await waitForAppReady(leaPage);
+				await leaPage.getByText('Proposer une collaboration').click();
+				await leaPage.getByRole('combobox', { name: 'Type' }).selectOption('GIG');
+				await expect(leaPage.getByRole('combobox', { name: 'Booké par (facultatif)' })).toHaveCount(
+					0
+				);
+				const refused = await leaPage.request.post(`/messages/${conversationId}?/proposeCollab`, {
+					form: {
+						kind: 'GIG',
+						title: 'Attribution après révocation',
+						happenedOn: new Date(Date.now() - 2 * 86_400_000).toISOString().slice(0, 10),
+						band: bandHandle,
+						host: assoHandle,
+						booker: nina.actor.handle
+					},
+					headers: { Origin: new URL(leaPage.url()).origin }
+				});
+				expect(refused.status()).toBe(403);
+				await page.setViewportSize({ width: 390, height: 844 });
+				await page.goto('/accompagnement');
+				await waitForAppReady(page);
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+				expect(
+					await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+				).toBe(true);
 			});
 		} finally {
 			await leaContext.close();

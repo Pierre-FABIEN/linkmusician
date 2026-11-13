@@ -189,6 +189,10 @@ export async function exportPersonData(userId: string) {
 			orderBy: { createdAt: 'asc' },
 			select: {
 				agentId: true,
+				startsAt: true,
+				expiresAt: true,
+				departmentCodes: true,
+				allowedActions: true,
 				kind: true,
 				status: true,
 				message: true,
@@ -638,6 +642,10 @@ export async function exportPersonData(userId: string) {
 			avec: r.agentId === person.actorId ? r.artist.displayName : r.agent.displayName,
 			statut: r.status,
 			mot: r.message,
+			debut: r.startsAt,
+			fin_exclue: r.expiresAt,
+			departements: r.departmentCodes,
+			actions_autorisees: r.allowedActions,
 			propose_le: r.createdAt,
 			confirme_le: r.confirmedAt,
 			termine_le: r.endedAt

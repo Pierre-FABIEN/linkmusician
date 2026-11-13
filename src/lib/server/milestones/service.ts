@@ -1,3 +1,4 @@
+import { departmentOfCommune } from '#lib/representation/rules';
 /**
  * Étapes de groupe (P3-04, D41), seul point d'écriture de `Milestone`. Les
  * écritures prennent le verrou du groupe (le même que
@@ -510,6 +511,8 @@ export async function verifyGigFromCollaboration(
 	},
 	now: Date
 ) {
+	// DASH-04a : sérialiser l’attribution avec la révocation du mandat.
+	await lockBand(tx, collab.bandId);
 	const [band, host, members, managers] = await Promise.all([
 		tx.organization.findUnique({
 			where: { actorId: collab.bandId },
@@ -549,7 +552,13 @@ export async function verifyGigFromCollaboration(
 	const bookerIds =
 		collab.bookedById &&
 		!players.has(collab.bookedById) &&
-		(await isConfirmedBooker(tx, collab.bookedById, collab.bandId))
+		(await isConfirmedBooker(
+			tx,
+			collab.bookedById,
+			collab.bandId,
+			{ on: collab.happenedOn, departmentCode: departmentOfCommune(collab.communeCode) },
+			now
+		))
 			? [collab.bookedById]
 			: [];
 

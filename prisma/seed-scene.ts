@@ -819,6 +819,7 @@ export async function seedRepresentations(
 				agentId: P(agent),
 				artistId,
 				kind,
+				allowedActions: [kind === 'BOOKER' ? 'BOOKING_CREDIT' : 'CAREER_SUPPORT'],
 				status: 'CONFIRMED',
 				confirmedAt: at,
 				confirmedById: P(by),
@@ -852,6 +853,10 @@ export async function seedRepresentations(
 		data: {
 			agentId: P('elise-booker'),
 			artistId: lucioles,
+			allowedActions: ['BOOKING_CREDIT'],
+			departmentCodes: ['31', '32'],
+			startsAt: ago(1),
+			expiresAt: new Date(Date.now() + 90 * DAY),
 			kind: 'BOOKER',
 			message: 'Votre scène découverte m’a plu : je peux vous trouver quelques dates cet hiver.',
 			createdAt: ago(1)

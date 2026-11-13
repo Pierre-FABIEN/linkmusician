@@ -259,6 +259,14 @@ l'organisation sans gestion.
 
 ### Si tu es manager ou booker {#accompagnement}
 
+Une proposition peut préciser une date de début, une date de fin (exclue)
+et des départements. L’artiste voit ces conditions avant de confirmer.
+Un manager accompagne la carrière ; un booker peut recevoir l’attribution
+des concerts couverts par son mandat. Cet accord ne donne aucun pouvoir
+de signature ni accès à la gestion du groupe. Pour changer ses limites,
+terminez l’accompagnement et soumettez une nouvelle proposition.
+Un mandat expiré ou révoqué ne permet plus d’attribuer de nouveaux concerts.
+
 Ouvre **Mon profil › Mon profil de manager ou de booker** : choisis
 jusqu’à cinq **genres que tu suis** et dis en une phrase **ce que tu
 cherches**. Complète aussi la page de ton métier : spécialités, offres,

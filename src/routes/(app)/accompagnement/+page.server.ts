@@ -14,7 +14,11 @@ import {
 	representationsForMe,
 	RepresentationError
 } from '#lib/server/representation/service';
-import { representationProposalSchema } from '#lib/representation/rules';
+import {
+	representationProposalSchema,
+	mandateScopeSchema,
+	defaultMandateAction
+} from '#lib/representation/rules';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -59,7 +63,18 @@ export const actions: Actions = {
 			});
 		}
 		return guard(async () => {
-			const name = await proposeRepresentation(person.actorId, parsed.data);
+			const scope = mandateScopeSchema.safeParse({
+				startsOn: data.startsOn || undefined,
+				expiresOn: data.expiresOn || undefined,
+				departmentCodes: String(data.departments ?? '')
+					.split(',')
+					.map((v) => v.trim().toUpperCase())
+					.filter(Boolean),
+				allowedActions: [defaultMandateAction(parsed.data.kind)]
+			});
+			if (!scope.success)
+				return fail(400, { proposeError: scope.error.issues[0]?.message ?? 'Périmètre invalide.' });
+			const name = await proposeRepresentation(person.actorId, parsed.data, new Date(), scope.data);
 			return { done: `Proposition envoyée à ${name}. Elle compte dès sa confirmation.` };
 		}, 'proposeError');
 	},

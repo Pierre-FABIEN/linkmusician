@@ -31,12 +31,73 @@ import {
 	AGENT_KIND_INFO,
 	MAX_PENDING_PROPOSALS,
 	representationTitle,
+	mandateScopeSchema,
+	defaultMandateAction,
+	mandateAllows,
+	type MandateScope,
 	type AgentKindValue,
 	type RepresentationProposal
 } from '#lib/representation/rules';
 
 type Tx = Prisma.TransactionClient;
 type Db = Tx | typeof prisma;
+function currentMandate(now = new Date()): Prisma.RepresentationWhereInput {
+	return {
+		AND: [
+			{ OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
+			{ OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }
+		]
+	};
+}
+const SCOPE = {
+	startsAt: true,
+	expiresAt: true,
+	departmentCodes: true,
+	allowedActions: true
+} as const;
+async function lockArtist(tx: Tx, artistId: string) {
+	// Même verrou que les mutations d’adhésion : droits relus après attente.
+	await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`band:${artistId}`}))`;
+}
+async function liveAgent(db: Db, agentId: string, kind: AgentKindValue, now: Date) {
+	return (
+		(await db.actor.count({ where: { id: agentId, deletedAt: null } })) > 0 &&
+		(await db.personTrack.count({ where: { personId: agentId, track: kind } })) > 0 &&
+		(await isAdultPerson(db, agentId, now))
+	);
+}
+async function requireEligiblePair(
+	db: Db,
+	agentId: string,
+	artistId: string,
+	kind: AgentKindValue,
+	now: Date
+) {
+	if (!(await liveAgent(db, agentId, kind, now)))
+		throw new RepresentationError('Le métier et la majorité de l’agent doivent être valides.', 403);
+	const actor = await db.actor.findFirst({
+		where: { id: artistId, deletedAt: null },
+		select: { kind: true }
+	});
+	if (!actor || (actor.kind === 'PERSON' && !(await isAdultPerson(db, artistId, now))))
+		throw new RepresentationError('Artiste indisponible.', 403);
+	if (
+		await db.membership.count({ where: { personId: agentId, orgId: artistId, status: 'ACTIVE' } })
+	)
+		throw new RepresentationError('Tu fais partie de ce groupe.', 403);
+	const answerers = await answerersOf(db, artistId);
+	const blocked = await db.block.count({
+		where: {
+			OR: [
+				{ blockerActorId: agentId, blockedActorId: { in: answerers } },
+				{ blockedActorId: agentId, blockerActorId: { in: answerers } }
+			]
+		}
+	});
+	if (!answerers.length || blocked)
+		throw new RepresentationError('Impossible de confirmer cet accompagnement.', 403);
+	return answerers;
+}
 
 export class RepresentationError extends Error {
 	constructor(
@@ -84,7 +145,7 @@ export async function agentKindsOf(personId: string, now = new Date()) {
 /** Personnes qui répondent pour l'artiste : lui-même, ou la gestion du groupe. */
 async function answerersOf(db: Db, artistId: string) {
 	const actor = await db.actor.findUnique({
-		where: { id: artistId },
+		where: { id: artistId, deletedAt: null },
 		select: {
 			kind: true,
 			organization: {
@@ -112,8 +173,19 @@ async function canAnswerFor(db: Db, artistId: string, personId: string, now: Dat
 export async function proposeRepresentation(
 	agentId: string,
 	input: RepresentationProposal,
-	now = new Date()
+	now = new Date(),
+	scope?: MandateScope
 ) {
+	const parsedScope = mandateScopeSchema.safeParse(
+		scope ?? { allowedActions: [defaultMandateAction(input.kind)] }
+	);
+	if (!parsedScope.success)
+		throw new RepresentationError(parsedScope.error.issues[0]?.message ?? 'Périmètre invalide.');
+	const terms = parsedScope.data;
+	if (terms.allowedActions.some((a) => a !== defaultMandateAction(input.kind)))
+		throw new RepresentationError('Cette activité ne correspond pas au métier.');
+	if (terms.expiresOn && new Date(terms.expiresOn) <= now)
+		throw new RepresentationError('L’échéance doit être future.');
 	const { kind } = input;
 	if (!(await isAgent(agentId, kind, now))) {
 		throw new RepresentationError(
@@ -160,7 +232,11 @@ export async function proposeRepresentation(
 		throw new RepresentationError('Impossible de proposer un accompagnement à cet artiste.', 403);
 	}
 	await prisma.$transaction(async (tx) => {
+		await lockArtist(tx, artist.id);
 		await lockPair(tx, agentId, artist.id);
+		// Quota commun aux propositions vers plusieurs artistes.
+		await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`rep-agent:${agentId}`}))`;
+		const recipients = await requireEligiblePair(tx, agentId, artist.id, kind, now);
 		const [open, pending] = await Promise.all([
 			tx.representation.findFirst({
 				where: {
@@ -186,9 +262,18 @@ export async function proposeRepresentation(
 			);
 		}
 		await tx.representation.create({
-			data: { agentId, artistId: artist.id, kind, message: input.message ?? null }
+			data: {
+				agentId,
+				artistId: artist.id,
+				kind,
+				message: input.message ?? null,
+				startsAt: terms.startsOn ? new Date(terms.startsOn) : null,
+				expiresAt: terms.expiresOn ? new Date(terms.expiresOn) : null,
+				departmentCodes: [...new Set(terms.departmentCodes)],
+				allowedActions: terms.allowedActions
+			}
 		});
-		for (const recipientId of answerers) {
+		for (const recipientId of recipients) {
 			await notify(tx, {
 				recipientId,
 				type: 'REPRESENTATION_REQUEST',
@@ -222,10 +307,13 @@ export async function answerRepresentation(
 		);
 	}
 	await prisma.$transaction(async (tx) => {
+		await lockArtist(tx, row.artistId);
 		await lockPair(tx, row.agentId, row.artistId);
+		if (!(await canAnswerFor(tx, row.artistId, personId, now)))
+			throw new RepresentationError('Seule la gestion actuelle peut répondre.', 403);
 		const current = await tx.representation.findUnique({
 			where: { id: representationId },
-			select: { status: true }
+			select: { status: true, expiresAt: true }
 		});
 		if (current?.status !== 'PROPOSED') {
 			throw new RepresentationError('Cette proposition n’est plus valable.', 404);
@@ -234,6 +322,9 @@ export async function answerRepresentation(
 			await tx.representation.delete({ where: { id: representationId } });
 			return;
 		}
+		await requireEligiblePair(tx, row.agentId, row.artistId, row.kind, now);
+		if (current.expiresAt && current.expiresAt <= now)
+			throw new RepresentationError('Cette proposition a expiré.');
 		if (await isBlockedBetween(row.agentId, personId)) {
 			throw new RepresentationError('Impossible de confirmer cet accompagnement.', 403);
 		}
@@ -264,19 +355,25 @@ export async function endRepresentation(representationId: string, byId: string, 
 	if (!row || row.status === 'ENDED') {
 		throw new RepresentationError('Cet accompagnement est déjà terminé.', 404);
 	}
-	const isAgentSide = row.agentId === byId;
-	if (row.status === 'PROPOSED') {
-		if (!isAgentSide) throw new RepresentationError('Réponds à la proposition plutôt.', 403);
-		await prisma.representation.delete({ where: { id: representationId } });
-		return;
-	}
-	if (!isAgentSide && !(await answerersOf(prisma, row.artistId)).includes(byId)) {
-		throw new RepresentationError('Seules les deux parties terminent un accompagnement.', 403);
-	}
-	await prisma.representation.update({
-		where: { id: representationId },
-		data: { status: 'ENDED', endedAt: now, endedById: byId }
-	});
+	await prisma.$transaction(async (tx) => {
+		await lockArtist(tx, row.artistId);
+		await lockPair(tx, row.agentId, row.artistId);
+		const current = await tx.representation.findUnique({ where: { id: representationId } });
+		if (!current || current.status === 'ENDED')
+			throw new RepresentationError('Cet accompagnement est déjà terminé.', 404);
+		const isAgentSide = current.agentId === byId;
+		if (current.status === 'PROPOSED') {
+			if (!isAgentSide) throw new RepresentationError('Réponds à la proposition plutôt.', 403);
+			await tx.representation.delete({ where: { id: representationId } });
+			return;
+		}
+		if (!isAgentSide && !(await answerersOf(tx, current.artistId)).includes(byId))
+			throw new RepresentationError('Seules les deux parties terminent un accompagnement.', 403);
+		await tx.representation.update({
+			where: { id: representationId },
+			data: { status: 'ENDED', endedAt: now, endedById: byId }
+		});
+	}, TX);
 }
 
 // ─── Lectures ────────────────────────────────────────────────────────────
@@ -291,6 +388,7 @@ export async function myRepresentations(agentId: string) {
 		take: 100,
 		select: {
 			id: true,
+			...SCOPE,
 			kind: true,
 			status: true,
 			confirmedAt: true,
@@ -300,6 +398,10 @@ export async function myRepresentations(agentId: string) {
 	});
 	return rows.map((r) => ({
 		id: r.id,
+		startsAt: r.startsAt,
+		expiresAt: r.expiresAt,
+		departmentCodes: r.departmentCodes,
+		allowedActions: r.allowedActions,
 		kind: r.kind,
 		status: r.status,
 		confirmedAt: r.confirmedAt,
@@ -336,6 +438,7 @@ export async function representationsForMe(personId: string) {
 		orderBy: [{ status: 'desc' }, { createdAt: 'desc' }],
 		select: {
 			id: true,
+			...SCOPE,
 			kind: true,
 			status: true,
 			message: true,
@@ -346,6 +449,10 @@ export async function representationsForMe(personId: string) {
 	});
 	return rows.map((r) => ({
 		id: r.id,
+		startsAt: r.startsAt,
+		expiresAt: r.expiresAt,
+		departmentCodes: r.departmentCodes,
+		allowedActions: r.allowedActions,
 		kind: r.kind,
 		status: r.status,
 		message: r.status === 'PROPOSED' ? r.message : null,
@@ -372,6 +479,7 @@ export async function confirmedArtistsOf(agentId: string, viewerId?: string) {
 	const rows = await prisma.representation.findMany({
 		where: {
 			agentId,
+			...currentMandate(),
 			status: 'CONFIRMED',
 			artist: {
 				deletedAt: null,
@@ -408,15 +516,22 @@ export async function confirmedBookersOf(bandIds: readonly string[]) {
 	const rows = await prisma.representation.findMany({
 		where: {
 			artistId: { in: [...bandIds] },
+			...currentMandate(),
+			allowedActions: { has: 'BOOKING_CREDIT' },
 			kind: 'BOOKER',
 			status: 'CONFIRMED',
 			agent: { deletedAt: null }
 		},
 		orderBy: { confirmedAt: 'asc' },
-		select: { artistId: true, agent: { select: { handle: true, displayName: true } } }
+		select: {
+			artistId: true,
+			agentId: true,
+			agent: { select: { handle: true, displayName: true } }
+		}
 	});
 	const map = new Map<string, { handle: string; name: string }[]>();
 	for (const r of rows) {
+		if (!(await currentBookerMandate(prisma, r.artistId, r.agent.handle, new Date()))) continue;
 		const list = map.get(r.artistId) ?? [];
 		list.push({ handle: r.agent.handle, name: r.agent.displayName });
 		map.set(r.artistId, list);
@@ -425,26 +540,68 @@ export async function confirmedBookersOf(bandIds: readonly string[]) {
 }
 
 /** Le booker confirmé et en cours du groupe qui a ce nom d'utilisateur, sinon `null`. */
-export async function confirmedBookerOf(db: Db, bandId: string, handle: string) {
+async function currentBookerMandate(db: Db, bandId: string, handle: string, now: Date) {
 	const row = await db.representation.findFirst({
 		where: {
+			...currentMandate(now),
+			allowedActions: { has: 'BOOKING_CREDIT' },
 			artistId: bandId,
 			kind: 'BOOKER',
 			status: 'CONFIRMED',
 			agent: { handle, deletedAt: null }
 		},
-		select: { agentId: true }
+		select: { agentId: true, ...SCOPE }
 	});
-	return row?.agentId ?? null;
+	if (!row || !(await liveAgent(db, row.agentId, 'BOOKER', now))) return null;
+	if (
+		!(await db.organization.count({
+			where: { actorId: bandId, kind: 'BAND', dissolvedAt: null, actor: { deletedAt: null } }
+		}))
+	)
+		return null;
+	const answerers = await answerersOf(db, bandId);
+	if (
+		await db.block.count({
+			where: {
+				OR: [
+					{ blockerActorId: row.agentId, blockedActorId: { in: answerers } },
+					{ blockedActorId: row.agentId, blockerActorId: { in: answerers } }
+				]
+			}
+		})
+	)
+		return null;
+	return row;
+}
+
+/** Autorisation d’attribution : date et territoire obligatoires, relus côté serveur. */
+export async function confirmedBookerOf(
+	db: Db,
+	bandId: string,
+	handle: string,
+	context: { on: Date; departmentCode: string | null },
+	now = new Date()
+) {
+	const row = await currentBookerMandate(db, bandId, handle, now);
+	if (
+		!row ||
+		!mandateAllows(row, 'BOOKING_CREDIT', now, context.departmentCode) ||
+		!mandateAllows(row, 'BOOKING_CREDIT', context.on, context.departmentCode)
+	)
+		return null;
+	return row.agentId;
 }
 
 /** L'accompagnement de booker est-il confirmé et en cours ? */
-export async function isConfirmedBooker(db: Db, agentId: string, bandId: string) {
-	return (
-		(await db.representation.count({
-			where: { agentId, artistId: bandId, kind: 'BOOKER', status: 'CONFIRMED' }
-		})) > 0
-	);
+export async function isConfirmedBooker(
+	db: Db,
+	agentId: string,
+	bandId: string,
+	context: { on: Date; departmentCode: string | null },
+	now = new Date()
+) {
+	const agent = await db.actor.findUnique({ where: { id: agentId }, select: { handle: true } });
+	return !!agent && (await confirmedBookerOf(db, bandId, agent.handle, context, now)) === agentId;
 }
 
 /** Faits du rang : accompagnements confirmés (en cours ou finis) et étapes des groupes. */

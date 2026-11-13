@@ -53,6 +53,10 @@ activité, ainsi que la traçabilité commune se poursuivent avec DASH-04 puis
 DASH-02b/DASH-05. Aucune agence ni délégation nouvelle n'est ouverte dans ce
 socle. Les métiers label, édition et communication restent « bientôt ».
 
+La durée, le territoire et les activités des accompagnements individuels sont
+désormais traités dans [DASH-04a](./13-mandats-individuels.md). Les agences,
+collaborateurs et sous-délégations restent dans DASH-04b/DASH-02b.
+
 ## Vérifications du socle livré
 
 - Règle pure : cinq types, responsables/co-gestion actifs, tous les états sans
