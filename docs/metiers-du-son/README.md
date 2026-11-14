@@ -156,9 +156,16 @@ barème en [02 §2.2](../conception/02-progression.md#22-barème-première-versi
 - **Co-gestion** : inviter par nom d'utilisateur une personne ingé son ou
   producteur·rice (`ADMIN`, notification `STUDIO_INVITE`, 5 invitations
   en attente au plus) ; elle accepte ou décline dans « Mes studios ». La
-  ou le responsable retire quelqu'un ; tout le monde peut annuler une
-  invitation ou quitter la gestion. Qui part en étant responsable
+  ou le responsable retire quelqu'un ; la gestion peut annuler une
+  invitation, la personne invitée peut la décliner. On peut quitter sa gestion. Qui part en étant responsable
   transmet le studio (`successorOf`) ; seul·e, on ne part pas.
+- **Historique privé (DASH-05e)** : les nouvelles acceptations, refus personnels,
+  annulations par la gestion, départs, retraits et transmissions conservent
+  auteur réel et date dans la transaction sous verrou `studio:`.
+  « Mes structures › Historique de mes participations » restitue seulement ses
+  propres périodes, même closes, sans redonner les outils ni ouvrir les périodes
+  des collègues. Export/anonymisation inclus, aucun ancien acte reconstruit.
+  Voir [le journal d’activité](../conception/16-journal-activite.md).
 - **Tests** : cas « photos » et « co-gestion » de
   `service.integration.test.ts` (Cloudinary simulé).
 

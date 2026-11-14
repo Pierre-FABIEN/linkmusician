@@ -261,13 +261,14 @@ Détail : [affectations et délégations](../conception/15-affectations-delegati
 Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 `5e7f982` récupérée depuis `origin/main`.
 
-| Lot            | État      | Périmètre                                                                                                                              |
-| -------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| DASH-05a       | ✅ publié | Audit des traces, contrat de lecture commun et historique privé des affectations, sans nouveau stockage ni notification.               |
-| DASH-05b       | ✅ publié | Historiques privés des mandats conservés, dont terminés, et invitations personnelles des structures.                                   |
-| DASH-05c       | ✅ publié | Refus et retraits de propositions conservés atomiquement, auteurs réels, accès privés et RGPD.                                         |
-| DASH-05d       | ✅ local  | Actes de co-gestion PROMOTER/VENUE et historique des périodes personnelles, accès après départ sans outils ; autres circuits à suivre. |
-| DASH-05, suite | ⬜        | Autres circuits de participation (groupes, studios, agences, écoles), validations de collaboration et futures options.                 |
+| Lot            | État      | Périmètre                                                                                                                                 |
+| -------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| DASH-05a       | ✅ publié | Audit des traces, contrat de lecture commun et historique privé des affectations, sans nouveau stockage ni notification.                  |
+| DASH-05b       | ✅ publié | Historiques privés des mandats conservés, dont terminés, et invitations personnelles des structures.                                      |
+| DASH-05c       | ✅ publié | Refus et retraits de propositions conservés atomiquement, auteurs réels, accès privés et RGPD.                                            |
+| DASH-05d       | ✅ local  | Actes de co-gestion PROMOTER/VENUE et historique des périodes personnelles, accès après départ sans outils ; autres circuits à suivre.    |
+| DASH-05e       | ✅ local  | Actes de co-gestion des studios et périodes personnelles dans l’historique commun ; garde STUDIO vivant, export/anonymisation réutilisés. |
+| DASH-05, suite | ⬜        | Autres circuits de participation (groupes, agences, écoles), validations de collaboration et futures options.                             |
 
 Le journal commun n’est pas terminé. Conception et limites :
 [journal d’activité](../conception/16-journal-activite.md).
@@ -396,3 +397,45 @@ renvoie `7253877e1873b575adaa0fd57a76c7064fcdd883` ; le correctif DASH-05c
 est donc désormais publié, contrairement à son état lors de la reprise
 précédente. DASH-05d reste un nouveau commit **local** sur `main` ; aucun
 push effectué pendant cette session.
+
+### DASH-05e — actes de co-gestion des studios
+
+Le service `studios/service.ts` conserve maintenant acceptation, refus
+personnel, annulation par la gestion, départ, retrait et responsabilité reçue
+avec auteur réel et date, via `MembershipDecision` de DASH-05d. Mutation,
+transmission et traces partagent la même transaction sous verrou `studio:`.
+Les appels répétés/concurrents n’ajoutent ni doublon ni écrasement ; une nouvelle
+invitation crée une nouvelle période. La cible du retrait doit être un studio
+vivant, y compris lorsqu’on part soi-même. Droits métier, quotas et notifications
+existants conservés ; aucun accès par métier, agence ou ancienne gestion.
+
+L’historique personnel commun inclut les studios vivants, même après refus ou
+départ, sans outil ni journal de collègues. La fiche courante perd toujours son
+accès après départ. Export des actes personnels et pour autrui, anonymisation
+et projection partagés réutilisés : aucune nouvelle donnée de schéma ni
+migration. Aucun ancien acte reconstruit depuis les états ou notifications.
+Le lien de retour du journal est corrigé pour utiliser la route typée
+`/(app)/structure`, défaut révélé par `check` au début de ce lot.
+
+Aide, documentation du son, conception, plan et démo actualisés. `seed:demo`
+exécuté : « Démo — Mémoire du studio », trois périodes fictives et quatre
+actes attribués/datés vérifiés en base. La Cave Studio et son invitation
+existante ne sont pas converties en événements.
+
+Les groupes, agences, écoles, validations de collaboration et futures options
+restent dans les lots suivants ; DASH-05/#35 et #30 restent ouverts.
+État distant vérifié : `7253877e1873b575adaa0fd57a76c7064fcdd883`. DASH-05d
+(`7a9db5d`) et le nouveau lot DASH-05e sont des commits locaux sur `main` ;
+aucun push effectué pendant cette session.
+
+Recette DASH-05e : 1 359 tests unitaires réussis (309 conditionnels non
+exécutés). 31 intégrations réussies : 22 historiques communs (dont 8 nouveaux
+cas studio) et 9 tests existants du service studio (fiche, photos, sessions,
+co-gestion, RGPD). La première exécution révélait un auteur anonymisé partagé
+entre scénarios ; les comptes sont maintenant isolés par scénario et la
+relance complète passe. Quatre E2E réussis : co-gestion studio enrichie,
+structures et deux parcours d’aide. Acceptation, départ, succession avec auteur
+réel, perte d’accès, historiques personnels distincts, clavier, axe et 390 px
+vérifiés. Types : 0 erreur, 0 avertissement ; aucun `check` pendant les E2E.
+Formatage et ESLint ciblés conformes. Le lint global retrouve uniquement le
+formatage des scripts préexistants `.shot-metro.mjs` et `.shot-tmp.mjs`.

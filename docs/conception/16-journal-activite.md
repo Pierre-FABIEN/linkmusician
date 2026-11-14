@@ -178,7 +178,7 @@ Les participations utilisent plusieurs services distincts :
 | Circuit                                             | Écritures et garanties actuelles                                                                                                                                                                                                                      | Suite                                                                                     |
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `organizations/comanagement.ts` — PROMOTER et VENUE | Invitation conservée avec invitant ; acceptation/refus, annulation, départ/retrait et succession sous verrou `org:` dans une transaction. Les états et dates ne conservaient pas les auteurs de décision ; `DECLINED` confondait refus et annulation. | DASH-05d, présent lot                                                                     |
-| `studios/service.ts`                                | Copie historique de la co-gestion, avec ses propres mutations.                                                                                                                                                                                        | Lot suivant                                                                               |
+| `studios/service.ts`                                | Copie historique de la co-gestion, avec ses propres mutations.                                                                                                                                                                                        | DASH-05e, ci-dessous                                                                      |
 | `agencies/service.ts`                               | Invitations, départs/retraits, succession et fermeture sous verrou d’agence.                                                                                                                                                                          | Lot suivant                                                                               |
 | `bands/service.ts`                                  | Demandes, invitations, acceptations/validations, retraits, changements de rôle, transmission et dissolution.                                                                                                                                          | Lot suivant                                                                               |
 | `schools/service.ts`                                | Adhésion par lien, remplacement d’une participation et départ.                                                                                                                                                                                        | Lot suivant                                                                               |
@@ -267,3 +267,55 @@ anonymisation. Le parcours E2E des structures est étendu à l’acceptation pui
 départ réel et à sa lecture personnelle après perte d’accès (clavier, axe et
 390 px). La démo comporte des périodes fictives explicitement créées, à
 identifiants stables ; aucune ancienne participation réelle n’est convertie.
+
+## Co-gestion des studios (DASH-05e)
+
+Audit du service `studios/service.ts` : les invitations conservent déjà leur
+auteur ; acceptation/refus, annulation, départ/retrait et succession sont
+transactionnels sous verrou `studio:`. Le quota reste de trois studios gérés et
+cinq invitations en attente. Les métiers du son conditionnent l’invitation ;
+l’historique ne donne aucun droit fondé sur le métier.
+
+Ces mutations écrivent maintenant les six types de `MembershipDecision` de
+DASH-05d, avec la personne qui agit et le même instant que le changement d’état.
+Le refus personnel (`DECLINED`) est distinct d’une annulation par la gestion
+(`WITHDRAWN`), même lorsque le statut de participation reste `DECLINED`. Le
+chemin de départ d’une invitation distingue lui aussi ces deux actes. La
+responsabilité reçue par le successeur est attribuée à l’auteur réel du départ,
+sans fabriquer une acceptation du successeur. Tout est enregistré dans la même
+transaction, y compris les deux actes d’un départ avec succession. Relecture de
+l’état sous verrou et unicité période/type empêchent les doublons et écrasements
+lors d’appels répétés ou concurrents. Une nouvelle invitation reste une nouvelle
+période ; les traces antérieures ne sont pas modifiées.
+
+Le retrait vérifie maintenant aussi le type STUDIO exact et la structure vivante
+sur la cible, y compris lorsqu’on part soi-même. Les droits de gestion, quotas,
+notifications et le verrou propre au studio sont conservés. Ni notification,
+progression, rang ni événement de collaboration n’est ajouté par le journal.
+
+`/structure/historique` inclut les studios vivants selon la même garde
+strictement personnelle que les lieux/organisations : ses propres périodes,
+même closes, sans outil ni accès aux collègues. La fiche courante conserve sa
+garde et perd son accès après départ. Une agence, un métier ou une ancienne
+fonction ne donne aucun accès aux périodes d’autrui. Une structure masquée ne
+retire pas la lecture personnelle ; une structure supprimée ou dissoute est
+exclue. Le lien de retour utilise maintenant l’identifiant de route typé
+`/(app)/structure`, correction d’un défaut relevé au contrôle de types.
+
+Aucun nouveau champ ni migration : export personnel, export des actes pour
+autrui et anonymisation de `authorId` livrés dans DASH-05d couvrent aussi les
+studios. Les suppressions physiques suivent les mêmes cascades et mises à null.
+Aucun message, motif, titre privé ou nom recopié. Aucune reconstruction depuis
+les anciens états, dates ou notifications ; les invitations connues gardent leur
+source et aucune ancienne acceptation n’est déduite d’un rôle actuel.
+
+Les tests d’intégration communs appellent les vrais services des trois types.
+Chaque scénario a ses propres comptes, pour qu’un test d’anonymisation ne
+modifie pas l’auteur attendu dans le suivant. Ils couvrent concurrence,
+nouvelle invitation, droits, succession, rollback et export/anonymisation. Le
+parcours E2E studio vérifie invitation acceptée, départ avec transmission,
+perte d’accès et deux historiques personnels distincts, avec dates HTML,
+auteurs réels, clavier, axe et 390 px. Les périodes fictives de démo sont créées
+explicitement, par upserts, sans convertir les participations existantes.
+Les agences, groupes, écoles, validations de collaboration et futures options
+restent dans les lots suivants ; DASH-05 et #30 restent ouverts.

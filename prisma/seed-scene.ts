@@ -1768,77 +1768,98 @@ export async function seedScene(
 	);
 }
 
-/** DASH-05d : périodes fictives explicites, sans déduire les actes des anciennes participations. */
+/** DASH-05d/05e : périodes fictives explicites, sans déduire les actes des anciennes participations. */
 export async function seedComanagementDecisions(
 	prisma: PrismaClient,
 	communes: Commune[],
 	demoHandles: ReadonlyMap<string, string>
 ) {
 	const ctx = await demoContext(prisma, communes[0], null, demoHandles);
-	const ownerId = id(ctx, 'yanis-orga');
-	const participantId = id(ctx, 'lina-orga');
-	if (
-		!ownerId ||
-		!participantId ||
-		(await prisma.person.count({
-			where: {
-				actorId: { in: [ownerId, participantId] },
-				user: { email: { endsWith: '@demo.linkmusician.test' } }
-			}
-		})) !== 2
-	)
-		return;
-	const orgId = 'demo-memoire-cogestion';
-	await prisma.actor.upsert({
-		where: { id: orgId },
-		update: {},
-		create: {
-			id: orgId,
-			kind: 'ORGANIZATION',
-			handle: orgId,
-			displayName: 'Démo — Mémoire de co-gestion',
-			hidden: true,
-			organization: {
-				create: {
-					kind: 'PROMOTER',
-					promoter: { create: {} },
-					memberships: {
-						create: { personId: ownerId, role: 'OWNER', status: 'ACTIVE', startedAt: ago(10) }
+	for (const fixture of [
+		{
+			kind: 'PROMOTER',
+			owner: 'yanis-orga',
+			participant: 'lina-orga',
+			orgId: 'demo-memoire-cogestion',
+			name: 'Démo — Mémoire de co-gestion',
+			prefix: 'demo-cogestion'
+		},
+		{
+			kind: 'STUDIO',
+			owner: 'samir-son',
+			participant: 'nora-prod',
+			orgId: 'demo-memoire-studio',
+			name: 'Démo — Mémoire du studio',
+			prefix: 'demo-studio-cogestion'
+		}
+	] as const) {
+		const ownerId = id(ctx, fixture.owner);
+		const participantId = id(ctx, fixture.participant);
+		if (
+			!ownerId ||
+			!participantId ||
+			(await prisma.person.count({
+				where: {
+					actorId: { in: [ownerId, participantId] },
+					user: { email: { endsWith: '@demo.linkmusician.test' } }
+				}
+			})) !== 2
+		)
+			continue;
+		const orgId = fixture.orgId;
+		await prisma.actor.upsert({
+			where: { id: orgId },
+			update: {},
+			create: {
+				id: orgId,
+				kind: 'ORGANIZATION',
+				handle: orgId,
+				displayName: fixture.name,
+				hidden: true,
+				organization: {
+					create: {
+						kind: fixture.kind,
+						...(fixture.kind === 'STUDIO'
+							? { studio: { create: {} } }
+							: { promoter: { create: {} } }),
+						memberships: {
+							create: { personId: ownerId, role: 'OWNER', status: 'ACTIVE', startedAt: ago(10) }
+						}
 					}
 				}
 			}
-		}
-	});
-	for (const kind of ['LEFT', 'DECLINED', 'WITHDRAWN'] as const) {
-		const at = ago(kind === 'LEFT' ? 7 : kind === 'DECLINED' ? 5 : 3);
-		await prisma.membership.upsert({
-			where: { id: `demo-cogestion-${kind.toLowerCase()}` },
-			update: {},
-			create: {
-				id: `demo-cogestion-${kind.toLowerCase()}`,
-				orgId,
-				personId: participantId,
-				role: 'ADMIN',
-				status: kind === 'LEFT' ? 'LEFT' : 'DECLINED',
-				invitedById: ownerId,
-				createdAt: new Date(at.getTime() - 2 * DAY),
-				startedAt: kind === 'LEFT' ? new Date(at.getTime() - DAY) : null,
-				endedAt: at,
-				decisions: {
-					create: [
-						...(kind === 'LEFT'
-							? [
-									{
-										kind: 'ACCEPTED' as const,
-										authorId: participantId,
-										occurredAt: new Date(at.getTime() - DAY)
-									}
-								]
-							: []),
-						{ kind, authorId: kind === 'WITHDRAWN' ? ownerId : participantId, occurredAt: at }
-					]
-				}
-			}
 		});
+		for (const kind of ['LEFT', 'DECLINED', 'WITHDRAWN'] as const) {
+			const at = ago(kind === 'LEFT' ? 7 : kind === 'DECLINED' ? 5 : 3);
+			await prisma.membership.upsert({
+				where: { id: `${fixture.prefix}-${kind.toLowerCase()}` },
+				update: {},
+				create: {
+					id: `${fixture.prefix}-${kind.toLowerCase()}`,
+					orgId,
+					personId: participantId,
+					role: 'ADMIN',
+					status: kind === 'LEFT' ? 'LEFT' : 'DECLINED',
+					invitedById: ownerId,
+					createdAt: new Date(at.getTime() - 2 * DAY),
+					startedAt: kind === 'LEFT' ? new Date(at.getTime() - DAY) : null,
+					endedAt: at,
+					decisions: {
+						create: [
+							...(kind === 'LEFT'
+								? [
+										{
+											kind: 'ACCEPTED' as const,
+											authorId: participantId,
+											occurredAt: new Date(at.getTime() - DAY)
+										}
+									]
+								: []),
+							{ kind, authorId: kind === 'WITHDRAWN' ? ownerId : participantId, occurredAt: at }
+						]
+					}
+				}
+			});
+		}
 	}
 }

@@ -394,3 +394,15 @@ Yanis retrouve dans son export son acte d’annulation pour autrui, sans obtenir
 la lecture des périodes de Lina. Les autres co-gestions existantes ne sont pas
 converties en événements. Le seed est rejouable par upserts et réservé aux
 comptes de démo ; il ne reconstruit aucun événement réel.
+
+### DASH-05e — historique personnel du studio
+
+Se connecter avec **Nora** (`nora-prod`, suffixe réel indiqué par le seed), puis
+ouvrir **Mes structures › Historique de mes participations**. « Démo — Mémoire
+du studio » présente trois périodes fictives : une invitation acceptée puis
+quittée, un refus de Nora et une annulation par Samir. Les quatre actes portent
+la personne réelle et leur date ; les périodes closes ne donnent aucun outil.
+Samir retrouve son acte d’annulation pour autrui dans l’export, sans accès aux
+périodes de Nora. La Cave Studio et son invitation existante restent dans leur
+état actuel ; aucun consentement ni acte ancien n’y est fabriqué. Le seed est
+rejouable et vérifie les comptes de démonstration avant de créer ces fixtures.

@@ -532,7 +532,7 @@ périmètre proposé sont effacés. Les propositions supprimées avant cette
 fonction ne peuvent pas être retrouvées.
 
 Dans **Mes structures**, ta fiche de participation affiche aussi ton invitation
-lorsqu’elle est conservée. Pour les lieux et organisations d’organisateur·rices,
+lorsqu’elle est conservée. Pour les studios, lieux et organisations d’organisateur·rices,
 les nouvelles acceptations, refus, annulations par la gestion, départs, retraits
 et transmissions de responsabilité sont aussi datés avec leur auteur réel.
 **Historique de mes participations** conserve tes propres périodes, même après

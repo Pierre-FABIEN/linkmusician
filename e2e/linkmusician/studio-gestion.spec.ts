@@ -38,10 +38,14 @@ test.describe('LinkMusician — co-gestion du studio', () => {
 		const noraPage = await noraContext.newPage();
 		const studioName = `Studio Gestion ${Date.now().toString(36)}`;
 		let studioHandle = '';
+		let ownerId = '',
+			ownerName = '';
 		try {
 			await test.step('1. J’ouvre mon studio', async () => {
 				await signUpAndVerify(page, account);
-				await joinAs(page, account.email, 'Ingé son');
+				const owner = await joinAs(page, account.email, 'Ingé son');
+				ownerId = owner.id;
+				ownerName = owner.displayName;
 				await page.goto('/studios');
 				await waitForAppReady(page);
 				await page.getByLabel('Nom du studio').fill(studioName);
@@ -76,6 +80,12 @@ test.describe('LinkMusician — co-gestion du studio', () => {
 				await waitForPath(noraPage, `/studios/${studioHandle}`);
 				await waitForAppReady(noraPage);
 				await expect(noraPage.getByRole('button', { name: 'Enregistrer la fiche' })).toBeVisible();
+				const studio = await db.actor.findUniqueOrThrow({ where: { handle: studioHandle } });
+				await noraPage.goto(`/structure/${studio.id}`);
+				const history = noraPage.getByRole('region', { name: 'Ma participation', exact: true });
+				await expect(history.locator('li')).toHaveCount(2);
+				await expect(history.getByText('Invitation acceptée', { exact: true })).toBeVisible();
+				await expect(history.getByText(noraActor.displayName, { exact: true })).toBeVisible();
 			});
 
 			await test.step('5. Je quitte la gestion : Nora devient responsable', async () => {
@@ -94,6 +104,43 @@ test.describe('LinkMusician — co-gestion du studio', () => {
 
 				const response = await page.goto(`/studios/${studioHandle}`);
 				expect([403, 404]).toContain(response?.status());
+				expect((await page.request.get(`/structure/${studio.id}`)).status()).toBe(404);
+				await page.setViewportSize({ width: 390, height: 844 });
+				await page.goto('/structure');
+				await waitForAppReady(page);
+				await page.getByRole('link', { name: /^Historique de mes participations/ }).focus();
+				await page.keyboard.press('Enter');
+				await expect(page).toHaveURL('/structure/historique');
+				const history = page.getByRole('region', { name: studioName, exact: true });
+				await expect(history.locator('li')).toHaveCount(1);
+				await expect(history.getByText('Participation quittée', { exact: true })).toBeVisible();
+				await expect(history.getByText(ownerName, { exact: true })).toBeVisible();
+				await expect(history.locator('time')).toHaveAttribute('datetime', /T.*Z$/);
+				const notice = page.getByRole('button', { name: 'Compris', exact: true });
+				if (await notice.isVisible()) await notice.click();
+				await expectNoA11yViolations(page, ['.cartButton']);
+				expect(
+					await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+				).toBe(true);
+				await noraPage.setViewportSize({ width: 390, height: 844 });
+				await noraPage.goto('/structure/historique');
+				const inherited = noraPage.getByRole('region', { name: studioName, exact: true });
+				await expect(inherited.locator('li')).toHaveCount(3);
+				await expect(
+					inherited.getByText('Responsabilité transmise à cette participation', { exact: true })
+				).toBeVisible();
+				await expect(inherited.getByText(ownerName, { exact: true })).toHaveCount(2);
+				const decisions = await db.membershipDecision.findMany({
+					where: { membership: { orgId: studio.id } }
+				});
+				expect(decisions).toHaveLength(3);
+				expect(decisions).toEqual(
+					expect.arrayContaining([
+						expect.objectContaining({ kind: 'ACCEPTED', authorId: noraActor.id }),
+						expect.objectContaining({ kind: 'LEFT', authorId: ownerId }),
+						expect.objectContaining({ kind: 'RESPONSIBILITY_RECEIVED', authorId: ownerId })
+					])
+				);
 			});
 		} finally {
 			await noraContext.close();

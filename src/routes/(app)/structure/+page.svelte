@@ -43,7 +43,7 @@
 				{
 					href: '/structure/historique',
 					title: 'Historique de mes participations',
-					text: 'Tes invitations et actes de co-gestion des lieux et organisations, y compris après un départ.',
+					text: 'Tes invitations et actes de co-gestion des studios, lieux et organisations, y compris après un départ.',
 					icon: Building2
 				}
 			]}

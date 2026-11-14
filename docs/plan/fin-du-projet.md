@@ -527,3 +527,13 @@ publié. Les autres circuits (groupes, studios, agences, écoles), validations d
 collaboration et futures options restent à suivre ; DASH-05 reste ouvert.
 Preuves de recette et périmètre détaillés dans [le suivi](README.md) et
 [la conception](../conception/16-journal-activite.md).
+
+DASH-05e : la co-gestion des studios conserve maintenant ses actes dans le
+journal de participations existant, sous son verrou `studio:`, avec auteur
+réel, date, refus et annulation distingués. L’historique personnel commun
+inclut les studios vivants, même après départ, sans outils ni accès aux
+collègues. Export/anonymisation réutilisés, aucune migration ni reprise des
+anciens états. Livraison locale sur `main`, sans push, après DASH-05d lui aussi
+local à cette date. Restent les groupes, agences, écoles, validations de
+collaboration et futures options ; DASH-05 reste ouvert. Détail et recette
+dans [le suivi](README.md) et [la conception](../conception/16-journal-activite.md).

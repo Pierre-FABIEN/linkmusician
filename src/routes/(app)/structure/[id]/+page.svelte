@@ -60,8 +60,8 @@
 			id="invitation-activity-title"
 		/>
 		<p class="text-sm text-muted-foreground">
-			Les nouveaux actes de co-gestion des lieux et organisations sont conservés. Les autres
-			transitions restent à venir ; aucun acte ancien n’est reconstitué.
+			Les nouveaux actes de co-gestion des studios, lieux et organisations sont conservés. Les
+			autres transitions restent à venir ; aucun acte ancien n’est reconstitué.
 		</p>
 	</div>
 </div>

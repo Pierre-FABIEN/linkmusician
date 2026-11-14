@@ -10,11 +10,11 @@
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-6">
 		<MetroPageHeader title="Historique de mes participations" />
-		<a href={resolve('/structure')} class="lm-link">Retour à Mes structures</a>
+		<a href={resolve('/(app)/structure')} class="lm-link">Retour à Mes structures</a>
 		<p>
-			Les 100 périodes les plus récemment mises à jour de tes lieux et organisations. Chaque liste
-			concerne uniquement ta propre participation, y compris après un départ. Cet historique ne
-			donne aucun accès aux outils de gestion.
+			Les 100 périodes les plus récemment mises à jour de tes studios, lieux et organisations.
+			Chaque liste concerne uniquement ta propre participation, y compris après un départ. Cet
+			historique ne donne aucun accès aux outils de gestion.
 		</p>
 		<p>
 			Seuls les nouveaux actes de co-gestion sont enregistrés. Les anciennes invitations connues
