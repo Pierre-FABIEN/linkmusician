@@ -382,3 +382,15 @@ conservé. Élise et Zoé les retrouvent dans **Accompagnement → Historique de
 accompagnements**, avec le type d’acte, l’auteur et l’heure de Paris. Elles ne
 figurent plus dans les propositions à traiter. La gestion de l’agence ne reçoit
 aucun accès supplémentaire. Aucun événement passé n’est reconstruit.
+
+### DASH-05d — historique personnel de co-gestion
+
+Se connecter avec **Lina** (`lina-orga@demo.linkmusician.test`), puis ouvrir
+**Mes structures › Historique de mes participations**. « Démo — Mémoire de
+co-gestion » présente trois périodes fictives : une invitation acceptée puis
+quittée, un refus personnel et une annulation par Yanis. Chaque acte porte son
+auteur et sa date ; les périodes closes ne redonnent aucun accès aux outils.
+Yanis retrouve dans son export son acte d’annulation pour autrui, sans obtenir
+la lecture des périodes de Lina. Les autres co-gestions existantes ne sont pas
+converties en événements. Le seed est rejouable par upserts et réservé aux
+comptes de démo ; il ne reconstruit aucun événement réel.

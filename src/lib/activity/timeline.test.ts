@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
 	delegationTimeline,
 	representationTimeline,
-	membershipInvitationTimeline
+	membershipInvitationTimeline,
+	membershipTimeline
 } from './timeline';
 
 const at = (day: number) => new Date(`2026-11-${day}T12:00:00Z`);
@@ -148,4 +149,51 @@ it.each([
 	});
 	expect(entries).toHaveLength(2);
 	expect(entries[1]).toMatchObject({ action, author: 'Compte supprimé', occurredAt: at(12) });
+});
+
+describe('actes personnels de participation', () => {
+	it('conserve les actes explicites et leur auteur, sans déduire les anciennes transitions', () => {
+		expect(
+			membershipTimeline({
+				id: 'm',
+				createdAt: at(10),
+				invitedById: null,
+				invitedBy: null,
+				decisions: []
+			})
+		).toEqual([]);
+		const entries = membershipTimeline({
+			id: 'm',
+			createdAt: at(10),
+			invitedById: 'agent',
+			invitedBy: facts.proposedBy,
+			decisions: [
+				{ id: 'b', kind: 'LEFT', occurredAt: at(13), author: null },
+				{ id: 'a', kind: 'ACCEPTED', occurredAt: at(11), author: facts.delegate }
+			]
+		});
+		expect(entries.map((e) => [e.action, e.author])).toEqual([
+			['Invitation à la structure', 'Agent'],
+			['Invitation acceptée', 'Collaboratrice'],
+			['Participation quittée', 'Compte supprimé']
+		]);
+	});
+	it('distingue refus personnel, annulation et retrait par la gestion', () => {
+		const entries = membershipTimeline({
+			id: 'm',
+			createdAt: at(10),
+			invitedById: null,
+			invitedBy: null,
+			decisions: (['DECLINED', 'WITHDRAWN', 'REMOVED', 'RESPONSIBILITY_RECEIVED'] as const).map(
+				(kind, i) => ({
+					id: String(i),
+					kind,
+					occurredAt: at(11),
+					author: { displayName: 'Ancien nom', deletedAt: at(12) }
+				})
+			)
+		});
+		expect(new Set(entries.map((e) => e.action)).size).toBe(4);
+		expect(entries.every((e) => e.author === 'Compte supprimé')).toBe(true);
+	});
 });

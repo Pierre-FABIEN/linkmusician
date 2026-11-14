@@ -261,12 +261,13 @@ Détail : [affectations et délégations](../conception/15-affectations-delegati
 Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 `5e7f982` récupérée depuis `origin/main`.
 
-| Lot            | État                        | Périmètre                                                                                                                |
-| -------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| DASH-05a       | ✅ publié                   | Audit des traces, contrat de lecture commun et historique privé des affectations, sans nouveau stockage ni notification. |
-| DASH-05b       | ✅ publié                   | Historiques privés des mandats conservés, dont terminés, et invitations personnelles des structures.                     |
-| DASH-05c       | ✅ publié + correctif local | Refus et retraits de propositions conservés atomiquement, auteurs réels, accès privés et RGPD.                           |
-| DASH-05, suite | ⬜                          | Transitions de participation, validations de collaboration, options et propositions restantes.                           |
+| Lot            | État      | Périmètre                                                                                                                              |
+| -------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| DASH-05a       | ✅ publié | Audit des traces, contrat de lecture commun et historique privé des affectations, sans nouveau stockage ni notification.               |
+| DASH-05b       | ✅ publié | Historiques privés des mandats conservés, dont terminés, et invitations personnelles des structures.                                   |
+| DASH-05c       | ✅ publié | Refus et retraits de propositions conservés atomiquement, auteurs réels, accès privés et RGPD.                                         |
+| DASH-05d       | ✅ local  | Actes de co-gestion PROMOTER/VENUE et historique des périodes personnelles, accès après départ sans outils ; autres circuits à suivre. |
+| DASH-05, suite | ⬜        | Autres circuits de participation (groupes, studios, agences, écoles), validations de collaboration et futures options.                 |
 
 Le journal commun n’est pas terminé. Conception et limites :
 [journal d’activité](../conception/16-journal-activite.md).
@@ -354,3 +355,44 @@ lint global retrouve uniquement les deux scripts préexistants au stade
 Prettier (`.shot-metro.mjs`, `.shot-tmp.mjs`). La correction et ce complément
 de suivi sont livrés dans un nouveau commit local `(DASH-05c)`, sans push.
 #35 et #30 restent ouvertes avec les mêmes limites de périmètre.
+
+### DASH-05d — actes de co-gestion des lieux et organisations
+
+Lot borné au service `organizations/comanagement.ts` (PROMOTER/VENUE), après
+inventaire des circuits de participation dans [la conception](../conception/16-journal-activite.md).
+Acceptation, refus personnel, annulation par la gestion, départ, retrait et
+responsabilité reçue conservent auteur réel et date dans la transaction existante,
+sous verrou d’organisation, avec protection d’unicité par période et type d’acte.
+Le retrait relit aussi le type et la structure vivante, y compris pour soi-même.
+Aucune reconstitution depuis les états, rôles, dates ou notifications.
+
+`/structure/historique` restitue uniquement ses propres périodes conservées des
+lieux et organisations, même closes, sans outils ni accès aux collègues. La fiche
+courante conserve sa garde et perd son accès après départ. Les groupes, studios,
+agences et écoles ne sont pas couverts par ce nouveau circuit ; validations de
+collaboration et futures options restent également à suivre. DASH-05/#35 et
+l’épopée #30 restent ouverts.
+
+Migration additive `20261114184911_membership_comanagement_decisions` générée,
+nettoyée, relue et appliquée via les scripts du dépôt en développement et sur
+`e2e`, client régénéré. Retour destructif après écriture écarté et justifié dans
+la conception ; aucun index préexistant modifié. Export des actes personnels et
+des actes pour autrui ; anonymisation de toutes les références d’auteur. Aucun
+message, motif ou titre privé copié. Aide, fil d’Ariane, conception et démo
+actualisés. `seed:demo` exécuté ; trois périodes fictives et quatre actes avec
+auteur/date vérifiés en base, sans convertir les participations existantes.
+
+Recette : 1 359 tests unitaires réussis (301 conditionnels non exécutés),
+19 tests d’intégration des historiques et accès (14 nouveaux + 5 existants),
+12 tests de non-régression des lieux et organisations, et 3 E2E (structures,
+deux parcours d’aide) réussis. Le parcours structures couvre acceptation,
+départ réel, perte d’accès et lecture de ses propres traces, clavier, axe et
+390 px. Types : 0 erreur, 0 avertissement, exécutés séparément des E2E.
+ESLint et formatage ciblés conformes. Le lint global reste bloqué par les
+scripts préexistants `.shot-metro.mjs` et `.shot-tmp.mjs`.
+
+État distant revérifié le 14/11/2026 : `git ls-remote origin refs/heads/main`
+renvoie `7253877e1873b575adaa0fd57a76c7064fcdd883` ; le correctif DASH-05c
+est donc désormais publié, contrairement à son état lors de la reprise
+précédente. DASH-05d reste un nouveau commit **local** sur `main` ; aucun
+push effectué pendant cette session.

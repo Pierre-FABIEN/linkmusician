@@ -1460,6 +1460,7 @@ model Actor {
   organization               Organization?
   memberships                Membership[]             @relation("MembershipPerson")
   membershipInvitesSent      Membership[]             @relation("MembershipInviter")
+  membershipDecisions        MembershipDecision[]
   opportunitiesPosted        Opportunity[]            @relation("OpportunityPoster")
   jamSeriesIssued            JamSeries[]              @relation("JamSeriesIssuer")
   jamSeriesPosted            JamSeries[]              @relation("JamSeriesPoster")
@@ -2947,6 +2948,7 @@ model Organization {
 /// ou une demande en attente. Au plus une ligne ouverte (INVITED, REQUESTED,
 /// ACTIVE) par personne et par groupe, garanti par le service sous verrou.
 model Membership {
+  decisions MembershipDecision[]
   mandateDelegationsAsAgent RepresentationDelegation[] @relation("DelegationAgentMembership")
   mandateDelegationsAsDelegate RepresentationDelegation[] @relation("DelegationDelegateMembership")
   id          String           @id @default(cuid())
@@ -2972,6 +2974,32 @@ model Membership {
   @@index([orgId, status])
   @@index([personId, status])
   @@map("memberships")
+}
+
+/// DASH-05d : actes explicites de co-gestion, sans message ni motif.
+enum MembershipDecisionKind {
+  ACCEPTED
+  DECLINED
+  WITHDRAWN
+  LEFT
+  REMOVED
+  RESPONSIBILITY_RECEIVED
+}
+
+/// Une transition conservée dans la transaction de sa participation.
+/// Pas de reprise des états antérieurs ; auteur oublié à l’anonymisation.
+model MembershipDecision {
+  id           String                 @id @default(cuid())
+  membershipId String
+  membership   Membership             @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  kind         MembershipDecisionKind
+  authorId     String?
+  author       Actor?                 @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  occurredAt   DateTime               @default(now())
+
+  @@unique([membershipId, kind])
+  @@index([authorId])
+  @@map("membership_decisions")
 }
 
 // ─── MORCEAUX (P3-11, D35) ──────────────────────────────────────────────────

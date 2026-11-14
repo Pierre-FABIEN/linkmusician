@@ -7,6 +7,7 @@
  * boilerplate). Règles : décisions D5, D14 et D16.
  */
 import { Prisma } from '@prisma/client';
+import { MEMBERSHIP_DECISION_LABELS } from '#lib/activity/timeline';
 import { prisma } from '#lib/server';
 // Le champ en conflit : `meta.target` en Prisma 5, le nom de l'index en Prisma 7.
 import { isUniqueViolation } from '#lib/server/db-errors';
@@ -594,7 +595,29 @@ export async function exportPersonData(userId: string) {
 		where: { leadId: person.actorId },
 		select: { title: true, venue: { select: { name: true } } }
 	});
+	const membershipDecisions = await prisma.membershipDecision.findMany({
+		where: { OR: [{ authorId: person.actorId }, { membership: { personId: person.actorId } }] },
+		orderBy: [{ occurredAt: 'asc' }, { id: 'asc' }],
+		select: {
+			kind: true,
+			occurredAt: true,
+			author: { select: { displayName: true, deletedAt: true } },
+			membership: {
+				select: { personId: true, org: { select: { actor: { select: { displayName: true } } } } }
+			}
+		}
+	});
 	return {
+		actes_de_participation: membershipDecisions.map((d) => ({
+			role:
+				d.membership.personId === person.actorId
+					? 'participation personnelle'
+					: 'auteur de décision',
+			organisation: d.membership.org.actor.displayName,
+			acte: MEMBERSHIP_DECISION_LABELS[d.kind],
+			date: d.occurredAt,
+			auteur: d.author && !d.author.deletedAt ? d.author.displayName : null
+		})),
 		identifiant_public: person.actor.handle,
 		nom_affiche: person.actor.displayName,
 		profil_public_masque: person.actor.hidden,
@@ -1347,6 +1370,11 @@ async function bandAnonymizationOps(actorId: string): Promise<Prisma.PrismaPromi
 		}),
 		prisma.membership.deleteMany({
 			where: { personId: actorId, status: { in: ['INVITED', 'REQUESTED'] } }
+		}),
+		// DASH-05d : oublier l’auteur de tous ses actes, y compris pour autrui.
+		prisma.membershipDecision.updateMany({
+			where: { authorId: actorId },
+			data: { authorId: null }
 		}),
 		// Invitations envoyées : on oublie qui a invité.
 		prisma.membership.updateMany({ where: { invitedById: actorId }, data: { invitedById: null } }),

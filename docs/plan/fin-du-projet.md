@@ -518,3 +518,12 @@ ouvert. Les commits DASH-05a/b/c sont désormais vérifiés publiés sur `origin
 reprise. Le correctif du compteur des objectifs et le complément de suivi
 restent locaux, dans le commit de reprise `(DASH-05c)`. Preuves de recette dans
 [le suivi](README.md#6-navigation-et-espaces-métier--épopée-30).
+
+DASH-05d : actes transactionnels de co-gestion PROMOTER/VENUE et historique
+personnel des périodes, y compris closes, sans accès aux outils ni aux collègues.
+Export/anonymisation couverts, aucun fait ancien reconstruit. Livraison locale
+sur `main`, sans push ; `7253877` (correctif DASH-05c) est maintenant vérifié
+publié. Les autres circuits (groupes, studios, agences, écoles), validations de
+collaboration et futures options restent à suivre ; DASH-05 reste ouvert.
+Preuves de recette et périmètre détaillés dans [le suivi](README.md) et
+[la conception](../conception/16-journal-activite.md).

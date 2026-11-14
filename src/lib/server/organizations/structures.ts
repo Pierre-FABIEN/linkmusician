@@ -3,8 +3,14 @@ import type { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { STRUCTURE_LABELS, participationLabel, structurePermissions } from '#lib/structures/rules';
 import { liveStructure } from './access';
-import { membershipInvitationTimeline } from '#lib/activity/timeline';
+import { membershipTimeline } from '#lib/activity/timeline';
 
+const decisionSelection = {
+	id: true,
+	kind: true,
+	occurredAt: true,
+	author: { select: { displayName: true, deletedAt: true } }
+} satisfies Prisma.MembershipDecisionSelect;
 const selection = {
 	id: true,
 	status: true,
@@ -46,11 +52,12 @@ export async function myStructure(orgId: string, personId: string) {
 			...selection,
 			createdAt: true,
 			invitedById: true,
-			invitedBy: { select: { displayName: true, deletedAt: true } }
+			invitedBy: { select: { displayName: true, deletedAt: true } },
+			decisions: { select: decisionSelection, orderBy: [{ occurredAt: 'asc' }, { id: 'asc' }] }
 		}
 	});
 	if (!row) return null;
-	const structure = { ...projection(row), activity: membershipInvitationTimeline(row) };
+	const structure = { ...projection(row), activity: membershipTimeline(row) };
 	let href: string | null = null;
 	if (structure.kind === 'AGENCY') return { ...structure, href: `/agences/${orgId}` };
 	if (structure.status === 'INVITED' || structure.status === 'REQUESTED') {
@@ -78,4 +85,32 @@ export async function myStructure(orgId: string, personId: string) {
 		}
 	}
 	return { ...structure, href };
+}
+
+/** Historique de mes seules périodes de co-gestion, sans ouvrir les outils. */
+export async function myComanagementHistory(personId: string) {
+	const rows = await prisma.membership.findMany({
+		where: {
+			personId,
+			person: { deletedAt: null },
+			org: { ...liveStructure(), kind: { in: ['PROMOTER', 'VENUE'] } },
+			OR: [{ invitedById: { not: null } }, { decisions: { some: {} } }]
+		},
+		orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+		take: 100,
+		select: {
+			id: true,
+			createdAt: true,
+			invitedById: true,
+			invitedBy: { select: { displayName: true, deletedAt: true } },
+			org: { select: { kind: true, actor: { select: { displayName: true } } } },
+			decisions: { select: decisionSelection, orderBy: [{ occurredAt: 'asc' }, { id: 'asc' }] }
+		}
+	});
+	return rows.map((row) => ({
+		id: row.id,
+		name: row.org.actor.displayName,
+		typeLabel: STRUCTURE_LABELS[row.org.kind],
+		activity: membershipTimeline(row)
+	}));
 }

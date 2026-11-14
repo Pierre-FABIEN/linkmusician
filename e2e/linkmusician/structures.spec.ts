@@ -157,7 +157,7 @@ test('structures communes : invitation, révocation, membre et élève sans gest
 			});
 			await page.goto(`/structure/${promoter.id}`);
 			await expect(page.getByText('Invitation à accepter', { exact: true })).toBeVisible();
-			const history = page.getByRole('region', { name: 'Mon invitation' });
+			const history = page.getByRole('region', { name: 'Ma participation' });
 			await expect(history.getByText('Invitation à la structure', { exact: true })).toBeVisible();
 			await expect(history.getByText(peer.displayName, { exact: true })).toBeVisible();
 			await expect(page.getByRole('link', { name: /^Ouvrir les outils/ })).toHaveCount(0);
@@ -170,12 +170,32 @@ test('structures communes : invitation, révocation, membre et élève sans gest
 			).toBeVisible();
 			await page.goto(`/structure/${promoter.id}`);
 			await expect(page.getByText('Co-gestion', { exact: true })).toBeVisible();
-			await expect(history.locator('li')).toHaveCount(1);
-			await db.membership.update({
-				where: { id: promoter.membershipId },
-				data: { status: 'REMOVED' }
-			});
+			await expect(history.locator('li')).toHaveCount(2);
+			await expect(history.getByText('Invitation acceptée', { exact: true })).toBeVisible();
+			await page.goto(`/organisations/${promoter.handle}`);
+			await waitForAppReady(page);
+			await page.getByRole('button', { name: 'Quitter la gestion', exact: true }).click();
+			await expect(page).toHaveURL('/organisations');
 			expect((await page.request.get(`/structure/${promoter.id}`)).status()).toBe(404);
+			await page.goto('/structure');
+			await waitForAppReady(page);
+			await page.getByRole('link', { name: /^Historique de mes participations/ }).focus();
+			await page.keyboard.press('Enter');
+			await expect(page).toHaveURL('/structure/historique');
+			const personalHistory = page.getByRole('region', { name: promoter.displayName, exact: true });
+			await expect(personalHistory.locator('li')).toHaveCount(3);
+			await expect(
+				personalHistory.getByText('Participation quittée', { exact: true })
+			).toBeVisible();
+			await expect(personalHistory.locator('time').last()).toHaveAttribute('datetime', /T.*Z$/);
+			expect(
+				await db.membershipDecision.count({ where: { membershipId: promoter.membershipId } })
+			).toBe(2);
+			await expect(page.getByRole('button', { name: /Retirer|Quitter la gestion/ })).toHaveCount(0);
+			await expectNoA11yViolations(page, ['.cartButton']);
+			expect(
+				await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+			).toBe(true);
 		});
 		await test.step('une structure étrangère et une structure dissoute restent inaccessibles', async () => {
 			expect((await page.request.get(`/structure/${peer.actorId}`)).status()).toBe(404);

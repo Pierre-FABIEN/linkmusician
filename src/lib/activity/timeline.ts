@@ -106,3 +106,33 @@ export function membershipInvitationTimeline(facts: {
 			]
 		: [];
 }
+
+/** DASH-05d : seuls les actes conservés sont projetés, jamais les statuts. */
+export const MEMBERSHIP_DECISION_LABELS = {
+	ACCEPTED: 'Invitation acceptée',
+	DECLINED: 'Invitation déclinée',
+	WITHDRAWN: 'Invitation annulée par la gestion',
+	LEFT: 'Participation quittée',
+	REMOVED: 'Participation retirée par la gestion',
+	RESPONSIBILITY_RECEIVED: 'Responsabilité transmise à cette participation'
+} as const;
+export function membershipTimeline(
+	facts: Parameters<typeof membershipInvitationTimeline>[0] & {
+		decisions: {
+			id: string;
+			kind: keyof typeof MEMBERSHIP_DECISION_LABELS;
+			occurredAt: Date;
+			author: Author;
+		}[];
+	}
+): ActivityEntry[] {
+	return [
+		...membershipInvitationTimeline(facts),
+		...facts.decisions.map((d) => ({
+			id: d.id,
+			action: MEMBERSHIP_DECISION_LABELS[d.kind],
+			author: authorName(d.author),
+			occurredAt: d.occurredAt
+		}))
+	].sort((a, b) => a.occurredAt.getTime() - b.occurredAt.getTime() || a.id.localeCompare(b.id));
+}

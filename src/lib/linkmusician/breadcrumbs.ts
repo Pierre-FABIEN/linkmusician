@@ -83,6 +83,7 @@ const ROUTES: Record<string, Node> = {
 	'/agences/[id]/equipe': { label: 'Équipe', parent: '/agences/[id]' },
 	'/agences/[id]/participation': { label: 'Ma participation', parent: '/agences/[id]' },
 	'/structure': { label: 'Mes structures', parent: '/espace' },
+	'/structure/historique': { label: 'Mes historiques', parent: '/structure' },
 	'/structure/[id]': {
 		label: 'Ma participation',
 		parent: '/structure',

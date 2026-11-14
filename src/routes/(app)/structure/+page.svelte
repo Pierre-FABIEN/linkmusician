@@ -38,6 +38,17 @@
 			/>
 		{/if}
 		<MenuList
+			label="Mes historiques"
+			items={[
+				{
+					href: '/structure/historique',
+					title: 'Historique de mes participations',
+					text: 'Tes invitations et actes de co-gestion des lieux et organisations, y compris après un départ.',
+					icon: Building2
+				}
+			]}
+		/>
+		<MenuList
 			label="Ouvrir une structure"
 			items={data.open.map((item) => ({ ...item, icon: Building2 }))}
 		/>

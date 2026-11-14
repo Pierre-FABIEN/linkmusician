@@ -1,0 +1,293 @@
+/** DASH-05d : actes réels de co-gestion, sur le schéma e2e uniquement. */
+import { beforeAll, afterAll, beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import type { Prisma } from '@prisma/client';
+import dotenv from 'dotenv';
+import { createPrismaClient } from '../../../../prisma/client.js';
+const enabled = process.env.PROGRESSION_INTEGRATION === '1';
+const url = new URL(
+	dotenv.config({ quiet: true }).parsed?.DATABASE_URL ??
+		process.env.DATABASE_URL ??
+		'postgresql://x/y'
+);
+url.searchParams.set('schema', 'e2e');
+if (enabled) process.env.DATABASE_URL = url.toString();
+const db = createPrismaClient(url.toString());
+vi.mock('#lib/server', () => ({ prisma: db }));
+const { answerInvite, leaveOrRemoveManager, inviteManager } = await import('./comanagement');
+const { myStructure, myStructures, myComanagementHistory } = await import('./structures');
+const { exportPersonData, personAnonymizationOps } = await import('#lib/prisma/actors/person');
+const prefix = `cohistory-${Date.now()}-`;
+const people: Record<string, string> = {};
+let orgId = '',
+	membershipId = '',
+	ownerMembership = '';
+const config = (kind: 'PROMOTER' | 'VENUE') => ({
+	kind,
+	noun: 'cette structure',
+	maxManaged: 10,
+	canBeInvited: async () => true,
+	notEligible: '',
+	notification: 'ORG_INVITE' as const,
+	inviteHref: '/organisations'
+});
+
+describe.skipIf(!enabled)('historique personnel de co-gestion', { timeout: 60000 }, () => {
+	beforeAll(async () => {
+		for (const name of ['owner', 'invitee', 'outsider']) {
+			const user = await db.user.create({
+				data: { email: `${prefix}${name}@example.test`, referralCode: prefix + name }
+			});
+			people[name] = (
+				await db.actor.create({
+					data: {
+						kind: 'PERSON',
+						handle: prefix + name,
+						displayName: name,
+						person: {
+							create: {
+								userId: user.id,
+								birthDate: new Date('1990-01-01'),
+								termsAcceptedAt: new Date()
+							}
+						}
+					}
+				})
+			).id;
+		}
+	});
+	beforeEach(async () => {
+		orgId = (
+			await db.actor.create({
+				data: {
+					kind: 'ORGANIZATION',
+					handle: prefix + Math.random().toString(36).slice(2),
+					displayName: 'Structure privée',
+					organization: { create: { kind: 'PROMOTER' } }
+				}
+			})
+		).id;
+		ownerMembership = (
+			await db.membership.create({
+				data: {
+					orgId,
+					personId: people.owner,
+					role: 'OWNER',
+					status: 'ACTIVE',
+					startedAt: new Date('2026-01-01')
+				}
+			})
+		).id;
+		membershipId = (
+			await db.membership.create({
+				data: {
+					orgId,
+					personId: people.invitee,
+					role: 'ADMIN',
+					status: 'INVITED',
+					invitedById: people.owner
+				}
+			})
+		).id;
+	});
+	afterEach(async () => {
+		await db.actor.delete({ where: { id: orgId } });
+	});
+	afterAll(async () => {
+		await db.actor.deleteMany({ where: { id: { in: Object.values(people) } } });
+		await db.user.deleteMany({ where: { email: { startsWith: prefix } } });
+		await db.$disconnect();
+	});
+	const decisions = () =>
+		db.membershipDecision.findMany({ where: { membershipId }, orderBy: { occurredAt: 'asc' } });
+	for (const kind of ['PROMOTER', 'VENUE'] as const) {
+		const c = config(kind);
+		async function setKind() {
+			await db.organization.update({ where: { actorId: orgId }, data: { kind } });
+		}
+		it(`${kind} : accepte une fois, puis conserve le départ sans accès aux outils`, async () => {
+			await setKind();
+			const notifications = await db.notification.count({
+				where: { recipientActorId: people.invitee }
+			});
+			const outcomes = await Promise.allSettled([
+				answerInvite(c, membershipId, people.invitee, true),
+				answerInvite(c, membershipId, people.invitee, true)
+			]);
+			expect(outcomes.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+			const row = await db.membership.findUniqueOrThrow({ where: { id: membershipId } });
+			expect(await decisions()).toEqual([
+				expect.objectContaining({
+					kind: 'ACCEPTED',
+					authorId: people.invitee,
+					occurredAt: row.startedAt
+				})
+			]);
+			expect((await myStructure(orgId, people.invitee))?.activity.map((e) => e.action)).toEqual([
+				'Invitation à la structure',
+				'Invitation acceptée'
+			]);
+			await leaveOrRemoveManager(c, orgId, people.invitee, membershipId);
+			await expect(
+				leaveOrRemoveManager(c, orgId, people.invitee, membershipId)
+			).rejects.toMatchObject({ status: 404 });
+			expect(await myStructure(orgId, people.invitee)).toBeNull();
+			expect(await myStructures(people.invitee)).toEqual([]);
+			const history = await myComanagementHistory(people.invitee);
+			expect(history[0]?.activity.map((e) => e.action)).toEqual([
+				'Invitation à la structure',
+				'Invitation acceptée',
+				'Participation quittée'
+			]);
+			expect(await myComanagementHistory(people.outsider)).toEqual([]);
+			expect((await myComanagementHistory(people.owner)).some((p) => p.id === membershipId)).toBe(
+				false
+			);
+			expect(JSON.stringify(history)).not.toMatch(/authorId|personId|handle|permissions|href/);
+			expect(await db.notification.count({ where: { recipientActorId: people.invitee } })).toBe(
+				notifications
+			);
+		});
+		it.each(['DECLINED', 'WITHDRAWN'] as const)(
+			`${kind} : distingue %s et garde le premier auteur/date`,
+			async (decision) => {
+				await setKind();
+				const act = () =>
+					decision === 'DECLINED'
+						? answerInvite(c, membershipId, people.invitee, false)
+						: leaveOrRemoveManager(c, orgId, people.owner, membershipId);
+				const outcomes = await Promise.allSettled([act(), act()]);
+				expect(outcomes.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+				const [first] = await decisions();
+				await expect(act()).rejects.toMatchObject({ status: 404 });
+				expect(await decisions()).toEqual([first]);
+				const row = await db.membership.findUniqueOrThrow({ where: { id: membershipId } });
+				expect(first).toMatchObject({
+					kind: decision,
+					authorId: decision === 'DECLINED' ? people.invitee : people.owner,
+					occurredAt: row.endedAt
+				});
+				expect((await myComanagementHistory(people.invitee))[0].activity).toHaveLength(2);
+				expect(await myStructure(orgId, people.invitee)).toBeNull();
+				await inviteManager(c, orgId, people.owner, prefix + 'invitee');
+				const fresh = await db.membership.findFirstOrThrow({
+					where: { orgId, personId: people.invitee, status: 'INVITED' }
+				});
+				expect(fresh.id).not.toBe(membershipId);
+				await leaveOrRemoveManager(c, orgId, people.invitee, fresh.id);
+				expect(await db.membershipDecision.findMany({ where: { membershipId: fresh.id } })).toEqual(
+					[expect.objectContaining({ kind: 'DECLINED', authorId: people.invitee })]
+				);
+				expect(await decisions()).toEqual([first]);
+			}
+		);
+		it(`${kind} : arbitre refus et annulation concurrents`, async () => {
+			await setKind();
+			const results = await Promise.allSettled([
+				answerInvite(c, membershipId, people.invitee, false),
+				leaveOrRemoveManager(c, orgId, people.owner, membershipId)
+			]);
+			expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+			const rows = await decisions();
+			expect(rows).toHaveLength(1);
+			expect(rows[0].authorId).toBe(rows[0].kind === 'DECLINED' ? people.invitee : people.owner);
+		});
+		it(`${kind} : retrait et transmission portent la personne qui agit`, async () => {
+			await setKind();
+			await answerInvite(c, membershipId, people.invitee, true);
+			await leaveOrRemoveManager(c, orgId, people.owner, ownerMembership);
+			expect((await db.membership.findUniqueOrThrow({ where: { id: membershipId } })).role).toBe(
+				'OWNER'
+			);
+			expect(await decisions()).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({ kind: 'RESPONSIBILITY_RECEIVED', authorId: people.owner })
+				])
+			);
+			expect((await myComanagementHistory(people.owner))[0].activity.at(-1)?.action).toBe(
+				'Participation quittée'
+			);
+			await expect(leaveOrRemoveManager(c, orgId, people.invitee, membershipId)).rejects.toThrow(
+				/seul·e/
+			);
+		});
+	}
+	it('retire un membre avec auteur réel, sans créer d’accès pour une ancienne gestion', async () => {
+		const c = config('PROMOTER');
+		await answerInvite(c, membershipId, people.invitee, true);
+		await leaveOrRemoveManager(c, orgId, people.owner, membershipId);
+		expect((await decisions()).at(-1)).toMatchObject({ kind: 'REMOVED', authorId: people.owner });
+		expect(await myStructure(orgId, people.invitee)).toBeNull();
+		expect((await myComanagementHistory(people.invitee))[0].activity.at(-1)?.action).toBe(
+			'Participation retirée par la gestion'
+		);
+	});
+	it('refuse tiers, autre type et structure dissoute sans aucune trace', async () => {
+		await expect(
+			answerInvite(config('PROMOTER'), membershipId, people.outsider, true)
+		).rejects.toMatchObject({ status: 404 });
+		await expect(
+			leaveOrRemoveManager(config('PROMOTER'), orgId, people.outsider, membershipId)
+		).rejects.toMatchObject({ status: 403 });
+		await expect(
+			leaveOrRemoveManager(config('VENUE'), orgId, people.invitee, membershipId)
+		).rejects.toMatchObject({ status: 404 });
+		await db.organization.update({ where: { actorId: orgId }, data: { dissolvedAt: new Date() } });
+		await expect(
+			leaveOrRemoveManager(config('PROMOTER'), orgId, people.invitee, membershipId)
+		).rejects.toMatchObject({ status: 404 });
+		expect(await decisions()).toEqual([]);
+		expect(await myComanagementHistory(people.invitee)).toEqual([]);
+		await db.organization.update({ where: { actorId: orgId }, data: { dissolvedAt: null } });
+		await db.actor.update({ where: { id: orgId }, data: { deletedAt: new Date() } });
+		expect(await myComanagementHistory(people.invitee)).toEqual([]);
+	});
+	it('rollback : départ, responsabilité et traces sont annulés ensemble', async () => {
+		const c = config('PROMOTER');
+		await answerInvite(c, membershipId, people.invitee, true);
+		const transaction = db.$transaction.bind(db);
+		const spy = vi.spyOn(db, '$transaction');
+		spy.mockImplementationOnce((async (
+			callback: (tx: Prisma.TransactionClient) => Promise<unknown>
+		) =>
+			transaction(async (tx) => {
+				await callback(tx);
+				throw new Error('rollback simulé');
+			})) as unknown as typeof db.$transaction);
+		try {
+			await expect(leaveOrRemoveManager(c, orgId, people.owner, ownerMembership)).rejects.toThrow(
+				'rollback simulé'
+			);
+		} finally {
+			spy.mockRestore();
+		}
+		expect((await db.membership.findUniqueOrThrow({ where: { id: ownerMembership } })).status).toBe(
+			'ACTIVE'
+		);
+		expect((await db.membership.findUniqueOrThrow({ where: { id: membershipId } })).role).toBe(
+			'ADMIN'
+		);
+		expect((await decisions()).map((d) => d.kind)).toEqual(['ACCEPTED']);
+		expect(await db.membershipDecision.count({ where: { membershipId: ownerMembership } })).toBe(0);
+	});
+	it('exporte ses actes pour autrui et anonymise leur auteur sans auteur de remplacement', async () => {
+		await leaveOrRemoveManager(config('PROMOTER'), orgId, people.owner, membershipId);
+		const owner = await db.person.findUniqueOrThrow({ where: { actorId: people.owner } });
+		const exported = await exportPersonData(owner.userId);
+		expect(exported?.actes_de_participation).toContainEqual(
+			expect.objectContaining({
+				role: 'auteur de décision',
+				acte: 'Invitation annulée par la gestion',
+				auteur: 'owner'
+			})
+		);
+		// Un autre membre actif permet la transmission RGPD sans dissoudre la structure.
+		await db.membership.create({
+			data: { orgId, personId: people.outsider, role: 'ADMIN', status: 'ACTIVE' }
+		});
+		await db.$transaction(await personAnonymizationOps(owner.userId));
+		expect((await decisions())[0].authorId).toBeNull();
+		expect((await myComanagementHistory(people.invitee))[0].activity.at(-1)?.author).toBe(
+			'Compte supprimé'
+		);
+	});
+});

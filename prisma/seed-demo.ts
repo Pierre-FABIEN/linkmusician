@@ -32,6 +32,7 @@ import {
 	seedOpenStage,
 	seedRepresentations,
 	seedRepresentationDecisions,
+	seedComanagementDecisions,
 	seedScene,
 	seedSchool,
 	seedVenueHosts
@@ -797,6 +798,7 @@ try {
 	await seedVenueHosts(prisma, communes, handleMap);
 	await seedRepresentations(prisma, communes, handleMap);
 	await seedRepresentationDecisions(prisma, communes, handleMap);
+	await seedComanagementDecisions(prisma, communes, handleMap);
 	await seedAgencies(prisma, handleMap);
 	await seedDelegations(prisma);
 	const schoolLink = await seedSchool(prisma, communes, handleMap);

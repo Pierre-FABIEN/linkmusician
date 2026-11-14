@@ -169,11 +169,18 @@ export async function answerInvite(
 		if (accept && (await managedCount(c, tx, personId)) >= c.maxManaged) {
 			throw new CoManagementError(`Tu en gères déjà ${c.maxManaged}.`);
 		}
+		const now = new Date();
 		await tx.membership.update({
 			where: { id: membershipId },
-			data: accept
-				? { status: 'ACTIVE', startedAt: new Date() }
-				: { status: 'DECLINED', endedAt: new Date() }
+			data: accept ? { status: 'ACTIVE', startedAt: now } : { status: 'DECLINED', endedAt: now }
+		});
+		await tx.membershipDecision.create({
+			data: {
+				membershipId,
+				kind: accept ? 'ACCEPTED' : 'DECLINED',
+				authorId: personId,
+				occurredAt: now
+			}
 		});
 	}, ORG_TX);
 }
@@ -188,7 +195,12 @@ export async function leaveOrRemoveManager(
 	await prisma.$transaction(async (tx) => {
 		await lockOrg(tx, orgId);
 		const target = await tx.membership.findFirst({
-			where: { id: membershipId, orgId, status: { in: ['INVITED', 'ACTIVE'] } },
+			where: {
+				id: membershipId,
+				orgId,
+				status: { in: ['INVITED', 'ACTIVE'] },
+				org: liveOrgOf(c.kind)
+			},
 			select: { id: true, personId: true, role: true, status: true }
 		});
 		if (!target)
@@ -209,6 +221,14 @@ export async function leaveOrRemoveManager(
 				where: { id: target.id },
 				data: { status: 'DECLINED', endedAt: now }
 			});
+			await tx.membershipDecision.create({
+				data: {
+					membershipId: target.id,
+					kind: self ? 'DECLINED' : 'WITHDRAWN',
+					authorId: byId,
+					occurredAt: now
+				}
+			});
 			return;
 		}
 		if (target.role === 'OWNER') {
@@ -223,10 +243,26 @@ export async function leaveOrRemoveManager(
 				);
 			}
 			await tx.membership.update({ where: { id: next.id }, data: { role: 'OWNER' } });
+			await tx.membershipDecision.create({
+				data: {
+					membershipId: next.id,
+					kind: 'RESPONSIBILITY_RECEIVED',
+					authorId: byId,
+					occurredAt: now
+				}
+			});
 		}
 		await tx.membership.update({
 			where: { id: target.id },
 			data: { status: self ? 'LEFT' : 'REMOVED', endedAt: now }
+		});
+		await tx.membershipDecision.create({
+			data: {
+				membershipId: target.id,
+				kind: self ? 'LEFT' : 'REMOVED',
+				authorId: byId,
+				occurredAt: now
+			}
 		});
 	}, ORG_TX);
 }

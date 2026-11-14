@@ -168,3 +168,102 @@ les notifications. Les fixtures de démo sont des décisions fictives explicites
 réservées aux comptes de démonstration ; elles ne convertissent aucun fait réel.
 Participations, validations de collaboration et futures options restent à livrer.
 DASH-05 et l’épopée #30 restent ouverts.
+
+## Co-gestion des lieux et organisations (DASH-05d)
+
+### Audit et découpage
+
+Les participations utilisent plusieurs services distincts :
+
+| Circuit                                             | Écritures et garanties actuelles                                                                                                                                                                                                                      | Suite                                                                                     |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `organizations/comanagement.ts` — PROMOTER et VENUE | Invitation conservée avec invitant ; acceptation/refus, annulation, départ/retrait et succession sous verrou `org:` dans une transaction. Les états et dates ne conservaient pas les auteurs de décision ; `DECLINED` confondait refus et annulation. | DASH-05d, présent lot                                                                     |
+| `studios/service.ts`                                | Copie historique de la co-gestion, avec ses propres mutations.                                                                                                                                                                                        | Lot suivant                                                                               |
+| `agencies/service.ts`                               | Invitations, départs/retraits, succession et fermeture sous verrou d’agence.                                                                                                                                                                          | Lot suivant                                                                               |
+| `bands/service.ts`                                  | Demandes, invitations, acceptations/validations, retraits, changements de rôle, transmission et dissolution.                                                                                                                                          | Lot suivant                                                                               |
+| `schools/service.ts`                                | Adhésion par lien, remplacement d’une participation et départ.                                                                                                                                                                                        | Lot suivant                                                                               |
+| `actors/person.ts`                                  | Anonymisation, départs et successions techniques, sans auteur humain à inventer.                                                                                                                                                                      | Effacement des nouvelles références couvert ; aucun acte humain créé lors de l’effacement |
+
+Le lot reste borné au premier circuit. Il n’annonce pas la couverture des autres
+structures ni celle des validations de collaboration ou futures options.
+
+### Conservation transactionnelle
+
+`MembershipDecision` conserve la participation, le type explicite d’acte, la
+personne qui agit et l’horodatage. Le contexte est celui de la participation et de
+son organisation ; aucun nom, titre libre, message ou motif n’est recopié.
+`ACCEPTED`, `DECLINED`, `WITHDRAWN`, `LEFT`, `REMOVED` et
+`RESPONSIBILITY_RECEIVED` distinguent acceptation, refus personnel, annulation
+par la gestion, départ, retrait par la gestion et responsabilité reçue.
+L’invitation reste lue dans `Membership` : aucun second événement d’invitation.
+
+Les traces sont créées dans les mêmes transactions que les changements d’état
+et de rôle, après relecture sous verrou `org:`. La mutation et sa trace utilisent
+le même instant. Une succession enregistre la responsabilité reçue sur la période
+du successeur avec l’auteur réel du départ, dans la même transaction que le
+départ. Elle n’est pas attribuée au successeur par défaut. Le refus par le chemin
+« partir » d’une invitation est identifié comme personnel ; l’annulation par un
+gestionnaire est explicitement différente, même si le statut source reste
+`DECLINED` pour compatibilité avec les listes existantes.
+
+Les appels répétés ou concurrents relisent la période et échouent sans ajouter
+ni écraser de trace une fois l’acte effectué. L’unicité participation/type fournit
+une deuxième protection : les six transitions de ce circuit se produisent au
+plus une fois par période. Une nouvelle invitation crée une nouvelle période.
+Cette contrainte ne doit pas être réutilisée telle quelle pour un futur circuit
+où un même changement de rôle pourrait être répété sur une période.
+
+La garde du retrait relit désormais également le type exact et la structure
+vivante sur la cible, y compris pour un départ personnel. Aucun droit fondé sur
+le métier, une agence ou une ancienne fonction n’est introduit. Les autres gardes,
+quotas et notifications existants restent ceux du service ; aucune notification
+ni progression supplémentaire n’est émise pour le journal.
+
+### Lecture personnelle et effacement
+
+`/structure/[id]` conserve ses gardes de participation courante et montre les
+actes réellement présents sous « Ma participation ». Un départ retire toujours
+l’accès à cette fiche et aux outils. `/structure/historique`, ouvert depuis
+« Mes structures », restitue uniquement les 100 périodes personnelles les plus
+récemment mises à jour des lieux et organisations vivants (PROMOTER/VENUE),
+y compris après refus ou départ. Ce lecteur exige l’identité exacte du
+participant et son acteur vivant, sans accès aux périodes des collègues, même
+pour la gestion actuelle, une agence ou un ancien responsable. Il ne renvoie
+aucun outil, permission, liste d’équipe ni identifiant de compte. La structure
+masquée n’empêche pas la consultation de ses propres traces privées ; une
+structure dissoute ou supprimée en est exclue. Le lecteur n’ajoute aucun acte.
+
+Les actes sont projetés dans `ActivityEntry` ; à date égale, l’identifiant
+stabilise l’ordre sans prétendre prouver la séquence réelle. Les références
+d’auteurs effacées affichent « Compte supprimé ». Une date de début, de fin,
+un état ou un rôle sans acte conservé ne crée aucune entrée. Aucune reprise
+historique depuis les notifications ni les anciens états n’est effectuée.
+
+L’export personnel inclut les actes concernant sa propre participation et ceux
+dont le compte est auteur pour une autre personne, avec organisation, acte,
+date et auteur actuel non supprimé. Il ne révèle pas l’identité du participant
+tiers dans ce dernier cas et ne donne aucun accès à son journal. L’anonymisation
+efface `authorId` partout, y compris pour autrui. Les périodes suivent leur
+traitement RGPD existant ; une suppression physique de participation efface ses
+actes en cascade, une suppression physique d’auteur met sa référence à null.
+Ni l’anonymisation ni une succession technique RGPD n’inventent un acte humain.
+
+### Migration et validation
+
+Migration additive `20261114184911_membership_comanagement_decisions` générée
+par `db:nouvelle-migration`, nettoyée et relue, appliquée par `db:deploy` puis
+`db:deploy:e2e` ; client régénéré. Elle crée uniquement l’enum, la table, deux
+index et ses clés étrangères ; les index SQL préexistants sont préservés.
+Aucune donnée antérieure n’est convertie. Un retour avant toute écriture peut
+supprimer la table `membership_decisions` puis le type `MembershipDecisionKind`
+dans le schéma concerné. Après écriture, ce retour perdrait les décisions : il
+nécessite une sauvegarde cohérente et un traitement explicite des données, donc
+aucun retour destructif automatique n’est fourni ni exécuté.
+
+Tests purs de projection et tests d’intégration réels : les deux types, refus
+et annulation distingués, appels répétés et concurrents, départ/retrait,
+succession, rollback, tiers et mauvaise structure exclus, export et
+anonymisation. Le parcours E2E des structures est étendu à l’acceptation puis au
+départ réel et à sa lecture personnelle après perte d’accès (clavier, axe et
+390 px). La démo comporte des périodes fictives explicitement créées, à
+identifiants stables ; aucune ancienne participation réelle n’est convertie.
