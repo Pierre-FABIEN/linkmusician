@@ -33,3 +33,12 @@ une activité acceptés par l’artiste. Ils ne créent toujours aucune adhésio
 au groupe. Voir [mandats individuels](../conception/13-mandats-individuels.md).
 Les agences et équipes sont livrées dans [DASH-02b](../agences/README.md).
 Les affectations consenties sont livrées dans [DASH-04b](../conception/15-affectations-delegations.md).
+
+### Historique personnel des invitations (DASH-05b)
+
+La fiche `/structure/[id]` affiche « Mon invitation » à partir de la seule
+participation actuelle du compte connecté. Le nom de l’invitant conservé et
+la date sont visibles, sans liste d’équipe. Une participation retirée ou une
+structure dissoute reste inaccessible. Aucune acceptation ni aucun changement
+de rôle n’est déduit des dates techniques ; une origine non conservée donne
+un historique vide. Voir [journal d’activité](../conception/16-journal-activite.md).

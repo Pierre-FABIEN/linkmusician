@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { delegationTimeline } from './timeline';
+import {
+	delegationTimeline,
+	representationTimeline,
+	membershipInvitationTimeline
+} from './timeline';
 
 const at = (day: number) => new Date(`2026-11-${day}T12:00:00Z`);
 const facts = {
@@ -55,5 +59,75 @@ describe('historique des affectations', () => {
 			'affectation:approved',
 			'affectation:ended'
 		]);
+	});
+});
+
+describe('faits de mandat et d’invitation', () => {
+	it('distingue le titulaire, la personne qui confirme et celle qui termine', () => {
+		const entries = representationTimeline({
+			id: 'mandat',
+			createdAt: at(10),
+			agent: facts.proposedBy,
+			confirmedAt: at(11),
+			confirmedBy: facts.approvedBy,
+			endedAt: at(13),
+			endedBy: facts.delegate
+		});
+		expect(entries.map((e) => [e.action, e.author])).toEqual([
+			['Accompagnement proposé', 'Agent'],
+			['Accompagnement confirmé', 'Gestionnaire du groupe'],
+			['Accompagnement terminé', 'Collaboratrice']
+		]);
+	});
+	it('ne fabrique aucune confirmation, fin ou auteur', () => {
+		const input = {
+			id: 'mandat',
+			createdAt: at(10),
+			agent: facts.proposedBy,
+			confirmedAt: at(11),
+			confirmedBy: null,
+			endedAt: null,
+			endedBy: null
+		};
+		expect(representationTimeline(input).map((e) => e.author)).toEqual([
+			'Agent',
+			'Compte supprimé'
+		]);
+		expect(representationTimeline({ ...input, confirmedAt: null })).toHaveLength(1);
+	});
+	it('projette seulement l’invitation connue, sans déduire une acceptation du statut actuel', () => {
+		expect(
+			membershipInvitationTimeline({
+				id: 'participation',
+				createdAt: at(10),
+				invitedById: 'invitant',
+				invitedBy: facts.proposedBy
+			})
+		).toEqual([
+			{
+				id: 'participation:invited',
+				action: 'Invitation à la structure',
+				author: 'Agent',
+				occurredAt: at(10)
+			}
+		]);
+		expect(
+			membershipInvitationTimeline({
+				id: 'participation',
+				createdAt: at(10),
+				invitedById: null,
+				invitedBy: null
+			})
+		).toEqual([]);
+	});
+	it('masque l’auteur supprimé de l’invitation lorsque sa référence est encore conservée', () => {
+		expect(
+			membershipInvitationTimeline({
+				id: 'participation',
+				createdAt: at(10),
+				invitedById: 'invitant',
+				invitedBy: { displayName: 'Ancien nom', deletedAt: at(12) }
+			})[0].author
+		).toBe('Compte supprimé');
 	});
 });

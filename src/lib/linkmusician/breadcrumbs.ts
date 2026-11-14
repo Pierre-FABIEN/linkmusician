@@ -124,6 +124,14 @@ const ROUTES: Record<string, Node> = {
 		name: at('delegation', 'artistName')
 	},
 	'/accompagnement': { label: 'Accompagnement', parent: '/espace' },
+	'/accompagnement/historique': {
+		label: 'Historique des accompagnements',
+		parent: '/accompagnement'
+	},
+	'/accompagnement/[id]/historique': {
+		label: 'Actes conservés',
+		parent: '/accompagnement/historique'
+	},
 	'/studios': { label: 'Mes studios', parent: '/profil' },
 	'/studios/[handle]': { label: 'Studio', parent: '/studios', name: at('studio', 'name') },
 	'/organisations': { label: 'Mes organisations', parent: '/profil' },

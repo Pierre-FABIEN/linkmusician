@@ -101,6 +101,34 @@ describe.skipIf(!enabled)('structures : gestion et révocation', { timeout: 60_0
 		await db.actor.update({ where: { id: orgs[1] }, data: { deletedAt: new Date() } });
 		expect(await structureAccess(db, orgs[1], actors[0])).toBeNull();
 	});
+	it('montre seulement mon invitation conservée, sans déduire les autres transitions', async () => {
+		const row = await db.membership.create({
+			data: {
+				orgId: orgs[2],
+				personId: actors[3],
+				status: 'INVITED',
+				role: 'ADMIN',
+				invitedById: actors[0]
+			}
+		});
+		expect((await myStructure(orgs[2], actors[3]))?.activity).toEqual([
+			{
+				id: `${row.id}:invited`,
+				action: 'Invitation à la structure',
+				author: 'owner',
+				occurredAt: row.createdAt
+			}
+		]);
+		await db.membership.update({
+			where: { id: row.id },
+			data: { status: 'ACTIVE', startedAt: new Date() }
+		});
+		expect((await myStructure(orgs[2], actors[3]))?.activity).toHaveLength(1);
+		await db.membership.update({ where: { id: row.id }, data: { invitedById: null } });
+		expect((await myStructure(orgs[2], actors[3]))?.activity).toEqual([]);
+		await db.membership.update({ where: { id: row.id }, data: { status: 'REMOVED' } });
+		expect(await myStructure(orgs[2], actors[3])).toBeNull();
+	});
 	it('une invitation retirée ne peut pas être acceptée', async () => {
 		const c = {
 			kind: 'PROMOTER' as const,

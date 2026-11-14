@@ -498,6 +498,9 @@ avant d'avoir livré ses fonctions.
    DASH-05a : historique privé des affectations et contrat de lecture partagé ;
    invitations, mandats, validations et autres propositions restent dans la suite.
    Voir [audit du journal](../conception/16-journal-activite.md).
+   DASH-05b : lecture privée des mandats, y compris terminés, et des invitations
+   personnelles conservées. Les décisions supprimées et transitions non tracées
+   restent à journaliser ; validations de collaboration et options à suivre.
 
 DASH-02a seul ne clôturait pas DASH-02 ; les agences DASH-02b et les
 affectations DASH-04b complètent ce périmètre. Les autres modules DASH et les parties ouvertes

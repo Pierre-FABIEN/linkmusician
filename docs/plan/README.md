@@ -261,10 +261,11 @@ Détail : [affectations et délégations](../conception/15-affectations-delegati
 Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 `5e7f982` récupérée depuis `origin/main`.
 
-| Lot            | État     | Périmètre                                                                                                                  |
-| -------------- | -------- | -------------------------------------------------------------------------------------------------------------------------- |
-| DASH-05a       | ✅ local | Audit des traces, contrat de lecture commun et historique privé des affectations, sans nouveau stockage ni notification.   |
-| DASH-05, suite | ⬜       | Invitations, mandats, validations, options et propositions ; journalisation transactionnelle des décisions non conservées. |
+| Lot            | État     | Périmètre                                                                                                                |
+| -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
+| DASH-05a       | ✅ local | Audit des traces, contrat de lecture commun et historique privé des affectations, sans nouveau stockage ni notification. |
+| DASH-05b       | ✅ local | Historiques privés des mandats conservés, dont terminés, et invitations personnelles des structures.                     |
+| DASH-05, suite | ⬜       | Journalisation transactionnelle des décisions non conservées ; validations, options et propositions restantes.           |
 
 Le journal commun n’est pas terminé. Conception et limites :
 [journal d’activité](../conception/16-journal-activite.md).
@@ -280,3 +281,18 @@ Types sans erreur ni avertissement. Formatage des fichiers modifiés et
 ESLint hors `.shot-metro.mjs` et `.shot-tmp.mjs` conformes ; le lint global
 reste bloqué par ces deux scripts préexistants (formatage et variable `c`
 inutilisée dans `.shot-metro.mjs`). Aucun push effectué.
+
+Recette DASH-05b (14/11/2026) : 1 354 tests unitaires réussis, 278 tests
+conditionnels non exécutés. Vingt tests d’intégration réussis sur `e2e` :
+quatre nouveaux tests des mandats historiques, cinq tests des structures
+(dont invitation personnelle) et onze non-régressions des affectations.
+Quatre E2E distincts réussis : nouveau cycle proposition/confirmation/fin
+du mandat et accès privé, structures et invitations, deux parcours d’aide.
+Clavier, axe et 390 px vérifiés. Le spec des structures utilisait encore
+l’ancien sélecteur « Mon espace » et son bouton de validation : il utilise
+désormais « Rôle » et sa soumission automatique, comme la navigation actuelle ;
+ce spec a été relancé seul et passe entièrement.
+Types sans erreur ni avertissement. Formatage des fichiers modifiés et ESLint
+hors les deux scripts locaux préexistants conformes, mêmes réserves de lint
+global que DASH-05a. Pas de migration ni de nouveau stockage ; les scénarios
+de seed existants alimentent les lectures. Aucun push effectué.

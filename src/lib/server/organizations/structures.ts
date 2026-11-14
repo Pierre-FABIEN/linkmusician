@@ -3,6 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { STRUCTURE_LABELS, participationLabel, structurePermissions } from '#lib/structures/rules';
 import { liveStructure } from './access';
+import { membershipInvitationTimeline } from '#lib/activity/timeline';
 
 const selection = {
 	id: true,
@@ -41,10 +42,15 @@ export async function myStructures(personId: string) {
 export async function myStructure(orgId: string, personId: string) {
 	const row = await prisma.membership.findFirst({
 		where: { ...mineWhere(personId), orgId },
-		select: selection
+		select: {
+			...selection,
+			createdAt: true,
+			invitedById: true,
+			invitedBy: { select: { displayName: true, deletedAt: true } }
+		}
 	});
 	if (!row) return null;
-	const structure = projection(row);
+	const structure = { ...projection(row), activity: membershipInvitationTimeline(row) };
 	let href: string | null = null;
 	if (structure.kind === 'AGENCY') return { ...structure, href: `/agences/${orgId}` };
 	if (structure.status === 'INVITED' || structure.status === 'REQUESTED') {

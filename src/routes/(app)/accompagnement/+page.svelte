@@ -1,6 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: « Accompagnement » (P5-07), voir +page.server.ts.
 	import { enhance } from '$app/forms';
+	import { resolve } from '$app/paths';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
 	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
@@ -39,6 +40,9 @@
 		/>
 
 		<a href="/delegations" class="lm-btn" data-variant="ghost">Affectations et délégations</a>
+		<a href={resolve('/(app)/accompagnement/historique')} class="lm-btn" data-variant="ghost"
+			>Historique des accompagnements</a
+		>
 		{#if data.requests.length > 0}
 			<section class="space-y-3" aria-labelledby="requests">
 				<h2 id="requests" class="text-xl font-bold">Propositions à trancher</h2>

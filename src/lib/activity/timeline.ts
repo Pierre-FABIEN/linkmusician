@@ -7,6 +7,8 @@ export type ActivityEntry = {
 };
 
 type Author = { displayName: string; deletedAt?: Date | null } | null;
+const authorName = (author: Author) =>
+	author && !author.deletedAt ? author.displayName : 'Compte supprimé';
 type DelegationFacts = {
 	id: string;
 	createdAt: Date;
@@ -27,7 +29,7 @@ export function delegationTimeline(facts: DelegationFacts): ActivityEntry[] {
 		entries.push({
 			id: `${facts.id}:${key}`,
 			action,
-			author: author && !author.deletedAt ? author.displayName : 'Compte supprimé',
+			author: authorName(author),
 			occurredAt: at
 		});
 	}
@@ -39,4 +41,57 @@ export function delegationTimeline(facts: DelegationFacts): ActivityEntry[] {
 	// Le rang initial départage les horodatages égaux, sans prétendre connaître
 	// l’ordre réel des deux accords lorsqu’ils ont la même date.
 	return entries.sort((a, b) => a.occurredAt.getTime() - b.occurredAt.getTime());
+}
+
+export function representationTimeline(facts: {
+	id: string;
+	createdAt: Date;
+	agent: Author;
+	confirmedAt: Date | null;
+	confirmedBy: Author;
+	endedAt: Date | null;
+	endedBy: Author;
+}): ActivityEntry[] {
+	return [
+		{ key: 'proposed', action: 'Accompagnement proposé', at: facts.createdAt, by: facts.agent },
+		{
+			key: 'confirmed',
+			action: 'Accompagnement confirmé',
+			at: facts.confirmedAt,
+			by: facts.confirmedBy
+		},
+		{ key: 'ended', action: 'Accompagnement terminé', at: facts.endedAt, by: facts.endedBy }
+	]
+		.flatMap((event) =>
+			event.at
+				? [
+						{
+							id: `${facts.id}:${event.key}`,
+							action: event.action,
+							author: authorName(event.by),
+							occurredAt: event.at
+						}
+					]
+				: []
+		)
+		.sort((a, b) => a.occurredAt.getTime() - b.occurredAt.getTime());
+}
+
+/** Sans référence d’invitant, aucune origine (invitation, demande, fondation) n’est déduite. */
+export function membershipInvitationTimeline(facts: {
+	id: string;
+	createdAt: Date;
+	invitedById: string | null;
+	invitedBy: Author;
+}): ActivityEntry[] {
+	return facts.invitedById
+		? [
+				{
+					id: `${facts.id}:invited`,
+					action: 'Invitation à la structure',
+					author: authorName(facts.invitedBy),
+					occurredAt: facts.createdAt
+				}
+			]
+		: [];
 }

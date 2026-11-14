@@ -355,3 +355,19 @@ Après accord du collaborateur et de la gestion de l’artiste, leurs actes
 apparaissent séparément ; le retrait ajoute une clôture. Le seed reste
 idempotent et ne donne aucun accord à la place des comptes de démonstration.
 Un administrateur d’agence étranger à l’affectation ne voit pas cet historique.
+
+### Mandats et invitations dans le journal — DASH-05b
+
+Les mandats de démonstration existants sont accessibles depuis
+`/accompagnement/historique` pour leurs titulaires et la gestion actuelle
+des groupes concernés. Ouvrir une fiche montre proposition et confirmation ;
+après une fin donnée dans Accompagnement, la fiche reste accessible depuis
+la liste historique avec l’auteur réel de fin. Aucun accord de démonstration
+supplémentaire n’est généré par ce lot.
+
+Depuis `/structure`, ouvrir une participation invitée par un autre compte
+de démonstration : par exemple Nora (`nora-prod`), invitée par Marc
+(`marc-manager`) à l’Agence Scène Démo (`agence-demo-scene`). « Mon invitation »
+reprend son auteur et sa date. Une
+participation fondée directement, sans invitant conservé, montre un historique
+vide. Le seed existant reste la source de ces situations, sans nouvelle donnée.

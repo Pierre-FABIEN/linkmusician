@@ -93,13 +93,14 @@ test('structures communes : invitation, révocation, membre et élève sans gest
 		});
 		await test.step('changer de métier conserve la structure et les filtres', async () => {
 			await page.goto(`/structure/${studio.id}?onglet=fiche#outils`);
-			await page.getByLabel('Mon espace', { exact: true }).selectOption('SOUND_ENGINEER');
+			await waitForAppReady(page);
 			await Promise.all([
 				page.waitForResponse(
 					(r) => r.request().method() === 'POST' && new URL(r.url()).pathname === '/jouer'
 				),
-				page.getByRole('button', { name: 'Changer', exact: true }).click()
+				page.getByLabel('Rôle', { exact: true }).selectOption('SOUND_ENGINEER')
 			]);
+			await expect(page.getByLabel('Rôle', { exact: true })).toHaveValue('SOUND_ENGINEER');
 			await expect(page).toHaveURL(new RegExp(`/structure/${studio.id}\\?onglet=fiche#outils$`));
 			await expect(page.getByRole('heading', { level: 1 })).toHaveText('E2E STUDIO');
 			await waitForAppReady(page);
@@ -149,13 +150,16 @@ test('structures communes : invitation, révocation, membre et élève sans gest
 		await test.step('invitation acceptée et retrait effectif', async () => {
 			await db.membership.update({
 				where: { id: promoter.membershipId },
-				data: { status: 'INVITED', role: 'ADMIN' }
+				data: { status: 'INVITED', role: 'ADMIN', invitedById: peer.actorId }
 			});
 			await db.membership.create({
 				data: { orgId: promoter.id, personId: peer.actorId, role: 'OWNER', status: 'ACTIVE' }
 			});
 			await page.goto(`/structure/${promoter.id}`);
 			await expect(page.getByText('Invitation à accepter', { exact: true })).toBeVisible();
+			const history = page.getByRole('region', { name: 'Mon invitation' });
+			await expect(history.getByText('Invitation à la structure', { exact: true })).toBeVisible();
+			await expect(history.getByText(peer.displayName, { exact: true })).toBeVisible();
 			await expect(page.getByRole('link', { name: /^Ouvrir les outils/ })).toHaveCount(0);
 			await page.getByRole('link', { name: /^Voir ma participation/ }).click();
 			await expect(page).toHaveURL(/\/organisations$/);
@@ -166,6 +170,7 @@ test('structures communes : invitation, révocation, membre et élève sans gest
 			).toBeVisible();
 			await page.goto(`/structure/${promoter.id}`);
 			await expect(page.getByText('Co-gestion', { exact: true })).toBeVisible();
+			await expect(history.locator('li')).toHaveCount(1);
 			await db.membership.update({
 				where: { id: promoter.membershipId },
 				data: { status: 'REMOVED' }

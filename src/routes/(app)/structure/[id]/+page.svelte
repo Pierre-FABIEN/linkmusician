@@ -4,6 +4,7 @@
 	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import MetroEmpty from '#lib/components/linkmusician/metro/MetroEmpty.svelte';
 	import MenuList from '#lib/components/linkmusician/MenuList.svelte';
+	import ActivityTimeline from '#lib/components/linkmusician/activity/ActivityTimeline.svelte';
 	let { data } = $props();
 	const s = $derived(data.structure);
 </script>
@@ -53,5 +54,9 @@
 				action={{ href: '/structure', label: 'Mes structures' }}
 			/>
 		{/if}
+		<ActivityTimeline entries={s.activity} title="Mon invitation" id="invitation-activity-title" />
+		<p class="text-sm text-muted-foreground">
+			Les changements de rôle et les départs ne figurent pas encore dans cet historique.
+		</p>
 	</div>
 </div>

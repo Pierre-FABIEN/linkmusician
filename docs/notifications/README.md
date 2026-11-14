@@ -9,6 +9,11 @@ volontairement non exhaustive. Le contrat de lecture et le composant partagés
 préparent les autres domaines ; DASH-05 reste partiel.
 Voir [audit et périmètre](../conception/16-journal-activite.md).
 
+DASH-05b étend cette lecture aux mandats (`/accompagnement/historique`) et
+aux invitations personnelles conservées (`/structure/[id]`). La liste privée
+des mandats garde les accompagnements terminés pour leurs parties et la gestion
+actuelle du groupe. Ni le journal ni ses consultations n’émettent de notification.
+
 ## Dans l'app (P2-09a)
 
 - **Ce qui entre sous la cloche** : ce qui attend une réaction ou fait

@@ -53,3 +53,46 @@ restent la source des faits ; la projection reflète leur effacement.
   d’agence exclus, suppression d’auteur et nombre de notifications inchangé.
 - E2E existant `delegations.spec.ts` enrichi : historique avant et après les
   deux accords, clôture, dates HTML ; contrôle axe et 390 px conservé.
+
+## Mandats et invitations conservés (DASH-05b)
+
+Depuis `/accompagnement`, « Historique des accompagnements » ouvre un menu
+privé des 100 propositions et mandats conservés les plus récents. Chaque lien
+ouvre `/accompagnement/[id]/historique` : proposition par le titulaire,
+confirmation par la personne qui a réellement répondu pour l’artiste et fin
+par son auteur réel. Les mandats terminés restent accessibles aux parties.
+Le journal ne transporte aucun message, condition, territoire ou identifiant
+de compte ; il ne permet aucune mutation.
+
+Le lecteur serveur `representation/history.ts` vérifie la majorité et l’acteur
+vivant du lecteur, puis son identité de titulaire, d’artiste individuel ou de
+gestion actuelle d’un groupe vivant. Le rôle de gestion doit être ACTIVE,
+OWNER ou ADMIN. Un simple membre, un gestionnaire d’agence ou un collaborateur
+délégué n’a aucun accès supplémentaire au mandat par ce journal. La révocation
+est relue à chaque GET, même si la personne a confirmé le mandat autrefois.
+Les groupes dissous et les parties supprimées ne sont pas listés. Le profil
+masqué d’un groupe ne retire pas aux parties leurs propres traces privées.
+Les blocages ne suppriment pas ces faits historiques des parties et n’ouvrent
+aucune possibilité de contact ou de mutation depuis le journal.
+
+Sur `/structure/[id]`, « Mon invitation » montre uniquement l’invitation de
+la participation courante du lecteur, avec son auteur et sa date. La sélection
+de la liste des structures ne reçoit aucun auteur supplémentaire. La même
+garde de participation existante exclut les tiers et les participations
+retirées, ainsi que les structures supprimées ou dissoutes. Aucune liste de
+collègues ou d’élèves n’est ajoutée. Les six types de structure, dont l’agence,
+passent par cette projection commune.
+
+Une référence d’invitant effacée ne permet plus de distinguer invitation,
+demande ou fondation : aucune invitation n’est alors inventée. Une référence
+conservée vers un auteur supprimé affiche « Compte supprimé ». `startedAt`
+et `updatedAt` ne prouvent pas l’identité de la personne ayant accepté ou
+validé : aucune acceptation, départ ou modification de rôle n’en est déduite.
+
+Pas de migration ni de nouvelle copie de données personnelles : export et
+anonymisation des mandats, auteurs et participations restent ceux des sources
+existantes. Les propositions refusées ou retirées sont encore supprimées par
+le service d’accompagnement et disparaissent de cette liste. La conservation
+transactionnelle de ces décisions et des autres transitions reste à livrer,
+avec les validations de collaboration et les futures options/propositions.
+DASH-05 n’est donc pas clos après ce lot.

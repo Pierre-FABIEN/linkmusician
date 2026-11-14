@@ -519,3 +519,15 @@ proposée, qui a donné chacun des deux accords et qui l’a close, avec les dat
 à l’heure de Paris. Il reste privé aux personnes concernées. Un compte supprimé
 est indiqué comme tel. Une clôture peut correspondre à un refus ou à un retrait.
 Consulter cet historique n’envoie aucune notification et ne réactive aucun droit.
+
+### Retrouver un accompagnement terminé ou mon invitation
+
+Dans **Accompagnement**, ouvre **Historique des accompagnements** pour retrouver
+les propositions et les mandats conservés, y compris ceux qui sont terminés.
+Chaque fiche affiche la proposition, la confirmation et la fin avec leur auteur
+et leur date. Seules les parties et la gestion actuelle du groupe y ont accès.
+Une proposition déclinée ou retirée n’est pas conservée dans cette liste.
+
+Dans **Mes structures**, ta fiche de participation affiche aussi ton invitation
+lorsqu’elle est conservée. Les changements de rôle et les départs n’y figurent
+pas encore. Ces consultations n’envoient aucune notification.
