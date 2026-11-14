@@ -96,6 +96,64 @@ test.describe('LinkMusician — groupes', () => {
 				await expect(members).toContainText('Responsable · guitare');
 			});
 
+			await test.step('3b. Rôles répétés et transmission aller-retour, chacun garde ses actes', async () => {
+				const band = await db.actor.findFirstOrThrow({
+					where: { displayName: bandName, kind: 'ORGANIZATION' }
+				});
+				const members = page.getByRole('list', { name: 'Membres actuels' });
+				for (const action of [
+					'Confier la co-gestion',
+					'Retirer la co-gestion',
+					'Confier la co-gestion',
+					'Lui transmettre le groupe'
+				]) {
+					if (!(await members.getByRole('button', { name: action, exact: true }).isVisible())) {
+						await members.getByRole('button', { name: 'Gérer', exact: true }).click();
+					}
+					await members.getByRole('button', { name: action, exact: true }).click();
+					await expect(
+						page.getByText(
+							action === 'Lui transmettre le groupe'
+								? 'Groupe transmis.'
+								: action === 'Retirer la co-gestion'
+									? 'Co-gestion retirée.'
+									: 'Co-gestion confiée.',
+							{ exact: true }
+						)
+					).toBeVisible();
+				}
+				await malikPage.goto(`/groupes/${band.handle}`);
+				await waitForAppReady(malikPage);
+				await malikPage
+					.getByRole('list', { name: 'Membres actuels' })
+					.getByRole('button', { name: 'Gérer', exact: true })
+					.click();
+				await malikPage
+					.getByRole('button', { name: 'Lui transmettre le groupe', exact: true })
+					.click();
+				await expect(
+					malikPage.getByRole('button', { name: 'Lui transmettre le groupe', exact: true })
+				).toHaveCount(0);
+				await page.goto('/structure/historique');
+				await waitForAppReady(page);
+				const own = page.getByRole('region', { name: bandName, exact: true });
+				await expect(own.locator('li')).toHaveCount(2);
+				await expect(
+					own.getByText('Responsabilité du groupe reçue', { exact: true })
+				).toBeVisible();
+				await expect(own.getByText(malik.actor.displayName, { exact: true })).toBeVisible();
+				await expect(own.getByText('Co-gestion du groupe accordée', { exact: true })).toHaveCount(
+					0
+				);
+				await page.goto(`/groupes/${band.handle}`);
+				await waitForAppReady(page);
+				expect(await xp(me.actorId)).toBe(200);
+				expect(await xp(malik.actorId)).toBe(200);
+				// Le parcours de départ suivant repart de la liste personnelle.
+				await malikPage.goto('/groupes');
+				await waitForAppReady(malikPage);
+			});
+
 			await test.step('4. Malik part : il reste dans l’historique', async () => {
 				await malikPage.getByRole('link', { name: new RegExp(bandName) }).click();
 				await malikPage.getByRole('button', { name: 'Quitter le groupe' }).click();
@@ -122,7 +180,16 @@ test.describe('LinkMusician — groupes', () => {
 				await malikPage.keyboard.press('Enter');
 				await expect(malikPage).toHaveURL('/structure/historique');
 				const history = malikPage.getByRole('region', { name: bandName, exact: true });
-				await expect(history.locator('li')).toHaveCount(3);
+				await expect(history.locator('li')).toHaveCount(8);
+				await expect(
+					history.getByText('Co-gestion du groupe accordée', { exact: true })
+				).toHaveCount(2);
+				await expect(
+					history.getByText('Responsabilité du groupe reçue', { exact: true })
+				).toBeVisible();
+				await expect(
+					history.getByText(me.actor.displayName, { exact: true }).first()
+				).toBeVisible();
 				await expect(history.getByText('Invitation acceptée', { exact: true })).toBeVisible();
 				await expect(history.getByText('Participation quittée', { exact: true })).toBeVisible();
 				await expect(history.locator('time').last()).toHaveAttribute('datetime', /T.*Z$/);
@@ -200,7 +267,9 @@ test.describe('LinkMusician — groupes', () => {
 				await expect(demand.getByText(malik.actor.displayName, { exact: true })).toBeVisible();
 				await page.goto('/structure/historique');
 				await waitForAppReady(page);
-				await expect(page.getByRole('region', { name: bandName, exact: true })).toHaveCount(0);
+				await expect(
+					page.getByRole('region', { name: bandName, exact: true }).locator('li')
+				).toHaveCount(2);
 			});
 		} finally {
 			await malikContext.close();

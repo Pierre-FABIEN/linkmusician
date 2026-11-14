@@ -267,6 +267,13 @@ La gestion ouvre **Modifier la fiche du groupe** pour changer le nom,
 la présentation, les styles, la ville et les liens d'écoute. Sur la fiche
 de gestion, elle traite les demandes et invitations et gère l'effectif.
 Le ou la responsable peut confier la co-gestion et transmettre la responsabilité.
+Chaque changement réel de rôle est conservé avec son auteur et sa date dans
+**Mes structures › Historique de mes participations**. Une transmission y
+apparaît pour la personne qui transmet et pour celle qui reçoit ; la première
+garde la co-gestion. Les changements répétés et les transmissions aller-retour
+restent visibles. Demander un rôle déjà en place n’ajoute rien. Cet historique
+reste personnel, même après un départ : il ne donne accès ni au journal des
+collègues ni aux outils. Les actes anciens non conservés ne sont pas reconstruits.
 
 Pour partir, choisis **Quitter le groupe**, puis confirme. Si tu es
 responsable et qu'il reste d'autres membres, transmets d'abord la

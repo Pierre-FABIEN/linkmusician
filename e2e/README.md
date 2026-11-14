@@ -62,7 +62,7 @@ domaine (dernière colonne) ; lancer un seul spec :
 | `jams`                   | P2-14b, c    | Jam publique, « Je viens », places réservées, matériel                    | `docs/jam/`                          |
 | `conseils`               | P2-17        | Un conseil par écran clé, masquable                                       | `docs/guide/`                        |
 | `suggestions`            | P2-18        | « Des musicien·nes pour toi », « Pas intéressé·e »                        | —                                    |
-| `groupes`                | P3-01        | Groupe formé, adhésions et historique                                     | `docs/groupes/`                      |
+| `groupes`                | P3-01        | Adhésions, rôles répétés, transmissions et historique privé               | `docs/groupes/`                      |
 | `recrutement`            | P3-03        | Annonce de groupe, candidature acceptée, entrée dans le groupe            | `docs/annonces/`                     |
 | `etapes`                 | P3-04        | Premier concert déclaré, XP du groupe et part individuelle                | `docs/etapes/`                       |
 | `morceaux`               | P3-11        | Idée, crédits, maquette, morceau composé (D35)                            | `docs/morceaux/`                     |

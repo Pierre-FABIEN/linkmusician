@@ -508,7 +508,8 @@ export async function removeMember(membershipId: string, managerId: string, now 
 export async function setRole(
 	membershipId: string,
 	ownerId: string,
-	role: Exclude<OrgRole, 'OWNER'>
+	role: Exclude<OrgRole, 'OWNER'>,
+	now = new Date()
 ) {
 	const first = await prisma.membership.findUnique({
 		where: { id: membershipId },
@@ -526,12 +527,23 @@ export async function setRole(
 		if (row.status !== 'ACTIVE' || row.role === 'OWNER') {
 			throw new BandError('Ce rôle ne peut pas changer.');
 		}
+		if (role !== 'ADMIN' && role !== 'MEMBER') throw new BandError('Ce rôle ne peut pas changer.');
+		// Appel identique autorisé : aucun changement, donc aucun acte.
+		if (row.role === role) return;
 		await tx.membership.update({ where: { id: row.id }, data: { role } });
+		await tx.membershipDecision.create({
+			data: {
+				membershipId: row.id,
+				kind: role === 'ADMIN' ? 'BAND_ADMIN_GRANTED' : 'BAND_MEMBER_SET',
+				authorId: ownerId,
+				occurredAt: now
+			}
+		});
 	}, TX);
 }
 
 /** Transmettre le groupe : l'autre devient responsable, soi-même co-gestion. */
-export async function transferOwnership(membershipId: string, ownerId: string) {
+export async function transferOwnership(membershipId: string, ownerId: string, now = new Date()) {
 	const first = await prisma.membership.findUnique({
 		where: { id: membershipId },
 		select: { orgId: true }
@@ -550,6 +562,17 @@ export async function transferOwnership(membershipId: string, ownerId: string) {
 		}
 		await tx.membership.update({ where: { id: mine.id }, data: { role: 'ADMIN' } });
 		await tx.membership.update({ where: { id: row.id }, data: { role: 'OWNER' } });
+		await tx.membershipDecision.createMany({
+			data: [
+				{ membershipId: mine.id, kind: 'BAND_OWNERSHIP_GIVEN', authorId: ownerId, occurredAt: now },
+				{
+					membershipId: row.id,
+					kind: 'BAND_OWNERSHIP_RECEIVED',
+					authorId: ownerId,
+					occurredAt: now
+				}
+			]
+		});
 	}, TX);
 }
 

@@ -430,3 +430,15 @@ et sa date. Malik retrouve ses actes pour autrui dans son export sans accès
 aux périodes de Zoé. Le groupe est dédié aux fixtures ; les groupes et
 participations déjà présents ne sont pas convertis. Le seed est rejouable
 par upserts et vérifie les comptes de démonstration avant création.
+
+### DASH-05h — rôles et transmissions du groupe
+
+Se connecter avec **Zoé**, puis **Malik**, et ouvrir **Mes structures ›
+Historique de mes participations**. « Démo — Rôles du groupe » montre deux
+périodes fictives actives et onze actes : Zoé voit deux attributions de co-gestion,
+un retour au rôle de membre et deux allers-retours de responsabilité ; Malik
+voit uniquement les quatre actes de transmission de sa propre période. Les
+auteurs alternent avec les véritables cédants du scénario. Les actes pour
+autrui restent exportables sans ouvrir le journal du collègue. Le seed utilise
+des identifiants stables et des upserts ; aucune période préexistante n’est
+convertie. L’état final est Malik responsable et Zoé en co-gestion.

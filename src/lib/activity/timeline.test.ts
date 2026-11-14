@@ -231,3 +231,34 @@ it('distingue les demandes et le recrutement sans inventer une invitation ni son
 	expect(entries[0].author).toBe('Collaboratrice');
 	expect(entries.slice(1).every((e) => e.author === 'Compte supprimé')).toBe(true);
 });
+
+it('conserve les rôles et transmissions répétés, avec ordre stable à date égale', () => {
+	const kinds = [
+		'BAND_ADMIN_GRANTED',
+		'BAND_MEMBER_SET',
+		'BAND_ADMIN_GRANTED',
+		'BAND_OWNERSHIP_RECEIVED',
+		'BAND_OWNERSHIP_GIVEN',
+		'BAND_OWNERSHIP_RECEIVED'
+	] as const;
+	const entries = membershipTimeline({
+		id: 'periode',
+		createdAt: at(10),
+		invitedById: null,
+		invitedBy: null,
+		decisions: kinds
+			.map((kind, i) => ({
+				id: String(i),
+				kind,
+				occurredAt: at(11),
+				author: i === 0 ? facts.delegate : null
+			}))
+			.reverse()
+	});
+	expect(entries.map((e) => e.id)).toEqual(['0', '1', '2', '3', '4', '5']);
+	expect(entries[0].action).toBe(entries[2].action);
+	expect(entries[3].action).toBe(entries[5].action);
+	expect(entries[4].action).toBe('Responsabilité du groupe transmise ; co-gestion conservée');
+	expect(entries[0].author).toBe('Collaboratrice');
+	expect(entries.slice(1).every((e) => e.author === 'Compte supprimé')).toBe(true);
+});

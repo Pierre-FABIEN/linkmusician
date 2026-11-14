@@ -100,6 +100,267 @@ describe.skipIf(!enabled)(
 			await db.$disconnect();
 		});
 
+		// DASH-05h : anciennes périodes actives explicites, aucun acte initial déduit.
+		async function active() {
+			return db.membership.create({
+				data: {
+					orgId: bandId,
+					personId: people.member,
+					role: 'MEMBER',
+					status: 'ACTIVE',
+					startedAt: at(1)
+				}
+			});
+		}
+		it('rôles : chaque transition répétée est conservée ; les appels identiques sont sans effet', async () => {
+			const row = await active();
+			expect(await myComanagementHistory(people.member)).toEqual([]);
+			for (const [role, day] of [
+				['MEMBER', 2],
+				['ADMIN', 3],
+				['ADMIN', 4],
+				['MEMBER', 5],
+				['ADMIN', 6]
+			] as const) {
+				await bands.setRole(row.id, people.owner, role, at(day));
+			}
+			expect(
+				(await decisions(row.id)).map(({ kind, authorId, occurredAt }) => ({
+					kind,
+					authorId,
+					occurredAt
+				}))
+			).toEqual(
+				[
+					['BAND_ADMIN_GRANTED', 3],
+					['BAND_MEMBER_SET', 5],
+					['BAND_ADMIN_GRANTED', 6]
+				].map(([kind, day]) => ({ kind, authorId: people.owner, occurredAt: at(Number(day)) }))
+			);
+			expect(await myComanagementHistory(people.owner)).toEqual([]);
+			expect(await myComanagementHistory(people.outsider)).toEqual([]);
+			expect((await myStructure(bandId, people.member))?.activity).toHaveLength(3);
+			expect(
+				await db.notification.count({ where: { recipientActorId: { in: Object.values(people) } } })
+			).toBe(0);
+			expect(await db.domainEvent.count({ where: { actorIds: { has: bandId } } })).toBe(0);
+		});
+		it('rôles identiques concurrents : deux succès, un seul changement réel', async () => {
+			const row = await active();
+			await Promise.all([
+				bands.setRole(row.id, people.owner, 'ADMIN', at(2)),
+				bands.setRole(row.id, people.owner, 'ADMIN', at(3))
+			]);
+			expect(await decisions(row.id)).toHaveLength(1);
+			expect((await period()).role).toBe('ADMIN');
+		});
+		it('rôles opposés concurrents : chaque transition effective est conservée sous verrou', async () => {
+			const row = await active();
+			await Promise.all([
+				bands.setRole(row.id, people.owner, 'ADMIN'),
+				bands.setRole(row.id, people.owner, 'MEMBER')
+			]);
+			const list = await decisions(row.id);
+			expect(list.filter((d) => d.kind === 'BAND_ADMIN_GRANTED')).toHaveLength(1);
+			const demoted = list.some((d) => d.kind === 'BAND_MEMBER_SET');
+			expect(list).toHaveLength(demoted ? 2 : 1);
+			expect((await period()).role).toBe(demoted ? 'MEMBER' : 'ADMIN');
+		});
+		it('transmissions aller-retour répétées : deux actes par transmission, même date et auteur réel', async () => {
+			const row = await active();
+			const owner = await period('owner');
+			for (const day of [2, 4]) {
+				await bands.transferOwnership(row.id, people.owner, at(day));
+				await expect(bands.transferOwnership(row.id, people.owner)).rejects.toMatchObject({
+					status: 403
+				});
+				await bands.transferOwnership(owner.id, people.member, at(day + 1));
+			}
+			for (const [id, kinds] of [
+				[row.id, ['BAND_OWNERSHIP_RECEIVED', 'BAND_OWNERSHIP_GIVEN']],
+				[owner.id, ['BAND_OWNERSHIP_GIVEN', 'BAND_OWNERSHIP_RECEIVED']]
+			] as const) {
+				expect((await decisions(id)).map((d) => [d.kind, d.authorId, d.occurredAt])).toEqual(
+					[2, 3, 4, 5].map((day, i) => [
+						kinds[i % 2],
+						i % 2 === 0 ? people.owner : people.member,
+						at(day)
+					])
+				);
+			}
+			expect((await period('owner')).role).toBe('OWNER');
+			expect((await period()).role).toBe('ADMIN');
+		});
+		it('transmission identique concurrente : une réussite, un refus, deux actes', async () => {
+			const row = await active();
+			const results = await Promise.allSettled([
+				bands.transferOwnership(row.id, people.owner),
+				bands.transferOwnership(row.id, people.owner)
+			]);
+			expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+			expect(await decisions(row.id)).toHaveLength(1);
+			expect(await decisions((await period('owner')).id)).toHaveLength(1);
+		});
+
+		it('transmissions concurrentes vers deux cibles : un seul nouveau responsable', async () => {
+			const row = await active();
+			const other = await db.membership.create({
+				data: { orgId: bandId, personId: people.outsider, status: 'ACTIVE' }
+			});
+			const results = await Promise.allSettled([
+				bands.transferOwnership(row.id, people.owner),
+				bands.transferOwnership(other.id, people.owner)
+			]);
+			expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+			expect(
+				await db.membership.count({ where: { orgId: bandId, role: 'OWNER', status: 'ACTIVE' } })
+			).toBe(1);
+			expect(await db.membershipDecision.count({ where: { membership: { orgId: bandId } } })).toBe(
+				2
+			);
+		});
+		it('une transmission concurrente au changement de rôle respecte l’autorité relue', async () => {
+			const row = await active();
+			const results = await Promise.allSettled([
+				bands.transferOwnership(row.id, people.owner),
+				bands.setRole(row.id, people.owner, 'ADMIN')
+			]);
+			expect(results[0].status).toBe('fulfilled');
+			expect((await period()).role).toBe('OWNER');
+			expect(await db.membershipDecision.count({ where: { membership: { orgId: bandId } } })).toBe(
+				results[1].status === 'fulfilled' ? 3 : 2
+			);
+		});
+		it('refuse les tiers, la co-gestion, une cible responsable et un rôle OWNER forcé', async () => {
+			const row = await active();
+			await bands.setRole(row.id, people.owner, 'ADMIN');
+			const owner = await period('owner');
+			for (const who of [people.member, people.outsider]) {
+				await expect(bands.setRole(owner.id, who, 'MEMBER')).rejects.toMatchObject({ status: 403 });
+				await expect(bands.transferOwnership(owner.id, who)).rejects.toMatchObject({ status: 403 });
+			}
+			await expect(bands.setRole(owner.id, people.owner, 'MEMBER')).rejects.toThrow();
+			await expect(bands.transferOwnership(owner.id, people.owner)).rejects.toThrow();
+			await expect(bands.setRole(row.id, people.owner, 'OWNER' as 'ADMIN')).rejects.toThrow();
+			expect(await decisions(row.id)).toHaveLength(1);
+			expect(await decisions(owner.id)).toEqual([]);
+		});
+		it.each(['INVITED', 'REQUESTED', 'LEFT', 'REMOVED'] as const)(
+			'refuse une cible %s sans acte',
+			async (status) => {
+				const row = await db.membership.create({
+					data: { orgId: bandId, personId: people.member, status }
+				});
+				await expect(bands.setRole(row.id, people.owner, 'ADMIN')).rejects.toThrow();
+				await expect(bands.transferOwnership(row.id, people.owner)).rejects.toThrow();
+				expect(await decisions(row.id)).toEqual([]);
+			}
+		);
+		it.each(['deleted', 'dissolved', 'wrong-kind'] as const)(
+			'refuse un groupe %s',
+			async (state) => {
+				const row = await active();
+				if (state === 'deleted')
+					await db.actor.update({ where: { id: bandId }, data: { deletedAt: at(2) } });
+				else
+					await db.organization.update({
+						where: { actorId: bandId },
+						data: state === 'dissolved' ? { dissolvedAt: at(2) } : { kind: 'PROMOTER' }
+					});
+				await expect(bands.setRole(row.id, people.owner, 'ADMIN')).rejects.toMatchObject({
+					status: 404
+				});
+				await expect(bands.transferOwnership(row.id, people.owner)).rejects.toMatchObject({
+					status: 404
+				});
+				expect(await decisions(row.id)).toEqual([]);
+			}
+		);
+		it('rollback : les rôles et les deux traces de transmission sont atomiques', async () => {
+			const row = await active();
+			await failDecisionWrite(() => bands.setRole(row.id, people.owner, 'ADMIN'));
+			expect((await period()).role).toBe('MEMBER');
+			await failDecisionWrite(() => bands.transferOwnership(row.id, people.owner), true);
+			expect((await period()).role).toBe('MEMBER');
+			expect((await period('owner')).role).toBe('OWNER');
+			expect(await db.membershipDecision.count({ where: { membership: { orgId: bandId } } })).toBe(
+				0
+			);
+		});
+		it('maintient en base l’unicité des douze anciens types, sans limiter les nouveaux', async () => {
+			const row = await active();
+			for (const kind of [
+				'ACCEPTED',
+				'DECLINED',
+				'WITHDRAWN',
+				'LEFT',
+				'REMOVED',
+				'RESPONSIBILITY_RECEIVED',
+				'JOIN_REQUESTED',
+				'REQUEST_ACCEPTED',
+				'REQUEST_DECLINED',
+				'REQUEST_WITHDRAWN',
+				'REQUEST_CLOSED',
+				'RECRUITMENT_ACCEPTED'
+			] as const) {
+				await db.membershipDecision.create({ data: { membershipId: row.id, kind } });
+				await expect(
+					db.membershipDecision.create({ data: { membershipId: row.id, kind } })
+				).rejects.toMatchObject({ code: 'P2002' });
+			}
+			for (const kind of [
+				'BAND_ADMIN_GRANTED',
+				'BAND_MEMBER_SET',
+				'BAND_OWNERSHIP_GIVEN',
+				'BAND_OWNERSHIP_RECEIVED'
+			] as const) {
+				await db.membershipDecision.createMany({
+					data: [1, 2].map(() => ({ membershipId: row.id, kind, occurredAt: at(2) }))
+				});
+			}
+			expect(await decisions(row.id)).toHaveLength(20);
+		});
+		it('exporte les rôles et transmissions personnels/pour autrui et anonymise sans acte de succession technique', async () => {
+			const row = await active();
+			await bands.setRole(row.id, people.owner, 'ADMIN', at(2));
+			await bands.transferOwnership(row.id, people.owner, at(3));
+			await bands.transferOwnership((await period('owner')).id, people.member, at(4));
+			const owner = await db.person.findUniqueOrThrow({ where: { actorId: people.owner } });
+			const exported = (await exportPersonData(owner.userId))!.actes_de_participation;
+			expect(exported).toHaveLength(4);
+			expect(exported).toContainEqual(
+				expect.objectContaining({
+					role: 'auteur de décision',
+					acte: 'Co-gestion du groupe accordée',
+					auteur: 'owner',
+					date: at(2)
+				})
+			);
+			expect(JSON.stringify(exported)).not.toMatch(/personId|membershipId/);
+			expect(
+				exported.every(
+					(d) => Object.keys(d).sort().join(',') === 'acte,auteur,date,organisation,role'
+				)
+			).toBe(true);
+			expect(JSON.stringify(exported.filter((d) => d.role === 'auteur de décision'))).not.toContain(
+				'member'
+			);
+			const count = await db.membershipDecision.count({ where: { membership: { orgId: bandId } } });
+			await db.$transaction(await personAnonymizationOps(owner.userId));
+			expect((await period()).role).toBe('OWNER');
+			expect(await db.membershipDecision.count({ where: { membership: { orgId: bandId } } })).toBe(
+				count
+			);
+			expect((await decisions(row.id)).slice(0, 2).every((d) => d.authorId === null)).toBe(true);
+			expect(
+				(await myComanagementHistory(people.member))[0].activity.filter(
+					(e) => e.author === 'Compte supprimé'
+				)
+			).toHaveLength(2);
+			await db.membership.delete({ where: { id: row.id } });
+			expect(await decisions(row.id)).toEqual([]);
+		});
+
 		it('accepte une seule fois, conserve le départ et ne redonne aucun outil', async () => {
 			await invite();
 			const row = await period();

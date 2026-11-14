@@ -400,3 +400,65 @@ période. La contrainte actuelle participation/type leur est inadaptée ; ils
 restent dans un lot distinct et ne sont pas annoncés livrés ici. Les écoles,
 validations de collaboration et futures options restent également à suivre.
 DASH-05/#35 et #30 restent ouverts.
+
+## Rôles et transmissions des groupes (DASH-05h)
+
+Audit de `setRole` et `transferOwnership` : les deux mutations relisaient déjà
+la période active et la responsabilité après verrou `band:`, sans conserver
+les actes. Elles écrivent maintenant dans la même transaction métier :
+`BAND_ADMIN_GRANTED` (MEMBER → ADMIN), `BAND_MEMBER_SET` (ADMIN → MEMBER),
+`BAND_OWNERSHIP_GIVEN` (OWNER → ADMIN du cédant) et
+`BAND_OWNERSHIP_RECEIVED` (MEMBER/ADMIN → OWNER du destinataire).
+Les deux actes d’une transmission portent le même auteur réel (le cédant)
+et la même date. Le destinataire n’est pas déclaré auteur d’un consentement.
+Aucun titre, message, motif ni identité de collègue recopié dans les actes.
+
+Ces quatre types sont répétables, y compris à date égale, sur une même période.
+L’index unique partiel `membership_decisions_once_key` maintient l’unicité
+participation/type des douze types déjà livrés, dont `RESPONSIBILITY_RECEIVED`
+pour les successions des autres circuits. Un index participation/date sert
+la lecture. Tout futur type doit choisir explicitement son régime d’unicité ;
+les nouveaux types ne sont pas automatiquement ajoutés au prédicat SQL.
+Le nettoyeur de migrations protège cet index partiel contre les suppressions
+proposées par Prisma ; cette protection est testée.
+
+Un appel `setRole` identique réussit sans modifier la participation ni ajouter
+une trace, après les mêmes contrôles de droits. Des appels identiques concurrents
+produisent un seul changement réel. Des appels opposés sont sérialisés : chaque
+transition effective est conservée, un appel devenu identique ne produit rien.
+Une transmission rejouée par l’ancien responsable est refusée (403) ; deux
+transmissions concurrentes par le même cédant n’en réalisent qu’une. Un retour
+explicite par le nouveau responsable permet une nouvelle transmission réelle.
+Ces intentions n’ont pas de clé d’idempotence permanente : après un aller-retour,
+la même intention autorisée est un nouvel acte. Un échec de trace annule les
+changements de rôle et les deux côtés de la transmission.
+
+Les gardes OWNER, cible active, groupe BAND vivant sont conservées. Un rôle
+OWNER forcé dans `setRole` est aussi rejeté à l’exécution. Progression et
+notifications ne reçoivent aucun effet supplémentaire. Le lecteur commun reste
+strictement personnel, y compris après départ ; ni la gestion ni les outils
+ni la page publique ne reçoivent les actes des collègues. Dates égales : ordre
+stable par identifiant, sans affirmer l’ordre réel des transactions.
+
+Export et anonymisation communs couvrent les quatre types : actes de sa propre
+participation et actes pour autrui, sans identité du participant tiers ; auteurs
+effacés partout. La succession technique RGPD reste sans acte humain.
+Aucune reprise d’ancien événement depuis rôles, états, dates ou notifications.
+Les fixtures fictives dédiées de démo illustrent deux transmissions aller-retour
+et trois changements de rôle, avec identifiants stables, sans convertir les
+participations existantes.
+
+Migrations `20261114200647_membership_band_roles` et
+`20261114200800_membership_decisions_once`, appliquées en développement et sur
+`e2e`, client régénéré. La première ajoute les quatre valeurs, remplace l’ancien
+index par l’index de lecture ; le nettoyage avait retiré la création de l’index
+partiel, rétablie immédiatement par la seconde migration avant les tests ou
+écritures métier. Déployer les deux migrations avant de remettre les mutations
+en service. Aucune reprise de données, aucune autre suppression d’index.
+Un retour applicatif doit savoir lire les nouveaux types ; restaurer l’ancien
+index unique échouerait après répétitions et supprimer les nouveaux actes ferait
+perdre l’historique. Pas de retour destructif automatique : sauvegarde cohérente
+et traitement explicite requis pour une restauration complète.
+
+Écoles, validations de collaboration et futures options restent hors de ce lot.
+DASH-05/#35 et #30 restent ouverts.

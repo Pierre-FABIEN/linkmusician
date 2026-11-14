@@ -1879,6 +1879,70 @@ export async function seedComanagementDecisions(
 				}
 			});
 		}
+		// DASH-05h : scénario fictif dédié, aucune conversion des périodes existantes.
+		if (fixture.kind === 'BAND') {
+			const rolesOrg = 'demo-memoire-roles-groupe';
+			await prisma.actor.upsert({
+				where: { id: rolesOrg },
+				update: {},
+				create: {
+					id: rolesOrg,
+					kind: 'ORGANIZATION',
+					handle: rolesOrg,
+					displayName: 'Démo — Rôles du groupe',
+					hidden: true,
+					organization: { create: { kind: 'BAND' } }
+				}
+			});
+			for (const [personId, role, suffix] of [
+				[ownerId, 'OWNER', 'responsable'],
+				[participantId, 'ADMIN', 'membre']
+			] as const) {
+				const membershipId = `demo-roles-groupe-${suffix}`;
+				await prisma.membership.upsert({
+					where: { id: membershipId },
+					update: {},
+					create: {
+						id: membershipId,
+						orgId: rolesOrg,
+						personId,
+						role,
+						status: 'ACTIVE',
+						startedAt: ago(12)
+					}
+				});
+				const acts =
+					suffix === 'membre'
+						? ([
+								['BAND_ADMIN_GRANTED', ownerId, 11],
+								['BAND_MEMBER_SET', ownerId, 10],
+								['BAND_ADMIN_GRANTED', ownerId, 9],
+								['BAND_OWNERSHIP_RECEIVED', ownerId, 8],
+								['BAND_OWNERSHIP_GIVEN', participantId, 7],
+								['BAND_OWNERSHIP_RECEIVED', ownerId, 6],
+								['BAND_OWNERSHIP_GIVEN', participantId, 5]
+							] as const)
+						: ([
+								['BAND_OWNERSHIP_GIVEN', ownerId, 8],
+								['BAND_OWNERSHIP_RECEIVED', participantId, 7],
+								['BAND_OWNERSHIP_GIVEN', ownerId, 6],
+								['BAND_OWNERSHIP_RECEIVED', participantId, 5]
+							] as const);
+				for (const [index, [kind, authorId, days]] of acts.entries()) {
+					await prisma.membershipDecision.upsert({
+						where: { id: `${membershipId}-acte-${index}` },
+						update: {},
+						create: {
+							id: `${membershipId}-acte-${index}`,
+							membershipId,
+							kind,
+							authorId,
+							occurredAt: ago(days)
+						}
+					});
+				}
+			}
+		}
 		if (fixture.kind === 'BAND') {
 			for (const [i, kind] of (
 				[

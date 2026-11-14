@@ -120,7 +120,11 @@ export const MEMBERSHIP_DECISION_LABELS = {
 	REQUEST_DECLINED: 'Demande déclinée par la gestion',
 	REQUEST_WITHDRAWN: 'Demande retirée par son auteur',
 	REQUEST_CLOSED: 'Demande close par dissolution du groupe',
-	RECRUITMENT_ACCEPTED: 'Entrée dans le groupe par recrutement'
+	RECRUITMENT_ACCEPTED: 'Entrée dans le groupe par recrutement',
+	BAND_ADMIN_GRANTED: 'Co-gestion du groupe accordée',
+	BAND_MEMBER_SET: 'Retour au rôle de membre du groupe',
+	BAND_OWNERSHIP_GIVEN: 'Responsabilité du groupe transmise ; co-gestion conservée',
+	BAND_OWNERSHIP_RECEIVED: 'Responsabilité du groupe reçue'
 } as const;
 export function membershipTimeline(
 	facts: Parameters<typeof membershipInvitationTimeline>[0] & {

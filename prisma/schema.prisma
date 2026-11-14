@@ -2990,6 +2990,10 @@ enum MembershipDecisionKind {
   REQUEST_WITHDRAWN
   REQUEST_CLOSED
   RECRUITMENT_ACCEPTED
+  BAND_ADMIN_GRANTED
+  BAND_MEMBER_SET
+  BAND_OWNERSHIP_GIVEN
+  BAND_OWNERSHIP_RECEIVED
 }
 
 /// Une transition conservée dans la transaction de sa participation.
@@ -3003,7 +3007,8 @@ model MembershipDecision {
   author       Actor?                 @relation(fields: [authorId], references: [id], onDelete: SetNull)
   occurredAt   DateTime               @default(now())
 
-  @@unique([membershipId, kind])
+  // Unicité des actes non répétables : index partiel SQL protégé par migration-clean.
+  @@index([membershipId, occurredAt])
   @@index([authorId])
   @@map("membership_decisions")
 }

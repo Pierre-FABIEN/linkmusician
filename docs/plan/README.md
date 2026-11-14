@@ -269,8 +269,9 @@ Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 | DASH-05d       | ✅ publié | Actes de co-gestion PROMOTER/VENUE et historique des périodes personnelles, accès après départ sans outils ; autres circuits à suivre.    |
 | DASH-05e       | ✅ publié | Actes de co-gestion des studios et périodes personnelles dans l’historique commun ; garde STUDIO vivant, export/anonymisation réutilisés. |
 | DASH-05f       | ✅ publié | Actes des participations aux agences, historique personnel et fermeture transactionnelle, export/anonymisation réutilisés.                |
-| DASH-05g       | ✅ local  | Entrées/sorties des groupes : invitations, demandes, recrutement, départ/retrait et dissolution ; rôles et transmissions à suivre.        |
-| DASH-05, suite | ⬜        | Rôles et transmissions répétables des groupes, écoles, validations de collaboration et futures options.                                   |
+| DASH-05g       | ✅ publié | Entrées/sorties des groupes : invitations, demandes, recrutement, départ/retrait et dissolution ; rôles et transmissions à suivre.        |
+| DASH-05h       | ✅ local  | Rôles et transmissions répétables des groupes, actes personnels transactionnels et RGPD.                                                  |
+| DASH-05, suite | ⬜        | Écoles, validations de collaboration et futures options.                                                                                  |
 
 Le journal commun n’est pas terminé. Conception et limites :
 [journal d’activité](../conception/16-journal-activite.md).
@@ -542,3 +543,44 @@ commit local sur `main`, sans push. Rôles/transmissions des groupes, écoles,
 validations de collaboration et futures options restent à suivre ;
 DASH-05/#35 et #30 restent ouverts. Aucune modification distante des issues
 pendant ce lot.
+
+### DASH-05h — rôles et transmissions répétables des groupes
+
+Reprise sur `main` propre à `6b1db48`. `git ls-remote origin refs/heads/main`
+confirme `6b1db48e348dd4bbff20622e0e38ba4e17f5c081` : DASH-05a à 05g
+sont publiés. DASH-05h est un nouveau commit **local**, sans push.
+
+Chaque rôle réellement modifié est conservé ; une transmission crée deux actes
+personnels avec auteur réel et date commune, dans la transaction sous verrou
+`band:`. Un rôle identique est sans effet ; la transmission rejouée par l’ancien
+responsable est refusée. Les appels concurrents relisent droits et état.
+Les quatre nouveaux types sont répétables ; l’unicité des douze anciens types
+reste garantie en base par index partiel protégé du nettoyeur Prisma.
+Deux migrations appliquées aux schémas public/e2e, client régénéré ; aucune
+reconstruction d’actes anciens. Audit, sémantique des répétitions et limites
+de retour documentés dans la conception et les groupes.
+
+Historique strictement personnel, export/anonymisation réutilisés et vérifiés,
+aucun acte humain lors de succession technique. Permissions, progression et
+notifications préservées. Aide et démo dédiées actualisées. Les issues #35/#30
+restent ouvertes : écoles, validations de collaboration et futures options
+restent à livrer.
+
+Recette DASH-05h (14/11/2026) : **1 362 tests unitaires réussis**, 355 tests
+conditionnels non exécutés ; **84 intégrations distinctes réussies** sur `e2e`
+(36 historiques groupes, dont 18 nouveaux cas ; 32 historiques communs et 16
+non-régressions services/public/recrutement). Deux attentes du nouveau test
+RGPD ont été corrigées : un export n’inclut pas les actes personnels d’autrui
+sans lien avec le compte exporté ; il conserve cependant l’auteur réel d’une
+transmission reçue. La suite groupes finale passe intégralement.
+
+**5 E2E sans reprise** : groupes (rôles répétés, transmission aller-retour,
+historiques personnels distincts, lecture après départ), recrutement, structures
+et les deux parcours d’aide. Clavier, axe, 390 px, dates HTML et auteurs
+vérifiés. Aucun `check` exécuté pendant les E2E. Formatage et ESLint ciblés
+conformes. Lint global : les deux scripts `.shot-metro.mjs` et `.shot-tmp.mjs`
+bloquent toujours Prettier ; ESLint global a une erreur préexistante de variable
+inutilisée dans `.shot-metro.mjs` (464 avertissements existants).
+Seed exécuté deux fois : les deux périodes et onze actes de « Démo — Rôles du
+groupe » restent inchangés ; index partiel vérifié sur `public` et `e2e`.
+Types finaux après les E2E : **0 erreur, 0 avertissement**. Aucun push.

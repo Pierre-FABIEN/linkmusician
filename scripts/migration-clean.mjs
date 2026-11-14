@@ -8,7 +8,9 @@ export const BOILERPLATE_INDEXES = [
 	'blog_posts_published_createdAt_idx',
 	// LinkMusician : index partiels que Prisma 5 ne sait pas décrire.
 	'memberships_open_key',
-	'delegation_open_key'
+	'delegation_open_key',
+	// DASH-05h : unicité des actes non répétables (les BAND_* répétés sont exclus).
+	'membership_decisions_once_key'
 ];
 
 /**
@@ -16,6 +18,7 @@ export const BOILERPLATE_INDEXES = [
  * @returns {{ sql: string, removed: string[] }}
  */
 export function cleanMigrationSql(sql) {
+	/** @type {string[]} */
 	const removed = [];
 	let out = sql;
 	for (const name of BOILERPLATE_INDEXES) {
@@ -24,7 +27,7 @@ export function cleanMigrationSql(sql) {
 			'g'
 		);
 		out = out.replace(pattern, (match) => {
-			removed.push(match.trim().split('\n').at(-1));
+			removed.push(match.trim().split('\n').at(-1) ?? '');
 			return '\n';
 		});
 	}

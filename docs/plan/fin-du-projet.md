@@ -559,3 +559,13 @@ période, restent dans un lot distinct ; écoles, validations et options restent
 également à suivre. `origin/main` revérifié à `4e7e0ff` : DASH-05d/e/f sont
 publiés ; DASH-05g livré localement sur `main`, sans push. Recette détaillée
 dans [le suivi](README.md). DASH-05 reste ouvert.
+
+DASH-05h : rôles et transmissions répétables des groupes conservés dans la
+transaction sous verrou `band:` ; chaque transmission porte ses deux actes
+personnels et son auteur réel. Appels identiques, répétés et concurrents,
+rollback et RGPD couverts. Les douze anciens types gardent leur unicité via un
+index partiel ; quatre types nouveaux répétables, aucune reprise historique.
+Aide, démo et conception actualisées. `origin/main` vérifié à `6b1db48` : les
+lots jusqu’à DASH-05g sont publiés ; DASH-05h reste **local**, sans push.
+Écoles, validations de collaboration et futures options restent à suivre ;
+DASH-05/#35 et #30 restent ouverts. Recette dans [le suivi](README.md).

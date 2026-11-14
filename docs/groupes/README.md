@@ -128,3 +128,24 @@ le lot suivant : la contrainte actuelle participation/type n’est pas adaptée
 à leur répétition sur une même période. DASH-05 reste ouvert. Intégrations
 `bands/history.integration.test.ts`, services de groupe et recrutement ;
 E2E `groupes.spec.ts` enrichi, `recrutement.spec.ts` et `structures.spec.ts`.
+
+## Rôles et transmissions personnels (DASH-05h)
+
+`setRole` conserve chaque passage MEMBER → ADMIN et ADMIN → MEMBER. Un rôle
+identique est sans effet ; les droits sont vérifiés même dans ce cas.
+`transferOwnership` conserve deux actes personnels datés du même instant et
+attribués au cédant : responsabilité transmise (il devient ADMIN), responsabilité
+reçue (la cible devient OWNER). Les allers-retours et nouvelles transmissions
+sur les mêmes périodes restent tous conservés. Rejouer une transmission avec
+l’ancien responsable est refusé ; le verrou `band:` arbitre les appels concurrents.
+Toute erreur de trace annule les rôles et les deux actes de la transmission.
+
+Les quatre nouveaux types `BAND_*` sont répétables ; un index SQL unique partiel
+maintient la protection des douze types précédents. Les deux migrations du lot
+sont à déployer ensemble avant de reprendre les écritures ; détails et limites
+de retour dans [la conception](../conception/16-journal-activite.md).
+Lecteur strictement personnel et export/anonymisation communs réutilisés.
+Aucun journal de collègues ni nouvel accès aux outils, aucune notification ou
+progression ajoutée, aucune succession technique RGPD présentée comme un acte
+humain. Aucun événement ancien reconstruit. Démo dédiée « Démo — Rôles du groupe ».
+Écoles, validations et options restent à suivre ; DASH-05 reste ouvert.
