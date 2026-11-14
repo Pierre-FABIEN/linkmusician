@@ -499,10 +499,20 @@ avant d'avoir livré ses fonctions.
    invitations, mandats, validations et autres propositions restent dans la suite.
    Voir [audit du journal](../conception/16-journal-activite.md).
    DASH-05b : lecture privée des mandats, y compris terminés, et des invitations
-   personnelles conservées. Les décisions supprimées et transitions non tracées
-   restent à journaliser ; validations de collaboration et options à suivre.
+   personnelles conservées. DASH-05c conserve les nouveaux refus et retraits de propositions
+   d’accompagnement. Transitions de participation, validations de collaboration
+   et options restent à suivre.
 
 DASH-02a seul ne clôturait pas DASH-02 ; les agences DASH-02b et les
 affectations DASH-04b complètent ce périmètre. Les autres modules DASH et les parties ouvertes
 ONB-12c/ONB-13b restent dans leurs lots. Voir
 [l'audit et le découpage](../conception/12-structures-equipes.md).
+
+DASH-05c : conservation minimale des nouveaux refus et retraits de propositions
+d’accompagnement, transactionnelle, sans message ni conditions privées. Les
+historiques gardent leurs accès actuels ; export des actes pour un groupe et
+anonymisation des auteurs couverts. Les participations, validations de
+collaboration et futures options restent dans les lots suivants ; DASH-05 reste
+ouvert. Les commits DASH-05a/b sont vérifiés publiés sur `origin/main` à
+`ac4d736` ; DASH-05c est une livraison locale sans push. Preuves de recette dans
+[le suivi](README.md#6-navigation-et-espaces-métier--épopée-30).

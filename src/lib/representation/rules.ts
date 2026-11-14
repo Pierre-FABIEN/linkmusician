@@ -32,7 +32,9 @@ export const AGENT_KIND_INFO: Readonly<
 export const REPRESENTATION_STATUS_LABELS = {
 	PROPOSED: 'En attente de réponse',
 	CONFIRMED: 'Confirmé',
-	ENDED: 'Terminé'
+	ENDED: 'Terminé',
+	DECLINED: 'Proposition déclinée',
+	WITHDRAWN: 'Proposition retirée'
 } as const;
 
 /** Mot facultatif de l'agent à l'artiste. */

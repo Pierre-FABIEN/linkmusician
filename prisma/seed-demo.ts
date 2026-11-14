@@ -31,6 +31,7 @@ import { seedJamLife } from './seed-jam-life';
 import {
 	seedOpenStage,
 	seedRepresentations,
+	seedRepresentationDecisions,
 	seedScene,
 	seedSchool,
 	seedVenueHosts
@@ -795,6 +796,7 @@ try {
 	await seedOpenStage(prisma, communes, handleMap);
 	await seedVenueHosts(prisma, communes, handleMap);
 	await seedRepresentations(prisma, communes, handleMap);
+	await seedRepresentationDecisions(prisma, communes, handleMap);
 	await seedAgencies(prisma, handleMap);
 	await seedDelegations(prisma);
 	const schoolLink = await seedSchool(prisma, communes, handleMap);

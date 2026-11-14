@@ -261,11 +261,12 @@ Détail : [affectations et délégations](../conception/15-affectations-delegati
 Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 `5e7f982` récupérée depuis `origin/main`.
 
-| Lot            | État     | Périmètre                                                                                                                |
-| -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
-| DASH-05a       | ✅ local | Audit des traces, contrat de lecture commun et historique privé des affectations, sans nouveau stockage ni notification. |
-| DASH-05b       | ✅ local | Historiques privés des mandats conservés, dont terminés, et invitations personnelles des structures.                     |
-| DASH-05, suite | ⬜       | Journalisation transactionnelle des décisions non conservées ; validations, options et propositions restantes.           |
+| Lot            | État      | Périmètre                                                                                                                |
+| -------------- | --------- | ------------------------------------------------------------------------------------------------------------------------ |
+| DASH-05a       | ✅ publié | Audit des traces, contrat de lecture commun et historique privé des affectations, sans nouveau stockage ni notification. |
+| DASH-05b       | ✅ publié | Historiques privés des mandats conservés, dont terminés, et invitations personnelles des structures.                     |
+| DASH-05c       | ✅ local  | Refus et retraits de propositions conservés atomiquement, auteurs réels, accès privés et RGPD.                           |
+| DASH-05, suite | ⬜        | Transitions de participation, validations de collaboration, options et propositions restantes.                           |
 
 Le journal commun n’est pas terminé. Conception et limites :
 [journal d’activité](../conception/16-journal-activite.md).
@@ -296,3 +297,33 @@ Types sans erreur ni avertissement. Formatage des fichiers modifiés et ESLint
 hors les deux scripts locaux préexistants conformes, mêmes réserves de lint
 global que DASH-05a. Pas de migration ni de nouveau stockage ; les scénarios
 de seed existants alimentent les lectures. Aucun push effectué.
+
+Recette DASH-05c (14/11/2026) : `origin/main` vérifié par `git ls-remote`
+à `ac4d736` : DASH-05a et DASH-05b sont déjà publiés. DASH-05c est livré
+localement sur `main`, sans push. Migration additive
+`20261114180757_representation_proposal_decisions` générée, nettoyée et relue,
+appliquée en développement et sur `e2e` ; client régénéré. Pas de retour SQL
+destructif des valeurs d’enum (justification dans la conception).
+
+35 tests d’intégration réussis : 12 historiques privés (concurrence, rollback,
+refus, retrait, droits, agence, export/anonymisation), 12 accompagnements
+(dont refus après attente d’une révocation de gestion), 11 affectations.
+1 356 tests unitaires réussis ; 287 tests conditionnels non exécutés après ajout
+des nouvelles recettes. Les premières assertions ont été adaptées : comptage
+des notifications limité aux comptes du test et export incluant désormais
+les propositions déclinées. L’historique isolé passait déjà avant cette relance.
+
+Le lint global reste bloqué par le formatage des deux scripts préexistants
+`.shot-metro.mjs` et `.shot-tmp.mjs`. ESLint hors ces scripts : 0 erreur,
+464 avertissements existants. Aucun événement ancien reconstruit. Participations,
+validations et futures options restent à traiter ; #35 et #30 restent ouverts.
+
+Validation finale DASH-05c : types 0 erreur / 0 avertissement ; formatage et
+ESLint ciblés conformes. Quatre E2E distincts réussis : cycle du mandat existant,
+deux parcours d’aide et nouveau parcours refus/retrait (clavier, axe, 390 px).
+Le nouveau test a été relancé seul avec succès après correction de son contrôle
+sur le script SSR de la page précédente : une réponse fraîche du journal est
+maintenant vérifiée. Aucun `check` exécuté en même temps que les E2E.
+`npm run seed:demo` exécuté avec succès ; les deux lignes fictives sont vérifiées
+avec auteur, date et périmètre vide. Le seed utilise des upserts à identifiants
+stables et ne reconstruit aucune décision réelle.

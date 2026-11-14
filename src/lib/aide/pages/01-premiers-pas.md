@@ -526,7 +526,10 @@ Dans **Accompagnement**, ouvre **Historique des accompagnements** pour retrouver
 les propositions et les mandats conservés, y compris ceux qui sont terminés.
 Chaque fiche affiche la proposition, la confirmation et la fin avec leur auteur
 et leur date. Seules les parties et la gestion actuelle du groupe y ont accès.
-Une proposition déclinée ou retirée n’est pas conservée dans cette liste.
+Les nouveaux refus et retraits de proposition y restent avec la personne qui a
+agi et la date, distingués de la fin d’un mandat confirmé. Le message et le
+périmètre proposé sont effacés. Les propositions supprimées avant cette
+fonction ne peuvent pas être retrouvées.
 
 Dans **Mes structures**, ta fiche de participation affiche aussi ton invitation
 lorsqu’elle est conservée. Les changements de rôle et les départs n’y figurent

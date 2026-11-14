@@ -88,3 +88,88 @@ test('historique privé : proposition, confirmation et fin du mandat', async ({ 
 		await deleteMusicians([agent]);
 	}
 });
+
+test('propositions déclinée et retirée : décisions privées conservées', async ({
+	page,
+	account
+}) => {
+	test.setTimeout(4 * 60_000);
+	await signUpAndVerify(page, account);
+	await skipOnboarding(page, account.email);
+	const person = await db.person.update({
+		where: { userId: (await requireUser(account.email)).id },
+		data: { birthDate: new Date('1990-01-01') },
+		include: { actor: true }
+	});
+	const other = await createMusician({
+		name: 'Propositionjournal',
+		commune: { code: '31555', nom: 'Toulouse', dep: '31', lat: 43.6, lng: 1.43 }
+	});
+	const ids: string[] = [];
+	try {
+		await db.personTrack.create({ data: { personId: person.actorId, track: 'MANAGER' } });
+		await page.setViewportSize({ width: 390, height: 844 });
+		for (const status of ['DECLINED', 'WITHDRAWN'] as const) {
+			const row = await db.representation.create({
+				data: {
+					agentId: status === 'DECLINED' ? other.actorId : person.actorId,
+					artistId: status === 'DECLINED' ? person.actorId : other.actorId,
+					kind: 'MANAGER',
+					message: 'MESSAGE SECRET A EFFACER',
+					allowedActions: ['CAREER_SUPPORT'],
+					departmentCodes: ['31']
+				}
+			});
+			ids.push(row.id);
+			await page.goto('/accompagnement');
+			await waitForAppReady(page);
+			await page
+				.getByRole('button', { name: status === 'DECLINED' ? 'Décliner' : 'Retirer', exact: true })
+				.click();
+			await expect(
+				page.getByRole('button', {
+					name: status === 'DECLINED' ? 'Décliner' : 'Retirer',
+					exact: true
+				})
+			).toHaveCount(0);
+			await page.getByRole('link', { name: 'Historique des accompagnements', exact: true }).click();
+			const link = page.locator(`a[href="/accompagnement/${row.id}/historique"]`);
+			await link.focus();
+			await page.keyboard.press('Enter');
+			await expect(page).toHaveURL(`/accompagnement/${row.id}/historique`);
+			// Relire la réponse du journal : le script SSR de la page précédente
+			// reste dans le DOM lors d’une navigation cliente SvelteKit.
+			await page.reload();
+			await waitForAppReady(page);
+			const history = page.getByRole('region', { name: 'Actes conservés' });
+			await expect(history.locator('li')).toHaveCount(2);
+			await expect(
+				history.getByText(status === 'DECLINED' ? 'Proposition déclinée' : 'Proposition retirée', {
+					exact: true
+				})
+			).toBeVisible();
+			await expect(
+				history.getByText(person.actor.displayName, { exact: true }).last()
+			).toBeVisible();
+			await expect(history.locator('time').last()).toHaveAttribute('datetime', /T.*Z$/);
+			expect(await page.locator('body').textContent()).not.toMatch(
+				/MESSAGE SECRET|Départements 31/
+			);
+			expect(await db.representation.findUnique({ where: { id: row.id } })).toMatchObject({
+				status,
+				endedById: person.actorId,
+				message: null,
+				allowedActions: []
+			});
+		}
+		const notice = page.getByRole('button', { name: 'Compris', exact: true });
+		if (await notice.isVisible()) await notice.click();
+		await expectNoA11yViolations(page, ['.cartButton']);
+		expect(
+			await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+		).toBe(true);
+	} finally {
+		await db.representation.deleteMany({ where: { id: { in: ids } } });
+		await deleteMusicians([other]);
+	}
+});

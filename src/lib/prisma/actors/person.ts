@@ -185,10 +185,18 @@ export async function exportPersonData(userId: string) {
 			}
 		}),
 		prisma.representation.findMany({
-			where: { OR: [{ agentId: person.actorId }, { artistId: person.actorId }] },
+			where: {
+				OR: [
+					{ agentId: person.actorId },
+					{ artistId: person.actorId },
+					{ endedById: person.actorId, status: { in: ['DECLINED', 'WITHDRAWN'] } }
+				]
+			},
 			orderBy: { createdAt: 'asc' },
 			select: {
 				agentId: true,
+				artistId: true,
+				endedBy: { select: { displayName: true, deletedAt: true } },
 				startsAt: true,
 				expiresAt: true,
 				departmentCodes: true,
@@ -693,8 +701,14 @@ export async function exportPersonData(userId: string) {
 			retire_le: d.endedAt
 		})),
 		accompagnements: representations.map((r) => ({
-			role: r.agentId === person.actorId ? 'agent' : 'artiste',
+			role:
+				r.agentId === person.actorId
+					? 'agent'
+					: r.artistId === person.actorId
+						? 'artiste'
+						: 'auteur de décision',
 			metier: r.kind,
+			artiste: r.artist.displayName,
 			avec: r.agentId === person.actorId ? r.artist.displayName : r.agent.displayName,
 			statut: r.status,
 			mot: r.message,
@@ -704,7 +718,8 @@ export async function exportPersonData(userId: string) {
 			actions_autorisees: r.allowedActions,
 			propose_le: r.createdAt,
 			confirme_le: r.confirmedAt,
-			termine_le: r.endedAt
+			termine_le: r.endedAt,
+			auteur_fin_refus_retrait: r.endedBy && !r.endedBy.deletedAt ? r.endedBy.displayName : null
 		})),
 		travaux_en_ecoute: craftReferences.map((r) => ({
 			metier: r.track,

@@ -283,11 +283,16 @@ describe.skipIf(!enabled)(
 			await expect(gig('asso2', daysAgo(10), PREFIX + 'bk')).rejects.toThrow(/booker du groupe/);
 		});
 
-		it('décliner supprime la proposition, sans rien rapporter', async () => {
+		it('décliner conserve la décision sans rien rapporter', async () => {
 			await reps.proposeRepresentation(ids.mgr, { artist: PREFIX + 'solo', kind: 'MANAGER' });
 			const row = await pendingOf(ids.mgr);
 			await reps.answerRepresentation(row.id, ids.solo, false);
-			expect(await db.representation.count({ where: { id: row.id } })).toBe(0);
+			expect(await db.representation.findUnique({ where: { id: row.id } })).toMatchObject({
+				status: 'DECLINED',
+				endedById: ids.solo,
+				message: null,
+				allowedActions: []
+			});
 			expect((await gains(ids.mgr)).map((g) => g.ruleId)).toEqual(['management.confirmed']);
 		});
 
@@ -370,58 +375,61 @@ describe.skipIf(!enabled)(
 			await reps.endRepresentation(row.id, ids.bk);
 		});
 
-		it('la confirmation attend le verrou puis refuse une gestion révoquée', async () => {
-			await reps.proposeRepresentation(ids.bk, { artist: band.handle, kind: 'BOOKER' });
-			const row = await pendingOf(ids.bk);
-			let release!: () => void;
-			let ready!: () => void;
-			const held = new Promise<void>((r) => {
-				ready = r;
-			});
-			const gate = new Promise<void>((r) => {
-				release = r;
-			});
-			const revoke = db.$transaction(
-				async (tx) => {
-					await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`band:${band.id}`}))`;
-					await tx.membership.updateMany({
-						where: { personId: ids.lea, orgId: band.id },
-						data: { role: 'MEMBER' }
-					});
-					ready();
-					await gate;
-				},
-				{ timeout: 20_000 }
-			);
-			await held;
-			const answer = reps.answerRepresentation(row.id, ids.lea, true).then(
-				() => null,
-				(error: unknown) => error
-			);
-			try {
-				await vi.waitFor(
-					async () => {
-						const [lock] = await db.$queryRaw<
-							{ waiting: boolean }[]
-						>`SELECT EXISTS (SELECT 1 FROM pg_locks WHERE locktype = 'advisory' AND NOT granted AND objid = hashtext(${`band:${band.id}`})::oid) AS waiting`;
-						expect(lock.waiting).toBe(true);
-					},
-					{ timeout: 5000, interval: 50 }
-				);
-			} finally {
-				release();
-				await revoke;
-			}
-			try {
-				expect(await answer).toMatchObject({ status: 403 });
-			} finally {
-				await db.membership.updateMany({
-					where: { personId: ids.lea, orgId: band.id },
-					data: { role: 'OWNER' }
+		it.each([true, false])(
+			'la réponse (accord : %s) attend le verrou puis refuse une gestion révoquée',
+			async (accept) => {
+				await reps.proposeRepresentation(ids.bk, { artist: band.handle, kind: 'BOOKER' });
+				const row = await pendingOf(ids.bk);
+				let release!: () => void;
+				let ready!: () => void;
+				const held = new Promise<void>((r) => {
+					ready = r;
 				});
-				await reps.endRepresentation(row.id, ids.bk);
+				const gate = new Promise<void>((r) => {
+					release = r;
+				});
+				const revoke = db.$transaction(
+					async (tx) => {
+						await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`band:${band.id}`}))`;
+						await tx.membership.updateMany({
+							where: { personId: ids.lea, orgId: band.id },
+							data: { role: 'MEMBER' }
+						});
+						ready();
+						await gate;
+					},
+					{ timeout: 20_000 }
+				);
+				await held;
+				const answer = reps.answerRepresentation(row.id, ids.lea, accept).then(
+					() => null,
+					(error: unknown) => error
+				);
+				try {
+					await vi.waitFor(
+						async () => {
+							const [lock] = await db.$queryRaw<
+								{ waiting: boolean }[]
+							>`SELECT EXISTS (SELECT 1 FROM pg_locks WHERE locktype = 'advisory' AND NOT granted AND objid = hashtext(${`band:${band.id}`})::oid) AS waiting`;
+							expect(lock.waiting).toBe(true);
+						},
+						{ timeout: 5000, interval: 50 }
+					);
+				} finally {
+					release();
+					await revoke;
+				}
+				try {
+					expect(await answer).toMatchObject({ status: 403 });
+				} finally {
+					await db.membership.updateMany({
+						where: { personId: ids.lea, orgId: band.id },
+						data: { role: 'OWNER' }
+					});
+					await reps.endRepresentation(row.id, ids.bk);
+				}
 			}
-		});
+		);
 
 		it('RGPD : fiche et accompagnements exportés ; après l’anonymisation, la fiche part et l’accompagnement se termine', async () => {
 			const rock = (
@@ -436,7 +444,7 @@ describe.skipIf(!enabled)(
 			expect(exported?.profil_manager_booker?.ce_que_je_cherche).toBe(
 				'Je cherche des groupes rock.'
 			);
-			expect(exported?.accompagnements).toMatchObject([
+			expect(exported?.accompagnements?.filter((r) => r.statut === 'CONFIRMED')).toMatchObject([
 				{
 					role: 'agent',
 					metier: 'MANAGER',
@@ -453,7 +461,12 @@ describe.skipIf(!enabled)(
 				where: { agentId: ids.mgr },
 				select: { status: true, message: true }
 			});
-			expect(rows).toEqual([{ status: 'ENDED', message: null }]);
+			expect(rows).toEqual(
+				expect.arrayContaining([
+					{ status: 'ENDED', message: null },
+					{ status: 'DECLINED', message: null }
+				])
+			);
 		});
 	}
 );

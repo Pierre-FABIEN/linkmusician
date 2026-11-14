@@ -44,6 +44,7 @@ export function delegationTimeline(facts: DelegationFacts): ActivityEntry[] {
 }
 
 export function representationTimeline(facts: {
+	status?: 'PROPOSED' | 'CONFIRMED' | 'ENDED' | 'DECLINED' | 'WITHDRAWN';
 	id: string;
 	createdAt: Date;
 	agent: Author;
@@ -60,7 +61,17 @@ export function representationTimeline(facts: {
 			at: facts.confirmedAt,
 			by: facts.confirmedBy
 		},
-		{ key: 'ended', action: 'Accompagnement terminé', at: facts.endedAt, by: facts.endedBy }
+		{
+			key: 'ended',
+			action:
+				facts.status === 'DECLINED'
+					? 'Proposition déclinée'
+					: facts.status === 'WITHDRAWN'
+						? 'Proposition retirée'
+						: 'Accompagnement terminé',
+			at: facts.endedAt,
+			by: facts.endedBy
+		}
 	]
 		.flatMap((event) =>
 			event.at

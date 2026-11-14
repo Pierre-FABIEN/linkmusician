@@ -371,3 +371,14 @@ de démonstration : par exemple Nora (`nora-prod`), invitée par Marc
 reprend son auteur et sa date. Une
 participation fondée directement, sans invitant conservé, montre un historique
 vide. Le seed existant reste la source de ces situations, sans nouvelle donnée.
+
+### DASH-05c — décisions de propositions d’accompagnement
+
+`npm run seed:demo` ajoute, de façon rejouable, deux propositions fictives closes
+d’Élise booker aux Lucioles : l’une déclinée par Zoé, l’autre retirée par Élise.
+Elles sont distinctes de la proposition en attente existante. Seuls les comptes
+`@demo.linkmusician.test` sont utilisés ; aucun message ni périmètre privé n’est
+conservé. Élise et Zoé les retrouvent dans **Accompagnement → Historique des
+accompagnements**, avec le type d’acte, l’auteur et l’heure de Paris. Elles ne
+figurent plus dans les propositions à traiter. La gestion de l’agence ne reçoit
+aucun accès supplémentaire. Aucun événement passé n’est reconstruit.

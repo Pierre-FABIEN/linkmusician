@@ -877,6 +877,47 @@ export async function seedRepresentations(
 	);
 }
 
+/** DASH-05c : décisions fictives explicites, seulement entre comptes de démonstration. */
+export async function seedRepresentationDecisions(
+	prisma: PrismaClient,
+	communes: Commune[],
+	demoHandles: ReadonlyMap<string, string>
+) {
+	const ctx = await demoContext(prisma, communes[0], null, demoHandles);
+	const agentId = id(ctx, 'elise-booker');
+	const byId = id(ctx, 'zoe-violon');
+	const artist = await prisma.actor.findUnique({
+		where: { handle: 'les-lucioles' },
+		select: { id: true }
+	});
+	if (!artist || !agentId || !byId) return;
+	if (
+		(await prisma.person.count({
+			where: {
+				actorId: { in: [agentId, byId] },
+				user: { email: { endsWith: '@demo.linkmusician.test' } }
+			}
+		})) !== 2
+	)
+		return;
+	for (const status of ['DECLINED', 'WITHDRAWN'] as const) {
+		await prisma.representation.upsert({
+			where: { id: `demo-proposition-${status.toLowerCase()}` },
+			update: {},
+			create: {
+				id: `demo-proposition-${status.toLowerCase()}`,
+				agentId,
+				artistId: artist.id,
+				kind: 'BOOKER',
+				status,
+				createdAt: ago(5),
+				endedAt: ago(4),
+				endedById: status === 'DECLINED' ? byId : agentId
+			}
+		});
+	}
+}
+
 /**
  * École (P5-11) : Théo ouvre l'« École de musique du Faubourg » ; Manon et
  * Jade (16 ans) en sont élèves. Deux ateliers jam à la MJC des Arts : celui

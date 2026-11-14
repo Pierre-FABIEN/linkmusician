@@ -12,7 +12,7 @@
  *   200 au manager (rendement par artiste, confiance de qui confirme) ; rien
  *   au booker, dont les points viennent des dates (`gig.held`,
  *   `tour.booked`). **Une proposition non confirmée ne rapporte rien.**
- * - **Décliner** ou **retirer** une proposition la supprime ; **terminer**
+ * - **Décliner** ou **retirer** conserve la décision sans ses termes privés ; **terminer**
  *   un accompagnement confirmé le garde (`ENDED`) : il compte toujours pour
  *   le rang, mais ne permet plus de booker.
  * - Rang (`getAgentTier`) : lu dans les accompagnements confirmés et les
@@ -114,6 +114,15 @@ const MANAGES = {
 	status: 'ACTIVE',
 	role: { in: ['OWNER', 'ADMIN'] }
 } satisfies Prisma.MembershipWhereInput;
+
+/** Une décision conserve seulement le contexte et ses auteurs, aucun terme privé. */
+const CLOSED_PROPOSAL = {
+	message: null,
+	startsAt: null,
+	expiresAt: null,
+	departmentCodes: [],
+	allowedActions: []
+} satisfies Prisma.RepresentationUpdateInput;
 
 async function lockPair(tx: Tx, agentId: string, artistId: string) {
 	await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`rep:${agentId}:${artistId}`}))`;
@@ -320,7 +329,10 @@ export async function answerRepresentation(
 			throw new RepresentationError('Cette proposition n’est plus valable.', 404);
 		}
 		if (!accept) {
-			await tx.representation.delete({ where: { id: representationId } });
+			await tx.representation.update({
+				where: { id: representationId },
+				data: { status: 'DECLINED', endedAt: now, endedById: personId, ...CLOSED_PROPOSAL }
+			});
 			return;
 		}
 		await requireEligiblePair(tx, row.agentId, row.artistId, row.kind, now);
@@ -353,19 +365,22 @@ export async function endRepresentation(representationId: string, byId: string, 
 		where: { id: representationId },
 		select: { agentId: true, artistId: true, status: true }
 	});
-	if (!row || row.status === 'ENDED') {
+	if (!row || !['PROPOSED', 'CONFIRMED'].includes(row.status)) {
 		throw new RepresentationError('Cet accompagnement est déjà terminé.', 404);
 	}
 	await prisma.$transaction(async (tx) => {
 		await lockArtist(tx, row.artistId);
 		await lockPair(tx, row.agentId, row.artistId);
 		const current = await tx.representation.findUnique({ where: { id: representationId } });
-		if (!current || current.status === 'ENDED')
+		if (!current || !['PROPOSED', 'CONFIRMED'].includes(current.status))
 			throw new RepresentationError('Cet accompagnement est déjà terminé.', 404);
 		const isAgentSide = current.agentId === byId;
 		if (current.status === 'PROPOSED') {
 			if (!isAgentSide) throw new RepresentationError('Réponds à la proposition plutôt.', 403);
-			await tx.representation.delete({ where: { id: representationId } });
+			await tx.representation.update({
+				where: { id: representationId },
+				data: { status: 'WITHDRAWN', endedAt: now, endedById: byId, ...CLOSED_PROPOSAL }
+			});
 			return;
 		}
 		if (
@@ -388,7 +403,11 @@ const ARTIST = { select: { id: true, handle: true, displayName: true, kind: true
 /** Mes accompagnements comme agent : en attente, en cours, terminés. */
 export async function myRepresentations(agentId: string) {
 	const rows = await prisma.representation.findMany({
-		where: { agentId, artist: { deletedAt: null } },
+		where: {
+			agentId,
+			status: { in: ['PROPOSED', 'CONFIRMED', 'ENDED'] },
+			artist: { deletedAt: null }
+		},
 		orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
 		take: 100,
 		select: {

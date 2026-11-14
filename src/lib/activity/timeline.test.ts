@@ -131,3 +131,21 @@ describe('faits de mandat et d’invitation', () => {
 		).toBe('Compte supprimé');
 	});
 });
+
+it.each([
+	['DECLINED', 'Proposition déclinée'],
+	['WITHDRAWN', 'Proposition retirée']
+] as const)('projette %s sans inventer de confirmation', (status, action) => {
+	const entries = representationTimeline({
+		id: 'proposition',
+		status,
+		createdAt: at(10),
+		agent: facts.proposedBy,
+		confirmedAt: null,
+		confirmedBy: null,
+		endedAt: at(12),
+		endedBy: null
+	});
+	expect(entries).toHaveLength(2);
+	expect(entries[1]).toMatchObject({ action, author: 'Compte supprimé', occurredAt: at(12) });
+});

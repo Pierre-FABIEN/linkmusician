@@ -3773,11 +3773,13 @@ enum AgentKind {
 }
 
 /// PROPOSED : en attente de l'artiste ; CONFIRMED : en cours ; ENDED : terminé
-/// (par l'une ou l'autre partie). Décliner supprime la proposition.
+/// DECLINED : refus de l’artiste ; WITHDRAWN : retrait par le titulaire.
 enum RepresentationStatus {
   PROPOSED
   CONFIRMED
   ENDED
+  DECLINED
+  WITHDRAWN
 }
 
 /// Accompagnement d'un artiste (personne ou groupe) par un·e manager ou un·e
@@ -3806,6 +3808,7 @@ model Representation {
   /// Personne qui a confirmé pour l'artiste ; oubliée à l'anonymisation.
   confirmedById String?
   confirmedBy   Actor?               @relation("RepresentationConfirmer", fields: [confirmedById], references: [id], onDelete: SetNull)
+  /// Date et auteur de fin, refus ou retrait, selon le statut (DASH-05c).
   endedAt       DateTime?
   endedById     String?
   endedBy       Actor?               @relation("RepresentationEnder", fields: [endedById], references: [id], onDelete: SetNull)

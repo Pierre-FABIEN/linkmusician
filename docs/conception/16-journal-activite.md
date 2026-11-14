@@ -91,8 +91,74 @@ validé : aucune acceptation, départ ou modification de rôle n’en est dédui
 
 Pas de migration ni de nouvelle copie de données personnelles : export et
 anonymisation des mandats, auteurs et participations restent ceux des sources
-existantes. Les propositions refusées ou retirées sont encore supprimées par
-le service d’accompagnement et disparaissent de cette liste. La conservation
-transactionnelle de ces décisions et des autres transitions reste à livrer,
+existantes. À l’issue de DASH-05b, les propositions refusées ou retirées étaient encore
+supprimées ; DASH-05c ci-dessous les conserve désormais. La conservation
+transactionnelle des autres transitions reste à livrer,
 avec les validations de collaboration et les futures options/propositions.
 DASH-05 n’est donc pas clos après ce lot.
+
+## Propositions déclinées ou retirées (DASH-05c)
+
+Vérification du 14/11/2026 : `git ls-remote origin refs/heads/main` renvoie
+`ac4d736510f089b2f0fb3f12458bb7c0c50dbe38`. Les lots DASH-05a et DASH-05b
+sont donc déjà publiés, contrairement à leur ancien suivi GitHub.
+
+### Audit et conservation minimale
+
+`answerRepresentation(..., false)` supprimait la proposition après vérification
+de la majorité et de la gestion actuelle de l’artiste ; `endRepresentation`
+supprimait une proposition uniquement pour son titulaire. Ces deux chemins
+prenaient déjà, dans la transaction, les verrous de l’artiste (`band:`) et de
+la paire (`rep:`). L’état était relu après attente ; le refus relisait aussi les
+droits. Une proposition expirée ou bloquée peut toujours être déclinée ou retirée,
+sans pouvoir être confirmée. Aucun droit par métier, agence ou ancienne gestion
+n’est ajouté. Le retrait d’un mandat confirmé garde son comportement `ENDED`.
+
+La même ligne `Representation` est conservée : `DECLINED` pour le refus,
+`WITHDRAWN` pour le retrait ; `endedById` désigne la personne qui a effectivement
+agi et `endedAt` la date passée à l’action. `agentId`, `artistId`, `kind` et
+`createdAt` conservent le contexte et la proposition initiale. Aucun motif n’est
+collecté. Message, dates de périmètre, départements et activités sont effacés dans
+le même UPDATE. Aucun deuxième registre ni copie de nom n’est créé.
+
+L’action et sa trace forment une seule écriture dans la transaction existante.
+Les appels répétés ou concurrents sur une proposition close échouent avec 404 :
+ils ne créent aucune entrée et n’écrasent ni l’auteur ni la date du premier acte.
+Le verrou commun arbitre refus et retrait concurrents. Une nouvelle proposition
+est une nouvelle ligne ; les états clos ne consomment aucun quota, n’apparaissent
+plus dans les listes d’action et ne donnent aucun droit, rang ou point.
+
+### Lecture privée et RGPD
+
+Les lecteurs de DASH-05b restent inchangés : titulaire, artiste individuel majeur
+ou gestion majeure ACTIVE OWNER/ADMIN actuelle du groupe vivant. Une personne
+ayant refusé pour un groupe perd l’accès lorsqu’elle quitte sa gestion. Agence,
+simple membre et collaborateur délégué n’acquièrent aucun accès. Les libellés du
+journal distinguent « Proposition déclinée », « Proposition retirée » et
+« Accompagnement terminé ». La lecture n’émet aucun acte ni notification.
+
+L’export personnel inclut le statut, la date et le nom actuel non supprimé de
+l’auteur de décision. Il couvre aussi les refus effectués pour un groupe par le
+compte exporté, même après son départ de la gestion, avec le rôle « auteur de
+décision » et le contexte artiste. Cette restitution de son propre acte n’accorde
+aucun accès au journal ou à un mandat. Les termes d’une proposition close ont
+déjà été effacés. L’anonymisation existante efface `endedById` pour tout auteur,
+y compris lorsqu’il n’est ni artiste ni titulaire ; le statut et la date restent.
+Un auteur effacé s’affiche « Compte supprimé ». Les parties supprimées restent
+exclues des lectures selon les règles précédentes.
+
+### Migration et limites
+
+Migration `20261114180757_representation_proposal_decisions` : deux valeurs
+d’enum ajoutées, aucune modification d’index ni reprise de données. Générée par
+`db:nouvelle-migration`, nettoyée et relue, puis appliquée via `db:deploy` et
+`db:deploy:e2e`. Client Prisma régénéré. PostgreSQL ne permet pas de retirer une
+valeur d’enum directement : pas de migration descendante destructive qui perdrait
+les décisions. Un retour applicatif doit conserver la compatibilité de lecture
+avec ces états ; une restauration complète relève d’une sauvegarde cohérente.
+
+Aucune proposition anciennement supprimée n’est reconstruite, notamment depuis
+les notifications. Les fixtures de démo sont des décisions fictives explicites,
+réservées aux comptes de démonstration ; elles ne convertissent aucun fait réel.
+Participations, validations de collaboration et futures options restent à livrer.
+DASH-05 et l’épopée #30 restent ouverts.
