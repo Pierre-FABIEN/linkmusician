@@ -351,3 +351,52 @@ Démo : trois périodes fictives dédiées, quatre actes datés et attribués,
 réservés aux comptes de démonstration. Groupes, écoles, validations de
 collaboration et futures options restent à livrer ; DASH-05/#35 et #30
 restent ouverts.
+
+## Entrées et sorties des groupes (DASH-05g)
+
+Le circuit `bands/service.ts` conserve les nouvelles acceptations/refus
+personnels d’invitations, annulations par la gestion, demandes (`JOIN_REQUESTED`),
+réponses par leur gestionnaire réel (`REQUEST_ACCEPTED`, `REQUEST_DECLINED`),
+retraits personnels de demande (`REQUEST_WITHDRAWN`), départs et retraits.
+La dissolution après départ du seul responsable annule les invitations et
+clôt les demandes (`REQUEST_CLOSED`) avec cet auteur et cette date. Aucun
+refus de la personne invitée ou de la demandeuse n’en est déduit.
+
+L’entrée par recrutement (`RECRUITMENT_ACCEPTED`) porte le gestionnaire réel
+qui accepte la candidature, jamais le candidat par défaut. Elle utilise la
+période existante si une demande ou invitation attendait ; sinon elle en crée
+une nouvelle. L’origine d’invitation connue reste visible, mais aucun accord
+d’invitation ni acceptation de demande n’est inventé lors du recrutement.
+Le titre libre, la candidature et le message ne sont pas copiés dans la trace.
+
+Tous ces actes partagent la transaction sous verrou `band:` avec la mutation,
+la formation, la progression et les notifications existantes. L’échec d’une
+trace annule la transaction. Relecture de l’état et unicité période/type
+empêchent doublons et écrasements en cas de rejeu/concurrence. Les demandes
+et invitations suivantes sont de nouvelles périodes. Le retrait d’une demande
+relit aussi le groupe vivant, y compris pour son auteur. Les droits métier,
+quotas, protections des mineur·es et règles de progression restent ceux du
+service ; le journal ne produit aucun effet supplémentaire.
+
+Le lecteur commun inclut BAND : uniquement les propres périodes et actes
+conservés, après refus ou départ, sans outil ni accès aux traces de collègues.
+Un groupe masqué n’empêche pas la lecture personnelle ; un groupe supprimé
+ou dissous est exclu. Aucun historique n’est ajouté à la page publique du
+groupe ni aux listes d’équipe. Export des actes personnels et pour autrui,
+anonymisation de leurs auteurs et cascades existants réutilisés. La succession
+technique RGPD n’invente aucun acte humain. Aucun ancien état, rôle, date ou
+notification n’est converti en nouvelle trace.
+
+Migration `20261114195003_membership_band_admissions` : six valeurs d’enum
+ajoutées, aucune table, aucun index supprimé ou recréé, aucune reprise de
+données. Générée avec `db:nouvelle-migration`, nettoyée, relue puis appliquée
+avec `db:deploy` et `db:deploy:e2e` ; client régénéré. Les valeurs d’enum ne
+peuvent pas être retirées directement : pas de retour destructif automatique.
+Un retour applicatif doit garder la compatibilité de lecture ; une restauration
+complète relève d’une sauvegarde cohérente.
+
+Découpage : les rôles et transmissions peuvent se répéter pendant une même
+période. La contrainte actuelle participation/type leur est inadaptée ; ils
+restent dans un lot distinct et ne sont pas annoncés livrés ici. Les écoles,
+validations de collaboration et futures options restent également à suivre.
+DASH-05/#35 et #30 restent ouverts.

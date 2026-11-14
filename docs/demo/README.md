@@ -417,3 +417,16 @@ auteur et leur date. Marc retrouve son acte pour autrui dans son export sans
 pouvoir lire les périodes d’Élise. L’agence existante et ses invitations ne
 sont pas converties ; les fixtures dédiées sont rejouables par upserts et
 réservées aux comptes de démonstration.
+
+### DASH-05g — entrées et sorties du groupe
+
+Se connecter avec **Zoé** (`zoe-violon`, suffixe réel indiqué par le seed), puis
+ouvrir **Mes structures › Historique de mes participations**. « Démo — Mémoire
+du groupe » comporte sept périodes fictives et treize actes : invitation
+acceptée puis quittée, refus et annulation d’invitation, demande déclinée,
+demande retirée par Zoé, demande acceptée par Malik puis quittée, entrée par
+recrutement décidée par Malik puis départ de Zoé. Chaque acte porte son auteur
+et sa date. Malik retrouve ses actes pour autrui dans son export sans accès
+aux périodes de Zoé. Le groupe est dédié aux fixtures ; les groupes et
+participations déjà présents ne sont pas convertis. Le seed est rejouable
+par upserts et vérifie les comptes de démonstration avant création.

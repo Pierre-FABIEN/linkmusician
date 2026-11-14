@@ -197,3 +197,37 @@ describe('actes personnels de participation', () => {
 		expect(entries.every((e) => e.author === 'Compte supprimé')).toBe(true);
 	});
 });
+
+it('distingue les demandes et le recrutement sans inventer une invitation ni son acceptation', () => {
+	const entries = membershipTimeline({
+		id: 'demande',
+		createdAt: at(10),
+		invitedById: null,
+		invitedBy: null,
+		decisions: (
+			[
+				'JOIN_REQUESTED',
+				'REQUEST_ACCEPTED',
+				'REQUEST_DECLINED',
+				'REQUEST_WITHDRAWN',
+				'REQUEST_CLOSED',
+				'RECRUITMENT_ACCEPTED'
+			] as const
+		).map((kind, i) => ({
+			id: String(i),
+			kind,
+			occurredAt: at(11),
+			author: i === 0 ? facts.delegate : null
+		}))
+	});
+	expect(entries.map((e) => e.action)).toEqual([
+		'Demande pour rejoindre le groupe',
+		'Demande acceptée par la gestion',
+		'Demande déclinée par la gestion',
+		'Demande retirée par son auteur',
+		'Demande close par dissolution du groupe',
+		'Entrée dans le groupe par recrutement'
+	]);
+	expect(entries[0].author).toBe('Collaboratrice');
+	expect(entries.slice(1).every((e) => e.author === 'Compte supprimé')).toBe(true);
+});

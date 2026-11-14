@@ -548,3 +548,14 @@ reconstruction d’anciens actes. Livraison locale sur `main`, sans push ;
 DASH-05d et DASH-05e restent également locaux, `origin/main` vérifié à
 `7253877`. Groupes, écoles, validations et futures options restent à suivre ;
 DASH-05 reste ouvert. Preuves de recette dans [le suivi](README.md).
+
+DASH-05g : entrées et sorties des groupes journalisées sous verrou `band:`
+dans la transaction de mutation : invitations, demandes, recrutement,
+départ/retrait et clôtures par dissolution. Lecture strictement personnelle
+après départ/refus, sans outils ni journal de collègues ; export/anonymisation
+communs réutilisés. Migration additive de six types d’acte, sans reprise des
+anciens états. Les rôles et transmissions des groupes, répétables sur une même
+période, restent dans un lot distinct ; écoles, validations et options restent
+également à suivre. `origin/main` revérifié à `4e7e0ff` : DASH-05d/e/f sont
+publiés ; DASH-05g livré localement sur `main`, sans push. Recette détaillée
+dans [le suivi](README.md). DASH-05 reste ouvert.

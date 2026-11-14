@@ -532,10 +532,16 @@ périmètre proposé sont effacés. Les propositions supprimées avant cette
 fonction ne peuvent pas être retrouvées.
 
 Dans **Mes structures**, ta fiche de participation affiche aussi ton invitation
-lorsqu’elle est conservée. Pour les agences, studios, lieux et organisations d’organisateur·rices,
-les nouvelles acceptations, refus, annulations par la gestion, départs, retraits
-et transmissions de responsabilité sont aussi datés avec leur auteur réel.
+lorsqu’elle est conservée. Pour les groupes, agences, studios, lieux et
+organisations d’organisateur·rices, les nouvelles acceptations, refus, annulations
+par la gestion, départs et retraits
+sont aussi datés avec leur auteur réel. Les transmissions de responsabilité sont
+également conservées pour les agences, studios, lieux et organisations.
 **Historique de mes participations** conserve tes propres périodes, même après
 un départ ou un refus, sans redonner accès aux outils ni aux participations des
-autres. Les autres types de structures et les anciens actes ne sont pas
-reconstitués. Ces consultations n’envoient aucune notification.
+autres. Les demandes pour rejoindre un groupe distinguent envoi, réponse de la
+gestion, retrait personnel et clôture par dissolution. Une entrée par recrutement
+est identifiée comme telle, sans inventer une acceptation d’invitation. Les
+changements de rôle et transmissions des groupes restent à venir dans ce journal.
+Les autres actes des écoles restent à venir et aucun ancien acte n’est
+reconstitué. Ces consultations n’envoient aucune notification.

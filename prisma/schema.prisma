@@ -2976,7 +2976,7 @@ model Membership {
   @@map("memberships")
 }
 
-/// DASH-05d : actes explicites de co-gestion, sans message ni motif.
+/// DASH-05 : actes explicites de participation, sans message ni motif.
 enum MembershipDecisionKind {
   ACCEPTED
   DECLINED
@@ -2984,6 +2984,12 @@ enum MembershipDecisionKind {
   LEFT
   REMOVED
   RESPONSIBILITY_RECEIVED
+  JOIN_REQUESTED
+  REQUEST_ACCEPTED
+  REQUEST_DECLINED
+  REQUEST_WITHDRAWN
+  REQUEST_CLOSED
+  RECRUITMENT_ACCEPTED
 }
 
 /// Une transition conservée dans la transaction de sa participation.

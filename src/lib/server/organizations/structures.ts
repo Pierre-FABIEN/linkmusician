@@ -87,13 +87,13 @@ export async function myStructure(orgId: string, personId: string) {
 	return { ...structure, href };
 }
 
-/** Historique de mes seules périodes de co-gestion, sans ouvrir les outils. */
+/** Historique de mes seules périodes personnelles, sans ouvrir les outils. */
 export async function myComanagementHistory(personId: string) {
 	const rows = await prisma.membership.findMany({
 		where: {
 			personId,
 			person: { deletedAt: null },
-			org: { ...liveStructure(), kind: { in: ['PROMOTER', 'VENUE', 'STUDIO', 'AGENCY'] } },
+			org: { ...liveStructure(), kind: { in: ['PROMOTER', 'VENUE', 'STUDIO', 'AGENCY', 'BAND'] } },
 			OR: [{ invitedById: { not: null } }, { decisions: { some: {} } }]
 		},
 		orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],

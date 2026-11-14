@@ -273,7 +273,7 @@ export async function inviteToBand(
 }
 
 /** Demander à rejoindre un groupe. */
-export async function requestToJoin(bandId: string, personId: string) {
+export async function requestToJoin(bandId: string, personId: string, now = new Date()) {
 	if ((await countActiveBands(prisma, personId)) >= MAX_ACTIVE_BANDS) {
 		throw new BandError(`Tu es déjà dans ${MAX_ACTIVE_BANDS} groupes.`);
 	}
@@ -295,7 +295,15 @@ export async function requestToJoin(bandId: string, personId: string) {
 		if (existing?.status === 'INVITED') {
 			throw new BandError('Le groupe t’a déjà invité·e : accepte son invitation.');
 		}
-		await tx.membership.create({ data: { orgId: bandId, personId, status: 'REQUESTED' } });
+		await tx.membership.create({
+			data: {
+				orgId: bandId,
+				personId,
+				status: 'REQUESTED',
+				createdAt: now,
+				decisions: { create: { kind: 'JOIN_REQUESTED', authorId: personId, occurredAt: now } }
+			}
+		});
 		for (const managerId of managers) {
 			await notify(tx, {
 				recipientId: managerId,
@@ -341,6 +349,14 @@ export async function answerInvite(
 			where: { id: row.id },
 			data: accept ? { status: 'ACTIVE', startedAt: now } : { status: 'DECLINED', endedAt: now }
 		});
+		await tx.membershipDecision.create({
+			data: {
+				membershipId: row.id,
+				kind: accept ? 'ACCEPTED' : 'DECLINED',
+				authorId: personId,
+				occurredAt: now
+			}
+		});
 		if (accept) await afterJoin(tx, first.orgId, personId, now, personId);
 		return band.actor;
 	}, TX);
@@ -371,6 +387,14 @@ export async function answerRequest(
 			where: { id: row.id },
 			data: accept ? { status: 'ACTIVE', startedAt: now } : { status: 'DECLINED', endedAt: now }
 		});
+		await tx.membershipDecision.create({
+			data: {
+				membershipId: row.id,
+				kind: accept ? 'REQUEST_ACCEPTED' : 'REQUEST_DECLINED',
+				authorId: managerId,
+				occurredAt: now
+			}
+		});
 		if (accept) await afterJoin(tx, first.orgId, first.personId, now, managerId);
 	}, TX);
 }
@@ -384,6 +408,7 @@ export async function withdrawPending(membershipId: string, byId: string, now = 
 	if (!first) throw new BandError('Introuvable.', 404);
 	await prisma.$transaction(async (tx) => {
 		await lockBand(tx, first.orgId);
+		await liveBand(tx, first.orgId);
 		const row = await pendingRow(tx, membershipId);
 		if (row.status === 'REQUESTED' && row.personId !== byId) {
 			throw new BandError('Seule la personne qui a demandé peut retirer sa demande.', 403);
@@ -395,6 +420,14 @@ export async function withdrawPending(membershipId: string, byId: string, now = 
 		await tx.membership.update({
 			where: { id: row.id },
 			data: { status: 'DECLINED', endedAt: now }
+		});
+		await tx.membershipDecision.create({
+			data: {
+				membershipId: row.id,
+				kind: row.status === 'REQUESTED' ? 'REQUEST_WITHDRAWN' : 'WITHDRAWN',
+				authorId: byId,
+				occurredAt: now
+			}
 		});
 	}, TX);
 }
@@ -413,18 +446,33 @@ export async function leaveBand(bandId: string, personId: string, now = new Date
 			where: { id: mine.id },
 			data: { status: 'LEFT', endedAt: now }
 		});
-		if (check.dissolves) await dissolve(tx, bandId, now);
+		await tx.membershipDecision.create({
+			data: { membershipId: mine.id, kind: 'LEFT', authorId: personId, occurredAt: now }
+		});
+		if (check.dissolves) await dissolve(tx, bandId, personId, now);
 		return { dissolved: check.dissolves };
 	}, TX);
 }
 
 /** Dissolution : invitations et demandes closes, l'historique reste. */
-async function dissolve(tx: Tx, bandId: string, now: Date) {
+async function dissolve(tx: Tx, bandId: string, byId: string, now: Date) {
+	const pending = await tx.membership.findMany({
+		where: { orgId: bandId, status: { in: ['INVITED', 'REQUESTED'] } },
+		select: { id: true, status: true }
+	});
 	await tx.membership.updateMany({
 		where: { orgId: bandId, status: { in: ['INVITED', 'REQUESTED'] } },
 		data: { status: 'DECLINED', endedAt: now }
 	});
 	await tx.organization.update({ where: { actorId: bandId }, data: { dissolvedAt: now } });
+	await tx.membershipDecision.createMany({
+		data: pending.map((row) => ({
+			membershipId: row.id,
+			kind: row.status === 'INVITED' ? ('WITHDRAWN' as const) : ('REQUEST_CLOSED' as const),
+			authorId: byId,
+			occurredAt: now
+		}))
+	});
 }
 
 /** Retirer un membre (OWNER : tout le monde ; ADMIN : les membres). */
@@ -449,6 +497,9 @@ export async function removeMember(membershipId: string, managerId: string, now 
 		await tx.membership.update({
 			where: { id: row.id },
 			data: { status: 'REMOVED', endedAt: now }
+		});
+		await tx.membershipDecision.create({
+			data: { membershipId: row.id, kind: 'REMOVED', authorId: managerId, occurredAt: now }
 		});
 	}, TX);
 }
@@ -574,16 +625,24 @@ export async function joinFromRecruitment(
 	if (!existing && (await countActiveBands(tx, personId)) >= MAX_ACTIVE_BANDS) {
 		throw new BandError(`Cette personne est déjà dans ${MAX_ACTIVE_BANDS} groupes.`);
 	}
+	let membershipId: string;
 	if (existing) {
+		membershipId = existing.id;
 		await tx.membership.update({
 			where: { id: existing.id },
 			data: { status: 'ACTIVE', startedAt: now, title: existing.title ?? input.title }
 		});
 	} else {
-		await tx.membership.create({
-			data: { orgId: bandId, personId, status: 'ACTIVE', startedAt: now, title: input.title }
-		});
+		membershipId = (
+			await tx.membership.create({
+				data: { orgId: bandId, personId, status: 'ACTIVE', startedAt: now, title: input.title },
+				select: { id: true }
+			})
+		).id;
 	}
+	await tx.membershipDecision.create({
+		data: { membershipId, kind: 'RECRUITMENT_ACCEPTED', authorId: managerId, occurredAt: now }
+	});
 	await afterJoin(tx, bandId, personId, now, managerId);
 }
 

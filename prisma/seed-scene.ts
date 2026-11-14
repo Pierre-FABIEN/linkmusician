@@ -1768,7 +1768,7 @@ export async function seedScene(
 	);
 }
 
-/** DASH-05d/05e/05f : périodes fictives explicites, sans déduire les actes des anciennes participations. */
+/** DASH-05d à 05g : périodes fictives explicites, sans déduire les actes des anciennes participations. */
 export async function seedComanagementDecisions(
 	prisma: PrismaClient,
 	communes: Commune[],
@@ -1799,6 +1799,14 @@ export async function seedComanagementDecisions(
 			orgId: 'demo-memoire-agence',
 			name: 'Démo — Mémoire de l’agence',
 			prefix: 'demo-agence-participation'
+		},
+		{
+			kind: 'BAND',
+			owner: 'malik-batterie',
+			participant: 'zoe-violon',
+			orgId: 'demo-memoire-groupe',
+			name: 'Démo — Mémoire du groupe',
+			prefix: 'demo-groupe-participation'
 		}
 	] as const) {
 		const ownerId = id(ctx, fixture.owner);
@@ -1848,7 +1856,7 @@ export async function seedComanagementDecisions(
 					id: `${fixture.prefix}-${kind.toLowerCase()}`,
 					orgId,
 					personId: participantId,
-					role: 'ADMIN',
+					role: fixture.kind === 'BAND' ? 'MEMBER' : 'ADMIN',
 					status: kind === 'LEFT' ? 'LEFT' : 'DECLINED',
 					invitedById: ownerId,
 					createdAt: new Date(at.getTime() - 2 * DAY),
@@ -1870,6 +1878,56 @@ export async function seedComanagementDecisions(
 					}
 				}
 			});
+		}
+		if (fixture.kind === 'BAND') {
+			for (const [i, kind] of (
+				[
+					'REQUEST_DECLINED',
+					'REQUEST_WITHDRAWN',
+					'REQUEST_ACCEPTED',
+					'RECRUITMENT_ACCEPTED'
+				] as const
+			).entries()) {
+				const at = ago(6 - i);
+				const joined = kind === 'REQUEST_ACCEPTED' || kind === 'RECRUITMENT_ACCEPTED';
+				const decidedAt = new Date(at.getTime() - DAY);
+				const requestedAt = new Date(at.getTime() - 2 * DAY);
+				await prisma.membership.upsert({
+					where: { id: `${fixture.prefix}-${kind.toLowerCase()}` },
+					update: {},
+					create: {
+						id: `${fixture.prefix}-${kind.toLowerCase()}`,
+						orgId,
+						personId: participantId,
+						role: 'MEMBER',
+						status: joined ? 'LEFT' : 'DECLINED',
+						createdAt: requestedAt,
+						startedAt: joined ? decidedAt : null,
+						endedAt: joined ? at : decidedAt,
+						decisions: {
+							create: [
+								...(kind !== 'RECRUITMENT_ACCEPTED'
+									? [
+											{
+												kind: 'JOIN_REQUESTED' as const,
+												authorId: participantId,
+												occurredAt: requestedAt
+											}
+										]
+									: []),
+								{
+									kind,
+									authorId: kind === 'REQUEST_WITHDRAWN' ? participantId : ownerId,
+									occurredAt: decidedAt
+								},
+								...(joined
+									? [{ kind: 'LEFT' as const, authorId: participantId, occurredAt: at }]
+									: [])
+							]
+						}
+					}
+				});
+			}
 		}
 	}
 }

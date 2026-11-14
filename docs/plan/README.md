@@ -266,10 +266,11 @@ Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 | DASH-05a       | ✅ publié | Audit des traces, contrat de lecture commun et historique privé des affectations, sans nouveau stockage ni notification.                  |
 | DASH-05b       | ✅ publié | Historiques privés des mandats conservés, dont terminés, et invitations personnelles des structures.                                      |
 | DASH-05c       | ✅ publié | Refus et retraits de propositions conservés atomiquement, auteurs réels, accès privés et RGPD.                                            |
-| DASH-05d       | ✅ local  | Actes de co-gestion PROMOTER/VENUE et historique des périodes personnelles, accès après départ sans outils ; autres circuits à suivre.    |
-| DASH-05e       | ✅ local  | Actes de co-gestion des studios et périodes personnelles dans l’historique commun ; garde STUDIO vivant, export/anonymisation réutilisés. |
-| DASH-05f       | ✅ local  | Actes des participations aux agences, historique personnel et fermeture transactionnelle, export/anonymisation réutilisés.                |
-| DASH-05, suite | ⬜        | Autres circuits de participation (groupes, écoles), validations de collaboration et futures options.                                      |
+| DASH-05d       | ✅ publié | Actes de co-gestion PROMOTER/VENUE et historique des périodes personnelles, accès après départ sans outils ; autres circuits à suivre.    |
+| DASH-05e       | ✅ publié | Actes de co-gestion des studios et périodes personnelles dans l’historique commun ; garde STUDIO vivant, export/anonymisation réutilisés. |
+| DASH-05f       | ✅ publié | Actes des participations aux agences, historique personnel et fermeture transactionnelle, export/anonymisation réutilisés.                |
+| DASH-05g       | ✅ local  | Entrées/sorties des groupes : invitations, demandes, recrutement, départ/retrait et dissolution ; rôles et transmissions à suivre.        |
+| DASH-05, suite | ⬜        | Rôles et transmissions répétables des groupes, écoles, validations de collaboration et futures options.                                   |
 
 Le journal commun n’est pas terminé. Conception et limites :
 [journal d’activité](../conception/16-journal-activite.md).
@@ -486,3 +487,58 @@ DASH-05d (`7a9db5d`), DASH-05e (`8d71cc2`) et ce nouveau lot DASH-05f
 sont locaux sur `main` ; aucun push effectué. Groupes, écoles, validations
 de collaboration et futures options restent à suivre. DASH-05/#35 et #30
 restent ouverts ; aucune modification distante des issues pendant ce lot.
+
+### DASH-05g — entrées et sorties des groupes
+
+Le service `bands/service.ts` conserve les acceptations/refus d’invitations,
+annulations, demandes et leurs réponses, retraits personnels de demande,
+entrées par recrutement, départs et retraits, avec auteur réel et date dans
+la transaction sous verrou `band:`. La dissolution conserve le départ du
+responsable, les annulations d’invitations et les clôtures de demandes :
+aucun refus personnel inventé. Le retrait d’une demande relit aussi le groupe
+vivant, y compris pour son auteur. Appels répétés/concurrents sans doublon ni
+écrasement, nouvelle demande/invitation sur une nouvelle période.
+
+Une entrée par recrutement est attribuée au gestionnaire qui accepte, sans
+fabriquer un accord d’invitation ou une réponse de demande. Une période en
+attente est conservée lors de ce recrutement. Les effets de formation,
+progression, quotas, protections des mineur·es et notifications restent ceux
+du service. L’échec d’une trace annule la mutation et ses effets.
+
+Le lecteur commun inclut BAND, uniquement ses propres périodes, après refus
+ou départ, sans outils ni lecture des collègues ; groupe masqué autorisé,
+groupe supprimé/dissous exclu. L’export conserve les actes personnels et pour
+autrui, y compris ceux d’une dissolution ; anonymisation des auteurs réutilisée
+sans trace humaine de ses successions techniques. Aucun texte privé copié,
+aucun ancien acte reconstitué. Les rôles et transmissions répétables restent
+à suivre : la contrainte participation/type actuelle n’y est pas adaptée.
+
+Migration additive `20261114195003_membership_band_admissions` (six valeurs
+d’enum), générée, nettoyée et relue, appliquée par `db:deploy` puis
+`db:deploy:e2e`, client régénéré. Aucun index supprimé/recréé, aucune reprise
+de données. Pas de retour destructif automatique sur l’enum ; lecture
+compatible requise en cas de retour applicatif, sauvegarde cohérente pour
+une restauration complète. Aide, conception, documentation des groupes,
+plan et démo actualisés. `seed:demo` exécuté : « Démo — Mémoire du groupe »,
+sept périodes fictives et treize actes datés/attribués vérifiés en base
+(Zoé et Malik), sans convertir les groupes et participations existants.
+
+Recette : 1 360 tests unitaires réussis. 61 intégrations distinctes réussies :
+18 nouveaux cas des groupes (16 au passage commun, puis les 18 après ajout
+du retrait personnel déterministe et de l’ancienne demande sans reconstruction),
+32 historiques communs et 11 tests existants des groupes/recrutement. Les
+fixtures d’exclusion de type des historiques studio/agence utilisent désormais
+SCHOOL, hors du périmètre du lecteur. Cinq E2E réussis sans reprise : groupes,
+recrutement, structures et les deux parcours d’aide. Départ, perte d’accès,
+lecture personnelle au clavier, axe et 390 px, nouvelle période de demande
+refusée et auteurs distincts vérifiés. Types : 0 erreur, 0 avertissement,
+contrôle final exécuté après les E2E. Formatage et ESLint ciblés conformes.
+Le lint global reste bloqué par le formatage des scripts préexistants
+`.shot-metro.mjs` et `.shot-tmp.mjs`.
+
+État distant revérifié : `4e7e0fff79b99afe97ca64a9ea621db89db6747b` ;
+DASH-05d/e/f sont donc désormais publiés. Ce lot DASH-05g reste un nouveau
+commit local sur `main`, sans push. Rôles/transmissions des groupes, écoles,
+validations de collaboration et futures options restent à suivre ;
+DASH-05/#35 et #30 restent ouverts. Aucune modification distante des issues
+pendant ce lot.

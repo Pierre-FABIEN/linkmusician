@@ -114,7 +114,13 @@ export const MEMBERSHIP_DECISION_LABELS = {
 	WITHDRAWN: 'Invitation annulée par la gestion',
 	LEFT: 'Participation quittée',
 	REMOVED: 'Participation retirée par la gestion',
-	RESPONSIBILITY_RECEIVED: 'Responsabilité transmise à cette participation'
+	RESPONSIBILITY_RECEIVED: 'Responsabilité transmise à cette participation',
+	JOIN_REQUESTED: 'Demande pour rejoindre le groupe',
+	REQUEST_ACCEPTED: 'Demande acceptée par la gestion',
+	REQUEST_DECLINED: 'Demande déclinée par la gestion',
+	REQUEST_WITHDRAWN: 'Demande retirée par son auteur',
+	REQUEST_CLOSED: 'Demande close par dissolution du groupe',
+	RECRUITMENT_ACCEPTED: 'Entrée dans le groupe par recrutement'
 } as const;
 export function membershipTimeline(
 	facts: Parameters<typeof membershipInvitationTimeline>[0] & {

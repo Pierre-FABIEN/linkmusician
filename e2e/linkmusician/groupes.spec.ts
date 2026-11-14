@@ -110,6 +110,28 @@ test.describe('LinkMusician — groupes', () => {
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
 			});
 
+			await test.step('4b. Malik retrouve ses actes privés après son départ', async () => {
+				const band = await db.actor.findFirstOrThrow({
+					where: { displayName: bandName, kind: 'ORGANIZATION' }
+				});
+				expect((await malikPage.request.get(`/structure/${band.id}`)).status()).toBe(404);
+				await malikPage.setViewportSize({ width: 390, height: 844 });
+				await malikPage.goto('/structure');
+				await waitForAppReady(malikPage);
+				await malikPage.getByRole('link', { name: /^Historique de mes participations/ }).focus();
+				await malikPage.keyboard.press('Enter');
+				await expect(malikPage).toHaveURL('/structure/historique');
+				const history = malikPage.getByRole('region', { name: bandName, exact: true });
+				await expect(history.locator('li')).toHaveCount(3);
+				await expect(history.getByText('Invitation acceptée', { exact: true })).toBeVisible();
+				await expect(history.getByText('Participation quittée', { exact: true })).toBeVisible();
+				await expect(history.locator('time').last()).toHaveAttribute('datetime', /T.*Z$/);
+				await expectNoA11yViolations(malikPage, A11Y_EXCLUDE);
+				expect(
+					await malikPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+				).toBe(true);
+			});
+
 			await test.step('5. Je remplis la fiche du groupe', async () => {
 				await page.getByRole('link', { name: 'Modifier la fiche du groupe' }).click();
 				await page.getByLabel('Présentation').fill('Rock garage, répètes le jeudi.');
@@ -152,6 +174,33 @@ test.describe('LinkMusician — groupes', () => {
 				await expect(
 					page.getByRole('list', { name: `Groupes de ${me.actor.displayName}` })
 				).toContainText(bandName);
+			});
+			await test.step('7. Une nouvelle demande déclinée garde son auteur et sa période', async () => {
+				const band = await db.actor.findFirstOrThrow({
+					where: { displayName: bandName, kind: 'ORGANIZATION' }
+				});
+				await malikPage.goto(`/groupes/${band.handle}`);
+				await waitForAppReady(malikPage);
+				await malikPage.getByRole('button', { name: 'Demander à rejoindre', exact: true }).click();
+				await expect(malikPage.getByText('Ta demande est envoyée.')).toBeVisible();
+				await page.goto(`/groupes/${band.handle}`);
+				await waitForAppReady(page);
+				await page.getByRole('button', { name: 'Refuser', exact: true }).click();
+				await expect(page.getByText('Demande refusée.', { exact: true })).toBeVisible();
+				await malikPage.goto('/structure/historique');
+				await waitForAppReady(malikPage);
+				const periods = malikPage.getByRole('region', { name: bandName, exact: true });
+				await expect(periods).toHaveCount(2);
+				const demand = periods.filter({ hasText: 'Demande pour rejoindre le groupe' });
+				await expect(demand.locator('li')).toHaveCount(2);
+				await expect(
+					demand.getByText('Demande déclinée par la gestion', { exact: true })
+				).toBeVisible();
+				await expect(demand.getByText(me.actor.displayName, { exact: true })).toBeVisible();
+				await expect(demand.getByText(malik.actor.displayName, { exact: true })).toBeVisible();
+				await page.goto('/structure/historique');
+				await waitForAppReady(page);
+				await expect(page.getByRole('region', { name: bandName, exact: true })).toHaveCount(0);
 			});
 		} finally {
 			await malikContext.close();

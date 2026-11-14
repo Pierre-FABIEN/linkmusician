@@ -312,7 +312,7 @@ describe.skipIf(!enabled)('historique personnel de co-gestion', { timeout: 60000
 			studios.leaveOrRemoveStudioManager(orgId, people.outsider, membershipId)
 		).rejects.toMatchObject({ status: 403 });
 		await db.membership.delete({ where: { id: member.id } });
-		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'BAND' } });
+		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'SCHOOL' } });
 		await expect(
 			studios.leaveOrRemoveStudioManager(orgId, people.invitee, membershipId)
 		).rejects.toMatchObject({ status: 404 });
@@ -404,7 +404,7 @@ describe.skipIf(!enabled)('historique personnel de co-gestion', { timeout: 60000
 			agencies.removeAgencyMember(orgId, people.outsider, membershipId)
 		).rejects.toMatchObject({ status: 403 });
 		await db.membership.delete({ where: { id: member.id } });
-		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'BAND' } });
+		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'SCHOOL' } });
 		await expect(
 			agencies.removeAgencyMember(orgId, people.invitee, membershipId)
 		).rejects.toMatchObject({ status: 404 });

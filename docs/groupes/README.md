@@ -86,3 +86,45 @@ l'historique comme un club : qui y a joué, et quand.
   anonymisation ; page publique : effectif, mineure, données internes,
   sitemap, fiche) ; e2e `e2e/linkmusician/groupes.spec.ts` (création,
   invitation, départ, fiche, page publique vue par un visiteur).
+
+## Actes personnels d’entrée et de sortie (DASH-05g)
+
+Les invitations acceptées/refusées et annulées, demandes envoyées, acceptées,
+déclinées, retirées par leur auteur ou closes par dissolution, entrées par
+recrutement, départs et retraits ont désormais une trace `MembershipDecision`
+avec auteur réel et date, dans la même transaction sous verrou `band:`.
+Le lecteur **Mes structures › Historique de mes participations** inclut les
+propres périodes des groupes vivants, après départ ou refus, sans outil ni
+lecture des collègues. La fiche de participation courante perd toujours son
+accès après départ ; aucun journal personnel n’est ajouté à la page publique.
+Un groupe masqué n’interdit pas la lecture de ses propres actes privés ; les
+groupes supprimés ou dissous sont exclus du lecteur. L’export RGPD conserve
+leurs actes, y compris ceux de dissolution et les décisions pour autrui.
+
+Une demande et sa réponse ont des auteurs distincts ; l’acceptation d’un
+recrutement est attribuée au gestionnaire qui l’a décidé, sans fabriquer un
+accord d’invitation du candidat. Une invitation/demande déjà ouverte est
+conservée lors de l’entrée par recrutement. La dissolution par le départ du
+seul responsable conserve son départ, les annulations d’invitations et les
+clôtures de demandes avec son identité, sans inventer un refus personnel.
+Un retrait de demande exige désormais aussi un groupe vivant.
+
+Les appels répétés/concurrents relisent l’état et ne doublonnent ni n’écrasent
+les actes. Une nouvelle invitation ou demande crée une nouvelle période.
+Les effets de progression, formation, notifications, quotas et règles pour
+les mineur·es gardent leur fonctionnement ; la lecture n’émet aucun effet.
+Aucun titre libre, message ou motif recopié, aucun ancien acte reconstruit.
+L’anonymisation efface les auteurs selon le registre commun sans créer de
+trace humaine de ses successions techniques.
+
+Migration additive `20261114195003_membership_band_admissions` : six valeurs
+d’enum, sans nouvelle table ni modification d’index ; anciennes données
+conservées. PostgreSQL ne retire pas directement les valeurs d’enum : le
+retour applicatif doit rester compatible avec les nouveaux actes, toute
+restauration complète exige une sauvegarde cohérente.
+
+Les changements de rôle et transmissions répétables des groupes restent dans
+le lot suivant : la contrainte actuelle participation/type n’est pas adaptée
+à leur répétition sur une même période. DASH-05 reste ouvert. Intégrations
+`bands/history.integration.test.ts`, services de groupe et recrutement ;
+E2E `groupes.spec.ts` enrichi, `recrutement.spec.ts` et `structures.spec.ts`.
