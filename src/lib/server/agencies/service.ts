@@ -184,11 +184,18 @@ export async function answerAgencyInvite(orgId: string, personId: string, accept
 			)
 				throw new AgencyError('Cette invitation n’est plus valable.', 403);
 		}
+		const now = new Date();
 		await tx.membership.update({
 			where: { id: row.id },
-			data: accept
-				? { status: 'ACTIVE', startedAt: new Date() }
-				: { status: 'DECLINED', endedAt: new Date() }
+			data: accept ? { status: 'ACTIVE', startedAt: now } : { status: 'DECLINED', endedAt: now }
+		});
+		await tx.membershipDecision.create({
+			data: {
+				membershipId: row.id,
+				kind: accept ? 'ACCEPTED' : 'DECLINED',
+				authorId: personId,
+				occurredAt: now
+			}
 		});
 	}, ORG_TX);
 }
@@ -197,12 +204,13 @@ export async function removeAgencyMember(orgId: string, byId: string, membership
 		await lockOrg(tx, orgId);
 		const me = await access(tx, orgId, byId);
 		const target = await tx.membership.findFirst({
-			where: { id: membershipId, orgId, status: { in: ['ACTIVE', 'INVITED'] } }
+			where: { id: membershipId, orgId, status: { in: ['ACTIVE', 'INVITED'] }, org: live() }
 		});
 		if (!target) throw new AgencyError('Participation introuvable.', 404);
 		const self = target.personId === byId;
 		if (!mayRemoveAgencyMember(me.role, target.role, target.status, self))
 			throw new AgencyError('Seule la personne responsable retire une participation active.', 403);
+		const now = new Date();
 		if (target.role === 'OWNER') {
 			const next = await tx.membership.findFirst({
 				where: {
@@ -219,12 +227,35 @@ export async function removeAgencyMember(orgId: string, byId: string, membership
 					'Invite une personne à la co-gestion avant de passer le relais, ou ferme l’agence.'
 				);
 			await tx.membership.update({ where: { id: next.id }, data: { role: 'OWNER' } });
+			await tx.membershipDecision.create({
+				data: {
+					membershipId: next.id,
+					kind: 'RESPONSIBILITY_RECEIVED',
+					authorId: byId,
+					occurredAt: now
+				}
+			});
 		}
 		await tx.membership.update({
 			where: { id: target.id },
 			data: {
 				status: target.status === 'INVITED' ? 'DECLINED' : self ? 'LEFT' : 'REMOVED',
-				endedAt: new Date()
+				endedAt: now
+			}
+		});
+		await tx.membershipDecision.create({
+			data: {
+				membershipId: target.id,
+				kind:
+					target.status === 'INVITED'
+						? self
+							? 'DECLINED'
+							: 'WITHDRAWN'
+						: self
+							? 'LEFT'
+							: 'REMOVED',
+				authorId: byId,
+				occurredAt: now
 			}
 		});
 	}, ORG_TX);
@@ -239,6 +270,10 @@ export async function closeAgency(orgId: string, byId: string) {
 		if ((await manager(tx, orgId, byId)).role !== 'OWNER')
 			throw new AgencyError('Seule la personne responsable ferme l’agence.', 403);
 		const now = new Date();
+		const periods = await tx.membership.findMany({
+			where: { orgId, status: { in: ['ACTIVE', 'INVITED', 'REQUESTED'] } },
+			select: { id: true, status: true }
+		});
 		await tx.organization.update({ where: { actorId: orgId }, data: { dissolvedAt: now } });
 		await tx.membership.updateMany({
 			where: { orgId, status: 'ACTIVE' },
@@ -247,6 +282,14 @@ export async function closeAgency(orgId: string, byId: string) {
 		await tx.membership.updateMany({
 			where: { orgId, status: { in: ['INVITED', 'REQUESTED'] } },
 			data: { status: 'DECLINED', endedAt: now }
+		});
+		await tx.membershipDecision.createMany({
+			data: periods.map((period) => ({
+				membershipId: period.id,
+				kind: period.status === 'ACTIVE' ? ('REMOVED' as const) : ('WITHDRAWN' as const),
+				authorId: byId,
+				occurredAt: now
+			}))
 		});
 	}, ORG_TX);
 }

@@ -52,3 +52,28 @@ L’entrée **Mes affectations** ne liste que les mandats et accords qui te
 concernent. Le titulaire propose, le collaborateur accepte et l’artiste
 approuve les droits explicites. Le rôle dans l’agence ne remplace jamais
 ces accords. Voir [affectations et délégations](../conception/15-affectations-delegations.md).
+
+## Historique personnel des participations (DASH-05f)
+
+Les acceptations, refus, annulations par la gestion, départs, retraits et
+transmissions sont conservés avec auteur réel et date dans `MembershipDecision`.
+Mutation et trace partagent la transaction et le verrou `org:`. Les appels
+répétés ou concurrents ne rejouent pas la décision ; une nouvelle invitation
+crée une nouvelle période. Les collaborateurs sont couverts comme la co-gestion.
+
+Depuis **Mes structures › Historique de mes participations**, chaque personne
+retrouve uniquement ses propres périodes, y compris après refus ou départ.
+La fiche courante et les outils gardent leurs droits ; ni le métier, ni la
+gestion de l’agence ne donnent accès aux périodes des collègues. Les agences
+sont privées et les agences supprimées ou dissoutes sont exclues du lecteur.
+
+La fermeture conserve pour chaque période encore ouverte un retrait par la
+gestion (active) ou une annulation (invitation), attribué au responsable qui
+ferme, à l’instant de dissolution. Ces faits restent dans l’export personnel
+RGPD même lorsque l’agence fermée ne figure plus dans le journal. Aucun départ
+volontaire ni refus personnel n’est inventé lors d’une fermeture. L’effacement
+RGPD et ses successions techniques ne créent aucun acte humain.
+
+Export des actes personnels et pour autrui, anonymisation des auteurs et
+projection commune réutilisés, sans migration. Aucun ancien acte reconstruit
+depuis les dates, états ou notifications ; aucun message ou motif copié.

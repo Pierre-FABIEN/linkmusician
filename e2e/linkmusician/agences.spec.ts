@@ -76,6 +76,24 @@ test('agence : invitations, collaborateur, co-gestion et révocation', async ({
 			await otherPage.getByRole('button', { name: 'Quitter l’agence' }).click();
 			await expect(otherPage).toHaveURL(/\/agences$/);
 		});
+		await test.step('Retrouver sa période après départ sans équipe ni outils', async () => {
+			expect((await otherPage.request.get(`/structure/${orgId}`)).status()).toBe(404);
+			await otherPage.setViewportSize({ width: 390, height: 844 });
+			await otherPage.goto('/structure');
+			await waitForAppReady(otherPage);
+			await otherPage.getByRole('link', { name: /^Historique de mes participations/ }).focus();
+			await otherPage.keyboard.press('Enter');
+			await expect(otherPage).toHaveURL('/structure/historique');
+			const history = otherPage.getByRole('region', { name, exact: true });
+			await expect(history.locator('li')).toHaveCount(3);
+			await expect(history.getByText('Invitation acceptée', { exact: true })).toBeVisible();
+			await expect(history.getByText('Participation quittée', { exact: true })).toBeVisible();
+			await expect(history.locator('time').last()).toHaveAttribute('datetime', /T.*Z$/);
+			await expectNoA11yViolations(otherPage, ['.cartButton']);
+			expect(
+				await otherPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+			).toBe(true);
+		});
 		await test.step('Accepter la co-gestion puis vérifier la révocation en GET et POST', async () => {
 			await page.goto(`/agences/${orgId}/equipe`);
 			await waitForAppReady(page);
@@ -103,6 +121,25 @@ test('agence : invitations, collaborateur, co-gestion et révocation', async ({
 				headers: { Origin: new URL(otherPage.url()).origin }
 			});
 			expect(revoked.status()).toBe(404);
+			await otherPage.goto('/structure/historique');
+			await waitForAppReady(otherPage);
+			const periods = otherPage.getByRole('region', { name, exact: true });
+			await expect(periods).toHaveCount(2);
+			await expect(
+				periods.getByText('Participation retirée par la gestion', { exact: true })
+			).toBeVisible();
+			const owner = await db.person.findUniqueOrThrow({
+				where: { userId: (await requireUser(account.email)).id },
+				include: { actor: true }
+			});
+			await expect(
+				periods
+					.filter({ hasText: 'Participation retirée par la gestion' })
+					.getByText(owner.actor.displayName, { exact: true })
+			).toHaveCount(2);
+			await page.goto('/structure/historique');
+			await waitForAppReady(page);
+			await expect(page.getByRole('region', { name, exact: true })).toHaveCount(0);
 			await expectNoA11yViolations(page, ['.cartButton']);
 			expect(
 				await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)

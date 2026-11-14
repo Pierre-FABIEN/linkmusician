@@ -12,12 +12,12 @@
 		<MetroPageHeader title="Historique de mes participations" />
 		<a href={resolve('/(app)/structure')} class="lm-link">Retour à Mes structures</a>
 		<p>
-			Les 100 périodes les plus récemment mises à jour de tes studios, lieux et organisations.
-			Chaque liste concerne uniquement ta propre participation, y compris après un départ. Cet
-			historique ne donne aucun accès aux outils de gestion.
+			Les 100 périodes les plus récemment mises à jour de tes agences, studios, lieux et
+			organisations. Chaque liste concerne uniquement ta propre participation, y compris après un
+			départ. Cet historique ne donne aucun accès aux outils de gestion.
 		</p>
 		<p>
-			Seuls les nouveaux actes de co-gestion sont enregistrés. Les anciennes invitations connues
+			Seuls les nouveaux actes de participation sont enregistrés. Les anciennes invitations connues
 			restent visibles ; aucun autre acte passé n’est reconstitué.
 		</p>
 		{#each data.periods as period (period.id)}

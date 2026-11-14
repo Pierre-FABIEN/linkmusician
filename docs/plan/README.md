@@ -268,7 +268,8 @@ Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 | DASH-05c       | ✅ publié | Refus et retraits de propositions conservés atomiquement, auteurs réels, accès privés et RGPD.                                            |
 | DASH-05d       | ✅ local  | Actes de co-gestion PROMOTER/VENUE et historique des périodes personnelles, accès après départ sans outils ; autres circuits à suivre.    |
 | DASH-05e       | ✅ local  | Actes de co-gestion des studios et périodes personnelles dans l’historique commun ; garde STUDIO vivant, export/anonymisation réutilisés. |
-| DASH-05, suite | ⬜        | Autres circuits de participation (groupes, agences, écoles), validations de collaboration et futures options.                             |
+| DASH-05f       | ✅ local  | Actes des participations aux agences, historique personnel et fermeture transactionnelle, export/anonymisation réutilisés.                |
+| DASH-05, suite | ⬜        | Autres circuits de participation (groupes, écoles), validations de collaboration et futures options.                                      |
 
 Le journal commun n’est pas terminé. Conception et limites :
 [journal d’activité](../conception/16-journal-activite.md).
@@ -439,3 +440,49 @@ réel, perte d’accès, historiques personnels distincts, clavier, axe et 390 p
 vérifiés. Types : 0 erreur, 0 avertissement ; aucun `check` pendant les E2E.
 Formatage et ESLint ciblés conformes. Le lint global retrouve uniquement le
 formatage des scripts préexistants `.shot-metro.mjs` et `.shot-tmp.mjs`.
+
+### DASH-05f — participations des agences
+
+Le service `agencies/service.ts` conserve acceptation, refus, annulation,
+départ, retrait et responsabilité reçue avec auteur réel et date, dans
+`MembershipDecision`, sous le verrou `org:` et dans la transaction de mutation.
+La fermeture conserve aussi les retraits des périodes actives et les
+annulations des invitations, attribués au responsable qui ferme à l’instant
+de dissolution. Aucun refus personnel ou départ volontaire n’est inventé
+pour cette fermeture. Appels répétés/concurrents sans doublon ni écrasement ;
+une nouvelle invitation reste une nouvelle période. Droits, métiers requis,
+quotas et notifications conservés.
+
+L’historique commun inclut les propres périodes des agences vivantes,
+collaborateurs comme co-gestion, même après départ ou refus. La fiche courante
+et l’équipe perdent toujours leur accès après retrait ; aucune lecture
+des périodes de collègues par gestion ou métier. Les agences dissoutes ou
+supprimées sont exclues du lecteur. Export personnel et des actes pour autrui,
+anonymisation des auteurs et projection existants réutilisés, sans migration
+ni copie de données privées. Les actes de fermeture restent exportables.
+Aucun acte humain créé par l’anonymisation ou reconstruit depuis un ancien état.
+
+Aide, documentation des agences, conception, plan et démo actualisés.
+`seed:demo` exécuté : « Démo — Mémoire de l’agence », trois périodes fictives
+et quatre actes attribués/datés vérifiés en base (Élise et Marc), sans convertir
+l’agence et les invitations existantes.
+
+Recette : 1 359 tests unitaires réussis (319 conditionnels non exécutés),
+39 intégrations réussies (32 historiques communs dont 10 nouveaux cas agence,
+et 7 tests existants des agences). Un premier passage avait une assertion
+d’exclusion de type STUDIO dans la nouvelle fixture agence : le test utilise
+désormais BAND, hors du périmètre du lecteur ; la relance complète passe.
+Quatre E2E réussis sans reprise : agences, structures et les deux parcours
+d’aide. Acceptation comme collaborateur, départ, nouvelle période de co-gestion,
+retrait par l’auteur réel, perte d’accès GET/POST, historiques personnels
+distincts, clavier, axe et 390 px vérifiés. Types : 0 erreur, 0 avertissement ;
+contrôle exécuté séparément des E2E. Formatage et ESLint ciblés conformes.
+Le lint global reste bloqué par le formatage des scripts préexistants
+`.shot-metro.mjs` et `.shot-tmp.mjs` ; ESLint global retrouve aussi une variable
+inutilisée dans `.shot-metro.mjs` (1 erreur, 464 avertissements).
+
+État distant revérifié : `7253877e1873b575adaa0fd57a76c7064fcdd883`.
+DASH-05d (`7a9db5d`), DASH-05e (`8d71cc2`) et ce nouveau lot DASH-05f
+sont locaux sur `main` ; aucun push effectué. Groupes, écoles, validations
+de collaboration et futures options restent à suivre. DASH-05/#35 et #30
+restent ouverts ; aucune modification distante des issues pendant ce lot.

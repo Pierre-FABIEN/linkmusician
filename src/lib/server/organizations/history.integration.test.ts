@@ -1,4 +1,4 @@
-/** DASH-05d/05e : actes réels de co-gestion, sur le schéma e2e uniquement. */
+/** DASH-05d/05e/05f : actes réels de co-gestion, sur le schéma e2e uniquement. */
 import { afterAll, beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import type { Prisma } from '@prisma/client';
 import dotenv from 'dotenv';
@@ -15,6 +15,7 @@ const db = createPrismaClient(url.toString());
 vi.mock('#lib/server', () => ({ prisma: db }));
 const { answerInvite, leaveOrRemoveManager, inviteManager } = await import('./comanagement');
 const studios = await import('../studios/service');
+const agencies = await import('../agencies/service');
 const { myStructure, myStructures, myComanagementHistory } = await import('./structures');
 const { exportPersonData, personAnonymizationOps } = await import('#lib/prisma/actors/person');
 const prefix = `cohistory-${Date.now()}-`;
@@ -32,8 +33,16 @@ const config = (kind: 'PROMOTER' | 'VENUE') => ({
 	inviteHref: '/organisations'
 });
 
-// Même contrat de journal pour trois circuits, en appelant leurs vrais services.
-function operations(kind: 'PROMOTER' | 'VENUE' | 'STUDIO') {
+// Même contrat de journal pour quatre circuits, en appelant leurs vrais services.
+function operations(kind: 'PROMOTER' | 'VENUE' | 'STUDIO' | 'AGENCY') {
+	if (kind === 'AGENCY')
+		return {
+			answer: (_membershipId: string, personId: string, accept: boolean) =>
+				agencies.answerAgencyInvite(orgId, personId, accept),
+			leave: agencies.removeAgencyMember,
+			invite: (id: string, byId: string, handle: string) =>
+				agencies.inviteAgencyMember(id, byId, { handle, role: 'ADMIN' })
+		};
 	if (kind === 'STUDIO')
 		return {
 			answer: studios.answerStudioInvite,
@@ -66,7 +75,7 @@ describe.skipIf(!enabled)('historique personnel de co-gestion', { timeout: 60000
 								userId: user.id,
 								birthDate: new Date('1990-01-01'),
 								termsAcceptedAt: new Date(),
-								tracks: { create: { track: 'SOUND_ENGINEER' } }
+								tracks: { create: [{ track: 'SOUND_ENGINEER' }, { track: 'MANAGER' }] }
 							}
 						}
 					}
@@ -118,7 +127,7 @@ describe.skipIf(!enabled)('historique personnel de co-gestion', { timeout: 60000
 	});
 	const decisions = () =>
 		db.membershipDecision.findMany({ where: { membershipId }, orderBy: { occurredAt: 'asc' } });
-	for (const kind of ['PROMOTER', 'VENUE', 'STUDIO'] as const) {
+	for (const kind of ['PROMOTER', 'VENUE', 'STUDIO', 'AGENCY'] as const) {
 		const { answer, leave, invite } = operations(kind);
 		async function setKind() {
 			await db.organization.update({ where: { actorId: orgId }, data: { kind } });
@@ -192,7 +201,8 @@ describe.skipIf(!enabled)('historique personnel de co-gestion', { timeout: 60000
 					where: { orgId, personId: people.invitee, status: 'INVITED' }
 				});
 				expect(fresh.id).not.toBe(membershipId);
-				await leave(orgId, people.invitee, fresh.id);
+				if (kind === 'AGENCY') await answer(fresh.id, people.invitee, false);
+				else await leave(orgId, people.invitee, fresh.id);
 				expect(await db.membershipDecision.findMany({ where: { membershipId: fresh.id } })).toEqual(
 					[expect.objectContaining({ kind: 'DECLINED', authorId: people.invitee })]
 				);
@@ -225,7 +235,7 @@ describe.skipIf(!enabled)('historique personnel de co-gestion', { timeout: 60000
 			expect((await myComanagementHistory(people.owner))[0].activity.at(-1)?.action).toBe(
 				'Participation quittée'
 			);
-			await expect(leave(orgId, people.invitee, membershipId)).rejects.toThrow(/seul·e/);
+			await expect(leave(orgId, people.invitee, membershipId)).rejects.toThrow(/seul·e|relais/);
 		});
 	}
 	it('retire un membre avec auteur réel, sans créer d’accès pour une ancienne gestion', async () => {
@@ -302,7 +312,7 @@ describe.skipIf(!enabled)('historique personnel de co-gestion', { timeout: 60000
 			studios.leaveOrRemoveStudioManager(orgId, people.outsider, membershipId)
 		).rejects.toMatchObject({ status: 403 });
 		await db.membership.delete({ where: { id: member.id } });
-		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'AGENCY' } });
+		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'BAND' } });
 		await expect(
 			studios.leaveOrRemoveStudioManager(orgId, people.invitee, membershipId)
 		).rejects.toMatchObject({ status: 404 });
@@ -349,6 +359,167 @@ describe.skipIf(!enabled)('historique personnel de co-gestion', { timeout: 60000
 		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'STUDIO' } });
 		await studios.answerStudioInvite(membershipId, people.invitee, true);
 		await studios.leaveOrRemoveStudioManager(orgId, people.owner, membershipId);
+		const user = await db.person.findUniqueOrThrow({ where: { actorId: people.owner } });
+		expect((await exportPersonData(user.userId))?.actes_de_participation).toContainEqual(
+			expect.objectContaining({
+				role: 'auteur de décision',
+				acte: 'Participation retirée par la gestion',
+				auteur: 'owner'
+			})
+		);
+		const participant = await db.person.findUniqueOrThrow({ where: { actorId: people.invitee } });
+		expect((await exportPersonData(participant.userId))?.actes_de_participation).toContainEqual(
+			expect.objectContaining({
+				role: 'participation personnelle',
+				acte: 'Participation retirée par la gestion',
+				auteur: 'owner'
+			})
+		);
+		expect((await myComanagementHistory(people.owner)).some((p) => p.id === membershipId)).toBe(
+			false
+		);
+		await db.membership.create({
+			data: { orgId, personId: people.outsider, role: 'ADMIN', status: 'ACTIVE' }
+		});
+		await db.$transaction(await personAnonymizationOps(user.userId));
+		expect((await decisions()).at(-1)?.authorId).toBeNull();
+		expect((await myComanagementHistory(people.invitee))[0].activity.at(-1)?.author).toBe(
+			'Compte supprimé'
+		);
+		await db.actor.update({ where: { id: orgId }, data: { deletedAt: new Date() } });
+		expect(await myComanagementHistory(people.invitee)).toEqual([]);
+	});
+	it('agence : refuse tiers, simple membre, type incorrect et agence fermée, sans trace', async () => {
+		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'AGENCY' } });
+		await expect(agencies.answerAgencyInvite(orgId, people.outsider, true)).rejects.toMatchObject({
+			status: 404
+		});
+		await expect(
+			agencies.removeAgencyMember(orgId, people.outsider, membershipId)
+		).rejects.toMatchObject({ status: 404 });
+		const member = await db.membership.create({
+			data: { orgId, personId: people.outsider, role: 'MEMBER', status: 'ACTIVE' }
+		});
+		await expect(
+			agencies.removeAgencyMember(orgId, people.outsider, membershipId)
+		).rejects.toMatchObject({ status: 403 });
+		await db.membership.delete({ where: { id: member.id } });
+		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'BAND' } });
+		await expect(
+			agencies.removeAgencyMember(orgId, people.invitee, membershipId)
+		).rejects.toMatchObject({ status: 404 });
+		expect(await myComanagementHistory(people.invitee)).toEqual([]);
+		await db.organization.update({
+			where: { actorId: orgId },
+			data: { kind: 'AGENCY', dissolvedAt: new Date() }
+		});
+		await expect(
+			agencies.removeAgencyMember(orgId, people.invitee, membershipId)
+		).rejects.toMatchObject({ status: 404 });
+		expect(await decisions()).toEqual([]);
+		expect(await myComanagementHistory(people.invitee)).toEqual([]);
+	});
+	it('agence : annule ensemble succession, départ et actes si la transaction échoue', async () => {
+		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'AGENCY' } });
+		await agencies.answerAgencyInvite(orgId, people.invitee, true);
+		const transaction = db.$transaction.bind(db);
+		const spy = vi.spyOn(db, '$transaction');
+		spy.mockImplementationOnce((async (
+			callback: (tx: Prisma.TransactionClient) => Promise<unknown>
+		) =>
+			transaction(async (tx) => {
+				await callback(tx);
+				throw new Error('rollback agence');
+			})) as unknown as typeof db.$transaction);
+		try {
+			await expect(
+				agencies.removeAgencyMember(orgId, people.owner, ownerMembership)
+			).rejects.toThrow('rollback agence');
+		} finally {
+			spy.mockRestore();
+		}
+		expect((await db.membership.findUniqueOrThrow({ where: { id: ownerMembership } })).status).toBe(
+			'ACTIVE'
+		);
+		expect((await db.membership.findUniqueOrThrow({ where: { id: membershipId } })).role).toBe(
+			'ADMIN'
+		);
+		expect((await decisions()).map((d) => d.kind)).toEqual(['ACCEPTED']);
+		expect(await db.membershipDecision.count({ where: { membershipId: ownerMembership } })).toBe(0);
+	});
+	it('agence : la fermeture conserve les retraits et annulations sans rejouer les anciennes périodes', async () => {
+		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'AGENCY' } });
+		const collaborator = await db.membership.create({
+			data: { orgId, personId: people.outsider, role: 'MEMBER', status: 'ACTIVE' }
+		});
+		await agencies.closeAgency(orgId, people.owner);
+		const org = await db.organization.findUniqueOrThrow({ where: { actorId: orgId } });
+		const rows = await db.membershipDecision.findMany({ where: { membership: { orgId } } });
+		expect(rows).toHaveLength(3);
+		for (const id of [ownerMembership, collaborator.id]) {
+			expect(rows).toContainEqual(
+				expect.objectContaining({
+					membershipId: id,
+					kind: 'REMOVED',
+					authorId: people.owner,
+					occurredAt: org.dissolvedAt
+				})
+			);
+		}
+		expect(await decisions()).toEqual([
+			expect.objectContaining({
+				kind: 'WITHDRAWN',
+				authorId: people.owner,
+				occurredAt: org.dissolvedAt
+			})
+		]);
+		await expect(agencies.closeAgency(orgId, people.owner)).rejects.toMatchObject({ status: 404 });
+		expect(await db.membershipDecision.findMany({ where: { membership: { orgId } } })).toEqual(
+			rows
+		);
+		expect(await myComanagementHistory(people.invitee)).toEqual([]);
+		const participant = await db.person.findUniqueOrThrow({ where: { actorId: people.invitee } });
+		expect((await exportPersonData(participant.userId))?.actes_de_participation).toContainEqual(
+			expect.objectContaining({ acte: 'Invitation annulée par la gestion', auteur: 'owner' })
+		);
+	});
+	it('agence : échec d’écriture des traces annule la fermeture et tous les retraits', async () => {
+		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'AGENCY' } });
+		const transaction = db.$transaction.bind(db);
+		const spy = vi.spyOn(db, '$transaction');
+		spy.mockImplementationOnce((async (
+			callback: (tx: Prisma.TransactionClient) => Promise<unknown>
+		) =>
+			transaction(async (tx) => {
+				const write = vi
+					.spyOn(tx.membershipDecision, 'createMany')
+					.mockRejectedValueOnce(new Error('écriture refusée'));
+				try {
+					return await callback(tx);
+				} finally {
+					write.mockRestore();
+				}
+			})) as unknown as typeof db.$transaction);
+		try {
+			await expect(agencies.closeAgency(orgId, people.owner)).rejects.toThrow('écriture refusée');
+		} finally {
+			spy.mockRestore();
+		}
+		expect(
+			(await db.organization.findUniqueOrThrow({ where: { actorId: orgId } })).dissolvedAt
+		).toBeNull();
+		expect((await db.membership.findUniqueOrThrow({ where: { id: ownerMembership } })).status).toBe(
+			'ACTIVE'
+		);
+		expect((await db.membership.findUniqueOrThrow({ where: { id: membershipId } })).status).toBe(
+			'INVITED'
+		);
+		expect(await db.membershipDecision.count({ where: { membership: { orgId } } })).toBe(0);
+	});
+	it('agence : exporte puis anonymise les auteurs de retrait sans ouvrir un journal tiers', async () => {
+		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'AGENCY' } });
+		await agencies.answerAgencyInvite(orgId, people.invitee, true);
+		await agencies.removeAgencyMember(orgId, people.owner, membershipId);
 		const user = await db.person.findUniqueOrThrow({ where: { actorId: people.owner } });
 		expect((await exportPersonData(user.userId))?.actes_de_participation).toContainEqual(
 			expect.objectContaining({

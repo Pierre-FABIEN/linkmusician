@@ -537,3 +537,14 @@ anciens états. Livraison locale sur `main`, sans push, après DASH-05d lui auss
 local à cette date. Restent les groupes, agences, écoles, validations de
 collaboration et futures options ; DASH-05 reste ouvert. Détail et recette
 dans [le suivi](README.md) et [la conception](../conception/16-journal-activite.md).
+
+DASH-05f : les participations aux agences conservent maintenant leurs actes
+avec auteur réel et date, sous le verrou `org:` dans la transaction de mutation,
+y compris lors d’une fermeture. L’historique personnel commun inclut les
+agences vivantes après refus ou départ sans accès aux collègues ou aux outils.
+Les agences fermées restent exclues du lecteur ; leurs actes restent dans
+l’export RGPD. Export et anonymisation réutilisés, aucune migration ni
+reconstruction d’anciens actes. Livraison locale sur `main`, sans push ;
+DASH-05d et DASH-05e restent également locaux, `origin/main` vérifié à
+`7253877`. Groupes, écoles, validations et futures options restent à suivre ;
+DASH-05 reste ouvert. Preuves de recette dans [le suivi](README.md).

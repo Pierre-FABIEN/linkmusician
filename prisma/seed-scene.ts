@@ -1768,7 +1768,7 @@ export async function seedScene(
 	);
 }
 
-/** DASH-05d/05e : périodes fictives explicites, sans déduire les actes des anciennes participations. */
+/** DASH-05d/05e/05f : périodes fictives explicites, sans déduire les actes des anciennes participations. */
 export async function seedComanagementDecisions(
 	prisma: PrismaClient,
 	communes: Commune[],
@@ -1791,6 +1791,14 @@ export async function seedComanagementDecisions(
 			orgId: 'demo-memoire-studio',
 			name: 'Démo — Mémoire du studio',
 			prefix: 'demo-studio-cogestion'
+		},
+		{
+			kind: 'AGENCY',
+			owner: 'marc-manager',
+			participant: 'elise-booker',
+			orgId: 'demo-memoire-agence',
+			name: 'Démo — Mémoire de l’agence',
+			prefix: 'demo-agence-participation'
 		}
 	] as const) {
 		const ownerId = id(ctx, fixture.owner);
@@ -1821,7 +1829,9 @@ export async function seedComanagementDecisions(
 						kind: fixture.kind,
 						...(fixture.kind === 'STUDIO'
 							? { studio: { create: {} } }
-							: { promoter: { create: {} } }),
+							: fixture.kind === 'PROMOTER'
+								? { promoter: { create: {} } }
+								: {}),
 						memberships: {
 							create: { personId: ownerId, role: 'OWNER', status: 'ACTIVE', startedAt: ago(10) }
 						}

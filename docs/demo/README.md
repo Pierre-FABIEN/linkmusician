@@ -406,3 +406,14 @@ Samir retrouve son acte d’annulation pour autrui dans l’export, sans accès 
 périodes de Nora. La Cave Studio et son invitation existante restent dans leur
 état actuel ; aucun consentement ni acte ancien n’y est fabriqué. Le seed est
 rejouable et vérifie les comptes de démonstration avant de créer ces fixtures.
+
+### DASH-05f — historique personnel de l’agence
+
+Se connecter avec **Élise** (`elise-booker`, suffixe réel indiqué par le seed),
+puis ouvrir **Mes structures › Historique de mes participations**. « Démo —
+Mémoire de l’agence » montre trois périodes fictives : invitation acceptée puis
+quittée, refus d’Élise et annulation par Marc. Les quatre actes portent leur
+auteur et leur date. Marc retrouve son acte pour autrui dans son export sans
+pouvoir lire les périodes d’Élise. L’agence existante et ses invitations ne
+sont pas converties ; les fixtures dédiées sont rejouables par upserts et
+réservées aux comptes de démonstration.

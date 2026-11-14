@@ -319,3 +319,35 @@ auteurs réels, clavier, axe et 390 px. Les périodes fictives de démo sont cr�
 explicitement, par upserts, sans convertir les participations existantes.
 Les agences, groupes, écoles, validations de collaboration et futures options
 restent dans les lots suivants ; DASH-05 et #30 restent ouverts.
+
+## Participations des agences (DASH-05f)
+
+`agencies/service.ts` écrit les six types de décision existants dans la même
+transaction sous verrou `org:` que la mutation. Acceptation et refus portent
+l’identité de la personne invitée ; annulation et retrait portent celle de la
+gestion ; départ et responsabilité reçue portent celle de la personne qui part.
+La même date sert à l’état et aux actes, y compris lors d’une transmission.
+La relecture après verrou et l’unicité période/type empêchent le rejeu ou
+l’écrasement d’un acte. Une nouvelle invitation ouvre une nouvelle période.
+
+La fermeture est un autre chemin de mutation : les périodes actives sont
+retirées et les invitations annulées avec l’auteur réel de la fermeture et
+l’instant de dissolution. Les périodes déjà closes restent intactes. Tout
+échec d’écriture annule ensemble dissolution, états et traces. Aucune
+transition technique RGPD n’est transformée en acte humain. Les permissions,
+majorité, métiers requis, quotas et notifications restent ceux du service.
+
+Le lecteur personnel commun inclut AGENCY : uniquement ses propres périodes,
+sans outils ni liste d’équipe, même après départ ou refus. Les collaborateurs
+sont couverts comme les gestionnaires. Les gardes de la fiche et des outils
+restent inchangées ; un métier ou une ancienne gestion ne donne aucun droit.
+Les agences dissoutes ou supprimées sont exclues, y compris de ce lecteur ;
+l’export RGPD garde les actes personnels et les actes pour autrui avec leur
+contexte d’agence. L’anonymisation des auteurs et les cascades existantes
+s’appliquent sans nouveau champ ni migration. Aucun ancien acte n’est déduit
+d’un état, d’une date ou d’une notification.
+
+Démo : trois périodes fictives dédiées, quatre actes datés et attribués,
+réservés aux comptes de démonstration. Groupes, écoles, validations de
+collaboration et futures options restent à livrer ; DASH-05/#35 et #30
+restent ouverts.

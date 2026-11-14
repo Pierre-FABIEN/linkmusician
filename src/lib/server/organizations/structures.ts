@@ -93,7 +93,7 @@ export async function myComanagementHistory(personId: string) {
 		where: {
 			personId,
 			person: { deletedAt: null },
-			org: { ...liveStructure(), kind: { in: ['PROMOTER', 'VENUE', 'STUDIO'] } },
+			org: { ...liveStructure(), kind: { in: ['PROMOTER', 'VENUE', 'STUDIO', 'AGENCY'] } },
 			OR: [{ invitedById: { not: null } }, { decisions: { some: {} } }]
 		},
 		orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
