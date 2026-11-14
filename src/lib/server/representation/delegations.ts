@@ -5,6 +5,7 @@ import { lockOrg } from '#lib/server/organizations/comanagement';
 import { isIndexable } from '#lib/actors/visibility';
 import { RepresentationError, endRepresentation } from './service';
 import { delegationProposalSchema, delegationAllows } from '#lib/representation/delegations';
+import { delegationTimeline } from '#lib/activity/timeline';
 import {
 	artistAnswerers,
 	delegationInclude,
@@ -225,6 +226,7 @@ export async function delegationForMe(id: string, personId: string, now = new Da
 	return {
 		id: row.id,
 		representationId: row.representationId,
+		activity: delegationTimeline(row),
 		agencyId: row.agencyId,
 		agencyName: row.agency.actor.displayName,
 		artistName: row.representation.artist.displayName,

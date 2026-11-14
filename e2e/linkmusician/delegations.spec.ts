@@ -91,6 +91,10 @@ test('affectation : double accord, retrait et action métier autorisée', async 
 			await delegatePage.goto(path);
 			await waitForAppReady(delegatePage);
 			await expect(delegatePage.getByText('Accords en attente', { exact: true })).toBeVisible();
+			const history = delegatePage.getByRole('region', { name: 'Historique de l’affectation' });
+			await expect(history.getByText('Affectation proposée', { exact: true })).toBeVisible();
+			await expect(history.locator('li')).toHaveCount(1);
+			await expect(history.locator('time')).toHaveAttribute('datetime', /T.*Z$/);
 			await expect(
 				delegatePage.getByText(/Les conditions du mandat sont accessibles après/)
 			).toBeVisible();
@@ -110,6 +114,10 @@ test('affectation : double accord, retrait et action métier autorisée', async 
 			await waitForAppReady(delegatePage);
 			await delegatePage.getByRole('button', { name: 'Accepter l’affectation' }).click();
 			await expect(delegatePage.getByText('Affectation active', { exact: true })).toBeVisible();
+			await expect(history.locator('li')).toHaveCount(3);
+			await expect(history.getByText('Accord pour l’artiste', { exact: true })).toBeVisible();
+			await expect(history.getByText(artist.actor.displayName, { exact: true })).toBeVisible();
+			await expect(history.getByText(delegate.actor.displayName, { exact: true })).toBeVisible();
 			await expect(delegatePage.getByText(/Départements 31/)).toBeVisible();
 		});
 		await test.step('La révocation de l’adhésion retire les droits sans les réactiver au retour', async () => {
@@ -136,6 +144,9 @@ test('affectation : double accord, retrait et action métier autorisée', async 
 			await waitForAppReady(page);
 			await page.getByRole('button', { name: 'Retirer l’affectation' }).click();
 			await expect(page.getByText('Affectation retirée', { exact: true })).toBeVisible();
+			const history = page.getByRole('region', { name: 'Historique de l’affectation' });
+			await expect(history.locator('li')).toHaveCount(4);
+			await expect(history.getByText('Affectation close', { exact: true })).toBeVisible();
 		});
 		await test.step('Un nouvel accord autorise l’action exacte, avec auteur réel et mobile accessible', async () => {
 			path = await propose();

@@ -166,6 +166,40 @@ describe.skipIf(!enabled)(
 				status: 403
 			});
 		});
+		it('projette un historique privé, sans conditions ni notification supplémentaire', async () => {
+			const id = await propose();
+			const notifications = () => db.notification.count({ where: { href: `/delegations/${id}` } });
+			const before = await notifications();
+			const initial = await d.delegationForMe(id, people.delegate);
+			expect(initial?.activity.map((e) => [e.action, e.author])).toEqual([
+				['Affectation proposée', 'agent']
+			]);
+			await approveBoth(id);
+			await d.revokeDelegation(id, people.artist, now);
+			for (const key of ['agent', 'delegate', 'artist']) {
+				const detail = await d.delegationForMe(id, people[key]);
+				expect(detail?.activity).toHaveLength(4);
+				expect(detail?.activity.find((e) => e.id.endsWith(':accepted'))?.author).toBe('delegate');
+				expect(detail?.activity.find((e) => e.id.endsWith(':approved'))?.author).toBe('artist');
+				expect(detail?.activity.find((e) => e.id.endsWith(':ended'))?.author).toBe('artist');
+				expect(JSON.stringify(detail?.activity)).not.toMatch(
+					/Mot confidentiel|CAREER_SUPPORT|departmentCodes|personId/
+				);
+			}
+			// L’administrateur de l’agence n’est pas partie à cette affectation.
+			expect(await d.delegationForMe(id, people.admin)).toBeNull();
+			expect(await d.delegationForMe(id, people.outsider)).toBeNull();
+			expect(await notifications()).toBe(before);
+			await db.actor.update({ where: { id: people.artist }, data: { deletedAt: now } });
+			try {
+				const detail = await d.delegationForMe(id, people.agent);
+				expect(detail?.activity.find((e) => e.id.endsWith(':ended'))?.author).toBe(
+					'Compte supprimé'
+				);
+			} finally {
+				await db.actor.update({ where: { id: people.artist }, data: { deletedAt: null } });
+			}
+		});
 		it('termine un accompagnement uniquement avec le droit consenti et conserve l’auteur réel', async () => {
 			const id = await propose(true);
 			await approveBoth(id);

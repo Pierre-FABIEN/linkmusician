@@ -255,3 +255,28 @@ commit et distinction local/publié. #31 et #33 clôturées ; DASH-02 et
 DASH-04 sont réalisés localement. Les candidatures déléguées (#37/#44),
 le booking avancé (#45) et le journal commun (#35) restent leurs propres lots.
 Détail : [affectations et délégations](../conception/15-affectations-delegations.md).
+
+### DASH-05 — journal d’activité (#35), découpage au 14/11/2026
+
+Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
+`5e7f982` récupérée depuis `origin/main`.
+
+| Lot            | État     | Périmètre                                                                                                                  |
+| -------------- | -------- | -------------------------------------------------------------------------------------------------------------------------- |
+| DASH-05a       | ✅ local | Audit des traces, contrat de lecture commun et historique privé des affectations, sans nouveau stockage ni notification.   |
+| DASH-05, suite | ⬜       | Invitations, mandats, validations, options et propositions ; journalisation transactionnelle des décisions non conservées. |
+
+Le journal commun n’est pas terminé. Conception et limites :
+[journal d’activité](../conception/16-journal-activite.md).
+
+Recette DASH-05a (14/11/2026) : 1 348 tests unitaires réussis, 273 tests
+conditionnels non exécutés. Onze tests d’intégration des affectations réussis
+sur le schéma `e2e`, dont le nouveau contrôle du journal, des auteurs et de
+l’absence d’émission supplémentaire. Trois E2E Chromium réussis : parcours
+des affectations (deux accords, retrait, droits, axe et 390 px) et deux
+parcours d’aide. Aucun nouveau stockage ni migration ; la proposition du
+seed existant alimente directement l’historique, sans générer de consentement.
+Types sans erreur ni avertissement. Formatage des fichiers modifiés et
+ESLint hors `.shot-metro.mjs` et `.shot-tmp.mjs` conformes ; le lint global
+reste bloqué par ces deux scripts préexistants (formatage et variable `c`
+inutilisée dans `.shot-metro.mjs`). Aucun push effectué.

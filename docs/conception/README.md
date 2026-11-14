@@ -98,3 +98,5 @@ Mandats individuels et périmètres consentis : [DASH-04a](./13-mandats-individu
 Agences privées et équipes : [DASH-02b](./14-agences-equipes.md).
 
 Affectations et délégations consenties : [DASH-04b](./15-affectations-delegations.md).
+
+Historique privé et suite du journal : [DASH-05a](./16-journal-activite.md).

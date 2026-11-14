@@ -21,9 +21,9 @@ export const delegationInclude = {
 	delegate: actor,
 	agentMembership: true,
 	delegateMembership: true,
-	proposedBy: { select: { displayName: true } },
-	approvedBy: { select: { displayName: true } },
-	endedBy: { select: { displayName: true } }
+	proposedBy: { select: { displayName: true, deletedAt: true } },
+	approvedBy: { select: { displayName: true, deletedAt: true } },
+	endedBy: { select: { displayName: true, deletedAt: true } }
 } satisfies Prisma.RepresentationDelegationInclude;
 export type DelegationRow = Prisma.RepresentationDelegationGetPayload<{
 	include: typeof delegationInclude;

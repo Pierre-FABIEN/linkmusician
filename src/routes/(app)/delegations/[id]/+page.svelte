@@ -4,6 +4,7 @@
 	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { mandateSummary } from '#lib/representation/rules';
 	import { DELEGATION_ACTION_LABELS } from '#lib/representation/delegations';
+	import ActivityTimeline from '#lib/components/linkmusician/activity/ActivityTimeline.svelte';
 	let { data, form } = $props();
 	const d = $derived(data.delegation);
 </script>
@@ -83,4 +84,9 @@
 			<button class="lm-btn" data-variant="ghost">Retirer l’affectation</button>
 		</form>{/if}
 	{#if d.endedAt}<p>Retirée par {d.endedBy ?? 'Compte supprimé'}.</p>{/if}
+	<ActivityTimeline
+		entries={d.activity}
+		title="Historique de l’affectation"
+		id="delegation-activity-title"
+	/>
 </div>

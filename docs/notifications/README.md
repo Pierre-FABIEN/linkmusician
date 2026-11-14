@@ -1,5 +1,14 @@
 # Notifications
 
+## Journal d’activité (DASH-05a)
+
+L’historique privé des affectations est affiché sur `/delegations/[id]` à
+partir de leurs faits conservés. Il ne crée aucune notification et n’utilise
+pas la cloche comme journal : préférences, blocages et purge rendent celle-ci
+volontairement non exhaustive. Le contrat de lecture et le composant partagés
+préparent les autres domaines ; DASH-05 reste partiel.
+Voir [audit et périmètre](../conception/16-journal-activite.md).
+
 ## Dans l'app (P2-09a)
 
 - **Ce qui entre sous la cloche** : ce qui attend une réaction ou fait

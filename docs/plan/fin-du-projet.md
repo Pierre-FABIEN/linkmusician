@@ -495,6 +495,9 @@ avant d'avoir livré ses fonctions.
 4. DASH-04b : affectations nominatives et droits explicites consentis, voir
    [le cadrage](../conception/15-affectations-delegations.md).
 5. DASH-05 : journal d'activité commun après les permissions et délégations.
+   DASH-05a : historique privé des affectations et contrat de lecture partagé ;
+   invitations, mandats, validations et autres propositions restent dans la suite.
+   Voir [audit du journal](../conception/16-journal-activite.md).
 
 DASH-02a seul ne clôturait pas DASH-02 ; les agences DASH-02b et les
 affectations DASH-04b complètent ce périmètre. Les autres modules DASH et les parties ouvertes

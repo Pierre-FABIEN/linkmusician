@@ -512,3 +512,10 @@ sans connexion ; **Moi seulement** le garde privé. Vérifie aussi que ton
 profil entier n'est pas masqué dans **Réglages**.
 
 </details>
+### Historique d’une affectation
+
+Sur la fiche d’une affectation d’accompagnement, l’historique indique qui l’a
+proposée, qui a donné chacun des deux accords et qui l’a close, avec les dates
+à l’heure de Paris. Il reste privé aux personnes concernées. Un compte supprimé
+est indiqué comme tel. Une clôture peut correspondre à un refus ou à un retrait.
+Consulter cet historique n’envoie aucune notification et ne réactive aucun droit.

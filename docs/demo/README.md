@@ -345,3 +345,13 @@ applicative. La proposition attend les accords de Marc et de Lucas (gestion
 de la Fanfare), dans `/delegations`. Elle ne donne aucun accès avant les deux accords.
 Le seed ne recrée pas la proposition si elle a déjà été retirée ou refusée,
 ne change aucun mandat existant et ne sollicite que les comptes démo.
+
+### Historique privé des affectations — DASH-05a
+
+Le scénario d’agence et d’affectation de `seedDelegations` sert aussi de démo
+du journal : depuis `/delegations`, ouvrir la proposition de l’agence
+`agence-demo-scene`. Sa fiche montre la proposition datée et son auteur.
+Après accord du collaborateur et de la gestion de l’artiste, leurs actes
+apparaissent séparément ; le retrait ajoute une clôture. Le seed reste
+idempotent et ne donne aucun accord à la place des comptes de démonstration.
+Un administrateur d’agence étranger à l’affectation ne voit pas cet historique.

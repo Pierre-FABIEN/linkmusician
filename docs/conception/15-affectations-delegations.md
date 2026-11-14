@@ -66,8 +66,9 @@ d’une migration générée.
 ## Traces et RGPD
 
 `RepresentationDelegation` garde l’auteur de la proposition, l’approbateur,
-les dates des deux accords et l’auteur/date du retrait. Le journal commun
-reste DASH-05. Notification `DELEGATION_REQUEST`, avec préférences et texte
+les dates des deux accords et l’auteur/date du retrait. DASH-05a affiche ces
+faits dans l’historique privé de la fiche (voir [journal d’activité](./16-journal-activite.md)) ;
+les autres domaines du journal commun restent à réaliser. Notification `DELEGATION_REQUEST`, avec préférences et texte
 propres, distincte de la proposition initiale d’accompagnement.
 
 L’export personnel inclut les affectations et leurs consentements. L’anonymisation
