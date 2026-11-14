@@ -21,6 +21,7 @@ const {
 	myRepresentations,
 	pendingRepresentationCount
 } = await import('./service');
+const { getAgentProgress } = await import('#lib/server/progression/crafts');
 const { exportPersonData, personAnonymizationOps } = await import('#lib/prisma/actors/person');
 const prefix = `history-${Date.now()}-`;
 const people: Record<string, string> = {};
@@ -120,6 +121,9 @@ describe.skipIf(!enabled)('historique privé des mandats', { timeout: 60000 }, (
 		'conserve %s et ses auteurs sans termes privés ni doublon',
 		async (status) => {
 			await proposal();
+			expect(
+				(await getAgentProgress(people.agent, 'MANAGER', db)).objectives.map((o) => o.id)
+			).not.toContain('agent.proposal');
 			const notifications = await db.notification.count({
 				where: { recipientActorId: { in: Object.values(people) } }
 			});
@@ -151,6 +155,9 @@ describe.skipIf(!enabled)('historique privé des mandats', { timeout: 60000 }, (
 				status === 'DECLINED' ? 'Proposition déclinée' : 'Proposition retirée'
 			);
 			expect(await myRepresentations(people.agent)).toEqual([]);
+			expect(
+				(await getAgentProgress(people.agent, 'MANAGER', db)).objectives.map((o) => o.id)
+			).toContain('agent.proposal');
 			expect(await pendingRepresentationCount(people.artist)).toBe(0);
 			for (const key of ['outsider', 'member', 'minor'])
 				expect(await representationActivityForMe(id, people[key])).toBeNull();

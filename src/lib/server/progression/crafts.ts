@@ -158,7 +158,10 @@ export async function getAgentProgress(actorId: string, kind: 'MANAGER' | 'BOOKE
 		agentFacts(actorId),
 		db.agentGenre.count({ where: { personId: actorId } }),
 		db.actorLocation.count({ where: { actorId } }),
-		db.representation.count({ where: { agentId: actorId, kind } }),
+		// DASH-05c : les décisions conservées ne valident pas un objectif de proposition.
+		db.representation.count({
+			where: { agentId: actorId, kind, status: { in: ['PROPOSED', 'CONFIRMED', 'ENDED'] } }
+		}),
 		kind === 'BOOKER'
 			? db.domainEvent.findMany({
 					where: { actorIds: { has: actorId }, type: { in: ['gig.held', 'tour.booked'] } },

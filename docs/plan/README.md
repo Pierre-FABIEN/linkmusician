@@ -261,12 +261,12 @@ Détail : [affectations et délégations](../conception/15-affectations-delegati
 Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 `5e7f982` récupérée depuis `origin/main`.
 
-| Lot            | État      | Périmètre                                                                                                                |
-| -------------- | --------- | ------------------------------------------------------------------------------------------------------------------------ |
-| DASH-05a       | ✅ publié | Audit des traces, contrat de lecture commun et historique privé des affectations, sans nouveau stockage ni notification. |
-| DASH-05b       | ✅ publié | Historiques privés des mandats conservés, dont terminés, et invitations personnelles des structures.                     |
-| DASH-05c       | ✅ local  | Refus et retraits de propositions conservés atomiquement, auteurs réels, accès privés et RGPD.                           |
-| DASH-05, suite | ⬜        | Transitions de participation, validations de collaboration, options et propositions restantes.                           |
+| Lot            | État                        | Périmètre                                                                                                                |
+| -------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| DASH-05a       | ✅ publié                   | Audit des traces, contrat de lecture commun et historique privé des affectations, sans nouveau stockage ni notification. |
+| DASH-05b       | ✅ publié                   | Historiques privés des mandats conservés, dont terminés, et invitations personnelles des structures.                     |
+| DASH-05c       | ✅ publié + correctif local | Refus et retraits de propositions conservés atomiquement, auteurs réels, accès privés et RGPD.                           |
+| DASH-05, suite | ⬜                          | Transitions de participation, validations de collaboration, options et propositions restantes.                           |
 
 Le journal commun n’est pas terminé. Conception et limites :
 [journal d’activité](../conception/16-journal-activite.md).
@@ -327,3 +327,30 @@ maintenant vérifiée. Aucun `check` exécuté en même temps que les E2E.
 `npm run seed:demo` exécuté avec succès ; les deux lignes fictives sont vérifiées
 avec auteur, date et périmètre vide. Le seed utilise des upserts à identifiants
 stables et ne reconstruit aucune décision réelle.
+
+Reprise et vérification DASH-05c (14/11/2026) : le lot était déjà implémenté
+au début de cette session, dans `8827f11b40b7ed631a91af7486b42c2817fef99f`.
+`git ls-remote origin refs/heads/main` renvoie maintenant ce même commit :
+DASH-05a, DASH-05b et DASH-05c sont publiés. La mention « local » de la
+recette initiale ci-dessus décrit son état au moment de la livraison ; elle
+n’est plus l’état actuel. Aucun push effectué pendant cette reprise.
+L’audit des services, du lecteur privé, du journal et du traitement RGPD
+confirme la conservation et ses accès privés. Une correction complémentaire
+exclut `DECLINED` et `WITHDRAWN` du compteur des objectifs métier : ces lignes
+conservées ne valident plus « Propose d’accompagner un artiste », comme avant
+lorsqu’elles étaient supprimées. Les deux décisions sont testées avant/après
+dans la recette d’intégration. Aucune migration supplémentaire nécessaire.
+Les 130 migrations sont à jour en développement et sur
+`e2e` (`db:status`, puis `E2E=1 npm run db:status`). Les deux décisions de
+démo ont été relues en base avec auteur, date et termes privés vides.
+
+Recette de reprise : 1 356 tests unitaires réussis (287 conditionnels non
+exécutés), 35 tests d’intégration réussis sur `e2e`, puis les 12 tests des
+historiques privés relancés avec succès après ajout du contrôle des objectifs
+pour refus et retrait. Les quatre E2E (cycle du mandat, refus/retrait et deux
+parcours d’aide) passent, avec clavier, axe et 390 px. Les contrôles E2E et
+types sont exécutés séparément ; types : 0 erreur, 0 avertissement. ESLint et formatage ciblés conformes ; le
+lint global retrouve uniquement les deux scripts préexistants au stade
+Prettier (`.shot-metro.mjs`, `.shot-tmp.mjs`). La correction et ce complément
+de suivi sont livrés dans un nouveau commit local `(DASH-05c)`, sans push.
+#35 et #30 restent ouvertes avec les mêmes limites de périmètre.

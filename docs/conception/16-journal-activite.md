@@ -99,9 +99,11 @@ DASH-05 n’est donc pas clos après ce lot.
 
 ## Propositions déclinées ou retirées (DASH-05c)
 
-Vérification du 14/11/2026 : `git ls-remote origin refs/heads/main` renvoie
-`ac4d736510f089b2f0fb3f12458bb7c0c50dbe38`. Les lots DASH-05a et DASH-05b
-sont donc déjà publiés, contrairement à leur ancien suivi GitHub.
+À la livraison initiale du 14/11/2026, `origin/main` était à `ac4d736` :
+DASH-05a et DASH-05b étaient déjà publiés. À la reprise du même jour,
+`git ls-remote origin refs/heads/main` renvoie
+`8827f11b40b7ed631a91af7486b42c2817fef99f` : DASH-05c est également publié.
+Aucun push effectué pendant cette reprise.
 
 ### Audit et conservation minimale
 
@@ -127,6 +129,10 @@ ils ne créent aucune entrée et n’écrasent ni l’auteur ni la date du premi
 Le verrou commun arbitre refus et retrait concurrents. Une nouvelle proposition
 est une nouvelle ligne ; les états clos ne consomment aucun quota, n’apparaissent
 plus dans les listes d’action et ne donnent aucun droit, rang ou point.
+Le compteur des objectifs métier les exclut également, pour préserver le
+comportement antérieur où ces propositions étaient supprimées. Ce contrôle
+a été ajouté lors de la reprise, avec vérification avant/après pour les deux
+décisions.
 
 ### Lecture privée et RGPD
 

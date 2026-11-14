@@ -513,6 +513,8 @@ d’accompagnement, transactionnelle, sans message ni conditions privées. Les
 historiques gardent leurs accès actuels ; export des actes pour un groupe et
 anonymisation des auteurs couverts. Les participations, validations de
 collaboration et futures options restent dans les lots suivants ; DASH-05 reste
-ouvert. Les commits DASH-05a/b sont vérifiés publiés sur `origin/main` à
-`ac4d736` ; DASH-05c est une livraison locale sans push. Preuves de recette dans
+ouvert. Les commits DASH-05a/b/c sont désormais vérifiés publiés sur `origin/main` à
+`8827f11` lors de la reprise du 14/11/2026 ; aucun push effectué pendant cette
+reprise. Le correctif du compteur des objectifs et le complément de suivi
+restent locaux, dans le commit de reprise `(DASH-05c)`. Preuves de recette dans
 [le suivi](README.md#6-navigation-et-espaces-métier--épopée-30).
