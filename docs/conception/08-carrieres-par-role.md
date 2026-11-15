@@ -1,5 +1,10 @@
 # 08 — Les carrières, rôle par rôle
 
+État architectural vérifié au 15/11/2026 : [audit ARCH-MET-01](./17-audit-capacites-services.md).
+Il distingue le code disponible des conceptions et bilans historiques ci-dessous ;
+six métiers sont ouverts, trois restent « bientôt ». Ses extractions et tâches
+proposées ne sont pas des fonctionnalités livrées.
+
 Ce document détaille le **mode carrière** ([07](./07-modes-de-jeu.md))
 pour chaque rôle de LinkMusician. Il sert de référence pour construire
 chaque métier à son ouverture ([06 §5](./06-metiers.md)) et pour

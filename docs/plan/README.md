@@ -164,16 +164,17 @@ coquille ; « Mon espace » passe dans le menu du compte. Types : 0 erreur et
 sélecteur, thème sombre audité en accessibilité, clavier, filtres). Une première
 exécution a planté à l'ouverture du navigateur (mémoire WSL) ; la relance passe.
 
-| Lot      | Issue                                                          | État     | Périmètre                                                                                                                                                                                 |
-| -------- | -------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DASH-01  | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
-| DASH-02  | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local | Structures et agences DASH-02a/02b complétées par les affectations consenties DASH-04b ; aucun droit administratif ou artistique par appartenance.                                        |
-| DASH-02a | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
-| DASH-03  | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ local | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
-| DASH-04  | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local | Mandats individuels DASH-04a et affectations consenties DASH-04b ; les candidatures et le booking avancé restent dans leurs lots.                                                         |
-| DASH-04a | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous                               |
-| DASH-02b | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local | Agences privées, invitations et rôles, acceptation, révocation, transmission et fermeture ; aucun droit artistique implicite. Affectations et délégations complétées par DASH-04b.        |
-| DASH-04b | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local | Affectations nominatives, double accord, droits explicites, périmètre du mandat et adhésions figées ; recette ci-dessous.                                                                 |
+| Lot         | Issue                                                          | État                   | Périmètre                                                                                                                                                                                 |
+| ----------- | -------------------------------------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ARCH-MET-01 | [#55](https://github.com/Pierre-FABIEN/linkmusician/issues/55) | ✅ local, documentaire | Audit, matrice, scénarios et plan livrés ; refactorisations proposées, aucun code produit. Base publiée b0dadf2.                                                                          |
+| DASH-01     | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local               | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
+| DASH-02     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local               | Structures et agences DASH-02a/02b complétées par les affectations consenties DASH-04b ; aucun droit administratif ou artistique par appartenance.                                        |
+| DASH-02a    | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local               | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
+| DASH-03     | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ local               | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
+| DASH-04     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local               | Mandats individuels DASH-04a et affectations consenties DASH-04b ; les candidatures et le booking avancé restent dans leurs lots.                                                         |
+| DASH-04a    | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local               | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous                               |
+| DASH-02b    | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local               | Agences privées, invitations et rôles, acceptation, révocation, transmission et fermeture ; aucun droit artistique implicite. Affectations et délégations complétées par DASH-04b.        |
+| DASH-04b    | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local               | Affectations nominatives, double accord, droits explicites, périmètre du mandat et adhésions figées ; recette ci-dessous.                                                                 |
 
 Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
 Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,
@@ -875,20 +876,44 @@ Migration déployée et distant revérifié à `cd7f155` ; livraison par un nouv
 commit local `(DASH-05m)`, sans push. DASH-05 et les issues #35/#30 restent ouverts ;
 options/propositions et autres circuits gardent leurs lots propres.
 
-### Reprise après DASH-05m — ARCH-MET-01 (#55)
+### ARCH-MET-01 — audit livré documentaire (#55, 15/11/2026)
 
-Prochaine tâche recommandée : **audit architectural et plan de modularisation
-progressif**, avant les extensions de projets/tâches DASH-06 (#36, #51–#54).
-[Prompt prêt à copier](prompt-reprise.md). L'audit n'est pas encore réalisé ;
-aucune fonction de tâche autonome ou d'édition des rôles n'est livrée par DASH-05m.
+**Livré localement, sans push :** [audit des capacités et services](../conception/17-audit-capacites-services.md),
+matrice des six métiers ouverts et trois prévus, responsabilités/couplages,
+contrats proposés, scénarios actuels/cibles et comparatif Thomas.
+[Plan de petits lots](fin-du-projet.md#arch-met-01--audit-des-capacités-et-services-métier-55-livré-documentaire)
+et [prompt suivant](prompt-reprise.md) actualisés. Aucun code produit modifié,
+aucune tâche autonome, refactorisation ou activation livrée par cet audit.
 
-Au nettoyage du 15/11/2026, distant revérifié à `cd7f155` (a–l publiés),
-DASH-05m `5c7f706` encore local, sans push. Les issues #30/#35 sont consolidées
-jusqu'à m en conservant leur périmètre et leur état ouvert. #36/#52/#55 sont
-alignées sur les dépendances, les périodes/actes de crédits et les verrous récents.
-Les options/propositions restent dans leurs lots futurs ; leur absence actuelle
-n'impose ni de les créer dans DASH-05 ni de bloquer tout DASH-06.
+**État distant corrigé :** ls-remote puis fetch du 15/11/2026 donnent
+`origin/main = b0dadf2e96087a26383c1805347be4c2eb815f83`, égal au HEAD de départ,
+arbre propre. DASH-05m `5c7f706` et sa préparation `b0dadf2` sont donc **publiés**.
+Les mentions « local » des recettes précédentes décrivent leur date de livraison,
+pas cet état actuel. Les migrations dev/E2E et recettes de m restent les preuves
+antérieures ci-dessus ; aucun déploiement applicatif de production vérifié ici.
 
-Ce suivi et le prompt sont des documents locaux ; ils ne publient pas le code.
-Contrôle attendu pour ce nettoyage documentaire : références, liens et formatage
-Markdown. Les recettes produit de DASH-05m restent celles du compte rendu ci-dessus.
+**Constats utiles :** crédits du son déjà possibles, mais pas de tâche
+SELF/HOME ni d'édition manuelle des rôles d'un contributeur existant. Mandat,
+crédit, rôle déclaré et gestion restent distincts. Pas de nouveau registre de
+capacités recommandé ; conserver les catalogues, gardes et façades actuels.
+Risques préexistants documentés : verrous acteurs/band après émissions
+successives, révocation sous une autre clé et contrôle de doublon de proposition
+hors transaction. Ce sont des constats statiques à caractériser dans des issues
+séparées après validation, pas des corrections réalisées.
+
+**Preuves de l'audit :** routes, appels, schéma et tests existants relus ; issues
+et commentaires #14, #26–#30, #35–#37 et #41–#55 consultés. Analyse AST locale de
+520 fichiers TypeScript : 1 198 arêtes statiques avec types ; 1 094 sans déclarations
+d'import/export de type, aucun cycle exécutable statique trouvé dans ce périmètre.
+Deux cycles de types identifiés, limites et mesures des fonctions dans la
+conception 17. Ni graphe des imports ni verrou local ne prouve une sérialisation
+générale. Contrôles de réception : références de fichiers/symboles/routes, liens
+locaux/ancres, Markdown Prettier ciblé et `git diff --check`. Aucun test, E2E,
+check, seed ou migration exécuté dans ce lot documentaire.
+
+**Suite :** validation des recommandations puis issues distinctes des
+corrections/extractions ; premier incrément DASH-06 = #51 SELF sur Work existant,
+puis #52 rôles, #53 projections/preuves/suggestions et #54 parcours complet.
+#30/#35 et les modules futurs restent ouverts ; les nouveaux actes de tâches/rôles
+accompagnent leurs mutations, sans réutilisation abusive des attributions
+initiales. #26/#27/#28 conservent leurs critères propres non réalisés.

@@ -100,3 +100,5 @@ Agences privées et équipes : [DASH-02b](./14-agences-equipes.md).
 Affectations et délégations consenties : [DASH-04b](./15-affectations-delegations.md).
 
 Historique privé et suite du journal : [DASH-05a](./16-journal-activite.md).
+
+Capacités, services, frontières et plan de modularisation : [audit ARCH-MET-01](./17-audit-capacites-services.md).

@@ -1,5 +1,10 @@
 # 03 — Architecture
 
+État architectural vérifié au 15/11/2026 : [audit ARCH-MET-01](./17-audit-capacites-services.md).
+Il distingue le code disponible des conceptions et bilans historiques ci-dessous ;
+six métiers sont ouverts, trois restent « bientôt ». Ses extractions et tâches
+proposées ne sont pas des fonctionnalités livrées.
+
 ## 1. Architecture fonctionnelle
 
 Douze domaines. Les flèches indiquent qui dépend de qui. La

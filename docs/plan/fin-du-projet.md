@@ -652,28 +652,195 @@ Seul DASH-05m est nouveau et local ; les mentions locales historiques des lots
 j/k/l ci-dessus sont remplacées par la vérification publiée à `cd7f155`.
 DASH-05 et #35/#30 restent ouverts. Aucun push.
 
-#### ARCH-MET-01 — audit des capacités et services métier (#55, à réaliser)
+#### ARCH-MET-01 — audit des capacités et services métier (#55, livré documentaire)
 
-Prochain lot recommandé après DASH-05m ; [prompt de reprise](prompt-reprise.md).
-Livrable documentaire avant les extensions de DASH-06, sans refonte immédiate.
+Audit du 15/11/2026 sur `b0dadf2` propre, confirmé publié par ls-remote puis
+fetch. DASH-05m et sa préparation sont donc publiés. Ce nouvel audit est livré
+par un commit **local**, sans push ; aucune migration, activation ou fonctionnalité
+produit. [Audit, matrice et scénarios](../conception/17-audit-capacites-services.md).
+[Prompt suivant](prompt-reprise.md).
 
-- **Entrée** : main après `5c7f706` local ; distant vérifié à `cd7f155`
-  le 15/11/2026. Revérifier publication et nouveaux commits à la reprise.
-- **Audit** : référentiels métiers/profils, capacités, permissions, responsabilités,
-  projets, crédits, preuves, collaborations, notifications et progression ;
-  doublons et couplages étayés par le code, état actuel séparé du futur.
-- **Livrables** : conception d'audit, matrice des neuf métiers (six ouverts,
-  trois prévus sans activation), contrats/frontières utiles, scénario comparatif
-  et petits lots avec fichiers, dépendances, risques, tests et retour arrière.
-- **Contraintes** : préserver transactions, ordres de verrous et registres
-  DASH-05m/l, lecture privée et RGPD ; ne pas ajouter de source de vérité
-  redondante. Les refactorisations éventuelles suivent des lots/issues séparés
-  après validation de l'audit, selon #55.
-- **Fin** : preuves et limites documentées, première étape de DASH-06 cadrée,
-  liens et plan/issue #55 mis à jour ; commit local français ARCH-MET-01 sans push.
-  Contrôles documentaires adaptés, aucune migration ou recette produit sans motif.
+Les propositions suivantes demandent validation de l'audit, puis des **issues
+séparées pour les corrections/extractions** ; les sous-lots fonctionnels #51–#54
+restent dans #36. Aucun de ces changements de code n'est réalisé par ARCH-MET-01.
+Ne pas transformer tout le plan en préalable obligatoire aux fonctions indépendantes.
 
-DASH-05/#35 reste partiel et #30 reste ouverte. Les nouveaux actes de tâches,
-rôles, options et propositions sont conçus dans leurs circuits respectifs.
-Les dépendances DASH-02/05 de #36 s'appuient sur le socle réalisé et ne bloquent
-pas les fonctions indépendantes sur des options encore inexistantes.
+##### Ordre et contrats des prochains lots
+
+Les nouveaux noms de fichiers ci-dessous sont des propositions. Chaque lot
+reste court (1 à 4 jours) ; découper si ses critères ne tiennent pas dans cette
+borne. Les tests indiqués sont **à exécuter avec le code correspondant**, pas
+une recette déjà passée. Retour applicatif conservant les données par défaut ;
+aucune migration descendante destructive automatique.
+
+| Lot proposé                                   | Bénéfice / risque                                  | Dépendances et périmètre exact                                                                                                                          |
+| --------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ARCH-MET-02a — ordre des verrous              | Élevé / élevé, avant nouveaux effets de production | Validation #55 et issue distincte. Caractériser R1 puis corriger les seuls chemins en cause ; conserver collaboration → work avant toute écriture.      |
+| ARCH-MET-02b — gestion et mutations Work      | Élevé / moyen                                      | Validation #55, contrat de verrous 02a pour les chemins partagés. Relecture de gestion et révocation, maquette/rôle libre ; aucune nouvelle permission. |
+| ARCH-MET-02c — proposition concurrente        | Moyen / moyen, indépendant de SELF                 | Validation #55 et issue distincte. Unicité de proposition conversation/jour, annulation et nouvel essai explicites.                                     |
+| ARCH-MET-03 — politique et lectures works     | Moyen / faible à moyen, facultatif avant SELF      | Après caractérisation des gardes ; extraction ciblée, façade publique identique. Pas de réécriture de toutes les couches Prisma.                        |
+| DASH-06a / #51 — enregistrement SELF          | Élevé / moyen                                      | Audit validé, contrats de gestion/concurrence traités pour ce chemin. Premier incrément produit ; MEMBER et EXTERNAL exclus.                            |
+| DASH-06b / #52 — rôles existants              | Élevé / élevé sur consentement                     | #51 si écrans partagés. Une ligne contributeur, plusieurs rôles, acte répétable spécifique.                                                             |
+| DASH-06c / #53 — faits, preuve, suggestions   | Élevé / élevé sur projections                      | #51 et #52 ; source cohérente pour état et journey, préservation des preuves indépendantes.                                                             |
+| DASH-06d / #54 — parcours et recette          | Élevé / moyen                                      | #51–#53 ; #50 en continu, non-régression ONB #28.                                                                                                       |
+| DASH-06 suite — équipe, versions, validations | Élevé / élevé, découper en nouvelles issues        | SELF éprouvé ; mandats/permissions ne donnent aucun droit supplémentaire par défaut. #36 reste ouvert.                                                  |
+
+##### ARCH-MET-02a — concurrence avant extension
+
+- **Fichiers/contrats** : `server/works/service.ts` (`authorProgress`,
+  `markComposed`), `collaborations/service.ts` (`settle`), `milestones/service.ts`
+  (`syncComposition`, `verifyRecordingFromCollaboration`), `bands/service.ts`
+  (`afterJoin`), `progression/processor.ts`/`events.ts` si nécessaire. Ces chemins
+  partagent un `Prisma.TransactionClient`, jamais un tx imbriqué indépendant.
+- **Invariants** : `collaboration:` → `work:` avant écriture de participant ;
+  décider les verrous de groupe avant les acteurs sur les chemins concernés ;
+  examiner l'union d'acteurs des émissions successives. Ne pas prétendre fixer
+  tous les ordres par un helper qui trie seulement un événement. Relecture après
+  attente, y compris Work supprimé, et mêmes règles de preuve/crédits/XP.
+- **Migration** : aucune attendue. **Fin** : courses contrôlées composition de
+  groupe contre adhésion, finalisation recording contre mutation de groupe,
+  événements successifs à acteurs communs ; absence d'interblocage dans ces
+  scénarios et rollback atomique en cas d'échec. Ajouter des barrières déterministes
+  dans l'intégration, pas seulement des Promise.all sans contrôle d'ordre.
+- **Non-régression** : historiques works/collaborations, milestones, bands et
+  moteur ; E2E morceaux/collaborations/concerts selon chemins touchés, types et
+  lint. **Retour** : revert applicatif cohérent de ce lot, sans retirer registres
+  ni index ; documenter qu'il réintroduit le risque initial.
+
+##### ARCH-MET-02b — garde Work et concurrence de révocation
+
+- **Fichiers** : `works/service.ts`, `organizations/access.ts`,
+  `bands/service.ts`, tests works ; future `works/access.ts` si extraction utile.
+  Faire converger la décision de gestion et son prédicat de liste sans confondre
+  équipe, gestion et visibilité publique. Contrôler `setDemo`, `removeOpenRole`
+  et création pour groupe ; ne pas tenir un verrou SQL durant un appel réseau
+  d'ajout de média sans analyse de durée/compensation.
+- **Invariants/fin** : révocation validée pendant l'attente interdit la mutation ;
+  MEMBER, crédit, métier actif ou mandat n'accordent pas la gestion ; données
+  privées et règles mineurs/blocages/quotas préservées. Choisir explicitement
+  les opérations partageant band/work, avec le même ordre que 02a.
+- **Migration** : aucune attendue. **Tests** : révocation/attribution et
+  maquette/suppression, payload public/équipe, accès direct service et POST forgé.
+  **Retour** : rétablir façade et gardes précédentes par revert cohérent,
+  sans effacement de données ; le risque antérieur redevient connu.
+
+##### ARCH-MET-02c — une proposition effective
+
+- **Fichiers/contrat** : `collaborations/service.ts`, tests de création et
+  schéma/migration seulement si la stratégie d'unicité le nécessite. Refaire le
+  contrôle conversation/jour/statuts sous une clé partagée de proposition ;
+  définir si un rejeu retourne l'existant ou refuse, et quand une annulation
+  autorise une nouvelle ligne. Ne pas s'appuyer sur le ledger pour dédupliquer.
+- **Fin/tests** : deux créations simultanées donnent une proposition active et
+  une notification, jamais deux événements ultérieurs ; annulation puis nouvelle
+  proposition selon règle ; transaction échouée sans validation orpheline.
+- **Migration** : optionnelle ; auditer les doublons existants avant toute
+  contrainte, sans les supprimer automatiquement. **Retour** : garder les
+  données et éventuelle contrainte compatible ; pas de rollback destructif.
+  Lot indépendant des tâches SELF, ne bloque pas leur conception.
+
+##### ARCH-MET-03 — extraction limitée et façade stable
+
+- **Fichiers** : propositions `server/works/access.ts`, `queries.ts`,
+  `credit-history.ts` ; `works/service.ts` conserve les exports actuellement
+  consommés par routes, publicProfile, career/nudges et export RGPD.
+- **Contrats** : db fourni par l'appelant, projections autorisées distinctes ;
+  aucun cache de permission. Garder les écritures/crédits automatiques et leurs
+  effets dans leurs transactions. Ne pas déplacer `CollaborationError` ni créer
+  un repository générique pour une simple préférence de classement de fichiers.
+- **Migration** : aucune. **Fin/tests** : même payload pour chaque lecteur,
+  historique 100 actes / export complet, auteur effacé, perte de gestion ;
+  suites works et consommateurs touchés seulement. **Retour** : déplacer les
+  fonctions dans la façade avec les mêmes signatures, revert sans SQL.
+  Si SELF n'a besoin que d'un helper d'accès, limiter l'extraction à celui-ci.
+
+##### DASH-06a / #51 — premier pas réalisable de DASH-06
+
+- **Avant de coder** : valider la modélisation exacte proposée dans l'audit,
+  puis consigner la règle produit dans conception/decisions. Conserver Work ;
+  proposer une ligne d'étape de production par `(workId, kind)` et des actes
+  de transition indépendants, sans introduire Project/Task universel. Aucun
+  ancien recordedAt ou crédit n'est converti en acte humain.
+- **Fichiers/contrats** : nouveaux `lib/works/stages.ts` (transitions/Zod),
+  `server/works/stages.ts` (commandes/queries), tests voisins ; façade
+  `works/service.ts`, route `/morceaux/[id]`, schéma/migration additive,
+  export/anonymisation dans `prisma/actors/person.ts`, projection `lib/activity/`.
+  Contrat SELF de la conception 17 : identité serveur, action explicite,
+  expectedRevision, même tx ; aucune exigence SOUND_ENGINEER.
+- **Persisté** : responsable réel, SELF, HOME privé sans adresse/studio public,
+  TODO et dates nulles ; START, COMPLETE confirmé, RESET et REOPEN ; auteur/date,
+  révision et acte répétable. Un changement devenu périmé est refusé sans acte ;
+  un rejeu sans transition ne multiplie rien. Durée et modalités de conservation,
+  droits de lecture et cascades définis avant migration.
+- **Fin** : tout #51, dont accès gestion individuel/groupe, relecture après
+  attente, idempotence et concurrence. Ce premier lot ne remplit pas #52–#54 :
+  tant que #53 n'est pas livré, afficher l'état autonome séparément, sans annoncer
+  que le parcours global enregistré/journey/suggestions est déjà achevé.
+- **Tests** : transitions pures, révision périmée, course COMPLETE/REOPEN,
+  perte de gestion/tiers, échec d'acte avec rollback, export complet, anonymisation
+  et cascade ; E2E Thomas sans métier du son, rechargement et HOME privé.
+- **Retour** : désactiver les nouvelles actions/lecture puis revert compatible
+  en conservant tables/actes ; aucune suppression des données collectées.
+
+##### DASH-06b / #52 — enrichissement de ses propres rôles
+
+- **Fichiers** : `works/rules.ts`, `server/works/service.ts` et helper crédit
+  interne si utile, route morceau, modèle d'actes, `activity/`, export/RGPD.
+- **Contrat/fin** : ajouter RECORDING/MIXING/etc. à son contributeur existant
+  sous verrou work, clé rôle/instrument, pas de doublon ; acte répétable propre,
+  pas ASSIGNED initial rejoué. Pas de nouveau consentement aux rôles d'autrui
+  déduit de confirmedAt. Si #52 couvre des ajouts à autrui, les découper avec
+  accord explicite avant leur livraison ; pas d'extension silencieuse.
+- **Migration** : additive selon modèle retenu pour l'acte ; choisir l'unicité
+  par transition et préserver WorkCreditAct/périodes existantes. **Tests** :
+  ajout manuel/automatique concurrent, crédit en attente, plafonds, rejeu,
+  absence d'XP de composition, journal privé/export/anonymisation et rollback.
+- **Retour** : supprimer les actions nouvelles, garder rôles et actes lisibles ;
+  ne pas restaurer une contrainte période/type empêchant les répétitions.
+
+##### DASH-06c / #53 — production déclarée et preuve indépendante
+
+- **Fichiers** : `server/works/journey.ts`, nouvelle query de production sous
+  works, `server/career/nudges.ts`, règles pures journey/nudges, lectures de
+  `workPage`, événements/core uniquement si contrat d'événement distinct requis.
+- **Contrat** : une query explicite réunit réalisation autonome et faits acquis
+  par collaboration ; décider la projection des dates Work avec provenance.
+  DONE personnel vaut DECLARED ; réouverture ne détruit aucune preuve ou date
+  issue d'une collaboration confirmée. Aucun collaboration.completed artificiel.
+- **Migration** : éventuelle provenance additive, aucune reprise historique
+  transformée en acte. **Fin/tests** : cohérence détail/journey/carrière,
+  mélange autonome + collaboration, réouverture/transfert, succès existants
+  audités sans gain abusif ; SELF attribué/DONE ne devient pas besoin implicite
+  de recrutement, recherche volontaire d'aide conservée ; mixage proposé selon
+  état réel. Test d'absence d'événement/gain bilatéral et de preuve indépendante.
+- **Retour** : replier les projections nouvelles, garder actes et preuves
+  acquises, ne pas remettre les dates à null ni recalculer l'XP depuis le journal.
+
+##### DASH-06d / #54 et suite de #36
+
+- **Fichiers** : `/espace`, `/morceaux`, `/morceaux/[id]`,
+  `e2e/linkmusician/`, `prisma/seed-scenarios.ts`, aide et démo aux chemins
+  réellement utilisés par le dépôt. Aucun nouveau modèle dans le lot de recette.
+- **Fin/tests** : parcours Thomas complet #54, unicité crédit, persistance,
+  privé HOME, réouverture, tiers/membre refusés, absence de faux gain/preuve ;
+  390 px, clavier, axe ; garder collaborations et parcours métier voisins.
+  Contrôle de types hors E2E, scripts du dépôt ; migration aucune attendue.
+- **Retour** : revert UI/fixtures cohérent sans effacer données réelles ;
+  aide/démo ne présentent jamais un parcours replié comme encore utilisable.
+- **Après** : #36 exige encore affectation à membre avec accord et autorité
+  limitée, prestataire externe, versions/livrables/approbations invalidées à la
+  modification. Découper chacun avec ses mutations, actes répétés, droits,
+  migration additive éventuelle, tests de concurrence/consentement/RGPD et
+  retour applicatif conservant les données. Ne pas déclarer #36 terminé par SELF.
+
+##### Réutilisation dans les modules métier
+
+Impacts détaillés de #30, #36/#37, #41–#50 et #51–#54 :
+[conception 17 §8](../conception/17-audit-capacites-services.md#8-suite-dépendances-et-réception).
+#41–#46 consomment progressivement les mêmes projets/tâches/versions/actes,
+avec leurs gardes propres. #42/#43 gardent DASH-09/10, #44/#45 les nouveaux
+pouvoirs de candidature/booking ; #46 les limites événement/lieu. #37 attend
+ONB-13b/#27 et, pour duo/reprises, ONB-12c/#26 ; ces critères ne sont pas requis
+pour SELF. #50 et ONB-14/#28 restent une recette continue, jamais remplacée par
+une matrice documentaire. #47–#49 restent bientôt après décision distincte.
+#35 et #30 restent ouverts ; aucun WorkPitch/option créé pour les clôturer.
