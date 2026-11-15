@@ -17,12 +17,13 @@ const url = new URL(
 		'postgresql://x/y'
 );
 url.searchParams.set('schema', 'e2e');
+if (enabled) process.env.DATABASE_URL = url.toString();
 const db = createPrismaClient(url.toString());
 
 vi.mock('#lib/server', () => ({ prisma: db }));
 
-const { listForConversation } = await import('./service');
-const { personAnonymizationOps } = await import('#lib/prisma/actors/person');
+const { listForConversation, validationHistoryForConversation } = await import('./service');
+const { exportPersonData, personAnonymizationOps } = await import('#lib/prisma/actors/person');
 
 const PREFIX = 'canon-test-';
 const CONVERSATION = `${PREFIX}conversation`;
@@ -106,12 +107,58 @@ describe.skipIf(!enabled)('collaborations après une suppression de compte (sch�
 	});
 
 	it('la collaboration reste chez Léa, terminée, avec « Compte supprimé »', async () => {
+		const { endorseCollaborator } = await import('./endorse');
+		await db.actor.updateMany({
+			where: { id: { in: Object.values(ids) } },
+			data: { trustLevel: 1 }
+		});
+		await endorseCollaborator(ids.malik, {
+			collaborationId: collabId,
+			to: PREFIX + 'lea',
+			quality: 'RELIABLE'
+		});
+		await db.actor.updateMany({
+			where: { id: { in: Object.values(ids) } },
+			data: { trustLevel: 1 }
+		});
+		await endorseCollaborator(ids.lea, {
+			collaborationId: collabId,
+			to: PREFIX + 'malik',
+			quality: 'ON_TIME'
+		});
+		const exported = await exportPersonData(users.malik);
+		expect(
+			exported?.collaborations
+				.flatMap((c) => c.validations)
+				.filter((v) => v.acte === 'Appréciation de collaboration attribuée')
+		).toHaveLength(2);
 		await db.$transaction(await personAnonymizationOps(users.malik));
+		const [history] = await validationHistoryForConversation(ids.lea, CONVERSATION);
+		expect(
+			history.entries.filter((e) => e.action === 'Appréciation de collaboration attribuée')
+		).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ author: 'Compte supprimé' }),
+				expect.objectContaining({ author: 'Canon Test lea' })
+			])
+		);
+		expect(await db.collabEndorsement.count({ where: { toActorId: ids.malik } })).toBe(0);
+		expect(
+			await db.collaborationAppreciationAct.count({ where: { collaborationId: collabId } })
+		).toBe(2);
+		expect(await validationHistoryForConversation(ids.malik, CONVERSATION)).toEqual([]);
+		const after = await exportPersonData(users.lea);
+		expect(after?.collaborations.flatMap((c) => c.validations)).toContainEqual(
+			expect.objectContaining({
+				acte: 'Appréciation de collaboration attribuée',
+				auteur: 'Compte supprimé'
+			})
+		);
 
 		const [seen] = await listForConversation(ids.lea, CONVERSATION);
 		expect(seen).toMatchObject({ id: collabId, status: 'COMPLETED', with: 'Compte supprimé' });
 
 		const kept = await db.collaborationParticipant.count({ where: { collaborationId: collabId } });
 		expect(kept).toBe(2);
-	});
+	}, 60_000);
 });

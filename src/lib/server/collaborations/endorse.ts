@@ -6,8 +6,9 @@
  * appréciée, rendements décroissants par paire). La reprendre reprend l'XP
  * par transaction négative liée et émet `endorsement.revoked`.
  */
+import type { Prisma } from '@prisma/client';
+import { isTrustLevel } from '#lib/server/progression/core/trust';
 import { prisma } from '#lib/server';
-import { isBlockedBetween } from '#lib/server/blocking/service';
 import { getTrustLevel } from '#lib/server/trust/quotas';
 import { emitAndProcess } from '#lib/server/progression/processor';
 import { TRUST_PERMISSIONS } from '#lib/server/progression/core/trust';
@@ -26,12 +27,20 @@ const labelOf = (row: {
 }) =>
 	row.quality ? COLLAB_QUALITY_LABELS[row.quality] : (row.instrument?.name.toLowerCase() ?? '');
 
-async function participantsOf(collaborationId: string) {
-	const collab = await prisma.collaboration.findUnique({
+async function participantsOf(
+	tx: Prisma.TransactionClient,
+	collaborationId: string,
+	fromId: string
+) {
+	await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`collaboration:${collaborationId}`}))`;
+	const alive = await tx.actor.count({ where: { id: fromId, deletedAt: null } });
+	if (!alive) throw new CollaborationError('Collaboration introuvable.', 404);
+	const collab = await tx.collaboration.findUnique({
 		where: { id: collaborationId },
 		select: { status: true, participants: { select: { actorId: true } } }
 	});
-	if (!collab) throw new CollaborationError('Collaboration introuvable.', 404);
+	if (!collab || !collab.participants.some((p) => p.actorId === fromId))
+		throw new CollaborationError('Collaboration introuvable.', 404);
 	return {
 		completed: collab.status === 'COMPLETED',
 		ids: collab.participants.map((p) => p.actorId)
@@ -44,86 +53,112 @@ export async function endorseCollaborator(
 	form: CollabEndorseForm,
 	now = new Date()
 ) {
-	const collab = await participantsOf(form.collaborationId);
-	if (!collab.ids.includes(fromId)) throw new CollaborationError('Collaboration introuvable.', 404);
-	const to = await prisma.actor.findFirst({
-		where: { handle: form.to, deletedAt: null },
-		select: { id: true, displayName: true }
-	});
-	if (!to) throw new CollaborationError('Personne inconnue.', 404);
-	const [existing, trust, blocked, instrument] = await Promise.all([
-		prisma.collabEndorsement.findUnique({
-			where: {
-				collaborationId_fromActorId_toActorId: {
-					collaborationId: form.collaborationId,
-					fromActorId: fromId,
-					toActorId: to.id
-				}
-			},
-			select: { id: true, revokedAt: true }
-		}),
-		getTrustLevel(fromId),
-		isBlockedBetween(fromId, to.id),
-		// Seulement un instrument que la personne déclare jouer.
-		form.instrument
-			? prisma.instrument.findFirst({
+	return prisma.$transaction(
+		async (tx) => {
+			const collab = await participantsOf(tx, form.collaborationId, fromId);
+			if (!collab.ids.includes(fromId))
+				throw new CollaborationError('Collaboration introuvable.', 404);
+			const to = await tx.actor.findFirst({
+				where: { handle: form.to, deletedAt: null },
+				select: { id: true, displayName: true }
+			});
+			if (!to) throw new CollaborationError('Personne inconnue.', 404);
+			const [existing, trust, blocked, instrument] = await Promise.all([
+				tx.collabEndorsement.findUnique({
 					where: {
-						slug: form.instrument,
-						active: true,
-						personInstruments: { some: { personId: to.id } }
+						collaborationId_fromActorId_toActorId: {
+							collaborationId: form.collaborationId,
+							fromActorId: fromId,
+							toActorId: to.id
+						}
 					},
-					select: { id: true, name: true }
-				})
-			: null
-	]);
-	const refusal = collabEndorseRefusal({
-		fromId,
-		toId: to.id,
-		completed: collab.completed,
-		fromIsParticipant: true,
-		toIsParticipant: collab.ids.includes(to.id),
-		fromCanEndorse: TRUST_PERMISSIONS[trust].canEndorse,
-		blocked,
-		alreadyEndorsed: Boolean(existing && !existing.revokedAt)
-	});
-	if (refusal) throw new CollaborationError(refusal, 403);
-	if (form.instrument && !instrument) throw new CollaborationError('Instrument inconnu.');
-	const skill = form.quality ? COLLAB_QUALITY_LABELS[form.quality] : instrument!.name.toLowerCase();
-	const data = { quality: form.quality ?? null, instrumentId: instrument?.id ?? null };
-	await prisma.$transaction(async (tx) => {
-		// Redonnée après une reprise : la même ligne reprend vie.
-		const row = existing
-			? await tx.collabEndorsement.update({
-					where: { id: existing.id },
-					data: { ...data, revokedAt: null, eventId: null }
-				})
-			: await tx.collabEndorsement.create({
-					data: {
-						...data,
-						collaborationId: form.collaborationId,
-						fromActorId: fromId,
-						toActorId: to.id
+					select: { id: true, revokedAt: true }
+				}),
+				tx.actor.findUniqueOrThrow({ where: { id: fromId }, select: { trustLevel: true } }),
+				tx.block.count({
+					where: {
+						OR: [
+							{ blockerActorId: fromId, blockedActorId: to.id },
+							{ blockerActorId: to.id, blockedActorId: fromId }
+						]
 					}
-				});
-		const result = await emitAndProcess(tx, {
-			type: 'endorsement.received',
-			actorId: to.id,
-			endorserId: fromId,
-			skill,
-			collaborationId: form.collaborationId,
-			occurredAt: now
-		});
-		await tx.collabEndorsement.update({ where: { id: row.id }, data: { eventId: result.eventId } });
-		// Notification (P2-09a) : l'appréciation se lit sur son profil.
-		await notify(tx, {
-			recipientId: to.id,
-			type: 'ENDORSEMENT',
-			fromActorId: fromId,
-			href: `/@${form.to}`,
-			title: skill
-		});
-	});
-	return { displayName: to.displayName, skill };
+				}),
+				// Seulement un instrument que la personne déclare jouer.
+				form.instrument
+					? tx.instrument.findFirst({
+							where: {
+								slug: form.instrument,
+								active: true,
+								personInstruments: { some: { personId: to.id } }
+							},
+							select: { id: true, name: true }
+						})
+					: null
+			]);
+			const refusal = collabEndorseRefusal({
+				fromId,
+				toId: to.id,
+				completed: collab.completed,
+				fromIsParticipant: true,
+				toIsParticipant: collab.ids.includes(to.id),
+				fromCanEndorse:
+					TRUST_PERMISSIONS[isTrustLevel(trust.trustLevel) ? trust.trustLevel : 0].canEndorse,
+				blocked: blocked > 0,
+				alreadyEndorsed: Boolean(existing && !existing.revokedAt)
+			});
+			if (refusal) throw new CollaborationError(refusal, 403);
+			if (form.instrument && !instrument) throw new CollaborationError('Instrument inconnu.');
+			const skill = form.quality
+				? COLLAB_QUALITY_LABELS[form.quality]
+				: instrument!.name.toLowerCase();
+			const data = { quality: form.quality ?? null, instrumentId: instrument?.id ?? null };
+
+			// Redonnée après une reprise : la même ligne reprend vie.
+			const row = existing
+				? await tx.collabEndorsement.update({
+						where: { id: existing.id },
+						data: { ...data, revokedAt: null, eventId: null }
+					})
+				: await tx.collabEndorsement.create({
+						data: {
+							...data,
+							collaborationId: form.collaborationId,
+							fromActorId: fromId,
+							toActorId: to.id
+						}
+					});
+			const result = await emitAndProcess(tx, {
+				type: 'endorsement.received',
+				actorId: to.id,
+				endorserId: fromId,
+				skill,
+				collaborationId: form.collaborationId,
+				occurredAt: now
+			});
+			await tx.collabEndorsement.update({
+				where: { id: row.id },
+				data: { eventId: result.eventId }
+			});
+			// Notification (P2-09a) : l'appréciation se lit sur son profil.
+			await notify(tx, {
+				recipientId: to.id,
+				type: 'ENDORSEMENT',
+				fromActorId: fromId,
+				href: `/@${form.to}`,
+				title: skill
+			});
+			await tx.collaborationAppreciationAct.create({
+				data: {
+					collaborationId: form.collaborationId,
+					authorId: fromId,
+					kind: 'GIVEN',
+					occurredAt: now
+				}
+			});
+			return { displayName: to.displayName, skill };
+		},
+		{ timeout: 30_000 }
+	);
 }
 
 /** Reprendre son appréciation : l'XP est repris (transaction négative liée). */
@@ -133,24 +168,31 @@ export async function revokeCollabEndorsement(
 	handle: string,
 	now = new Date()
 ) {
-	const row = await prisma.collabEndorsement.findFirst({
-		where: { collaborationId, fromActorId: fromId, to: { handle }, revokedAt: null },
-		select: { id: true, eventId: true, toActorId: true }
-	});
-	if (!row) throw new CollaborationError('Aucune appréciation à reprendre.', 404);
-	await prisma.$transaction(async (tx) => {
-		await tx.collabEndorsement.update({ where: { id: row.id }, data: { revokedAt: now } });
-		await revokeEndorsementEvent(
-			tx,
-			{
-				eventId: row.eventId,
-				actorId: row.toActorId,
-				endorserId: fromId,
-				reason: 'Appréciation reprise'
-			},
-			now
-		);
-	});
+	await prisma.$transaction(
+		async (tx) => {
+			await participantsOf(tx, collaborationId, fromId);
+			const row = await tx.collabEndorsement.findFirst({
+				where: { collaborationId, fromActorId: fromId, to: { handle }, revokedAt: null },
+				select: { id: true, eventId: true, toActorId: true }
+			});
+			if (!row) throw new CollaborationError('Aucune appréciation à reprendre.', 404);
+			await tx.collabEndorsement.update({ where: { id: row.id }, data: { revokedAt: now } });
+			await revokeEndorsementEvent(
+				tx,
+				{
+					eventId: row.eventId,
+					actorId: row.toActorId,
+					endorserId: fromId,
+					reason: 'Appréciation reprise'
+				},
+				now
+			);
+			await tx.collaborationAppreciationAct.create({
+				data: { collaborationId, authorId: fromId, kind: 'REVOKED', occurredAt: now }
+			});
+		},
+		{ timeout: 30_000 }
+	);
 }
 
 /**

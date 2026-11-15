@@ -71,4 +71,31 @@ describe('validations de collaboration', () => {
 		expect(entries[0].author).toBe('Compte supprimé');
 		expect(JSON.stringify(entries)).not.toContain('Ancien nom');
 	});
+	it('projette uniquement les nouveaux actes répétables, sans contenu ni identité technique', () => {
+		const facts = {
+			id: 'c',
+			participants: [],
+			appreciationActs: [
+				{ id: 'act-b', kind: 'REVOKED' as const, occurredAt: at, author: participant.actor },
+				{
+					id: 'act-a',
+					kind: 'GIVEN' as const,
+					occurredAt: at,
+					author: { displayName: 'Secret', deletedAt: at }
+				},
+				{ id: 'act-c', kind: 'GIVEN' as const, occurredAt: at, author: participant.actor }
+			]
+		};
+		const entries = collaborationTimeline(facts);
+		expect(entries.map((e) => e.action)).toEqual([
+			'Appréciation de collaboration attribuée',
+			'Appréciation de collaboration reprise',
+			'Appréciation de collaboration attribuée'
+		]);
+		expect(entries[0].author).toBe('Compte supprimé');
+		expect(
+			collaborationTimeline({ ...facts, appreciationActs: facts.appreciationActs.reverse() })
+		).toEqual(entries);
+		expect(JSON.stringify(entries)).not.toMatch(/Secret|secret-actor|quality|instrument/);
+	});
 });

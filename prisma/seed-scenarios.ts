@@ -603,6 +603,43 @@ export async function seedScenarios(
 	const play = (h: string) => ctx.plays.get(h) || 'chant';
 
 	async function seedCollaborationDecisions(conversationId: string) {
+		// DASH-05l : cycle fictif dédié, jamais déduit des appréciations existantes.
+		const appreciationId = 'demo-collab-appreciations';
+		await ctx.prisma.collaboration.upsert({
+			where: { id: appreciationId },
+			update: {},
+			create: {
+				id: appreciationId,
+				kind: 'REHEARSAL',
+				status: 'COMPLETED',
+				title: 'Appréciations après la répétition',
+				happenedOn: ago(9),
+				completedAt: ago(8),
+				proposedById: P('clara-guitare'),
+				conversationId,
+				participants: {
+					create: [
+						{ actorId: P('clara-guitare'), acceptedAt: ago(10), confirmedCompletionAt: ago(8) },
+						{ actorId: P('ines-chant'), acceptedAt: ago(10), confirmedCompletionAt: ago(8) }
+					]
+				}
+			}
+		});
+		for (const [index, kind] of (['GIVEN', 'REVOKED', 'GIVEN', 'REVOKED'] as const).entries()) {
+			const actId = `demo-collab-appreciation-${index}`;
+			await ctx.prisma.collaborationAppreciationAct.upsert({
+				where: { id: actId },
+				update: {},
+				create: {
+					id: actId,
+					collaborationId: appreciationId,
+					authorId: P('clara-guitare'),
+					kind,
+					occurredAt: ago(7 - index)
+				}
+			});
+		}
+
 		// DASH-05k : deux situations fictives explicites, sans convertir d’anciens états.
 		for (const cancel of [false, true]) {
 			const id = `demo-collab-decision-${cancel ? 'cancelled' : 'declined'}`;

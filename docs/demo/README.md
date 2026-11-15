@@ -477,3 +477,12 @@ de Clara. Elles ne produisent aucune notification ni progression. Leurs actes
 figurent aussi dans l’export personnel des deux parties. Les identifiants stables
 et upserts évitent les doublons ; une base déjà semée reçoit ces situations sans
 transformer ses anciennes collaborations.
+
+### Appréciations répétables (DASH-05l)
+
+Dans la conversation Clara/Inès, le **Journal des validations de collaboration**
+contient « Appréciations après la répétition » : deux attributions et deux reprises
+fictives de Clara, datées et attribuées. Le seed utilise des identifiants stables,
+y compris sur une base déjà semée. Ces actes dédiés ne sont pas déduits des
+appréciations existantes et n’émettent ni notification ni progression. Les
+qualités et instruments ne sont pas recopiés dans le journal.

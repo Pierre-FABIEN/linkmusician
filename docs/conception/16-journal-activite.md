@@ -640,3 +640,88 @@ Clara/Inès : refus d’Inès et annulation de Clara. Une base déjà semée re�
 ces seules nouvelles situations, sans convertir ses collaborations antérieures.
 Les appréciations répétables, crédits manuels et futures options/propositions
 restent dans leurs propres lots. DASH-05 et les issues #35/#30 restent ouverts.
+
+## Actes d’appréciation de collaboration (DASH-05l)
+
+Audit du 15/11/2026 : `endorseCollaborator` ouvre l’attribution aux seuls
+participants d’une collaboration COMPLETED, TL1, hors blocage et sans
+auto-appréciation. La cible doit être vivante ; l’instrument doit être actif
+et déclaré par cette personne. Une appréciation active ne se modifie pas :
+l’appel est refusé, même avec une autre qualité. Après reprise, la même ligne
+`CollabEndorsement` est réactivée et peut porter une autre qualité/instrument.
+`createdAt` date sa création initiale, pas chaque attribution ; `revokedAt`
+et le contenu courant ne sont pas un historique. Notifications, `updatedAt`
+et événements moteur ne deviennent jamais des actes du journal.
+
+### Modèle et unicité
+
+`CollaborationAppreciationAct` conserve seulement GIVEN (« Appréciation de
+collaboration attribuée »), REVOKED (« Appréciation de collaboration reprise »),
+l’auteur réel, la collaboration et la date fournie à la mutation. Aucun nom,
+qualité, instrument, destinataire, texte ou contenu privé du morceau recopié.
+Dans ce circuit personnel à deux participants, le libellé ne prétend pas
+identifier un destinataire ni certifier le contenu d’une ancienne appréciation.
+Le registre est indépendant de la ligne réactivable ; chaque acte a son propre
+identifiant, sans unicité auteur/type ni date. Plusieurs cycles à date égale
+restent possibles. L’unicité d’une transition effective est assurée par la
+relecture de l’état courant sous le verrou transactionnel `collaboration:`.
+
+Attribution et reprise prennent ce verrou avant toute lecture métier et le
+gardent jusqu’au commit, comme réponses, confirmations et annulations. Les
+appels identiques concurrents donnent un succès et un refus, sans écrasement.
+Les appels opposés sont sérialisés : une reprise qui arrive avant toute
+attribution échoue ; celle qui la suit conserve un second acte. Après un
+aller-retour, la même intention est un nouvel acte autorisé, sans clé
+permanente d’idempotence. Les participants et l’auteur vivant sont relus ;
+la reprise reste personnelle et possible après blocage, sans TL1 ni nouvelle
+condition d’achèvement. L’attribution garde ses conditions d’ouverture.
+
+Audit des autres verrous : le moteur prend ensuite ses verrous d’acteurs
+triés, comme le règlement de collaboration ; aucun chemin de ce circuit ne
+prend ces verrous avant `collaboration:`. Les autres services d’appréciation
+(jams/annonces) ne modifient pas `CollabEndorsement`. Blocage/déblocage ne
+partagent pas ce verrou : la garde lit le blocage présent au contrôle dans
+la transaction, sans nouvelle promesse de sérialisation de ces réglages.
+Aucun verrou global ni modification de ces services n’est ajouté.
+
+L’écriture d’acte a lieu dans la transaction métier après les effets existants.
+Son échec annule appréciation, événement, gains/reprises et notification. Le
+journal n’appelle ni moteur ni notification. L’attribution garde son unique
+`endorsement.received`, notification existante et rendements par paire ; la
+reprise garde `revokeEndorsementEvent`, transactions négatives et
+`endorsement.revoked` si un événement source existe. Réputation et paliers
+restent calculés depuis les sources métier, jamais depuis ce registre.
+Une ancienne ligne sans événement source peut être reprise : seul ce nouvel
+acte est journalisé, sans fabriquer son attribution ni des points à reprendre.
+
+### Lecture, effacement et déploiement
+
+La projection privée existante inclut ces seuls nouveaux actes : participation
+exacte du lecteur vivant, garde de conversation, limite de 100 collaborations,
+aucun accès par mandat ou gestion de projet. Le blocage n’efface pas l’histoire.
+L’ordre à date égale utilise l’identifiant sans prétendre certifier l’ordre réel.
+Les validations anciennes fiables restent projetées depuis leurs dates sources ;
+aucun ancien acte d’appréciation n’est repris. Le volet ne révèle pas de détail
+supplémentaire du projet ni de l’appréciation.
+
+L’export `collaborations[].validations` couvre le registre. L’anonymisation garde
+l’acteur vidé : ses actes deviennent « Compte supprimé », également chez l’autre
+participant. La suppression RGPD des appréciations reçues garde son comportement
+métier ; elle ne cascade pas les actes donnés par autrui, qui sont indépendants.
+Supprimer un morceau ne touche pas ce registre. Une suppression physique de
+collaboration cascade ses actes ; celle de l’auteur cascade ses actes, celle du
+proposant cascade la collaboration et tout son registre. La suppression physique
+d’un autre participant suit les cascades existantes sans créer d’acte. Aucune
+succession technique ou suppression RGPD n’est une reprise humaine.
+
+Migration additive `20261115152721_collaboration_appreciation_acts`, générée avec
+`db:nouvelle-migration`, nettoyée et relue : enum, table, deux index et deux clés
+étrangères seulement ; aucune reprise ni suppression d’index. Appliquée par
+`db:deploy` et `db:deploy:e2e`, client régénéré. Un retour applicatif peut garder
+la table ; la supprimer perdrait les nouveaux actes. Aucun retour destructif
+automatique ; restauration complète depuis sauvegarde cohérente si nécessaire.
+
+Démo dédiée et idempotente Clara/Inès : deux attributions et deux reprises
+fictives explicites, sans conversion d’anciennes données ni effet de progression.
+Crédits manuels et futures options/propositions restent dans leurs propres lots.
+DASH-05 et #35/#30 restent ouverts.

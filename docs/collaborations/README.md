@@ -106,3 +106,23 @@ projet ne donne aucun accès à ce journal.
 Tests : `history.integration.test.ts` couvre notamment les courses, rollbacks,
 export, anonymisation et suppression du morceau ; `collaborations-morceau.spec.ts`
 joue le refus et l’annulation par l’interface, avec clavier, dates HTML et 390 px.
+
+## Appréciations conservées (DASH-05l)
+
+Le volet privé conserve désormais les nouvelles attributions et reprises, avec
+leur auteur et leur date. Redonner après reprise ajoute un acte ; une appréciation
+active ne peut pas être modifiée directement. Les anciennes appréciations ne sont
+pas converties en actes ; leur nouvelle reprise peut apparaître seule.
+
+Le registre minimal `CollaborationAppreciationAct` ne copie ni qualité ni instrument.
+Attribution et reprise relisent l’état sous le verrou `collaboration:` et écrivent
+l’acte dans la transaction métier. Rejeux refusés, cycles successifs conservés,
+aucun effet moteur ou notification supplémentaire. La reprise reste possible après
+blocage ; l’attribution garde COMPLETED, participation, TL1 et absence de blocage.
+
+Les actes sont inclus dans l’export RGPD ; un auteur effacé devient « Compte
+supprimé ». Le registre survit à la suppression RGPD des appréciations reçues,
+mais suit les cascades physiques de la collaboration et de son auteur.
+Détails d’audit et de migration : [journal d’activité](../conception/16-journal-activite.md).
+Tests : `endorse.integration.test.ts`, `anonymisation.integration.test.ts`,
+projection unitaire et parcours `collaborations-morceau.spec.ts`.

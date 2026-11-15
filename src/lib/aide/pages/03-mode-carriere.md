@@ -231,8 +231,11 @@ confirmation d’achèvement. Ces deux validations peuvent donc avoir la même d
 Les nouveaux refus de proposition et les annulations explicites sont aussi conservés,
 avec la personne qui agit et la date de son acte. « Ce n’est pas exact » refuse
 la proposition ; « Annuler » conserve une annulation distincte.
-Les anciens actes absents ne sont pas reconstitués. Les appréciations restent
-hors de ce volet.
+Les nouvelles attributions et reprises d’appréciation apparaissent aussi avec
+leur auteur et leur date. Redonner après une reprise conserve un nouvel acte ;
+le détail de la qualité ou de l’instrument n’est pas recopié dans ce volet.
+Les anciens actes absents ne sont pas reconstitués : une ancienne appréciation
+peut donc avoir une nouvelle reprise sans attribution antérieure visible.
 
 Seuls les participants à la collaboration peuvent consulter ses validations.
 Gérer le morceau, le groupe, le studio ou l’agence n’y donne pas accès.

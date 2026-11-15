@@ -120,6 +120,33 @@ test.describe('LinkMusician — collaborations liées au morceau', () => {
 				).toBeVisible();
 			});
 
+			await test.step('Apprécier, reprendre et redonner conserve les trois actes privés', async () => {
+				await db.actor.update({ where: { id: lea.actorId }, data: { trustLevel: 1 } });
+				await page.goto(`/messages/${conversation.id}`);
+				await waitForAppReady(page);
+				await page.getByRole('button', { name: 'fiable', exact: true }).click();
+				await expect(page.getByRole('button', { name: 'Reprendre', exact: true })).toBeVisible();
+				await page.getByRole('button', { name: 'Reprendre', exact: true }).click();
+				await expect(page.getByRole('button', { name: 'Reprendre', exact: true })).toBeHidden();
+				await db.actor.update({ where: { id: lea.actorId }, data: { trustLevel: 1 } });
+				await page.reload();
+				await page.getByRole('button', { name: 'bonne ambiance', exact: true }).click();
+				await expect(page.getByRole('button', { name: 'Reprendre', exact: true })).toBeVisible();
+				const summary = page
+					.locator('summary')
+					.filter({ hasText: 'Journal des validations de collaboration' });
+				await summary.focus();
+				await page.keyboard.press('Enter');
+				const journal = page.locator('details').filter({ has: summary });
+				await expect(
+					journal.getByText('Appréciation de collaboration attribuée', { exact: true })
+				).toHaveCount(2);
+				await expect(
+					journal.getByText('Appréciation de collaboration reprise', { exact: true })
+				).toHaveCount(1);
+				await expect(journal.locator('time[datetime]')).toHaveCount(7);
+			});
+
 			await test.step('3. Sam gagne sur sa piste d’ingé son', async () => {
 				const gains = await db.xpTransaction.groupBy({
 					by: ['track'],

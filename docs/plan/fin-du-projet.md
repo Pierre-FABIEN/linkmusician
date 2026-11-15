@@ -603,3 +603,23 @@ sans push ; distant vérifié à `2341488` (DASH-05i publié). Recette dans
 [le suivi](README.md). DASH-05 et #35/#30 restent ouverts.
 Les appréciations et crédits ont leurs propres circuits à auditer dans un autre
 lot ; les futures options et propositions restent également dans leur lot propre.
+
+#### DASH-05l — actes d’appréciation de collaboration (livré localement)
+
+Dépend de DASH-05k. Périmètre : audit attribution/reprise/réattribution,
+conservation des nouveaux actes répétables avec auteur réel et date, lecture
+privée, export et anonymisation RGPD. Aucun ancien acte reconstruit ; aucun
+effet métier ajouté par le journal. Les crédits manuels et futures
+options/propositions restent hors du lot.
+
+Modèle retenu : registre minimal indépendant de l’état courant de
+`CollabEndorsement`, sous le verrou transactionnel commun `collaboration:`.
+Critères : cycles successifs, rejeux/concurrence, droits/blocage, rollbacks,
+effacement des auteurs et cascades, sans multiplier notifications ni progression.
+
+Livré : registre répétable minimal, transactions sous verrou commun, projection
+privée, export/anonymisation, aide et démo dédiée. Migration additive
+`20261115152721_collaboration_appreciation_acts` appliquée en développement
+et sur `e2e`, sans reprise ancienne. Recette dans [le suivi](README.md).
+Distant revérifié à `2341488` ; DASH-05j/k/l restent locaux sur `main`, sans push.
+DASH-05 et #35/#30 restent ouverts.

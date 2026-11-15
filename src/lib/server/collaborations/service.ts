@@ -761,10 +761,21 @@ export const today = (now = new Date()) => parisDay(now);
  */
 export async function validationHistoryForConversation(actorId: string, conversationId: string) {
 	const list = await prisma.collaboration.findMany({
-		where: { conversationId, participants: { some: { actorId, actor: { deletedAt: null } } } },
+		where: {
+			conversationId,
+			participants: { some: { actorId, actor: { deletedAt: null } } }
+		},
 		orderBy: [{ happenedOn: 'desc' }, { id: 'asc' }],
 		take: 100,
 		select: {
+			appreciationActs: {
+				select: {
+					id: true,
+					kind: true,
+					occurredAt: true,
+					author: { select: { displayName: true, deletedAt: true } }
+				}
+			},
 			id: true,
 			title: true,
 			participants: {

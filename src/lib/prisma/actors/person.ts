@@ -361,9 +361,19 @@ export async function exportPersonData(userId: string) {
 		// Collaborations (P2-06) : elles survivent à l'anonymisation (historique
 		// de l'autre personne, affichée « Compte supprimé »).
 		prisma.collaboration.findMany({
-			where: { participants: { some: { actorId: person.actorId } } },
+			where: {
+				participants: { some: { actorId: person.actorId } }
+			},
 			orderBy: { happenedOn: 'asc' },
 			select: {
+				appreciationActs: {
+					select: {
+						id: true,
+						kind: true,
+						occurredAt: true,
+						author: { select: { displayName: true, deletedAt: true } }
+					}
+				},
 				id: true,
 				kind: true,
 				title: true,

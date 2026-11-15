@@ -1449,6 +1449,7 @@ model Actor {
   endorsementsReceived   JamEndorsement[]       @relation("EndorsementTo")
   networkTies            MusicalTie[]           @relation("TieOwner")
   networkOf              MusicalTie[]           @relation("TieContact")
+  collaborationAppreciationActs CollaborationAppreciationAct[]
   collabEndorsementsGiven    CollabEndorsement[] @relation("CollabEndorsementFrom")
   collabEndorsementsReceived CollabEndorsement[] @relation("CollabEndorsementTo")
   reputation                 ReputationSnapshot?
@@ -2408,6 +2409,7 @@ model Collaboration {
   updatedAt      DateTime                   @updatedAt
 
   participants CollaborationParticipant[]
+  appreciationActs CollaborationAppreciationAct[]
   endorsements CollabEndorsement[]
 
   @@index([conversationId])
@@ -3966,4 +3968,24 @@ model RepresentationDelegation {
  @@index([delegateId, endedAt])
  @@index([representationId, endedAt])
  @@map("representation_delegations")
+}
+
+/// Actes répétables nouveaux uniquement ; aucun contenu de l'appréciation copié.
+enum CollaborationAppreciationKind {
+  GIVEN
+  REVOKED
+}
+
+model CollaborationAppreciationAct {
+  id              String                        @id @default(cuid())
+  collaborationId String
+  collaboration   Collaboration                 @relation(fields: [collaborationId], references: [id], onDelete: Cascade)
+  authorId        String
+  author          Actor                         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  kind            CollaborationAppreciationKind
+  occurredAt      DateTime
+
+  @@index([collaborationId, occurredAt])
+  @@index([authorId])
+  @@map("collaboration_appreciation_acts")
 }

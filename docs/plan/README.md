@@ -274,7 +274,8 @@ Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 | DASH-05i       | ✅ publié | Participations aux écoles : acceptation de lien, départ/retrait transactionnels, historique personnel et RGPD.                            |
 | DASH-05j       | ✅ local  | Validations de collaboration : lecture privée des dates conservées, mutations atomiques sous verrou et export RGPD.                       |
 | DASH-05k       | ✅ local  | Refus et annulations de collaboration conservés atomiquement, auteurs/dates, accès privés et RGPD ; aucune reprise.                       |
-| DASH-05, suite | ⬜        | Appréciations et autres circuits à cadrer ; futures options dans leur propre lot.                                                         |
+| DASH-05l       | ✅ local  | Actes répétables d’appréciation de collaboration, transactionnels, privés et RGPD ; aucune reprise ancienne.                              |
+| DASH-05, suite | ⬜        | Crédits manuels et autres circuits à cadrer ; futures options dans leur propre lot.                                                       |
 
 Le journal commun n’est pas terminé. Conception et limites :
 [journal d’activité](../conception/16-journal-activite.md).
@@ -743,3 +744,69 @@ reste bloqué par le formatage de `.shot-metro.mjs` et `.shot-tmp.mjs` ; ESLint
 global : une erreur préexistante dans `.shot-metro.mjs`, 464 avertissements.
 Ces scripts sont inchangés. Vérification distante finale : toujours `2341488` ;
 DASH-05j et DASH-05k restent locaux, sans push ni modification distante des issues.
+
+### DASH-05l — actes d’appréciation de collaboration
+
+Reprise sur `main`, arbre propre, `710421e` (DASH-05k) et `6aff0dc`
+(DASH-05j) présents. `git fetch origin` puis `git ls-remote origin
+refs/heads/main` confirment `23414884e2ed5046807f31b20dfe57df0690ee8d` :
+DASH-05i est publié ; DASH-05j, DASH-05k et ce lot restent **locaux**.
+Aucun push ni modification distante des issues pendant ce lot.
+
+Audit complet attribution/reprise/réattribution, changement de contenu après
+reprise seulement, notifications, réputation, progression et suppressions.
+Le nouveau registre `CollaborationAppreciationAct` conserve seulement type,
+auteur réel, date et collaboration. Il reste indépendant de la ligne courante
+réactivable et de ses suppressions RGPD. Aucun ancien acte n’est déduit des
+dates techniques, notifications ou événements moteur. Une ancienne ligne
+peut recevoir une nouvelle reprise sans attribution reconstruite.
+
+Attribution et reprise relisent leur état dans la transaction sous le verrou
+commun `collaboration:`, avant les verrous d’acteurs du moteur. Une intention
+identique sur état inchangé est refusée sans écrasement ; après reprise,
+une nouvelle attribution conserve un nouvel acte, même à date égale. Échec
+du registre : rollback de tous les effets existants. Aucun effet moteur ou
+notification ajouté. Gardes participants, acteur vivant, COMPLETED/TL1/blocage
+à l’attribution et reprise personnelle après blocage préservées.
+
+Le volet privé existant et l’export `collaborations[].validations` incluent les
+actes. Aucun contenu d’appréciation, destinataire ou information de projet
+supplémentaire n’est copié. L’anonymisation affiche « Compte supprimé » ; la
+suppression des appréciations reçues laisse les actes de leur auteur. Les
+cascades physiques de collaboration/auteur ont été auditées et testées.
+Aide et documentation à jour ; seed de démo idempotent dédié Clara/Inès,
+deux attributions et deux reprises fictives, sans notification ni progression.
+
+Migration additive `20261115152721_collaboration_appreciation_acts`, générée
+avec `db:nouvelle-migration`, nettoyée et relue : enum, table, deux index,
+deux clés étrangères ; aucune reprise ou suppression d’index. Appliquée en
+développement et sur `e2e`, client régénéré. Retour applicatif compatible en
+conservant la table ; pas de retour destructif automatique.
+
+DASH-05 et #35/#30 restent ouverts. Crédits manuels et futures
+options/propositions restent dans leurs propres lots.
+
+Recette DASH-05l (15/11/2026) : **1 367 unitaires réussis** (402
+conditionnels non activés) ; **44 intégrations** collaborations/progression
+réussies, puis **10 tests d’appréciation** réussis après ajout du contrôle de
+cascade physique et renforcement des assertions moteur (45 intégrations
+distinctes au total). Projection : 5 tests compris dans les unitaires.
+`seed:demo` exécuté avec succès ; les quatre actes fictifs vérifiés en base.
+Formatage et ESLint ciblés au vert. Lint global toujours bloqué par les deux
+scripts préexistants `.shot-metro.mjs` / `.shot-tmp.mjs` (formatage), avec
+également une variable inutilisée dans `.shot-metro.mjs` côté ESLint.
+
+Les deux E2E `collaborations-morceau.spec.ts` réussissent, dont attribution,
+reprise et réattribution par l’interface avec trois actes datés dans le journal.
+Le parcours `candidatures.spec.ts` cherchait encore le libellé « À confirmer »
+remplacé par DASH-03 : sélecteur actualisé vers « Collaborations à valider »,
+sans changement du parcours produit.
+
+Validation finale : `npm run check` **0 erreur / 0 avertissement**, terminé
+avant la relance E2E ; **3 E2E concernés réussis** (les deux scénarios de
+collaboration et le parcours candidature relancé sans retry après correction
+du sélecteur). Aucun contrôle de types pendant les E2E. Nouvelle exécution
+unitaire finale : **1 367 réussis**, 402 conditionnels non activés. Formatage
+global : seules les deux exceptions préexistantes `.shot-*` restent signalées ;
+ESLint ciblé de tous les fichiers TypeScript du lot au vert. `git diff --check`
+au vert. Livraison par un nouveau commit local `(DASH-05l)`, sans push.

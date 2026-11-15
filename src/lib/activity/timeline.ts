@@ -150,6 +150,7 @@ export function membershipTimeline(
 /** Les dates du participant sont des actes conservés ; aucun état ni événement moteur n’est projeté. */
 export function collaborationTimeline(facts: {
 	id: string;
+	appreciationActs?: { id: string; kind: 'GIVEN' | 'REVOKED'; occurredAt: Date; author: Author }[];
 	participants: {
 		actorId: string;
 		acceptedAt: Date | null;
@@ -159,7 +160,7 @@ export function collaborationTimeline(facts: {
 		actor: Author;
 	}[];
 }): ActivityEntry[] {
-	return [...facts.participants]
+	const validations = [...facts.participants]
 		.sort((a, b) => a.actorId.localeCompare(b.actorId))
 		.flatMap((p, index) =>
 			[
@@ -179,6 +180,17 @@ export function collaborationTimeline(facts: {
 						]
 					: []
 			)
-		)
-		.sort((a, b) => a.occurredAt.getTime() - b.occurredAt.getTime() || a.id.localeCompare(b.id));
+		);
+	return [
+		...validations,
+		...(facts.appreciationActs ?? []).map((a) => ({
+			id: a.id,
+			action:
+				a.kind === 'GIVEN'
+					? 'Appréciation de collaboration attribuée'
+					: 'Appréciation de collaboration reprise',
+			author: authorName(a.author),
+			occurredAt: a.occurredAt
+		}))
+	].sort((a, b) => a.occurredAt.getTime() - b.occurredAt.getTime() || a.id.localeCompare(b.id));
 }
