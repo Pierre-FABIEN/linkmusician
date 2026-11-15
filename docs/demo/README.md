@@ -453,3 +453,16 @@ conservé dans le journal. Avec Zoé : `/ecoles` puis **Historique de mes
 participations** (`/structure/historique`). Malik ne voit pas ces périodes dans
 son historique. Les fixtures sont idempotentes et n’altèrent aucune ancienne
 participation réelle.
+
+### Journal des validations de collaboration (DASH-05j)
+
+Après `npm run seed:demo`, ouvrir la conversation Clara ↔ Inès depuis le compte
+`clara-guitare` ou `ines-chant`, puis **Journal des validations de collaboration** :
+la session acoustique fictive affiche quatre validations datées et attribuées,
+deux accords et deux confirmations d’achèvement. Les dates proviennent des actes
+explicitement créés par `seed-scenarios.ts`, sans convertir d’anciens états.
+Dans Lucas ↔ Kevin (`lucas-sax` ou `kevin-metal`), la première répète ska-punk
+montre les deux validations de Lucas ; Kevin doit encore répondre. Proposer ou
+accepter une date passée vaut aussi confirmation. Les autres comptes ne voient
+pas ce journal. Le volet fonctionne au clavier et sur écran de 390 px.
+Les scénarios existants suffisent : aucune nouvelle fixture ni reprise réelle.

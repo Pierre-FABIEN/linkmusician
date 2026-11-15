@@ -502,3 +502,75 @@ ou dissolution technique RGPD ne crée aucun acte humain. Les deux périodes
 fictives de démo, à identifiants stables, montrent un départ et un retrait.
 Validations de collaboration et futures options restent à livrer ; DASH-05,
 #35 et #30 restent ouverts.
+
+## Validations de collaboration (DASH-05j)
+
+### Audit et périmètre
+
+Audit du 15/11/2026 de `collaborations/service.ts`, `collaborations/endorse.ts`,
+`works/service.ts` et des vérifications dérivées de `milestones/service.ts` :
+
+- `CollaborationParticipant.acceptedAt` et `confirmedCompletionAt` conservent
+  déjà les actes de la personne identifiée par `actorId`. Aucun mandataire,
+  groupe, studio ou gestionnaire ne répond à sa place dans ce circuit.
+- Proposer vaut accord ; si la date est passée, proposer ou accepter vaut
+  aussi confirmation d’achèvement. Les deux dates identiques sont donc deux
+  faits conservés issus d’une même intention, pas deux clics prétendus.
+- `COMPLETED`, `completedAt`, l’avancement du morceau, les crédits automatiques,
+  les preuves d’étapes et les événements de progression sont des résultats du
+  calcul serveur. Ils ne constituent pas un autre consentement humain.
+- Refus et annulation ne conservaient que `CANCELLED`, sans auteur ni date de
+  décision. Leur conservation demande un autre lot (**DASH-05k**), sans reprise
+  des anciens états ni des notifications.
+- Les appréciations et leurs reprises suivent un service distinct ; une
+  appréciation redonnée réactive la même ligne, sans conserver chaque date de
+  redon. Leur éventuel journal répétable reste à cadrer séparément. Les crédits
+  manuels des morceaux ont aussi leur propre circuit et leurs propres gardes.
+  Les futures options/propositions restent dans leur propre lot ultérieur.
+
+### Conservation et atomicité
+
+Aucune nouvelle table, migration, reprise ni copie de trace : le journal projette
+les deux dates sources réellement conservées. Les mutations d’acceptation et de
+confirmation prennent un verrou transactionnel `collaboration:`, relisent les
+participants et l’état, puis écrivent les dates et règlent la collaboration dans
+la même transaction (progression, crédits et étapes compris). Une erreur annule
+le tout. Une réponse ou confirmation répétée est refusée sans écraser la date ;
+les confirmations distinctes concurrentes aboutissent à un seul achèvement.
+Refus et annulation prennent le même verrou afin de ne pas écraser un achèvement
+concurrent. Cela ne leur invente aucune trace. La création et ses accords
+implicites sont également atomiques avec la notification déjà existante.
+Les gardes de blocage restent appliquées aux réponses/confirmations ; annuler
+reste possible après blocage. L’acteur qui agit doit être vivant.
+
+### Lecture privée, RGPD et démo
+
+Dans une conversation, le volet clavier « Journal des validations de
+collaboration » montre les 100 collaborations les plus récentes par date de
+rencontre, y compris annulées, et leurs validations en ordre chronologique.
+Une collaboration sans dates sources affiche l’absence d’activité, même si son
+état est terminé. Aucune proposition, annulation ou décision ancienne n’est
+reconstruite. Dates HTML à l’heure de Paris, auteurs actuels, ordre stable à
+égalité de date sans prétendre certifier la séquence réelle.
+
+Le lecteur serveur filtre chaque collaboration sur la participation exacte du
+lecteur vivant ; la route conserve également la garde de conversation existante.
+Un titre de collaboration n’est renvoyé qu’à ses participants. Ni identifiant de
+compte/acteur, ni message, titre ou identifiant de morceau, studio, liste d’équipe,
+condition de mandat ou preuve privée n’est ajouté par ce lecteur. Gérer le
+morceau, le groupe, le studio, une agence ou disposer d’un mandat n’ouvre pas ce
+journal. Un blocage ne supprime pas les validations historiques des parties et
+ne donne aucun nouvel outil. Les identifiants d’entrée utilisent l’identifiant
+collaboration et un ordinal de participant trié, sans exposer son identifiant
+personnel ; ils restent stables tant que les participants sources sont conservés.
+
+L’export personnel des collaborations inclut désormais les validations avec acte,
+auteur et date. L’anonymisation existante conserve l’acteur vidé et ses dates :
+la projection et l’export affichent « Compte supprimé », y compris chez l’autre
+participant. Une suppression physique suit les cascades existantes ; aucune
+succession RGPD ne crée un consentement. Aucun stockage personnel supplémentaire.
+
+La démo réutilise les dates explicites des collaborations fictives déjà créées
+par `seed-scenarios.ts` : Clara/Inès (quatre validations) et Lucas/Kevin (deux
+validations, réponse attendue). Aucun ancien état réel n’est converti et aucun
+nouveau scénario de seed n’est nécessaire pour cette projection.

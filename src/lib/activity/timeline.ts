@@ -146,3 +146,35 @@ export function membershipTimeline(
 		}))
 	].sort((a, b) => a.occurredAt.getTime() - b.occurredAt.getTime() || a.id.localeCompare(b.id));
 }
+
+/** Les dates du participant sont des actes conservés ; aucun état ni événement moteur n’est projeté. */
+export function collaborationTimeline(facts: {
+	id: string;
+	participants: {
+		actorId: string;
+		acceptedAt: Date | null;
+		confirmedCompletionAt: Date | null;
+		actor: Author;
+	}[];
+}): ActivityEntry[] {
+	return [...facts.participants]
+		.sort((a, b) => a.actorId.localeCompare(b.actorId))
+		.flatMap((p, index) =>
+			[
+				{ key: 'accepted', action: 'Collaboration acceptée', at: p.acceptedAt },
+				{ key: 'completed', action: 'Achèvement confirmé', at: p.confirmedCompletionAt }
+			].flatMap((act) =>
+				act.at
+					? [
+							{
+								id: `${facts.id}:${index}:${act.key}`,
+								action: act.action,
+								author: authorName(p.actor),
+								occurredAt: act.at
+							}
+						]
+					: []
+			)
+		)
+		.sort((a, b) => a.occurredAt.getTime() - b.occurredAt.getTime() || a.id.localeCompare(b.id));
+}

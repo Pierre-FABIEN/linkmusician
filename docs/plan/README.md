@@ -271,8 +271,10 @@ Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 | DASH-05f       | ✅ publié | Actes des participations aux agences, historique personnel et fermeture transactionnelle, export/anonymisation réutilisés.                |
 | DASH-05g       | ✅ publié | Entrées/sorties des groupes : invitations, demandes, recrutement, départ/retrait et dissolution ; rôles et transmissions à suivre.        |
 | DASH-05h       | ✅ publié | Rôles et transmissions répétables des groupes, actes personnels transactionnels et RGPD.                                                  |
-| DASH-05i       | ✅ local  | Participations aux écoles : acceptation de lien, départ/retrait transactionnels, historique personnel et RGPD.                            |
-| DASH-05, suite | ⬜        | Validations de collaboration et futures options.                                                                                          |
+| DASH-05i       | ✅ publié | Participations aux écoles : acceptation de lien, départ/retrait transactionnels, historique personnel et RGPD.                            |
+| DASH-05j       | ✅ local  | Validations de collaboration : lecture privée des dates conservées, mutations atomiques sous verrou et export RGPD.                       |
+| DASH-05k       | ⬜        | Refus et annulations de collaboration : conservation future des auteurs/dates, accès privés et RGPD ; aucune reprise.                     |
+| DASH-05, suite | ⬜        | Appréciations et autres circuits à cadrer ; futures options dans leur propre lot.                                                         |
 
 Le journal commun n’est pas terminé. Conception et limites :
 [journal d’activité](../conception/16-journal-activite.md).
@@ -634,3 +636,56 @@ studio/agence restent refusées. Les deux cas concernés ont été relancés. Li
 et `.shot-tmp.mjs` préexistants ; ESLint global : une erreur préexistante
 (variable `c` inutilisée), 464 avertissements au passage avant correction du
 nouveau lien par `resolve`. Aucun push ni modification distante des issues.
+
+### DASH-05j — journal des validations de collaboration
+
+Reprise du 15/11/2026 : `main` propre à `2341488` ; `git ls-remote origin
+refs/heads/main` confirme `ce87a905f521669672d3c1fb4ebaec867d4bb045`.
+DASH-05h est publié ; DASH-05i et ce nouveau lot DASH-05j sont **locaux**,
+sans push ni modification distante des issues.
+
+Audit des services réalisé : acceptations et confirmations datées par participant
+sont fiables ; les validations implicites du proposant et de l’acceptation passée
+sont explicites dans l’aide. Projection des faits sources dans la conversation,
+y compris collaborations annulées, réservée aux participants vivants. Aucun
+état, notification ou effet automatique de progression n’est transformé en acte.
+Les mutations et le règlement métier partagent maintenant une transaction sous
+verrou `collaboration:` ; refus et annulation utilisent aussi ce verrou pour
+protéger l’achèvement concurrent. L’export RGPD inclut les validations, la lecture
+reflète l’anonymisation existante. Pas de migration ni nouveau stockage.
+Conception, aide et parcours de démo existants documentés.
+
+**Découpage** : DASH-05k conserve à l’avenir les refus/annulations (auteur et date
+absents aujourd’hui). Les appréciations répétables, crédits manuels et autres
+circuits restent à cadrer séparément ; les futures options/propositions gardent
+leur propre lot. DASH-05/#35 et #30 restent ouverts.
+
+Recette DASH-05j (15/11/2026) : **1 365 unitaires réussis** ;
+**36 intégrations réussies** sur 8 fichiers : collaborations (dont 12 scénarios
+réels du journal), progression des collaborations, enregistrement vérifié et
+parrainage. Sont couverts auteurs/dates, accords implicites, confirmations
+ultérieures, rejeux et concurrence (réponses, confirmations identiques ou
+distinctes, annulation contre achèvement), rollback du règlement et de la
+création/notification, blocage, tiers/propriétaire de projet exclus, absence de
+contenu privé du morceau, états anciens sans dates, export et anonymisation.
+**2 E2E réussis** : collaboration liée au morceau (journal clavier, auteurs,
+dates HTML, axe et 390 px) et concert vérifié. Contrôle final des types après
+les E2E : **0 erreur / 0 avertissement**, jamais lancé pendant ces E2E.
+
+Formatage des fichiers du lot et ESLint ciblé : aucune erreur ; trois
+avertissements de navigation préexistants sur la page de conversation.
+`npm run lint` reste bloqué au formatage par `.shot-metro.mjs` et `.shot-tmp.mjs` ;
+ESLint global lancé séparément : une erreur préexistante de variable inutilisée
+dans `.shot-metro.mjs`, 464 avertissements. Ces scripts restent inchangés.
+Aucune migration nécessaire : uniquement lecture des dates déjà conservées et
+regroupement transactionnel des mutations existantes. Démo réutilisée et
+documentée (Clara/Inès et Lucas/Kevin), sans lancement du seed sur les données
+de développement pendant ce lot.
+
+Vérification distante finale du 15/11/2026 : `origin/main` et `git ls-remote`
+renvoient désormais `23414884e2ed5046807f31b20dfe57df0690ee8d`, sans push de
+l’agent pendant ce lot. DASH-05i a donc été publié pendant la session ; seul
+DASH-05j reste nouveau et local. La mention locale au début du compte rendu
+ci-dessus décrit l’état constaté à la reprise. Les 12 intégrations du journal
+ont aussi été rejouées avec succès après limitation du comptage des notifications
+aux comptes propres au scénario, pour éviter une dépendance aux suites parallèles.

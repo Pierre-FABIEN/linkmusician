@@ -7,7 +7,7 @@
  * boilerplate). Règles : décisions D5, D14 et D16.
  */
 import { Prisma } from '@prisma/client';
-import { MEMBERSHIP_DECISION_LABELS } from '#lib/activity/timeline';
+import { MEMBERSHIP_DECISION_LABELS, collaborationTimeline } from '#lib/activity/timeline';
 import { prisma } from '#lib/server';
 // Le champ en conflit : `meta.target` en Prisma 5, le nom de l'index en Prisma 7.
 import { isUniqueViolation } from '#lib/server/db-errors';
@@ -364,12 +364,19 @@ export async function exportPersonData(userId: string) {
 			where: { participants: { some: { actorId: person.actorId } } },
 			orderBy: { happenedOn: 'asc' },
 			select: {
+				id: true,
 				kind: true,
 				title: true,
 				happenedOn: true,
 				status: true,
 				participants: {
-					select: { actorId: true, service: true, actor: { select: { displayName: true } } }
+					select: {
+						actorId: true,
+						service: true,
+						acceptedAt: true,
+						confirmedCompletionAt: true,
+						actor: { select: { displayName: true, deletedAt: true } }
+					}
 				},
 				// Morceau concerné (P4-06).
 				work: { select: { title: true } }
@@ -882,6 +889,11 @@ export async function exportPersonData(userId: string) {
 			le: v.createdAt
 		})),
 		collaborations: collaborations.map((c) => ({
+			validations: collaborationTimeline(c).map((e) => ({
+				acte: e.action,
+				auteur: e.author,
+				le: e.occurredAt
+			})),
 			type: c.kind,
 			titre: c.title,
 			le: c.happenedOn,

@@ -579,3 +579,23 @@ aide et démo actualisées. `origin/main` vérifié à `ce87a90` : DASH-05h est
 publié ; DASH-05i reste local, sans push. La suite porte sur les validations
 de collaboration et les futures options ; DASH-05/#35 et #30 restent ouverts.
 Preuves de recette dans [le suivi](README.md).
+
+DASH-05j : validations de collaboration conservées par participant, lues dans
+la conversation avec auteurs et dates réels. Acceptation, confirmation et
+règlement métier atomiques sous verrou partagé avec refus/annulation ; export
+RGPD étendu et anonymisation existante reflétée. Aucun état ancien ni notification
+converti, aucune migration. Aide et démo actualisées. Livraison **locale** après
+DASH-05i (`2341488`), désormais vérifié publié lors du contrôle final. Aucun push
+de l’agent ; seul DASH-05j est nouveau et local.
+DASH-05/#35 et #30 restent ouverts. Recette dans [le suivi](README.md).
+
+#### DASH-05k — refus et annulations de collaboration (prochain lot)
+
+Dépend de DASH-05j. Conserver à l’avenir l’auteur réel et la date du refus de
+proposition et de l’annulation explicite, qui partagent aujourd’hui uniquement
+le statut `CANCELLED`. Écriture atomique avec la mutation, protection contre le
+rejeu/concurrence, lecture réservée aux participants, export/anonymisation RGPD,
+tests et aide/démo. Auditer les chemins de suppression avant de choisir le modèle.
+Ne reprendre aucun ancien acte depuis états, `updatedAt` ou notifications.
+Les appréciations et crédits ont leurs propres circuits à auditer dans un autre
+lot ; les futures options et propositions restent également dans leur lot propre.

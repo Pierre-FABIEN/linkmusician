@@ -19,6 +19,7 @@ import {
 	collabFormContext,
 	confirmCollaboration,
 	listForConversation,
+	validationHistoryForConversation,
 	proposeCollaboration,
 	respondToCollaboration,
 	today
@@ -49,14 +50,16 @@ export const load: PageServerLoad = async ({ locals, params, depends }) => {
 		const actorId = person.actorId;
 		const conversation = await openConversation(actorId, params.id);
 		// Collaborations (P2-06) entre les deux personnes de la conversation.
-		const [collaborations, collabForm] = await Promise.all([
+		const [collaborations, collabForm, validationHistory] = await Promise.all([
 			listForConversation(actorId, params.id),
 			// Collaborations liées au morceau et prestations du son (P4-06).
-			collabFormContext(actorId, params.id)
+			collabFormContext(actorId, params.id),
+			validationHistoryForConversation(actorId, params.id)
 		]);
 		return {
 			conversation,
 			collaborations,
+			validationHistory,
 			collabForm,
 			// Appréciations après une collaboration confirmée (P2-07).
 			appreciations: await collabAppreciations(

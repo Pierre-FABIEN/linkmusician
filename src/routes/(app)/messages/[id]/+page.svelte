@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ActivityTimeline from '#lib/components/linkmusician/activity/ActivityTimeline.svelte';
 	// LINKMUSICIAN: une conversation (P2-04), voir +page.server.ts.
 	import TipCard from '#lib/components/linkmusician/TipCard.svelte';
 	import { enhance } from '$app/forms';
@@ -118,6 +119,26 @@
 					<button class="lm-btn" data-variant="ghost">Refuser</button>
 				</form>
 			</section>
+		{/if}
+
+		{#if data.validationHistory.length > 0}
+			<details class="lm-tile lm-tile--flow space-y-3 p-3">
+				<summary class="min-h-11 cursor-pointer font-semibold"
+					>Journal des validations de collaboration</summary
+				>
+				<p>
+					Les 100 collaborations les plus récentes de cette conversation, y compris annulées.
+					Proposer vaut accord ; si la date est passée, proposer ou accepter vaut aussi confirmation
+					d’achèvement.
+				</p>
+				{#each data.validationHistory as journal (journal.id)}
+					<ActivityTimeline
+						id={`validation-${journal.id}`}
+						title={journal.title}
+						entries={journal.entries}
+					/>
+				{/each}
+			</details>
 		{/if}
 
 		{#if data.collaborations.length > 0}

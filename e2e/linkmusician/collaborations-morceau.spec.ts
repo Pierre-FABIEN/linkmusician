@@ -79,6 +79,15 @@ test.describe('LinkMusician — collaborations liées au morceau', () => {
 				await samPage.getByRole('button', { name: 'Proposer' }).click();
 				await expect(samPage.getByText(`Morceau : ${title}`)).toBeVisible();
 				await expect(samPage.getByText('Prestation : toi')).toBeVisible();
+				const summary = samPage
+					.locator('summary')
+					.filter({ hasText: 'Journal des validations de collaboration' });
+				await summary.focus();
+				await samPage.keyboard.press('Enter');
+				const journal = samPage.locator('details').filter({ has: summary });
+				await expect(journal.locator('time[datetime]')).toHaveCount(2);
+				await expect(journal.getByText('Collaboration acceptée', { exact: true })).toHaveCount(1);
+				await expect(journal.getByText('Achèvement confirmé', { exact: true })).toHaveCount(1);
 			});
 
 			await test.step('2. Léa confirme : le morceau est « Enregistré »', async () => {
@@ -89,6 +98,21 @@ test.describe('LinkMusician — collaborations liées au morceau', () => {
 				// (« Prestation : … » s'affiche déjà avant).
 				await expect(page.getByRole('button', { name: "Ce n'est pas exact" })).toBeHidden();
 				await expect(page.getByText(`Prestation : ${sam.actor.displayName}`)).toBeVisible();
+				const summary = page
+					.locator('summary')
+					.filter({ hasText: 'Journal des validations de collaboration' });
+				await summary.focus();
+				await page.keyboard.press('Enter');
+				const journal = page.locator('details').filter({ has: summary });
+				await expect(journal.locator('time[datetime]')).toHaveCount(4);
+				await expect(journal.getByText(sam.actor.displayName, { exact: true })).toHaveCount(2);
+				await expectNoA11yViolations(page, ['.cartButton']);
+				await page.setViewportSize({ width: 390, height: 844 });
+				expect(
+					await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+				).toBe(true);
+				await expect(journal).toBeVisible();
+				await page.setViewportSize({ width: 1280, height: 720 });
 				await page.goto(`/morceaux/${work.id}`);
 				await waitForAppReady(page);
 				await expect(

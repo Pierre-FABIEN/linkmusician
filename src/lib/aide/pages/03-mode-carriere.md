@@ -220,6 +220,22 @@ sont des étapes distinctes.
 > moins (sur 12 mois) : c’est fait pour récompenser les rencontres, pas
 > les allers-retours entre ami·es.
 
+### Relire les validations
+
+Dans la conversation, ouvre **Journal des validations de collaboration**.
+Tu retrouves les accords et confirmations d’achèvement conservés, avec leur
+auteur et leur date à l’heure de Paris, pour les 100 collaborations les plus
+récentes de cette conversation, y compris celles ensuite annulées.
+Proposer vaut accord ; si la date est passée, proposer ou accepter vaut aussi
+confirmation d’achèvement. Ces deux validations peuvent donc avoir la même date.
+Les anciens actes absents ne sont pas reconstitués. Les refus, annulations et
+appréciations ne sont pas journalisés dans ce volet.
+
+Seuls les participants à la collaboration peuvent consulter ses validations.
+Gérer le morceau, le groupe, le studio ou l’agence n’y donne pas accès.
+Un compte effacé apparaît comme **Compte supprimé** ; les validations sont
+également incluses dans ton export de données personnelles.
+
 ### Retrouver une confirmation en attente
 
 Dans **Mon espace › À confirmer**, ouvre la demande pour la relire. Une

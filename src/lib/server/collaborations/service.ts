@@ -1,3 +1,5 @@
+import type { Prisma } from '@prisma/client';
+import { collaborationTimeline } from '#lib/activity/timeline';
 import { departmentOfCommune } from '#lib/representation/rules';
 /**
  * Collaborations (P2-06) : proposer à un contact (conversation acceptée),
@@ -339,48 +341,53 @@ export async function proposeCollaboration(
 		gig = { bandId: band.id, hostOrgId: host.id, communeCode: host.communeCode, bookedById };
 	}
 	const happened = hasHappened(input.happenedOn, now);
-	const created = await prisma.collaboration.create({
-		data: {
-			kind: input.kind,
-			title: input.title,
-			happenedOn: day,
-			proposedById: proposerId,
-			conversationId,
-			opportunityId: conversation.opportunityId,
-			workId: input.work ?? null,
-			studioId,
-			bandId: gig?.bandId ?? null,
-			hostOrgId: gig?.hostOrgId ?? null,
-			communeCode: gig?.communeCode ?? null,
-			bookedById: gig?.bookedById ?? null,
-			participants: {
-				create: [
-					// Proposer vaut accord, et confirmation si c'est déjà passé.
-					{
-						actorId: proposerId,
-						acceptedAt: now,
-						confirmedCompletionAt: happened ? now : null,
-						service: serviceOf('me')
-					},
-					{ actorId: other.actorId, service: serviceOf('other') }
-				]
-			}
-		},
-		select: { id: true }
-	});
-	// Notification (P2-09a) : l'autre personne a une collaboration à confirmer.
-	await notify(prisma, {
-		recipientId: other.actorId,
-		type: 'COLLAB_TO_CONFIRM',
-		fromActorId: proposerId,
-		href: `/messages/${conversationId}`,
-		title: input.title
-	});
-	return created;
+	return prisma.$transaction(async (tx) => {
+		const created = await tx.collaboration.create({
+			data: {
+				kind: input.kind,
+				title: input.title,
+				happenedOn: day,
+				proposedById: proposerId,
+				conversationId,
+				opportunityId: conversation.opportunityId,
+				workId: input.work ?? null,
+				studioId,
+				bandId: gig?.bandId ?? null,
+				hostOrgId: gig?.hostOrgId ?? null,
+				communeCode: gig?.communeCode ?? null,
+				bookedById: gig?.bookedById ?? null,
+				participants: {
+					create: [
+						// Proposer vaut accord, et confirmation si c'est déjà passé.
+						{
+							actorId: proposerId,
+							acceptedAt: now,
+							confirmedCompletionAt: happened ? now : null,
+							service: serviceOf('me')
+						},
+						{ actorId: other.actorId, service: serviceOf('other') }
+					]
+				}
+			},
+			select: { id: true }
+		});
+		// Notification (P2-09a) : l'autre personne a une collaboration à confirmer.
+		await notify(tx, {
+			recipientId: other.actorId,
+			type: 'COLLAB_TO_CONFIRM',
+			fromActorId: proposerId,
+			href: `/messages/${conversationId}`,
+			title: input.title
+		});
+		return created;
+	}, SETTLE_TX);
 }
 
-async function load(actorId: string, collaborationId: string) {
-	const collab = await prisma.collaboration.findUnique({
+async function load(tx: Prisma.TransactionClient, actorId: string, collaborationId: string) {
+	await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`collaboration:${collaborationId}`}))`;
+	const alive = await tx.actor.count({ where: { id: actorId, deletedAt: null } });
+	if (!alive) throw new CollaborationError('Collaboration introuvable.', 404);
+	const collab = await tx.collaboration.findUnique({
 		where: { id: collaborationId },
 		include: { participants: true }
 	});
@@ -395,112 +402,110 @@ async function load(actorId: string, collaborationId: string) {
 }
 
 /** Recalcule l'état et, si tout le monde a confirmé, émet l'événement. */
-async function settle(collaborationId: string, now: Date) {
-	await prisma.$transaction(async (tx) => {
-		const collab = await tx.collaboration.findUniqueOrThrow({
-			where: { id: collaborationId },
-			include: { participants: true }
-		});
-		if (collab.status === 'CANCELLED' || collab.status === 'COMPLETED') return;
-		if (collab.kind === 'GIG' && collab.bandId) await lockBand(tx, collab.bandId);
-		const status = collabStatus(
-			collab.participants.map((p) => ({
-				accepted: p.acceptedAt !== null,
-				confirmed: p.confirmedCompletionAt !== null
-			}))
+async function settle(tx: Prisma.TransactionClient, collaborationId: string, now: Date) {
+	const collab = await tx.collaboration.findUniqueOrThrow({
+		where: { id: collaborationId },
+		include: { participants: true }
+	});
+	if (collab.status === 'CANCELLED' || collab.status === 'COMPLETED') return;
+	if (collab.kind === 'GIG' && collab.bandId) await lockBand(tx, collab.bandId);
+	const status = collabStatus(
+		collab.participants.map((p) => ({
+			accepted: p.acceptedAt !== null,
+			confirmed: p.confirmedCompletionAt !== null
+		}))
+	);
+	if (status === collab.status) return;
+	await tx.collaboration.update({
+		where: { id: collaborationId },
+		data: { status, ...(status === 'COMPLETED' ? { completedAt: now } : {}) }
+	});
+	if (status === 'COMPLETED') {
+		// Prestations du son (P4-06) : chacun·e gagne sur sa piste.
+		const services = Object.fromEntries(
+			collab.participants.flatMap((p) => (p.service ? [[p.actorId, p.service]] : []))
 		);
-		if (status === collab.status) return;
-		await tx.collaboration.update({
-			where: { id: collaborationId },
-			data: { status, ...(status === 'COMPLETED' ? { completedAt: now } : {}) }
+		// Concert (P5-06) : le côté hôte ne gagne pas la collaboration de
+		// musicien·ne ; `gig.held` le crédite.
+		const hostIds =
+			collab.kind === 'GIG' && collab.hostOrgId
+				? (
+						await tx.membership.findMany({
+							where: {
+								orgId: collab.hostOrgId,
+								status: 'ACTIVE',
+								role: { in: ['OWNER', 'ADMIN'] },
+								personId: { in: collab.participants.map((p) => p.actorId) }
+							},
+							select: { personId: true }
+						})
+					).map((m) => m.personId)
+				: [];
+		await emitAndProcess(tx, {
+			type: 'collaboration.completed',
+			collaborationId,
+			participantIds: collab.participants.map((p) => p.actorId),
+			...(Object.keys(services).length > 0 ? { services } : {}),
+			...(hostIds.length > 0 ? { hostIds } : {})
 		});
-		if (status === 'COMPLETED') {
-			// Prestations du son (P4-06) : chacun·e gagne sur sa piste.
-			const services = Object.fromEntries(
-				collab.participants.flatMap((p) => (p.service ? [[p.actorId, p.service]] : []))
-			);
-			// Concert (P5-06) : le côté hôte ne gagne pas la collaboration de
-			// musicien·ne ; `gig.held` le crédite.
-			const hostIds =
-				collab.kind === 'GIG' && collab.hostOrgId
-					? (
-							await tx.membership.findMany({
-								where: {
-									orgId: collab.hostOrgId,
-									status: 'ACTIVE',
-									role: { in: ['OWNER', 'ADMIN'] },
-									personId: { in: collab.participants.map((p) => p.actorId) }
-								},
-								select: { personId: true }
-							})
-						).map((m) => m.personId)
-					: [];
-			await emitAndProcess(tx, {
-				type: 'collaboration.completed',
-				collaborationId,
-				participantIds: collab.participants.map((p) => p.actorId),
-				...(Object.keys(services).length > 0 ? { services } : {}),
-				...(hostIds.length > 0 ? { hostIds } : {})
+		// Parrainage (P4-13b) : deux personnes présentées collaborent, succès Passeur.
+		await markSucceeded(
+			tx,
+			{ id: collaborationId, participantIds: collab.participants.map((p) => p.actorId) },
+			now
+		);
+		// Le morceau avance (P4-06) : la première fois seulement.
+		const stage = KIND_WORK_STAGE[collab.kind as CollabKindValue];
+		if (collab.workId && stage) {
+			await tx.work.updateMany({
+				where: { id: collab.workId, [stage]: null },
+				data: { [stage]: now }
 			});
-			// Parrainage (P4-13b) : deux personnes présentées collaborent, succès Passeur.
-			await markSucceeded(
-				tx,
-				{ id: collaborationId, participantIds: collab.participants.map((p) => p.actorId) },
-				now
-			);
-			// Le morceau avance (P4-06) : la première fois seulement.
-			const stage = KIND_WORK_STAGE[collab.kind as CollabKindValue];
-			if (collab.workId && stage) {
-				await tx.work.updateMany({
-					where: { id: collab.workId, [stage]: null },
-					data: { [stage]: now }
-				});
-			}
-			// Crédit confirmé de la personne qui a assuré la prestation (P4-07).
-			const role = KIND_WORK_ROLE[collab.kind as CollabKindValue];
-			if (collab.workId && role) {
-				for (const p of collab.participants.filter((x) => x.service)) {
-					await creditFromCollaboration(
-						tx,
-						{ workId: collab.workId, personId: p.actorId, kind: role },
-						now
-					);
-				}
-			}
-			// Un concert corrobore ou vérifie l'étape du groupe, et la tournée (P5-06).
-			if (collab.kind === 'GIG' && collab.bandId && collab.hostOrgId) {
-				await verifyGigFromCollaboration(
+		}
+		// Crédit confirmé de la personne qui a assuré la prestation (P4-07).
+		const role = KIND_WORK_ROLE[collab.kind as CollabKindValue];
+		if (collab.workId && role) {
+			for (const p of collab.participants.filter((x) => x.service)) {
+				await creditFromCollaboration(
 					tx,
-					{
-						id: collab.id,
-						bandId: collab.bandId,
-						hostOrgId: collab.hostOrgId,
-						happenedOn: collab.happenedOn,
-						communeCode: collab.communeCode,
-						bookedById: collab.bookedById,
-						participantIds: collab.participants.map((p) => p.actorId)
-					},
-					now
-				);
-			}
-			// Un enregistrement avec un·e pro vérifie l'étape du groupe (P4-09).
-			if (collab.kind === 'RECORDING' && collab.workId) {
-				await verifyRecordingFromCollaboration(
-					tx,
-					{
-						workId: collab.workId,
-						happenedOn: collab.happenedOn,
-						studioId: collab.studioId,
-						participants: collab.participants.map((p) => ({
-							actorId: p.actorId,
-							service: p.service
-						}))
-					},
+					{ workId: collab.workId, personId: p.actorId, kind: role },
 					now
 				);
 			}
 		}
-	}, SETTLE_TX);
+		// Un concert corrobore ou vérifie l'étape du groupe, et la tournée (P5-06).
+		if (collab.kind === 'GIG' && collab.bandId && collab.hostOrgId) {
+			await verifyGigFromCollaboration(
+				tx,
+				{
+					id: collab.id,
+					bandId: collab.bandId,
+					hostOrgId: collab.hostOrgId,
+					happenedOn: collab.happenedOn,
+					communeCode: collab.communeCode,
+					bookedById: collab.bookedById,
+					participantIds: collab.participants.map((p) => p.actorId)
+				},
+				now
+			);
+		}
+		// Un enregistrement avec un·e pro vérifie l'étape du groupe (P4-09).
+		if (collab.kind === 'RECORDING' && collab.workId) {
+			await verifyRecordingFromCollaboration(
+				tx,
+				{
+					workId: collab.workId,
+					happenedOn: collab.happenedOn,
+					studioId: collab.studioId,
+					participants: collab.participants.map((p) => ({
+						actorId: p.actorId,
+						service: p.service
+					}))
+				},
+				now
+			);
+		}
+	}
 }
 
 export async function respondToCollaboration(
@@ -509,26 +514,28 @@ export async function respondToCollaboration(
 	accept: boolean,
 	now = new Date()
 ) {
-	const { collab, me } = await load(actorId, collaborationId);
-	if (collab.status !== 'PROPOSED' || me.acceptedAt) {
-		throw new CollaborationError('Cette proposition a déjà une réponse.');
-	}
-	if (!accept) {
-		await prisma.collaboration.update({
-			where: { id: collaborationId },
-			data: { status: 'CANCELLED' }
-		});
-		return;
-	}
-	await prisma.collaborationParticipant.update({
-		where: { collaborationId_actorId: { collaborationId, actorId } },
-		data: {
-			acceptedAt: now,
-			// Si c'est déjà passé, accepter vaut confirmer.
-			...(hasHappened(dayOf(collab.happenedOn), now) ? { confirmedCompletionAt: now } : {})
+	return prisma.$transaction(async (tx) => {
+		const { collab, me } = await load(tx, actorId, collaborationId);
+		if (collab.status !== 'PROPOSED' || me.acceptedAt) {
+			throw new CollaborationError('Cette proposition a déjà une réponse.');
 		}
-	});
-	await settle(collaborationId, now);
+		if (!accept) {
+			await tx.collaboration.update({
+				where: { id: collaborationId },
+				data: { status: 'CANCELLED' }
+			});
+			return;
+		}
+		await tx.collaborationParticipant.update({
+			where: { collaborationId_actorId: { collaborationId, actorId } },
+			data: {
+				acceptedAt: now,
+				// Si c'est déjà passé, accepter vaut confirmer.
+				...(hasHappened(dayOf(collab.happenedOn), now) ? { confirmedCompletionAt: now } : {})
+			}
+		});
+		await settle(tx, collaborationId, now);
+	}, SETTLE_TX);
 }
 
 export async function confirmCollaboration(
@@ -536,35 +543,40 @@ export async function confirmCollaboration(
 	collaborationId: string,
 	now = new Date()
 ) {
-	const { collab, me } = await load(actorId, collaborationId);
-	if (collab.status !== 'ACCEPTED' || me.confirmedCompletionAt) {
-		throw new CollaborationError('Rien à confirmer ici.');
-	}
-	if (!hasHappened(dayOf(collab.happenedOn), now)) {
-		throw new CollaborationError('Tu pourras confirmer une fois la date passée.');
-	}
-	await prisma.collaborationParticipant.update({
-		where: { collaborationId_actorId: { collaborationId, actorId } },
-		data: { confirmedCompletionAt: now }
-	});
-	await settle(collaborationId, now);
+	return prisma.$transaction(async (tx) => {
+		const { collab, me } = await load(tx, actorId, collaborationId);
+		if (collab.status !== 'ACCEPTED' || me.confirmedCompletionAt) {
+			throw new CollaborationError('Rien à confirmer ici.');
+		}
+		if (!hasHappened(dayOf(collab.happenedOn), now)) {
+			throw new CollaborationError('Tu pourras confirmer une fois la date passée.');
+		}
+		await tx.collaborationParticipant.update({
+			where: { collaborationId_actorId: { collaborationId, actorId } },
+			data: { confirmedCompletionAt: now }
+		});
+		await settle(tx, collaborationId, now);
+	}, SETTLE_TX);
 }
 
 export async function cancelCollaboration(actorId: string, collaborationId: string) {
-	const collab = await prisma.collaboration.findUnique({
-		where: { id: collaborationId },
-		include: { participants: true }
-	});
-	if (!collab || !collab.participants.some((p) => p.actorId === actorId)) {
-		throw new CollaborationError('Collaboration introuvable.', 404);
-	}
-	if (collab.status === 'COMPLETED' || collab.status === 'CANCELLED') {
-		throw new CollaborationError('Elle ne peut plus être annulée.');
-	}
-	await prisma.collaboration.update({
-		where: { id: collaborationId },
-		data: { status: 'CANCELLED' }
-	});
+	return prisma.$transaction(async (tx) => {
+		await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`collaboration:${collaborationId}`}))`;
+		const collab = await tx.collaboration.findFirst({
+			where: {
+				id: collaborationId,
+				participants: { some: { actorId, actor: { deletedAt: null } } }
+			}
+		});
+		if (!collab) throw new CollaborationError('Collaboration introuvable.', 404);
+		if (collab.status === 'COMPLETED' || collab.status === 'CANCELLED') {
+			throw new CollaborationError('Elle ne peut plus être annulée.');
+		}
+		await tx.collaboration.update({
+			where: { id: collaborationId },
+			data: { status: 'CANCELLED' }
+		});
+	}, SETTLE_TX);
 }
 
 type Row = Awaited<ReturnType<typeof rows>>[number];
@@ -730,3 +742,28 @@ export async function pendingForMe(actorId: string, now = new Date()) {
 
 /** Jour d'aujourd'hui à Paris, pour pré-remplir les formulaires. */
 export const today = (now = new Date()) => parisDay(now);
+
+/** Journal privé : uniquement les validations datées des collaborations auxquelles on participe.
+ * Inclut les collaborations annulées, sans déduire un acte d’annulation.
+ * Aucun droit par le groupe, le studio, le mandat ou la gestion du morceau.
+ */
+export async function validationHistoryForConversation(actorId: string, conversationId: string) {
+	const list = await prisma.collaboration.findMany({
+		where: { conversationId, participants: { some: { actorId, actor: { deletedAt: null } } } },
+		orderBy: [{ happenedOn: 'desc' }, { id: 'asc' }],
+		take: 100,
+		select: {
+			id: true,
+			title: true,
+			participants: {
+				select: {
+					actorId: true,
+					acceptedAt: true,
+					confirmedCompletionAt: true,
+					actor: { select: { displayName: true, deletedAt: true } }
+				}
+			}
+		}
+	});
+	return list.map((c) => ({ id: c.id, title: c.title, entries: collaborationTimeline(c) }));
+}
