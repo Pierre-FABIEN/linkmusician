@@ -874,3 +874,21 @@ préexistante (`c` inutilisé dans `.shot-metro.mjs`) et 464 avertissements.
 Migration déployée et distant revérifié à `cd7f155` ; livraison par un nouveau
 commit local `(DASH-05m)`, sans push. DASH-05 et les issues #35/#30 restent ouverts ;
 options/propositions et autres circuits gardent leurs lots propres.
+
+### Reprise après DASH-05m — ARCH-MET-01 (#55)
+
+Prochaine tâche recommandée : **audit architectural et plan de modularisation
+progressif**, avant les extensions de projets/tâches DASH-06 (#36, #51–#54).
+[Prompt prêt à copier](prompt-reprise.md). L'audit n'est pas encore réalisé ;
+aucune fonction de tâche autonome ou d'édition des rôles n'est livrée par DASH-05m.
+
+Au nettoyage du 15/11/2026, distant revérifié à `cd7f155` (a–l publiés),
+DASH-05m `5c7f706` encore local, sans push. Les issues #30/#35 sont consolidées
+jusqu'à m en conservant leur périmètre et leur état ouvert. #36/#52/#55 sont
+alignées sur les dépendances, les périodes/actes de crédits et les verrous récents.
+Les options/propositions restent dans leurs lots futurs ; leur absence actuelle
+n'impose ni de les créer dans DASH-05 ni de bloquer tout DASH-06.
+
+Ce suivi et le prompt sont des documents locaux ; ils ne publient pas le code.
+Contrôle attendu pour ce nettoyage documentaire : références, liens et formatage
+Markdown. Les recettes produit de DASH-05m restent celles du compte rendu ci-dessus.

@@ -651,3 +651,29 @@ dans [le suivi](README.md). `seed:demo` joué deux fois : cinq actes, deux péri
 Seul DASH-05m est nouveau et local ; les mentions locales historiques des lots
 j/k/l ci-dessus sont remplacées par la vérification publiée à `cd7f155`.
 DASH-05 et #35/#30 restent ouverts. Aucun push.
+
+#### ARCH-MET-01 — audit des capacités et services métier (#55, à réaliser)
+
+Prochain lot recommandé après DASH-05m ; [prompt de reprise](prompt-reprise.md).
+Livrable documentaire avant les extensions de DASH-06, sans refonte immédiate.
+
+- **Entrée** : main après `5c7f706` local ; distant vérifié à `cd7f155`
+  le 15/11/2026. Revérifier publication et nouveaux commits à la reprise.
+- **Audit** : référentiels métiers/profils, capacités, permissions, responsabilités,
+  projets, crédits, preuves, collaborations, notifications et progression ;
+  doublons et couplages étayés par le code, état actuel séparé du futur.
+- **Livrables** : conception d'audit, matrice des neuf métiers (six ouverts,
+  trois prévus sans activation), contrats/frontières utiles, scénario comparatif
+  et petits lots avec fichiers, dépendances, risques, tests et retour arrière.
+- **Contraintes** : préserver transactions, ordres de verrous et registres
+  DASH-05m/l, lecture privée et RGPD ; ne pas ajouter de source de vérité
+  redondante. Les refactorisations éventuelles suivent des lots/issues séparés
+  après validation de l'audit, selon #55.
+- **Fin** : preuves et limites documentées, première étape de DASH-06 cadrée,
+  liens et plan/issue #55 mis à jour ; commit local français ARCH-MET-01 sans push.
+  Contrôles documentaires adaptés, aucune migration ou recette produit sans motif.
+
+DASH-05/#35 reste partiel et #30 reste ouverte. Les nouveaux actes de tâches,
+rôles, options et propositions sont conçus dans leurs circuits respectifs.
+Les dépendances DASH-02/05 de #36 s'appuient sur le socle réalisé et ne bloquent
+pas les fonctions indépendantes sur des options encore inexistantes.
