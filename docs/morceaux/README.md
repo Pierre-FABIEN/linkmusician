@@ -103,3 +103,20 @@ production et sortie viendront en phase 4.
 Livrés en phase 4 : `Collaboration.workId` et états « enregistré » à
 « produit » (P4-06), crédits du son (P4-07). Restent : « sorti » (phase 5),
 propositions (`WorkPitch`, P4-08).
+
+## Historique personnel des crédits (DASH-05m)
+
+Les nouveaux actes de création avec crédit personnel, attribution de gestion,
+auto-attribution, confirmation, refus, retrait personnel et retrait de gestion
+sont conservés dans `WorkCreditAct`, indépendamment du crédit supprimable.
+Une attribution de gestion attend le consentement ; un crédit automatique
+n'invente aucun acte manuel. Aucun acte ancien n'est reconstitué.
+
+Dans `/morceaux`, **Historique personnel des crédits** montre les 100 derniers
+actes concernant son crédit ou réalisés par soi, sans titre, lien, rôles ni
+identité du destinataire tiers. Cela reste personnel après retrait ou perte
+de gestion et n'ouvre aucun accès aux morceaux privés ni aux actes des autres.
+La suppression du morceau supprime ses actes ; celle du crédit les conserve.
+L'export RGPD inclut tous les actes autorisés, et l'anonymisation oublie leurs
+auteurs. Le journal n'ajoute ni notification, ni progression, ni réputation.
+Audit complet, verrous et cascades : [conception du journal](../conception/16-journal-activite.md#actes-humains-des-crédits-de-morceaux-dash-05m).

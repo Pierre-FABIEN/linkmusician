@@ -725,3 +725,135 @@ Démo dédiée et idempotente Clara/Inès : deux attributions et deux reprises
 fictives explicites, sans conversion d’anciennes données ni effet de progression.
 Crédits manuels et futures options/propositions restent dans leurs propres lots.
 DASH-05 et #35/#30 restent ouverts.
+
+## Actes humains des crédits de morceaux (DASH-05m)
+
+Audit du 15/11/2026 depuis `works/service.ts`, ses routes `/morceaux`,
+`/morceaux/nouveau`, `/morceaux/[id]`, `collaborations/service.ts`, le moteur,
+les lecteurs publics, les documents de démarches et `actors/person.ts`.
+
+| Circuit disponible                           | Mutation et effets préexistants                                                                                                    | Acte nouveau                                                                               |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Création personnelle ou pour un groupe géré  | Crédit confirmé du créateur, rôles saisis ; aucune notification ni progression à la création                                       | `CREATOR_CREDITED`, auteur = personne qui crée, consentement implicite à son propre crédit |
+| Gestion attribuant à autrui                  | Nouvelle ligne en attente, rôles libres pourvus ou créés, notification `WORK_CREDIT`                                               | `ASSIGNED`, auteur = gestion réelle ; aucun consentement du destinataire                   |
+| Gestion s'attribuant un crédit absent        | Nouvelle ligne confirmée et effets `afterConfirm` existants                                                                        | `SELF_ASSIGNED`, auteur = personne créditée ; un seul acte avec consentement               |
+| Confirmation personnelle                     | Transition de `confirmedAt` nul, corroboration/part de composition ou succès du son selon les rôles                                | `CONFIRMED`, auteur = personne créditée                                                    |
+| « Ce n'est pas moi »                         | Crédit en attente supprimé, FK des rôles à null : à pourvoir                                                                       | `DECLINED`, auteur = personne créditée                                                     |
+| Retrait personnel confirmé                   | Rôles supprimés puis crédit supprimé, aucune reprise de points                                                                     | `LEFT`, auteur = personne créditée                                                         |
+| Retrait par la gestion                       | Seulement une ligne en attente, rôles remis à pourvoir                                                                             | `WITHDRAWN`, auteur = gestion réelle                                                       |
+| Crédit automatique de collaboration terminée | Nouveau crédit confirmé, ou ajout d'un rôle sur crédit existant ; une attente existante reste en attente ; succès du son existants | Aucun acte manuel, aucune nouvelle confirmation personnelle                                |
+
+L'auto-attribution nécessite déjà le droit de gestion. Une attribution à une
+personne déjà créditée est refusée : ce chemin n'édite ni ses rôles ni son
+consentement. Aucun écran ne permet de modifier individuellement les rôles
+attribués ; ils disparaissent avec le retrait confirmé. Les seuls ajouts de
+rôles sur une ligne existante viennent des collaborations automatiques. Les
+rôles libres ont leurs propres ajouts/retraits, hors journal des crédits.
+Le porteur individuel ne peut quitter son crédit : il supprime son morceau.
+Un créateur pour un groupe peut quitter son crédit sans quitter le groupe.
+
+### Conservation et unicité
+
+`WorkCreditAct` conserve seulement morceau, identifiant opaque de période
+(`WorkContributor.id` sans FK), personne concernée, auteur nullable, type et
+instant. Aucun titre, rôle, instrument, message, identité recopiée ou référence
+de collaboration. Le registre survit à la suppression du crédit et de ses
+rôles. Une nouvelle attribution crée une autre période ; `(periodId, kind)`
+interdit deux actes du même type dans une période. Les gardes métier refusent
+les rejeux sans transition : aucun upsert ni écrasement d'acte. Les types de
+création/auto-attribution comprennent le consentement sans fabriquer un second
+clic de confirmation. Un ancien crédit ou un crédit automatique peut faire
+l'objet d'une nouvelle confirmation effective s'il attend encore, ou d'un
+retrait : seul cet acte nouveau est conservé.
+
+Aucune migration de données ni reconstruction depuis `confirmedAt` (origine
+multiple), `createdAt` du crédit, `updatedAt`, notifications ou événements moteur.
+Le titre et les dates de création/composition du morceau restent des faits
+métier ; ils ne deviennent pas des actes manuels de crédit. Le récapitulatif
+de campagne existant continue de lire ces faits, séparément.
+
+L'écriture du registre est dans la transaction de la mutation et après ses
+effets existants : son échec annule crédit, rôles, preuve, événements, XP,
+succès et notification. Le registre ne déclenche aucun de ces effets. Les
+plafonds de personnes, rôles et attentes, droits de gestion, visibilité des
+profils, blocage et `canInviteMinor` gardent leurs règles. Leurs contrôles
+antérieurs hors transaction ne deviennent pas des promesses de sérialisation
+des changements de profil ou de blocage.
+
+### Verrous et courses
+
+Les mutations manuelles de crédits, la composition, la suppression et les
+crédits automatiques prennent le même verrou transactionnel `work:`. La
+création du morceau crée une identité neuve, invisible avant commit : aucun
+verrou supplémentaire. Le retrait d'un rôle libre garde son circuit existant
+(suppression conditionnelle) ; aucune ligne de crédit n'y est modifiée.
+
+L'audit a trouvé une inversion existante : une collaboration finalisée prenait
+les verrous de progression par acteur, puis modifiait le morceau et prenait
+`work:`, tandis qu'une confirmation manuelle prenait `work:` puis les acteurs.
+`load` de collaboration prend désormais `collaboration:` puis `work:` **avant
+toute écriture de participant/collaboration**, donc avant tout verrou d'acteur,
+et relit la collaboration après l'attente. La suppression du morceau peut avoir
+mis `workId` à null ; la collaboration peut alors finir sans crédit automatique.
+Cela évite aussi de garder une ligne de collaboration verrouillée en attendant
+le morceau que sa suppression doit détacher (`ON DELETE SET NULL`). Deux
+collaborations sur le même morceau se sérialisent avant le moteur ; confirmations,
+attributions et retraits manuels prennent place avant ou après le crédit
+automatique sans fabriquer d'acte. Une attribution manuelle arrivant après un
+crédit automatique déjà créé est refusée, comme pour tout crédit existant.
+
+Les acteurs sont verrouillés dans l'ordre trié par `processEvent`. Les chemins
+de concert gardent `band:` avant leurs effets de progression ; composition et
+étapes gardent leurs appels existants à `syncComposition`/`lockBand`. Le lot ne
+réorganise pas globalement les séquences de progression entre événements,
+ni les dissolutions, opérations RGPD ou FK physiques. Refus/annulations et
+appréciations de collaboration gardent leur verrou `collaboration:` ; aucun
+chemin de crédit manuel ne demande ce verrou. Une erreur SQL de concurrence
+annule toute la transaction, sans trace humaine technique.
+
+### Lecture, RGPD et cascades
+
+`/morceaux` expose un volet privé des **100 derniers actes** dont la personne
+connectée vivante est la destinataire ou l'auteur. La lecture s'appuie seulement
+sur l'identité serveur. On n'expose que libellé, auteur affiché et date, sans
+identifiant de morceau/période, titre, lien, rôles, destinataire tiers ou équipe.
+Un auteur de gestion voit ses propres attributions/retraits pour autrui, pas
+les confirmations ou refus de ses collaborateurs. Propriété, gestion, mandat,
+appartenance au groupe, consultation publique du morceau et connexion seule
+ne donnent aucun droit au journal d'autrui. Les droits restent identiques
+après perte de gestion, refus, retrait, blocage ou masquage. Cette trace
+personnelle n'ouvre aucune lecture du morceau privé et n'identifie pas le tiers
+crédité par la gestion. Le nom de l'auteur historique reste lisible par la
+personne concernée sans lien vers son profil ; auteur effacé : « Compte supprimé ».
+L'ordre à date égale utilise l'identifiant, sans certifier un ordre réel.
+
+L'export `morceaux.actes_de_credits` est complet, sans limite de 100, et porte
+les mêmes actes autorisés, leur type, instant, auteur affiché, identifiant
+opaque de période et indication « concerne mon crédit ». Il ne recopie pas
+l'identité de la personne créditée par la gestion ni les détails d'un morceau
+perdu. Les crédits courants restent exportés séparément avec leurs faits métier.
+
+L'anonymisation oublie `authorId` sur tous les actes donnés, y compris pour
+autrui ; elle conserve le sujet sous son acteur vidé, sans nouveau retrait
+humain. Les crédits en attente supprimés ne cascadent pas le registre. Les
+crédits confirmés des morceaux d'autrui restent « Compte supprimé », comme
+avant. La suppression des morceaux portés supprime leurs actes. Physiquement :
+FK morceau et sujet en cascade ; FK auteur à null ; aucune FK de période vers
+le crédit. Supprimer un rôle ou crédit ne supprime donc aucun acte. Supprimer
+le compte auteur garde les actes concernant autrui avec auteur effacé ;
+supprimer le compte sujet les supprime. Une structure physiquement supprimée
+cascade ses morceaux puis leurs actes. Une dissolution garde les morceaux et
+les traces minimales, sans les rendre accessibles ; la succession technique
+ne crée aucun acte. Aucune purge ou opération RGPD ne journalise un acte humain.
+
+Migration additive `20261115154332_work_credit_acts`, produite par
+`db:nouvelle-migration`, nettoyée et relue : un enum, une table, quatre index
+et trois FK, aucune reprise historique ni suppression d'index. Appliquée par
+`db:deploy` et `db:deploy:e2e`, client régénéré. Retour applicatif possible en
+laissant la table ; la supprimer perdrait les actes nouveaux. Aucun retour
+SQL destructif automatique ; restauration depuis sauvegarde cohérente au besoin.
+
+Démo dédiée Clara/Inès : attribution, refus, nouvelle attribution, confirmation,
+retrait, périodes distinctes et aucun crédit courant restant pour Inès. Actes
+fictifs explicites et idempotents, sans conversion ni effets de progression.
+Les options/propositions restent séparées. DASH-05 et #35/#30 restent ouverts.

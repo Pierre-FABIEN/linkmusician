@@ -1017,6 +1017,14 @@ export async function exportPersonData(userId: string) {
 				fin: m.endedAt
 			})),
 		morceaux: {
+			actes_de_credits: works.acts.map((a) => ({
+				id: a.id,
+				periode: a.periodId,
+				type: a.kind,
+				le: a.occurredAt,
+				auteur: a.author,
+				concerne_mon_credit: a.concernsMe
+			})),
 			portes: works.owned.map((w) => ({
 				titre: w.title,
 				etat: w.state,
@@ -1141,6 +1149,11 @@ export async function personAnonymizationOps(
 		// crédits confirmés sur ceux des autres restent (« Compte supprimé »),
 		// les crédits en attente disparaissent (leurs rôles redeviennent à
 		// pourvoir).
+		// DASH-05m : oublier aussi l’auteur des actes sur les crédits d’autrui.
+		prisma.workCreditAct.updateMany({
+			where: { authorId: person.actorId },
+			data: { authorId: null }
+		}),
 		prisma.work.deleteMany({ where: { ownerId: person.actorId } }),
 		prisma.workContributor.deleteMany({ where: { personId: person.actorId, confirmedAt: null } }),
 		prisma.workContributor.updateMany({

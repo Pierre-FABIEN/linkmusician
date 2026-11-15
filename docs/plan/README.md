@@ -272,10 +272,11 @@ Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 | DASH-05g       | ✅ publié | Entrées/sorties des groupes : invitations, demandes, recrutement, départ/retrait et dissolution ; rôles et transmissions à suivre.        |
 | DASH-05h       | ✅ publié | Rôles et transmissions répétables des groupes, actes personnels transactionnels et RGPD.                                                  |
 | DASH-05i       | ✅ publié | Participations aux écoles : acceptation de lien, départ/retrait transactionnels, historique personnel et RGPD.                            |
-| DASH-05j       | ✅ local  | Validations de collaboration : lecture privée des dates conservées, mutations atomiques sous verrou et export RGPD.                       |
-| DASH-05k       | ✅ local  | Refus et annulations de collaboration conservés atomiquement, auteurs/dates, accès privés et RGPD ; aucune reprise.                       |
-| DASH-05l       | ✅ local  | Actes répétables d’appréciation de collaboration, transactionnels, privés et RGPD ; aucune reprise ancienne.                              |
-| DASH-05, suite | ⬜        | Crédits manuels et autres circuits à cadrer ; futures options dans leur propre lot.                                                       |
+| DASH-05j       | ✅ publié | Validations de collaboration : lecture privée des dates conservées, mutations atomiques sous verrou et export RGPD.                       |
+| DASH-05k       | ✅ publié | Refus et annulations de collaboration conservés atomiquement, auteurs/dates, accès privés et RGPD ; aucune reprise.                       |
+| DASH-05l       | ✅ publié | Actes répétables d’appréciation de collaboration, transactionnels, privés et RGPD ; aucune reprise ancienne.                              |
+| DASH-05m       | ✅ local  | Actes humains des crédits manuels : registre minimal, périodes, lecture personnelle et RGPD ; aucune reprise ancienne.                    |
+| DASH-05, suite | ⬜        | Autres circuits à cadrer ; futures options dans leur propre lot.                                                                          |
 
 Le journal commun n’est pas terminé. Conception et limites :
 [journal d’activité](../conception/16-journal-activite.md).
@@ -810,3 +811,66 @@ unitaire finale : **1 367 réussis**, 402 conditionnels non activés. Formatage
 global : seules les deux exceptions préexistantes `.shot-*` restent signalées ;
 ESLint ciblé de tous les fichiers TypeScript du lot au vert. `git diff --check`
 au vert. Livraison par un nouveau commit local `(DASH-05l)`, sans push.
+
+### DASH-05m — actes humains des crédits manuels de morceaux
+
+Reprise du 15/11/2026 : dépôt propre sur main et distant contrôlé à
+`cd7f1557fc18853f7694a59ee31e462e6c65b135`. DASH-05j/k/l sont **publiés** ;
+ce contrôle remplace leurs mentions locales des comptes rendus précédents.
+DASH-05m est réalisé sur main pour un commit **local, sans push**.
+
+Audit complet des crédits depuis `works/service.ts`, routes et consommateurs :
+création consentie, attribution de gestion sans consentement, auto-attribution,
+confirmation, refus, retrait personnel et retrait de gestion disponibles ;
+pas d'édition des rôles attribués. Les collaborations du son ajoutent des
+crédits/rôles automatiquement, sans acte manuel ni nouveau consentement.
+Règles métier, quotas, blocage, profils masqués et protections des mineur·es
+conservés. Le journal ne produit aucun événement, point, succès, notification
+ou réputation et ne transforme aucun retrait en reprise.
+
+`WorkCreditAct` conserve les seuls nouveaux actes avec auteur réel/date et
+période indépendante de la ligne courante supprimable ; unicité période/type,
+aucune reprise des dates anciennes. Transaction atomique sous `work:`, y
+compris notification et progression existantes. L'inversion préexistante
+collaboration → acteurs → morceau est corrigée : `collaboration:` → `work:`
+avant les écritures et le moteur, avec relecture après attente/suppression du
+morceau. Audit des ordres et limites dans la conception.
+
+Lecture des 100 derniers actes concernant son crédit ou réalisés par soi,
+sans titre, lien, rôles ni identité de tiers crédité ; la gestion ne lit pas
+les décisions d'autrui, même pour un morceau qu'elle gère. Conservation
+personnelle après refus/retrait/perte de gestion, sans accès au morceau privé.
+Export complet `morceaux.actes_de_credits`, anonymisation de tous les auteurs,
+cascades du morceau/sujet et auteur physique à null ; aucune succession ou
+suppression technique ne devient un acte humain. Aide et démo actualisées.
+
+Migration additive `20261115154332_work_credit_acts` générée via le script du
+dépôt, nettoyée, relue et appliquée en développement/e2e ; client régénéré.
+Un enum, une table, quatre index et trois FK seulement, sans reconstruction.
+Retour applicatif en gardant la table ; pas de retour destructif automatique.
+La démo dédiée Clara/Inès est jouée par `seed:demo`, y compris sur base déjà
+semée : refus puis nouvelle attribution/confirmation/retrait, aucun effet
+métier supplémentaire.
+
+Recette DASH-05m (15/11/2026) : **1 368 unitaires réussis** ; **74 intégrations
+distinctes réussies** (huit fichiers : première passe à 73, puis les 18 scénarios
+du journal, dont 17 rejoués et un ajouté pour retrait contre crédit automatique) ;
+**4 E2E réussis sans reprise** sur `morceaux`, `collaborations-morceau` et
+`candidatures`. `check` : 0 erreur, 0 avertissement, exécuté hors E2E.
+
+Couverture : rejeux/cycles/périodes, consentement distinct de gestion,
+concurrences manuelles/automatiques et suppression/finalisation, plafonds,
+blocage/profil masqué/mineur inconnu, confidentialité après retrait/perte de
+gestion, export sans troncature, anonymisation/auteurs physiques/cascades,
+rollback du registre avec rôles, notifications, corroboration, XP et succès,
+absence de deuxième part après retrait/réattribution. Parcours navigateur avec
+refus/réattribution et journal distinct pour gestion et destinataire, accessibilité
+vérifiée. `seed:demo` exécuté deux fois ; cinq actes sur deux périodes après rejeu.
+
+Formatage ciblé et ESLint ciblé sans erreur (quatre avertissements de liens
+préexistants dans `/morceaux`). Le lint global reste bloqué par le formatage
+préexistant de `.shot-metro.mjs` et `.shot-tmp.mjs` ; ESLint global a une erreur
+préexistante (`c` inutilisé dans `.shot-metro.mjs`) et 464 avertissements.
+Migration déployée et distant revérifié à `cd7f155` ; livraison par un nouveau
+commit local `(DASH-05m)`, sans push. DASH-05 et les issues #35/#30 restent ouverts ;
+options/propositions et autres circuits gardent leurs lots propres.

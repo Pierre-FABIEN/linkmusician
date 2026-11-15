@@ -446,6 +446,18 @@ le morceau, retirer des rôles libres ou **Supprimer le morceau**, après
 confirmation, pour toute l'équipe. Retirer son crédit ou supprimer un
 morceau ne reprend pas les points déjà gagnés.
 
+Dans **Morceaux → Historique personnel des crédits**, tu retrouves les
+nouveaux actes concernant ton crédit ou réalisés par toi : attribution,
+consentement, refus et retrait. L'attribution par la gestion ne vaut pas ton
+accord. Les crédits automatiques de collaboration ne créent pas de nouvel
+accord manuel. Les actes anciens ne sont pas reconstitués.
+
+Les 100 derniers actes sont visibles, même après retrait ou perte de gestion,
+sans titre ni lien vers le morceau ou vers le destinataire d'un crédit que tu
+as attribué. Ce volet n'ouvre aucun accès aux morceaux privés ni au journal de
+l'équipe. Supprimer un morceau supprime aussi ses actes ; retirer un crédit
+les conserve. L'export de tes données comprend tous tes actes conservés.
+
 ### La suite du morceau : enregistrer, mixer, produire {#suite-du-morceau}
 
 Un morceau composé avance avec les métiers du son. Sur sa page, **Trouver

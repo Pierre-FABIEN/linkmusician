@@ -3,12 +3,22 @@
 // un crédit). Service : `#lib/server/works/service`.
 import { fail } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
-import { WorkError, confirmCredit, leaveCredit, myWorks } from '#lib/server/works/service';
+import {
+	WorkError,
+	confirmCredit,
+	creditHistoryForMe,
+	leaveCredit,
+	myWorks
+} from '#lib/server/works/service';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const person = (await getPersonByUserId(locals.user!.id))!;
-	return myWorks(person.actorId);
+	const [works, history] = await Promise.all([
+		myWorks(person.actorId),
+		creditHistoryForMe(person.actorId)
+	]);
+	return { ...works, history };
 };
 
 async function run(locals: App.Locals, request: Request, action: 'confirm' | 'decline') {

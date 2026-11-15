@@ -67,6 +67,25 @@ test.describe('LinkMusician — morceaux', () => {
 				await credit.getByRole('button', { name: 'Créditer' }).click();
 				await expect(page.getByText('est prévenu·e', { exact: false })).toBeVisible();
 				await expect(page.getByText('en attente de confirmation')).toBeVisible();
+				// DASH-05m : refus réel puis nouvelle attribution, sans consentement reconstruit.
+				await malikPage.goto('/morceaux');
+				await waitForAppReady(malikPage);
+				await malikPage.getByRole('button', { name: 'Ce n’est pas moi' }).click();
+				await expect(malikPage.getByText('C’est noté, ton nom n’y figure pas.')).toBeVisible();
+				await malikPage.getByText('Historique personnel des crédits', { exact: true }).click();
+				const history = malikPage.getByRole('region', { name: 'Tes actes de crédits' });
+				await expect(
+					history.getByText('Crédit refusé personnellement', { exact: true })
+				).toBeVisible();
+				await expect(history.getByRole('link')).toHaveCount(0);
+				await expect(history.getByText(title, { exact: true })).toHaveCount(0);
+				await page.goto(workUrl);
+				await waitForAppReady(page);
+				await page.getByText('Créditer quelqu’un').click();
+				await credit.getByLabel('Son @identifiant').fill(`@${malik.actor.handle}`);
+				await credit.getByLabel('Instrument ou voix').selectOption({ label: 'Basse électrique' });
+				await credit.getByRole('button', { name: 'Créditer' }).click();
+				await expect(page.getByText('est prévenu·e', { exact: false })).toBeVisible();
 			});
 
 			await test.step('3. Maquette et « C’est composé » : déclaré, sans point', async () => {
@@ -114,6 +133,34 @@ test.describe('LinkMusician — morceaux', () => {
 				} finally {
 					await visitor.close();
 				}
+			});
+
+			await test.step('Historique privé : attribution et consentement restent distincts', async () => {
+				await page.goto('/morceaux');
+				await waitForAppReady(page);
+				await page.getByText('Historique personnel des crédits', { exact: true }).click();
+				const mine = page.getByRole('region', { name: 'Tes actes de crédits' });
+				await expect(
+					mine.getByText('Crédit personnel à la création du morceau', { exact: true })
+				).toBeVisible();
+				await expect(
+					mine.getByText(
+						'Crédit attribué par la gestion, en attente de consentement (pour autrui)',
+						{ exact: true }
+					)
+				).toHaveCount(2);
+				await expect(
+					mine.getByText('Crédit confirmé personnellement', { exact: true })
+				).toHaveCount(0);
+				await malikPage.goto('/morceaux');
+				await waitForAppReady(malikPage);
+				await malikPage.getByText('Historique personnel des crédits', { exact: true }).click();
+				const his = malikPage.getByRole('region', { name: 'Tes actes de crédits' });
+				await expect(
+					his.getByText('Crédit confirmé personnellement', { exact: true })
+				).toBeVisible();
+				await expect(his.getByRole('link')).toHaveCount(0);
+				await expectNoA11yViolations(malikPage, A11Y_EXCLUDE);
 			});
 
 			await test.step('6. Un rôle à pourvoir ouvre une annonce préremplie', async () => {

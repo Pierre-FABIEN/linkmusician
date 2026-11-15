@@ -623,3 +623,31 @@ privée, export/anonymisation, aide et démo dédiée. Migration additive
 et sur `e2e`, sans reprise ancienne. Recette dans [le suivi](README.md).
 Distant revérifié à `2341488` ; DASH-05j/k/l restent locaux sur `main`, sans push.
 DASH-05 et #35/#30 restent ouverts.
+
+#### DASH-05m — actes humains des crédits manuels (livré localement)
+
+Dépend de DASH-05l. État réel vérifié le 15/11/2026 : main propre à
+`cd7f155`, origin/main à `cd7f1557fc18853f7694a59ee31e462e6c65b135` ;
+DASH-05j/k/l publiés. Travail directement sur main, commit local sans push.
+
+Périmètre : audit de création, attribution, auto-attribution, confirmation,
+refus, retrait personnel et retrait par la gestion ; nouveaux actes humains
+uniquement, conservation indépendante de la ligne de crédit supprimable.
+Aucun crédit automatique transformé en consentement manuel. Lecture personnelle
+minimale après retrait/perte de gestion, export/anonymisation, migration additive,
+tests de cycles, concurrence, rollback et absence d'effets métier ajoutés.
+Les options/propositions et les autres circuits restent séparés ; DASH-05 et
+#35/#30 restent ouverts.
+
+Livré : registre `WorkCreditAct`, types distincts et unicité par période,
+mutations et effets atomiques, correction de l'ordre collaboration/morceau/
+progression, lecture privée minimale, export complet et anonymisation, aide
+et démo idempotente. Migration additive `20261115154332_work_credit_acts`
+appliquée en développement et e2e ; aucune reprise des crédits existants.
+Recette : 1 368 unitaires, 74 intégrations distinctes et 4 E2E sans reprise,
+types sans erreur/avertissement hors E2E. Formatage et ESLint ciblés sans erreur ;
+lint global toujours bloqué par les scripts `.shot-*` préexistants. Détails
+dans [le suivi](README.md). `seed:demo` joué deux fois : cinq actes, deux périodes.
+Seul DASH-05m est nouveau et local ; les mentions locales historiques des lots
+j/k/l ci-dessus sont remplacées par la vérification publiée à `cd7f155`.
+DASH-05 et #35/#30 restent ouverts. Aucun push.

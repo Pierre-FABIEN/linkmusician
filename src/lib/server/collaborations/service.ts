@@ -44,7 +44,7 @@ import {
 	type CollabKindValue,
 	type CollabStatusValue
 } from '#lib/collaborations/rules';
-import { creditFromCollaboration, manageableWorks } from '#lib/server/works/service';
+import { creditFromCollaboration, lockWork, manageableWorks } from '#lib/server/works/service';
 import { isStudioSessionKind } from '#lib/studios/rules';
 import {
 	verifyGigFromCollaboration,
@@ -387,10 +387,20 @@ async function load(tx: Prisma.TransactionClient, actorId: string, collaboration
 	await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`collaboration:${collaborationId}`}))`;
 	const alive = await tx.actor.count({ where: { id: actorId, deletedAt: null } });
 	if (!alive) throw new CollaborationError('Collaboration introuvable.', 404);
-	const collab = await tx.collaboration.findUnique({
+	let collab = await tx.collaboration.findUnique({
 		where: { id: collaborationId },
 		include: { participants: true }
 	});
+	// DASH-05m : avant toute écriture de participant/collaboration et tout verrou
+	// de progression : collaboration → work → acteurs. La suppression du morceau
+	// peut mettre workId à null pendant l'attente ; relire après le verrou.
+	if (collab?.workId) {
+		await lockWork(tx, collab.workId);
+		collab = await tx.collaboration.findUnique({
+			where: { id: collaborationId },
+			include: { participants: true }
+		});
+	}
 	const me = collab?.participants.find((p) => p.actorId === actorId);
 	if (!collab || !me) throw new CollaborationError('Collaboration introuvable.', 404);
 	for (const p of collab.participants) {

@@ -19,8 +19,9 @@
  * Mineur·es (D5, D37) : on ne crédite un·e mineur·e que si on le ou la
  * connaît (même règle que les invitations de groupe), sans dire pourquoi.
  */
-import type { Prisma } from '@prisma/client';
+import type { Prisma, WorkCreditActKind } from '@prisma/client';
 import { prisma } from '#lib/server';
+import { workCreditTimeline } from '#lib/activity/work-credit-timeline';
 import { isIndexable } from '#lib/actors/visibility';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { isBlockedBetween } from '#lib/server/blocking/service';
@@ -63,7 +64,7 @@ type Db = Tx | typeof prisma;
 /** Le traitement d'un événement de progression peut dépasser 5 s (P2-08). */
 const TX = { timeout: 20_000 } as const;
 
-async function lockWork(tx: Tx, workId: string) {
+export async function lockWork(tx: Tx, workId: string) {
 	await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`work:${workId}`}))`;
 }
 
@@ -253,6 +254,27 @@ async function afterConfirm(
 	return [author, sound].filter((r): r is ProcessResult => r !== null);
 }
 
+/** Le verrou du morceau et la transition effective garantissent une seule écriture par période.
+ * Aucun effet métier dans ce registre ; toute erreur remonte à la transaction appelante. */
+async function recordCreditAct(
+	tx: Tx,
+	credit: { id: string; workId: string; personId: string },
+	authorId: string,
+	kind: WorkCreditActKind,
+	occurredAt: Date
+) {
+	await tx.workCreditAct.create({
+		data: {
+			workId: credit.workId,
+			periodId: credit.id,
+			personId: credit.personId,
+			authorId,
+			kind,
+			occurredAt
+		}
+	});
+}
+
 // ─── Écritures ───────────────────────────────────────────────────────────
 
 /** Nouvelle idée, à moi ou au nom d'un groupe que je gère. Ne rapporte rien. */
@@ -289,6 +311,13 @@ export async function createWork(personId: string, input: NewWorkInput, now = ne
 				contributorId: me.id
 			}))
 		});
+		await recordCreditAct(
+			tx,
+			{ id: me.id, workId: work.id, personId },
+			personId,
+			'CREATOR_CREDITED',
+			now
+		);
 		return work;
 	}, TX);
 }
@@ -483,7 +512,17 @@ export async function creditPerson(
 				});
 			}
 		}
-		if (self) return afterConfirm(tx, work, person.id, now);
+		if (self) {
+			const progress = await afterConfirm(tx, work, person.id, now);
+			await recordCreditAct(
+				tx,
+				{ id: credit.id, workId, personId: person.id },
+				managerId,
+				'SELF_ASSIGNED',
+				now
+			);
+			return progress;
+		}
 		await notify(tx, {
 			recipientId: person.id,
 			type: 'WORK_CREDIT',
@@ -491,6 +530,13 @@ export async function creditPerson(
 			href: `/morceaux/${workId}`,
 			title: work.title
 		});
+		await recordCreditAct(
+			tx,
+			{ id: credit.id, workId, personId: person.id },
+			managerId,
+			'ASSIGNED',
+			now
+		);
 		return null;
 	}, TX);
 	return { person, progress: result && result.length > 0 ? summarize(managerId, result) : null };
@@ -501,12 +547,18 @@ export async function confirmCredit(workId: string, personId: string, now = new 
 	const result = await prisma.$transaction(async (tx) => {
 		await lockWork(tx, workId);
 		const work = await loadWork(tx, workId);
+		const credit = await tx.workContributor.findUnique({
+			where: { workId_personId: { workId, personId } },
+			select: { id: true }
+		});
 		const { count } = await tx.workContributor.updateMany({
 			where: { workId, personId, confirmedAt: null },
 			data: { confirmedAt: now }
 		});
 		if (count === 0) throw new WorkError('Rien à confirmer sur ce morceau.', 404);
-		return afterConfirm(tx, work, personId, now);
+		const progress = await afterConfirm(tx, work, personId, now);
+		await recordCreditAct(tx, { id: credit!.id, workId, personId }, personId, 'CONFIRMED', now);
+		return progress;
 	}, TX);
 	return result.length > 0 ? summarize(personId, result) : null;
 }
@@ -516,7 +568,7 @@ export async function confirmCredit(workId: string, personId: string, now = new 
  * après l'avoir confirmé (ses rôles disparaissent). L'XP reçue reste. La
  * personne qui porte le morceau le supprime plutôt.
  */
-export async function leaveCredit(workId: string, personId: string) {
+export async function leaveCredit(workId: string, personId: string, now = new Date()) {
 	await prisma.$transaction(async (tx) => {
 		await lockWork(tx, workId);
 		const work = await loadWork(tx, workId);
@@ -530,15 +582,31 @@ export async function leaveCredit(workId: string, personId: string) {
 		if (!credit) throw new WorkError('Tu n’as pas de crédit sur ce morceau.', 404);
 		if (credit.confirmedAt) await tx.workRole.deleteMany({ where: { contributorId: credit.id } });
 		await tx.workContributor.delete({ where: { id: credit.id } });
+		await recordCreditAct(
+			tx,
+			{ id: credit.id, workId, personId },
+			personId,
+			credit.confirmedAt ? 'LEFT' : 'DECLINED',
+			now
+		);
 	}, TX);
 }
 
 /** La gestion retire un crédit pas encore confirmé (ses rôles redeviennent à pourvoir). */
-export async function withdrawCredit(workId: string, managerId: string, contributorId: string) {
+export async function withdrawCredit(
+	workId: string,
+	managerId: string,
+	contributorId: string,
+	now = new Date()
+) {
 	await prisma.$transaction(async (tx) => {
 		await lockWork(tx, workId);
 		const work = await loadWork(tx, workId);
 		await requireManage(tx, work, managerId);
+		const credit = await tx.workContributor.findFirst({
+			where: { id: contributorId, workId, confirmedAt: null },
+			select: { id: true, personId: true }
+		});
 		const { count } = await tx.workContributor.deleteMany({
 			where: { id: contributorId, workId, confirmedAt: null }
 		});
@@ -548,6 +616,13 @@ export async function withdrawCredit(workId: string, managerId: string, contribu
 				403
 			);
 		}
+		await recordCreditAct(
+			tx,
+			{ id: contributorId, workId, personId: credit!.personId },
+			managerId,
+			'WITHDRAWN',
+			now
+		);
 	}, TX);
 }
 
@@ -1020,7 +1095,7 @@ export async function firstComposedWork(bandId: string, db: Db = prisma) {
 
 /** Export RGPD : morceaux portés et crédits de la personne. */
 export async function worksExport(personId: string) {
-	const [owned, credits] = await Promise.all([
+	const [owned, credits, acts] = await Promise.all([
 		prisma.work.findMany({
 			where: { ownerId: personId },
 			select: {
@@ -1040,9 +1115,11 @@ export async function worksExport(personId: string) {
 				work: { select: { title: true, owner: { select: { displayName: true } } } },
 				roles: { select: { kind: true, instrument: { select: { name: true } } } }
 			}
-		})
+		}),
+		creditActsFor(personId)
 	]);
 	return {
+		acts,
 		owned: owned.map((w) => ({ ...w, genres: w.genres.map((g) => g.genre.name) })),
 		credits: credits.map((c) => ({
 			work: c.work.title,
@@ -1052,4 +1129,34 @@ export async function worksExport(personId: string) {
 			createdAt: c.createdAt
 		}))
 	};
+}
+
+/** Lecture personnelle sans titre, rôle, lien ni identité de la personne créditée.
+ * La gestion ne lit que ses propres actes ; aucun droit sur le journal d'autrui.
+ * L'export est complet ; la page borne explicitement la lecture aux 100 derniers actes. */
+async function creditActsFor(personId: string, take?: number) {
+	const alive = await prisma.actor.count({ where: { id: personId, deletedAt: null } });
+	if (!alive) return [];
+	const rows = await prisma.workCreditAct.findMany({
+		where: { OR: [{ personId }, { authorId: personId }] },
+		orderBy: [{ occurredAt: 'desc' }, { id: 'asc' }],
+		...(take ? { take } : {}),
+		select: {
+			id: true,
+			periodId: true,
+			personId: true,
+			kind: true,
+			occurredAt: true,
+			author: { select: { displayName: true, deletedAt: true } }
+		}
+	});
+	return rows.map(({ personId: subjectId, author, ...act }) => ({
+		...act,
+		concernsMe: subjectId === personId,
+		author: author && !author.deletedAt ? author.displayName : 'Compte supprimé'
+	}));
+}
+
+export async function creditHistoryForMe(personId: string) {
+	return workCreditTimeline(await creditActsFor(personId, 100));
 }

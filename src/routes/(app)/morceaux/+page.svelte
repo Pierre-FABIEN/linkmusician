@@ -1,5 +1,6 @@
 <script lang="ts">
 	// LINKMUSICIAN: mes morceaux (P3-11), voir +page.server.ts.
+	import ActivityTimeline from '#lib/components/linkmusician/activity/ActivityTimeline.svelte';
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import SEO from '#lib/components/SEO.svelte';
@@ -104,5 +105,14 @@
 				</ul>
 			{/if}
 		</section>
+		<details class="lm-tile lm-tile--flow space-y-4 p-4">
+			<summary class="cursor-pointer font-semibold">Historique personnel des crédits</summary>
+			<p class="text-sm text-muted-foreground">
+				Les 100 derniers actes enregistrés te concernant ou réalisés par toi. Les actes anciens ne
+				sont pas reconstitués. Cet historique ne donne aucun accès aux morceaux ni aux crédits des
+				autres.
+			</p>
+			<ActivityTimeline entries={data.history} title="Tes actes de crédits" id="credit-history" />
+		</details>
 	</div>
 </div>

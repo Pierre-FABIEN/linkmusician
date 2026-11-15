@@ -1486,6 +1486,8 @@ model Actor {
   worksCreated               Work[]                   @relation("WorkCreator")
   workCredits                WorkContributor[]        @relation("WorkContributorPerson")
   workCreditsInvited         WorkContributor[]        @relation("WorkContributorInviter")
+  workCreditActs             WorkCreditAct[]          @relation("WorkCreditSubject")
+  workCreditActsAuthored     WorkCreditAct[]          @relation("WorkCreditAuthor")
   milestones                 Milestone[]              @relation("MilestoneBand")
   milestonesDeclared         Milestone[]              @relation("MilestoneDeclarer")
   milestoneAttestations      MilestoneAttestation[]   @relation("MilestoneAttester")
@@ -3071,6 +3073,7 @@ model Work {
   updatedAt   DateTime       @updatedAt
 
   genres       WorkGenre[]
+  creditActs   WorkCreditAct[]
   contributors WorkContributor[]
   roles        WorkRole[]
   milestones   Milestone[]
@@ -3988,4 +3991,36 @@ model CollaborationAppreciationAct {
   @@index([collaborationId, occurredAt])
   @@index([authorId])
   @@map("collaboration_appreciation_acts")
+}
+
+/// DASH-05m : nouveaux actes humains, sans reconstruction des crédits anciens.
+enum WorkCreditActKind {
+  CREATOR_CREDITED
+  ASSIGNED
+  SELF_ASSIGNED
+  CONFIRMED
+  DECLINED
+  LEFT
+  WITHDRAWN
+}
+
+/// Indépendant du crédit courant et de ses rôles, supprimables physiquement.
+model WorkCreditAct {
+  id         String @id @default(cuid())
+  workId     String
+  work       Work @relation(fields: [workId], references: [id], onDelete: Cascade)
+  /// Identifiant de la période de crédit, sans FK vers la ligne supprimable.
+  periodId   String
+  personId   String
+  person     Actor @relation("WorkCreditSubject", fields: [personId], references: [id], onDelete: Cascade)
+  authorId   String?
+  author     Actor? @relation("WorkCreditAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  kind       WorkCreditActKind
+  occurredAt DateTime
+
+  @@unique([periodId, kind])
+  @@index([personId, occurredAt])
+  @@index([authorId])
+  @@index([workId])
+  @@map("work_credit_acts")
 }

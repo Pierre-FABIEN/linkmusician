@@ -486,3 +486,13 @@ fictives de Clara, datées et attribuées. Le seed utilise des identifiants stab
 y compris sur une base déjà semée. Ces actes dédiés ne sont pas déduits des
 appréciations existantes et n’émettent ni notification ni progression. Les
 qualités et instruments ne sont pas recopiés dans le journal.
+
+### Crédits manuels conservés (DASH-05m)
+
+Dans **Morceaux → Historique personnel des crédits**, `ines-chant` voit un
+cycle fictif dédié : attribution par Clara, refus, nouvelle attribution,
+confirmation puis retrait. Deux périodes distinctes, sans crédit courant
+restant pour Inès, sans titre ni lien dans le journal. `clara-guitare` voit
+ses deux attributions pour autrui, pas les décisions d'Inès. Scénario idempotent
+`demo-manual-credit-history`, inséré aussi quand les scénarios existaient déjà ;
+aucune ancienne ligne convertie et aucun événement de progression ajouté.

@@ -602,6 +602,35 @@ export async function seedScenarios(
 	const P = (h: string) => id(ctx, h);
 	const play = (h: string) => ctx.plays.get(h) || 'chant';
 
+	// DASH-05m : scénario fictif dédié et rejouable, sans convertir les crédits existants.
+	const creditDemoWork = 'demo-manual-credit-history';
+	await prisma.work.upsert({
+		where: { id: creditDemoWork },
+		update: {},
+		create: {
+			id: creditDemoWork,
+			ownerId: P('clara-guitare'),
+			title: 'Démo : actes de crédits manuels'
+		}
+	});
+	for (const [index, kind] of (
+		['ASSIGNED', 'DECLINED', 'ASSIGNED', 'CONFIRMED', 'LEFT'] as const
+	).entries()) {
+		await prisma.workCreditAct.upsert({
+			where: { id: `demo-manual-credit-${index}` },
+			update: {},
+			create: {
+				id: `demo-manual-credit-${index}`,
+				workId: creditDemoWork,
+				periodId: `demo-manual-credit-period-${index < 2 ? 1 : 2}`,
+				personId: P('ines-chant'),
+				authorId: P(kind === 'ASSIGNED' ? 'clara-guitare' : 'ines-chant'),
+				kind,
+				occurredAt: ago(7 - index)
+			}
+		});
+	}
+
 	async function seedCollaborationDecisions(conversationId: string) {
 		// DASH-05l : cycle fictif dédié, jamais déduit des appréciations existantes.
 		const appreciationId = 'demo-collab-appreciations';
