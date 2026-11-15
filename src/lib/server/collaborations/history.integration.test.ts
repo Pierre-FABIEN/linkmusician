@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createPrismaClient } from '../../../../prisma/client.js';
 import dotenv from 'dotenv';
@@ -176,7 +177,7 @@ describe.skipIf(!enabled)('journal de collaboration réel (e2e)', { timeout: 60_
 		const c = await db.collaboration.findUniqueOrThrow({ where: { id } });
 		expect(['CANCELLED', 'COMPLETED']).toContain(c.status);
 		expect((await history()).find((c) => c.id === id)!.entries).toHaveLength(
-			c.status === 'COMPLETED' ? 4 : 2
+			c.status === 'COMPLETED' ? 4 : 3
 		);
 	});
 	it('ne reconstruit aucune validation depuis un ancien état terminé', async () => {
@@ -208,6 +209,41 @@ describe.skipIf(!enabled)('journal de collaboration réel (e2e)', { timeout: 60_
 		expect(JSON.stringify(payload)).not.toContain(work.title);
 		expect(JSON.stringify(payload)).not.toContain(work.id);
 		expect(await history(ids.tiers)).toEqual([]);
+	});
+	it('la suppression du projet conserve les décisions sans exposer son contenu', async () => {
+		const work = await db.work.create({
+			data: { ownerId: ids.tiers, createdById: ids.tiers, title: 'Projet à supprimer' }
+		});
+		const { id } = await propose(true);
+		await db.collaboration.update({ where: { id }, data: { workId: work.id } });
+		await service.cancelCollaboration(ids.lea, id, after);
+		const kept = (await history()).find((c) => c.id === id)!;
+		await db.work.delete({ where: { id: work.id } });
+		expect((await history()).find((c) => c.id === id)).toEqual(kept);
+		expect((await db.collaboration.findUniqueOrThrow({ where: { id } })).workId).toBeNull();
+		await db.collaboration.delete({ where: { id } });
+		expect(await db.collaborationParticipant.count({ where: { collaborationId: id } })).toBe(0);
+		expect((await history()).find((c) => c.id === id)).toBeUndefined();
+	});
+	it('acceptation future contre annulation : conserve exactement les actes effectivement réalisés', async () => {
+		const { id } = await propose(true);
+		const results = await Promise.allSettled([
+			service.respondToCollaboration(ids.lea, id, true, after),
+			service.cancelCollaboration(ids.sam, id, after)
+		]);
+		expect(results[1].status).toBe('fulfilled');
+		const c = await db.collaboration.findUniqueOrThrow({
+			where: { id },
+			include: { participants: true }
+		});
+		expect(c.status).toBe('CANCELLED');
+		expect(c.participants.find((p) => p.actorId === ids.sam)!.cancelledAt).toEqual(after);
+		expect(c.participants.find((p) => p.actorId === ids.lea)!.acceptedAt).toEqual(
+			results[0].status === 'fulfilled' ? after : null
+		);
+		expect((await history()).find((c) => c.id === id)!.entries).toHaveLength(
+			results[0].status === 'fulfilled' ? 3 : 2
+		);
 	});
 	it('sérialise les confirmations identiques et annule une dernière confirmation en échec', async () => {
 		const { id } = await propose(true);
@@ -262,15 +298,18 @@ describe.skipIf(!enabled)('journal de collaboration réel (e2e)', { timeout: 60_
 		}
 		expect(await db.collaboration.count({ where: { conversationId } })).toBe(count);
 	});
-	it('garde les validations après annulation, sans inventer son auteur ni un refus', async () => {
+	it('distingue le refus de l’annulation et conserve les validations antérieures', async () => {
 		const { id } = await propose(true);
-		await service.cancelCollaboration(ids.sam, id);
+		await service.cancelCollaboration(ids.sam, id, after);
 		const entries = (await history()).find((c) => c.id === id)!.entries;
-		expect(entries.map((e) => e.action)).toEqual(['Collaboration acceptée']);
+		expect(entries.map((e) => [e.action, e.author, e.occurredAt])).toEqual([
+			['Collaboration acceptée', 'sam', before],
+			['Collaboration annulée', 'sam', after]
+		]);
 		await expect(service.respondToCollaboration(ids.lea, id, true, after)).rejects.toThrow(/déjà/);
 		const rejected = await propose();
 		await service.respondToCollaboration(ids.lea, rejected.id, false, after);
-		expect((await history()).find((c) => c.id === rejected.id)!.entries).toHaveLength(2);
+		expect((await history()).find((c) => c.id === rejected.id)!.entries).toHaveLength(3);
 	});
 	it('conserve la garde de blocage pour les mutations et la lecture historique privée', async () => {
 		const { id } = await propose();
@@ -284,8 +323,195 @@ describe.skipIf(!enabled)('journal de collaboration réel (e2e)', { timeout: 60_
 			await db.block.deleteMany({ where: { blockerActorId: ids.sam } });
 		}
 	});
+
+	it.each(['acceptation', 'annulation', 'refus'] as const)(
+		'arbitre refus contre %s sans écraser le premier acte',
+		async (opponent) => {
+			const { id } = await propose(true);
+			const results = await Promise.allSettled([
+				service.respondToCollaboration(ids.lea, id, false, after),
+				opponent === 'annulation'
+					? service.cancelCollaboration(ids.sam, id, before)
+					: service.respondToCollaboration(ids.lea, id, opponent === 'acceptation', before)
+			]);
+			expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+			const kept = await db.collaboration.findUniqueOrThrow({
+				where: { id },
+				include: { participants: true }
+			});
+			const acts = kept.participants.filter((p) => p.declinedAt || p.cancelledAt);
+			expect(acts).toHaveLength(kept.status === 'CANCELLED' ? 1 : 0);
+			await expect(
+				service.respondToCollaboration(ids.lea, id, false, new Date('2027-01-01'))
+			).rejects.toThrow();
+			expect(
+				await db.collaboration.findUniqueOrThrow({ where: { id }, include: { participants: true } })
+			).toEqual(kept);
+		}
+	);
+	it('sérialise les annulations des deux participants et protège auteur et date', async () => {
+		const { id } = await propose(true);
+		const results = await Promise.allSettled([
+			service.cancelCollaboration(ids.sam, id, before),
+			service.cancelCollaboration(ids.lea, id, after)
+		]);
+		expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+		const acts = (await history())
+			.find((c) => c.id === id)!
+			.entries.filter((e) => e.action === 'Collaboration annulée');
+		expect(acts).toHaveLength(1);
+		expect(acts[0]).toMatchObject(
+			results[0].status === 'fulfilled'
+				? { author: 'sam', occurredAt: before }
+				: { author: 'lea', occurredAt: after }
+		);
+		await expect(service.cancelCollaboration(ids.sam, id)).rejects.toThrow();
+		await expect(service.cancelCollaboration(ids.lea, id)).rejects.toThrow();
+		expect(
+			(await history())
+				.find((c) => c.id === id)!
+				.entries.filter((e) => e.action === 'Collaboration annulée')
+		).toEqual(acts);
+	});
+	it('arbitre annulation et dernière confirmation sans acte ni achèvement contradictoire', async () => {
+		const { id } = await propose(true);
+		await service.respondToCollaboration(ids.lea, id, true, after);
+		const done = new Date('2027-01-01');
+		await service.confirmCollaboration(ids.sam, id, done);
+		await expect(service.respondToCollaboration(ids.lea, id, false, done)).rejects.toThrow(/déjà/);
+		const results = await Promise.allSettled([
+			service.confirmCollaboration(ids.lea, id, done),
+			service.cancelCollaboration(ids.sam, id, done)
+		]);
+		expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+		const c = await db.collaboration.findUniqueOrThrow({
+			where: { id },
+			include: { participants: true }
+		});
+		expect(['CANCELLED', 'COMPLETED']).toContain(c.status);
+		expect(c.participants.find((p) => p.actorId === ids.sam)!.cancelledAt).toEqual(
+			c.status === 'CANCELLED' ? done : null
+		);
+		expect(c.participants.find((p) => p.actorId === ids.lea)!.confirmedCompletionAt).toEqual(
+			c.status === 'COMPLETED' ? done : null
+		);
+	});
+	it.each([false, true])(
+		'rollback refus/annulation (%s) si la trace ou la mutation échoue',
+		async (cancel) => {
+			const { id } = await propose(true);
+			const kept = await db.collaboration.findUniqueOrThrow({
+				where: { id },
+				include: { participants: true }
+			});
+			for (const delegate of ['collaborationParticipant', 'collaboration'] as const) {
+				const transaction = db.$transaction.bind(db);
+				const spy = vi.spyOn(db, '$transaction');
+				spy.mockImplementationOnce((async (
+					callback: (tx: Prisma.TransactionClient) => Promise<unknown>
+				) =>
+					transaction(async (tx) => {
+						const broken = new Proxy(tx, {
+							get(target, key) {
+								if (key !== delegate) return Reflect.get(target, key);
+								return new Proxy(target[delegate], {
+									get(model, method) {
+										if (method === 'update')
+											return () => {
+												throw new Error('échec écriture simulé');
+											};
+										return Reflect.get(model, method);
+									}
+								});
+							}
+						});
+						return callback(broken);
+					})) as unknown as typeof db.$transaction);
+				try {
+					await expect(
+						cancel
+							? service.cancelCollaboration(ids.lea, id, after)
+							: service.respondToCollaboration(ids.lea, id, false, after)
+					).rejects.toThrow(/simulé/);
+				} finally {
+					spy.mockRestore();
+				}
+				expect(
+					await db.collaboration.findUniqueOrThrow({
+						where: { id },
+						include: { participants: true }
+					})
+				).toEqual(kept);
+			}
+		}
+	);
+	it('ne reconstruit aucun refus/annulation depuis CANCELLED et updatedAt', async () => {
+		const { id } = await propose(true);
+		await db.collaboration.update({
+			where: { id },
+			data: { status: 'CANCELLED', updatedAt: after }
+		});
+		expect((await history()).find((c) => c.id === id)!.entries.map((e) => e.action)).toEqual([
+			'Collaboration acceptée'
+		]);
+	});
+	it('garde les droits des participants et le blocage sans notification ni progression ajoutées', async () => {
+		const { id } = await propose(true);
+		const notifications = await db.notification.count({
+			where: { recipientActorId: { in: Object.values(ids) } }
+		});
+		const events = await db.domainEvent.count({
+			where: { actorIds: { hasSome: Object.values(ids) } }
+		});
+		await expect(service.respondToCollaboration(ids.sam, id, false, after)).rejects.toThrow();
+		await expect(service.respondToCollaboration(ids.tiers, id, false, after)).rejects.toMatchObject(
+			{ status: 404 }
+		);
+		await expect(service.cancelCollaboration(ids.tiers, id, after)).rejects.toMatchObject({
+			status: 404
+		});
+		await db.block.create({ data: { blockerActorId: ids.sam, blockedActorId: ids.lea } });
+		try {
+			await expect(service.respondToCollaboration(ids.lea, id, false, after)).rejects.toThrow(
+				/ne peut plus/
+			);
+			await service.cancelCollaboration(ids.lea, id, after);
+			expect((await history()).find((c) => c.id === id)!.entries.at(-1)).toMatchObject({
+				action: 'Collaboration annulée',
+				author: 'lea'
+			});
+		} finally {
+			await db.block.deleteMany({ where: { blockerActorId: ids.sam } });
+		}
+		const refused = await propose(true);
+		const notificationCount = await db.notification.count({
+			where: { recipientActorId: { in: Object.values(ids) } }
+		});
+		await service.respondToCollaboration(ids.lea, refused.id, false, after);
+		expect(notificationCount).toBe(notifications + 1);
+		expect(
+			await db.notification.count({ where: { recipientActorId: { in: Object.values(ids) } } })
+		).toBe(notificationCount);
+		expect(
+			await db.domainEvent.count({ where: { actorIds: { hasSome: Object.values(ids) } } })
+		).toBe(events);
+	});
 	it('exporte les validations conservées et reflète l’anonymisation des auteurs partout', async () => {
+		const rejected = await propose(true);
+		await service.respondToCollaboration(ids.lea, rejected.id, false, after);
+		const cancelled = await propose(true);
+		await service.cancelCollaboration(ids.sam, cancelled.id, after);
 		const exported = await exportPersonData(users.lea);
+		expect(exported?.collaborations.flatMap((c) => c.validations)).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					acte: 'Proposition de collaboration refusée',
+					auteur: 'lea',
+					le: after
+				}),
+				expect.objectContaining({ acte: 'Collaboration annulée', auteur: 'sam', le: after })
+			])
+		);
 		expect(
 			exported?.collaborations.some((c) => c.validations.some((v) => v.auteur === 'sam'))
 		).toBe(true);
@@ -294,7 +520,22 @@ describe.skipIf(!enabled)('journal de collaboration réel (e2e)', { timeout: 60_
 		expect(JSON.stringify(journals)).not.toContain('"author":"sam"');
 		expect(journals.some((c) => c.entries.some((e) => e.author === 'Compte supprimé'))).toBe(true);
 		expect(await history(ids.sam)).toEqual([]);
+		expect(journals.find((c) => c.id === cancelled.id)!.entries.at(-1)).toMatchObject({
+			action: 'Collaboration annulée',
+			author: 'Compte supprimé',
+			occurredAt: after
+		});
+		await expect(service.cancelCollaboration(ids.sam, rejected.id)).rejects.toMatchObject({
+			status: 404
+		});
 		const erased = await exportPersonData(users.lea);
+		expect(erased?.collaborations.flatMap((c) => c.validations)).toContainEqual(
+			expect.objectContaining({
+				acte: 'Collaboration annulée',
+				auteur: 'Compte supprimé',
+				le: after
+			})
+		);
 		expect(erased?.collaborations.some((c) => c.validations.some((v) => v.auteur === 'sam'))).toBe(
 			false
 		);

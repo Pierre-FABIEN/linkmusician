@@ -129,7 +129,8 @@
 				<p>
 					Les 100 collaborations les plus récentes de cette conversation, y compris annulées.
 					Proposer vaut accord ; si la date est passée, proposer ou accepter vaut aussi confirmation
-					d’achèvement.
+					d’achèvement. Les nouveaux refus de proposition et les annulations explicites sont aussi
+					conservés avec leur auteur et leur date. Aucun ancien acte absent n’est reconstitué.
 				</p>
 				{#each data.validationHistory as journal (journal.id)}
 					<ActivityTimeline

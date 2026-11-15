@@ -589,13 +589,17 @@ DASH-05i (`2341488`), désormais vérifié publié lors du contrôle final. Aucu
 de l’agent ; seul DASH-05j est nouveau et local.
 DASH-05/#35 et #30 restent ouverts. Recette dans [le suivi](README.md).
 
-#### DASH-05k — refus et annulations de collaboration (prochain lot)
+#### DASH-05k — refus et annulations de collaboration (livré localement)
 
-Dépend de DASH-05j. Conserver à l’avenir l’auteur réel et la date du refus de
-proposition et de l’annulation explicite, qui partagent aujourd’hui uniquement
-le statut `CANCELLED`. Écriture atomique avec la mutation, protection contre le
-rejeu/concurrence, lecture réservée aux participants, export/anonymisation RGPD,
-tests et aide/démo. Auditer les chemins de suppression avant de choisir le modèle.
-Ne reprendre aucun ancien acte depuis états, `updatedAt` ou notifications.
+Dépend de DASH-05j. Livré : `declinedAt` et `cancelledAt` sur la participation
+de l’auteur réel, après audit des chemins de refus, annulation et suppression.
+Écriture atomique avec la mutation sous le verrou `collaboration:`, sans doublon
+ni écrasement lors de rejeux/concurrence, sans notification ou progression ajoutée.
+Lecture strictement privée, export/anonymisation RGPD, tests, aide et deux
+situations fictives de démo. Aucune reprise depuis états, `updatedAt` ou notifications.
+Migration additive relue et appliquée en développement et sur `e2e`, deux colonnes
+nullable seulement. DASH-05j (`6aff0dc`) et DASH-05k restent locaux sur `main`,
+sans push ; distant vérifié à `2341488` (DASH-05i publié). Recette dans
+[le suivi](README.md). DASH-05 et #35/#30 restent ouverts.
 Les appréciations et crédits ont leurs propres circuits à auditer dans un autre
 lot ; les futures options et propositions restent également dans leur lot propre.

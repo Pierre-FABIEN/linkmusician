@@ -86,3 +86,23 @@ que d'autres confirment » sur le profil public.
   organisateur·rice, 200 × rendement par artiste × confiance de qui
   confirme ; 100 par groupe à sa toute première date). Le lieu y gagne son
   rang. L'étape du groupe suit (voir [docs/etapes](../etapes/README.md#concerts-et-tournée-vérifiés-p5-06)).
+
+## Refus et annulations conservés (DASH-05k)
+
+Le journal privé de la conversation distingue désormais le refus d’une proposition
+(« Ce n’est pas exact ») de son annulation explicite (« Annuler »), avec l’auteur
+réel et la date de chaque nouvel acte. Les validations précédentes restent
+visibles ; les anciennes annulations sans date de décision ne sont pas reprises.
+L’export RGPD inclut ces actes et l’anonymisation affiche « Compte supprimé ».
+
+Les dates `declinedAt` et `cancelledAt` sont portées par la participation de la
+personne qui agit. Leur écriture et le changement d’état partagent la transaction
+et le verrou `collaboration:` des réponses et confirmations. Une erreur annule
+les deux ; les rejeux ne changent pas la première décision. Aucune notification
+ni progression n’est ajoutée. Le blocage interdit toujours les réponses et les
+confirmations ; les participants peuvent encore annuler après blocage. Gérer le
+projet ne donne aucun accès à ce journal.
+
+Tests : `history.integration.test.ts` couvre notamment les courses, rollbacks,
+export, anonymisation et suppression du morceau ; `collaborations-morceau.spec.ts`
+joue le refus et l’annulation par l’interface, avec clavier, dates HTML et 390 px.

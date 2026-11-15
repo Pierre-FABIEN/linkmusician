@@ -228,8 +228,11 @@ auteur et leur date à l’heure de Paris, pour les 100 collaborations les plus
 récentes de cette conversation, y compris celles ensuite annulées.
 Proposer vaut accord ; si la date est passée, proposer ou accepter vaut aussi
 confirmation d’achèvement. Ces deux validations peuvent donc avoir la même date.
-Les anciens actes absents ne sont pas reconstitués. Les refus, annulations et
-appréciations ne sont pas journalisés dans ce volet.
+Les nouveaux refus de proposition et les annulations explicites sont aussi conservés,
+avec la personne qui agit et la date de son acte. « Ce n’est pas exact » refuse
+la proposition ; « Annuler » conserve une annulation distincte.
+Les anciens actes absents ne sont pas reconstitués. Les appréciations restent
+hors de ce volet.
 
 Seuls les participants à la collaboration peuvent consulter ses validations.
 Gérer le morceau, le groupe, le studio ou l’agence n’y donne pas accès.

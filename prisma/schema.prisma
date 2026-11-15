@@ -2425,6 +2425,10 @@ model CollaborationParticipant {
   actor                 Actor         @relation(fields: [actorId], references: [id], onDelete: Cascade)
   acceptedAt            DateTime?
   confirmedCompletionAt DateTime?
+  /// Refus personnel de la proposition (DASH-05k), sans reprise historique.
+  declinedAt            DateTime?
+  /// Annulation explicite par ce participant, distincte du refus.
+  cancelledAt           DateTime?
   /// Prestation assurée par cette personne (P4-06), vide si elle joue.
   service               CraftService?
 

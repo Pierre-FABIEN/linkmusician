@@ -150,3 +150,101 @@ test.describe('LinkMusician — collaborations liées au morceau', () => {
 		}
 	});
 });
+
+test('refus et annulation explicite restent datés dans le journal privé', async ({
+	page,
+	account
+}) => {
+	test.setTimeout(4 * 60_000);
+	await signUpAndVerify(page, account);
+	await skipOnboarding(page, account.email);
+	const me = await db.person.findUniqueOrThrow({
+		where: { userId: (await requireUser(account.email)).id },
+		include: { actor: true }
+	});
+	// Un second compte réel permet de vérifier que les actes sont attribués au lecteur qui agit.
+	const otherUser = await db.user.create({
+		data: { email: `dash05k-${Date.now()}@example.test`, referralCode: `dash05k-${Date.now()}` }
+	});
+	try {
+		const other = await db.actor.create({
+			data: {
+				kind: 'PERSON',
+				handle: `dash05k-${Date.now()}`,
+				displayName: 'Partenaire du journal',
+				person: {
+					create: {
+						userId: otherUser.id,
+						termsAcceptedAt: new Date(),
+						birthDate: new Date('1990-01-01')
+					}
+				}
+			}
+		});
+		const conversation = await db.conversation.create({
+			data: {
+				pairKey: [me.actorId, other.id].sort().join(':'),
+				initiatorId: me.actorId,
+				participants: {
+					create: [
+						{ actorId: me.actorId, state: 'ACCEPTED' },
+						{ actorId: other.id, state: 'ACCEPTED' }
+					]
+				}
+			}
+		});
+		for (const cancel of [false, true]) {
+			const collab = await db.collaboration.create({
+				data: {
+					kind: 'REHEARSAL',
+					title: cancel ? 'Répète annulée' : 'Proposition refusée',
+					proposedById: cancel ? me.actorId : other.id,
+					conversationId: conversation.id,
+					happenedOn: new Date('2090-01-01'),
+					participants: {
+						create: [
+							{ actorId: me.actorId, acceptedAt: cancel ? new Date() : null },
+							{ actorId: other.id, acceptedAt: cancel ? null : new Date() }
+						]
+					}
+				}
+			});
+			await page.goto(`/messages/${conversation.id}`);
+			await waitForAppReady(page);
+			await page
+				.getByRole('button', { name: cancel ? 'Annuler' : "Ce n'est pas exact", exact: true })
+				.click();
+			await expect(page.getByRole('list', { name: 'Collaborations', exact: true })).toHaveCount(0);
+			await page.reload();
+			await waitForAppReady(page);
+			const summary = page
+				.locator('summary')
+				.filter({ hasText: 'Journal des validations de collaboration' });
+			await summary.focus();
+			await page.keyboard.press('Enter');
+			const journal = page.locator('details').filter({ has: summary });
+			await expect(
+				journal.getByText(
+					cancel ? 'Collaboration annulée' : 'Proposition de collaboration refusée',
+					{ exact: true }
+				)
+			).toBeVisible();
+			await expect(journal.getByText(me.actor.displayName, { exact: true }).last()).toBeVisible();
+			await expect(journal.locator('time').last()).toHaveAttribute('datetime', /T.*Z$/);
+			const participant = await db.collaborationParticipant.findUniqueOrThrow({
+				where: { collaborationId_actorId: { collaborationId: collab.id, actorId: me.actorId } }
+			});
+			expect(participant[cancel ? 'cancelledAt' : 'declinedAt']).not.toBeNull();
+			expect(participant[cancel ? 'declinedAt' : 'cancelledAt']).toBeNull();
+		}
+		await page.setViewportSize({ width: 390, height: 844 });
+		const notice = page.getByRole('button', { name: 'Compris', exact: true });
+		if (await notice.isVisible()) await notice.click();
+		await expectNoA11yViolations(page, ['.cartButton']);
+		expect(
+			await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+		).toBe(true);
+	} finally {
+		await deleteUser(otherUser.email);
+	}
+});

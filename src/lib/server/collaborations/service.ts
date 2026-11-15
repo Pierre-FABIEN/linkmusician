@@ -520,6 +520,10 @@ export async function respondToCollaboration(
 			throw new CollaborationError('Cette proposition a déjà une réponse.');
 		}
 		if (!accept) {
+			await tx.collaborationParticipant.update({
+				where: { collaborationId_actorId: { collaborationId, actorId } },
+				data: { declinedAt: now }
+			});
 			await tx.collaboration.update({
 				where: { id: collaborationId },
 				data: { status: 'CANCELLED' }
@@ -559,7 +563,11 @@ export async function confirmCollaboration(
 	}, SETTLE_TX);
 }
 
-export async function cancelCollaboration(actorId: string, collaborationId: string) {
+export async function cancelCollaboration(
+	actorId: string,
+	collaborationId: string,
+	now = new Date()
+) {
 	return prisma.$transaction(async (tx) => {
 		await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`collaboration:${collaborationId}`}))`;
 		const collab = await tx.collaboration.findFirst({
@@ -572,6 +580,10 @@ export async function cancelCollaboration(actorId: string, collaborationId: stri
 		if (collab.status === 'COMPLETED' || collab.status === 'CANCELLED') {
 			throw new CollaborationError('Elle ne peut plus être annulée.');
 		}
+		await tx.collaborationParticipant.update({
+			where: { collaborationId_actorId: { collaborationId, actorId } },
+			data: { cancelledAt: now }
+		});
 		await tx.collaboration.update({
 			where: { id: collaborationId },
 			data: { status: 'CANCELLED' }
@@ -743,8 +755,8 @@ export async function pendingForMe(actorId: string, now = new Date()) {
 /** Jour d'aujourd'hui à Paris, pour pré-remplir les formulaires. */
 export const today = (now = new Date()) => parisDay(now);
 
-/** Journal privé : uniquement les validations datées des collaborations auxquelles on participe.
- * Inclut les collaborations annulées, sans déduire un acte d’annulation.
+/** Journal privé : uniquement les actes datés des collaborations auxquelles on participe.
+ * Inclut les collaborations annulées ; aucun ancien acte n’est déduit de leur état.
  * Aucun droit par le groupe, le studio, le mandat ou la gestion du morceau.
  */
 export async function validationHistoryForConversation(actorId: string, conversationId: string) {
@@ -760,6 +772,8 @@ export async function validationHistoryForConversation(actorId: string, conversa
 					actorId: true,
 					acceptedAt: true,
 					confirmedCompletionAt: true,
+					declinedAt: true,
+					cancelledAt: true,
 					actor: { select: { displayName: true, deletedAt: true } }
 				}
 			}

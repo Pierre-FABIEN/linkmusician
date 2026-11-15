@@ -154,6 +154,8 @@ export function collaborationTimeline(facts: {
 		actorId: string;
 		acceptedAt: Date | null;
 		confirmedCompletionAt: Date | null;
+		declinedAt: Date | null;
+		cancelledAt: Date | null;
 		actor: Author;
 	}[];
 }): ActivityEntry[] {
@@ -162,7 +164,9 @@ export function collaborationTimeline(facts: {
 		.flatMap((p, index) =>
 			[
 				{ key: 'accepted', action: 'Collaboration acceptée', at: p.acceptedAt },
-				{ key: 'completed', action: 'Achèvement confirmé', at: p.confirmedCompletionAt }
+				{ key: 'completed', action: 'Achèvement confirmé', at: p.confirmedCompletionAt },
+				{ key: 'declined', action: 'Proposition de collaboration refusée', at: p.declinedAt },
+				{ key: 'cancelled', action: 'Collaboration annulée', at: p.cancelledAt }
 			].flatMap((act) =>
 				act.at
 					? [

@@ -273,7 +273,7 @@ Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 | DASH-05h       | ✅ publié | Rôles et transmissions répétables des groupes, actes personnels transactionnels et RGPD.                                                  |
 | DASH-05i       | ✅ publié | Participations aux écoles : acceptation de lien, départ/retrait transactionnels, historique personnel et RGPD.                            |
 | DASH-05j       | ✅ local  | Validations de collaboration : lecture privée des dates conservées, mutations atomiques sous verrou et export RGPD.                       |
-| DASH-05k       | ⬜        | Refus et annulations de collaboration : conservation future des auteurs/dates, accès privés et RGPD ; aucune reprise.                     |
+| DASH-05k       | ✅ local  | Refus et annulations de collaboration conservés atomiquement, auteurs/dates, accès privés et RGPD ; aucune reprise.                       |
 | DASH-05, suite | ⬜        | Appréciations et autres circuits à cadrer ; futures options dans leur propre lot.                                                         |
 
 Le journal commun n’est pas terminé. Conception et limites :
@@ -689,3 +689,57 @@ DASH-05j reste nouveau et local. La mention locale au début du compte rendu
 ci-dessus décrit l’état constaté à la reprise. Les 12 intégrations du journal
 ont aussi été rejouées avec succès après limitation du comptage des notifications
 aux comptes propres au scénario, pour éviter une dépendance aux suites parallèles.
+
+### DASH-05k — refus et annulations de collaboration
+
+Reprise du 15/11/2026 : `main` propre à `6aff0dc` ; `git ls-remote origin
+refs/heads/main` confirme `23414884e2ed5046807f31b20dfe57df0690ee8d`.
+DASH-05i est publié ; DASH-05j et ce nouveau lot DASH-05k sont **locaux**,
+sans push ni modification distante des issues.
+
+Audit des réponses, annulations et suppressions : les deux mutations gardaient
+`CANCELLED` sans auteur/date ; aucun chemin utilisateur ne supprime une
+collaboration. L’anonymisation garde l’acteur vidé et ses participations ; les
+suppressions physiques suivent les cascades existantes. Le morceau supprimé
+est détaché sans effacer les décisions. Modèle minimal retenu : `declinedAt`
+et `cancelledAt` sur la participation de l’auteur réel, sans copie d’identité
+ni registre répétable. Les deux intentions restent distinctes, sans déduire
+aucun acte depuis les anciens états, dates de modification ou notifications.
+
+Écriture et mutation sont atomiques sous le verrou existant `collaboration:`.
+Les droits des participants vivants, le blocage des réponses/confirmations et
+l’annulation possible après blocage sont conservés. Aucun outil supplémentaire,
+notification ou effet de progression. Le journal privé et l’export RGPD lisent
+les nouvelles dates ; l’anonymisation commune reflète l’auteur effacé. Aide,
+conception et deux situations fictives de démo actualisées, y compris pour une
+base déjà semée. Le seed complet n’a pas été lancé sur les données de développement.
+
+Migration additive `20261115151623_collaboration_refus_annulations`, générée avec
+`db:nouvelle-migration` (nettoyage intégré), relue puis appliquée par `db:deploy`
+et `db:deploy:e2e` ; client régénéré. Seulement deux colonnes nullable, aucune
+reprise ni suppression/recréation d’index. Retour applicatif possible en gardant
+les colonnes ; pas de retour destructif automatique faisant perdre les actes.
+
+Les appréciations répétables, crédits manuels et futures options/propositions
+restent dans leurs propres lots. DASH-05 et #35/#30 restent ouverts.
+
+Recette DASH-05k (15/11/2026) : **1 366 tests unitaires réussis** ;
+**47 intégrations réussies** sur les huit fichiers du domaine et de ses effets,
+dont 23 scénarios réels du journal ; projection pure rejouée (4 tests).
+Couverture : refus contre acceptation/refus/annulation, annulations concurrentes
+des deux participants, acceptation future contre annulation, annulation contre
+dernière confirmation et achèvement ; conservation du premier auteur/date,
+rejeux, rollback des deux écritures, gardes participants et blocage, absence
+d’acte ancien reconstruit, confidentialité, export/anonymisation, suppression du
+projet et cascade de la collaboration.
+**3 E2E réussis** : collaboration liée au morceau, refus/annulation par
+l’interface (journal au clavier, auteurs, dates HTML, axe et 390 px), concert
+vérifié. Contrôle final des types après E2E : **0 erreur / 0 avertissement**.
+Aucun contrôle de types lancé pendant les E2E.
+
+Formatage des fichiers du lot vérifié et ESLint ciblé sans erreur (trois
+avertissements préexistants de navigation sur la conversation). Le lint global
+reste bloqué par le formatage de `.shot-metro.mjs` et `.shot-tmp.mjs` ; ESLint
+global : une erreur préexistante dans `.shot-metro.mjs`, 464 avertissements.
+Ces scripts sont inchangés. Vérification distante finale : toujours `2341488` ;
+DASH-05j et DASH-05k restent locaux, sans push ni modification distante des issues.

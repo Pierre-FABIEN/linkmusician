@@ -5,7 +5,9 @@ const participant = {
 	actorId: 'secret-actor',
 	actor: { displayName: 'Sam', deletedAt: null },
 	acceptedAt: at,
-	confirmedCompletionAt: at
+	confirmedCompletionAt: at,
+	declinedAt: null,
+	cancelledAt: null
 };
 describe('validations de collaboration', () => {
 	it('projette les deux actes implicites à date égale sans exposer l’identité technique', () => {
@@ -23,6 +25,37 @@ describe('validations de collaboration', () => {
 				participants: [{ ...participant, acceptedAt: null, confirmedCompletionAt: null }]
 			})
 		).toEqual([]);
+	});
+	it('projette refus et annulation avec leur auteur, sans changer les accords antérieurs', () => {
+		const entries = collaborationTimeline({
+			id: 'c',
+			participants: [
+				{ ...participant, confirmedCompletionAt: null, declinedAt: at },
+				{
+					...participant,
+					actorId: 'autre',
+					acceptedAt: null,
+					confirmedCompletionAt: null,
+					cancelledAt: at,
+					actor: { displayName: 'Effacé', deletedAt: at }
+				}
+			]
+		});
+		expect(entries).toHaveLength(3);
+		expect(entries).toContainEqual(
+			expect.objectContaining({
+				action: 'Proposition de collaboration refusée',
+				author: 'Sam',
+				occurredAt: at
+			})
+		);
+		expect(entries).toContainEqual(
+			expect.objectContaining({
+				action: 'Collaboration annulée',
+				author: 'Compte supprimé',
+				occurredAt: at
+			})
+		);
 	});
 	it('garde un ordre stable indépendant de l’ordre des participants et anonymise les auteurs', () => {
 		const other = {

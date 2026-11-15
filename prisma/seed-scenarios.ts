@@ -602,6 +602,36 @@ export async function seedScenarios(
 	const P = (h: string) => id(ctx, h);
 	const play = (h: string) => ctx.plays.get(h) || 'chant';
 
+	async function seedCollaborationDecisions(conversationId: string) {
+		// DASH-05k : deux situations fictives explicites, sans convertir d’anciens états.
+		for (const cancel of [false, true]) {
+			const id = `demo-collab-decision-${cancel ? 'cancelled' : 'declined'}`;
+			await ctx.prisma.collaboration.upsert({
+				where: { id },
+				update: {},
+				create: {
+					id,
+					kind: 'REHEARSAL',
+					status: 'CANCELLED',
+					title: cancel ? 'Répétition annulée par Clara' : 'Proposition refusée par Inès',
+					happenedOn: ago(10),
+					proposedById: P('clara-guitare'),
+					conversationId,
+					participants: {
+						create: [
+							{
+								actorId: P('clara-guitare'),
+								acceptedAt: ago(15),
+								cancelledAt: cancel ? ago(12) : null
+							},
+							{ actorId: P('ines-chant'), declinedAt: cancel ? null : ago(13) }
+						]
+					}
+				}
+			});
+		}
+	}
+
 	// 1. Lieux de jam (validés).
 	const bar = await venue(ctx, 'Le Bœuf du Mardi', 'BAR', 'malik-batterie');
 	const mjc = await venue(ctx, 'MJC des Arts', 'MJC', 'awa-clavier');
@@ -609,6 +639,11 @@ export async function seedScenarios(
 	console.log('  · lieux : Le Bœuf du Mardi, MJC des Arts, Studio La Cave');
 	await seedMonthlyJams(ctx, { barId: bar.id, mjcId: mjc.id, studioId: studio.id });
 	if (await prisma.actor.findUnique({ where: { handle: BAND }, select: { id: true } })) {
+		const conversation = await prisma.conversation.findUnique({
+			where: { pairKey: pairKey(P('clara-guitare'), P('ines-chant')) },
+			select: { id: true }
+		});
+		if (conversation) await seedCollaborationDecisions(conversation.id);
 		console.log('Scénarios déjà en place (groupe « Les Rats du Mardi ») : rien d’autre à refaire.');
 		return;
 	}
@@ -807,6 +842,7 @@ export async function seedScenarios(
 		conversationId: inesClara.id,
 		completed: true
 	});
+	await seedCollaborationDecisions(inesClara.id);
 	await appreciateCollab(ctx, session.id, P('clara-guitare'), P('ines-chant'), 'PREPARED', ago(19));
 	await appreciateCollab(
 		ctx,

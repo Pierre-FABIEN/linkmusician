@@ -466,3 +466,14 @@ montre les deux validations de Lucas ; Kevin doit encore répondre. Proposer ou
 accepter une date passée vaut aussi confirmation. Les autres comptes ne voient
 pas ce journal. Le volet fonctionne au clavier et sur écran de 390 px.
 Les scénarios existants suffisent : aucune nouvelle fixture ni reprise réelle.
+
+### Refus et annulations de collaboration (DASH-05k)
+
+Après `npm run seed:demo`, avec Clara ou Inès, ouvrir leur conversation puis
+**Journal des validations de collaboration**. Deux collaborations fictives
+supplémentaires montrent **Proposition de collaboration refusée** par Inès et
+**Collaboration annulée** par Clara, avec dates explicites et accord antérieur
+de Clara. Elles ne produisent aucune notification ni progression. Leurs actes
+figurent aussi dans l’export personnel des deux parties. Les identifiants stables
+et upserts évitent les doublons ; une base déjà semée reçoit ces situations sans
+transformer ses anciennes collaborations.

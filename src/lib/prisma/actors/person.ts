@@ -375,6 +375,8 @@ export async function exportPersonData(userId: string) {
 						service: true,
 						acceptedAt: true,
 						confirmedCompletionAt: true,
+						declinedAt: true,
+						cancelledAt: true,
 						actor: { select: { displayName: true, deletedAt: true } }
 					}
 				},

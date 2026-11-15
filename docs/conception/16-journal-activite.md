@@ -574,3 +574,69 @@ La démo réutilise les dates explicites des collaborations fictives déjà cré
 par `seed-scenarios.ts` : Clara/Inès (quatre validations) et Lucas/Kevin (deux
 validations, réponse attendue). Aucun ancien état réel n’est converti et aucun
 nouveau scénario de seed n’est nécessaire pour cette projection.
+
+## Refus et annulations de collaboration (DASH-05k)
+
+### Audit et modèle retenu
+
+L’audit de `collaborations/service.ts` distingue deux intentions :
+`respondToCollaboration(..., false)` refuse une proposition encore sans réponse
+pour ce participant ; `cancelCollaboration` annule explicitement une collaboration
+proposée ou acceptée. Chaque participant vivant peut annuler ; le proposant ne
+peut pas refuser sa propre proposition déjà acceptée implicitement. Les deux
+chemins gardaient la collaboration avec le seul statut `CANCELLED`, sans acte
+attribuable. Aucun chemin utilisateur ne supprime la collaboration.
+
+Deux dates facultatives sont ajoutées à `CollaborationParticipant` : `declinedAt`
+pour le refus, `cancelledAt` pour l’annulation explicite. `actorId` est l’auteur
+réel de chacun de ces actes : personne ne répond par mandat, métier ou gestion
+pour autrui dans ce circuit. Aucune identité ni texte libre n’est copié. Une seule
+clôture étant possible par collaboration, un registre répétable supplémentaire
+n’est pas nécessaire. L’état opérationnel reste `CANCELLED` dans les deux cas.
+Les anciennes lignes gardent ces deux dates à null : aucune reconstruction depuis
+`CANCELLED`, `updatedAt`, notifications ou événements de progression.
+
+Les suppressions ont été relues avant ce choix : l’anonymisation RGPD garde
+l’acteur vidé et les participations ; supprimer son morceau met `workId` à null.
+Une suppression physique de collaboration cascade ses participations et dates ;
+celle du proposant cascade la collaboration, celle d’un autre acteur cascade sa
+participation. Ces politiques existantes ne sont pas transformées en nouveaux
+actes humains et aucune copie orpheline de décision n’est créée.
+
+### Atomicité et accès
+
+Les deux nouvelles dates sont écrites dans la transaction de la mutation, après
+le verrou `collaboration:` et la relecture des participants et de l’état. Toute
+erreur de trace ou de changement d’état annule l’ensemble. Les réponses et
+confirmations finales utilisent le même verrou : une clôture gagnante empêche
+une réponse ultérieure, une collaboration achevée ne peut plus être annulée.
+Deux refus ou annulations concurrents n’en gardent qu’un, sans réécriture de
+l’auteur ou de sa date. Accepter une proposition future puis l’annuler conserve
+les deux actes réels si ces deux mutations ont réussi dans cet ordre.
+
+Les gardes existantes restent appliquées : acteur vivant, participation exacte,
+blocage interdisant les réponses et confirmations ; annulation encore possible
+après blocage. Aucun accès par la propriété du morceau, le studio, le groupe,
+l’agence ou un mandat. Ni notification ni effet de progression supplémentaire.
+
+Le volet privé « Journal des validations de collaboration » inclut maintenant
+« Proposition de collaboration refusée » et « Collaboration annulée », avec
+l’auteur actuel et la date source. La limite des 100 collaborations, les dates
+HTML à Paris, l’ordre stable et le contrat sans identifiant personnel ni contenu
+privé du projet sont conservés. Les validations antérieures restent visibles.
+L’export personnel inclut les nouveaux actes dans `collaborations[].validations` ;
+l’anonymisation existante les affiche comme « Compte supprimé » chez l’autre
+participant, sans attribuer son acte au lecteur.
+
+Migration additive `20261115151623_collaboration_refus_annulations`, générée par
+`db:nouvelle-migration`, nettoyée et relue : seulement deux colonnes nullable,
+aucune reprise ni suppression/recréation d’index. Appliquée par `db:deploy` et
+`db:deploy:e2e`, client régénéré. Retour applicatif compatible possible en gardant
+les colonnes ; les supprimer perdrait les nouveaux actes. Aucun retour destructif
+automatique n’est fourni.
+
+La démo ajoute par upsert deux collaborations fictives à identifiants stables,
+Clara/Inès : refus d’Inès et annulation de Clara. Une base déjà semée reçoit aussi
+ces seules nouvelles situations, sans convertir ses collaborations antérieures.
+Les appréciations répétables, crédits manuels et futures options/propositions
+restent dans leurs propres lots. DASH-05 et les issues #35/#30 restent ouverts.
