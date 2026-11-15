@@ -442,3 +442,14 @@ auteurs alternent avec les véritables cédants du scénario. Les actes pour
 autrui restent exportables sans ouvrir le journal du collègue. Le seed utilise
 des identifiants stables et des upserts ; aucune période préexistante n’est
 convertie. L’état final est Malik responsable et Zoé en co-gestion.
+
+### Mémoire de l’école — DASH-05i
+
+**Démo — Mémoire de l’école** (`demo-memoire-ecole`, MJC masquée) est gérée par
+Malik (`malik-batterie`). Zoé (`zoe-violon`) a deux périodes fictives closes :
+acceptation du lien puis départ personnel, nouvelle acceptation puis retrait
+par Malik. Quatre actes datés et attribués, sans invitation nominative ni jeton
+conservé dans le journal. Avec Zoé : `/ecoles` puis **Historique de mes
+participations** (`/structure/historique`). Malik ne voit pas ces périodes dans
+son historique. Les fixtures sont idempotentes et n’altèrent aucune ancienne
+participation réelle.

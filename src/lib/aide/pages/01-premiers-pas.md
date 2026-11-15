@@ -537,7 +537,7 @@ organisations d’organisateur·rices, les nouvelles acceptations, refus, annula
 par la gestion, départs et retraits
 sont aussi datés avec leur auteur réel. Les transmissions de responsabilité sont
 également conservées pour les agences, studios, lieux et organisations.
-**Historique de mes participations** conserve tes propres périodes, même après
+**Historique de mes participations**, accessible aussi depuis **Mes écoles**, conserve tes propres périodes, même après
 un départ ou un refus, sans redonner accès aux outils ni aux participations des
 autres. Les demandes pour rejoindre un groupe distinguent envoi, réponse de la
 gestion, retrait personnel et clôture par dissolution. Une entrée par recrutement

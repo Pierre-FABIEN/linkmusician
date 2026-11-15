@@ -462,3 +462,43 @@ et traitement explicite requis pour une restauration complète.
 
 Écoles, validations de collaboration et futures options restent hors de ce lot.
 DASH-05/#35 et #30 restent ouverts.
+
+## Participations aux écoles (DASH-05i)
+
+L’acceptation d’un lien d’école conserve `ACCEPTED`, attribué à l’élève qui
+le suit, à l’instant de son entrée. « Invitation acceptée » désigne ici le
+lien collectif : aucune invitation nominative ni attribution à la personne
+qui a créé ou transmis le lien n’est inventée. Aucun jeton, hachage, message
+ou nom de camarade n’est recopié. La création et la révocation des liens
+restent des outils de gestion, hors du journal personnel des élèves.
+
+L’entrée relit le lien et l’école vivante après le verrou transactionnel
+`org:` ; création/révocation du lien utilisent aussi ce verrou et relisent les
+droits de gestion. Une entrée rejouée pendant la participation active reste
+sans effet, sans usage ni acte supplémentaire, comme auparavant. Une période
+en attente est activée sans suppression de ses éventuelles traces. Après un
+départ ou retrait, suivre à nouveau un lien valable crée une nouvelle période.
+
+`leaveOrRemoveStudent` prend désormais le même verrou dans une transaction,
+puis relit la période active, le type SCHOOL, l’école vivante et les droits.
+Le départ conserve `LEFT` avec l’élève comme auteur ; le retrait `REMOVED`
+avec la personne qui gère comme auteur. Date de fin et acte partagent le même
+instant. Rejeux et clôtures concurrentes ne peuvent écraser le premier acte.
+Le responsable ne peut toujours pas partir ; aucune co-gestion n’est créée.
+Toute erreur d’écriture annule mutation, usage du lien et trace concernés.
+
+Le lecteur commun `/structure/historique`, accessible aussi depuis `/ecoles`,
+inclut les écoles vivantes : seules les périodes personnelles, même closes,
+sans outils, liens d’invitation ni liste d’élèves. La gestion ne reçoit aucun
+accès aux journaux des élèves. Une école masquée reste consultable par ses
+anciens élèves ; une école supprimée/dissoute ou un lecteur supprimé est exclu.
+Les protections des mineur·es et la visibilité des ateliers restent inchangées.
+
+Les trois types réutilisent l’unicité par période/type déjà garantie par
+`membership_decisions_once_key`. Aucune migration ni reconstruction d’anciens
+actes depuis états, dates ou notifications. Export des actes personnels et pour
+autrui, anonymisation des auteurs et cascades communs réutilisés. Une succession
+ou dissolution technique RGPD ne crée aucun acte humain. Les deux périodes
+fictives de démo, à identifiants stables, montrent un départ et un retrait.
+Validations de collaboration et futures options restent à livrer ; DASH-05,
+#35 et #30 restent ouverts.

@@ -165,6 +165,13 @@ lien ensuite). Tu retrouves ton école dans **Mode jam › Mon école** :
 Personne ne voit la liste des élèves, sauf la personne qui gère l’école.
 Tu peux **quitter l’école** quand tu veux.
 
+Dans **Mes écoles › Historique de mes participations**, tu retrouves les
+nouvelles acceptations de lien, tes départs et les retraits par la gestion,
+avec leur date et leur auteur. Tu gardes ces traces après ton départ, tant
+que l’école existe, sans accès à ses ateliers. Cet historique est personnel :
+la gestion ne lit pas celui de ses élèves. Revenir par un lien valable ouvre
+une nouvelle période ; les anciens actes sans trace ne sont pas reconstitués.
+
 Tu enseignes ? Ouvre **Mon profil › Mes écoles** et crée ton école (il
 faut être majeur·e). Crée un **lien d’invitation** (30 jours, pour le
 nombre d’élèves que tu choisis) : copie-le tout de suite, il ne s’affiche

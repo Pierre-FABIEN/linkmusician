@@ -569,3 +569,13 @@ Aide, démo et conception actualisées. `origin/main` vérifié à `6b1db48` : l
 lots jusqu’à DASH-05g sont publiés ; DASH-05h reste **local**, sans push.
 Écoles, validations de collaboration et futures options restent à suivre ;
 DASH-05/#35 et #30 restent ouverts. Recette dans [le suivi](README.md).
+
+DASH-05i : participations aux écoles journalisées (acceptation de lien,
+départ personnel, retrait par la gestion) sous verrou transactionnel `org:`,
+auteurs réels et dates conservés. Historique personnel après départ sans
+outils ni accès aux journaux des élèves pour la gestion ; export/anonymisation
+réutilisés. Aucune migration ni reprise des anciens actes. Documentation,
+aide et démo actualisées. `origin/main` vérifié à `ce87a90` : DASH-05h est
+publié ; DASH-05i reste local, sans push. La suite porte sur les validations
+de collaboration et les futures options ; DASH-05/#35 et #30 restent ouverts.
+Preuves de recette dans [le suivi](README.md).

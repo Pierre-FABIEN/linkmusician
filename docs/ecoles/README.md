@@ -74,3 +74,20 @@ plafonné, liste réservée à la gestion, ateliers des seuls membres,
 mineur·e : finis avant 22 h, quête, départ, révocation, RGPD) ; e2e
 `e2e/linkmusician/ecole.spec.ts` (« la prof invite un élève, il rejoint
 l'atelier puis une jam publique »).
+
+## Historique personnel (DASH-05i)
+
+L’entrée par lien conserve son acceptation par l’élève ; départ et retrait
+conservent leur auteur réel et leur date dans la transaction sous verrou
+`org:`. Une entrée rejouée n’ajoute aucun usage ni acte. Un retour après départ
+ouvre une nouvelle période, sans effacer la précédente. Les périodes en attente
+sont conservées lors de l’entrée. La création/révocation des liens relit les
+droits sous le même verrou ; les jetons restent absents du journal.
+
+Depuis **Mes écoles › Historique de mes participations**, chacun peut lire
+ses propres actes même après départ, sans accès à l’école ni aux ateliers.
+La gestion ne lit aucun journal d’élève ; aucune ancienne transition n’est
+reconstituée. École masquée autorisée, école supprimée/dissoute exclue.
+Export/anonymisation communs couvrent ces actes et leurs auteurs ; aucune trace
+humaine n’est ajoutée lors d’une succession technique RGPD. Aucun nouveau champ
+ni migration. Détail : [journal d’activité](../conception/16-journal-activite.md).

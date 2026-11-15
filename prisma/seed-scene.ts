@@ -1775,6 +1775,68 @@ export async function seedComanagementDecisions(
 	demoHandles: ReadonlyMap<string, string>
 ) {
 	const ctx = await demoContext(prisma, communes[0], null, demoHandles);
+	// DASH-05i : deux périodes fictives d’élève, aucun lien secret ni invitation nominative.
+	const teacherId = id(ctx, 'malik-batterie');
+	const pupilId = id(ctx, 'zoe-violon');
+	if (
+		teacherId &&
+		pupilId &&
+		(await prisma.person.count({
+			where: {
+				actorId: { in: [teacherId, pupilId] },
+				user: { email: { endsWith: '@demo.linkmusician.test' } }
+			}
+		})) === 2
+	) {
+		const schoolId = 'demo-memoire-ecole';
+		await prisma.actor.upsert({
+			where: { id: schoolId },
+			update: {},
+			create: {
+				id: schoolId,
+				kind: 'ORGANIZATION',
+				handle: schoolId,
+				displayName: 'Démo — Mémoire de l’école',
+				hidden: true,
+				organization: {
+					create: {
+						kind: 'SCHOOL',
+						school: { create: { kind: 'MJC' } },
+						memberships: {
+							create: { personId: teacherId, role: 'OWNER', status: 'ACTIVE', startedAt: ago(12) }
+						}
+					}
+				}
+			}
+		});
+		for (const [kind, days] of [
+			['LEFT', 7],
+			['REMOVED', 3]
+		] as const) {
+			const membershipId = `demo-ecole-${kind.toLowerCase()}`;
+			await prisma.membership.upsert({
+				where: { id: membershipId },
+				update: {},
+				create: {
+					id: membershipId,
+					orgId: schoolId,
+					personId: pupilId,
+					role: 'MEMBER',
+					status: kind,
+					createdAt: ago(days + 2),
+					startedAt: ago(days + 1),
+					endedAt: ago(days),
+					decisions: {
+						create: [
+							{ kind: 'ACCEPTED', authorId: pupilId, occurredAt: ago(days + 1) },
+							{ kind, authorId: kind === 'LEFT' ? pupilId : teacherId, occurredAt: ago(days) }
+						]
+					}
+				}
+			});
+		}
+	}
+
 	for (const fixture of [
 		{
 			kind: 'PROMOTER',

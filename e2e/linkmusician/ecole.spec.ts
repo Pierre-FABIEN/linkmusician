@@ -133,6 +133,33 @@ test.describe('LinkMusician — écoles et ateliers', () => {
 				});
 				expect(attendances.map((a) => a.opportunity.audience).sort()).toEqual(['PUBLIC', 'SCHOOL']);
 			});
+			await test.step('6. Tom quitte l’école et garde son seul historique personnel', async () => {
+				const school = await db.actor.findFirstOrThrow({ where: { displayName: schoolName } });
+				await tomPage.goto(`/ecoles/${school.handle}`);
+				await waitForAppReady(tomPage);
+				await tomPage.getByRole('button', { name: 'Quitter l’école' }).click();
+				await expect(tomPage).toHaveURL(/\/ecoles$/);
+				const historyLink = tomPage.getByRole('link', { name: 'Historique de mes participations' });
+				await historyLink.focus();
+				await tomPage.keyboard.press('Enter');
+				await expect(
+					tomPage.getByRole('heading', { name: 'Historique de mes participations' })
+				).toBeVisible();
+				await expect(tomPage.getByText('Invitation acceptée', { exact: true })).toBeVisible();
+				await expect(tomPage.getByText('Participation quittée', { exact: true })).toBeVisible();
+				await expect(tomPage.locator('time[datetime]')).toHaveCount(2);
+				await expect(tomPage.getByRole('button', { name: 'Quitter l’école' })).toHaveCount(0);
+				await expectNoA11yViolations(tomPage, A11Y_EXCLUDE);
+				await tomPage.setViewportSize({ width: 390, height: 844 });
+				expect(
+					await tomPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth)
+				).toBe(true);
+				await expectNoA11yViolations(tomPage, A11Y_EXCLUDE);
+				const forbidden = await tomPage.goto(`/ecoles/${school.handle}`);
+				expect(forbidden?.status()).toBe(404);
+				await page.goto('/structure/historique');
+				await expect(page.getByText(schoolName, { exact: true })).toHaveCount(0);
+			});
 		} finally {
 			await tomContext.close();
 			await db.actor.deleteMany({ where: { displayName: schoolName } });

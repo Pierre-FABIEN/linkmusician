@@ -312,11 +312,17 @@ describe.skipIf(!enabled)('historique personnel de co-gestion', { timeout: 60000
 			studios.leaveOrRemoveStudioManager(orgId, people.outsider, membershipId)
 		).rejects.toMatchObject({ status: 403 });
 		await db.membership.delete({ where: { id: member.id } });
-		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'SCHOOL' } });
+		await db.organization.update({
+			where: { actorId: orgId },
+			data: { kind: 'SCHOOL' }
+		});
 		await expect(
 			studios.leaveOrRemoveStudioManager(orgId, people.invitee, membershipId)
 		).rejects.toMatchObject({ status: 404 });
-		expect(await myComanagementHistory(people.invitee)).toEqual([]);
+		// DASH-05i : SCHOOL entre désormais dans la lecture personnelle, sans droit studio/agence.
+		expect(await myComanagementHistory(people.invitee)).toMatchObject([
+			{ id: membershipId, activity: [{ action: 'Invitation à la structure', author: 'owner' }] }
+		]);
 		await db.organization.update({
 			where: { actorId: orgId },
 			data: { kind: 'STUDIO', dissolvedAt: new Date() }
@@ -404,11 +410,17 @@ describe.skipIf(!enabled)('historique personnel de co-gestion', { timeout: 60000
 			agencies.removeAgencyMember(orgId, people.outsider, membershipId)
 		).rejects.toMatchObject({ status: 403 });
 		await db.membership.delete({ where: { id: member.id } });
-		await db.organization.update({ where: { actorId: orgId }, data: { kind: 'SCHOOL' } });
+		await db.organization.update({
+			where: { actorId: orgId },
+			data: { kind: 'SCHOOL' }
+		});
 		await expect(
 			agencies.removeAgencyMember(orgId, people.invitee, membershipId)
 		).rejects.toMatchObject({ status: 404 });
-		expect(await myComanagementHistory(people.invitee)).toEqual([]);
+		// DASH-05i : SCHOOL entre désormais dans la lecture personnelle, sans droit studio/agence.
+		expect(await myComanagementHistory(people.invitee)).toMatchObject([
+			{ id: membershipId, activity: [{ action: 'Invitation à la structure', author: 'owner' }] }
+		]);
 		await db.organization.update({
 			where: { actorId: orgId },
 			data: { kind: 'AGENCY', dissolvedAt: new Date() }

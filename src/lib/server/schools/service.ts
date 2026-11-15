@@ -187,6 +187,7 @@ export async function createSchoolInvite(
 	const token = randomBytes(24).toString('base64url');
 	await prisma.$transaction(async (tx) => {
 		await lockOrg(tx, school.id);
+		await managedSchool(tx, handle, managerId);
 		const active = await tx.schoolInvite.count({
 			where: { orgId: school.id, revokedAt: null, expiresAt: { gt: now } }
 		});
@@ -221,11 +222,15 @@ export async function schoolInvites(handle: string, managerId: string, now = new
 
 export async function revokeSchoolInvite(handle: string, managerId: string, inviteId: string) {
 	const school = await managedSchool(prisma, handle, managerId);
-	const { count } = await prisma.schoolInvite.updateMany({
-		where: { id: inviteId, orgId: school.id, revokedAt: null },
-		data: { revokedAt: new Date() }
-	});
-	if (count === 0) throw new SchoolError('Ce lien n’est déjà plus valable.', 404);
+	await prisma.$transaction(async (tx) => {
+		await lockOrg(tx, school.id);
+		await managedSchool(tx, handle, managerId);
+		const { count } = await tx.schoolInvite.updateMany({
+			where: { id: inviteId, orgId: school.id, revokedAt: null },
+			data: { revokedAt: new Date() }
+		});
+		if (count === 0) throw new SchoolError('Ce lien n’est déjà plus valable.', 404);
+	}, ORG_TX);
 }
 
 async function findInvite(db: Tx | typeof prisma, token: string) {
@@ -269,9 +274,12 @@ export async function previewSchoolInvite(
 /** Suivre le lien : la personne devient membre de l'école. Renvoie son nom d'utilisateur. */
 export async function joinSchoolWithInvite(token: string, personId: string, now = new Date()) {
 	return prisma.$transaction(async (tx) => {
+		const initial = await findInvite(tx, token);
+		if (!initial) throw new SchoolError('Ce lien n’existe pas.', 404);
+		await lockOrg(tx, initial.orgId);
+		// Relire le lien et l’école vivante après attente du verrou.
 		const invite = await findInvite(tx, token);
 		if (!invite) throw new SchoolError('Ce lien n’existe pas.', 404);
-		await lockOrg(tx, invite.orgId);
 		const handle = invite.org.actor.handle;
 		const open = await tx.membership.findFirst({
 			where: { orgId: invite.orgId, personId, status: { in: ['ACTIVE', 'INVITED', 'REQUESTED'] } },
@@ -286,10 +294,15 @@ export async function joinSchoolWithInvite(token: string, personId: string, now 
 			data: { uses: { increment: 1 } }
 		});
 		if (count === 0) throw new SchoolError(INVITE_STATE_MESSAGES.FULL, 410);
-		if (open) await tx.membership.delete({ where: { id: open.id } });
-		await tx.membership.create({
-			data: { orgId: invite.orgId, personId, role: 'MEMBER', status: 'ACTIVE', startedAt: now }
-		});
+		// Une période en attente est conservée, avec ses éventuels actes antérieurs.
+		const data = {
+			role: 'MEMBER' as const,
+			status: 'ACTIVE' as const,
+			startedAt: now,
+			decisions: { create: { kind: 'ACCEPTED' as const, authorId: personId, occurredAt: now } }
+		};
+		if (open) await tx.membership.update({ where: { id: open.id }, data });
+		else await tx.membership.create({ data: { orgId: invite.orgId, personId, ...data } });
 		return handle;
 	}, ORG_TX);
 }
@@ -317,27 +330,44 @@ export async function schoolStudents(handle: string, managerId: string) {
 }
 
 /** Retirer un·e élève (la gestion), ou quitter l'école (l'élève). */
-export async function leaveOrRemoveStudent(handle: string, byId: string, membershipId: string) {
-	const row = await prisma.membership.findFirst({
-		where: {
-			id: membershipId,
-			status: 'ACTIVE',
-			org: { ...liveSchool, actor: { handle, deletedAt: null } }
-		},
-		select: { id: true, personId: true, role: true }
-	});
-	if (!row) throw new SchoolError('Cette personne ne fait plus partie de l’école.', 404);
-	if (row.role !== 'MEMBER') {
-		throw new SchoolError(
-			'La personne responsable ne quitte pas son école : la co-gestion arrive bientôt.'
-		);
-	}
-	const self = row.personId === byId;
-	if (!self) await managedSchool(prisma, handle, byId);
-	await prisma.membership.update({
-		where: { id: row.id },
-		data: { status: self ? 'LEFT' : 'REMOVED', endedAt: new Date() }
-	});
+export async function leaveOrRemoveStudent(
+	handle: string,
+	byId: string,
+	membershipId: string,
+	now = new Date()
+) {
+	return prisma.$transaction(async (tx) => {
+		const target = await tx.membership.findUnique({
+			where: { id: membershipId },
+			select: { orgId: true }
+		});
+		if (!target) throw new SchoolError('Cette personne ne fait plus partie de l’école.', 404);
+		await lockOrg(tx, target.orgId);
+		const row = await tx.membership.findFirst({
+			where: {
+				id: membershipId,
+				status: 'ACTIVE',
+				org: { ...liveSchool, actor: { handle, deletedAt: null } }
+			},
+			select: { id: true, personId: true, role: true }
+		});
+		if (!row) throw new SchoolError('Cette personne ne fait plus partie de l’école.', 404);
+		if (row.role !== 'MEMBER') {
+			throw new SchoolError(
+				'La personne responsable ne quitte pas son école : la co-gestion arrive bientôt.'
+			);
+		}
+		const self = row.personId === byId;
+		if (!self) await managedSchool(tx, handle, byId);
+		await tx.membership.update({
+			where: { id: row.id },
+			data: {
+				status: self ? 'LEFT' : 'REMOVED',
+				endedAt: now,
+				decisions: { create: { kind: self ? 'LEFT' : 'REMOVED', authorId: byId, occurredAt: now } }
+			}
+		});
+	}, ORG_TX);
 }
 
 // ─── Ateliers ────────────────────────────────────────────────────────────

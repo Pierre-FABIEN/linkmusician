@@ -1,6 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: « Mes écoles » (P5-11), voir +page.server.ts.
 	import { enhance } from '$app/forms';
+	import { resolve } from '$app/paths';
 	import SEO from '#lib/components/SEO.svelte';
 	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { MAX_SCHOOL_NAME, SCHOOL_KINDS, SCHOOL_KIND_LABELS } from '#lib/schools/rules';
@@ -19,6 +20,10 @@
 			title="Mes écoles"
 			intro="Ton école de musique, ta MJC ou ton conservatoire : ses ateliers jam, réservés à ses élèves, pour apprendre à jouer avec d’autres avant la scène."
 		/>
+
+		<a href={resolve('/(app)/structure/historique')} class="lm-link"
+			>Historique de mes participations</a
+		>
 
 		{#if joined.length > 0}
 			<section class="space-y-2" aria-labelledby="joined">

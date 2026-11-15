@@ -256,7 +256,7 @@ DASH-04 sont réalisés localement. Les candidatures déléguées (#37/#44),
 le booking avancé (#45) et le journal commun (#35) restent leurs propres lots.
 Détail : [affectations et délégations](../conception/15-affectations-delegations.md).
 
-### DASH-05 — journal d’activité (#35), découpage au 14/11/2026
+### DASH-05 — journal d’activité (#35), découpage au 15/11/2026
 
 Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 `5e7f982` récupérée depuis `origin/main`.
@@ -270,8 +270,9 @@ Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 | DASH-05e       | ✅ publié | Actes de co-gestion des studios et périodes personnelles dans l’historique commun ; garde STUDIO vivant, export/anonymisation réutilisés. |
 | DASH-05f       | ✅ publié | Actes des participations aux agences, historique personnel et fermeture transactionnelle, export/anonymisation réutilisés.                |
 | DASH-05g       | ✅ publié | Entrées/sorties des groupes : invitations, demandes, recrutement, départ/retrait et dissolution ; rôles et transmissions à suivre.        |
-| DASH-05h       | ✅ local  | Rôles et transmissions répétables des groupes, actes personnels transactionnels et RGPD.                                                  |
-| DASH-05, suite | ⬜        | Écoles, validations de collaboration et futures options.                                                                                  |
+| DASH-05h       | ✅ publié | Rôles et transmissions répétables des groupes, actes personnels transactionnels et RGPD.                                                  |
+| DASH-05i       | ✅ local  | Participations aux écoles : acceptation de lien, départ/retrait transactionnels, historique personnel et RGPD.                            |
+| DASH-05, suite | ⬜        | Validations de collaboration et futures options.                                                                                          |
 
 Le journal commun n’est pas terminé. Conception et limites :
 [journal d’activité](../conception/16-journal-activite.md).
@@ -584,3 +585,52 @@ inutilisée dans `.shot-metro.mjs` (464 avertissements existants).
 Seed exécuté deux fois : les deux périodes et onze actes de « Démo — Rôles du
 groupe » restent inchangés ; index partiel vérifié sur `public` et `e2e`.
 Types finaux après les E2E : **0 erreur, 0 avertissement**. Aucun push.
+
+### DASH-05i — participations aux écoles
+
+Reprise sur `main` propre à `ce87a90`. `git ls-remote origin refs/heads/main`
+confirme `ce87a905f521669672d3c1fb4ebaec867d4bb045` : DASH-05h est désormais
+publié. DASH-05i est livré localement, sans push.
+
+L’entrée par lien conserve `ACCEPTED` attribué à l’élève, sans inventer
+l’auteur d’une invitation nominative. Départ personnel (`LEFT`) et retrait
+par la gestion (`REMOVED`) conservent date et auteur dans la transaction sous
+verrou `org:`. L’entrée relit lien/école après le verrou, conserve une éventuelle
+période en attente et ses actes ; création/révocation des liens relisent aussi
+les droits sous ce verrou. Appels répétés et concurrents sans doublon, retour
+ultérieur sur nouvelle période. Aucun outil, notification ni progression ajouté.
+
+Le lecteur commun inclut les écoles, uniquement les périodes personnelles,
+y compris après départ/retrait ; la gestion ne lit aucun journal d’élève.
+Export/anonymisation communs réutilisés ; aucune succession technique transformée
+en acte humain. Trois types existants et leur unicité SQL réutilisés, aucune
+migration ni reconstruction d’anciens actes. Aide, conception, documentation et
+démo dédiées actualisées. Validations de collaboration et futures options
+restent à livrer ; DASH-05/#35 et #30 restent ouverts. Aucune modification
+distante des issues pendant ce lot.
+
+Recette DASH-05i (15/11/2026) : **1 362 tests unitaires réussis** ; 373 tests
+conditionnels non exécutés au passage unitaire. **62 intégrations distinctes
+réussies** sur `e2e` : 18 nouvelles des écoles, 7 existantes des écoles,
+32 historiques communs et 5 contrôles d’accès des structures. Le premier
+passage de 53 intégrations est complété par les 18 cas écoles finaux et les
+5 contrôles d’accès ; les cas rejoués ne sont pas comptés deux fois.
+
+**4 E2E sans reprise** : école (départ, perte d’accès, historique personnel,
+clavier, dates HTML, axe et 390 px), structures et deux parcours d’aide.
+Les mutations et lectures personnelles, auteurs, concurrence, nouvelle période,
+rollback, unicité SQL, liens invalides, minorité et RGPD sont couverts en
+intégration. Le premier contrôle de types a détecté un mock Prisma mal typé,
+corrigé ; contrôles suivants, dont le dernier après les E2E :
+**0 erreur, 0 avertissement**. Aucun contrôle
+de types pendant les E2E.
+
+Seed exécuté deux fois ; deux périodes et quatre actes datés/attribués de
+« Démo — Mémoire de l’école » vérifiés en base. Formatage des fichiers modifiés
+conforme, ESLint ciblé sans erreur (deux avertissements de liens préexistants
+sur `/ecoles`). Les deux fixtures de type incorrect restent des écoles vivantes :
+leurs invitations personnelles sont désormais lisibles, tandis que les mutations
+studio/agence restent refusées. Les deux cas concernés ont été relancés. Lint global toujours bloqué par les scripts `.shot-metro.mjs`
+et `.shot-tmp.mjs` préexistants ; ESLint global : une erreur préexistante
+(variable `c` inutilisée), 464 avertissements au passage avant correction du
+nouveau lien par `resolve`. Aucun push ni modification distante des issues.
