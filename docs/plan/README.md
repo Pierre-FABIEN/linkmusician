@@ -164,17 +164,18 @@ coquille ; « Mon espace » passe dans le menu du compte. Types : 0 erreur et
 sélecteur, thème sombre audité en accessibilité, clavier, filtres). Une première
 exécution a planté à l'ouverture du navigateur (mémoire WSL) ; la relance passe.
 
-| Lot         | Issue                                                          | État                   | Périmètre                                                                                                                                                                                 |
-| ----------- | -------------------------------------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ARCH-MET-01 | [#55](https://github.com/Pierre-FABIEN/linkmusician/issues/55) | ✅ local, documentaire | Audit, matrice, scénarios et plan livrés ; refactorisations proposées, aucun code produit. Base publiée b0dadf2.                                                                          |
-| DASH-01     | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local               | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
-| DASH-02     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local               | Structures et agences DASH-02a/02b complétées par les affectations consenties DASH-04b ; aucun droit administratif ou artistique par appartenance.                                        |
-| DASH-02a    | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local               | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
-| DASH-03     | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ local               | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
-| DASH-04     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local               | Mandats individuels DASH-04a et affectations consenties DASH-04b ; les candidatures et le booking avancé restent dans leurs lots.                                                         |
-| DASH-04a    | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local               | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous                               |
-| DASH-02b    | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local               | Agences privées, invitations et rôles, acceptation, révocation, transmission et fermeture ; aucun droit artistique implicite. Affectations et délégations complétées par DASH-04b.        |
-| DASH-04b    | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local               | Affectations nominatives, double accord, droits explicites, périmètre du mandat et adhésions figées ; recette ci-dessous.                                                                 |
+| Lot          | Issue                                                          | État            | Périmètre                                                                                                                                                                                 |
+| ------------ | -------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ARCH-MET-01  | [#55](https://github.com/Pierre-FABIEN/linkmusician/issues/55) | ✅ publié, reçu | Audit b30edaa confirmé publié ; suite validée le 15/11/2026, corrections séparées.                                                                                                        |
+| ARCH-MET-02a | [#56](https://github.com/Pierre-FABIEN/linkmusician/issues/56) | ✅ local        | Ordre groupe avant acteurs et unions transactionnelles corrigés ; 11 courses à barrières, suite PostgreSQL 409 tests, 1 368 unitaires et 5 E2E réussis ; sans migration.                  |
+| DASH-01      | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local        | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
+| DASH-02      | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local        | Structures et agences DASH-02a/02b complétées par les affectations consenties DASH-04b ; aucun droit administratif ou artistique par appartenance.                                        |
+| DASH-02a     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local        | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
+| DASH-03      | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ local        | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
+| DASH-04      | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local        | Mandats individuels DASH-04a et affectations consenties DASH-04b ; les candidatures et le booking avancé restent dans leurs lots.                                                         |
+| DASH-04a     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local        | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous                               |
+| DASH-02b     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local        | Agences privées, invitations et rôles, acceptation, révocation, transmission et fermeture ; aucun droit artistique implicite. Affectations et délégations complétées par DASH-04b.        |
+| DASH-04b     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local        | Affectations nominatives, double accord, droits explicites, périmètre du mandat et adhésions figées ; recette ci-dessous.                                                                 |
 
 Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
 Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,
@@ -917,3 +918,65 @@ puis #52 rôles, #53 projections/preuves/suggestions et #54 parcours complet.
 #30/#35 et les modules futurs restent ouverts ; les nouveaux actes de tâches/rôles
 accompagnent leurs mutations, sans réutilisation abusive des attributions
 initiales. #26/#27/#28 conservent leurs critères propres non réalisés.
+
+### ARCH-MET-02a — ordre des verrous (#56, 15/11/2026)
+
+Base propre `b30edaa`, confirmée publiée par `git ls-remote origin refs/heads/main`.
+L'utilisateur a demandé de passer à la suite ; audit reçu, issue distincte #56
+créée avant le code. Travail sur `main`, sans push ni migration.
+
+Le scénario à barrières sur le code publié provoque réellement PostgreSQL
+`40P01` (« deadlock detected ») : composition tenant l'acteur auteur puis
+attendant le groupe, adhésion tenant le groupe puis attendant cet acteur.
+Le test identique reste dans `works/locking.integration.test.ts`.
+
+Correction : `work:` puis `band:` avant le moteur pour composition/confirmation ;
+union triée des auteurs, crédit concerné et membres historiques potentiellement
+crédités par une étape. L'adhésion prépare son union avant sa première émission.
+La finalisation conserve `collaboration:` → `work:` avant les écritures, puis
+prend les groupes de l'enregistrement/concert avant l'union d'acteurs. Inclure
+les candidats présentateurs, hôte et booker potentiels ; aucun acteur découvert
+par une émission suivante n'est pris tard sur ces chemins. Une présentation déjà
+réussie pendant l'attente est ignorée sans nouvel événement. Formation,
+dissolution et adhésions sont relues sous `band:` pour vérifier l'enregistrement.
+Une dissolution pendant l’attente est refusée après relecture du porteur ;
+la suppression concurrente du morceau conserve la relecture de la collaboration.
+
+Les gains, crédits, preuves, registres et gardes restent dans le même tx.
+Pas de nouvel effet du journal, de schéma, de données personnelles ni de parcours :
+export/anonymisation et seed/aide restent inchangés. R2 (gestion/révocation), R3
+(propositions concurrentes), relecture générale des événements (R4) et les autres
+ordres transactionnels ne sont pas présentés comme corrigés. SELF #51–#54 et
+#30/#35 restent ouverts. Retour : revert cohérent du lot en conservant les données
+et index ; il réintroduirait R1.
+
+Reprise et recette le 16/11/2026 : les modifications du 15/11 étaient encore
+non commitées malgré le prompt anticipant une livraison. Le distant est toujours
+`b30edaa`. Deux barrières supplémentaires couvrent l'union de la finalisation
+d'enregistrement et celle d'un présentateur extérieur sur un morceau personnel.
+La vérification d'enregistrement ne conserve aucune lecture de formation ou
+dissolution antérieure à son verrou ; l'ancienne prise tardive redondante est retirée.
+
+Vérifications sur le lot :
+
+- `npm run check` : 0 erreur, 0 avertissement, y compris après les derniers changements.
+- `npm run test:unit -- --run` : 1 368 tests réussis ; 431 tests conditionnels ignorés.
+- `PROGRESSION_INTEGRATION=1 npm run test:unit -- --run src/lib/server/works
+src/lib/server/bands src/lib/server/milestones src/lib/server/collaborations
+src/lib/server/progression src/lib/server/career --no-file-parallelism` :
+  409 tests réussis dans 40 fichiers, 5 tests ignorés dans un fichier conditionnel
+  (nudges, activé par `GEO_INTEGRATION`). Les 11 scénarios à barrières passent,
+  dont les deux nouveaux cas de finalisation. Aucun interblocage dans ces scénarios.
+- `npm run test:e2e -- e2e/linkmusician/morceaux.spec.ts
+e2e/linkmusician/collaborations-morceau.spec.ts e2e/linkmusician/concerts.spec.ts
+e2e/linkmusician/groupes.spec.ts --retries=0` : 5 tests réussis sans reprise.
+- Prettier et ESLint ciblés sur les fichiers du lot : conformes ; `git diff --check` conforme.
+- Lint global : écarts préexistants conservés, Prettier sur `.shot-metro.mjs`
+  et `.shot-tmp.mjs`, ESLint sur la variable inutilisée de `.shot-metro.mjs`
+  (1 erreur, 464 avertissements au total). Aucun de ces scripts n'est modifié.
+
+Les E2E ont appliqué les migrations existantes au schéma dédié `e2e` via leur
+préparation habituelle ; aucune migration créée par ce lot, aucun déploiement
+de production. Lot livré localement sur `main`, sans push ; retrouver son SHA
+par l'ID ARCH-MET-02a dans `git log`. Suite : issue distincte ARCH-MET-02b
+avant le code de gestion/révocation ; R3 et SELF restent dans leurs lots propres.

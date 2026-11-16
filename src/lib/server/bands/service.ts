@@ -24,8 +24,13 @@ import { publicActorWhere } from '#lib/server/actors/visibility';
 import { isBlockedBetween } from '#lib/server/blocking/service';
 import { playedTogether } from '#lib/server/network/service';
 import { notify } from '#lib/server/notifications/service';
-import { emitAndProcess } from '#lib/server/progression/processor';
-import { bandTierOf, recordFormation, syncComposition } from '#lib/server/milestones/service';
+import { emitAndProcess, lockProgressActors } from '#lib/server/progression/processor';
+import {
+	bandTierOf,
+	recordFormation,
+	syncComposition,
+	bandProgressActorIds
+} from '#lib/server/milestones/service';
 import { clearActorLocation, setActorLocation } from '#lib/server/geo/queries';
 import type { Commune } from '#lib/geo/fuzz';
 import { addExternalMedia, deleteOwnMedia, MediaError } from '#lib/server/media/service';
@@ -126,6 +131,9 @@ async function afterJoin(
 		select: { personId: true }
 	});
 	const memberIds = active.map((m) => m.personId);
+	// Avant la première émission, inclure les périodes anciennes : une
+	// composition antérieure à la formation peut les créditer ensuite.
+	await lockProgressActors(tx, [...memberIds, ...(await bandProgressActorIds(tx, bandId))]);
 	if (formsBand({ formedAt: band.formedAt, activeMembers: memberIds.length })) {
 		await tx.organization.update({ where: { actorId: bandId }, data: { formedAt: now } });
 		for (const id of memberIds) {

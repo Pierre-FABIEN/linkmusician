@@ -211,6 +211,48 @@ une fois universelle ni de bus asynchrone déjà opérationnel à annoncer.
 par transition et les appels uniques ; l'audit ne propose pas de déplacer les
 effets vers des jobs sans nouveau protocole de reprise.
 
+### Réception et correction R1 — ARCH-MET-02a (#56, 15/11/2026)
+
+L'audit `b30edaa` est confirmé publié sur `origin/main`. L'utilisateur a demandé
+la suite le 15/11/2026 ; les recommandations et le premier lot de concurrence
+sont reçus. L'issue distincte [#56](https://github.com/Pierre-FABIEN/linkmusician/issues/56)
+porte cette correction ; les constats ci-dessus décrivent la base auditée.
+
+R1 est reproduit sur cette base avec une barrière : `answerInvite` détient
+`band:` avant ses événements, `markComposed` détient déjà l'acteur auteur et
+attend `band:` ; libérer l'adhésion provoque **PostgreSQL 40P01, deadlock detected**.
+Le même scénario est conservé dans `works/locking.integration.test.ts`.
+
+Contrat appliqué aux orchestrations concernées :
+
+- Composition et confirmations : sous `work:`, prendre `band:` avant le moteur,
+  puis préverrouiller l'union triée des auteurs confirmés, du crédit confirmé et
+  des acteurs potentiels des étapes du groupe. Inclure les périodes ACTIVE,
+  LEFT et REMOVED ; `membersAt` décide toujours qui reçoit réellement l'étape.
+- Formation/adhésion : sous `band:`, préparer l'union avant le premier
+  `membership.accepted`, `recordFormation` ou `syncComposition`.
+- Finalisation : conserver `collaboration:` puis `work:` avant les écritures
+  des participants, puis prendre les groupes concernés avant le moteur, y
+  compris pour RECORDING. L'union inclut participants, membres historiques,
+  présentateurs candidats et acteurs potentiels du concert/tournée. Les
+  présentations sont figées avant les premiers verrous moteur ; une mise à jour
+  conditionnelle après attente ignore celles déjà réussies ou supprimées.
+- Après attente sur `band:`, les chemins de composition relisent aussi
+  l’existence du morceau et de son groupe porteur avant les effets. La
+  vérification d'enregistrement relit formation, dissolution et adhésions
+  sous `band:` ; `load` conserve sa relecture après attente sur `work:` lorsqu'une
+  suppression a pu mettre `workId` à null.
+
+`lockProgressActors` trie une union fournie par le cas d'usage. Il ne découvre
+pas les événements futurs et ne garantit aucun ordre global aux autres circuits.
+Les règles pures, crédits, preuves, événements et gains restent les mêmes ; tout
+reste dans le `Prisma.TransactionClient` de l'appelant, avec rollback commun.
+Pas de migration, registre supplémentaire, cache de permission ou nouvelle UI.
+R2 (gestion/révocation), R3 (proposition concurrente) et la relecture générale de
+`processEvent` de R4 restent distincts ; ce lot n'est pas un audit de concurrence
+exhaustif. Retour : revert applicatif cohérent conservant registres et index,
+avec réintroduction du risque R1. Recette finale dans le suivi du plan.
+
 ### Registres minimaux et droits de lecture
 
 | Propriété               | WorkCreditAct                                                                                                                                           | CollaborationAppreciationAct                                                                                                                         |

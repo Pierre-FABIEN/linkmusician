@@ -26,11 +26,15 @@ import { isIndexable } from '#lib/actors/visibility';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { isBlockedBetween } from '#lib/server/blocking/service';
 import { notify } from '#lib/server/notifications/service';
-import { emitAndProcess, type ProcessResult } from '#lib/server/progression/processor';
+import {
+	emitAndProcess,
+	lockProgressActors,
+	type ProcessResult
+} from '#lib/server/progression/processor';
 import { summarize } from '#lib/server/progression/profile';
 import { addExternalMedia, MediaError } from '#lib/server/media/service';
 import { canInviteMinor, managedBands } from '#lib/server/bands/service';
-import { syncComposition } from '#lib/server/milestones/service';
+import { syncComposition, lockBand, bandProgressActorIds } from '#lib/server/milestones/service';
 import { isManager, publicMember } from '#lib/bands/rules';
 import {
 	MAX_CONTRIBUTORS,
@@ -173,6 +177,24 @@ async function confirmedAuthors(db: Db, workId: string): Promise<string[]> {
 		.map((c) => c.personId);
 }
 
+/** work: est déjà détenu. Groupe avant moteur, puis union auteurs/membres
+ * historiques/crédit confirmé (qui peut porter seulement un rôle du son). */
+async function prepareWorkProgress(tx: Tx, work: WorkHead, extraIds: string[] = []) {
+	let bandIds: string[] = [];
+	if (work.owner.kind === 'ORGANIZATION') {
+		await lockBand(tx, work.ownerId);
+		// Le groupe porteur peut avoir été dissous pendant l’attente.
+		await loadWork(tx, work.id);
+		bandIds = await bandProgressActorIds(tx, work.ownerId);
+	}
+	await lockProgressActors(tx, [
+		...(await confirmedAuthors(tx, work.id)),
+		...bandIds,
+		...extraIds,
+		work.ownerId
+	]);
+}
+
 /** Part d'auteur·rice quand une personne confirme (corroboration ou part). */
 async function authorProgress(tx: Tx, work: WorkHead, personId: string, now: Date) {
 	const ids = await confirmedAuthors(tx, work.id);
@@ -235,6 +257,7 @@ async function afterConfirm(
 	personId: string,
 	now: Date
 ): Promise<ProcessResult[]> {
+	await prepareWorkProgress(tx, work, [personId]);
 	const author = await authorProgress(tx, work, personId, now);
 	const fresh = await tx.work.findUniqueOrThrow({
 		where: { id: work.id },
@@ -685,6 +708,7 @@ export async function markComposed(workId: string, managerId: string, now = new 
 		if (blocker) throw new WorkError(blocker);
 		const ids = await confirmedAuthors(tx, workId);
 		const proof = proofFor(ids.length);
+		await prepareWorkProgress(tx, work);
 		await tx.work.update({
 			where: { id: workId },
 			data: { state: 'COMPOSED', proof, composedAt: now }

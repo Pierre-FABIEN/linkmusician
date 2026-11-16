@@ -29,7 +29,7 @@ import { departmentOfCommune } from '#lib/representation/rules';
  */
 import { prisma } from '#lib/server';
 import { isBlockedBetween } from '#lib/server/blocking/service';
-import { emitAndProcess } from '#lib/server/progression/processor';
+import { emitAndProcess, lockProgressActors } from '#lib/server/progression/processor';
 import { notify } from '#lib/server/notifications/service';
 import { parisDay } from '#lib/metrics/indicators';
 import {
@@ -49,9 +49,10 @@ import { isStudioSessionKind } from '#lib/studios/rules';
 import {
 	verifyGigFromCollaboration,
 	lockBand,
+	bandProgressActorIds,
 	verifyRecordingFromCollaboration
 } from '#lib/server/milestones/service';
-import { markSucceeded } from '#lib/server/career/introductions';
+import { markSucceeded, pendingSucceededIntroductions } from '#lib/server/career/introductions';
 import { confirmedBookerOf, confirmedBookersOf } from '#lib/server/representation/service';
 
 /**
@@ -392,7 +393,8 @@ async function load(tx: Prisma.TransactionClient, actorId: string, collaboration
 		include: { participants: true }
 	});
 	// DASH-05m : avant toute écriture de participant/collaboration et tout verrou
-	// de progression : collaboration → work → acteurs. La suppression du morceau
+	// de progression : collaboration → work (puis band → acteurs, ARCH-MET-02a).
+	// La suppression du morceau
 	// peut mettre workId à null pendant l'attente ; relire après le verrou.
 	if (collab?.workId) {
 		await lockWork(tx, collab.workId);
@@ -418,7 +420,21 @@ async function settle(tx: Prisma.TransactionClient, collaborationId: string, now
 		include: { participants: true }
 	});
 	if (collab.status === 'CANCELLED' || collab.status === 'COMPLETED') return;
-	if (collab.kind === 'GIG' && collab.bandId) await lockBand(tx, collab.bandId);
+	// collaboration: et work: sont détenus par load. Toute clé band: doit
+	// précéder le premier événement, y compris l'enregistrement lié au groupe.
+	const work = collab.workId
+		? await tx.work.findUnique({
+				where: { id: collab.workId },
+				select: { ownerId: true, owner: { select: { kind: true } } }
+			})
+		: null;
+	const bandIds = [
+		...new Set([
+			...(collab.kind === 'GIG' && collab.bandId ? [collab.bandId] : []),
+			...(collab.kind === 'RECORDING' && work?.owner.kind === 'ORGANIZATION' ? [work.ownerId] : [])
+		])
+	].sort();
+	for (const id of bandIds) await lockBand(tx, id);
 	const status = collabStatus(
 		collab.participants.map((p) => ({
 			accepted: p.acceptedAt !== null,
@@ -431,6 +447,17 @@ async function settle(tx: Prisma.TransactionClient, collaborationId: string, now
 		data: { status, ...(status === 'COMPLETED' ? { completedAt: now } : {}) }
 	});
 	if (status === 'COMPLETED') {
+		const participantIds = collab.participants.map((p) => p.actorId);
+		const introductions = await pendingSucceededIntroductions(tx, participantIds);
+		const actorIds = [...participantIds, ...introductions.map((i) => i.introducerId)];
+		for (const id of bandIds) actorIds.push(...(await bandProgressActorIds(tx, id)));
+		// Les acteurs externes potentiels du concert/tournée sont connus même
+		// si la vérification métier conclut ensuite à l'absence de gain.
+		if (collab.kind === 'GIG') {
+			if (collab.hostOrgId) actorIds.push(collab.hostOrgId);
+			if (collab.bookedById) actorIds.push(collab.bookedById);
+		}
+		await lockProgressActors(tx, actorIds);
 		// Prestations du son (P4-06) : chacun·e gagne sur sa piste.
 		const services = Object.fromEntries(
 			collab.participants.flatMap((p) => (p.service ? [[p.actorId, p.service]] : []))
@@ -462,7 +489,8 @@ async function settle(tx: Prisma.TransactionClient, collaborationId: string, now
 		await markSucceeded(
 			tx,
 			{ id: collaborationId, participantIds: collab.participants.map((p) => p.actorId) },
-			now
+			now,
+			introductions
 		);
 		// Le morceau avance (P4-06) : la première fois seulement.
 		const stage = KIND_WORK_STAGE[collab.kind as CollabKindValue];

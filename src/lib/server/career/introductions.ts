@@ -161,6 +161,23 @@ export async function myIntroductions(introducerId: string) {
 	}));
 }
 
+/** Candidats figés avant le premier verrou moteur de la finalisation. */
+export async function pendingSucceededIntroductions(
+	tx: Prisma.TransactionClient,
+	participantIds: readonly string[]
+) {
+	if (participantIds.length < 2) return [];
+	const open = await tx.introduction.findMany({
+		where: {
+			succeededAt: null,
+			firstId: { in: [...participantIds] },
+			secondId: { in: [...participantIds] }
+		},
+		select: { id: true, introducerId: true, firstId: true, secondId: true, createdAt: true }
+	});
+	return open;
+}
+
 /**
  * Une collaboration vient de se terminer : les présentations entre deux de
  * ses participant·es, faites avant et pas encore réussies, le deviennent ;
@@ -169,22 +186,15 @@ export async function myIntroductions(introducerId: string) {
 export async function markSucceeded(
 	tx: Prisma.TransactionClient,
 	collaboration: { id: string; participantIds: readonly string[] },
-	now: Date
+	now: Date,
+	open: Awaited<ReturnType<typeof pendingSucceededIntroductions>>
 ) {
-	if (collaboration.participantIds.length < 2) return;
-	const open = await tx.introduction.findMany({
-		where: {
-			succeededAt: null,
-			firstId: { in: [...collaboration.participantIds] },
-			secondId: { in: [...collaboration.participantIds] }
-		},
-		select: { id: true, introducerId: true, firstId: true, secondId: true, createdAt: true }
-	});
 	for (const intro of succeededBy(open, collaboration.participantIds, now)) {
-		await tx.introduction.update({
-			where: { id: intro.id },
+		const { count } = await tx.introduction.updateMany({
+			where: { id: intro.id, succeededAt: null },
 			data: { succeededAt: now, collaborationId: collaboration.id }
 		});
+		if (count === 0) continue;
 		await emitAndProcess(tx, {
 			type: 'introduction.succeeded',
 			introductionId: intro.id,

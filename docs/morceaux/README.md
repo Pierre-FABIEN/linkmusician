@@ -120,3 +120,15 @@ La suppression du morceau supprime ses actes ; celle du crédit les conserve.
 L'export RGPD inclut tous les actes autorisés, et l'anonymisation oublie leurs
 auteurs. Le journal n'ajoute ni notification, ni progression, ni réputation.
 Audit complet, verrous et cascades : [conception du journal](../conception/16-journal-activite.md#actes-humains-des-crédits-de-morceaux-dash-05m).
+
+### Concurrence de progression (ARCH-MET-02a)
+
+La composition et les confirmations conservent le verrou du morceau, prennent
+celui du groupe avant le moteur, puis préverrouillent ensemble les acteurs des
+émissions successives (auteurs et membres historiques potentiellement concernés
+par une étape). Les adhésions préparent aussi leur union d'acteurs sous le verrou
+du groupe. Une collaboration conserve l'ordre collaboration → morceau avant ses
+écritures, puis groupe → acteurs pour l'enregistrement et le concert.
+Les règles de crédit, preuve et XP sont inchangées ; l'ensemble des effets reste
+dans la transaction métier. Pas de migration ni de changement de parcours ; aide
+et démo existantes restent applicables. Voir [le suivi de recette](../plan/README.md#arch-met-02a--ordre-des-verrous-56-15112026).

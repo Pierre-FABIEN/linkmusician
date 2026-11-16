@@ -68,6 +68,16 @@ export async function lockBand(tx: Tx, bandId: string) {
 	await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`band:${bandId}`}))`;
 }
 
+/** Sous band: : inclut les anciens membres que peut créditer une étape datée.
+ * Ensemble conservateur pour préparer plusieurs événements, sans changer membersAt. */
+export async function bandProgressActorIds(tx: Tx, bandId: string): Promise<string[]> {
+	const periods = await tx.membership.findMany({
+		where: { orgId: bandId, status: { in: ['ACTIVE', 'LEFT', 'REMOVED'] } },
+		select: { personId: true }
+	});
+	return [bandId, ...periods.map((p) => p.personId)];
+}
+
 async function definitionVersion(tx: Tx, key: MilestoneKey) {
 	const def = await tx.milestoneDefinition.findUnique({
 		where: { id: key },
@@ -374,11 +384,19 @@ export async function verifyRecordingFromCollaboration(
 		select: {
 			ownerId: true,
 			owner: {
-				select: { organization: { select: { kind: true, formedAt: true, dissolvedAt: true } } }
+				select: { organization: { select: { kind: true } } }
 			}
 		}
 	});
-	const band = work?.owner.organization;
+	// Avant toute lecture d'adhésion ou de formation : ces faits peuvent changer
+	// pendant l'attente. L'appelant multi-événements prend déjà ce verrou.
+	if (work?.owner.organization?.kind === 'BAND') await lockBand(tx, work.ownerId);
+	const band = work
+		? await tx.organization.findUnique({
+				where: { actorId: work.ownerId },
+				select: { kind: true, formedAt: true, dissolvedAt: true }
+			})
+		: null;
 	if (!work || band?.kind !== 'BAND' || !band.formedAt || band.dissolvedAt) return null;
 	const bandId = work.ownerId;
 
@@ -405,7 +423,6 @@ export async function verifyRecordingFromCollaboration(
 	});
 	if (insiders === pros.length) return null;
 
-	await lockBand(tx, bandId);
 	const existing = await tx.milestone.findUnique({
 		where: { bandId_definitionId: { bandId, definitionId: 'FIRST_RECORDING' } },
 		select: { id: true, proof: true, occurredAt: true, frozenAt: true }

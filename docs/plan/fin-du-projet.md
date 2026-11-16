@@ -687,6 +687,12 @@ aucune migration descendante destructive automatique.
 
 ##### ARCH-MET-02a — concurrence avant extension
 
+Issue distincte [#56](https://github.com/Pierre-FABIEN/linkmusician/issues/56),
+engagée le 15/11/2026 après validation de la suite par l'utilisateur et livrée
+localement le 16/11/2026, sans push. Audit
+`b30edaa` confirmé publié ; R1 reproduit sur cette base par barrières SQL
+(`40P01`). Correction et recette : [suivi](README.md#arch-met-02a--ordre-des-verrous-56-15112026).
+
 - **Fichiers/contrats** : `server/works/service.ts` (`authorProgress`,
   `markComposed`), `collaborations/service.ts` (`settle`), `milestones/service.ts`
   (`syncComposition`, `verifyRecordingFromCollaboration`), `bands/service.ts`

@@ -23,6 +23,15 @@ export type ProcessResult = {
 	achievements: { actorId: string; achievementId: string }[];
 };
 
+/** Préverrouillage de l'union des acteurs avant le premier événement d'un cas
+ * d'usage multi-événements. Les verrous métier doivent déjà être détenus.
+ * Trier séparément chaque événement ne garantit pas l'ordre de la transaction. */
+export async function lockProgressActors(tx: Tx, actorIds: readonly string[]) {
+	for (const actorId of [...new Set(actorIds)].sort()) {
+		await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${actorId}))`;
+	}
+}
+
 export async function processEvent(tx: Tx, eventId: string): Promise<ProcessResult> {
 	const row = await tx.domainEvent.findUniqueOrThrow({ where: { id: eventId } });
 	const empty = { eventId, gains: [], inserted: 0, levelUps: [], achievements: [] };
@@ -32,9 +41,7 @@ export async function processEvent(tx: Tx, eventId: string): Promise<ProcessResu
 	// Verrou par acteur jusqu'à la fin de la transaction : deux événements
 	// simultanés pour une même personne ne lisent pas le même historique (sans
 	// quoi un gain « une fois » pourrait être crédité deux fois).
-	for (const actorId of [...actorIdsOf(event)].sort()) {
-		await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${actorId}))`;
-	}
+	await lockProgressActors(tx, actorIdsOf(event));
 	const ctx = await loadRuleContext(tx, event, row.createdAt);
 	const gains = gainsFor(event, ctx);
 	const inserted = await appendGains(tx, event.id, gains);
