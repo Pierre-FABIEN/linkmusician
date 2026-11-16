@@ -168,7 +168,8 @@ exécution a planté à l'ouverture du navigateur (mémoire WSL) ; la relance pa
 | ------------ | -------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ARCH-MET-01  | [#55](https://github.com/Pierre-FABIEN/linkmusician/issues/55) | ✅ publié, reçu | Audit b30edaa confirmé publié ; suite validée le 15/11/2026, corrections séparées.                                                                                                        |
 | ARCH-MET-02a | [#56](https://github.com/Pierre-FABIEN/linkmusician/issues/56) | ✅ publié       | Ordre groupe avant acteurs et unions transactionnelles corrigés ; 11 courses à barrières, suite PostgreSQL 409 tests, 1 368 unitaires et 5 E2E réussis ; sans migration.                  |
-| ARCH-MET-02b | [#57](https://github.com/Pierre-FABIEN/linkmusician/issues/57) | ✅ local        | Garde Work sous work → band, gestion/listes communes, maquette atomique et rollback média ; aucune migration.                                                                             |
+| ARCH-MET-02b | [#57](https://github.com/Pierre-FABIEN/linkmusician/issues/57) | ✅ publié       | Garde Work sous work → band, gestion/listes communes, maquette atomique et rollback média ; aucune migration.                                                                             |
+| ARCH-MET-02c | [#58](https://github.com/Pierre-FABIEN/linkmusician/issues/58) | ✅ local        | Clé commune et count transactionnel ; 17 cas de concurrence, 445 non-régressions, 1 368 unitaires et 4 E2E réussis ; sans migration.                                                      |
 | DASH-01      | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local        | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
 | DASH-02      | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local        | Structures et agences DASH-02a/02b complétées par les affectations consenties DASH-04b ; aucun droit administratif ou artistique par appartenance.                                        |
 | DASH-02a     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local        | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
@@ -1058,3 +1059,79 @@ Livraison par commit local français sur `main`, sans push ; retrouver son SHA p
 ARCH-MET-02b dans `git log`. Le commit documentaire initial `5e9d6b3` est conservé.
 Prochaine proposition : 02c/R3 dans une issue distincte ; R4 et SELF #51–#54,
 #36 et #30/#35/#50 restent ouverts selon leurs propres critères.
+
+### ARCH-MET-02c — proposition effective (#58, 16/11/2026)
+
+Démarrage : `main` propre, préparation documentaire locale `aa9e043` conservée.
+`git ls-remote origin refs/heads/main` confirme `cba0234caa3681e3ae26931de65ca28e48253e0e` :
+02a/02b sont publiés, #55/#56/#57 closes. Recherche de doublon puis création de
+[#58](https://github.com/Pierre-FABIEN/linkmusician/issues/58) avant le code.
+Pendant la recette, `ls-remote` confirme ensuite
+`aa9e04381d1cd8e0d036d5a2b6c3a83b34896992` : la préparation est aussi publiée.
+`git fetch origin main` actualise la référence sans modifier les commits locaux.
+Aucun push par l’agent ni déploiement de production établi.
+
+R3 caractérisé avant correction sur le service de `aa9e043`, avec transactions
+PostgreSQL et barrières : **deux collaborations et deux notifications**, deux
+succès au lieu d’un succès et d’un refus. Le test rouge et son extrait sont
+conservés dans [les preuves](preuves-arch-met-02c.md), le même test passe après
+correction. L’attente réelle du second tx est observée dans `pg_locks`.
+
+Clé partagée `collaboration-proposal:<conversationId>:<jour UTC happenedOn>`,
+indépendante du proposant et du type. Le contrôle précoce garde la priorité des
+erreurs existantes ; un second count après acquisition de la clé décide dans
+le TransactionClient de création, participants imbriqués et notification.
+PROPOSED/ACCEPTED/COMPLETED bloquent avec `CollaborationError`, sans retour de
+l’ancien objet. CANCELLED permet une nouvelle ligne, sans déplacer ni effacer
+anciens actes, auteurs et consentements. Une annulation non validée permet un
+refus ; après commit, le nouvel essai peut réussir. Aucun verrou d’annulation
+supplémentaire nécessaire, aucun ordre collaboration/work/band/acteurs inversé.
+
+Le seul point de création applicatif est protégé ; les INSERT de seeds et
+fixtures restent des scénarios. Aucun audit ou nettoyage de doublons historiques,
+aucune contrainte ni migration. Aucun réseau sous verrou ni tx imbriqué.
+Le crédit automatique conserve son consentement bilatéral sans acte humain
+reconstitué. Les autres contrats 02a/02b restent applicables.
+
+Incident de recette résolu : le scénario « annulation validée pendant l’attente »
+se heurtait au refus précoce, donc n’atteignait pas son verrou. Le montage a été
+corrigé pour suspendre après un premier contrôle à zéro, créer l’ancienne ligne,
+mettre la nouvelle proposition en attente puis valider l’annulation. La passe
+séparée des **17 scénarios du lot** réussit ensuite ; aucun échec produit laissé
+ouvert par cet incident de test.
+
+Recette locale :
+
+- `npm run check` : **0 erreur et 0 avertissement**, vérifié hors E2E.
+- `npm run test:unit -- --run` : **1 368 réussis**, 484 conditionnels ignorés.
+- Passe PostgreSQL élargie sur collaborations, works, bands, milestones,
+  progression et career, sous `PROGRESSION_INTEGRATION=1`, sans parallélisme de
+  fichiers : **445 non-régressions réussies dans 41 fichiers**, dont les
+  **36 cas de gestion Work 02b** et les **11 barrières 02a**. Les 5 cas GEO/nudges
+  conditionnels restent ignorés. La sortie initiale complète affiche 461 succès
+  (dont 16 du nouveau fichier), un échec et un rejet non géré liés au seul montage
+  décrit ci-dessus ; ce fichier est ensuite corrigé et repassé séparément,
+  sans erreur non gérée. **462 tests validés au total en passes distinctes**,
+  sans présenter la commande initiale comme une passe entièrement verte.
+- `PROGRESSION_INTEGRATION=1 npm run test:unit -- --run
+src/lib/server/collaborations/proposal.integration.test.ts` : **17 réussis**.
+  Clés communes et indépendantes, statuts, refus/annulation, reprise concurrente,
+  rollback SQL et notification, finalisation à barrières avec un événement,
+  deux gains pour les deux participants, un crédit et aucun acte humain reconstruit.
+- `npm run test:e2e -- e2e/linkmusician/collaborations-morceau.spec.ts
+e2e/linkmusician/candidatures.spec.ts e2e/linkmusician/concerts.spec.ts --retries=0` :
+  **4 réussis sans reprise**. Nouveau POST de proposition par l’autre personne et
+  avec un autre type refusé en 400, une collaboration et une notification conservées.
+- Prettier et ESLint ciblés, `git diff --check` : conformes. Lint global :
+  écarts préexistants de formatage `.shot-metro.mjs`/`.shot-tmp.mjs` et variable
+  inutilisée `.shot-metro.mjs` (1 erreur, 464 avertissements ESLint), scripts intacts.
+  Dépréciation pg préexistante également observée, sans changement de périmètre R4.
+
+Conception, docs collaborations/messagerie, fiche, preuves et prompt suivant
+actualisés. Aucune nouvelle donnée personnelle ou modification de parcours
+nécessitant nouveau seed/aide/export/anonymisation. Préparation E2E habituelle
+sur le schéma dédié ; aucune migration du lot ni opération de production.
+Livraison par commit local français ARCH-MET-02c sur `main`, sans push, après
+`aa9e043`. Retour par revert applicatif cohérent conservant les données, avec
+réintroduction de R3. R4, extraction 03 et SELF #51–#54 restent distincts ;
+#36 et #30/#35/#50 conservent leurs critères propres.

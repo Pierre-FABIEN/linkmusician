@@ -36,7 +36,16 @@ que d'autres confirment » sur le profil public.
 
 - Seulement avec un **contact** (conversation acceptée des deux côtés) et
   jamais à travers un blocage.
-- Une seule collaboration par conversation et par jour.
+- Une seule collaboration **effective par conversation et date déclarée**
+  (`happenedOn`, jour UTC stocké), quels que soient le proposant et le type.
+  PROPOSED, ACCEPTED et COMPLETED bloquent une autre proposition ; CANCELLED
+  permet une nouvelle ligne avec de nouveaux consentements. L’ancienne ligne,
+  ses auteurs et actes restent conservés. Le doublon est refusé avec le même
+  message, sans retourner les données d’un ancien objet.
+- Les propositions concurrentes prennent une clé commune et relisent le count
+  dans la transaction de création des participants et de la notification.
+  Une annulation non validée peut encore entraîner un refus ; après son commit,
+  on peut réessayer. Aucun nouvel événement ni gain n’est ajouté pour un doublon.
 - **RGPD** : collaborations dans l'export ; elles survivent à
   l'anonymisation d'un participant (« Compte supprimé » pour l'autre).
 
@@ -47,6 +56,9 @@ que d'autres confirment » sur le profil public.
 - Service : `src/lib/server/collaborations/service.ts`.
 - Intégration (rendements décroissants, poids de confiance) :
   `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/progression/collaborations`.
+- Concurrence PostgreSQL : `proposal.integration.test.ts` (barrières, attente
+  de verrou observée, rollback et finalisation), activé avec
+  `PROGRESSION_INTEGRATION=1` ; [contrat et preuves](../plan/preuves-arch-met-02c.md).
 - E2E : `e2e/linkmusician/candidatures.spec.ts` (annonce → candidature →
   conversation → collaboration confirmée → XP des deux côtés).
 

@@ -193,13 +193,14 @@ les droits puis ajoute/choisit le média et écrit Work sans work commun ;
 ne doit leur attribuer une garantie qu'ils n'ont pas. Scénarios à programmer,
 pas contournement établi de toutes les permissions ni correction livrée ici.
 
-**R3 — doublon concurrent à la proposition.** `proposeCollaboration` fait un
+**R3 — doublon concurrent à la proposition (constat initial, corrigé par 02c).** `proposeCollaboration` fait un
 count conversation/jour/statuts actifs avant son tx de création. Le schéma
 Collaboration n'a qu'un index conversation, pas d'unicité correspondante.
 Deux propositions peuvent passer le contrôle simultanément. L'idempotence du
 ledger sur un même sourceEventId ne déduplique pas deux collaborations ou
 deux événements distincts. Définir la clé de l'intention et le comportement des
 annulations avant d'ajouter verrou/contrainte dans une issue de correction.
+La réception R3 ci-dessous consigne le contrat et la correction de #58.
 
 **R4 — relecture et effets après plusieurs événements.** `processEvent` lit
 processedAt avant ses verrous d'acteur. Le ledger utilise skipDuplicates et
@@ -317,6 +318,69 @@ conservées, avec retour connu de R2. R3/02c, R4 et SELF #51–#54 restent
 séparés. Les contrôles de cible profil/blocage/mineur avant transaction ne
 reçoivent pas de nouvelle garantie de sérialisation dans ce lot.
 Recette locale et limites : [suivi du lot](../plan/README.md#arch-met-02b--gestion-work-et-révocation-57-16112026).
+
+### Réception et correction R3 — ARCH-MET-02c (#58, 16/11/2026)
+
+L’issue [#58](https://github.com/Pierre-FABIEN/linkmusician/issues/58) a été
+ouverte avant le code, après relecture de #55/#56/#57 closes et recherche de
+doublon. Base publiée `cba0234`, préparation documentaire locale `aa9e043`
+conservée, puis confirmée publiée pendant la recette. Le code 02c reste local ;
+aucun push par l’agent ni déploiement de production établi.
+
+**Contrat conservé.** Une intention est identifiée par `conversationId` et
+`happenedOn`, normalisé au jour UTC stocké (minuit UTC). Ce n’est ni le jour de
+la requête, ni une clé par proposant, métier ou type de prestation.
+PROPOSED, ACCEPTED et COMPLETED empêchent une autre proposition. CANCELLED,
+y compris après refus, autorise une **nouvelle ligne**. Le doublon lève le même
+`CollaborationError` (« Une collaboration existe déjà pour ce jour. »), sans
+retourner un ancien objet. L’ancienne ligne n’est ni réactivée ni effacée :
+auteurs, dates des actes, refus et consentements restent attachés à leurs
+participations respectives. Aucun consentement n’est transféré au nouvel essai.
+Ce contrat précise la règle déjà implémentée ; aucun arbitrage produit ouvert
+supplémentaire n’est nécessaire dans `a-trancher.md`.
+
+**Décision transactionnelle.** Le contrôle précoce conserve la priorité des
+erreurs existantes, mais ne garantit pas l’unicité. Dans le tx de création,
+`collaboration-proposal:<conversationId>:<jour UTC>` est pris par verrou
+consultatif PostgreSQL, puis le même count est relu sous READ COMMITTED.
+Collaboration, participants imbriqués et notification utilisent ce même
+TransactionClient jusqu’au commit. Une attente voit donc le commit précédent,
+ou son rollback. Aucun appel réseau ni transaction imbriquée sous cette clé.
+Un refus de préférence de notification reste un succès métier sans notification ;
+une erreur d’écriture annule tous les effets SQL.
+
+**Annulation concurrente.** Le point de décision est le count sous la clé de
+proposition : une annulation non validée laisse voir la ligne active et permet
+un refus contrôlé ; après son commit, un nouvel essai peut réussir. Une
+proposition qui attend voit aussi une annulation validée pendant son attente.
+Les transitions existantes ne réactivent jamais CANCELLED. Annulation et refus
+n’ont donc pas besoin de la clé de proposition : ils conservent leur ordre
+`collaboration:` puis, pour la réponse, `work:`. Aucun cycle de clés nouveau.
+La création prend seulement sa nouvelle clé, sans acquérir ensuite les clés
+d’une collaboration existante. Les réponses/finalisations conservent
+collaboration → work → band → union triée des acteurs, avant écriture des
+participants et événements. Le verrou est transactionnel, jamais conservé
+jusqu’à une réponse humaine ou un appel réseau.
+
+**Inventaire.** `proposeCollaboration` est le seul point de création à la
+demande dans le code applicatif. Les créations directes des seeds
+`prisma/seed-scene.ts` et `prisma/seed-scenarios.ts` servent aux scénarios de
+démonstration, pas aux requêtes concurrentes ; les autres INSERT directs sont
+des fixtures de tests. Aucune unicité SQL ni migration ajoutée : tous les
+appels applicatifs partagent la garde. Cela ne répare pas d’éventuels doublons
+historiques et ne protège pas un futur INSERT qui contournerait le service.
+Toute nouvelle entrée applicative devra suivre le même protocole.
+
+La preuve avant/après et les scénarios à barrières sont conservés dans
+[les preuves 02c](../plan/preuves-arch-met-02c.md). L’idempotence d’un événement
+XP ne remplace jamais cette unicité. La finalisation du seul objet conservé
+produit son événement et ses crédits habituels ; le crédit automatique ne
+reconstitue aucun acte humain. Les autres contrats 02a/02b, lectures privées,
+protections mineur·es/blocages/quotas, périodes et présentations conditionnelles
+restent applicables. Aucun fait `collaboration.completed` artificiel.
+
+Retour : revert applicatif du lot, données conservées ; il réintroduirait R3.
+R4, extraction ARCH-MET-03 et SELF #51–#54 restent des travaux distincts.
 
 ### Registres minimaux et droits de lecture
 

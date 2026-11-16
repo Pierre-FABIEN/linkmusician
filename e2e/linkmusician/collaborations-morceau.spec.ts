@@ -90,6 +90,29 @@ test.describe('LinkMusician — collaborations liées au morceau', () => {
 				await expect(journal.getByText('Achèvement confirmé', { exact: true })).toHaveCount(1);
 			});
 
+			await test.step('Un autre proposant et un autre type pour ce jour sont refusés', async () => {
+				const [kept] = await db.collaboration.findMany({
+					where: { conversationId: conversation.id }
+				});
+				const response = await page.request.post(`/messages/${conversation.id}?/proposeCollab`, {
+					form: {
+						kind: 'REHEARSAL',
+						title: 'Une autre proposition',
+						happenedOn: kept.happenedOn.toISOString().slice(0, 10)
+					}
+				});
+				expect(response.status()).toBe(400);
+				expect(await response.text()).toContain('Une collaboration existe déjà pour ce jour.');
+				expect(await db.collaboration.count({ where: { conversationId: conversation.id } })).toBe(
+					1
+				);
+				expect(
+					await db.notification.count({
+						where: { type: 'COLLAB_TO_CONFIRM', href: `/messages/${conversation.id}` }
+					})
+				).toBe(1);
+			});
+
 			await test.step('2. Léa confirme : le morceau est « Enregistré »', async () => {
 				await page.goto(`/messages/${conversation.id}`);
 				await waitForAppReady(page);

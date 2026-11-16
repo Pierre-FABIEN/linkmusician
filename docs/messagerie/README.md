@@ -40,6 +40,11 @@ Module LinkMusician (lot P2-04, décisions D5 et D8). Pages `/messages`,
   jusqu'à 15 s. Vrai temps réel (Ably ou Pusher, < 1 s, polling en secours)
   en phase 4 (P4-12).
 - **Signaler** la personne depuis la conversation (P1-12).
+- **Propositions dans une conversation acceptée** : une proposition effective
+  par conversation/date de prestation UTC, même si l’autre personne propose
+  ou choisit un autre type. Un doublon affiche « Une collaboration existe déjà
+  pour ce jour. ». Après annulation validée, une nouvelle proposition conserve
+  les anciens actes sur leur ligne ; voir [collaborations](../collaborations/README.md).
 - **Discussions de groupe** (P3-16c) : à plusieurs, sur invitation, depuis
   un groupe de contacts ; voir [docs/contacts](../contacts/README.md).
 

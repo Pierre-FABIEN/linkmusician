@@ -252,14 +252,19 @@ export async function proposeCollaboration(
 		throw new CollaborationError('Cette conversation est fermée.');
 	}
 	const day = new Date(`${input.happenedOn}T00:00:00Z`);
-	const duplicate = await prisma.collaboration.count({
-		where: {
-			conversationId,
-			happenedOn: day,
-			status: { in: ['PROPOSED', 'ACCEPTED', 'COMPLETED'] }
-		}
-	});
-	if (duplicate > 0) throw new CollaborationError('Une collaboration existe déjà pour ce jour.');
+	// Conserver le refus précoce et sa priorité sur les validations de ressources.
+	// Seule la seconde lecture, sous la clé partagée dans le tx, fait autorité.
+	const requireAvailableDay = async (db: Prisma.TransactionClient) => {
+		const duplicate = await db.collaboration.count({
+			where: {
+				conversationId,
+				happenedOn: day,
+				status: { in: ['PROPOSED', 'ACCEPTED', 'COMPLETED'] }
+			}
+		});
+		if (duplicate > 0) throw new CollaborationError('Une collaboration existe déjà pour ce jour.');
+	};
+	await requireAvailableDay(prisma);
 	// Prestation du son (P4-06) : la personne qui l'assure en a le métier.
 	const tracksOf = async (actorId: string) =>
 		(
@@ -343,6 +348,12 @@ export async function proposeCollaboration(
 	}
 	const happened = hasHappened(input.happenedOn, now);
 	return prisma.$transaction(async (tx) => {
+		// ARCH-MET-02c : même intention pour les deux proposants et tous les
+		// types. Relire après attente ; collaboration, participants et notification
+		// restent atomiques. Aucun appel réseau sous cette clé.
+		const proposalKey = `collaboration-proposal:${conversationId}:${dayOf(day)}`;
+		await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${proposalKey}))`;
+		await requireAvailableDay(tx);
 		const created = await tx.collaboration.create({
 			data: {
 				kind: input.kind,

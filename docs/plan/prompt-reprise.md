@@ -1,113 +1,72 @@
-# Prompt de reprise — après ARCH-MET-02b, proposition concurrente
+# Prompt de reprise — après ARCH-MET-02c
 
 ```markdown
 Reprends LinkMusician dans /home/utilisateur/linkmusician. Une session = un lot.
 Travaille directement sur main, sans push. Commence par git status, git log
-et git ls-remote origin refs/heads/main ; fetch si nécessaire, en préservant
-les commits et toutes les modifications présents.
+et git ls-remote origin refs/heads/main ; fetch seulement si nécessaire, en
+préservant tous les commits et toutes les modifications présents.
 
-État vérifié le 16/11/2026 : main propre, HEAD et origin/main à
-cba0234caa3681e3ae26931de65ca28e48253e0e, confirmé par ls-remote.
-ARCH-MET-02a (8cdf0b5) et ARCH-MET-02b (cba0234), ainsi que la préparation
-5e9d6b3, sont publiés. #55/#56/#57 sont closes. Les récits « livré localement »
-dans le suivi décrivent leur livraison initiale ; les issues distinguent la
-publication ultérieure. Aucun déploiement de production établi.
-Ce prompt est une préparation documentaire, pas une réalisation de 02c.
+État de livraison locale du 16/11/2026 : ARCH-MET-02c dans le commit français
+identifié par cet ID dans git log, précédé de la préparation locale aa9e043.
+Dernière publication confirmée : aa9e04381d1cd8e0d036d5a2b6c3a83b34896992.
+02a/02b et la préparation aa9e043 sont publiés ; le code 02c est local, sans push ni déploiement de production
+établi. Revérifie ces faits et l’état des issues #55/#56/#57/#58 au démarrage.
+Les récits de livraison initiale ne décrivent pas forcément la publication.
 
-Recette 02b : 1 368 unitaires, 461 tests ciblés dans 44 fichiers, 3 intégrations
-médias séparées et 6 E2E sans reprise réussis ; types sans erreur/avertissement,
-lint ciblé conforme et réserves globales .shot-* préexistantes consignées.
-Les 36 cas de gestion et les 11 barrières 02a passent. Aucune migration 02b.
+Lis CLAUDE.md, CONTRIBUTING.md, docs/plan/README.md (§4 et recette 02c),
+docs/plan/preuves-arch-met-02c.md, docs/plan/fin-du-projet.md,
+docs/plan/a-trancher.md et docs/conception/17-audit-capacites-services.md.
+Ne rejoue pas les anciennes recettes sans lien avec les chemins modifiés.
 
-Lis CLAUDE.md, CONTRIBUTING.md, docs/plan/README.md (§4 et recettes 02a/02b),
-docs/plan/fin-du-projet.md (fiche 02c et dépendances), docs/plan/a-trancher.md,
-docs/conception/17-audit-capacites-services.md (R1/R2 corrigés, R3/R4 distincts),
-et les documentations collaborations/messages concernées.
-Revérifie les publications et critères actuels au démarrage ; ne rejoue pas
-les anciennes recettes sans lien avec les chemins modifiés.
+02c : clé collaboration-proposal:<conversationId>:<jour UTC happenedOn stocké>,
+commune aux proposants et types. Le contrôle précoce conserve les erreurs,
+mais seul le count relu sous la clé transactionnelle décide. Collaboration,
+participants et notification partagent le même TransactionClient. PROPOSED,
+ACCEPTED et COMPLETED bloquent ; CANCELLED autorise une nouvelle ligne, jamais
+une réactivation. Refus par CollaborationError, jamais retour de l’ancien objet.
+Actes, auteurs et consentements ne passent pas d’une ligne à l’autre.
+Une annulation non validée peut laisser refuser ; un nouvel essai après son
+commit peut réussir. Aucun nouveau verrou d’annulation ni migration.
 
-Réalise uniquement ARCH-MET-02c : une proposition effective par conversation
-et jour. Ce lot est indépendant de SELF.
-Relis #55/#56/#57 et recherche une issue 02c existante ; crée une issue
-distincte avant le code si elle manque, sans doublon, puis note-la dans le plan.
+Les 17 scénarios PostgreSQL du lot observent les attentes dans pg_locks et
+conservent le rouge initial (deux collaborations et deux notifications).
+La finalisation gardée n’ajoute ni événement, ni crédit, ni XP en double et
+ne reconstitue aucun acte humain. Voir les totaux et limites dans le suivi.
+Aucune correction générale de R4, extraction 03 ou fonctionnalité SELF livrée.
 
-Commence par caractériser R3 avant correction, avec de vraies transactions
-PostgreSQL sur e2e et des barrières déterministes : proposeCollaboration fait
-actuellement son count avant la transaction de création. Deux requêtes peuvent
-passer ensemble, puis créer deux collaborations et deux notifications. Conserve
-le test rouge et sa preuve, puis fais-le passer avec la correction.
+Suite proposée : un lot distinct de caractérisation et cadrage de R4, avant
+toute correction générale de processEvent. Examiner les appels réels et les
+contrats de relecture/effets après plusieurs événements ; reproduire seulement
+les courses pertinentes avec barrières et vraies transactions e2e. Dédupliquer
+le ledger d’un événement ne prouve pas une exécution unique de tous les effets.
+Rechercher une issue existante ; en créer une distincte avant du code si une
+correction est justifiée. Définir le périmètre et les critères avant de toucher
+le processeur ; ne pas promettre une livraison « exactement une fois » globale.
+Si aucune correction utile n’est établie, conserver une conclusion documentée,
+avec ses limites, sans refactorisation de principe.
 
-Défaut produit : conserver la règle existante, sans l’élargir silencieusement.
-
-- Clé commune : conversationId + happenedOn normalisé au jour UTC stocké ;
-  pas le jour courant, ni une clé par proposant ou par type de prestation.
-- PROPOSED, ACCEPTED et COMPLETED bloquent une autre proposition pour cette
-  conversation/date ; CANCELLED permet une nouvelle ligne après annulation.
-- Le doublon est refusé avec CollaborationError et le comportement existant ;
-  ne retourne pas un ancien objet susceptible d’exposer des données nouvelles.
-- Une nouvelle proposition ne réactive ni n’efface l’ancienne : actes humains,
-  auteurs et consentements restent attachés à leurs lignes respectives.
-  Consigne ce contrat dans la conception. Si un point réellement ouvert reste
-  nécessaire, applique un défaut prudent et note-le dans a-trancher.md.
-
-Correction minimale dans collaborations/service.ts et ses tests : prendre une
-clé de proposition partagée, relire le count dans le tx, puis créer collaboration,
-participants et notification dans ce même TransactionClient. Examiner tous les
-chemins de création ; aucun count hors transaction ne suffit à l’unicité.
-Analyser annulation/nouvelle création et l’ordre des clés avec collaboration:,
-work: et band:. N’ajouter un verrou à l’annulation que si nécessaire, sans
-inverser ses clés existantes. Aucun verrou SQL durant un appel réseau.
-L’idempotence XP d’un événement ne déduplique pas deux collaborations distinctes.
-Préserver les signatures publiques, erreurs, consentements, actes humains,
-lectures privées, mineur·es/blocages/quotas et gardes des ressources liées.
-Aucun ancien acte reconstitué ni collaboration.completed artificiel.
-
-Critères de fin à prouver :
-
-1. Deux créations simultanées donnent une seule collaboration effective, une
-   seule notification et un refus contrôlé, jamais une erreur SQL brute.
-2. Même protection si chacun des deux participants propose, ou si les types
-   diffèrent ; deux dates ou conversations distinctes restent indépendantes.
-3. PROPOSED/ACCEPTED/COMPLETED refusent le doublon ; annulation puis nouvelle
-   proposition suit le contrat, y compris la course annulation/création.
-4. Un échec de notification ou d’écriture annule collaboration et participants ;
-   le nouvel essai réussit sans ligne, validation ni notification orpheline.
-5. Une finalisation ultérieure de la proposition conservée ne double aucun
-   événement, crédit, acte humain ou gain du fait de la course initiale.
-   Tester l’ordonnancement avec barrières ; un simple Promise.all ne suffit pas.
-   Ajouter ou adapter un E2E de propositions selon le parcours réellement touché.
-
-Contrat à préserver : collaboration → work avant toute écriture de participant ;
+Préserver collaboration → work avant écritures de participants existants,
 work → band avant acteurs, union triée transactionnelle des acteurs des
 émissions successives, périodes historiques et candidats présentateurs figés
 puis traités conditionnellement. Les mutations Work relisent existence et
-gestion sous work/band ; OWNER/ADMIN actifs d’un BAND vivant seulement,
-ou personne porteuse. Ni MEMBER ni crédit ni métier ni mandat ne gèrent.
-La création préalloue un identifiant Work privé pour suivre work → band.
-La préparation oEmbed est hors verrous SQL ; média neuf, publication et
-association sont atomiques et se compensent par rollback SQL, sans DELETE
-de média existant ou partagé. Ne pas réintroduire une transaction imbriquée.
+gestion sous work/band : personne porteuse ou OWNER/ADMIN actifs d’un BAND
+vivant seulement ; création avec identifiant Work privé préalloué. Ni MEMBER,
+crédit, métier ni mandat ne donnent la gestion. Préparation oEmbed hors verrous,
+média neuf/publication/association dans le tx commun, rollback SQL sans DELETE
+de média existant/partagé. Aucun réseau sous verrou ni transaction imbriquée.
 
-Recette : scénarios à barrières du lot et non-régressions justifiées,
-11 barrières 02a et gestion 02b si leurs chemins sont touchés ; check,
-unitaires, lint et E2E concernés sans reprise. Jamais check pendant E2E.
-Les scripts .shot-metro.mjs/.shot-tmp.mjs gardent leurs écarts préexistants :
-les consigner, sans nettoyage opportuniste, et vérifier lint ciblé séparément.
-Les tests SQL qualifiés doivent définir DATABASE_URL avec le même schéma e2e
-que leur client Prisma, sans exposer ses secrets.
+Toute recette SQL qualifiée définit DATABASE_URL avec le même schéma e2e que
+son client Prisma, sans exposer les secrets. Check hors E2E ; tests ciblés à
+barrières et non-régressions justifiées, unitaires, lint ciblé séparé du global,
+E2E concernés sans reprise. Conserver les écarts préexistants des scripts
+.shot-metro.mjs/.shot-tmp.mjs, sans nettoyage opportuniste.
 
-Aucune migration imposée : préférer la stratégie minimale démontrée suffisante.
-Si une contrainte devient nécessaire, auditer les doublons existants avant
-migration, sans les supprimer automatiquement ; présenter la stratégie avant
-exécution, db:migrate --create-only, db:nettoyer-migration, relecture puis
-db:deploy et db:deploy:e2e, jamais prisma migrate directement. Retour applicatif cohérent conservant les données,
-avec documentation du risque réintroduit. R4, extraction ARCH-MET-03 et
-SELF #51–#54 restent distincts. #36 et #30/#35/#50 restent les références ;
-le modèle exact de #51 doit être validé avant son code.
-Aucun SELF/HOME, WorkPitch, Project générique ou métier futur dans 02c.
+SELF #51–#54 reste distinct ; #36 et #30/#35/#50 sont les références. Valider
+le modèle exact de #51 avant son code. Aucun SELF/HOME, WorkPitch, Project
+générique ou métier futur dans une correction R4. Extraction ARCH-MET-03
+seulement si utile et cadrée séparément.
 
-Termine le lot : conception, docs de domaine, tableau, preuves, issue,
-prompt suivant et commit local en français avec ARCH-MET-02c, sans push.
-Distingue résultats locaux, publication GitHub et production ; signale tout
-critère restant au lieu de le présenter comme livré.
+Termine le lot choisi : conception, docs de domaine, tableau, preuves, issue,
+prompt suivant et commit local français sur main, sans push. Distingue résultats
+locaux, publication GitHub et production ; expose tout critère restant.
 ```

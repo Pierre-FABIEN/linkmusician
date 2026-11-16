@@ -738,18 +738,29 @@ recette complète et réserves de lint préexistantes dans [le suivi](README.md#
 
 ##### ARCH-MET-02c — une proposition effective
 
-- **Fichiers/contrat** : `collaborations/service.ts`, tests de création et
-  schéma/migration seulement si la stratégie d'unicité le nécessite. Refaire le
-  contrôle conversation/jour/statuts sous une clé partagée de proposition ;
-  définir si un rejeu retourne l'existant ou refuse, et quand une annulation
-  autorise une nouvelle ligne. Ne pas s'appuyer sur le ledger pour dédupliquer.
-- **Fin/tests** : deux créations simultanées donnent une proposition active et
-  une notification, jamais deux événements ultérieurs ; annulation puis nouvelle
-  proposition selon règle ; transaction échouée sans validation orpheline.
-- **Migration** : optionnelle ; auditer les doublons existants avant toute
-  contrainte, sans les supprimer automatiquement. **Retour** : garder les
-  données et éventuelle contrainte compatible ; pas de rollback destructif.
-  Lot indépendant des tâches SELF, ne bloque pas leur conception.
+**Livré localement le 16/11/2026**, issue distincte
+[#58](https://github.com/Pierre-FABIEN/linkmusician/issues/58) créée avant code.
+Publication distante à `cba0234` au démarrage, puis préparation `aa9e043`
+confirmée publiée pendant la recette ; code 02c local. Aucun push par l’agent ni
+déploiement de production établi.
+
+- **Contrat livré** : clé partagée conversation/date de prestation UTC,
+  indépendante du proposant et du type ; count relu dans le tx sous cette clé,
+  collaboration/participants/notification atomiques. Refus par CollaborationError
+  pour PROPOSED/ACCEPTED/COMPLETED ; CANCELLED autorise une nouvelle ligne,
+  sans réactivation, suppression ni transfert des actes et consentements.
+- **Annulation** : une décision non validée peut laisser refuser ; nouvel essai
+  après commit. Une annulation validée pendant l’attente est relue. Aucun verrou
+  d’annulation supplémentaire ni inversion collaboration/work/band.
+- **Preuves** : rouge conservé, deux collaborations et deux notifications ;
+  17 scénarios PostgreSQL du lot, attentes observées dans pg_locks ; courses de
+  création/finalisation, clés distinctes, statuts, annulation et rollback.
+  [Preuves](preuves-arch-met-02c.md) et
+  [recette](README.md#arch-met-02c--proposition-effective-58-16112026).
+- **Migration** : aucune, seul point de création applicatif protégé ; les INSERT
+  directs des seeds/fixtures restent des données de scénario. Aucun audit ou
+  nettoyage de doublons historiques. **Retour** : revert applicatif cohérent
+  conservant les données ; réintroduit R3. R4 et SELF restent distincts.
 
 ##### ARCH-MET-03 — extraction limitée et façade stable
 
