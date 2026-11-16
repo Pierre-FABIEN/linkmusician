@@ -19,6 +19,9 @@
  * Mineur·es (D5, D37) : on ne crédite un·e mineur·e que si on le ou la
  * connaît (même règle que les invitations de groupe), sans dire pourquoi.
  */
+import { randomUUID } from 'node:crypto';
+import { manageableOwnerWhere } from './access';
+import { qualifiedTable } from '#lib/server/db-schema';
 import type { Prisma, WorkCreditActKind } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { workCreditTimeline } from '#lib/activity/work-credit-timeline';
@@ -32,10 +35,14 @@ import {
 	type ProcessResult
 } from '#lib/server/progression/processor';
 import { summarize } from '#lib/server/progression/profile';
-import { addExternalMedia, MediaError } from '#lib/server/media/service';
-import { canInviteMinor, managedBands } from '#lib/server/bands/service';
+import {
+	prepareExternalMedia,
+	addPreparedExternalMedia,
+	MediaError
+} from '#lib/server/media/service';
+import { canInviteMinor } from '#lib/server/bands/service';
 import { syncComposition, lockBand, bandProgressActorIds } from '#lib/server/milestones/service';
-import { isManager, publicMember } from '#lib/bands/rules';
+import { publicMember } from '#lib/bands/rules';
 import {
 	MAX_CONTRIBUTORS,
 	MAX_PENDING_CREDITS,
@@ -103,18 +110,28 @@ type WorkHead = Awaited<ReturnType<typeof loadWork>>;
 
 /** Porteur, ou gestion active du groupe porteur. */
 async function canManage(db: Db, work: Pick<WorkHead, 'ownerId' | 'owner'>, personId: string) {
-	if (work.owner.kind === 'PERSON') return work.ownerId === personId;
-	const mine = await db.membership.findFirst({
-		where: { orgId: work.ownerId, personId, status: 'ACTIVE' },
-		select: { role: true }
-	});
-	return isManager(mine?.role);
+	return (
+		(await db.actor.count({ where: { id: work.ownerId, ...manageableOwnerWhere(personId) } })) > 0
+	);
 }
 
 async function requireManage(db: Db, work: WorkHead, personId: string) {
 	if (!(await canManage(db, work, personId))) {
 		throw new WorkError('Seules les personnes qui portent ce morceau peuvent faire cela.', 403);
 	}
+}
+
+/** Point de décision : work → band, puis existence et gestion relues.
+ * Les révocations utilisent la même clé band. Aucun cache ni transaction indépendante. */
+async function loadManagedWork(tx: Tx, workId: string, personId: string) {
+	await lockWork(tx, workId);
+	let work = await loadWork(tx, workId);
+	if (work.owner.kind === 'ORGANIZATION') {
+		await lockBand(tx, work.ownerId);
+		work = await loadWork(tx, workId);
+	}
+	await requireManage(tx, work, personId);
+	return work;
 }
 
 /** Porteur, membre actif du groupe porteur, ou personne créditée. */
@@ -304,7 +321,10 @@ async function recordCreditAct(
 export async function createWork(personId: string, input: NewWorkInput, now = new Date()) {
 	let ownerId = personId;
 	if (input.band) {
-		const band = (await managedBands(personId)).find((b) => b.handle === input.band);
+		const band = await prisma.actor.findFirst({
+			where: { handle: input.band, organization: { kind: 'BAND' } },
+			select: { id: true }
+		});
 		if (!band) throw new WorkError('Tu ne gères pas ce groupe.', 403);
 		ownerId = band.id;
 	}
@@ -312,8 +332,23 @@ export async function createWork(personId: string, input: NewWorkInput, now = ne
 	await assertGenres(genreIds);
 	const roles = await resolveRoles(prisma, input.roles);
 	return prisma.$transaction(async (tx) => {
+		// Identifiant privé préalloué : même ordre work → band que les morceaux existants.
+		// Aucun autre appel ne connaît ce Work avant le commit.
+		const workId = randomUUID();
+		await lockWork(tx, workId);
+		if (input.band) await lockBand(tx, ownerId);
+		const owner = await tx.actor.findFirst({
+			where: { id: ownerId, ...manageableOwnerWhere(personId) },
+			select: { id: true }
+		});
+		if (!owner)
+			throw new WorkError(
+				input.band ? 'Tu ne gères pas ce groupe.' : 'Ce porteur n’existe plus.',
+				input.band ? 403 : 404
+			);
 		const work = await tx.work.create({
 			data: {
+				id: workId,
 				ownerId,
 				createdById: personId,
 				title: input.title,
@@ -353,9 +388,7 @@ export async function updateWork(
 	const genreIds = [...new Set(input.genreIds)];
 	await assertGenres(genreIds);
 	await prisma.$transaction(async (tx) => {
-		await lockWork(tx, workId);
-		const work = await loadWork(tx, workId);
-		await requireManage(tx, work, managerId);
+		await loadManagedWork(tx, workId, managerId);
 		await tx.work.update({ where: { id: workId }, data: { title: input.title } });
 		await tx.workGenre.deleteMany({ where: { workId } });
 		await tx.workGenre.createMany({ data: genreIds.map((genreId) => ({ workId, genreId })) });
@@ -414,9 +447,7 @@ export async function creditFromCollaboration(
 
 export async function deleteWork(workId: string, managerId: string) {
 	await prisma.$transaction(async (tx) => {
-		await lockWork(tx, workId);
-		const work = await loadWork(tx, workId);
-		await requireManage(tx, work, managerId);
+		await loadManagedWork(tx, workId, managerId);
 		await tx.work.delete({ where: { id: workId } });
 	}, TX);
 }
@@ -425,9 +456,7 @@ export async function deleteWork(workId: string, managerId: string) {
 export async function addOpenRole(workId: string, managerId: string, input: RoleInput) {
 	const [role] = await resolveRoles(prisma, [input]);
 	await prisma.$transaction(async (tx) => {
-		await lockWork(tx, workId);
-		const work = await loadWork(tx, workId);
-		await requireManage(tx, work, managerId);
+		await loadManagedWork(tx, workId, managerId);
 		const existing = await tx.workRole.findMany({
 			where: { workId },
 			select: { kind: true, contributorId: true, instrument: { select: { slug: true } } }
@@ -445,8 +474,7 @@ export async function addOpenRole(workId: string, managerId: string, input: Role
 /** Retirer un rôle à pourvoir (un rôle crédité se retire avec son crédit). */
 export async function removeOpenRole(workId: string, managerId: string, roleId: string) {
 	await prisma.$transaction(async (tx) => {
-		const work = await loadWork(tx, workId);
-		await requireManage(tx, work, managerId);
+		await loadManagedWork(tx, workId, managerId);
 		const { count } = await tx.workRole.deleteMany({
 			where: { id: roleId, workId, contributorId: null }
 		});
@@ -485,9 +513,7 @@ export async function creditPerson(
 	}
 	const roles = await resolveRoles(prisma, input.roles);
 	const result = await prisma.$transaction(async (tx) => {
-		await lockWork(tx, workId);
-		const work = await loadWork(tx, workId);
-		await requireManage(tx, work, managerId);
+		const work = await loadManagedWork(tx, workId, managerId);
 		const contributors = await tx.workContributor.findMany({
 			where: { workId },
 			select: { personId: true, confirmedAt: true }
@@ -623,9 +649,7 @@ export async function withdrawCredit(
 	now = new Date()
 ) {
 	await prisma.$transaction(async (tx) => {
-		await lockWork(tx, workId);
-		const work = await loadWork(tx, workId);
-		await requireManage(tx, work, managerId);
+		await loadManagedWork(tx, workId, managerId);
 		const credit = await tx.workContributor.findFirst({
 			where: { id: contributorId, workId, confirmedAt: null },
 			select: { id: true, personId: true }
@@ -659,36 +683,45 @@ export async function setDemo(
 	managerId: string,
 	input: { mediaId: string } | { url: string; title: string }
 ) {
-	const work = await loadWork(prisma, workId);
-	await requireManage(prisma, work, managerId);
-	let mediaId: string;
-	let fromWork: boolean;
-	if ('mediaId' in input) {
-		const media = await prisma.media.findFirst({
-			where: { id: input.mediaId, actorId: work.ownerId, status: { not: 'REJECTED' } },
-			select: { id: true }
-		});
-		if (!media) throw new WorkError('Ce média n’est plus disponible.', 404);
-		mediaId = media.id;
-		fromWork = false;
-	} else {
-		try {
-			const { media } = await addExternalMedia(
-				work.ownerId,
-				{ url: input.url, title: input.title || work.title, isDemo: false, instrumentId: null },
-				managerId
-			);
-			mediaId = media.id;
-			fromWork = true;
-		} catch (err) {
-			if (err instanceof MediaError) throw new WorkError(err.message);
-			throw err;
-		}
+	// Refus précoce avant la préparation réseau ; cette lecture n’est pas une autorisation d’écriture.
+	const initial = await loadWork(prisma, workId);
+	await requireManage(prisma, initial, managerId);
+	try {
+		const prepared =
+			'url' in input
+				? await prepareExternalMedia({
+						url: input.url,
+						title: input.title || initial.title,
+						isDemo: false,
+						instrumentId: null
+					})
+				: null;
+		await prisma.$transaction(async (tx) => {
+			const work = await loadManagedWork(tx, workId, managerId);
+			// Un lien neuf n’existe qu’à l’intérieur de cette transaction : rollback
+			// compense création, publication/événement et association, sans DELETE externe.
+			const mediaId = prepared
+				? (await addPreparedExternalMedia(tx, work.ownerId, prepared, managerId)).media.id
+				: 'mediaId' in input
+					? input.mediaId
+					: '';
+			// Le verrou de ligne fait attendre suppression/modération concurrente ;
+			// relire ensuite le statut, sans conserver de verrou durant oEmbed.
+			await tx.$queryRaw`SELECT id FROM ${qualifiedTable('media')} WHERE id = ${mediaId} FOR UPDATE`;
+			const media = await tx.media.findFirst({
+				where: { id: mediaId, actorId: work.ownerId, status: { not: 'REJECTED' } },
+				select: { id: true }
+			});
+			if (!media) throw new WorkError('Ce média n’est plus disponible.', 404);
+			await tx.work.update({
+				where: { id: workId },
+				data: { demoMediaId: media.id, demoFromWork: Boolean(prepared) }
+			});
+		}, TX);
+	} catch (err) {
+		if (err instanceof MediaError) throw new WorkError(err.message);
+		throw err;
 	}
-	await prisma.work.update({
-		where: { id: workId },
-		data: { demoMediaId: mediaId, demoFromWork: fromWork }
-	});
 }
 
 /**
@@ -698,9 +731,7 @@ export async function setDemo(
  */
 export async function markComposed(workId: string, managerId: string, now = new Date()) {
 	const result = await prisma.$transaction(async (tx) => {
-		await lockWork(tx, workId);
-		const work = await loadWork(tx, workId);
-		await requireManage(tx, work, managerId);
+		const work = await loadManagedWork(tx, workId, managerId);
 		const blocker = composeBlocker({
 			state: work.state,
 			hasDemo: Boolean(work.demoMediaId) && work.demoMedia?.status !== 'REJECTED'
@@ -821,24 +852,7 @@ export async function myWorks(personId: string) {
  */
 export async function manageableWorks(personId: string) {
 	const rows = await prisma.work.findMany({
-		where: {
-			owner: {
-				deletedAt: null,
-				OR: [
-					{ id: personId },
-					{
-						organization: {
-							// Un studio (P4-03) ne porte pas de morceau.
-							kind: 'BAND',
-							dissolvedAt: null,
-							memberships: {
-								some: { personId, status: 'ACTIVE', role: { in: ['OWNER', 'ADMIN'] } }
-							}
-						}
-					}
-				]
-			}
-		},
+		where: { owner: manageableOwnerWhere(personId) },
 		orderBy: { updatedAt: 'desc' },
 		take: 50,
 		select: { id: true, title: true, owner: { select: { kind: true, displayName: true } } }

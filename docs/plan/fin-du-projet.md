@@ -715,8 +715,14 @@ localement le 16/11/2026, sans push. Audit
 
 ##### ARCH-MET-02b — garde Work et concurrence de révocation
 
+Issue distincte : [#57](https://github.com/Pierre-FABIEN/linkmusician/issues/57), ouverte le 16/11/2026 avant le code.
+**Livré localement le 16/11/2026, sans push ni migration.** Gardes et listes
+harmonisées, maquette atomique, 36 cas de gestion et 11 barrières 02a au vert ;
+recette complète et réserves de lint préexistantes dans [le suivi](README.md#arch-met-02b--gestion-work-et-révocation-57-16112026).
+
 - **Fichiers** : `works/service.ts`, `organizations/access.ts`,
-  `bands/service.ts`, tests works ; future `works/access.ts` si extraction utile.
+  `bands/service.ts`, `works/access.ts`, `media/service.ts`, `trust/quotas.ts`
+  et tests works/domaines concernés.
   Faire converger la décision de gestion et son prédicat de liste sans confondre
   équipe, gestion et visibilité publique. Contrôler `setDemo`, `removeOpenRole`
   et création pour groupe ; ne pas tenir un verrou SQL durant un appel réseau

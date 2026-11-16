@@ -3,6 +3,7 @@
  *
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/progression
  */
+import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { PrismaClient } from '@prisma/client';
 import { createPrismaClient } from '../../../../prisma/client.js';
@@ -41,7 +42,8 @@ describe.skipIf(!enabled)('confiance (schéma e2e)', () => {
 			data: {
 				email: `${PREFIX}${name}-${stamp}@example.test`,
 				emailVerified: true,
-				referralCode: `T${stamp}`.slice(0, 12)
+				// Le timestamp tronqué supprimait tout l’aléa et pouvait collisionner à 100 ms.
+				referralCode: randomUUID()
 			}
 		});
 		users.push(user.id);

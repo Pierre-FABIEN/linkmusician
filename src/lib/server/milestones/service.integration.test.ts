@@ -20,6 +20,8 @@ const url = new URL(
 		'postgresql://x/y'
 );
 url.searchParams.set('schema', 'e2e');
+// Le verrou de ligne Media en SQL qualifié doit viser le même schéma que Prisma.
+if (enabled) process.env.DATABASE_URL = url.toString();
 const db = createPrismaClient(url.toString());
 
 vi.mock('#lib/server', () => ({ prisma: db }));

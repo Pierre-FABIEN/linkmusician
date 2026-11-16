@@ -59,3 +59,18 @@ donne une adresse https. En local, la confirmation du navigateur suffit.
 Tests d'intégration : `MEDIA_INTEGRATION=1 npx vitest --run src/lib/server/media`
 (quota TL0, publication et XP de la première démo). E2E :
 `e2e/linkmusician/medias.spec.ts`.
+
+## Association atomique d’une maquette (ARCH-MET-02b)
+
+`prepareExternalMedia` prépare uniquement les données et le titre oEmbed
+(délai maximal 4 s), sans SQL ni verrou métier. `addPreparedExternalMedia`
+prend le TransactionClient de l’appelant, relit quota et confiance avec ce
+client, crée le lien et publie dans cette même transaction. L’API publique
+`addExternalMedia` utilise aussi ces étapes, sans transaction imbriquée.
+
+Pour `setDemo`, la préparation précède les verrous work/band et la nouvelle
+vérification de gestion. Média, événement et association sont validés ensemble ;
+un échec annule tous les effets SQL. Cette compensation ne supprime jamais
+un média existant ou partagé. Le média existant choisi est verrouillé par ligne
+et relu avant association. Les règles de quota, validation/modération, visibilité
+privée d’une idée et absence d’XP pour une maquette restent applicables.

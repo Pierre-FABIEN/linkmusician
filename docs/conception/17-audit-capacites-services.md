@@ -253,6 +253,71 @@ R2 (gestion/révocation), R3 (proposition concurrente) et la relecture général
 exhaustif. Retour : revert applicatif cohérent conservant registres et index,
 avec réintroduction du risque R1. Recette finale dans le suivi du plan.
 
+### Réception et correction R2 — ARCH-MET-02b (#57, 16/11/2026)
+
+Base : `8cdf0b5` publié, préparation documentaire locale `5e9d6b3` conservée.
+#55/#56 sont closes ; leur livraison locale historique ne décrit plus l’état
+publié de 02a. Aucun déploiement de production établi. L’issue distincte #57
+a été ouverte avant le code.
+
+R2 est reproduit avant correction : une vraie transaction de rétrogradation
+possède `band:` ; le renommage lit encore ADMIN sous `work:`, puis une barrière
+suspend son écriture. La rétrogradation est validée avant de libérer cette
+écriture, qui réussit sur l’ancien code (le test attendait 403 et reçoit un
+succès). Le même test, conservé dans `works/access.integration.test.ts`, passe
+avec la garde commune.
+
+| Mutations soumises à gestion           | Décision et écriture                                                                                                                                                            |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createWork` pour un groupe            | Identifiant Work privé préalloué, `work:` puis `band:`, porteur vivant et gestion relus avant toute création/crédit/acte. Aucun autre appel ne connaît ce Work avant le commit. |
+| `updateWork`, `deleteWork`             | `loadManagedWork` : `work:` puis `band:` si groupe, nouvelle lecture du morceau/porteur et contrôle de gestion, transaction commune jusqu’au commit.                            |
+| `addOpenRole`, `removeOpenRole`        | Même garde ; le DELETE reste conditionnel sur id, workId et contributorId null.                                                                                                 |
+| `creditPerson`, `withdrawCredit`       | Même garde avant crédits, rôles, notifications et actes ; consentements et protections des cibles inchangés.                                                                    |
+| `markComposed`                         | Même garde avant preuve/événements ; union triée transactionnelle des acteurs de 02a conservée.                                                                                 |
+| `setDemo`, média existant ou lien neuf | Préparation externe sans verrou, puis garde commune, média relu et verrouillé avant association. Nouveau média et publication dans ce même tx.                                  |
+
+La décision est la lecture de gestion **après acquisition de band**, avant les
+écritures, sous READ COMMITTED. Si une révocation/rétrogradation finit pendant
+l’attente, elle est vue et la mutation est refusée. Une mutation déjà autorisée
+sous ces verrous peut terminer avant la révocation qui l’attend ; aucune
+annulation rétroactive d’une transaction déjà sérialisée n’est promise.
+Une dissolution ou suppression pendant l’attente fait relire l’existence.
+Les révocations de groupes gardent leur même clé `band:` ; aucun verrou de
+morceau n’est ajouté après `band:` dans ces commandes.
+
+`manageableOwnerWhere` est partagé par la décision de gestion et la liste
+`manageableWorks`. Son prédicat de gestion de groupe `activeBandManager` est
+aussi celui de `managedBands` : personne porteuse vivante ou OWNER/ADMIN
+actifs d’un BAND vivant. Les listes de création (`/morceaux/nouveau`), les
+sélecteurs d’annonces/collaborations et les outils de fiche suivent ce droit.
+`myWorks`/`teamWhere` et `bandWorks` restent des lectures d’équipe ;
+`publicWorksOf` et `workPage` gardent leurs projections publiques et privées.
+Crédit, MEMBER, métier ou mandat ne sont pas une permission de gestion ;
+`org:`/`studio:` conservent leurs circuits propres.
+
+L’ancien `addExternalMedia` créait le média puis ouvrait sa propre transaction
+de publication : un échec d’association pouvait laisser média et événement.
+Il expose désormais une préparation sans SQL (`prepareExternalMedia`, titre
+normalisé, oEmbed borné à 4 secondes) et une écriture avec le TransactionClient
+fourni (`addPreparedExternalMedia`, quota/confiance relus avec ce db). Pour une
+maquette, aucun verrou SQL n’est détenu durant oEmbed ; le nouveau média,
+publication/événement/projections et association sont atomiques. Révocation ou
+suppression avant décision : aucun média créé. Échec ensuite : rollback de
+tous ces effets SQL, sans suppression compensatoire externe et sans toucher
+un média existant ou partagé. Un média existant est verrouillé par ligne sous
+work/band puis relu (porteur, statut non refusé), avec schéma SQL qualifié.
+Il ne produit aucun nouvel événement de publication.
+
+`confirmCredit`/`leaveCredit` restent des commandes personnelles sous `work:` ;
+`creditFromCollaboration` reste dans le tx de la collaboration, suivant son
+consentement bilatéral. Les ordres collaboration → work → band → acteurs et
+unions de 02a restent applicables ; aucun nouveau moteur, acte reconstitué,
+cache, table ou migration. Retour par revert applicatif cohérent, données
+conservées, avec retour connu de R2. R3/02c, R4 et SELF #51–#54 restent
+séparés. Les contrôles de cible profil/blocage/mineur avant transaction ne
+reçoivent pas de nouvelle garantie de sérialisation dans ce lot.
+Recette locale et limites : [suivi du lot](../plan/README.md#arch-met-02b--gestion-work-et-révocation-57-16112026).
+
 ### Registres minimaux et droits de lecture
 
 | Propriété               | WorkCreditAct                                                                                                                                           | CollaborationAppreciationAct                                                                                                                         |

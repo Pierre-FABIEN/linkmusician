@@ -1,3 +1,4 @@
+import type { APIRequestContext } from '@playwright/test';
 import { test, expect } from '../support/fixtures';
 import { makeAccount } from '../support/account';
 import { signUpAndVerify } from '../support/admin';
@@ -58,6 +59,23 @@ test.describe('LinkMusician — morceaux', () => {
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
 			});
 			const workUrl = page.url().replace(/\?.*$/, '');
+			// ARCH-MET-02b : une requête forgée atteint réellement les gardes du service.
+			const denied = async (
+				request: APIRequestContext,
+				url: string,
+				form: Record<string, string>
+			) => {
+				const response = await request.post(url, {
+					form,
+					headers: { origin: new URL(workUrl).origin, accept: 'application/json' }
+				});
+				expect(response.status()).toBe(403);
+				expect(await response.json()).toMatchObject({ type: 'failure', status: 403 });
+			};
+			await test.step('Un tiers ne peut pas renommer par POST forgé', async () => {
+				await denied(malikPage.request, `${workUrl}?/edit`, { title: 'Titre forgé' });
+				expect((await db.work.findFirstOrThrow({ where: { title } })).title).toBe(title);
+			});
 
 			await test.step('2. Je crédite Malik : il est prévenu', async () => {
 				await page.getByText('Créditer quelqu’un').click();
@@ -119,6 +137,77 @@ test.describe('LinkMusician — morceaux', () => {
 					.toEqual([150, 150]);
 				const work = await db.work.findFirstOrThrow({ where: { title } });
 				expect(work.proof).toBe('CORROBORATED');
+			});
+
+			await test.step('Un crédit confirmé ne donne aucun droit de gestion par POST', async () => {
+				const work = await db.work.findFirstOrThrow({ where: { title } });
+				const credit = await db.workContributor.findUniqueOrThrow({
+					where: { workId_personId: { workId: work.id, personId: malik.actorId } }
+				});
+				for (const [action, form] of [
+					['edit', { title: 'Titre forgé' }],
+					['delete', {}],
+					['compose', {}],
+					['openRole', { roles: 'LYRICS' }],
+					['removeRole', { roleId: 'forged' }],
+					['withdrawCredit', { contributorId: credit.id }],
+					['credit', { handle: me.actor.handle, roles: 'LYRICS' }],
+					['demo', { mediaId: work.demoMediaId! }],
+					['demo', { url: 'https://youtu.be/dQw4w9WgXcQ', demoTitle: 'Forgé' }]
+				] as [string, Record<string, string>][])
+					await denied(malikPage.request, `${workUrl}?/${action}`, form);
+				expect((await db.work.findUniqueOrThrow({ where: { id: work.id } })).title).toBe(title);
+			});
+
+			await test.step('Un MEMBER ne peut ni créer ni gérer un morceau de groupe', async () => {
+				const group = await db.actor.create({
+					data: {
+						kind: 'ORGANIZATION',
+						handle: `e2e-work-${Date.now()}`,
+						displayName: 'Groupe de recette Work',
+						organization: {
+							create: {
+								kind: 'BAND',
+								memberships: {
+									create: [
+										{
+											personId: me.actorId,
+											status: 'ACTIVE',
+											role: 'OWNER',
+											startedAt: new Date()
+										},
+										{
+											personId: malik.actorId,
+											status: 'ACTIVE',
+											role: 'MEMBER',
+											startedAt: new Date()
+										}
+									]
+								}
+							}
+						}
+					}
+				});
+				try {
+					const work = await db.work.create({
+						data: { ownerId: group.id, title: 'Idée du groupe' }
+					});
+					await malikPage.goto(`/morceaux/${work.id}`);
+					await waitForAppReady(malikPage);
+					await expect(malikPage.getByRole('heading', { name: 'Idée du groupe' })).toBeVisible();
+					await expect(malikPage.locator('form[action="?/edit"]')).toHaveCount(0);
+					await denied(malikPage.request, new URL(`/morceaux/${work.id}?/edit`, workUrl).href, {
+						title: 'Titre forgé'
+					});
+					await denied(malikPage.request, new URL('/morceaux/nouveau', workUrl).href, {
+						title: 'Idée forgée',
+						band: group.handle,
+						roles: 'LYRICS'
+					});
+					expect(await db.work.count({ where: { ownerId: group.id } })).toBe(1);
+				} finally {
+					await db.actor.delete({ where: { id: group.id } });
+				}
 			});
 
 			await test.step('5. Le morceau figure sur mon profil public', async () => {

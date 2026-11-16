@@ -7,6 +7,7 @@
  * - Quotas de stock (médias publiés, annonces actives) : comptés par le
  *   service appelant, comparés à la limite du palier.
  */
+import type { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { RefillingTokenBucket } from '#lib/server/rate-limit';
 import {
@@ -33,8 +34,11 @@ export function dailyBucket(quota: DailyQuota, level: TrustLevel) {
 	return bucket;
 }
 
-export async function getTrustLevel(actorId: string): Promise<TrustLevel> {
-	const actor = await prisma.actor.findUnique({
+export async function getTrustLevel(
+	actorId: string,
+	db: Prisma.TransactionClient | typeof prisma = prisma
+): Promise<TrustLevel> {
+	const actor = await db.actor.findUnique({
 		where: { id: actorId },
 		select: { trustLevel: true }
 	});
@@ -47,8 +51,13 @@ export async function consumeDailyQuota(actorId: string, quota: DailyQuota): Pro
 }
 
 /** Vérifie un quota de stock avant d'ajouter un élément. */
-export async function checkStockQuota(actorId: string, quota: StockQuota, current: number) {
-	const level = await getTrustLevel(actorId);
+export async function checkStockQuota(
+	actorId: string,
+	quota: StockQuota,
+	current: number,
+	db: Prisma.TransactionClient | typeof prisma = prisma
+) {
+	const level = await getTrustLevel(actorId, db);
 	return {
 		allowed: canAddWithinStock(level, quota, current),
 		limit: quotaLimit(level, quota),

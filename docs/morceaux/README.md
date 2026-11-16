@@ -132,3 +132,29 @@ du groupe. Une collaboration conserve l'ordre collaboration → morceau avant se
 Les règles de crédit, preuve et XP sont inchangées ; l'ensemble des effets reste
 dans la transaction métier. Pas de migration ni de changement de parcours ; aide
 et démo existantes restent applicables. Voir [le suivi de recette](../plan/README.md#arch-met-02a--ordre-des-verrous-56-15112026).
+
+### Gestion et révocation concurrente (ARCH-MET-02b, #57)
+
+Créer pour un groupe, modifier/supprimer, créditer/retirer un crédit en attente,
+ouvrir/retirer un rôle libre, joindre une maquette et déclarer composé prennent
+`work:` puis `band:` pour un groupe. L’existence du morceau et du porteur ainsi
+que la gestion sont relues après attente : une révocation déjà validée interdit
+la mutation. Une mutation déjà autorisée sous ces verrous peut terminer avant
+la révocation. La création préalloue un identifiant privé et suit le même ordre.
+Le retrait d’un rôle conserve son DELETE conditionnel : un rôle crédité ou
+rattaché à un autre morceau ne peut pas être supprimé par cette commande.
+
+La liste des morceaux gérables et les groupes proposés à la création partagent
+le même prédicat que la décision : personne porteuse vivante ou OWNER/ADMIN
+actifs d’un groupe vivant. L’équipe et le public gardent leurs lectures propres ;
+MEMBER, crédit, métier et mandat ne donnent aucun outil de gestion.
+
+Pour un nouveau lien de maquette, préparation réseau sans verrou SQL, puis
+création, publication et association dans une seule transaction. Révocation,
+suppression ou échec : aucun effet média persistant ; la compensation est le
+rollback SQL. Aucun DELETE de compensation sur un média existant ou partagé.
+Un média existant est relu et verrouillé avant association. Les tests à barrières
+sont dans `works/access.integration.test.ts` ; le parcours morceaux vérifie aussi
+les POST forgés de tiers, crédité et MEMBER. Aucune migration ni modification de
+parcours : aide, seed, export et anonymisation existants restent applicables.
+Retour par revert applicatif conservant les données, avec réintroduction de R2.

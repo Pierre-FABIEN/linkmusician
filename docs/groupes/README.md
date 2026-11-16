@@ -149,3 +149,13 @@ Aucun journal de collègues ni nouvel accès aux outils, aucune notification ou
 progression ajoutée, aucune succession technique RGPD présentée comme un acte
 humain. Aucun événement ancien reconstruit. Démo dédiée « Démo — Rôles du groupe ».
 Écoles, validations et options restent à suivre ; DASH-05 reste ouvert.
+
+## Gestion des morceaux et révocation (ARCH-MET-02b)
+
+Les mutations Work du groupe prennent leur verrou `work:` puis la même clé
+`band:` que les changements d’adhésion/rôle, avant de relire la gestion.
+Une révocation validée pendant l’attente interdit leur écriture ; une mutation
+déjà autorisée sous ces verrous peut terminer avant la révocation.
+`managedBands` partage le prédicat OWNER/ADMIN actifs d’un BAND vivant avec
+la gestion Work. Un membre ou un mandat ne reçoit aucun droit de gestion
+par ce mécanisme. Les règles d’équipe et de visibilité restent distinctes.

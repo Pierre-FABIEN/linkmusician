@@ -6,6 +6,7 @@
  * rapporte de l'XP (moteur de progression). Le quota de médias dépend de la
  * confiance (P1-09).
  */
+import type { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { emitAndProcess } from '#lib/server/progression/processor';
 import { summarize, type ProgressSummary } from '#lib/server/progression/profile';
@@ -26,8 +27,11 @@ export class MediaError extends Error {
 	}
 }
 
-export async function countQuotaMedia(actorId: string) {
-	return prisma.media.count({ where: { actorId, status: { in: [...QUOTA_STATUSES] } } });
+export async function countQuotaMedia(
+	actorId: string,
+	db: Prisma.TransactionClient | typeof prisma = prisma
+) {
+	return db.media.count({ where: { actorId, status: { in: [...QUOTA_STATUSES] } } });
 }
 
 /**
@@ -35,8 +39,17 @@ export async function countQuotaMedia(actorId: string) {
  * `trustActorId` : pour un groupe (P3-02), la confiance qui compte est celle
  * de la personne qui publie, pas celle du groupe (toujours au palier 0).
  */
-export async function assertMediaQuota(actorId: string, trustActorId = actorId) {
-	const quota = await checkStockQuota(trustActorId, 'mediaItems', await countQuotaMedia(actorId));
+export async function assertMediaQuota(
+	actorId: string,
+	trustActorId = actorId,
+	db: Prisma.TransactionClient | typeof prisma = prisma
+) {
+	const quota = await checkStockQuota(
+		trustActorId,
+		'mediaItems',
+		await countQuotaMedia(actorId, db),
+		db
+	);
 	if (!quota.allowed) {
 		throw new MediaError(
 			`Tu as atteint ta limite de ${quota.limit} médias pour l'instant. Elle augmente avec ta confiance (voir Réglages).`
@@ -50,21 +63,23 @@ export async function assertMediaQuota(actorId: string, trustActorId = actorId) 
  * transaction. Sans effet s'il est déjà publié.
  */
 export async function publishMedia(mediaId: string): Promise<ProgressSummary | null> {
-	return prisma.$transaction(async (tx) => {
-		const media = await tx.media.findUniqueOrThrow({ where: { id: mediaId } });
-		if (media.status === 'PUBLISHED') return null;
-		await tx.media.update({
-			where: { id: mediaId },
-			data: { status: 'PUBLISHED', publishedAt: new Date() }
-		});
-		const result = await emitAndProcess(tx, {
-			type: 'media.published',
-			actorId: media.actorId,
-			mediaId: media.id,
-			kind: publishedEventKind(media)
-		});
-		return summarize(media.actorId, [result]);
+	return prisma.$transaction((tx) => publishMediaInTransaction(tx, mediaId));
+}
+
+async function publishMediaInTransaction(tx: Prisma.TransactionClient, mediaId: string) {
+	const media = await tx.media.findUniqueOrThrow({ where: { id: mediaId } });
+	if (media.status === 'PUBLISHED') return null;
+	await tx.media.update({
+		where: { id: mediaId },
+		data: { status: 'PUBLISHED', publishedAt: new Date() }
 	});
+	const result = await emitAndProcess(tx, {
+		type: 'media.published',
+		actorId: media.actorId,
+		mediaId: media.id,
+		kind: publishedEventKind(media)
+	});
+	return summarize(media.actorId, [result]);
 }
 
 /** Ajoute un lien YouTube, SoundCloud ou Bandcamp. */
@@ -74,28 +89,55 @@ export async function addExternalMedia(
 	/** Personne qui publie au nom d'un groupe (quota et validation selon sa confiance). */
 	trustActorId = actorId
 ) {
+	await assertMediaQuota(actorId, trustActorId);
+	const prepared = await prepareExternalMedia(input);
+	return prisma.$transaction(
+		(tx) => addPreparedExternalMedia(tx, actorId, prepared, trustActorId),
+		{ timeout: 20_000 }
+	);
+}
+
+/** Préparation sans effet SQL : oEmbed (au plus 4 s) reste hors des verrous métier. */
+export async function prepareExternalMedia(input: {
+	url: string;
+	title?: string;
+	isDemo: boolean;
+	instrumentId?: string | null;
+}) {
 	const parsed = parseExternalMedia(input.url);
 	if (!parsed.ok) throw new MediaError(EXTERNAL_MESSAGES[parsed.reason]);
-	const quota = await assertMediaQuota(actorId, trustActorId);
-
 	const title =
 		normalizeTitle(input.title ?? '') ||
 		normalizeTitle((await fetchExternalTitle(parsed.media)) ?? '') ||
 		parsed.media.url;
+	return {
+		provider: parsed.media.provider,
+		externalUrl: parsed.media.url,
+		title,
+		isDemo: input.isDemo,
+		instrumentId: input.instrumentId || null
+	};
+}
+
+/** Aucun réseau ni transaction imbriquée. Tous les effets, publication comprise,
+ * sont annulés avec l’association appelante ; aucun média existant à compenser. */
+export async function addPreparedExternalMedia(
+	tx: Prisma.TransactionClient,
+	actorId: string,
+	prepared: Awaited<ReturnType<typeof prepareExternalMedia>>,
+	trustActorId = actorId
+) {
+	const quota = await assertMediaQuota(actorId, trustActorId, tx);
 	const status = readyStatus(quota.level);
-	const media = await prisma.media.create({
+	const media = await tx.media.create({
 		data: {
+			...prepared,
 			actorId,
 			kind: 'EXTERNAL_LINK',
-			provider: parsed.media.provider,
-			externalUrl: parsed.media.url,
-			title,
-			isDemo: input.isDemo,
-			instrumentId: input.instrumentId || null,
 			status: status === 'PUBLISHED' ? 'PROCESSING' : 'PENDING_REVIEW'
 		}
 	});
-	const progress = status === 'PUBLISHED' ? await publishMedia(media.id) : null;
+	const progress = status === 'PUBLISHED' ? await publishMediaInTransaction(tx, media.id) : null;
 	return { media: { ...media, status }, progress };
 }
 

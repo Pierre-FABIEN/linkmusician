@@ -16,7 +16,7 @@
  * Il ou elle peut demander à rejoindre un groupe.
  */
 import type { OrgRole, Prisma } from '@prisma/client';
-import { structureAccess } from '#lib/server/organizations/access';
+import { activeBandManager, structureAccess } from '#lib/server/organizations/access';
 import { prisma } from '#lib/server';
 import { suggestHandle } from '#lib/actors/handle';
 import { isIndexable } from '#lib/actors/visibility';
@@ -596,12 +596,7 @@ export async function setMyTitle(bandId: string, personId: string, title: string
 /** Groupes que la personne gère (OWNER, ADMIN), pour publier en leur nom. */
 export async function managedBands(personId: string) {
 	const rows = await prisma.membership.findMany({
-		where: {
-			personId,
-			status: 'ACTIVE',
-			role: { in: ['OWNER', 'ADMIN'] },
-			org: { kind: 'BAND', dissolvedAt: null, actor: { deletedAt: null } }
-		},
+		where: activeBandManager(personId),
 		orderBy: { startedAt: 'asc' },
 		select: {
 			org: {

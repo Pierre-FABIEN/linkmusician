@@ -29,3 +29,14 @@ export async function structureAccess(
 		permissions: structurePermissions(membership.org.kind, 'ACTIVE', membership.role)
 	};
 }
+
+/** Même prédicat pour les listes de groupes gérés et les commandes Work.
+ * Il ne confère ni visibilité publique ni appartenance à une équipe. */
+export function activeBandManager(personId: string): Prisma.MembershipWhereInput {
+	return {
+		personId,
+		status: 'ACTIVE',
+		role: { in: ['OWNER', 'ADMIN'] },
+		org: liveStructure('BAND')
+	};
+}

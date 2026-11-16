@@ -167,7 +167,8 @@ exécution a planté à l'ouverture du navigateur (mémoire WSL) ; la relance pa
 | Lot          | Issue                                                          | État            | Périmètre                                                                                                                                                                                 |
 | ------------ | -------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ARCH-MET-01  | [#55](https://github.com/Pierre-FABIEN/linkmusician/issues/55) | ✅ publié, reçu | Audit b30edaa confirmé publié ; suite validée le 15/11/2026, corrections séparées.                                                                                                        |
-| ARCH-MET-02a | [#56](https://github.com/Pierre-FABIEN/linkmusician/issues/56) | ✅ local        | Ordre groupe avant acteurs et unions transactionnelles corrigés ; 11 courses à barrières, suite PostgreSQL 409 tests, 1 368 unitaires et 5 E2E réussis ; sans migration.                  |
+| ARCH-MET-02a | [#56](https://github.com/Pierre-FABIEN/linkmusician/issues/56) | ✅ publié       | Ordre groupe avant acteurs et unions transactionnelles corrigés ; 11 courses à barrières, suite PostgreSQL 409 tests, 1 368 unitaires et 5 E2E réussis ; sans migration.                  |
+| ARCH-MET-02b | [#57](https://github.com/Pierre-FABIEN/linkmusician/issues/57) | ✅ local        | Garde Work sous work → band, gestion/listes communes, maquette atomique et rollback média ; aucune migration.                                                                             |
 | DASH-01      | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local        | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
 | DASH-02      | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local        | Structures et agences DASH-02a/02b complétées par les affectations consenties DASH-04b ; aucun droit administratif ou artistique par appartenance.                                        |
 | DASH-02a     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local        | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
@@ -921,6 +922,11 @@ initiales. #26/#27/#28 conservent leurs critères propres non réalisés.
 
 ### ARCH-MET-02a — ordre des verrous (#56, 15/11/2026)
 
+**État revérifié le 16/11/2026 pour 02b :** commit `8cdf0b5` désormais
+publié sur `origin/main`, #56 close et historique de livraison locale
+explicitement conservé comme tel dans l’issue. Aucun déploiement de production
+établi. Le récit qui suit décrit la réalisation initiale de 02a.
+
 Base propre `b30edaa`, confirmée publiée par `git ls-remote origin refs/heads/main`.
 L'utilisateur a demandé de passer à la suite ; audit reçu, issue distincte #56
 créée avant le code. Travail sur `main`, sans push ni migration.
@@ -980,3 +986,75 @@ préparation habituelle ; aucune migration créée par ce lot, aucun déploiemen
 de production. Lot livré localement sur `main`, sans push ; retrouver son SHA
 par l'ID ARCH-MET-02a dans `git log`. Suite : issue distincte ARCH-MET-02b
 avant le code de gestion/révocation ; R3 et SELF restent dans leurs lots propres.
+
+### ARCH-MET-02b — gestion Work et révocation (#57, 16/11/2026)
+
+Démarrage : `main` propre, commit documentaire local `5e9d6b3` conservé ;
+`git ls-remote origin refs/heads/main` confirme `8cdf0b585bd4c79f7ea4598dfe98c03ebab17568`.
+02a est donc publié et #55/#56 closes, contrairement aux états locaux
+historiques de leurs récits. Aucun déploiement de production établi.
+Recherche de doublon effectuée ; issue #57 créée avant code et notée dans la fiche.
+
+R2 reproduit avant correction : test à barrières PostgreSQL, permission ADMIN
+lue avant une rétrogradation qui commit pendant l’attente, renommage finalement
+accepté (test rouge : attendu 403, reçu succès). Le même scénario passe avec
+la garde work → band → relecture du porteur et de la gestion. Une transaction
+déjà autorisée sous ces verrous peut précéder la révocation : ce cas est testé
+séparément. Inventaire des dix variantes de commande et des listes :
+[réception R2](../conception/17-audit-capacites-services.md#réception-et-correction-r2--arch-met-02b-57-16112026).
+
+Création : identifiant privé préalloué, même ordre work → band avant le Work
+et son crédit/acte. Nouveau lien : préparation réseau (oEmbed au plus 4 s)
+hors verrou ; quota/confiance, média, publication/événement et association
+dans le TransactionClient commun. Compensation par rollback SQL ; aucun
+DELETE d’un média existant ou partagé. Média existant relu sous verrou de
+ligne SQL qualifié. Aucun réseau ni transaction imbriquée dans la section
+critique. DELETE de rôle libre toujours conditionnel.
+
+Aucune migration ni donnée personnelle nouvelle ; registres humains, périodes,
+consentements, progression append-only et exports/anonymisation conservés.
+Pas de nouveau parcours : aide et démo existantes restent applicables.
+Retour par revert applicatif cohérent conservant les données ; retour connu
+de R2. 02c/R3, R4 et SELF #51–#54 restent hors lot.
+
+Incidents de recette corrigés avant la validation finale : libellé historique
+« Tu ne gères pas ce groupe » rétabli (le premier passage avait chargé la
+version intermédiaire), et collision `users_referralCode_key` dans la fixture
+TL2 : son timestamp tronqué supprimait l’aléa. Le code de parrainage de test
+utilise maintenant un UUID ; aucune règle de confiance modifiée. Les deux
+fichiers passent séparément après correction, puis dans le passage d’ensemble
+final ci-dessous.
+La suite signale aussi une dépréciation `pg` sur des requêtes simultanées d’un
+client, sans élargir R2 à la relecture générale du processeur.
+
+Recette finale du 16/11/2026 :
+
+- `npm run check` : 0 erreur et 0 avertissement, hors E2E.
+- `npm run test:unit -- --run` : **1 368 tests réussis**, 467 tests conditionnels ignorés.
+- Passe ciblée sous `PROGRESSION_INTEGRATION=1`, sans parallélisme de fichiers :
+  **461 tests réussis dans 44 fichiers** ; deux fichiers conditionnels ignorés
+  (5 cas GEO/nudges et 3 cas médias, ces derniers exécutés séparément ci-dessous).
+  Périmètre : works, bands, milestones, collaborations, progression, career,
+  media, trust et accès aux organisations. Les **36 cas de gestion Work**
+  et les **11 barrières 02a** passent dans cet ensemble.
+- `MEDIA_INTEGRATION=1 npm run test:unit -- --run
+src/lib/server/media/service.integration.test.ts --no-file-parallelism` :
+  **3 tests réussis**, quotas TL0, publication TL2 et validation du lien.
+- `npm run test:e2e -- e2e/linkmusician/morceaux.spec.ts
+e2e/linkmusician/collaborations-morceau.spec.ts e2e/linkmusician/concerts.spec.ts
+e2e/linkmusician/groupes.spec.ts e2e/linkmusician/medias.spec.ts --retries=0` :
+  **6 tests réussis sans reprise**. POST forgés refusés pour tiers, crédit confirmé
+  et MEMBER ; lecture d’équipe sans gestion et création de groupe refusée ;
+  collaborations, concerts, médias, rôles et consentements conservés.
+- Prettier et ESLint ciblés : conformes, aucun avertissement sur les fichiers du lot ;
+  `git diff --check` conforme. Le lint global garde ses écarts préexistants :
+  Prettier sur `.shot-metro.mjs` et `.shot-tmp.mjs` ; ESLint : variable inutilisée
+  dans `.shot-metro.mjs` (1 erreur et 464 avertissements au total).
+
+Aucune migration créée par 02b, aucune nouvelle donnée personnelle ni nouveau
+parcours ; aide/démo et export/anonymisation restent applicables. La recette E2E
+utilise sa préparation habituelle du schéma dédié, sans déploiement de production.
+Livraison par commit local français sur `main`, sans push ; retrouver son SHA par
+ARCH-MET-02b dans `git log`. Le commit documentaire initial `5e9d6b3` est conservé.
+Prochaine proposition : 02c/R3 dans une issue distincte ; R4 et SELF #51–#54,
+#36 et #30/#35/#50 restent ouverts selon leurs propres critères.

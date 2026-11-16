@@ -1,109 +1,70 @@
-# Prompt de reprise — ARCH-MET-02b, gestion Work et révocation concurrente
+# Prompt de reprise — après ARCH-MET-02b, proposition concurrente
 
 ```markdown
-Reprends LinkMusician dans /home/utilisateur/linkmusician et réalise le lot
-ARCH-MET-02b : sécuriser les mutations de gestion des morceaux contre une
-révocation concurrente, selon le plan des issues.
-
+Reprends LinkMusician dans /home/utilisateur/linkmusician. Une session = un lot.
 Travaille directement sur main, sans push. Commence par git status, git log
 et git ls-remote origin refs/heads/main ; fetch si nécessaire, en préservant
-toutes les modifications présentes. Une session = un lot.
+les commits et toutes les modifications présents.
 
-État vérifié le 16/11/2026 : ARCH-MET-02a, commit 8cdf0b585bd4c79f7ea4598dfe98c03ebab17568,
-est maintenant publié sur origin/main. #55 et #56 sont closes ; la mention
-« livraison locale » dans leurs historiques doit être distinguée de cet état
-publié, à revérifier au démarrage. Aucun déploiement de production établi.
-Recette 02a : 1 368 unitaires, suite PostgreSQL 409 tests dont 11 scénarios à
-barrières, 5 E2E sans reprise, check 0 erreur/0 avertissement. Lint ciblé vert ;
-échecs globaux préexistants des scripts .shot-* documentés dans le plan.
+État du 16/11/2026 : ARCH-MET-02a, 8cdf0b585bd4c79f7ea4598dfe98c03ebab17568,
+est publié sur origin/main ; #55/#56 closes. Sa publication est désormais
+explicitée dans #56 au-dessus de la livraison locale historique. Aucun
+déploiement de production établi.
+ARCH-MET-02b est suivi dans #57 ; retrouver son commit et sa recette finale
+dans git log, docs/plan/README.md et l’issue. Distinguer sa livraison locale,
+la mise à jour GitHub et une éventuelle publication ultérieure du code.
+Le commit documentaire initial 5e9d6b3 a été préservé.
+Recette 02b : 1 368 unitaires, 461 tests ciblés dans 44 fichiers, 3 intégrations
+médias séparées et 6 E2E sans reprise réussis ; types sans erreur/avertissement,
+lint ciblé conforme et réserves globales .shot-* préexistantes consignées.
+Les 36 cas de gestion et les 11 barrières 02a passent. Aucune migration 02b.
 
-Lis CLAUDE.md, CONTRIBUTING.md, docs/plan/README.md (recette de fin),
-docs/plan/fin-du-projet.md (fiche ARCH-MET-02b), docs/plan/a-trancher.md,
-docs/conception/17-audit-capacites-services.md (R2 et réception R1),
-docs/morceaux/README.md et les règles de groupes/structures concernées.
-Relis les critères actuels de #55/#56 et recherche une éventuelle issue
-ARCH-MET-02b existante. Crée son issue distincte avant le code si elle manque,
-sans doublon, puis note son numéro dans le plan. #36, #51–#54 et #30/#35/#50
-restent les références du chantier suivant, sans élargir ce lot à SELF.
+Lis CLAUDE.md, CONTRIBUTING.md, docs/plan/README.md (§4 et recettes 02a/02b),
+docs/plan/fin-du-projet.md (fiche 02c et dépendances), docs/plan/a-trancher.md,
+docs/conception/17-audit-capacites-services.md (R1/R2 corrigés, R3/R4 distincts),
+et les documentations collaborations/messages concernées.
+Vérifie le résultat réel de #57 et tout critère restant avant de commencer.
 
-Objectif et périmètre :
+Suite proposée : ARCH-MET-02c, proposition concurrente, indépendante de SELF.
+Relis #55/#56/#57 et recherche une issue 02c existante ; crée une issue
+distincte avant le code si elle manque, sans doublon, puis note-la dans le plan.
 
-1. Caractériser R2 sur la base actuelle avec de vraies transactions PostgreSQL
-   et des barrières déterministes. Une mutation qui attend pendant qu'une
-   révocation est validée doit ensuite relire les droits et être refusée.
-   Distinguer cette situation d'une mutation déjà autorisée et sérialisée avant
-   la révocation ; définir le point de décision plutôt que promettre une
-   annulation rétroactive de toute transaction concurrente.
-2. Inventorier les mutations Work soumises à gestion et les listes qui les
-   proposent. Harmoniser décision de gestion et prédicat de liste, sans
-   confondre gestion, équipe et visibilité publique. Une personne gère son
-   morceau ; pour un groupe vivant, seuls OWNER/ADMIN actifs gèrent.
-   MEMBER, crédit, métier ou mandat ne donnent aucun droit de gestion.
-3. Couvrir explicitement createWork pour un groupe, setDemo (média existant
-   et nouveau lien), removeOpenRole, ainsi que les autres mutations de gestion
-   identifiées. Relire l'existence du morceau et du porteur après attente.
-   Conserver le DELETE conditionnel d'un rôle libre : aucun rôle crédité ni
-   rôle d'un autre morceau ne doit être supprimé par cette commande.
-4. Pour setDemo, examiner addExternalMedia et ses effets avant de choisir
-   l'orchestration. Préparer le réseau hors de la transaction critique quand
-   possible, puis revérifier les droits et le média avant l'association.
-   Définir et tester la compensation en cas de révocation, suppression ou
-   échec ; ne jamais supprimer un média existant ou déjà utilisé par autrui.
-   Ne pas conserver de verrou SQL pendant un appel réseau sans analyse
-   explicite de sa durée et des effets à compenser.
+Caractérise R3 avec de vraies transactions PostgreSQL et barrières déterministes :
+proposeCollaboration compte avant son tx, sans unicité conversation/jour.
+Définis la clé d’intention et les cas annulation/nouvel essai, sans déduire
+l’unicité d’une proposition de l’idempotence XP d’un événement donné.
+Préserve les exports publics, consentements, actes humains, lectures privées,
+mineur·es/blocages/quotas, et le TransactionClient de l’appelant.
+Aucun acte ancien reconstitué, aucun faux collaboration.completed.
 
-Fichiers à examiner : src/lib/server/works/service.ts,
-src/lib/server/organizations/access.ts, src/lib/server/bands/service.ts,
-les routes morceaux et les tests de ces domaines. Un helper works/access.ts
-est possible si nécessaire ; conserver les exports publics de works/service.ts
-et utiliser le db/TransactionClient fourni par l'appelant. ARCH-MET-03 reste
-une extraction distincte, pas une réécriture générale dans ce lot.
+Contrat à préserver : collaboration → work avant toute écriture de participant ;
+work → band avant acteurs, union triée transactionnelle des acteurs des
+émissions successives, périodes historiques et candidats présentateurs figés
+puis traités conditionnellement. Les mutations Work relisent existence et
+gestion sous work/band ; OWNER/ADMIN actifs d’un BAND vivant seulement,
+ou personne porteuse. Ni MEMBER ni crédit ni métier ni mandat ne gèrent.
+La création préalloue un identifiant Work privé pour suivre work → band.
+La préparation oEmbed est hors verrous SQL ; média neuf, publication et
+association sont atomiques et se compensent par rollback SQL, sans DELETE
+de média existant ou partagé. Ne pas réintroduire une transaction imbriquée.
 
-Contrat de concurrence à préserver :
+Recette : scénarios à barrières du lot et non-régressions justifiées,
+11 barrières 02a et gestion 02b si leurs chemins sont touchés ; check,
+unitaires, lint et E2E concernés sans reprise. Jamais check pendant E2E.
+Les scripts .shot-metro.mjs/.shot-tmp.mjs gardent leurs écarts préexistants :
+les consigner, sans nettoyage opportuniste, et vérifier lint ciblé séparément.
+Les tests SQL qualifiés doivent définir DATABASE_URL avec le même schéma e2e
+que leur client Prisma, sans exposer ses secrets.
 
-- collaboration: puis work: avant toute écriture de participant/collaboration ;
-- pour un morceau existant partageant les clés, work: puis band: avant les
-  acteurs du moteur ; décider explicitement le protocole de création du morceau ;
-- coordonner les mutations avec la même clé band: que les changements
-  d'adhésion/rôle, puis relire la gestion sous cette protection ;
-- conserver l'union triée de tous les acteurs avant les événements successifs,
-  les périodes historiques et les candidats présentateurs figés puis traités
-  conditionnellement. Un tri isolé par événement ne suffit pas ;
-- aucun tx imbriqué indépendant ni cache de permission. Préserver rollback,
-  relecture après suppression de Work et absence d'événement/crédit orphelin.
+Pas de migration par principe ; si nécessaire, justifier, employer les scripts
+db:* et relire le SQL. Retour applicatif cohérent conservant les données,
+avec documentation du risque réintroduit. R4, extraction ARCH-MET-03 et
+SELF #51–#54 restent distincts. #36 et #30/#35/#50 restent les références ;
+le modèle exact de #51 doit être validé avant son code.
+Aucun SELF/HOME, WorkPitch, Project générique ou métier futur dans 02c.
 
-Recette attendue :
-
-- tests à barrières révocation/rétrogradation contre mutations Work et création
-  pour groupe ; mutation refusée après révocation validée pendant l'attente ;
-- courses maquette/suppression, rôle libre/attribution et compensation média,
-  avec rollback des effets SQL et absence de suppression indue de média ;
-- accès direct service et POST forgé : refus d'un MEMBER, crédité ou tiers ;
-  listes cohérentes avec les droits, projections public/équipe sans fuite privée ;
-- rejouer les 11 barrières 02a et les intégrations pertinentes works, bands,
-  collaborations, milestones et progression ; étendre seulement si justifié ;
-- npm run check, npm run lint, npm run test:unit -- --run et E2E des parcours
-  touchés. Jamais check pendant E2E. Ne pas corriger opportunément les scripts
-  .shot-metro.mjs/.shot-tmp.mjs ; consigner les échecs globaux préexistants et
-  vérifier séparément Prettier/ESLint sur les fichiers du lot.
-
-Préserver WorkCreditAct, CollaborationAppreciationAct, consentements explicites,
-lectures privées, export complet, anonymisation et cascades. Aucun acte ancien
-reconstitué depuis états, updatedAt, notifications ou événements. Catalogues,
-tracks, rôles et spécialités existants ; blocages, mineur·es et quotas conservés.
-Core pur ; XP append-only, jamais preuve, permission ou critère de tri.
-org:/studio: gardent leurs circuits propres.
-
-Aucune migration attendue ; si elle devient nécessaire, justifier le changement
-et suivre les scripts db:* du dépôt, avec revue du SQL. Retour par revert
-applicatif cohérent conservant les données, en documentant le retour du risque R2.
-ARCH-MET-02c (proposition concurrente) et R4 restent distincts. Aucun SELF/HOME,
-WorkPitch, Project générique, métier futur ou faux collaboration.completed
-à introduire dans ce lot. Le modèle exact de #51 reste à valider avant son code.
-
-Termine le lot : mettre à jour conception, documentation de domaine, tableau
-et preuves de recette, ainsi que l'issue concernée. Créer un commit local en
-français avec ARCH-MET-02b, sans push. Distinguer résultats locaux, publication
-GitHub et déploiement de production. Actualiser ce prompt pour la suite réelle
-et signaler tout critère restant plutôt que le présenter comme livré.
+Termine le lot : conception, docs de domaine, tableau, preuves, issue,
+prompt suivant et commit local en français avec ARCH-MET-02c, sans push.
+Distingue résultats locaux, publication GitHub et production ; signale tout
+critère restant au lieu de le présenter comme livré.
 ```
