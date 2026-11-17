@@ -1,9 +1,9 @@
 import type { Browser, Page } from '@playwright/test';
 import { test, expect } from '../support/fixtures';
-import { pageOrigin, signUpAndVerify } from '../support/admin';
+import { pageOrigin, signUpAndVerify, sveltekitActionHeaders } from '../support/admin';
 import { makeAccount, makeClientIp, type Account } from '../support/account';
 import { db, deleteUser, requireUser } from '../support/db';
-import { waitForAppReady } from '../support/flows';
+import { waitForAppReady, waitForPath } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
 import {
 	createMusician,
@@ -25,6 +25,14 @@ import {
  * - booker + groupe : la gestion qui répond est majeure (Q48) ; un groupe
  *   géré par des mineur·es seulement ne reçoit pas de proposition ; une
  *   organisatrice tierce ne répond pas pour le groupe.
+ *
+ * DASH-20b, deuxième tranche (même fichier, mêmes aides) :
+ *
+ * - groupe + lieu : un lieu publie une date ; non-membre, MEMBER sans gestion
+ *   et co-gestionnaire mineure ne candidatent pas (POST forgés en 403) ; la
+ *   co-gestion retirée pendant l'attente ôte à l'expéditeur le droit de parler
+ *   pour le groupe ; acceptation à 390 px ; export, puis effacement du compte
+ *   de l'expéditeur, sans perdre la candidature du groupe.
  */
 
 const A11Y_EXCLUDE = ['.cartButton']; // Panier du boilerplate, remontée n° 14.
@@ -75,7 +83,10 @@ async function forge(page: Page, action: string, form: Record<string, string>) {
 	return response.status();
 }
 
-async function band(name: string, members: { personId: string; role: 'OWNER' | 'ADMIN' }[]) {
+async function band(
+	name: string,
+	members: { personId: string; role: 'OWNER' | 'ADMIN' | 'MEMBER' }[]
+) {
 	const suffix = Math.random().toString(36).slice(2, 8);
 	const handle = `e2e-${name.toLowerCase().replace(/[^a-z]/g, '')}-${suffix}`;
 	const actor = await db.actor.create({
@@ -104,10 +115,30 @@ async function propose(page: Page, handle: string) {
 	await page.getByRole('button', { name: 'Envoyer la proposition' }).click();
 }
 
+/** POST d'une action d'annonce (plateau), comme un client modifié l'enverrait. */
+async function forgeOn(page: Page, gig: string, action: string, form: Record<string, string>) {
+	const response = await page.request.post(`${gig}?/${action}`, {
+		form,
+		headers: { Origin: pageOrigin(page) }
+	});
+	return response.status();
+}
+
+/** Première valeur trouvée sous `key`, à n'importe quelle profondeur de l'export. */
+function findKey(value: unknown, key: string): unknown {
+	if (!value || typeof value !== 'object') return undefined;
+	if (key in value) return (value as Record<string, unknown>)[key];
+	for (const child of Object.values(value)) {
+		const found = findKey(child, key);
+		if (found !== undefined) return found;
+	}
+	return undefined;
+}
+
 const representations = (artistId: string) =>
 	db.representation.findMany({ where: { artistId }, select: { id: true, status: true } });
 
-test.describe('LinkMusician — recette transverse (DASH-20a)', () => {
+test.describe('LinkMusician — recette transverse (DASH-20a, DASH-20b)', () => {
 	test.setTimeout(6 * 60_000);
 
 	test('premier résultat : la distance ne sort du serveur que par tranche', async ({
@@ -344,6 +375,256 @@ test.describe('LinkMusician — recette transverse (DASH-20a)', () => {
 			await db.actor.deleteMany({ where: { handle: { in: handles } } });
 			for (const a of [leaAccount, zoeAccount, samAccount])
 				await deleteUser(a.email).catch(() => {});
+		}
+	});
+
+	test('groupe + lieu : gestion retirée pendant l’attente, export et effacement', async ({
+		page,
+		account,
+		browser
+	}) => {
+		const others = { lea: makeAccount(), malik: makeAccount(), zoe: makeAccount() };
+		const more = { tom: makeAccount(), sam: makeAccount() };
+		const pages = {
+			lea: await newPage(browser),
+			malik: await newPage(browser),
+			zoe: await newPage(browser),
+			tom: await newPage(browser),
+			sam: await newPage(browser)
+		};
+		const suffix = Math.random().toString(36).slice(2, 8);
+		const venueName = `E2E La Halle ${suffix}`;
+		const handles: string[] = [];
+		let venueId = '';
+		let malikErased = '';
+		const locate = (actorId: string) =>
+			db.$executeRawUnsafe(
+				`INSERT INTO "e2e"."actor_locations" ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
+				 VALUES ($1, $2, $3, $4, public.ST_SetSRID(public.ST_MakePoint($5, $6), 4326)::public.geography, now())`,
+				actorId,
+				MONTAUBAN.code,
+				MONTAUBAN.nom,
+				MONTAUBAN.dep,
+				MONTAUBAN.lng,
+				MONTAUBAN.lat
+			);
+		try {
+			// Paul gère le lieu ; Léa (responsable), Malik (co-gestion), Zoé
+			// (17 ans, co-gestion) et Tom (membre) forment les Rats ; Sam est tierce.
+			const paul = await person(page, account, ADULT);
+			const lea = await person(pages.lea, others.lea, ADULT);
+			const malik = await person(pages.malik, others.malik, ADULT);
+			const zoe = await person(pages.zoe, others.zoe, minorBirth());
+			const tom = await person(pages.tom, more.tom, ADULT);
+			await person(pages.sam, more.sam, ADULT);
+			const rats = await band('Rats', [
+				{ personId: lea.actorId, role: 'OWNER' },
+				{ personId: malik.actorId, role: 'ADMIN' },
+				{ personId: zoe.actorId, role: 'ADMIN' },
+				{ personId: tom.actorId, role: 'MEMBER' }
+			]);
+			handles.push(rats.handle, `e2e-halle-${suffix}`);
+			await locate(rats.actorId);
+			venueId = (
+				await db.venue.create({
+					data: {
+						name: venueName,
+						nameKey: venueName.toLowerCase(),
+						kind: 'BAR',
+						communeCode: MONTAUBAN.code,
+						communeName: MONTAUBAN.nom,
+						departmentCode: MONTAUBAN.dep,
+						lat: MONTAUBAN.lat,
+						lng: MONTAUBAN.lng,
+						createdById: paul.actorId,
+						validatedAt: new Date()
+					}
+				})
+			).id;
+			const org = await db.actor.create({
+				data: {
+					kind: 'ORGANIZATION',
+					handle: `e2e-halle-${suffix}`,
+					displayName: venueName,
+					organization: {
+						create: {
+							kind: 'VENUE',
+							memberships: {
+								create: {
+									personId: paul.actorId,
+									role: 'OWNER',
+									status: 'ACTIVE',
+									startedAt: new Date()
+								}
+							},
+							venueProfile: {
+								create: {
+									capacity: 60,
+									stage: 'Petite scène.',
+									conditions: ['HAT'],
+									days: [5],
+									publishedAt: new Date()
+								}
+							}
+						}
+					}
+				}
+			});
+			await db.venue.update({ where: { id: venueId }, data: { claimedByActorId: org.id } });
+			await db.venueClaim.create({
+				data: {
+					venueId,
+					requestedById: paul.actorId,
+					code: `H${suffix}`.toUpperCase().slice(0, 8),
+					status: 'APPROVED',
+					orgId: org.id,
+					reviewedAt: new Date()
+				}
+			});
+			await locate(org.id);
+			const applications = () =>
+				db.application.findMany({
+					where: { applicantActorId: rats.actorId },
+					select: { id: true, status: true, sentById: true, conversationId: true }
+				});
+
+			const gig = await test.step('1. Paul publie une date du lieu', async () => {
+				await page.goto(`/lieux/${venueId}/gerer`);
+				await waitForAppReady(page);
+				await page.getByRole('link', { name: 'Publier une date' }).click();
+				await waitForPath(page, '/plateaux/nouveau');
+				await waitForAppReady(page);
+				const day = new Date(Date.now() + 11 * 86_400_000).toISOString().slice(0, 10);
+				await page.getByLabel('Date').fill(day);
+				await page.getByLabel('Titre').fill('Vendredi à la Halle');
+				await page
+					.getByLabel('Description')
+					.fill('Deux groupes, chapeau et repas offerts, fin à minuit.');
+				await page.getByRole('button', { name: 'Publier le plateau' }).click();
+				await expect(page).toHaveURL(/\/annonces\/c/);
+				return new URL(page.url()).pathname;
+			});
+
+			await test.step('2. Ni tierce, ni membre sans gestion, ni mineure : pas de candidature', async () => {
+				const message = { band: rats.handle, message: 'Rock garage, set de quarante minutes.' };
+				expect(await forgeOn(pages.sam, gig, 'applyBand', message)).toBe(403);
+				expect(await forgeOn(pages.tom, gig, 'applyBand', message)).toBe(403);
+				expect(await forgeOn(pages.zoe, gig, 'applyBand', message)).toBe(403);
+				await pages.zoe.goto(gig);
+				await waitForAppReady(pages.zoe);
+				await expect(pages.zoe.getByText('Avant 18 ans, on ne candidate pas')).toBeVisible();
+				await expect(
+					pages.zoe.getByRole('button', { name: 'Envoyer la candidature du groupe' })
+				).toHaveCount(0);
+				expect(await applications()).toEqual([]);
+			});
+
+			const id = await test.step('3. Malik candidate au nom des Rats', async () => {
+				await pages.malik.goto(gig);
+				await waitForAppReady(pages.malik);
+				await pages.malik
+					.getByLabel(/Ton message à/)
+					.fill('Rock garage, set de quarante minutes, autonomes sur le matériel.');
+				await pages.malik.getByRole('button', { name: 'Envoyer la candidature du groupe' }).click();
+				await expect(pages.malik.getByText(`${rats.name} : Envoyée`)).toBeVisible();
+				const [row] = await applications();
+				expect(row.sentById).toBe(malik.actorId);
+				expect(
+					await db.notification.count({
+						where: { recipientActorId: paul.actorId, type: 'APPLICATION_RECEIVED' }
+					})
+				).toBe(1);
+				// Une tierce n'accepte pas, un membre sans gestion ne retire pas.
+				expect(await forgeOn(pages.sam, gig, 'accept', { applicationId: row.id })).toBe(404);
+				expect(await forgeOn(pages.tom, gig, 'withdrawBand', { applicationId: row.id })).toBe(403);
+				expect(await forgeOn(pages.sam, gig, 'withdrawBand', { applicationId: row.id })).toBe(403);
+				expect((await applications())[0].status).toBe('SENT');
+				return row.id;
+			});
+
+			await test.step('4. Léa retire la co-gestion à Malik : il ne parle plus pour le groupe', async () => {
+				await pages.lea.goto(`/groupes/${rats.handle}`);
+				await waitForAppReady(pages.lea);
+				const tile = pages.lea
+					.getByRole('list', { name: 'Membres actuels' })
+					.getByRole('listitem')
+					.filter({ hasText: malik.name });
+				await tile.getByRole('button', { name: 'Gérer' }).click();
+				await tile.getByRole('button', { name: 'Retirer la co-gestion' }).click();
+				await expect(pages.lea.getByText('Co-gestion retirée.').first()).toBeVisible();
+				expect(await forgeOn(pages.malik, gig, 'withdrawBand', { applicationId: id })).toBe(403);
+				expect((await applications())[0].status).toBe('SENT');
+				await pages.malik.goto(gig);
+				await waitForAppReady(pages.malik);
+				await expect(
+					pages.malik.getByText('Un plateau se candidate au nom d’un groupe')
+				).toBeVisible();
+			});
+
+			await test.step('5. Paul accepte à 390 px : la conversation s’ouvre avec Léa', async () => {
+				await page.setViewportSize({ width: 390, height: 844 });
+				await page.goto(gig);
+				await waitForAppReady(page);
+				const card = page.getByRole('list', { name: 'Candidatures reçues' }).getByRole('listitem');
+				await expect(card).toContainText(rats.name);
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+				expect(await horizontalOverflow(page)).toEqual([]);
+				await card.getByRole('button', { name: 'Accepter' }).click();
+				await expect(card.getByRole('link', { name: 'Ouvrir la conversation' })).toBeVisible();
+				const [row] = await applications();
+				expect(row.status).toBe('ACCEPTED');
+				const participants = await db.conversationParticipant.findMany({
+					where: { conversationId: row.conversationId! },
+					select: { actorId: true }
+				});
+				expect(participants.map((p) => p.actorId).sort()).toEqual(
+					[paul.actorId, lea.actorId].sort()
+				);
+				const accepted = (actorId: string) =>
+					db.notification.count({
+						where: { recipientActorId: actorId, type: 'APPLICATION_ACCEPTED' }
+					});
+				expect(await accepted(lea.actorId)).toBe(1);
+				expect(await accepted(malik.actorId)).toBe(0);
+				await expect(page.locator('[data-sonner-toast]')).toHaveCount(0);
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+			});
+
+			await test.step('6. Export puis effacement de Malik : la candidature reste au groupe', async () => {
+				const response = await pages.malik.request.get('/auth/settings/donnees/export');
+				expect(response.status()).toBe(200);
+				const sent = findKey(await response.json(), 'candidatures_au_nom_d_un_groupe');
+				expect(sent).toEqual([
+					expect.objectContaining({
+						groupe: rats.name,
+						plateau: 'Vendredi à la Halle',
+						statut: 'ACCEPTED'
+					})
+				]);
+				const user = await requireUser(others.malik.email);
+				malikErased = `deleted-${user.id}@erased.local`;
+				const deleted = await pages.malik.request.post('/auth/settings/donnees?/delete', {
+					form: { password: others.malik.password },
+					headers: sveltekitActionHeaders(pageOrigin(pages.malik)),
+					maxRedirects: 0
+				});
+				expect(deleted.status()).toBe(200);
+				expect((await deleted.json()).type).toBe('redirect');
+				const [row] = await applications();
+				expect(row).toMatchObject({ status: 'ACCEPTED', sentById: null });
+				await page.reload();
+				await waitForAppReady(page);
+				await expect(
+					page.getByRole('list', { name: 'Candidatures reçues' }).getByRole('listitem')
+				).toContainText(rats.name);
+			});
+		} finally {
+			for (const p of Object.values(pages)) await p.context().close();
+			if (venueId) await db.venue.deleteMany({ where: { id: venueId } });
+			await db.actor.deleteMany({ where: { handle: { in: handles } } });
+			for (const a of [...Object.values(others), ...Object.values(more)])
+				await deleteUser(a.email).catch(() => {});
+			if (malikErased) await deleteUser(malikErased).catch(() => {});
 		}
 	});
 });

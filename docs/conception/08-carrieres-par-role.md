@@ -288,7 +288,12 @@ l'annuaire, à une date et une heure. Le rang demandé est celui du groupe
 (sa dernière étape au moins corroborée). Un groupe hors conditions ne
 peut pas candidater ; on candidate au nom d'un groupe que l'on gère, et
 majeur·e (Q31). « Programmer un premier groupe » : accepter sa
-candidature. L'événement tenu, confirmé par les groupes, vient avec
+candidature. Le groupe parle par la personne qui a envoyé sa candidature
+tant qu'elle le gère. Si elle perd la gestion ou efface son compte pendant
+l'attente, elle ne peut plus la retirer, et l'acceptation ouvre la
+conversation avec la gestion majeure restante (la responsable d'abord, puis
+la plus ancienne). Sans gestion majeure, la candidature ne peut pas être
+acceptée (DASH-20b, Q72). L'événement tenu, confirmé par les groupes, vient avec
 P5-06. Une **organisation** `PROMOTER` (P5-05b) se gère à plusieurs,
 publie des plateaux en son nom et se fait vérifier (SIRET) ; elle ne gagne
 jamais d'XP.

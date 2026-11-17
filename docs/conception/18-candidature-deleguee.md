@@ -15,7 +15,9 @@ l’annonce qualifiée ONB-13b (#27, D63).
   aucun métier, rôle d’agence ni rang non plus. Il faut un droit nouveau.
 - `withdrawApplication` et `withdrawBandApplication` écrivent sans verrou ni
   auteur du retrait.
-- `decideApplication` ouvre, pour un plateau, la conversation avec `sentById` ;
+- `decideApplication` ouvre, pour un plateau, la conversation avec `sentById`
+  (depuis DASH-20b, tant qu'il gère le groupe ; sinon avec la gestion majeure
+  restante, 08 §plateaux) ;
   la réciprocité y rapporte +30 XP aux deux. Appliqué à un agent, ce serait une
   XP gagnée par la candidature déléguée : interdit.
 - Un mandat exige un agent majeur et un artiste majeur (personne) ou un groupe

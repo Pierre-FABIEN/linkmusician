@@ -1037,6 +1037,57 @@ d'acceptation ; #52 à #54 restent ouverts. Détail : [morceaux](../morceaux/REA
   anonymisation dans les parcours, extensions #51–#54 au fil des
   livraisons.
 
+##### DASH-20b / #50 — recette transverse, deuxième tranche : groupe + lieu ✅ (local)
+
+- **Dépend** : DASH-20a, P5-03b (un lieu publie ses dates), P5-05a/b
+  (plateaux, candidature au nom du groupe), DASH-07a/b.
+- **Périmètre** : groupe + lieu de bout en bout. Le lieu publie une date. Le
+  groupe candidate par sa gestion majeure. Les POST forgés d'un non-membre,
+  d'un MEMBER sans gestion et d'une co-gestionnaire mineure sont refusés, de
+  même que ceux d'un tiers sur l'acceptation. Restent à vérifier un retrait de
+  gestion pendant l'attente, une acceptation à 390 px avec axe, et l'export
+  RGPD de la personne qui a envoyé la candidature.
+- **Hors périmètre, passe en DASH-20c** : projet + prestataire (session
+  d'ingé son, crédit).
+- **Critères** : aucun contournement côté serveur (codes 403/404, aucune
+  ligne créée) ; aucune duplication avec `organisateur.spec.ts` ni avec
+  `gigSlots.integration.test.ts`. Tout défaut trouvé est reproduit par un
+  test en échec avant sa correction.
+- **Livré** (`recette-transverse.spec.ts`, 5ᵉ test). Le lieu publie une date
+  depuis sa gestion. Une tierce, un MEMBER sans gestion et une co-gestionnaire
+  de 17 ans forgent `applyBand` : 403, aucune ligne créée, et la mineure voit
+  pourquoi. Malik (co-gestion) candidate au nom du groupe et le lieu est
+  notifié. Une tierce forge `accept` (404) ; une tierce et le MEMBER forgent
+  `withdrawBand` (403). Léa retire la co-gestion à Malik **pendant
+  l'attente** : son `withdrawBand` répond 403 et il ne voit plus le groupe sur
+  le plateau. Paul accepte à 390 px (axe, aucun débordement) : la
+  conversation s'ouvre avec Léa, seule notifiée. L'export de Malik contient la
+  candidature envoyée, acceptée ; après l'effacement de son compte, la
+  candidature reste au groupe (`sentById` oublié) et le lieu la voit toujours.
+- **Défaut trouvé et corrigé** (reproduit par l'intégration et par l'E2E,
+  tous deux en échec avant la correction). Une personne qui ne gérait plus le
+  groupe pouvait encore **retirer** sa candidature, puisque `sentById`
+  suffisait, et l'acceptation ouvrait la conversation **avec elle**. Si son
+  compte avait été effacé, l'acceptation devenait impossible alors que le
+  groupe ne pouvait plus recandidater. Désormais, `withdrawApplication` ne
+  retient `sentById` que pour une candidature déléguée (l'agent).
+  `decideApplication` passe, pour un plateau, par `bandContact` : l'expéditeur
+  s'il gère encore le groupe et est majeur, sinon la gestion majeure restante
+  (responsable d'abord, puis la plus ancienne), sinon un refus. Défaut
+  appliqué : Q72. Conception 08 (plateaux) et 18, aide « Les plateaux »
+  mises à jour. Démo inchangée : le cas ne se joue qu'au moment d'une
+  révocation.
+- **Recette** (17/11/2026, `--retries=0`) : `recette-transverse` 5/5 ;
+  `organisateur`, `organisation-organisateurs`, `lieu-fiche`, `concerts`,
+  `groupes`, `candidature-deleguee`, `delegations`, `candidatures` et
+  `droit-de-candidater` : 9/9. `gdpr-data` : 2 échecs **antérieurs**,
+  reproduits sur HEAD sans le lot (T10). Intégration `opportunities`,
+  `bands` et `representation` : 11 fichiers, 121 tests. `check` 0 erreur,
+  1 445 unitaires, ESLint et Prettier sur les fichiers du lot.
+- **Reste pour DASH-20c** : projet + prestataire (session d'ingé son,
+  crédit), concurrence (deux acceptations simultanées dans un parcours), et
+  les extensions #51–#54 au fil des livraisons.
+
 ##### Réutilisation dans les modules métier
 
 Impacts détaillés de #30, #36/#37, #41–#50 et #51–#54 :

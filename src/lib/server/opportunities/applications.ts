@@ -38,6 +38,7 @@ import { BAND_TX, BandError, bandManagerIds, joinFromRecruitment } from '#lib/se
 import { notify } from '#lib/server/notifications/service';
 import { artistAnswerers } from '#lib/server/representation/delegationAccess';
 import { bandTierOf } from '#lib/server/milestones/service';
+import { adultBirthCutoff } from '#lib/actors/visibility';
 
 type Db = Prisma.TransactionClient | typeof prisma;
 
@@ -232,7 +233,11 @@ export async function withdrawApplication(actorId: string, applicationId: string
 				person: { deletedAt: null }
 			}
 		});
-		if (app.applicantActorId !== actorId && app.sentById !== actorId && !manages)
+		// L'agent d'une candidature déléguée la retire ; celle d'un groupe, sa
+		// gestion actuelle seulement (DASH-20b : un retrait de gestion pendant
+		// l'attente ôte ce droit à qui l'avait envoyée).
+		const sender = app.delegated && app.sentById === actorId;
+		if (app.applicantActorId !== actorId && !sender && !manages)
 			throw new OpportunityError('Tu ne peux pas retirer cette candidature.', 403);
 		const next = applicationTransition(app.status as ApplicationStatusValue, 'withdraw');
 		if (!next) throw new OpportunityError('Cette candidature ne peut plus être retirée.');
@@ -381,6 +386,33 @@ export async function listForIssuer(viewerId: string, opportunityId: string) {
 }
 
 /**
+ * Qui parle pour un groupe candidat à un plateau (DASH-20b) : la personne qui
+ * a envoyé la candidature si elle gère encore le groupe et est majeure (D5),
+ * sinon la gestion majeure la plus ancienne (responsable d'abord). `null` si
+ * le groupe n'a plus de gestion majeure.
+ */
+async function bandContact(
+	tx: Prisma.TransactionClient,
+	bandId: string,
+	sentById: string | null,
+	now: Date
+) {
+	const managers = await tx.membership.findMany({
+		where: {
+			orgId: bandId,
+			status: 'ACTIVE',
+			role: { in: ['OWNER', 'ADMIN'] },
+			org: { dissolvedAt: null },
+			person: { deletedAt: null, person: { birthDate: { lte: adultBirthCutoff(now) } } }
+		},
+		orderBy: [{ role: 'asc' }, { startedAt: 'asc' }],
+		select: { personId: true }
+	});
+	const ids = managers.map((m) => m.personId);
+	return sentById && ids.includes(sentById) ? sentById : (ids[0] ?? null);
+}
+
+/**
  * Présélectionner, accepter ou refuser une candidature de mon annonce (ou
  * de celle d'un groupe que je gère). `issuerId` : la personne qui tranche.
  */
@@ -418,11 +450,18 @@ export async function decideApplication(
 		const o = app.opportunity;
 		if (o.status !== 'OPEN') throw new OpportunityError('Cette annonce n’est plus ouverte.');
 		// Plateau (P5-05a) : le groupe candidat parle par la personne qui a
-		// envoyé la candidature ; sans elle (compte supprimé), pas de conversation.
-		const contactId = app.delegated || o.kind === 'GIG_SLOT' ? app.sentById : app.applicantActorId;
+		// envoyé la candidature, si elle le gère encore ; sinon par sa gestion
+		// majeure restante (DASH-20b). Déléguée : par l'agent.
+		const contactId = app.delegated
+			? app.sentById
+			: o.kind === 'GIG_SLOT'
+				? await bandContact(tx, app.applicantActorId, app.sentById, now)
+				: app.applicantActorId;
 		if (!contactId) {
 			throw new OpportunityError(
-				'La personne qui a envoyé cette candidature n’est plus là : écris au groupe.'
+				app.delegated
+					? 'La personne qui a envoyé cette candidature n’est plus là : écris au groupe.'
+					: 'Plus personne de majeur ne gère ce groupe : la candidature ne peut pas être acceptée.'
 			);
 		}
 		const issuerIds = [issuerId, o.issuerActorId];

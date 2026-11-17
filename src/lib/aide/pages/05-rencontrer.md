@@ -102,7 +102,10 @@ organisateur·rice cherche des groupes.
   ton groupe ne remplit pas une condition, l’écran te dit laquelle. Avant
   18 ans, c’est un·e adulte qui gère le groupe qui candidate.
 - Si l’organisateur·rice accepte, une **conversation** s’ouvre avec la
-  personne qui a candidaté.
+  personne qui a candidaté. Si elle ne gère plus le groupe entre-temps,
+  la conversation s’ouvre avec une personne majeure qui le gère encore.
+  La candidature reste celle du groupe : seule sa gestion actuelle peut la
+  retirer.
 
 ### Publier
 

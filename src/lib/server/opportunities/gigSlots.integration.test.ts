@@ -27,7 +27,7 @@ vi.mock('#lib/server', () => ({ prisma: db }));
 
 const bands = await import('../bands/service');
 const { createOpportunity } = await import('./service');
-const { applyTo, decideApplication, listForIssuer, listMyApplications } =
+const { applyTo, decideApplication, listForIssuer, listMyApplications, withdrawApplication } =
 	await import('./applications');
 const { applyAsBand, bandOptionsFor, createGigSlot } = await import('./gigSlots');
 const { getPromoterProgress } = await import('../progression/crafts');
@@ -361,5 +361,61 @@ describe.skipIf(!enabled)('plateaux d’un·e organisateur·rice (schéma e2e)',
 			/plus ouverte/
 		);
 		expect(await db.application.count({ where: { opportunityId: id } })).toBe(2);
+	}, 60_000);
+	// DASH-20b (#50) : la gestion du groupe change pendant l'attente. Qui a
+	// envoyé la candidature ne parle plus pour le groupe s'il n'en gère plus ;
+	// l'acceptation passe par la gestion majeure restante.
+	it('retrait de gestion ou compte effacé pendant l’attente : la gestion majeure restante répond', async () => {
+		const echos = await band(ids.jo, 'Les Echos', 'rock');
+		const lea = await db.membership.create({
+			data: {
+				orgId: echos.id,
+				personId: ids.lea,
+				role: 'ADMIN',
+				status: 'ACTIVE',
+				startedAt: new Date()
+			},
+			select: { id: true }
+		});
+		const date = (title: string) =>
+			db.opportunity.create({
+				data: {
+					issuerActorId: ids.orga,
+					kind: 'GIG_SLOT',
+					title,
+					description: 'Deux groupes, sets de quarante minutes.',
+					venueId,
+					radiusKm: 50,
+					startsAt: new Date(Date.now() + 10 * 86_400_000),
+					expiresAt: new Date(Date.now() + 10 * 86_400_000)
+				},
+				select: { id: true }
+			});
+		const first = (await date('Plateau du lundi')).id;
+		const second = (await date('Plateau du mardi')).id;
+		const sent = await applyAsBand(ids.lea, first, echos.handle, 'Rock, set de quarante minutes.');
+		const orphan = await applyAsBand(ids.lea, second, echos.handle, 'Rock, set de trente minutes.');
+		// Jo retire la co-gestion à Léa : elle ne retire plus la candidature du groupe.
+		await bands.setRole(lea.id, ids.jo, 'MEMBER');
+		await expect(withdrawApplication(ids.lea, sent.id)).rejects.toMatchObject({ status: 403 });
+		const { conversationId } = await decideApplication(ids.orga, sent.id, 'accept');
+		const participants = await db.conversationParticipant.findMany({
+			where: { conversationId: conversationId! },
+			select: { actorId: true }
+		});
+		expect(participants.map((p) => p.actorId).sort()).toEqual([ids.orga, ids.jo].sort());
+		// Compte effacé (sentById oublié) : l'acceptation passe aussi par Jo.
+		await db.application.update({ where: { id: orphan.id }, data: { sentById: null } });
+		const again = await decideApplication(ids.orga, orphan.id, 'accept');
+		expect(again.conversationId).toBe(conversationId);
+		expect(
+			await db.notification.count({
+				where: {
+					recipientActorId: ids.lea,
+					type: 'APPLICATION_ACCEPTED',
+					title: 'Plateau du lundi'
+				}
+			})
+		).toBe(0);
 	}, 60_000);
 });
