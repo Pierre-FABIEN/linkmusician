@@ -1088,6 +1088,68 @@ d'acceptation ; #52 à #54 restent ouverts. Détail : [morceaux](../morceaux/REA
   crédit), concurrence (deux acceptations simultanées dans un parcours), et
   les extensions #51–#54 au fil des livraisons.
 
+##### DASH-20c / #50 — recette transverse, troisième tranche : projet + prestataire ✅ (local)
+
+- **Dépend** : DASH-20a/b, P4-06 (collaboration liée au morceau), P4-07
+  (crédit du son), DASH-05m (verrous `collaboration:` → `work:`).
+- **Périmètre** : un·e ingé son propose une session sur le morceau **d'un
+  groupe** (`collaborations-morceau.spec.ts` ne couvre que le morceau d'une
+  personne), par les actions `proposeCollab`, `respondCollab`,
+  `confirmCollab` et `cancelCollab` de `/messages/[id]`, et une concurrence
+  dans le parcours : deux `confirmCollab` simultanés. La concurrence de
+  proposition (R3) reste couverte par `proposal.integration.test.ts`.
+- **Critères** : aucun contournement côté serveur (codes 403/404, aucune
+  ligne créée) ; un seul crédit et une seule transaction d'XP par personne
+  quand les confirmations se croisent ; 390 px, axe, clavier. Tout défaut
+  trouvé est reproduit par un test en échec avant sa correction.
+- **Livré** (`recette-transverse.spec.ts`, 6ᵉ test). Les Voisins : Léa
+  (responsable), Malik (co-gestion), Inès (17 ans, co-gestion), Tom (membre) ;
+  Sam, ingé son ; Zoé, tierce. Avec Tom, le morceau du groupe n'est pas
+  proposé, et le `proposeCollab` forgé par Sam ou par Tom répond 403. Sam
+  ne peut pas écrire à Inès (D5), aucune conversation créée. Sam propose la
+  prise de son à Malik : seul Malik est notifié (ni Léa ni Inès). Zoé, Tom et
+  Inès forgent `respondCollab`, `confirmCollab` et `cancelCollab` : 404 ;
+  Léa, qui n'est pas dans la conversation, 404 ; Sam ne répond pas à sa
+  propre proposition (400). Malik accepte à 390 px au clavier (axe, aucun
+  débordement). La date passée, Malik et Sam confirment **en même temps** et
+  Sam envoie deux fois : 200, 200 et 400 ; collaboration terminée, morceau
+  « enregistré », un seul crédit (Sam, prise de son), une seule transaction
+  d'XP `collaboration.completed` pour Sam, une seule ligne de crédits sur la
+  fiche. Puis Sam propose le mixage, Léa retire la co-gestion à Malik, et
+  la réponse de Malik répond 403 : morceau non mixé, aucun crédit ajouté ;
+  Sam annule (Zoé ne le pouvait pas : 404).
+- **Défaut trouvé et corrigé** (reproduit par l'E2E et par une intégration
+  de `work.integration.test.ts`, tous deux en échec avant la correction). Le
+  morceau n'était vérifié qu'à la **proposition** : une personne à qui l'on
+  avait retiré la gestion du groupe pendant l'attente pouvait encore
+  accepter ou confirmer la collaboration. Le morceau du groupe avançait
+  (mixé, enregistré), l'ingé son était crédité·e et l'étape « Premier
+  enregistrement » du groupe pouvait être vérifiée par quelqu'un qui ne le
+  gérait plus. Désormais `respondToCollaboration` (accord) et
+  `confirmCollaboration` appellent `requireWorkStillManaged` : sous la clé
+  `band:` (prise aussi par les retraits de gestion, après `work:`), l'un·e
+  des participant·es doit encore gérer le morceau, sinon 403. Refuser et
+  annuler restent possibles. Défaut appliqué : Q73. Conception 06 §4.4 et
+  17 (tableau des verrous) mises à jour. Démo inchangée : le cas ne se joue
+  qu'au moment d'un retrait de gestion.
+- **Observé, laissé** : un morceau enregistré par une collaboration garde
+  l'étape planifiée « Enregistrement : personne pour l'instant » (DASH-06a) ;
+  les tâches de l'équipe sont distinctes des étapes réalisées (Q74).
+- **Test réparé** : `studio-sessions.spec.ts`, étape 2, échouait déjà sur
+  HEAD sans le lot : `getByText('Prise voix').first()` trouvait le titre
+  replié du journal des validations (DASH-05k). Le test cherche désormais
+  la ligne de la liste « Collaborations ».
+- **Recette** (17/11/2026, `--retries=0`) : `recette-transverse` (6),
+  `collaborations-morceau` (2), `inge-son`, `production-autonome`,
+  `concerts`, `etapes`, `etapes-autonomes`, `morceaux`, `studio-sessions`,
+  `groupes`, `messagerie` : 18/19, puis `studio-sessions` seul, après
+  réparation, 1/1. Intégrations `collaborations`, `works`, `studios` et
+  `milestones` : 20 fichiers, 187 tests. `check` 0 erreur, 1 445 unitaires,
+  ESLint et Prettier sur les fichiers du lot. Aide « La suite du morceau »
+  mise à jour.
+- **Reste** : T10 (`gdpr-data`) dans un lot à part ; les extensions
+  #51–#54 au fil des livraisons. #50 reste une recette continue.
+
 ##### Réutilisation dans les modules métier
 
 Impacts détaillés de #30, #36/#37, #41–#50 et #51–#54 :

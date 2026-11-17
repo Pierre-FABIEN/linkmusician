@@ -574,7 +574,11 @@ elle enregistre les autres. Le niveau de compte reste la somme.
   créditée. Il apparaît sur le morceau, sur le profil de chacun et dans
   la réputation. Une collaboration liée au morceau, terminée et confirmée
   par tous, vaut cette double confirmation : la personne qui a assuré la
-  prestation est créditée d'office (P4-07). Un rôle du son (prise de son,
+  prestation est créditée d'office (P4-07). Le morceau doit être géré par
+  l'un·e des deux (porteur, ou gestion active du groupe porteur) à la
+  proposition **et** au moment de répondre ou de confirmer : une gestion
+  retirée pendant l'attente ne fait plus avancer le morceau du groupe
+  (DASH-20c, Q73) ; refuser et annuler restent possibles. Un rôle du son (prise de son,
   mixage, mastering, production) crédite un **travail, pas une part
   d'auteur·rice** : il n'entre ni dans la corroboration du morceau composé,
   ni dans l'XP de composition, ni dans le bulletin de partage, et sa

@@ -132,7 +132,13 @@ test.describe('LinkMusician — sessions du studio', () => {
 				await page.getByLabel('Titre').fill('Prise voix');
 				await expectNoA11yViolations(page, ['.cartButton']);
 				await page.getByRole('button', { name: 'Proposer' }).click();
-				await expect(page.getByText('Prise voix').first()).toBeVisible();
+				// Dans la liste : le journal des validations (DASH-05k) porte aussi ce titre, replié.
+				await expect(
+					page
+						.getByRole('list', { name: 'Collaborations', exact: true })
+						.getByRole('listitem')
+						.filter({ hasText: 'Prise voix' })
+				).toBeVisible();
 			});
 
 			await test.step('3. Léa confirme : c’est la 5ᵉ session', async () => {

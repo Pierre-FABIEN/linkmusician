@@ -33,6 +33,15 @@ import {
  *   co-gestion retirée pendant l'attente ôte à l'expéditeur le droit de parler
  *   pour le groupe ; acceptation à 390 px ; export, puis effacement du compte
  *   de l'expéditeur, sans perdre la candidature du groupe.
+ *
+ * DASH-20c, troisième tranche :
+ *
+ * - projet + prestataire : un·e ingé son propose une session sur le morceau
+ *   **d'un groupe** à sa co-gestion majeure ; MEMBER sans gestion, tierce et
+ *   co-gestionnaire mineure ne répondent pas (POST forgés) ; réponse à
+ *   390 px au clavier ; deux confirmations simultanées ne créditent qu'une
+ *   fois ; la co-gestion retirée pendant l'attente ne fait plus avancer le
+ *   morceau du groupe.
  */
 
 const A11Y_EXCLUDE = ['.cartButton']; // Panier du boilerplate, remontée n° 14.
@@ -138,7 +147,7 @@ function findKey(value: unknown, key: string): unknown {
 const representations = (artistId: string) =>
 	db.representation.findMany({ where: { artistId }, select: { id: true, status: true } });
 
-test.describe('LinkMusician — recette transverse (DASH-20a, DASH-20b)', () => {
+test.describe('LinkMusician — recette transverse (DASH-20a à DASH-20c)', () => {
 	test.setTimeout(6 * 60_000);
 
 	test('premier résultat : la distance ne sort du serveur que par tranche', async ({
@@ -625,6 +634,278 @@ test.describe('LinkMusician — recette transverse (DASH-20a, DASH-20b)', () => 
 			for (const a of [...Object.values(others), ...Object.values(more)])
 				await deleteUser(a.email).catch(() => {});
 			if (malikErased) await deleteUser(malikErased).catch(() => {});
+		}
+	});
+	test('projet + prestataire : session d’ingé son sur le morceau d’un groupe, crédit unique', async ({
+		page,
+		account,
+		browser
+	}) => {
+		const others = { malik: makeAccount(), tom: makeAccount(), ines: makeAccount() };
+		const more = { zoe: makeAccount(), sam: makeAccount() };
+		const pages = {
+			malik: await newPage(browser),
+			tom: await newPage(browser),
+			ines: await newPage(browser),
+			zoe: await newPage(browser),
+			sam: await newPage(browser)
+		};
+		const handles: string[] = [];
+		const title = `Fausse route ${Math.random().toString(36).slice(2, 6)}`;
+		const inDays = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
+		/** POST d'une action de la conversation, comme un client modifié l'enverrait. */
+		const forgeMsg = async (who: Page, id: string, action: string, form: Record<string, string>) =>
+			(
+				await who.request.post(`/messages/${id}?/${action}`, {
+					form,
+					headers: { Origin: pageOrigin(who) },
+					maxRedirects: 0
+				})
+			).status();
+		const conversationOf = (a: string, b: string) =>
+			db.conversation.create({
+				data: {
+					pairKey: [a, b].sort().join(':'),
+					initiatorId: a,
+					participants: {
+						create: [
+							{ actorId: a, state: 'ACCEPTED' },
+							{ actorId: b, state: 'ACCEPTED' }
+						]
+					}
+				}
+			});
+		try {
+			// Léa (responsable), Malik (co-gestion), Inès (17 ans, co-gestion) et
+			// Tom (membre) forment les Voisins ; Sam est ingé son ; Zoé est tierce.
+			const lea = await person(page, account, ADULT);
+			const malik = await person(pages.malik, others.malik, ADULT);
+			const tom = await person(pages.tom, others.tom, ADULT);
+			const ines = await person(pages.ines, others.ines, minorBirth());
+			await person(pages.zoe, more.zoe, ADULT);
+			const sam = await person(pages.sam, more.sam, ADULT);
+			await db.personTrack.create({
+				data: { personId: sam.actorId, track: 'SOUND_ENGINEER', isPrimary: false }
+			});
+			await db.soundEngineerProfile.create({
+				data: { personId: sam.actorId, specialties: ['RECORDING', 'MIXING'] }
+			});
+			const voisins = await band('Voisins', [
+				{ personId: lea.actorId, role: 'OWNER' },
+				{ personId: malik.actorId, role: 'ADMIN' },
+				{ personId: ines.actorId, role: 'ADMIN' },
+				{ personId: tom.actorId, role: 'MEMBER' }
+			]);
+			handles.push(voisins.handle);
+			const work = await db.work.create({
+				data: {
+					title,
+					ownerId: voisins.actorId,
+					createdById: lea.actorId,
+					state: 'COMPOSED',
+					composedAt: new Date()
+				}
+			});
+			const withMalik = await conversationOf(sam.actorId, malik.actorId);
+			const withTom = await conversationOf(sam.actorId, tom.actorId);
+			const collabs = () =>
+				db.collaboration.findMany({
+					where: { workId: work.id },
+					orderBy: { createdAt: 'asc' },
+					select: { id: true, kind: true, status: true }
+				});
+			const credits = () =>
+				db.workContributor.findMany({
+					where: { workId: work.id },
+					select: { personId: true, roles: { select: { kind: true } } }
+				});
+
+			await test.step('1. Sans gestion du groupe, pas de session sur son morceau', async () => {
+				// Avec Tom (membre sans gestion), le morceau n'est pas proposé…
+				await pages.sam.goto(`/messages/${withTom.id}`);
+				await waitForAppReady(pages.sam);
+				await pages.sam.getByText(/Proposer une collaboration/).click();
+				await pages.sam.getByLabel('Type').selectOption('RECORDING');
+				await expect(
+					pages.sam.getByLabel(/Morceau concerné/).locator(`option[value="${work.id}"]`)
+				).toHaveCount(0);
+				// … et ni Sam ni Tom ne le relient par un POST forgé.
+				const form = {
+					kind: 'RECORDING',
+					provider: 'me',
+					work: work.id,
+					title: 'Prise batterie',
+					happenedOn: inDays(3)
+				};
+				expect(await forgeMsg(pages.sam, withTom.id, 'proposeCollab', form)).toBe(403);
+				expect(
+					await forgeMsg(pages.tom, withTom.id, 'proposeCollab', { ...form, provider: 'other' })
+				).toBe(403);
+				// La co-gestionnaire mineure n'est pas sollicitable par Sam (D5).
+				const request = await pages.sam.request.post(`/messages/nouveau?a=${ines.handle}`, {
+					form: { body: 'Bonjour, une session pour les Voisins ?' },
+					headers: { Origin: pageOrigin(pages.sam) },
+					maxRedirects: 0
+				});
+				expect([400, 404]).toContain(request.status());
+				expect(
+					await db.conversation.count({
+						where: { pairKey: [sam.actorId, ines.actorId].sort().join(':') }
+					})
+				).toBe(0);
+				expect(await collabs()).toEqual([]);
+			});
+
+			const collabId = await test.step('2. Sam propose la prise de son à Malik', async () => {
+				await pages.sam.goto(`/messages/${withMalik.id}`);
+				await waitForAppReady(pages.sam);
+				await pages.sam.getByText(/Proposer une collaboration/).click();
+				await pages.sam.getByLabel('Type').selectOption('RECORDING');
+				await pages.sam.getByLabel('Date', { exact: true }).fill(inDays(3));
+				await pages.sam.getByLabel('Moi').check();
+				await pages.sam.getByLabel(/Morceau concerné/).selectOption(work.id);
+				await pages.sam.getByLabel('Titre').fill('Prise batterie et basse');
+				await pages.sam.getByRole('button', { name: 'Proposer' }).click();
+				await expect(pages.sam.getByText(`Morceau : ${title}`)).toBeVisible();
+				const [row] = await collabs();
+				expect(row).toMatchObject({ kind: 'RECORDING', status: 'PROPOSED' });
+				// Seul Malik, son interlocuteur, est sollicité ; ni Léa ni Inès.
+				const toConfirm = await db.notification.findMany({
+					where: { type: 'COLLAB_TO_CONFIRM', href: `/messages/${withMalik.id}` },
+					select: { recipientActorId: true }
+				});
+				expect(toConfirm.map((n) => n.recipientActorId)).toEqual([malik.actorId]);
+				return row.id;
+			});
+
+			await test.step('3. Ni tierce, ni membre, ni mineure ne répondent pour le groupe', async () => {
+				const form = { collaborationId: collabId, answer: 'yes' };
+				for (const who of [pages.zoe, pages.tom, pages.ines]) {
+					expect(await forgeMsg(who, withMalik.id, 'respondCollab', form)).toBe(404);
+					expect(await forgeMsg(who, withMalik.id, 'confirmCollab', form)).toBe(404);
+					expect(await forgeMsg(who, withMalik.id, 'cancelCollab', form)).toBe(404);
+				}
+				// Léa, responsable, n'est pas partie à cette conversation.
+				expect(await forgeMsg(page, withMalik.id, 'respondCollab', form)).toBe(404);
+				// Sam ne répond pas à sa propre proposition.
+				expect(await forgeMsg(pages.sam, withMalik.id, 'respondCollab', form)).toBe(400);
+				expect((await collabs())[0].status).toBe('PROPOSED');
+			});
+
+			await test.step('4. Malik accepte à 390 px, au clavier', async () => {
+				const p = pages.malik;
+				await p.setViewportSize({ width: 390, height: 844 });
+				await p.goto(`/messages/${withMalik.id}`);
+				await waitForAppReady(p);
+				await expect(p.getByText(`Morceau : ${title}`)).toBeVisible();
+				await expectNoA11yViolations(p, A11Y_EXCLUDE);
+				expect(await horizontalOverflow(p)).toEqual([]);
+				await p.getByRole('button', { name: 'Confirmer' }).focus();
+				await p.keyboard.press('Enter');
+				await expect(
+					p.getByText('Prévue : tu pourras la confirmer une fois passée.')
+				).toBeVisible();
+				await expect(p.locator('[data-sonner-toast]')).toHaveCount(0);
+				await expectNoA11yViolations(p, A11Y_EXCLUDE);
+				expect((await collabs())[0].status).toBe('ACCEPTED');
+			});
+
+			await test.step('5. Deux confirmations simultanées : un seul crédit, une seule XP', async () => {
+				// La session a eu lieu (la date passe) ; chacun·e confirme en même
+				// temps, et Sam envoie deux fois (double clic, onglets).
+				await db.collaboration.update({
+					where: { id: collabId },
+					data: { happenedOn: new Date(`${inDays(-1)}T00:00:00Z`) }
+				});
+				const form = { collaborationId: collabId };
+				const statuses = await Promise.all([
+					forgeMsg(pages.malik, withMalik.id, 'confirmCollab', form),
+					forgeMsg(pages.sam, withMalik.id, 'confirmCollab', form),
+					forgeMsg(pages.sam, withMalik.id, 'confirmCollab', form)
+				]);
+				expect(statuses[0]).toBe(200);
+				expect(statuses.slice(1).sort()).toEqual([200, 400]);
+				expect((await collabs())[0].status).toBe('COMPLETED');
+				expect(await credits()).toEqual([
+					{ personId: sam.actorId, roles: [{ kind: 'RECORDING' }] }
+				]);
+				const xp = await db.xpTransaction.findMany({
+					where: {
+						ruleId: 'collaboration.completed',
+						actorId: { in: [sam.actorId, malik.actorId] }
+					},
+					select: { actorId: true, track: true }
+				});
+				expect(xp.filter((t) => t.actorId === sam.actorId)).toEqual([
+					{ actorId: sam.actorId, track: 'SOUND_ENGINEER' }
+				]);
+				expect(xp.filter((t) => t.actorId === malik.actorId).length).toBeLessThanOrEqual(1);
+				const recorded = await db.work.findUniqueOrThrow({
+					where: { id: work.id },
+					select: { recordedAt: true }
+				});
+				expect(recorded.recordedAt).not.toBeNull();
+				// Un seul crédit sur la fiche du morceau.
+				await page.goto(`/morceaux/${work.id}`);
+				await waitForAppReady(page);
+				const credited = page.getByRole('region', { name: 'Crédits' }).getByRole('listitem');
+				await expect(credited).toHaveCount(1);
+				await expect(credited).toContainText(`${sam.name} · Prise de son`);
+			});
+
+			await test.step('6. Co-gestion retirée pendant l’attente : le morceau n’avance pas', async () => {
+				await pages.sam.goto(`/messages/${withMalik.id}`);
+				await waitForAppReady(pages.sam);
+				await pages.sam.getByText(/Proposer une collaboration/).click();
+				await pages.sam.getByLabel('Type').selectOption('MIXING');
+				await pages.sam.getByLabel('Moi').check();
+				await pages.sam.getByLabel(/Morceau concerné/).selectOption(work.id);
+				await pages.sam.getByLabel('Titre').fill('Mixage des prises');
+				await pages.sam.getByRole('button', { name: 'Proposer' }).click();
+				const listed = pages.sam
+					.getByRole('list', { name: 'Collaborations', exact: true })
+					.getByRole('listitem')
+					.filter({ hasText: 'Mixage des prises' });
+				await expect(listed).toBeVisible();
+				const mixing = (await collabs()).find((c) => c.kind === 'MIXING')!;
+				expect(mixing.status).toBe('PROPOSED');
+
+				await page.goto(`/groupes/${voisins.handle}`);
+				await waitForAppReady(page);
+				const tile = page
+					.getByRole('list', { name: 'Membres actuels' })
+					.getByRole('listitem')
+					.filter({ hasText: malik.name });
+				await tile.getByRole('button', { name: 'Gérer' }).click();
+				await tile.getByRole('button', { name: 'Retirer la co-gestion' }).click();
+				await expect(page.getByText('Co-gestion retirée.').first()).toBeVisible();
+
+				const form = { collaborationId: mixing.id, answer: 'yes' };
+				expect(await forgeMsg(pages.malik, withMalik.id, 'respondCollab', form)).toBe(403);
+				const after = await db.work.findUniqueOrThrow({
+					where: { id: work.id },
+					select: { mixedAt: true }
+				});
+				expect(after.mixedAt).toBeNull();
+				expect(await credits()).toEqual([
+					{ personId: sam.actorId, roles: [{ kind: 'RECORDING' }] }
+				]);
+				// Sam annule ; une tierce ne l'aurait pas pu.
+				expect(
+					await forgeMsg(pages.zoe, withMalik.id, 'cancelCollab', { collaborationId: mixing.id })
+				).toBe(404);
+				await pages.sam.reload();
+				await waitForAppReady(pages.sam);
+				await listed.getByRole('button', { name: 'Annuler', exact: true }).click();
+				await expect(listed).toHaveCount(0);
+				expect((await collabs()).find((c) => c.kind === 'MIXING')!.status).toBe('CANCELLED');
+			});
+		} finally {
+			for (const p of Object.values(pages)) await p.context().close();
+			await db.work.deleteMany({ where: { owner: { handle: { in: handles } } } });
+			await db.actor.deleteMany({ where: { handle: { in: handles } } });
+			for (const a of [...Object.values(others), ...Object.values(more)])
+				await deleteUser(a.email).catch(() => {});
 		}
 	});
 });

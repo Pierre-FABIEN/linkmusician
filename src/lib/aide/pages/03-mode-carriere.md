@@ -475,6 +475,11 @@ piste. Toi, tu gagnes la collaboration quand tu joues : un enregistrement,
 une production. Sur un mixage ou un mastering, où tu ne joues pas, seule
 la personne du son gagne.
 
+Pour le morceau d’un **groupe**, la personne qui répond doit faire partie
+de sa gestion, jusqu’à sa réponse et sa confirmation. Si la gestion lui est
+retirée entre-temps, elle peut encore refuser ou annuler ; la collaboration
+se propose alors sans le morceau, ou avec quelqu’un de la gestion.
+
 Un **enregistrement** relié à un morceau de ton groupe, avec un·e ingé
 son hors du groupe, ou dans un studio de l’app, **vérifie** l’étape
 « Premier enregistrement » du groupe : elle passe **Vérifiée** (ou est

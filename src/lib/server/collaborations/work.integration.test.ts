@@ -3,7 +3,8 @@
  * `e2e` : une session d'enregistrement confirmée fait passer le morceau de
  * Léa « enregistré » et crédite la piste ingé son de Sam et la piste
  * musicien de Léa ; un mixage ne rapporte rien à Léa (Q1) ; la prestation
- * exige le métier ; le morceau doit être à l'un des deux.
+ * exige le métier ; le morceau doit être à l'un des deux, à la proposition
+ * comme à la réponse et à la confirmation (DASH-20c, Q73).
  * Désactivé par défaut :
  *
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/collaborations
@@ -51,7 +52,10 @@ describe.skipIf(!enabled)(
 					where: { participants: { some: { actorId: { in: list } } } }
 				});
 			}
-			await db.actor.deleteMany({ where: { id: { in: list } } });
+			await db.work.deleteMany({ where: { owner: { handle: { startsWith: PREFIX } } } });
+			await db.actor.deleteMany({
+				where: { OR: [{ id: { in: list } }, { handle: { startsWith: PREFIX } }] }
+			});
 			await db.user.deleteMany({ where: { email: { startsWith: PREFIX } } });
 			if (list.length > 0)
 				await db.domainEvent.deleteMany({ where: { actorIds: { hasSome: list } } });
@@ -246,6 +250,94 @@ describe.skipIf(!enabled)(
 			]);
 			const work = await db.work.findUniqueOrThrow({ where: { id: workId } });
 			expect(work.proof).not.toBe('CORROBORATED');
+		});
+		it('DASH-20c : la gestion retirée pendant l’attente, le morceau du groupe n’avance plus', async () => {
+			const band = await db.actor.create({
+				data: {
+					kind: 'ORGANIZATION',
+					handle: `${PREFIX}band`,
+					displayName: 'Les Voisins',
+					organization: {
+						create: {
+							kind: 'BAND',
+							formedAt: new Date(),
+							memberships: {
+								create: [
+									{ personId: ids.zoe, role: 'OWNER', status: 'ACTIVE', startedAt: new Date() },
+									{ personId: ids.lea, role: 'ADMIN', status: 'ACTIVE', startedAt: new Date() }
+								]
+							}
+						}
+					}
+				},
+				select: { id: true }
+			});
+			const bandWork = await db.work.create({
+				data: {
+					title: 'Fausse route',
+					ownerId: band.id,
+					createdById: ids.zoe,
+					state: 'COMPOSED',
+					composedAt: new Date()
+				},
+				select: { id: true }
+			});
+			const setRole = (role: 'ADMIN' | 'MEMBER') =>
+				db.membership.updateMany({
+					where: { orgId: band.id, personId: ids.lea },
+					data: { role }
+				});
+			// Réponse : Sam a déjà confirmé (date passée) ; Léa n'est plus co-gestionnaire.
+			const mastering = await service.proposeCollaboration(ids.sam, conversationId, {
+				kind: 'MASTERING',
+				title: 'Mastering de Fausse route',
+				happenedOn: day(-3),
+				provider: 'me',
+				work: bandWork.id
+			});
+			await setRole('MEMBER');
+			await expect(service.respondToCollaboration(ids.lea, mastering.id, true)).rejects.toThrow(
+				/plus géré/
+			);
+			// Refuser reste possible.
+			await service.respondToCollaboration(ids.lea, mastering.id, false);
+			// Confirmation : acceptée pendant la gestion, retirée avant la confirmation.
+			await setRole('ADMIN');
+			const recording = await service.proposeCollaboration(ids.sam, conversationId, {
+				kind: 'RECORDING',
+				title: 'Prise de Fausse route',
+				happenedOn: day(4),
+				provider: 'me',
+				work: bandWork.id
+			});
+			await service.respondToCollaboration(ids.lea, recording.id, true);
+			await db.collaboration.update({
+				where: { id: recording.id },
+				data: { happenedOn: new Date(`${day(-4)}T00:00:00Z`) }
+			});
+			await setRole('MEMBER');
+			await expect(service.confirmCollaboration(ids.sam, recording.id)).rejects.toThrow(
+				/plus géré/
+			);
+			const work = await db.work.findUniqueOrThrow({ where: { id: bandWork.id } });
+			expect(work.masteredAt).toBeNull();
+			expect(work.recordedAt).toBeNull();
+			expect(await db.workContributor.count({ where: { workId: bandWork.id } })).toBe(0);
+			// Annuler reste possible.
+			await service.cancelCollaboration(ids.sam, recording.id);
+			// La gestion rendue, la confirmation passe.
+			await setRole('ADMIN');
+			const again = await service.proposeCollaboration(ids.sam, conversationId, {
+				kind: 'RECORDING',
+				title: 'Prise de Fausse route',
+				happenedOn: day(-5),
+				provider: 'me',
+				work: bandWork.id
+			});
+			await service.respondToCollaboration(ids.lea, again.id, true);
+			expect(
+				(await db.work.findUniqueOrThrow({ where: { id: bandWork.id } })).recordedAt
+			).not.toBeNull();
 		});
 	}
 );

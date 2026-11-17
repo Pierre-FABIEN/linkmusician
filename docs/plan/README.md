@@ -228,6 +228,7 @@ exécution a planté à l'ouverture du navigateur (mémoire WSL) ; la relance pa
 | DASH-07b     | [#37](https://github.com/Pierre-FABIEN/linkmusician/issues/37) | ✅ local        | Candidature déléguée avec droit relu sous verrou, territoire et conditions de l’artiste ; acte USED, notification, retrait avec auteur ; conversation agent sans XP, RGPD.                                     |
 | DASH-20a     | [#50](https://github.com/Pierre-FABIEN/linkmusician/issues/50) | ✅ local        | Recette transverse, 1ʳᵉ tranche : premier résultat sans mètres ; manager + artiste et booker + groupe (mineur·es, POST forgés, 390 px, axe) ; gestion majeure seule sollicitée (Q48).                          |
 | DASH-20b     | [#50](https://github.com/Pierre-FABIEN/linkmusician/issues/50) | ✅ local        | Recette transverse, 2ᵉ tranche : groupe + lieu (POST forgés, mineure, 390 px, axe, export, effacement) ; gestion retirée pendant l'attente (Q72).                                                              |
+| DASH-20c     | [#50](https://github.com/Pierre-FABIEN/linkmusician/issues/50) | ✅ local        | Recette transverse, 3ᵉ tranche : ingé son + morceau d'un groupe (POST forgés, mineure, 390 px, axe) ; deux confirmations simultanées, un crédit ; gestion retirée en attente (Q73).                            |
 
 Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
 Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,

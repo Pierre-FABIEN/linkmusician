@@ -45,6 +45,7 @@ import {
 	type CollabStatusValue
 } from '#lib/collaborations/rules';
 import { creditFromCollaboration, lockWork, manageableWorks } from '#lib/server/works/service';
+import { manageableOwnerWhere } from '#lib/server/works/access';
 import { isStudioSessionKind } from '#lib/studios/rules';
 import {
 	verifyGigFromCollaboration,
@@ -424,6 +425,37 @@ async function load(tx: Prisma.TransactionClient, actorId: string, collaboration
 	return { collab, me };
 }
 
+/**
+ * DASH-20c (Q73) : un morceau relié n'avance que si l'un des participants le
+ * gère encore (porteur, ou gestion active du groupe porteur), comme à la
+ * proposition. Sous la clé band: après work: (ordre de `load`), que prennent
+ * aussi les retraits de gestion. Refuser et annuler restent possibles.
+ */
+async function requireWorkStillManaged(
+	tx: Prisma.TransactionClient,
+	collab: { workId: string | null; participants: { actorId: string }[] }
+) {
+	if (!collab.workId) return;
+	const work = await tx.work.findUnique({
+		where: { id: collab.workId },
+		select: { ownerId: true, owner: { select: { kind: true } } }
+	});
+	if (!work) return;
+	if (work.owner.kind === 'ORGANIZATION') await lockBand(tx, work.ownerId);
+	const managed = await tx.actor.count({
+		where: {
+			id: work.ownerId,
+			OR: collab.participants.map((p) => manageableOwnerWhere(p.actorId))
+		}
+	});
+	if (managed === 0) {
+		throw new CollaborationError(
+			'Ce morceau n’est plus géré par l’un de vous deux : annulez cette collaboration, puis proposez-la sans le morceau.',
+			403
+		);
+	}
+}
+
 /** Recalcule l'état et, si tout le monde a confirmé, émet l'événement. */
 async function settle(tx: Prisma.TransactionClient, collaborationId: string, now: Date) {
 	const collab = await tx.collaboration.findUniqueOrThrow({
@@ -579,6 +611,7 @@ export async function respondToCollaboration(
 			});
 			return;
 		}
+		await requireWorkStillManaged(tx, collab);
 		await tx.collaborationParticipant.update({
 			where: { collaborationId_actorId: { collaborationId, actorId } },
 			data: {
@@ -604,6 +637,7 @@ export async function confirmCollaboration(
 		if (!hasHappened(dayOf(collab.happenedOn), now)) {
 			throw new CollaborationError('Tu pourras confirmer une fois la date passée.');
 		}
+		await requireWorkStillManaged(tx, collab);
 		await tx.collaborationParticipant.update({
 			where: { collaborationId_actorId: { collaborationId, actorId } },
 			data: { confirmedCompletionAt: now }
