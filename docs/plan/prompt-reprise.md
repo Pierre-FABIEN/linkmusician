@@ -1,48 +1,79 @@
 # Prompt de reprise — après ONB-12c3
 
 ```markdown
-Reprends LinkMusician dans le dossier de travail courant. Une session = un lot.
-Lis CLAUDE.md et docs/plan/README.md §4. Travaille sur main, sans push :
-l’utilisateur pousse. Commence par git status, git log et git ls-remote origin
-refs/heads/main. Préserve commits et changements des autres sessions.
-Ne modifie pas les issues GitHub sans instruction.
+Reprends LinkMusician dans le dossier de travail courant. Une session = un lot :
+ONB-14 (#28), inscription multirôle, E2E transverse.
 
-État au 17/11/2026 :
+Avant de coder :
 
-- Commits locaux sans push (vérifier avec git ls-remote ce qui est publié) :
-  « (DASH-07b) », « (ONB-12c2) », « (ONB-12c3) ».
-- ONB-12c2 : cartes historiques de /@handle sous les blocs D61
-  (#lib/actors/craftCardVisibility), tarifs privés par défaut (Q70),
-  postproduction sans migration.
-- ONB-12c3 : disponibilités (availability_start, availability_rhythm) dans
-  le catalogue des métiers hors musicien·ne, `stage: 'profile'` : ni
-  demandées, ni acceptées, ni effacées par l'inscription (fieldsAt). Sur une
-  annonce, critère « non précisé » → lien vers la page qui le règle
-  (completeLinks) avec ?annonce=<id> et lien de retour (BackToAnnonce,
-  identifiant seulement). « Déclaré / Confirmé / Vérifié » sur /@handle
-  (#lib/actors/proofLevels). Q71 ouverte. Aucune migration.
-- Résultats de recette : fiches DASH-07b et ONB-12c du plan. #26 reste
-  ouvert (invitation dans la recherche, expériences) ; #37, #30, #50 aussi.
+1. Lis CLAUDE.md, docs/plan/README.md §4 (définition de terminé) et la fiche
+   ONB-14 dans docs/plan/fin-du-projet.md (« Déjà couvert », « Reste »,
+   « Limites de la machine »).
+2. git status, git log -5 et git ls-remote origin refs/heads/main. Commits
+   locaux attendus, sans push : « (DASH-07b) », « (ONB-12c2) »,
+   « (ONB-12c3) ». Note ce que l'utilisateur a publié depuis. Préserve les
+   commits et changements des autres sessions.
+3. Relis la couverture existante pour ne rien dupliquer :
+   e2e/linkmusician/onboarding-metiers.spec.ts (ingé son seul·e, musicien·ne
+   - producteur·rice + booker, métier « bientôt », manager tour management,
+     organisateur·rice seul·e, producteur·rice), onboarding.spec.ts,
+     assistant-inscription.spec.ts (D47), profil-metiers.spec.ts,
+     profil-avance.spec.ts. Aides : e2e/support/linkmusician.ts
+     (skipOnboarding, setCity, finishRecap, createMusician), admin.ts
+     (signUpAndVerify), account.ts (makeAccount), a11y.ts, flows.ts.
 
-Lot suivant : ONB-14 (#28) — inscription, E2E transverse. Lis sa fiche
-dans docs/plan/fin-du-projet.md (« Reste » : label, éditeur·rice,
-communication ; booker programmateur contre booker d'artistes ;
-organisateur·rice jam contre festival ; mutation refusée sur le métier
-d'un autre compte et sur un métier non choisi ; codes d'un autre métier
-refusés côté serveur ; 390 px ; non-régression assistant D47 et mineur·es).
-Ajoute aussi un cas : les champs `stage: 'profile'` absents de
-/demarrer/metier/[slug]. Lot de tests : ne corrige le code que pour un
-défaut trouvé, consigné dans la fiche.
+À faire (la liste « Reste » de la fiche) :
 
-Restent aussi ONB-14 (#28, recette multirôle), la recette transverse #50 et
-les extensions de #36 (membre avec accord, prestataire externe, autres étapes,
-versions et validations). #70–#72 cadrent l’UX Metro/Carrière ; leur création
-n’autorise pas une refonte globale pendant un lot fonctionnel.
+- parcours label, éditeur·rice et communication (métiers « bientôt » :
+  rien d'exigé, D15) ;
+- booker programmateur contre booker d'artistes ; organisateur·rice jam
+  contre festival : champs conditionnels différents (`when` du catalogue) ;
+- POST forgé : mutation du métier d'un autre compte et d'un métier non
+  choisi refusées ; codes d'un autre métier refusés côté serveur ;
+- parcours complet à 390 px (pas de défilement horizontal), clavier, axe ;
+- non-régression de l'assistant D47 et des règles des mineur·es ;
+- cas ajouté par ONB-12c3 : les champs `stage: 'profile'` (disponibilités
+  `availability_start`, `availability_rhythm`) absents de
+  /demarrer/metier/[slug], et une disponibilité saisie sur
+  /profil/metier/[slug] intacte après un nouvel enregistrement de l'étape
+  d'inscription.
 
-Ne lance pas npm run check pendant les E2E ; ne régénère pas Prisma pendant
-un E2E. Vérifie les processus via ps. Pas de prisma format ni migration
-destructrice. Scripts db:nouvelle-migration, relecture, db:deploy et
-db:deploy:e2e. Les deux timeouts de verrou 55P03 historiques sont documentés
-comme reproduits sur le code d’origine ; le lint global garde les écarts des
-scripts .shot-*. Termine par aide, démo, docs, plan et commit français sans push.
+C'est un lot de tests : ne modifie le code que pour un défaut trouvé, avec
+un test qui le reproduit, et consigne-le dans la fiche. Si le lot déborde,
+découpe-le (ONB-14a, ONB-14b) plutôt que de le prolonger.
+
+Repères de la session précédente :
+
+- Un scan axe juste après une action peut tomber sur un toast en fondu
+  (contraste faux sur `div[data-title]`) : attendre
+  `[data-sonner-toast]` à 0, comme studio.spec.ts et candidatures.spec.ts.
+- Un champ dans un `<details>` replié est attaché mais pas visible :
+  `toBeAttached()`.
+- `getByLabel` avec une regex : pas d'ancre `$`, le texte du label porte
+  des espaces.
+- Tableaux Markdown : une cellule plus large que sa colonne fait réaligner
+  tout le tableau par Prettier ; garder la largeur des colonnes.
+- `npm run lint` global échoue pour des raisons extérieures au lot
+  (`.shot-*.mjs`, `playwright-report/`) : lancer ESLint et Prettier sur les
+  fichiers du lot.
+- Instabilités connues de la machine : M1, T1, T2 dans
+  docs/plan/a-trancher.md. Relancer seul un test qui échoue avant de
+  conclure, et dire lequel a été relancé.
+
+Garde-fous : ne lance pas npm run check pendant les E2E ; ne régénère pas
+Prisma pendant un E2E ; vérifie les processus via ps. Pas de prisma format
+ni de migration destructrice (scripts db:*, relecture, db:deploy et
+db:deploy:e2e). Question ouverte : défaut appliqué et ligne Qn dans
+docs/plan/a-trancher.md, sans interrompre (Q70 et Q71 attendent
+l'utilisateur).
+
+Fin de lot : fiche ONB-14 (livré, recette réelle avec les specs lancées),
+tableau §5 de docs/plan/README.md, prompt de reprise, aide et démo si le
+comportement change. Commentaire sur l'issue #28 (commit local, sans push,
+ce qui reste). Commit en français préfixé « (ONB-14) », sans push.
+
+Après ONB-14 restent : la recette transverse #50, la suite de #26
+(invitation à compléter dans la recherche, expériences), les extensions de
+#36 et #37. #70–#72 cadrent l'UX Metro/Carrière, sans refonte globale
+pendant un lot fonctionnel.
 ```
