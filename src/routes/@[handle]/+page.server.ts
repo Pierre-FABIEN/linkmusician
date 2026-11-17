@@ -32,7 +32,12 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const representHref = (target: string) =>
 		isAgent ? `/accompagnement?artiste=${encodeURIComponent(target)}` : null;
 	// Blocage (P2-05) : 404 dans les deux sens, sans dire pourquoi.
-	const profile = await getPublicProfile(handle, new Date(), viewer?.actorId);
+	const profile = await getPublicProfile(
+		handle,
+		new Date(),
+		viewer?.actorId,
+		Boolean(viewer?.onboardedAt)
+	);
 	if (!profile) {
 		// Page publique d'un groupe (P3-02).
 		const band = await getPublicBand(handle, new Date(), viewer?.actorId);

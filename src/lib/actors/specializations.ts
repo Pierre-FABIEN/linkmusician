@@ -208,7 +208,17 @@ const DEFINITIONS: Readonly<Record<TrackKindValue, readonly Definition[]>> = {
 			label: 'Sound design',
 			description: 'Créer des sons pour l’image, le jeu, la scène.'
 		},
-		{ code: 'RF', label: 'Liaisons HF', description: 'Micros sans fil, ears, plans de fréquences.' }
+		{
+			code: 'RF',
+			label: 'Liaisons HF',
+			description: 'Micros sans fil, ears, plans de fréquences.'
+		},
+		{
+			// ONB-12c2 : code du catalogue, pas de l'enum historique `SoundSpecialty`.
+			code: 'POSTPRODUCTION',
+			label: 'Postproduction',
+			description: 'Le son à l’image : montage, mixage et livraison aux normes de diffusion.'
+		}
 	],
 	PRODUCER: [
 		{

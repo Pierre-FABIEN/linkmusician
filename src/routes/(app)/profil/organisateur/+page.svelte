@@ -1,4 +1,5 @@
 <script lang="ts">
+	import CraftVisibilityNote from '#lib/components/linkmusician/profile/CraftVisibilityNote.svelte';
 	// LINKMUSICIAN: « Mon profil d'organisateur·rice » (P5-05a), voir +page.server.ts.
 	import TrackCompletenessCard from '#lib/components/linkmusician/profile/TrackCompletenessCard.svelte';
 	import { untrack } from 'svelte';
@@ -72,6 +73,9 @@
 				<a href="/reglages/metiers" class="lm-btn">Choisir mes métiers</a>
 			</div>
 		{:else}
+			{#if 'visibility' in data && data.visibility}
+				<CraftVisibilityNote track="PROMOTER" {...data.visibility} />
+			{/if}
 			<form method="POST" use:enhance class="space-y-10">
 				<fieldset class="space-y-2">
 					<legend class="text-lg font-semibold">Ce que j’organise</legend>

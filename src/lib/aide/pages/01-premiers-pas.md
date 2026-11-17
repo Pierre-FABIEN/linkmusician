@@ -181,12 +181,21 @@ La page du métier peut aussi proposer **ta fiche détaillée** : c'est là que
 tu ajoutes tes travaux en écoute, ton matériel ou tes tarifs. Les liens
 ci-dessous mènent à ces fiches complémentaires.
 
+Ces fiches suivent les mêmes réglages **Qui voit quoi** que ton métier :
+tes spécialités vont avec **Spécialités et intentions**, ton matériel, tes
+logiciels, tes styles et l’endroit où tu travailles avec **Précisions**, et
+tes tarifs avec **Conditions**, visibles de toi seul·e par défaut. Un
+encadré en haut de chaque fiche rappelle qui voit quoi, avec un lien pour
+le changer. Tes travaux en écoute et tes crédits confirmés restent visibles
+de tous.
+
 ### Si tu es ingé son {#inge-son}
 
 Ouvre **Mon profil › Mon profil d’ingé son** :
 
 - coche tes **spécialités** (prise de son, mixage, mastering, façade,
-  retours), puis une offre dans **Je propose** sur ta page métier pour
+  retours). D’autres spécialités, comme la **postproduction** (le son à
+  l’image) ou les liaisons HF, se cochent sur ta page métier. Coche ensuite une offre dans **Je propose** sur ta page métier pour
   apparaître comme prestataire dans **Découvrir** ;
 - dis **où tu travailles** : dans ton studio, en te déplaçant, ou à
   distance ;
@@ -217,7 +226,8 @@ Ouvre **Mon profil › Mon profil de producteur·rice** :
   recherche par style ;
 - liste tes **logiciels** et, si tu veux, des **tarifs indicatifs**
   (« À partir de 150 € le titre ») : le prix se discute toujours avec
-  l’artiste ;
+  l’artiste. Ils restent visibles de toi seul·e tant que tu n’ouvres pas
+  tes **Conditions** ;
 - ajoute jusqu’à six **productions en écoute**.
 
 Ton rang de producteur·rice et tes objectifs suivent la même logique que

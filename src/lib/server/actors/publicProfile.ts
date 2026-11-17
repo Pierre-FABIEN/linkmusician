@@ -28,6 +28,8 @@ import { confirmedArtistsOf, getAgentTier } from '#lib/server/representation/ser
 import { getCraftTier, getSoundEngineerTier } from '#lib/server/progression/crafts';
 import { publicActorWhere } from './visibility';
 import { SOUND_ROLE_LABELS, type SoundRoleKind } from '#lib/works/rules';
+import { gateCraftCard, type CraftCardTrack } from '#lib/actors/craftCardVisibility';
+import type { Audience } from '#lib/actors/trackSheet';
 
 const ENGINEER_ROLES: readonly SoundRoleKind[] = ['RECORDING', 'MIXING', 'MASTERING'];
 const PRODUCER_ROLES: readonly SoundRoleKind[] = ['PRODUCTION'];
@@ -51,8 +53,23 @@ function craftCredits(
 /** Médias publiés affichés sur le profil (les plus récents). */
 export const PROFILE_MEDIA_LIMIT = 6;
 
-/** `viewerId` : un blocage entre le lecteur et l'acteur rend le profil introuvable (P2-05). */
-export async function getPublicProfile(handle: string, now = new Date(), viewerId?: string | null) {
+const ALL_PRIVATE = {
+	offersVisibility: 'PRIVATE',
+	detailsVisibility: 'PRIVATE',
+	conditionsVisibility: 'PRIVATE'
+} as const;
+
+/**
+ * `viewerId` : un blocage entre le lecteur et l'acteur rend le profil introuvable (P2-05).
+ * `viewerIsMember` : lecteur inscrit (onboarding fini) ; il voit les blocs « membres »
+ * des cartes métier (ONB-12c2, D61, Q70). Par défaut, le lecteur est anonyme.
+ */
+export async function getPublicProfile(
+	handle: string,
+	now = new Date(),
+	viewerId?: string | null,
+	viewerIsMember = false
+) {
 	const actor = await prisma.actor.findFirst({
 		// Personnes seulement : la page publique d'un groupe arrive avec P3-02.
 		where: { handle, kind: 'PERSON', ...publicActorWhere(now, viewerId) },
@@ -69,7 +86,15 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 					proStatus: true,
 					lookingFor: true,
 					practiceSince: true,
-					tracks: { select: { track: true, isPrimary: true } },
+					tracks: {
+						select: {
+							track: true,
+							isPrimary: true,
+							offersVisibility: true,
+							detailsVisibility: true,
+							conditionsVisibility: true
+						}
+					},
 					links: { select: { kind: true, url: true } }
 				}
 			}
@@ -78,6 +103,17 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 	if (!actor) return null;
 
 	const hasTrack = (track: string) => actor.person?.tracks.some((t) => t.track === track) ?? false;
+	// Cartes historiques sous les blocs D61 (ONB-12c2) : filtrées ici, jamais côté page.
+	const audience: Audience =
+		viewerId === actor.id ? 'owner' : viewerId && viewerIsMember ? 'members' : 'public';
+	const gate = <T extends object>(track: CraftCardTrack, card: T): T =>
+		// Sans réglages (métier absent), rien de déclaratif ne sort.
+		gateCraftCard(
+			track,
+			card,
+			actor.person?.tracks.find((t) => t.track === track) ?? ALL_PRIVATE,
+			audience
+		);
 	const isSoundEngineer = hasTrack('SOUND_ENGINEER');
 	const [
 		musical,
@@ -171,7 +207,9 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 		bio: actor.bio,
 		updatedAt: actor.updatedAt,
 		indexable: isIndexable(person?.birthDate, now),
-		tracks: [...(person?.tracks ?? [])].sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary)),
+		tracks: [...(person?.tracks ?? [])]
+			.sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary))
+			.map(({ track, isPrimary }) => ({ track, isPrimary })),
 		proStatus: person?.proStatus ?? null,
 		practiceSince: person?.practiceSince ?? null,
 		lookingFor: person?.lookingFor ?? [],
@@ -191,14 +229,22 @@ export async function getPublicProfile(handle: string, now = new Date(), viewerI
 		works,
 		// Rang d'ingé son (P4-02b) : des conditions, jamais l'XP.
 		soundEngineer: sound?.[0]
-			? { ...sound[0], tier: sound[1], credits: craftCredits(works, ENGINEER_ROLES) }
+			? {
+					...gate('SOUND_ENGINEER', sound[0]),
+					tier: sound[1],
+					credits: craftCredits(works, ENGINEER_ROLES)
+				}
 			: null,
 		producer: producer?.[0]
-			? { ...producer[0], tier: producer[1], credits: craftCredits(works, PRODUCER_ROLES) }
+			? {
+					...gate('PRODUCER', producer[0]),
+					tier: producer[1],
+					credits: craftCredits(works, PRODUCER_ROLES)
+				}
 			: null,
 		promoter: promoter?.[0]
 			? {
-					...promoter[0],
+					...gate('PROMOTER', promoter[0]),
 					tier: promoter[1],
 					gigSlots: promoter[2].map(({ venue, ...g }) => ({ ...g, venue: venue?.name ?? null })),
 					orgs: promoter[3]

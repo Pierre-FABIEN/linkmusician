@@ -112,8 +112,8 @@ en jam passée (vie de jam).
 
 | Situation                                                                                    | Se connecter avec         | Où                                          |
 | -------------------------------------------------------------------------------------------- | ------------------------- | ------------------------------------------- |
-| Profil d'ingé son : spécialités, matériel, travaux en écoute, rang                           | n'importe qui             | `/@samir-son`, `/profil/son` (Samir)        |
-| Profil de productrice : spécialités, styles, tarifs indicatifs, productions                  | n'importe qui             | `/@nora-prod`, `/profil/production` (Nora)  |
+| Ingé son : travaux en écoute et rang ; spécialités, matériel aux membres (Q70)               | membre connecté·e         | `/@samir-son`, `/profil/son` (Samir)        |
+| Productrice : productions ; styles aux membres ; tarifs pour Nora seule (Q70)                | membre connecté·e         | `/@nora-prod`, `/profil/production` (Nora)  |
 | **La Cave Studio** : fiche publiée, 2 salles, horaires, vérifié, co-gestion Samir + Théo     | n'importe qui             | `/@la-cave-studio`                          |
 | Gérer le studio, sessions, rang                                                              | `samir-son`               | `/studios/la-cave-studio`                   |
 | **Invitation à co-gérer le studio** en attente                                               | `nora-prod`               | `/studios`, notifications                   |

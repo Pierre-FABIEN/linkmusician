@@ -232,6 +232,10 @@ export async function searchMusicians(
 		const musicianPrivate = p.tracks.some(
 			(t) => t.track === 'MUSICIAN' && t.offersVisibility === 'PRIVATE'
 		);
+		// Spécialités historiques (ONB-12c2, D61, Q70) : bloc des intentions de leur
+		// métier ; la recherche est réservée aux membres, seul « privé » les masque.
+		const offersShown = (track: string) =>
+			p.tracks.some((t) => t.track === track && t.offersVisibility !== 'PRIVATE');
 		const offerCodes =
 			p.tracks.find((t) => t.track === filters.track)?.intents.map((i) => i.code) ?? [];
 		return [
@@ -256,11 +260,11 @@ export async function searchMusicians(
 							.map((o) => o.label)
 					: [],
 				/** Spécialités d'ingé son déclarées (P4-02), vides sinon. */
-				soundSpecialties: p.soundProfile?.specialties ?? [],
+				soundSpecialties: offersShown('SOUND_ENGINEER') ? (p.soundProfile?.specialties ?? []) : [],
 				/** Spécialités de producteur·rice déclarées (P4-04), vides sinon. */
-				producerSpecialties: p.producerProfile?.specialties ?? [],
+				producerSpecialties: offersShown('PRODUCER') ? (p.producerProfile?.specialties ?? []) : [],
 				/** Ce que la personne organise (P5-05a), vide sinon. */
-				promoterEventKinds: p.promoterProfile?.eventKinds ?? [],
+				promoterEventKinds: offersShown('PROMOTER') ? (p.promoterProfile?.eventKinds ?? []) : [],
 				/** Manager ou booker (P5-07), avec les genres suivis ; vide sans fiche. */
 				agent: p.agentProfile?.genres.length
 					? {

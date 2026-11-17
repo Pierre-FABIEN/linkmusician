@@ -201,7 +201,7 @@ Reste à faire, dans l'ordre :
   `20261112170320_visibilite_par_metier` appliquée (`public`, `e2e`),
   intégration et E2E (`profil-metiers.spec.ts` et specs voisines) au vert.
 
-#### ONB-12c — Profil : informations avancées par métier (découpé : 12c1 ✅, 12c2)
+#### ONB-12c — Profil : informations avancées par métier (découpé : 12c1 ✅, 12c2 ✅, 12c3)
 
 - **ONB-12c1 — Formation et répertoire du groupe ✅** (17/11/2026, D64) :
   table additive `band_profiles` (`formation`, `repertoire`, valeurs
@@ -211,7 +211,27 @@ Reste à faire, dans l'ordre :
   `formationMatch`/`repertoireMatch` (`unknown` n'exclut jamais) prêtes pour
   ONB-13b. Données de l'organisation : hors export personnel, cascade.
   Détail : [groupes](../groupes/README.md#formation-et-répertoire-onb-12c1-d64).
-- **ONB-12c2** : le reste de la fiche ci-dessous.
+- **ONB-12c2 — Fiches historiques sous D61, postproduction ✅** (17/11/2026,
+  Q70, local) : les cartes « Ingé son », « Producteur·rice » et
+  « Organisateur·rice » de `/@handle` sont filtrées côté serveur par bloc
+  (`#lib/actors/craftCardVisibility`, appliqué dans `getPublicProfile`) :
+  anonyme, membre inscrit·e ou la personne. Tarifs en conditions, donc privés
+  par défaut, y compris ceux déjà saisis ; références, crédits confirmés et
+  rang restent publics. Résultats de Découvrir : spécialités historiques
+  tues si le bloc d'intentions est privé. Note « Qui voit quoi » sur
+  `/profil/son`, `/production`, `/organisateur`, avec lien vers les
+  réglages. Spécialité et offre **postproduction** de l'ingé son : codes du
+  référentiel, **sans migration** (la recherche lit
+  `person_track_specializations`). Aucun champ ni crédit supprimé.
+  Recette : `check` 0 erreur ; unitaires 1440 ✓ (dont 8 nouveaux) ;
+  intégration `craftCards` 4 ✓, recherche, crafts et actors ✓ ; E2E
+  `producteur` (tarifs masqués puis ouverts, 390 px, clavier, axe),
+  `inge-son`, `organisateur`, `profil-metiers`, `recherche`,
+  `onboarding-metiers` ✓.
+- **ONB-12c3** : le reste de la fiche ci-dessous (disponibilités,
+  invitations contextuelles à compléter, déclaré / confirmé / vérifié).
+  Portfolio (références), matériel, logiciels et tarifs existent déjà sur
+  les fiches historiques : ne pas les dupliquer.
 
 - **Ticket** #26. Dépend d'ONB-12b.
 - **À faire** : portfolio et médias, matériel, logiciels, références,
@@ -220,9 +240,9 @@ Reste à faire, dans l'ordre :
   `/profil/organisateur` et « Ma pratique » (pas de doublon). Invitation à
   compléter au moment où le champ sert (candidature, annonce), sans
   bloquer l'application. Distinguer déclaré, confirmé et vérifié.
-- **Questions** : visibilité de `rate` et `gear` des pages historiques ;
-  « postproduction » de l'ingé son (exige un code d'enum
-  `SoundSpecialty`, donc une migration).
+- **Questions** : visibilité de `rate` et `gear` des pages historiques et
+  « postproduction » : traitées par ONB-12c2 (Q70 ; la postproduction est un
+  code du référentiel, sans enum ni migration).
 - **Acceptation** : une spécialité retirée ne détruit aucun crédit ;
   profils existants intacts ; mobile et clavier.
 

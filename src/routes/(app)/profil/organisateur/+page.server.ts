@@ -18,7 +18,7 @@ import { listGenreTree } from '#lib/prisma/skills/referentials';
 import { requirePerson } from '#server/actors/tracksForm';
 import { MAX_REFERENCES } from '#lib/crafts/common';
 
-import { completenessFor } from '#lib/server/actors/trackSheets';
+import { completenessFor, craftVisibilityFor } from '#lib/server/actors/trackSheets';
 import { hasOfferIn } from '#lib/prisma/actors/trackSettings';
 
 /** D62 : sans offre cochée, la recherche par métier ne trouve pas la personne. */
@@ -56,7 +56,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		genres,
 		form,
 		// Complétude (ONB-13a) : sans offre cochée, pas de résultat en recherche (D62).
-		...(await completenessFor(person.actorId, ['PROMOTER']))
+		...(await completenessFor(person.actorId, ['PROMOTER'])),
+		// Qui voit quoi (ONB-12c2, D61, Q70).
+		visibility: await craftVisibilityFor(person.actorId, 'PROMOTER')
 	};
 };
 

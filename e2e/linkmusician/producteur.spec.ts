@@ -79,14 +79,47 @@ test.describe('LinkMusician — producteur·rice', () => {
 				await expect(musicianPage.getByText(me.actor.displayName)).toHaveCount(0);
 			});
 
-			await test.step('4. Mon profil public : carte, tarifs indicatifs, rang', async () => {
+			await test.step('4. Mon profil public : carte et rang ; tarifs privés par défaut', async () => {
+				const rate = musicianPage.getByText('À partir de 150 € le titre');
 				await musicianPage.goto(`/@${me.actor.handle}`);
 				await waitForAppReady(musicianPage);
 				await expect(
 					musicianPage.getByRole('heading', { name: 'Producteur·rice', level: 2 })
 				).toBeVisible();
-				await expect(musicianPage.getByText('À partir de 150 € le titre')).toBeVisible();
 				await expect(musicianPage.getByText('Home studio').first()).toBeVisible();
+				// ONB-12c2 (D61, Q70) : les tarifs suivent le bloc « Conditions », privé par défaut.
+				await expect(rate).toHaveCount(0);
+				// Précisions (membres) : présentes, dans le volet « Logiciels » replié.
+				await expect(musicianPage.getByText('Ableton Live')).toBeAttached();
+			});
+
+			await test.step('4 bis. Je rends mes conditions publiques depuis la note', async () => {
+				await page.setViewportSize({ width: 390, height: 844 });
+				await page.goto('/profil/production');
+				await waitForAppReady(page);
+				const note = page.getByTestId('qui-voit-fiche');
+				await expect(note).toContainText('Conditions (tarifs indicatifs) : Moi seulement');
+				expect(
+					await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+				).toBe(true);
+				await expectNoA11yViolations(page, ['.cartButton']);
+				// Au clavier : le lien mène aux réglages du métier.
+				const link = note.getByRole('link', { name: 'Changer qui voit quoi' });
+				await link.focus();
+				await expect(link).toBeFocused();
+				await page.keyboard.press('Enter');
+				await waitForPath(page, '/profil/metier/producteur');
+				await waitForAppReady(page);
+				const form = page.getByTestId('reglages-metier');
+				await form
+					.getByRole('group', { name: 'Conditions' })
+					.getByRole('button', { name: 'Tout le monde' })
+					.click();
+				await form.getByRole('button', { name: 'Appliquer ces réglages' }).click();
+				await expect(page.getByTestId('reglages-metier').getByRole('status')).toBeVisible();
+				await musicianPage.reload();
+				await waitForAppReady(musicianPage);
+				await expect(musicianPage.getByText('À partir de 150 € le titre')).toBeVisible();
 			});
 
 			await test.step('5. Mes objectifs de producteur·rice, sans ceux de musicien·ne', async () => {

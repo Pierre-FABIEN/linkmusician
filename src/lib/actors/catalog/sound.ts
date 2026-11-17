@@ -3,7 +3,14 @@ import { intent, opt, STUDIO_ENVIRONMENTS } from './helpers';
 import type { TrackCatalog } from './types';
 
 const LIVE = ['LIVE_FOH', 'LIVE_MONITORS'];
-const STUDIO_WORK = ['RECORDING', 'MIXING', 'MASTERING', 'EDITING_RESTORATION', 'SOUND_DESIGN'];
+const STUDIO_WORK = [
+	'RECORDING',
+	'MIXING',
+	'MASTERING',
+	'EDITING_RESTORATION',
+	'SOUND_DESIGN',
+	'POSTPRODUCTION'
+];
 
 export const soundCatalog: TrackCatalog = {
 	offers: [
@@ -25,6 +32,11 @@ export const soundCatalog: TrackCatalog = {
 			'SOUND_DESIGN_SERVICE',
 			'Créer des sons',
 			'Sound design pour l’image, le jeu, la scène.'
+		),
+		intent(
+			'POSTPRODUCTION_SERVICE',
+			'Faire de la postproduction',
+			'Monter, mixer et livrer le son d’un film, d’une série, d’une pub.'
 		),
 		intent('TRAINING', 'Transmettre', 'Former, accompagner d’autres techniciens.')
 	],

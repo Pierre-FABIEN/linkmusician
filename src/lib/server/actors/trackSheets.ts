@@ -97,3 +97,15 @@ export async function completenessFor(actorId: string, tracks: readonly TrackKin
 		commonMissing: all.common
 	};
 }
+
+/**
+ * Réglages de visibilité d'un métier détenu, pour la note « Qui voit quoi »
+ * d'une page historique (`/profil/son`…, ONB-12c2). `null` sans ce métier.
+ */
+export async function craftVisibilityFor(actorId: string, track: TrackKindValue) {
+	const settings = await prisma.personTrack.findUnique({
+		where: { personId_track: { personId: actorId, track } },
+		select: { offersVisibility: true, detailsVisibility: true, conditionsVisibility: true }
+	});
+	return settings ? { settings, slug: TRACK_ROLES[track].slug } : null;
+}

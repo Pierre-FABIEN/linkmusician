@@ -1,4 +1,4 @@
-# Prompt de reprise — après DASH-07b
+# Prompt de reprise — après ONB-12c2
 
 ```markdown
 Reprends LinkMusician dans le dossier de travail courant. Une session = un lot.
@@ -9,34 +9,27 @@ Ne modifie pas les issues GitHub sans instruction.
 
 État au 17/11/2026 :
 
-- origin/main confirmé à ad36147 au démarrage : ONB-13b, D71 et DASH-07a
-  publiés. Les mentions « local » antérieures décrivent la livraison initiale.
-- DASH-07b (#37) livré par le commit local « (DASH-07b) », sans push.
-  Sur l’annonce, envoi pour un artiste avec droit actif relu après verrous
-  lockGrantPair puis FOR UPDATE de l’annonce. Territoire du mandat, conditions
-  de l’artiste, visibilité/blocages des deux parties, doublon direct/délégué,
-  acte USED et notifications atomiques. Le recrutement reste exclu.
-- Migration additive 20261117174550_delegated_applications appliquée en dev
-  et e2e : marques delegated sur candidature et conversation, withdrawnAt,
-  withdrawnById, notification APPLICATION_SENT. Client Prisma généré.
-- Retraits et décisions utilisent le même verrou d’annonce, avec relecture.
-  Artiste, gestion actuelle ou expéditeur peuvent retirer une candidature
-  en attente ; auteur et date conservés, exportés et anonymisés.
-- L’acceptation ouvre/réutilise une conversation avec l’agent. La marque
-  delegated reste vraie, y compris après anonymisation ; aucune émission de
-  progression à la réciprocité, aucun ancien gain repris. L’artiste reçoit
-  une notification vers l’annonce, sans accès aux messages privés.
-- Démo : après accord de Lucas pour la Fanfare Pirate, Élise peut candidater
-  à « Scène ouverte aux projets accompagnés ». Le seed ne donne aucun accord
-  et n’envoie aucune candidature.
-- Résultats de recette : voir la section DASH-07b du plan, ne pas les déduire
-  du seul nombre de tests présents. #37/#30/#50 restent ouverts.
+- DASH-07b (#37) commité localement (« (DASH-07b) ») ; ONB-12c2 (#26)
+  commité localement (« (ONB-12c2) »), sans push. Vérifier avec
+  git ls-remote ce que l'utilisateur a publié depuis.
+- ONB-12c2 : les cartes historiques « Ingé son », « Producteur·rice » et
+  « Organisateur·rice » de /@handle suivent les blocs D61, filtrées dans
+  getPublicProfile par #lib/actors/craftCardVisibility (anonyme, membre
+  inscrit, la personne). Tarifs en conditions : privés par défaut, y compris
+  ceux déjà saisis (Q70, défaut appliqué). Références, crédits confirmés et
+  rang restent publics. Découvrir tait les spécialités historiques d'un bloc
+  d'intentions privé. Note « Qui voit quoi » sur /profil/son, /production,
+  /organisateur. Postproduction : code du référentiel (spécialité et offre),
+  sans migration ni enum SoundSpecialty.
+- Résultats de recette : voir les fiches DASH-07b et ONB-12c du plan.
+  #26, #37, #30 et #50 restent ouverts.
 
-Lot suivant : ONB-12c2 (#26) — informations avancées par métier. Lis sa fiche
-dans docs/plan/fin-du-projet.md et la conception 06. Portfolio, matériel,
-tarifs indicatifs en réutilisant /profil/son, /profil/production et
-/profil/organisateur ; visibilité de rate/gear et spécialité postproduction.
-Audite les modèles existants et la confidentialité avant de modifier le schéma.
+Lot suivant : ONB-12c3 (#26) — disponibilités, invitation à compléter un
+champ au moment où il sert (candidature, annonce, sans bloquer), distinction
+déclaré / confirmé / vérifié. Lis la fiche ONB-12c dans
+docs/plan/fin-du-projet.md et la conception 06 §1.3. Portfolio, matériel,
+logiciels et tarifs existent déjà : ne pas les dupliquer. Une disponibilité
+est une donnée personnelle : export et anonymisation RGPD.
 
 Restent aussi ONB-14 (#28, recette multirôle), la recette transverse #50 et
 les extensions de #36 (membre avec accord, prestataire externe, autres étapes,

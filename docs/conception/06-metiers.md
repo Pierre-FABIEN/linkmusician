@@ -130,6 +130,21 @@ privé) ; défauts en Q64 et Q65.
 | Précisions                | champs propres du catalogue                   | membres    |
 | Conditions                | champs marqués `block: 'conditions'`          | privé      |
 
+**Fiches historiques (ONB-12c2, Q70)** : les cartes « Ingé son »,
+« Producteur·rice » et « Organisateur·rice » de `/@handle`, remplies sur
+`/profil/son`, `/profil/production` et `/profil/organisateur`, suivent les
+mêmes blocs, filtrés côté serveur (`#lib/actors/craftCardVisibility`) :
+spécialités et types d'événements avec les intentions ; mobilité, matériel,
+logiciels, styles et jauge avec les précisions ; tarifs avec les
+conditions. Références, crédits confirmés, rang, plateaux ouverts et
+organisations gérées restent publics. Les résultats de **Découvrir**
+(membres) taisent les spécialités historiques d'un bloc d'intentions privé.
+Chaque fiche historique rappelle qui voit quoi, avec un lien vers les
+réglages du métier. Spécialité **postproduction** de l'ingé son (et l'offre
+correspondante) : code du référentiel `person_track_specializations`, sans
+code d'enum `SoundSpecialty` ni migration ; elle se coche sur la page du
+métier.
+
 **Matrice** (I : inscription, P : profil avancé, A : annonce ; R : requis,
 C : conditionnel, F : facultatif ; « existe » : déjà dans le code).
 
@@ -148,7 +163,7 @@ C : conditionnel, F : facultatif ; « existe » : déjà dans le code).
 | Ingé son              | Révisions de mixage                                       | conditions de la prestation               | I   | C      | conditions       | oui                          |
 | Producteur·rice       | Degré d'intervention, formats de beat                     | beat contre production complète           | I   | C      | précisions       | oui                          |
 | Producteur·rice       | Ce que tu souhaites (beats)                               | conditions                                | I   | C      | conditions       | oui                          |
-| Producteur·rice       | Tarifs indicatifs (`rate`)                                | conditions                                | P   | F      | page historique  | oui (visibilité : ONB-12c)   |
+| Producteur·rice       | Tarifs indicatifs (`rate`)                                | conditions                                | P   | F      | conditions       | oui (ONB-12c2, Q70)          |
 | Manager               | Statut, territoire, nouveaux projets, stade ciblé         | prospection d'artistes                    | I   | R ou C | précisions       | oui                          |
 | Manager               | Capacité d'accompagnement                                 | conditions                                | I   | C      | conditions       | oui                          |
 | Booker                | Structure, jauge, formations, types d'événements          | programmation contre booking (scénario 3) | I   | R ou C | précisions       | oui                          |
