@@ -1,59 +1,64 @@
-# Prompt de reprise — après ONB-14
+# Prompt de reprise — après DASH-20a
 
 ```markdown
 Reprends LinkMusician dans le dossier de travail courant. Une session = un lot :
-DASH-20a (#50), recette transverse, première tranche : confidentialité et
-parcours entre métiers.
+DASH-20b (#50), recette transverse, deuxième tranche : groupe + lieu, puis
+projet + prestataire si le temps le permet.
 
 Avant de coder :
 
 1. Lis CLAUDE.md, docs/plan/README.md §4 (définition de terminé), l'issue
-   #50 (périmètre et critères) et la fiche ONB-14 dans
-   docs/plan/fin-du-projet.md (« Pistes laissées à #50 »). Crée la fiche
-   DASH-20a dans fin-du-projet.md avant de coder si elle n'existe pas.
-2. git status, git log -5 et git ls-remote origin refs/heads/main. Commit
-   local attendu, sans push : « (ONB-14) ». Note ce que l'utilisateur a
-   publié depuis. Préserve les commits et changements des autres sessions.
+   #50 (périmètre et critères) et la fiche DASH-20a dans
+   docs/plan/fin-du-projet.md (« Reste pour DASH-20b »). Crée la fiche
+   DASH-20b dans fin-du-projet.md avant de coder si elle n'existe pas.
+2. git status, git log -5 et git ls-remote origin refs/heads/main. Commits
+   locaux attendus, sans push : « (ONB-14) » et « (DASH-20a) ». Note ce que
+   l'utilisateur a publié depuis. Préserve les commits et changements des
+   autres sessions.
 3. Relis la couverture existante pour ne rien dupliquer :
-   e2e/linkmusician/inscription-transverse.spec.ts (ONB-14 : métiers
-   « bientôt », champs `when`, POST forgés, 390 px, D5 au premier
-   résultat), onboarding-metiers.spec.ts, suggestions.spec.ts,
-   recherche.spec.ts, mobile.spec.ts. Aides : e2e/support/linkmusician.ts
-   (createMusician, deleteMusicians, horizontalOverflow, skipOnboarding),
-   admin.ts (signUpAndVerify, pageOrigin, sveltekitActionHeaders).
+   e2e/linkmusician/recette-transverse.spec.ts (DASH-20a : distance par
+   tranche, carnet d'un·e mineur·e, manager + artiste, booker + groupe),
+   organisateur.spec.ts (plateau, candidature au nom du groupe),
+   concerts.spec.ts, lieu-fiche.spec.ts, scene-ouverte.spec.ts,
+   animation-lieu.spec.ts, collaborations-morceau.spec.ts. Aides :
+   e2e/support/linkmusician.ts (createMusician, deleteMusicians,
+   horizontalOverflow, skipOnboarding), admin.ts (signUpAndVerify,
+   pageOrigin, sveltekitActionHeaders), et `person`, `newPage`, `forge`,
+   `band` en tête de recette-transverse.spec.ts.
 
 À faire :
 
-- pistes d'ONB-14 : le premier résultat (`nearbyMusicians`,
-  /demarrer/resultat) envoie la distance en mètres dans les données de la
-  page : n'envoyer que la tranche, comme les suggestions, avec un test qui
-  lit la réponse ; `preload_data_failed` (Internal Error) sur /jam/carnet
-  vu dans le journal pendant le test de la mineure : reproduire, trouver la
-  cause ;
-- parcours entre métiers de #50 encore absents : manager + artiste,
-  booker + organisateur, groupe + lieu (choisir les deux plus courts,
-  découper le reste en DASH-20b) ;
-- dans chaque parcours : POST forgés avec l'identifiant d'un autre compte,
-  règles des mineur·es, 390 px, axe.
+- groupe + lieu : plateau d'un lieu ou d'une organisatrice, candidature au
+  nom du groupe ; POST forgés d'un non-membre et d'un MEMBER sans gestion,
+  règles des mineur·es du groupe, 390 px, axe ;
+- projet + prestataire (session d'ingé son, crédit) : mêmes critères, si
+  le temps le permet, sinon DASH-20c ;
+- concurrence ou révocation pendant une attente, export et anonymisation
+  dans un parcours (au moins un cas chacun), sans dupliquer les tests
+  d'intégration existants.
 
 Ne modifie le code que pour un défaut trouvé, avec un test qui le
 reproduit, et consigne-le dans la fiche. Si le lot déborde, découpe-le.
 
 Repères :
 
-- Forger une action superforms `dataType: 'json'` : `stringify` de
-  `devalue` dans `__superform_json`, avec `sveltekitActionHeaders` ; la
-  réponse JSON porte `type` (`failure`, `redirect`, `success`) et `status`
-  (voir `forgeTrackStep` dans inscription-transverse.spec.ts).
-- Une page d'onboarding reste accessible après l'inscription
-  (`canVisit` : tout est fait) ; l'étape d'un métier ne charge que les
-  champs de l'inscription (correctif ONB-14).
+- `browser.newContext()` ne reçoit pas l'IP de la fixture : sans
+  `X-Forwarded-For` propre (`makeClientIp`), la 4ᵉ inscription d'un test
+  tombe sur le limiteur (429). Utiliser `newPage` de recette-transverse.
+- Une page d'onboarding n'est accessible après `skipOnboarding` que si
+  toutes les étapes sont remplies (instrument, genre, ville en base).
+- Forger une action de formulaire simple : POST `form` avec l'en-tête
+  `Origin` ; `fail(403)` répond 403. Superforms `dataType: 'json'` :
+  `forgeTrackStep` dans inscription-transverse.spec.ts.
+- Notifications : champ `recipientActorId`.
+- Gestion d'un groupe : seule la gestion **majeure** répond et voit les
+  propositions d'accompagnement (Q48, `adultAnswerersOf`, DASH-20a).
 - Communes e2e : Toulouse, Blagnac, Muret, Montauban, Paris. Montauban isole
   un test des nombreux comptes toulousains laissés par les autres specs.
-- Sur /demarrer/intention, sans rien dans « Je recherche », le bouton est
-  « Juste explorer », pas « Continuer ».
 - Un scan axe juste après une action peut tomber sur un toast en fondu :
   attendre `[data-sonner-toast]` à 0.
+- `preload_data_failed` sur `/jam/carnet` dans le journal : connu (T9),
+  démontage de la fixture `account`, sans effet sur les tests.
 - `npm run lint` global échoue pour des raisons extérieures au lot
   (`.shot-*.mjs`, `playwright-report/`) : lancer ESLint et Prettier sur les
   fichiers du lot. Tableaux Markdown : garder la largeur des colonnes.
@@ -68,10 +73,11 @@ Question ouverte : défaut appliqué et ligne Qn dans
 docs/plan/a-trancher.md, sans interrompre (Q70 et Q71 attendent
 l'utilisateur).
 
-Fin de lot : fiche DASH-20a (livré, recette réelle avec les specs lancées),
-tableau §5 de docs/plan/README.md, prompt de reprise, aide et démo si le
-comportement change. Commentaire sur l'issue #50 (commit local, sans push,
-ce qui reste). Commit en français préfixé « (DASH-20a) », sans push.
+Fin de lot : fiche DASH-20b (livré, recette réelle avec les specs lancées),
+tableau de docs/plan/README.md, prompt de reprise, e2e/README.md, aide et
+démo si le comportement change. Commentaire sur l'issue #50 (commit local,
+sans push, ce qui reste). Commit en français préfixé « (DASH-20b) », sans
+push.
 
 Restent ensuite : la suite de #26 (invitation à compléter dans la
 recherche, expériences), les extensions de #36 et #37. #70–#72 cadrent

@@ -66,7 +66,7 @@
 										</div>
 									</div>
 									<div class="flex flex-wrap items-center gap-1.5">
-										<DistanceTag meters={n.meters} commune={n.commune} />
+										<DistanceTag band={n.distance} commune={n.commune} />
 										{#each n.genres as g (g)}<Badge variant="secondary">{g}</Badge>{/each}
 									</div>
 								</Card.Content>

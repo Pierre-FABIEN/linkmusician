@@ -6,6 +6,7 @@
 	import { Button } from '#shadcn/button';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
 	import DistanceTag from '#lib/components/linkmusician/progress/DistanceTag.svelte';
+	import { distanceBand } from '#lib/geo/distance';
 	import QuestCard from '#lib/components/linkmusician/progress/QuestCard.svelte';
 	import XpBar from '#lib/components/linkmusician/progress/XpBar.svelte';
 	import { nearby } from '../data';
@@ -37,7 +38,7 @@
 							</div>
 						</div>
 						<div class="flex flex-wrap items-center gap-1.5">
-							<DistanceTag meters={n.meters} commune={n.commune} />
+							<DistanceTag band={distanceBand(n.meters)} commune={n.commune} />
 							{#each n.genres as g (g)}<Badge variant="secondary">{g}</Badge>{/each}
 						</div>
 						{#if n.tier}<TierBadge {...n.tier} />{/if}

@@ -27,7 +27,7 @@ import { emitAndProcess } from '#lib/server/progression/processor';
 import { agentSummary, type BandMilestoneFact } from '#lib/server/progression/core/agentSummary';
 import { agentTier } from '#lib/server/progression/core/tiers';
 import type { Milestone } from '#lib/server/progression/core/events';
-import { isIndexable } from '#lib/actors/visibility';
+import { adultBirthCutoff, isIndexable } from '#lib/actors/visibility';
 import {
 	AGENT_KIND_INFO,
 	MAX_PENDING_PROPOSALS,
@@ -86,7 +86,7 @@ async function requireEligiblePair(
 		await db.membership.count({ where: { personId: agentId, orgId: artistId, status: 'ACTIVE' } })
 	)
 		throw new RepresentationError('Tu fais partie de ce groupe.', 403);
-	const answerers = await answerersOf(db, artistId);
+	const answerers = await adultAnswerersOf(db, artistId, now);
 	const blocked = await db.block.count({
 		where: {
 			OR: [
@@ -174,9 +174,24 @@ async function answerersOf(db: Db, artistId: string) {
 	return org.memberships.map((m) => m.personId);
 }
 
-async function canAnswerFor(db: Db, artistId: string, personId: string, now: Date) {
+/**
+ * Celles et ceux qui peuvent **confirmer** (Q48) : l'artiste, ou les
+ * personnes **majeures** de la gestion du groupe. Une proposition n'est
+ * adressée, notifiée et montrée qu'à elles ; un groupe géré seulement par
+ * des mineur·es n'en reçoit pas (défaut trouvé en DASH-20a).
+ */
+async function adultAnswerersOf(db: Db, artistId: string, now: Date) {
 	const answerers = await answerersOf(db, artistId);
-	return answerers.includes(personId) && (await isAdultPerson(db, personId, now));
+	if (answerers.length === 0) return [];
+	const adults = await db.person.findMany({
+		where: { actorId: { in: answerers }, birthDate: { lte: adultBirthCutoff(now) } },
+		select: { actorId: true }
+	});
+	return adults.map((a) => a.actorId);
+}
+
+async function canAnswerFor(db: Db, artistId: string, personId: string, now: Date) {
+	return (await adultAnswerersOf(db, artistId, now)).includes(personId);
 }
 
 /** Proposer d'accompagner un artiste (personne ou groupe). Renvoie son nom. */
@@ -236,7 +251,7 @@ export async function proposeRepresentation(
 			403
 		);
 	}
-	const answerers = await answerersOf(prisma, artist.id);
+	const answerers = await adultAnswerersOf(prisma, artist.id, now);
 	const blocked = await Promise.all(answerers.map((id: string) => isBlockedBetween(agentId, id)));
 	if (answerers.length === 0 || blocked.some(Boolean)) {
 		throw new RepresentationError('Impossible de proposer un accompagnement à cet artiste.', 403);
@@ -451,13 +466,20 @@ async function bandsIManage(personId: string) {
  * Ce qui me concerne comme artiste (moi, ou un groupe que je gère) :
  * propositions à trancher et accompagnements en cours.
  */
-export async function representationsForMe(personId: string) {
-	const artistIds = [personId, ...(await bandsIManage(personId))];
+export async function representationsForMe(personId: string, now = new Date()) {
+	const bands = await bandsIManage(personId);
+	const artistIds = [personId, ...bands];
+	// Une proposition attend une réponse majeure (Q48) : un·e mineur·e de la
+	// gestion ne la voit pas, ni ses termes ; il ou elle voit les
+	// accompagnements confirmés du groupe et peut y mettre fin.
+	const answerFor = (await isAdultPerson(prisma, personId, now)) ? artistIds : [personId];
 	const rows = await prisma.representation.findMany({
 		where: {
-			artistId: { in: artistIds },
-			status: { in: ['PROPOSED', 'CONFIRMED'] },
-			agent: { deletedAt: null }
+			agent: { deletedAt: null },
+			OR: [
+				{ artistId: { in: artistIds }, status: 'CONFIRMED' },
+				{ artistId: { in: answerFor }, status: 'PROPOSED' }
+			]
 		},
 		orderBy: [{ status: 'desc' }, { createdAt: 'desc' }],
 		select: {
@@ -488,7 +510,8 @@ export async function representationsForMe(personId: string) {
 }
 
 /** Nombre de propositions qui attendent ma réponse (tableau de bord). */
-export async function pendingRepresentationCount(personId: string) {
+export async function pendingRepresentationCount(personId: string, now = new Date()) {
+	if (!(await isAdultPerson(prisma, personId, now))) return 0;
 	const artistIds = [personId, ...(await bandsIManage(personId))];
 	return prisma.representation.count({
 		where: { artistId: { in: artistIds }, status: 'PROPOSED', agent: { deletedAt: null } }

@@ -8,6 +8,7 @@
 	import AchievementBadge from '#lib/components/linkmusician/progress/AchievementBadge.svelte';
 	import InstrumentSkill from '#lib/components/linkmusician/progress/InstrumentSkill.svelte';
 	import DistanceTag from '#lib/components/linkmusician/progress/DistanceTag.svelte';
+	import { distanceBand } from '#lib/geo/distance';
 	import { INSTRUMENT_LEVELS } from '#lib/skills/levels';
 	import { achievements, lea, quests } from './data';
 
@@ -86,9 +87,9 @@
 			</Card.Header>
 			<Card.Content class="space-y-4">
 				<div class="flex flex-wrap gap-2">
-					<DistanceTag meters={2400} commune="Toulouse" />
-					<DistanceTag meters={18000} commune="Muret" />
-					<DistanceTag meters={240000} />
+					<DistanceTag band={distanceBand(2400)} commune="Toulouse" />
+					<DistanceTag band={distanceBand(18000)} commune="Muret" />
+					<DistanceTag band={distanceBand(240000)} />
 				</div>
 				<ol class="space-y-1.5 text-sm">
 					{#each INSTRUMENT_LEVELS as l (l.level)}

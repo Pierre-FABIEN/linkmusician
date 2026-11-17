@@ -72,6 +72,7 @@ domaine (dernière colonne) ; lancer un seul spec :
 | `discussions`            | P3-16c       | Discussions de groupe sur invitation (D46)                                | `docs/contacts/`                     |
 | `assistant-inscription`  | P3-17        | Assistant d'inscription, fournisseur factice (D47)                        | `docs/onboarding/assistant.md`       |
 | `inscription-transverse` | ONB-14       | Multirôle : métiers « bientôt », champs `when`, POST forgés, 390 px, D5   | `docs/onboarding/`                   |
+| `recette-transverse`     | DASH-20a     | Distance par tranche, manager et booker : mineur·es, POST forgés, 390 px  | `docs/plan/fin-du-projet.md`         |
 | `inge-son`               | P4-02a, b    | Profil d'ingé son, recherche par métier, rang, objectifs                  | `docs/metiers-du-son/`               |
 | `producteur`             | P4-04        | Profil de producteur·rice, recherche par spécialité et style              | `docs/metiers-du-son/`               |
 | `annonces-metier`        | P4-05        | Annonce « cherche ingé son », visible du seul métier visé                 | `docs/metiers-du-son/`               |

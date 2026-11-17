@@ -431,6 +431,68 @@ describe.skipIf(!enabled)(
 			}
 		);
 
+		it('seule la gestion majeure est sollicitée (Q48, DASH-20a)', async () => {
+			const zoe = await person('zoe', ['MUSICIAN'], 17);
+			const adulte = await person('adulte', ['MUSICIAN']);
+			const bandOf = async (key: string, members: [string, 'OWNER' | 'ADMIN'][]) =>
+				(
+					await db.actor.create({
+						data: {
+							kind: 'ORGANIZATION',
+							handle: PREFIX + key,
+							displayName: PREFIX + key,
+							organization: {
+								create: {
+									kind: 'BAND',
+									formedAt: new Date(),
+									memberships: {
+										create: members.map(([personId, role]) => ({
+											personId,
+											role,
+											status: 'ACTIVE',
+											startedAt: new Date()
+										}))
+									}
+								}
+							}
+						}
+					})
+				).id;
+			const lycee = await bandOf('lycee', [[zoe, 'OWNER']]);
+			const mixte = await bandOf('mixte', [
+				[adulte, 'OWNER'],
+				[zoe, 'ADMIN']
+			]);
+			const requests = (actorId: string) =>
+				db.notification.count({
+					where: { recipientActorId: actorId, type: 'REPRESENTATION_REQUEST' }
+				});
+			// Géré par une mineure seulement : personne ne peut confirmer.
+			await expect(
+				reps.proposeRepresentation(ids.mgr, { artist: PREFIX + 'lycee', kind: 'MANAGER' })
+			).rejects.toThrow(/Impossible de proposer/);
+			expect(await db.representation.count({ where: { artistId: lycee } })).toBe(0);
+			// Gestion mixte : seule l'adulte est notifiée, voit et compte la proposition.
+			await reps.proposeRepresentation(ids.mgr, { artist: PREFIX + 'mixte', kind: 'MANAGER' });
+			expect(await requests(adulte)).toBe(1);
+			expect(await requests(zoe)).toBe(0);
+			expect(await reps.pendingRepresentationCount(adulte)).toBe(1);
+			expect(await reps.pendingRepresentationCount(zoe)).toBe(0);
+			expect(await reps.representationsForMe(zoe)).toEqual([]);
+			const { id } = await db.representation.findFirstOrThrow({ where: { artistId: mixte } });
+			await expect(reps.answerRepresentation(id, zoe, true)).rejects.toThrow(/majeure/);
+			await reps.answerRepresentation(id, adulte, true);
+			// Confirmé, l'accompagnement du groupe est visible de Zoé, qui peut y mettre fin.
+			expect(await reps.representationsForMe(zoe)).toMatchObject([
+				{ id, status: 'CONFIRMED', message: null }
+			]);
+			await reps.endRepresentation(id, zoe);
+			expect(await db.representation.findUniqueOrThrow({ where: { id } })).toMatchObject({
+				status: 'ENDED',
+				endedById: zoe
+			});
+		});
+
 		it('RGPD : fiche et accompagnements exportés ; après l’anonymisation, la fiche part et l’accompagnement se termine', async () => {
 			const rock = (
 				await db.genre.findFirstOrThrow({ where: { active: true }, select: { id: true } })

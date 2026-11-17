@@ -323,7 +323,11 @@ L'accompagnement d'un booker compte pour son rang, sans XP.
 la tournée.
 
 **Accompagnement (P5-07)** : le booker propose, l'artiste (ou la gestion
-du groupe) confirme ; il ou elle ne peut être membre du groupe (Q49).
+**majeure** du groupe, Q48) confirme ; il ou elle ne peut être membre du
+groupe (Q49). Seule la gestion majeure est notifiée et voit la proposition
+et ses termes ; un groupe géré seulement par des mineur·es n'en reçoit pas.
+Un·e mineur·e de la gestion voit l'accompagnement une fois confirmé, et
+peut y mettre fin (DASH-20a).
 Confirmé, le booker apparaît dans « Booké par » quand le groupe propose un
 concert ; le concert terminé le crédite (`gig.held`), et trois dates en
 font une tournée (`tour.booked`). « Développé » : un groupe qui passe au

@@ -1,14 +1,17 @@
 <script lang="ts">
-	/** LINKMUSICIAN: distance affichée par tranche, jamais en mètres (P1-02). */
+	/**
+	 * LINKMUSICIAN: distance affichée par tranche, jamais en mètres (P1-02).
+	 * Reçoit la tranche déjà calculée par le serveur (`distanceBand`) : les
+	 * mètres ne quittent jamais le serveur (DASH-20a).
+	 */
 	import { MapPin } from 'lucide-svelte';
-	import { distanceBand } from '#lib/geo/distance';
 
-	let { meters, commune = null }: { meters: number; commune?: string | null } = $props();
+	let { band, commune = null }: { band: string; commune?: string | null } = $props();
 </script>
 
 <span
 	class="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
 >
 	<MapPin class="size-3" aria-hidden="true" />
-	{distanceBand(meters)}{commune ? ` · ${commune}` : ''}
+	{band}{commune ? ` · ${commune}` : ''}
 </span>

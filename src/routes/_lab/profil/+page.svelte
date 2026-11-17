@@ -9,6 +9,7 @@
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
 	import InstrumentSkill from '#lib/components/linkmusician/progress/InstrumentSkill.svelte';
 	import DistanceTag from '#lib/components/linkmusician/progress/DistanceTag.svelte';
+	import { distanceBand } from '#lib/geo/distance';
 	import { lea } from '../data';
 
 	const signals = [
@@ -40,7 +41,7 @@
 				<div class="flex flex-wrap items-center gap-2">
 					<TierBadge {...lea.tier} />
 					<Badge variant="secondary">{lea.pro}</Badge>
-					<DistanceTag meters={6500} commune={lea.commune} />
+					<DistanceTag band={distanceBand(6500)} commune={lea.commune} />
 					<Badge variant="outline">joue depuis {new Date().getFullYear() - lea.since} ans</Badge>
 				</div>
 				<p class="leading-relaxed">{lea.bio}</p>

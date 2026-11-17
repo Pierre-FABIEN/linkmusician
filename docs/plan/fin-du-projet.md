@@ -984,6 +984,59 @@ d'acceptation ; #52 à #54 restent ouverts. Détail : [morceaux](../morceaux/REA
   attend la fin du toast avant le scan axe (contraste faussé pendant le fondu,
   aléa antérieur au lot). Migration appliquée aux schémas `public` et `e2e`.
 
+##### DASH-20a / #50 — recette transverse, première tranche ✅ (local)
+
+- **Dépend** : ONB-14 (#28), P5-07, DASH-07a/b. Ne remplace pas la recette
+  continue de #50.
+- **Choix des parcours** : les deux plus courts parmi ceux de #50 encore
+  absents, manager + artiste et booker + groupe (avec une organisatrice
+  tierce). Groupe + lieu et projet + prestataire passent en DASH-20b.
+- **Livré** (`e2e/linkmusician/recette-transverse.spec.ts`, 4 tests) :
+  premier résultat dont les données de page (`__data.json`) ne portent que la
+  tranche de distance ; carnet de jams d'un·e mineur·e (page, données et
+  préchargement en 200, axe) ; manager + artiste (artiste mineur·e refusé·e,
+  manager mineur sans formulaire et POST `propose` en 403, POST forgés d'un
+  tiers sur `answer` et `end` en 403, l'agent ne confirme pas sa propre
+  proposition, confirmation à 390 px au clavier avec axe et sans débordement,
+  fin par l'artiste) ; booker + groupe (groupe géré par une mineure seulement :
+  pas de proposition ; gestion mixte : seule l'adulte est notifiée et voit la
+  proposition ; POST forgés de la mineure, de l'organisatrice et du booker en
+  403 ; confirmation à 390 px, axe). Les contextes navigateur
+  supplémentaires reçoivent chacun leur IP (limiteur d'inscription).
+- **Défauts trouvés et corrigés** (chacun reproduit par un test, en échec
+  avant la correction) :
+  1. **Distance en mètres dans la page** : `nearbyMusicians` envoyait
+     `meters` (par exemple `801.76`) dans les données de
+     `/demarrer/resultat`, lisibles par le client. Il n'envoie plus que
+     `distance` (`distanceBand`) ; `DistanceTag` reçoit une tranche, plus
+     des mètres (maquettes `_lab` alignées).
+  2. **Gestion mineure sollicitée (Q48)** : un groupe géré seulement par
+     des mineur·es recevait les propositions de managers et de bookers, que
+     personne ne pouvait confirmer ; la mineure d'une gestion mixte était
+     notifiée, voyait la proposition et ses termes, et un bouton
+     « Confirmer » voué au 403. `adultAnswerersOf` filtre désormais la
+     gestion majeure pour proposer, notifier et confirmer ;
+     `representationsForMe` et `pendingRepresentationCount` ne montrent une
+     proposition qu'à une personne majeure. Une mineure de la gestion voit
+     l'accompagnement confirmé et peut y mettre fin. Test d'intégration
+     « seule la gestion majeure est sollicitée ».
+- **Analysé, non corrigé** : `preload_data_failed` sur `/jam/carnet`
+  (piste d'ONB-14) : reproduit uniquement quand le compte est supprimé
+  pendant que la page reste ouverte (démontage de la fixture `account`). La
+  garde du layout redirige (302), aucune donnée ne sort ; la page lit
+  `locals.user!` en parallèle et journalise une ERROR. 46 pages ont ce
+  motif : T9 dans `a-trancher.md`.
+- **Recette** (17/11/2026, `--retries=0`) : `recette-transverse` (4),
+  `booker`, `droit-de-candidater`, `candidature-deleguee`, `delegations`,
+  `agences`, `inscription-transverse` (7), `onboarding`, `suggestions` :
+  17/17. Intégration représentation (4 fichiers, 42 tests). `check`
+  0 erreur, 1 445 unitaires, ESLint et Prettier sur les fichiers du lot.
+- **Reste pour DASH-20b** : groupe + lieu (plateau, candidature au nom du
+  groupe, POST forgé d'un non-membre, mineur·e du groupe), projet +
+  prestataire, concurrence et révocation pendant une attente, export et
+  anonymisation dans les parcours, extensions #51–#54 au fil des
+  livraisons.
+
 ##### Réutilisation dans les modules métier
 
 Impacts détaillés de #30, #36/#37, #41–#50 et #51–#54 :

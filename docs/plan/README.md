@@ -226,6 +226,7 @@ exécution a planté à l'ouverture du navigateur (mémoire WSL) ; la relance pa
 | DASH-04b     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ publié       | Affectations nominatives, double accord, droits explicites, périmètre du mandat et adhésions figées ; recette ci-dessous.                                                                                      |
 | DASH-07a     | [#37](https://github.com/Pierre-FABIEN/linkmusician/issues/37) | ✅ publié       | Droit de candidater (D71) : demande, accord de l’artiste, révocation, actes en ajout seul, RGPD ; migration additive ; 8 + 6 tests, 1 E2E.                                                                     |
 | DASH-07b     | [#37](https://github.com/Pierre-FABIEN/linkmusician/issues/37) | ✅ local        | Candidature déléguée avec droit relu sous verrou, territoire et conditions de l’artiste ; acte USED, notification, retrait avec auteur ; conversation agent sans XP, RGPD.                                     |
+| DASH-20a     | [#50](https://github.com/Pierre-FABIEN/linkmusician/issues/50) | ✅ local        | Recette transverse, 1ʳᵉ tranche : premier résultat sans mètres ; manager + artiste et booker + groupe (mineur·es, POST forgés, 390 px, axe) ; gestion majeure seule sollicitée (Q48).                          |
 
 Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
 Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,
