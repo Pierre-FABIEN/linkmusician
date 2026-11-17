@@ -168,6 +168,22 @@ export type NewWorkInput = z.infer<typeof newWorkSchema>;
 export const editWorkSchema = z.object({ title, genreIds });
 
 /** Créditer une personne : son @handle et ses rôles. */
+/**
+ * DASH-06b (#52, D69) : un rôle du son ajouté à **son propre** crédit
+ * existant (prise de son, mixage, mastering, production). Jamais une part de
+ * composition ni un rôle donné à autrui.
+ */
+export const ownSoundRoleSchema = z.object({
+	kind: z.enum(SOUND_ROLE_KINDS as [SoundRoleKind, ...SoundRoleKind[]], {
+		message: 'Choisis le rôle du son à ajouter.'
+	})
+});
+
+/** Rôles du son qu'une personne peut encore ajouter à son crédit. */
+export function addableSoundRoles(held: readonly WorkRoleKindValue[]): SoundRoleKind[] {
+	return SOUND_ROLE_KINDS.filter((k) => !held.includes(k));
+}
+
 export const creditSchema = z.object({
 	handle: z
 		.string()

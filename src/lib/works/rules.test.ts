@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+	addableSoundRoles,
+	ownSoundRoleSchema,
 	composeBlocker,
 	creditSchema,
 	newWorkSchema,
@@ -137,5 +139,21 @@ describe('morceaux : rôles du son (P4-07)', () => {
 			'https://x.test'
 		);
 		expect(lyrics.searchParams.has('cible')).toBe(false);
+	});
+});
+
+describe('rôles du son ajoutés à son crédit (DASH-06b)', () => {
+	it('ne propose que les rôles du son pas encore tenus', () => {
+		expect(addableSoundRoles(['COMPOSITION', 'RECORDING'])).toEqual([
+			'MIXING',
+			'MASTERING',
+			'PRODUCTION'
+		]);
+		expect(addableSoundRoles(['RECORDING', 'MIXING', 'MASTERING', 'PRODUCTION'])).toEqual([]);
+	});
+	it('refuse un rôle d’écriture ou d’instrument', () => {
+		expect(ownSoundRoleSchema.safeParse({ kind: 'RECORDING' }).success).toBe(true);
+		expect(ownSoundRoleSchema.safeParse({ kind: 'COMPOSITION' }).success).toBe(false);
+		expect(ownSoundRoleSchema.safeParse({ kind: 'INSTRUMENT' }).success).toBe(false);
 	});
 });

@@ -1028,6 +1028,12 @@ export async function exportPersonData(userId: string) {
 				auteur: a.author,
 				concerne_mon_credit: a.concernsMe
 			})),
+			// DASH-06b : rôles du son ajoutés à son propre crédit.
+			roles_ajoutes: works.roleActs.map((a) => ({
+				morceau: a.work,
+				role: a.role,
+				le: a.occurredAt
+			})),
 			portes: works.owned.map((w) => ({
 				titre: w.title,
 				etat: w.state,
@@ -1172,6 +1178,9 @@ export async function personAnonymizationOps(
 		// les crédits en attente disparaissent (leurs rôles redeviennent à
 		// pourvoir).
 		// DASH-05m : oublier aussi l’auteur des actes sur les crédits d’autrui.
+		// DASH-06b : les rôles ajoutés à son propre crédit (`work_role_acts`)
+		// suivent ce crédit, conservé en « Compte supprimé » ; aucun autre
+		// acteur n'y figure, rien à oublier en plus.
 		prisma.workCreditAct.updateMany({
 			where: { authorId: person.actorId },
 			data: { authorId: null }

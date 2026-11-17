@@ -10,6 +10,7 @@ import { instrumentFamilies, rolesOf } from '#lib/server/works/forms';
 import {
 	WorkError,
 	addOpenRole,
+	addOwnSoundRole,
 	confirmCredit,
 	creditPerson,
 	deleteWork,
@@ -22,7 +23,14 @@ import {
 	withdrawCredit,
 	workPage
 } from '#lib/server/works/service';
-import { creditSchema, demoSchema, editWorkSchema, roleInputSchema } from '#lib/works/rules';
+import {
+	SOUND_ROLE_LABELS,
+	creditSchema,
+	demoSchema,
+	editWorkSchema,
+	ownSoundRoleSchema,
+	roleInputSchema
+} from '#lib/works/rules';
 import { demarcheNudge } from '#lib/server/demarches/service';
 import { workJourney } from '#lib/server/works/journey';
 import { workStepsFor } from '#lib/server/works/steps';
@@ -121,6 +129,24 @@ export const actions: Actions = {
 					person.id === actorId
 						? 'Ton rôle est ajouté.'
 						: `${person.displayName} est prévenu·e : son nom apparaîtra dès sa confirmation.`
+			};
+		} catch (err) {
+			if (err instanceof WorkError) return fail(err.status, { error: err.message });
+			throw err;
+		}
+	},
+	// DASH-06b : un rôle du son ajouté à son propre crédit, sans doublon.
+	addSoundRole: async ({ locals, params, request }) => {
+		const { actorId, field } = await context(locals, request);
+		const parsed = ownSoundRoleSchema.safeParse({ kind: field('kind') });
+		if (!parsed.success) return fail(400, { error: firstIssue(parsed.error.issues) });
+		const label = SOUND_ROLE_LABELS[parsed.data.kind];
+		try {
+			const { changed } = await addOwnSoundRole(params.id, actorId, parsed.data.kind);
+			return {
+				message: changed
+					? `« ${label} » est ajouté à ton crédit.`
+					: `« ${label} » figure déjà dans ton crédit.`
 			};
 		} catch (err) {
 			if (err instanceof WorkError) return fail(err.status, { error: err.message });

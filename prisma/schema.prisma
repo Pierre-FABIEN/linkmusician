@@ -1491,6 +1491,8 @@ model Actor {
   /// DASH-06a : étapes prises en charge et actes sur les étapes.
   workStepsAssigned          WorkStep[]               @relation("WorkStepAssignee")
   workStepActsAuthored       WorkStepAct[]            @relation("WorkStepActAuthor")
+  /// DASH-06b : rôles du son ajoutés à son propre crédit.
+  workRoleActs               WorkRoleAct[]            @relation("WorkRoleActPerson")
   milestones                 Milestone[]              @relation("MilestoneBand")
   milestonesDeclared         Milestone[]              @relation("MilestoneDeclarer")
   milestoneAttestations      MilestoneAttestation[]   @relation("MilestoneAttester")
@@ -3079,6 +3081,8 @@ model Work {
 
   genres       WorkGenre[]
   creditActs   WorkCreditAct[]
+  /// Rôles ajoutés à son propre crédit (DASH-06b).
+  roleActs     WorkRoleAct[]
   /// Étapes de production prises en charge (DASH-06a).
   steps        WorkStep[]
   contributors WorkContributor[]
@@ -4146,4 +4150,29 @@ model WorkStepAct {
   @@index([authorId])
   @@index([assigneeId])
   @@map("work_step_acts")
+}
+
+/// DASH-06b (#52, D69) : ajout d'un rôle du son à **son propre** crédit
+/// existant. Acte répétable (aucune unicité), en ajout seul ; la personne
+/// est à la fois l'autrice et le sujet. Jamais un consentement aux rôles
+/// d'autrui ni une nouvelle attribution initiale (`WorkCreditAct`).
+enum WorkRoleActKind {
+  ADDED
+}
+
+model WorkRoleAct {
+  id         String          @id @default(cuid())
+  workId     String
+  work       Work            @relation(fields: [workId], references: [id], onDelete: Cascade)
+  /// Identifiant de la période de crédit (`WorkContributor.id`), sans FK.
+  periodId   String
+  personId   String
+  person     Actor           @relation("WorkRoleActPerson", fields: [personId], references: [id], onDelete: Cascade)
+  kind       WorkRoleActKind
+  roleKind   WorkRoleKind
+  occurredAt DateTime
+
+  @@index([personId, occurredAt])
+  @@index([workId])
+  @@map("work_role_acts")
 }

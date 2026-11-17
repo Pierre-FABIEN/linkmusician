@@ -10,6 +10,7 @@
 		CORROBORATION_CREDITS,
 		MAX_WORK_GENRES,
 		MAX_WORK_TITLE,
+		SOUND_ROLE_LABELS,
 		craftAnnounceHref
 	} from '#lib/works/rules';
 	import WorkJourney from '#lib/components/linkmusician/works/WorkJourney.svelte';
@@ -280,6 +281,26 @@
 					</li>
 				{/each}
 			</ul>
+
+			{#if (work.myCredit?.addableSoundRoles.length ?? 0) > 0}
+				<!-- LINKMUSICIAN: DASH-06b, un rôle du son ajouté à son propre crédit. -->
+				<form
+					method="POST"
+					action="?/addSoundRole"
+					use:enhance
+					class="flex flex-wrap items-end gap-2 text-sm"
+				>
+					<label class="space-y-1">
+						<span class="block">Tu assures aussi le son ?</span>
+						<select name="kind" required class="lm-field min-h-11">
+							{#each work.myCredit?.addableSoundRoles ?? [] as kind (kind)}
+								<option value={kind}>{SOUND_ROLE_LABELS[kind]}</option>
+							{/each}
+						</select>
+					</label>
+					<button class="lm-btn" data-variant="ghost">Ajouter à mon crédit</button>
+				</form>
+			{/if}
 
 			{#if work.team && composed}
 				<p class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">

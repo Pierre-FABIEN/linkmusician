@@ -7,7 +7,9 @@ export const WORK_CREDIT_LABELS = {
 	CONFIRMED: 'Crédit confirmé personnellement',
 	DECLINED: 'Crédit refusé personnellement',
 	LEFT: 'Crédit retiré personnellement',
-	WITHDRAWN: 'Crédit en attente retiré par la gestion'
+	WITHDRAWN: 'Crédit en attente retiré par la gestion',
+	// DASH-06b : acte répétable, sur son propre crédit seulement.
+	ROLE_ADDED: 'Rôle du son ajouté à son propre crédit'
 } as const;
 
 /** Seuls les actes autorisés du registre sont reçus ici, jamais confirmedAt. */

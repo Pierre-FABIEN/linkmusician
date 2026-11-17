@@ -546,6 +546,14 @@ elle enregistre les autres. Le niveau de compte reste la somme.
   la personne responsable déclare l'avancement ; c'est une déclaration, pas
   une collaboration : elle ne crédite rien, ne prouve rien et ne rapporte
   rien tant que DASH-06c n'en a pas fixé les effets.
+- **Rôle du son ajouté à son crédit** (D69, DASH-06b) : la gestion d'un
+  morceau, déjà créditée et confirmée, peut ajouter à **son propre** crédit
+  une prise de son, un mixage, un mastering ou une production. Aucun second
+  crédit, aucun doublon ; un rôle à pourvoir identique est pourvu. C'est un
+  travail, pas une part d'auteur·rice : ni corroboration, ni XP de
+  composition. Les succès d'un crédit du son reçu d'autrui ne se débloquent
+  pas ainsi. Ajouter un rôle à une autre personne exigera son accord (hors
+  lot).
 - **Anti-collusion** : rendements décroissants par paire de personnes et
   par morceau (02 §6) ; un même morceau ne rapporte qu'une fois par
   type de collaboration et par personne.

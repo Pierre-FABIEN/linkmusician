@@ -205,5 +205,33 @@ Retour par revert applicatif conservant les données, avec réintroduction de R2
   `20261117033626_work_step_acts_responsable_sans_fk`,
   `20261117040040_work_steps_revision` (ajouts seuls).
 - **Pas encore** (#51 à #54) : modes membre et externe, notes et livrables,
-  journal commun, effets sur le parcours, crédits et suggestions (#52, #53),
-  recette complète du parcours de Thomas (#54).
+  journal commun, effets sur le parcours et suggestions (#53), recette
+  complète du parcours de Thomas (#54). Crédit de prise de son : DASH-06b
+  ci-dessous.
+
+## Rôles du son ajoutés à son crédit (DASH-06b, D69)
+
+- **Quoi** : sur la fiche du morceau, « Tu assures aussi le son ? » ajoute
+  prise de son, mixage, mastering ou production à **son propre** crédit
+  (`addOwnSoundRole`, action `?/addSoundRole`). Visible seulement pour la
+  gestion déjà créditée et confirmée, et seulement les rôles pas encore
+  tenus.
+- **Règles** : un seul `WorkContributor` ; un rôle à pourvoir du même type
+  est pourvu, sinon une ligne est créée (plafond `MAX_ROLES`). Rejouer ne
+  change rien. Pas de crédit pour autrui (accord explicite : lot distinct).
+- **Droits** : gestion relue sous verrou (`loadManagedWork`). Un tiers, un
+  membre non gestionnaire ou un crédit en attente sont refusés.
+- **Acte** : `WorkRoleAct` (`ADDED`, rôle, instant), en ajout seul et
+  répétable, distinct de `WorkCreditAct` (l'attribution initiale n'est pas
+  rejouée). Visible dans l'historique privé des crédits (`/morceaux`).
+- **Effets** : aucune part ni XP de composition, aucune preuve. Sur son
+  propre morceau, `work.sound_credited` (sans XP) peut débloquer « Orchestre
+  à soi seul·e » ; les succès d'un crédit du son reçu (« Première prise de
+  son »…) ne se débloquent pas par un auto-crédit.
+- **Concurrence** : verrou `work:` partagé avec `creditFromCollaboration` ;
+  une course auto-crédit / crédit de collaboration laisse un seul rôle.
+- **RGPD** : export `morceaux.roles_ajoutes` ; les actes suivent le crédit
+  (conservé en « Compte supprimé ») et partent avec les morceaux portés.
+- **Tests** : `rules.test.ts`, `own-roles.integration.test.ts` (6 :
+  Thomas, rejeu, rôle à pourvoir, tiers/attente, groupe, course, RGPD).
+- **Migration** : `20261117130312_work_role_acts` (ajout seul).

@@ -56,6 +56,7 @@ import {
 	hasCreativeRole,
 	isSoundRole,
 	SOUND_ROLE_KINDS,
+	addableSoundRoles,
 	type NewWorkInput,
 	type SoundRoleKind,
 	type RoleInput
@@ -603,6 +604,71 @@ export async function creditPerson(
 	return { person, progress: result && result.length > 0 ? summarize(managerId, result) : null };
 }
 
+/**
+ * DASH-06b (#52, D69) : ajouter un rôle du son à **son propre** crédit
+ * existant (Thomas, crédité en composition, ajoute « prise de son »).
+ *
+ * - Gestion du morceau relue sous verrou (`loadManagedWork`) ; le crédit doit
+ *   être le sien et confirmé. Jamais un rôle donné à autrui (accord requis,
+ *   hors lot), jamais un second `WorkContributor`.
+ * - Un rôle à pourvoir identique est pourvu ; sinon une ligne est créée, dans
+ *   la limite de `MAX_ROLES`. Rejouer (rôle déjà tenu) ne change rien et
+ *   n'ajoute aucun acte : `changed: false`.
+ * - Acte répétable `WorkRoleAct` (ADDED), distinct de l'attribution initiale.
+ * - Aucune part ni XP de composition (rôle du son). Le succès « Orchestre à
+ *   soi seul·e » reste possible sur son propre morceau composé seul·e ; les
+ *   succès d'un crédit du son reçu (« Première prise de son »…) ne se
+ *   débloquent pas par un auto-crédit.
+ */
+export async function addOwnSoundRole(
+	workId: string,
+	personId: string,
+	kind: SoundRoleKind,
+	now = new Date()
+) {
+	return prisma.$transaction(async (tx) => {
+		const work = await loadManagedWork(tx, workId, personId);
+		const credit = await tx.workContributor.findUnique({
+			where: { workId_personId: { workId, personId } },
+			select: { id: true, confirmedAt: true, roles: { select: { kind: true } } }
+		});
+		if (!credit) throw new WorkError('Crédite-toi d’abord sur ce morceau.', 409);
+		if (!credit.confirmedAt) throw new WorkError('Confirme d’abord ton crédit.', 409);
+		if (credit.roles.some((r) => r.kind === kind)) return { changed: false };
+		const open = await tx.workRole.findFirst({
+			where: { workId, kind, contributorId: null },
+			orderBy: { createdAt: 'asc' },
+			select: { id: true }
+		});
+		if (open) {
+			await tx.workRole.update({ where: { id: open.id }, data: { contributorId: credit.id } });
+		} else {
+			if ((await tx.workRole.count({ where: { workId } })) >= MAX_ROLES)
+				throw new WorkError(`${MAX_ROLES} rôles au maximum.`);
+			await tx.workRole.create({ data: { workId, kind, contributorId: credit.id } });
+		}
+		await tx.workRoleAct.create({
+			data: {
+				workId,
+				periodId: credit.id,
+				personId,
+				kind: 'ADDED',
+				roleKind: kind,
+				occurredAt: now
+			}
+		});
+		if (work.ownerId === personId) {
+			await prepareWorkProgress(tx, work, [personId]);
+			const fresh = await tx.work.findUniqueOrThrow({
+				where: { id: workId },
+				select: { id: true, ownerId: true, state: true, proof: true }
+			});
+			await soundCredited(tx, fresh, personId, [kind], now);
+		}
+		return { changed: true };
+	}, TX);
+}
+
 /** Confirmer son rôle : consentement au crédit, et sa part si le morceau est composé. */
 export async function confirmCredit(workId: string, personId: string, now = new Date()) {
 	const result = await prisma.$transaction(async (tx) => {
@@ -1041,7 +1107,14 @@ export async function workPage(workId: string, viewerId: string | null, now = ne
 		openRoles,
 		team,
 		manage,
-		myCredit: mine ? { confirmed: Boolean(mine.confirmedAt) } : null,
+		myCredit: mine
+			? {
+					confirmed: Boolean(mine.confirmedAt),
+					// DASH-06b : rôles du son que la gestion peut s'ajouter.
+					addableSoundRoles:
+						manage && mine.confirmedAt ? addableSoundRoles(mine.roles.map((r) => r.kind)) : []
+				}
+			: null,
 		ownedByMe: work.ownerId === viewerId,
 		composeBlocker: composeBlocker({
 			state: work.state,
@@ -1168,8 +1241,18 @@ export async function worksExport(personId: string) {
 		}),
 		creditActsFor(personId)
 	]);
+	const roleActs = await prisma.workRoleAct.findMany({
+		where: { personId },
+		orderBy: { occurredAt: 'asc' },
+		select: { roleKind: true, occurredAt: true, work: { select: { title: true } } }
+	});
 	return {
 		acts,
+		roleActs: roleActs.map((a) => ({
+			work: a.work.title,
+			role: roleLabel({ kind: a.roleKind }),
+			occurredAt: a.occurredAt
+		})),
 		owned: owned.map((w) => ({ ...w, genres: w.genres.map((g) => g.genre.name) })),
 		credits: credits.map((c) => ({
 			work: c.work.title,
@@ -1200,11 +1283,33 @@ async function creditActsFor(personId: string, take?: number) {
 			author: { select: { displayName: true, deletedAt: true } }
 		}
 	});
-	return rows.map(({ personId: subjectId, author, ...act }) => ({
-		...act,
-		concernsMe: subjectId === personId,
-		author: author && !author.deletedAt ? author.displayName : 'Compte supprimé'
-	}));
+	// DASH-06b : rôles ajoutés à son propre crédit (autrice et sujet confondus).
+	const roleActs = await prisma.workRoleAct.findMany({
+		where: { personId },
+		orderBy: [{ occurredAt: 'desc' }, { id: 'asc' }],
+		...(take ? { take } : {}),
+		select: {
+			id: true,
+			periodId: true,
+			occurredAt: true,
+			person: { select: { displayName: true } }
+		}
+	});
+	return [
+		...rows.map(({ personId: subjectId, author, ...act }) => ({
+			...act,
+			concernsMe: subjectId === personId,
+			author: author && !author.deletedAt ? author.displayName : 'Compte supprimé'
+		})),
+		...roleActs.map(({ person, ...act }) => ({
+			...act,
+			kind: 'ROLE_ADDED' as const,
+			concernsMe: true,
+			author: person.displayName
+		}))
+	]
+		.sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime() || a.id.localeCompare(b.id))
+		.slice(0, take ?? Infinity);
 }
 
 export async function creditHistoryForMe(personId: string) {
