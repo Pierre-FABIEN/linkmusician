@@ -6,6 +6,8 @@
 import { prisma } from '#lib/server';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { findActorsNear } from '#lib/server/geo/queries';
+import { publicActorWhere } from '#lib/server/actors/visibility';
+import { adultBirthCutoff } from '#lib/actors/visibility';
 import { redirect } from '@sveltejs/kit';
 import {
 	currentStep,
@@ -75,27 +77,37 @@ export async function redirectAfterStep(actorId: string, from: OnboardingStepId)
 export const DEFAULT_RADIUS_KM = 25;
 
 /**
- * Musiciens proches pour le premier résultat : personnes avec une ville, hors
- * comptes supprimés ou suspendus, de la plus proche à la plus lointaine.
+ * Musiciens proches pour le premier résultat : personnes inscrites avec une
+ * ville, de la plus proche à la plus lointaine, avec les garde-fous des
+ * suggestions (`discovery/suggestions`) : profil public (ni masqué, ni
+ * supprimé, ni suspendu), aucun blocage entre les deux, et **D5** : un·e
+ * mineur·e n'est montré·e à un adulte que s'il ou elle est dans son réseau
+ * (une date de naissance inconnue vaut mineur·e). Défaut trouvé en ONB-14.
  */
 export async function nearbyMusicians(actorId: string, radiusKm: number, limit = 12) {
 	const near = await findActorsNear(actorId, radiusKm);
 	const ids = near.map((n) => n.actorId);
 	if (ids.length === 0) return [];
 	const now = new Date();
+	const cutoff = adultBirthCutoff(now);
+	const viewer = await prisma.person.findUnique({
+		where: { actorId },
+		select: { birthDate: true }
+	});
+	const viewerIsMinor = viewer?.birthDate != null && viewer.birthDate > cutoff;
 	const persons = await prisma.person.findMany({
 		where: {
 			actorId: { in: ids },
-			actor: {
-				deletedAt: null,
-				sanctions: {
-					none: {
-						kind: 'SUSPENSION',
-						liftedAt: null,
-						OR: [{ until: null }, { until: { gt: now } }]
-					}
-				}
-			}
+			onboardedAt: { not: null },
+			actor: publicActorWhere(now, actorId),
+			...(viewerIsMinor
+				? {}
+				: {
+						OR: [
+							{ birthDate: { lte: cutoff } },
+							{ actor: { networkOf: { some: { ownerId: actorId } } } }
+						]
+					})
 		},
 		select: {
 			actorId: true,

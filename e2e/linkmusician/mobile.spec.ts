@@ -3,7 +3,7 @@ import { signUpAndVerify } from '../support/admin';
 import { db, requireUser } from '../support/db';
 import { waitForAppReady } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
-import { skipOnboarding } from '../support/linkmusician';
+import { horizontalOverflow, skipOnboarding } from '../support/linkmusician';
 import type { Page } from '@playwright/test';
 
 /**
@@ -11,34 +11,6 @@ import type { Page } from '@playwright/test';
  * déborde en largeur.
  */
 test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-
-/** Éléments visibles qui dépassent à droite de l'écran (hors zones défilantes). */
-async function horizontalOverflow(page: Page) {
-	return page.evaluate(() => {
-		const width = window.innerWidth;
-		const offenders: string[] = [];
-		for (const el of document.querySelectorAll<HTMLElement>('body *')) {
-			const rect = el.getBoundingClientRect();
-			if (rect.width === 0 || rect.height === 0 || rect.right <= width + 1) continue;
-			// Une zone qui défile en largeur (onglets, tableaux, rail d'un panorama
-			// Metro) a le droit de dépasser, même si l'élément est d'abord découpé
-			// par un ancêtre plus proche (une tuile dans le rail).
-			let parent = el.parentElement;
-			let clipped = false;
-			while (parent && !clipped) {
-				const style = getComputedStyle(parent);
-				if (['auto', 'scroll', 'hidden', 'clip'].includes(style.overflowX)) {
-					if (parent.getBoundingClientRect().right <= width + 1) clipped = true;
-				}
-				parent = parent.parentElement;
-			}
-			if (clipped) continue;
-			const label = `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}.${[...el.classList].slice(0, 3).join('.')}`;
-			offenders.push(`${label} (${Math.round(rect.right)} px)`);
-		}
-		return offenders.slice(0, 10);
-	});
-}
 
 async function visit(page: Page, path: string, shot: string) {
 	await page.goto(path);

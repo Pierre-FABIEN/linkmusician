@@ -44,6 +44,9 @@ Qui es-tu ? → [Instruments si musicien·ne] → Genres → Zone
   étape future est refusée au chargement comme à l'enregistrement.
 - Le premier résultat montre les objectifs du métier principal quand ce
   n'est pas musicien·ne (Q58).
+- Les personnes proches du premier résultat suivent les règles des
+  suggestions : profils publics, sans blocage, et aucun·e mineur·e montré·e
+  à un adulte qui ne la connaît pas (D5, corrigé en ONB-14).
 
 Après l'onboarding, des quêtes système guident la suite : ajouter une
 démo (+30 XP), compléter sa bio (comptée dans « profil complété », +50),

@@ -287,20 +287,53 @@ Reste à faire, dans l'ordre :
   duo acoustique) ; un métier sans offre n'apparaît pas comme
   prestataire ; aucune donnée privée dans les réponses.
 
-#### ONB-14 — Inscription : E2E transverse
+#### ONB-14 — Inscription : E2E transverse ✅
 
 - **Ticket** #28. Dépend d'ONB-12a, en continu jusqu'à ONB-13.
-- **Déjà couvert** : musicien·ne seul·e, ingé son sans instrument,
-  producteur·rice, manager, organisateur·rice, métier « bientôt »,
-  musicien·ne + producteur·rice + booker (récapitulatif par métier),
-  reprise dans un second navigateur, correction sans perte, axe.
-- **Reste** : label, éditeur·rice, communication ; booker programmateur
-  contre booker d'artistes ; organisateur·rice jam contre festival ;
-  mutation refusée sur le métier d'un autre compte et sur un métier non
-  choisi ; codes d'un autre métier refusés côté serveur (E2E) ; parcours
-  à 390 px de large ; non-régression assistant D47 et règles des
-  mineur·es.
-- **Limites de la machine** : M1, T1 et T2 (`a-trancher.md`).
+- **Déjà couvert avant** : musicien·ne seul·e, ingé son sans instrument,
+  producteur·rice, manager, organisateur·rice jam, éditeur·rice seul·e,
+  musicien·ne + producteur·rice + booker, reprise dans un second
+  navigateur, correction sans perte, axe.
+- **Livré** (`e2e/linkmusician/inscription-transverse.spec.ts`, 7 tests) :
+  label + éditeur·rice + communication ensemble (rien d'exigé, même un champ
+  « requis » d'A&R ; réponse d'un champ masqué non gardée) ; booker
+  programmateur puis booker d'artistes (champs `when`, jauge cochée puis
+  masquée écartée par le serveur) avec organisatrice de festival (pas les
+  champs jams ni concerts) ; disponibilités (`stage: 'profile'`) absentes de
+  `/demarrer/metier/[slug]` et intactes après un nouvel enregistrement de
+  l'étape ; POST forgés (métier non choisi et étape future renvoyés vers
+  l'étape à faire, page d'un métier non choisi en 403, codes et champs d'un
+  autre métier en 400, compte visé pris de la session, jamais du
+  formulaire) ; parcours musicien·ne + ingé son à 390 px au clavier, axe et
+  débordement à chaque écran ; premier résultat d'un adulte sans mineur·e
+  inconnu·e ni profil masqué (mineure visible une fois dans son réseau) ;
+  mineure organisatrice de scènes ouvertes sans la case D51. Aide partagée
+  `horizontalOverflow` déplacée de `mobile.spec.ts` vers
+  `e2e/support/linkmusician.ts`.
+- **Défauts trouvés et corrigés** (chacun reproduit par un test du spec,
+  en échec avant la correction) :
+  1. **Disponibilités bloquant l'inscription** : l'étape d'inscription
+     chargeait toutes les réponses du métier, disponibilités comprises, et
+     les renvoyait ; le serveur les refusait (« Disponible pour un nouveau
+     projet : Précision inconnue. »). Une personne qui avait saisi ses
+     disponibilités ne pouvait plus réenregistrer l'étape. `trackStepData`
+     ne charge plus que les champs de l'écran.
+  2. **Premier résultat sans D5** : `nearbyMusicians` montrait à un adulte
+     des mineur·es inconnu·es, des profils masqués, des comptes bloqués et
+     des inscriptions non finies. Il applique désormais les garde-fous des
+     suggestions (`publicActorWhere`, réseau musical, `adultBirthCutoff`).
+- **Recette** (17/11/2026, `--retries=0`) : `inscription-transverse`
+  (7), `onboarding-metiers` (6), `onboarding`, `assistant-inscription`
+  (D47, non-régression), `mobile`, `profil-metiers`, `profil-avance` :
+  17/17. `check` (0 erreur), unitaires (1 445), ESLint et Prettier sur les
+  fichiers du lot.
+- **Pistes laissées à #50** : le premier résultat envoie encore la
+  distance en mètres dans les données de la page (affichée par tranche,
+  mais lisible dans la réponse : à arrondir côté serveur, comme les
+  suggestions) ; `preload_data_failed` (Internal Error) sur `/jam/carnet`
+  vu dans le journal pendant le test de la mineure, non creusé.
+- **Limites de la machine** : M1, T1 et T2 (`a-trancher.md`), sans effet
+  sur cette passe.
 
 ### DT-01 — Prisma 7 (découpé : 01a, 01b)
 

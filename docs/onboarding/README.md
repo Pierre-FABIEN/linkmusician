@@ -30,8 +30,12 @@ Les écrans dépendent des métiers (ONB-02, D57) : voir
   écran ramène au récapitulatif (`stepAfter`). Seul ce dernier termine
   l'onboarding (`finishOnboarding`, qui relit l'état).
 - **Premier résultat** : requête simple (`nearbyMusicians`, rayon de la
-  personne ou 25 km), hors comptes supprimés ou suspendus. La recherche
-  complète arrive en P2-01. État vide honnête : « tu es parmi les premiers ».
+  personne ou 25 km), avec les garde-fous des suggestions (ONB-14) :
+  personnes inscrites au profil public (ni masqué, ni supprimé, ni
+  suspendu), aucun blocage, et D5 : un·e mineur·e n'est montré·e à un
+  adulte que dans son réseau musical (date inconnue : traitée en mineur·e).
+  La recherche complète arrive en P2-01. État vide honnête : « tu es parmi
+  les premiers ».
 - L'XP arrive en chemin (`onProfileChanged` à chaque écran qui touche au
   profil).
 

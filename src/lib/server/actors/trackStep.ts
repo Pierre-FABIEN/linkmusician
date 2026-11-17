@@ -34,10 +34,17 @@ export async function trackStepData(
 	track: TrackKindValue,
 	stage: FieldStage = 'profile'
 ) {
-	const [all, details] = await Promise.all([
+	const fields = fieldsAt(track, stage);
+	const [all, answers] = await Promise.all([
 		getTrackDetails(personId),
 		getTrackAnswers(personId, track)
 	]);
+	// ONB-14 : seulement les réponses des champs de cet écran. Sinon
+	// l'inscription renverrait les disponibilités saisies sur la page du métier
+	// (`stage: 'profile'`), et le serveur les refuserait (« Précision inconnue »).
+	const details = Object.fromEntries(
+		Object.entries(answers).filter(([id]) => fields.some((f) => f.id === id))
+	);
 	const current = all.find((d) => d.track === track) ?? {
 		track,
 		specializations: [],
@@ -61,7 +68,7 @@ export async function trackStepData(
 		})),
 		offers: INTENTS[track].OFFER,
 		needs: INTENTS[track].NEED,
-		fields: fieldsAt(track, stage),
+		fields,
 		stage,
 		form
 	};
