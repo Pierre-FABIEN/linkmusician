@@ -51,9 +51,18 @@ export type NudgeInput = {
 		workTitle: string;
 		pros: (NamedPerson & { craft: 'SOUND_ENGINEER' | 'PRODUCER' })[];
 	} | null;
+	/**
+	 * DASH-06c : morceau enregistré (fait ou déclaré) dont le mixage n'est ni
+	 * fait ni pris en charge, et les pros du mixage de son réseau.
+	 */
+	toMix?: {
+		workId: string;
+		workTitle: string;
+		pros: (NamedPerson & { craft: 'SOUND_ENGINEER' | 'PRODUCER' })[];
+	} | null;
 };
 
-export type NudgeKind = 'OPEN_ROLE' | 'JAMS_SOON' | 'TO_RECORD';
+export type NudgeKind = 'OPEN_ROLE' | 'JAMS_SOON' | 'TO_RECORD' | 'TO_MIX';
 
 export type Nudge = {
 	kind: NudgeKind;
@@ -107,6 +116,22 @@ export function pickNudges(input: NudgeInput): Nudge[] {
 			kind: 'TO_RECORD',
 			title: `« ${input.toRecord.workTitle} » est prêt à enregistrer`,
 			text: `${namesOf(pros)}, ${phrase} de ton réseau. Un message suffit pour en parler.`,
+			href: `/@${pros[0].handle}`,
+			cta: `Voir le profil de ${pros[0].displayName.split(' ')[0] || pros[0].displayName}`
+		});
+	}
+
+	if (input.toMix && input.toMix.pros.length > 0) {
+		const { pros } = input.toMix;
+		const crafts = new Set(pros.map((p) => p.craft));
+		const phrase =
+			crafts.size === 1
+				? CRAFT_PHRASE[pros[0].craft][pros.length > 1 ? 'many' : 'one']
+				: 'pros du son';
+		nudges.push({
+			kind: 'TO_MIX',
+			title: `« ${input.toMix.workTitle} » est enregistré : place au mixage`,
+			text: `${namesOf(pros)}, ${phrase} de ton réseau, ${pros.length > 1 ? 'mixent' : 'mixe'}. Un message suffit pour en parler.`,
 			href: `/@${pros[0].handle}`,
 			cta: `Voir le profil de ${pros[0].displayName.split(' ')[0] || pros[0].displayName}`
 		});

@@ -77,6 +77,12 @@
 						{step.people > 1 ? `À ${step.people}, crédits confirmés` : 'Crédit confirmé'}
 					</p>
 				{/if}
+				{#if step.declaredBy}
+					<!-- LINKMUSICIAN: DASH-06c, réalisation déclarée, jamais vérifiée. -->
+					<p class="text-sm text-muted-foreground">
+						Fait soi-même · déclaré par {step.declaredBy}
+					</p>
+				{/if}
 				{#if step.pro || step.studio}
 					<p class="text-sm text-muted-foreground">
 						{#if step.pro}

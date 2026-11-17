@@ -43,6 +43,8 @@ import {
 import { canInviteMinor } from '#lib/server/bands/service';
 import { syncComposition, lockBand, bandProgressActorIds } from '#lib/server/milestones/service';
 import { publicMember } from '#lib/bands/rules';
+import { nextProductionNeed, productionStages } from '#lib/works/production';
+import { stepFactsFor } from './production';
 import {
 	MAX_CONTRIBUTORS,
 	MAX_PENDING_CREDITS,
@@ -1073,6 +1075,18 @@ export async function workPage(workId: string, viewerId: string | null, now = ne
 	});
 	const demo = work.demoMedia;
 	const mine = work.contributors.find((c) => c.person.id === viewerId);
+	// DASH-06c : faits de collaboration et, pour l'équipe seulement (D68),
+	// réalisations déclarées. Une seule règle : `productionStages`.
+	const stepFacts = team ? await stepFactsFor(work.id) : [];
+	const production = productionStages(
+		{
+			recordedAt: work.recordedAt,
+			mixedAt: work.mixedAt,
+			masteredAt: work.masteredAt,
+			producedAt: work.producedAt
+		},
+		stepFacts
+	);
 	return {
 		id: work.id,
 		title: work.title,
@@ -1086,6 +1100,11 @@ export async function workPage(workId: string, viewerId: string | null, now = ne
 			masteredAt: work.masteredAt,
 			producedAt: work.producedAt
 		},
+		/** DASH-06c : chaque étape, fait de collaboration ou réalisation déclarée. */
+		production,
+		/** Besoin réellement ouvert, pour les suggestions de la gestion. */
+		nextNeed:
+			manage && work.state === 'COMPOSED' ? nextProductionNeed(production, stepFacts) : null,
 		owner: {
 			kind: work.owner.kind,
 			handle: work.owner.handle,

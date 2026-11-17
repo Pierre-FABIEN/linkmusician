@@ -554,6 +554,12 @@ elle enregistre les autres. Le niveau de compte reste la somme.
   composition. Les succès d'un crédit du son reçu d'autrui ne se débloquent
   pas ainsi. Ajouter un rôle à une autre personne exigera son accord (hors
   lot).
+- **Réalisation déclarée** (D70, DASH-06c) : une étape terminée soi-même
+  fait avancer le morceau, marquée « déclaré par », sans jamais valoir
+  preuve : rien n'est écrit dans le morceau, aucun événement ni XP. Un fait
+  issu d'une collaboration terminée prime et survit à une réouverture. Une
+  étape prise en charge n'est plus un besoin de recrutement ; terminée,
+  l'app propose le mixage.
 - **Anti-collusion** : rendements décroissants par paire de personnes et
   par morceau (02 §6) ; un même morceau ne rapporte qu'une fois par
   type de collaboration et par personne.

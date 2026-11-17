@@ -17,6 +17,11 @@ export type JourneyStep = {
 	verified: boolean;
 	/** Pour la composition : personnes créditées et confirmées. */
 	people?: number;
+	/**
+	 * DASH-06c : étape réalisée soi-même et déclarée terminée, sans preuve
+	 * (« déclaré par Thomas »). Absent pour un fait de collaboration.
+	 */
+	declaredBy?: string | null;
 };
 
 export const JOURNEY_LABELS: Readonly<Record<JourneyKind, string>> = {

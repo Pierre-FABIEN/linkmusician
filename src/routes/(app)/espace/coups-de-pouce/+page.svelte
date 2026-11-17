@@ -10,6 +10,7 @@
 	const ICONS: Record<NudgeKind, typeof Guitar> = {
 		OPEN_ROLE: UsersRound,
 		TO_RECORD: Mic2,
+		TO_MIX: Mic2,
 		JAMS_SOON: Guitar
 	};
 </script>

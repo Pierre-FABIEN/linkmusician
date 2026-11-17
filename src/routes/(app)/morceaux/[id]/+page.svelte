@@ -15,11 +15,15 @@
 	} from '#lib/works/rules';
 	import WorkJourney from '#lib/components/linkmusician/works/WorkJourney.svelte';
 	import { WORK_STAGES } from '#lib/collaborations/rules';
+	import { PRODUCTION_FIELDS, PRODUCTION_KINDS } from '#lib/works/production';
 	import { plural } from '#lib/jam/log';
 	import { WORK_STEP_KIND_LABELS, WORK_STEP_STATUS_LABELS } from '#lib/works/steps';
 	import { Check, Circle, FileDown, Megaphone, Music, PartyPopper, UserPlus } from 'lucide-svelte';
 
 	let { data, form } = $props();
+
+	const kindOfField = (field: string) =>
+		PRODUCTION_KINDS.find((k) => PRODUCTION_FIELDS[k] === field) ?? 'RECORDING';
 
 	$effect(() => {
 		if (form?.message) toast.success(form.message);
@@ -89,14 +93,18 @@
 			{/if}
 			{#if composed}
 				<!-- LINKMUSICIAN: étapes de production (P4-06), par collaborations terminées. -->
+				<!-- DASH-06c : fait de collaboration, ou réalisation déclarée (équipe). -->
 				<ul class="flex flex-wrap gap-2 text-sm" aria-label="Étapes du morceau">
 					{#each WORK_STAGES as stage (stage.field)}
-						{@const at = work.stages[stage.field]}
+						{@const fact = work.production[kindOfField(stage.field)]}
 						<li
-							class="lm-pill lm-pill--lg {at ? '' : 'text-muted-foreground'}"
-							data-tone={at ? 'lime' : 'paper'}
+							class="lm-pill lm-pill--lg {fact ? '' : 'text-muted-foreground'}"
+							data-tone={fact ? (fact.source === 'DECLARED' ? 'paper' : 'lime') : 'paper'}
 						>
-							{stage.label}{at ? ` le ${day.format(new Date(at))}` : ''}
+							{stage.label}{fact ? ` le ${day.format(new Date(fact.at))}` : ''}{fact?.source ===
+							'DECLARED'
+								? ` · déclaré par ${fact.declaredBy ?? 'Compte supprimé'}`
+								: ''}
 						</li>
 					{/each}
 				</ul>
@@ -415,9 +423,23 @@
 			<!-- LINKMUSICIAN: la suite du morceau, avec les métiers du son (P4-05). -->
 			<section class="lm-tile lm-tile--flow space-y-3 p-4" aria-labelledby="suite-title">
 				<h2 id="suite-title" class="font-semibold">La suite du morceau</h2>
-				<p class="text-sm text-muted-foreground">
-					Publie une annonce que seuls les ingés son ou les producteur·rices verront.
-				</p>
+				<!-- LINKMUSICIAN: DASH-06c, selon le besoin réellement ouvert. -->
+				{#if work.nextNeed === 'MIXING'}
+					<p class="text-sm text-muted-foreground">
+						C’est enregistré. Place au mixage : publie une annonce que seuls les ingés son ou les
+						producteur·rices verront, ou mixe toi-même et ajoute-le à ton crédit.
+					</p>
+				{:else if work.nextNeed === 'RECORDING'}
+					<p class="text-sm text-muted-foreground">
+						Publie une annonce que seuls les ingés son ou les producteur·rices verront, ou prends
+						l’enregistrement toi-même.
+					</p>
+				{:else}
+					<p class="text-sm text-muted-foreground">
+						L’enregistrement est pris en charge. Besoin d’un coup de main quand même ? Tu peux
+						toujours chercher un·e pro.
+					</p>
+				{/if}
 				<div class="flex flex-wrap gap-2">
 					<a
 						class="lm-btn"
@@ -426,8 +448,11 @@
 							workId: work.id,
 							workTitle: work.title,
 							target: 'SOUND_ENGINEER',
-							specialty: 'RECORDING'
-						})}>Trouver un·e ingé son</a
+							specialty: work.nextNeed === 'MIXING' ? 'MIXING' : 'RECORDING'
+						})}
+						>{work.nextNeed === 'MIXING'
+							? 'Trouver un·e ingé son pour le mixage'
+							: 'Trouver un·e ingé son'}</a
 					>
 					<a
 						class="lm-btn"

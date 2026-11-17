@@ -507,9 +507,23 @@ personnes qui gèrent le morceau voient où tu en es et peuvent seulement
 **libérer** une étape non terminée, par exemple si tu n'es plus là. Chaque
 changement est daté dans l'historique de l'étape.
 
-C'est une déclaration pour l'équipe, pas une preuve : le morceau ne passe
-pas **Enregistré**, aucun crédit de prise de son n'est ajouté et cela ne
-rapporte pas de points. Rien n'est visible en dehors de l'équipe.
+C'est une déclaration pour l'équipe, pas une preuve. Une fois l'étape
+terminée, le morceau affiche **Enregistré** avec la mention « déclaré par »
+ton nom, dans ses étapes et dans le chemin du morceau. Si tu rouvres
+l'étape, la mention disparaît. Un enregistrement fait lors d'une
+collaboration terminée reste toujours affiché, lui, avec sa date. Rien de
+tout cela ne rapporte de points, et rien n'est visible en dehors de
+l'équipe.
+
+Tant que l'étape est prise en charge, l'app ne te propose plus de recruter
+un·e ingé son pour l'enregistrer (tu peux toujours en chercher un·e
+depuis **La suite du morceau**). Une fois terminée, elle te propose plutôt
+le **mixage** : une annonce, ou une personne de ton réseau qui mixe.
+
+Pour que ton nom figure aussi à la prise de son, ajoute le rôle à ton
+crédit : sous **Crédits**, **Tu assures aussi le son ?** puis **Ajouter à
+mon crédit**. Ton crédit reste unique, et ce rôle n'est pas une part de
+composition.
 
 ## 5. Les démarches {#demarches}
 

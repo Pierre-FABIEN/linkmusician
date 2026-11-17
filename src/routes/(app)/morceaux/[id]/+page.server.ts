@@ -49,9 +49,10 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		? await Promise.all([instrumentFamilies(), demoCandidates(work.id, actorId), listGenreTree()])
 		: [[], [], []];
 	// Récap de campagne (P4-10) : dès qu'une étape du son est franchie.
+	// DASH-06c : une réalisation déclarée (équipe seulement) compte aussi.
 	const journey =
-		work.state === 'COMPOSED' && Object.values(work.stages).some(Boolean)
-			? await workJourney(work.id)
+		work.state === 'COMPOSED' && Object.values(work.production).some(Boolean)
+			? await workJourney(work.id, new Date(), work.team ? work.production : null)
 			: null;
 	// Étapes prises en charge (DASH-06a) : résumé pour l'équipe seulement.
 	const steps = work.team ? await workStepsFor(work.id, actorId) : null;

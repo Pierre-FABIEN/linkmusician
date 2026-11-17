@@ -6,7 +6,8 @@
  * (mode « moi-même », lieu « mon home studio », sans adresse ni fiche studio).
  * **Seule la personne responsable** fait avancer le statut ; le reste de la
  * gestion peut seulement libérer une étape non terminée. Une étape déclarée
- * n'est jamais une preuve : elle n'alimente ni le parcours, ni l'XP (#53).
+ * n'est jamais une preuve ni une source d'XP ; terminée, elle compte comme
+ * réalisation déclarée (`#lib/works/production`, DASH-06c).
  */
 import { z } from 'zod';
 

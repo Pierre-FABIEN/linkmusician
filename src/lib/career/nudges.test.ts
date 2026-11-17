@@ -125,3 +125,29 @@ describe('pickNudges', () => {
 		}
 	});
 });
+
+describe('à mixer (DASH-06c)', () => {
+	const sam = { handle: 'sam', displayName: 'Sam Test' };
+	it('propose le mixage après l’enregistrement, sans parler d’XP', () => {
+		const [nudge] = pickNudges({
+			jamsSoon: 0,
+			openRoles: [],
+			toRecord: null,
+			toMix: { workId: 'w', workTitle: 'Nuit', pros: [{ ...sam, craft: 'SOUND_ENGINEER' }] }
+		});
+		expect(nudge.kind).toBe('TO_MIX');
+		expect(nudge.title).toBe('« Nuit » est enregistré : place au mixage');
+		expect(nudge.text).toContain('Sam, ingé son de ton réseau, mixe');
+		expect(JSON.stringify(nudge)).not.toMatch(/xp|niveau|palier/i);
+	});
+	it('sans pro du mixage dans son réseau, rien', () => {
+		expect(
+			pickNudges({
+				jamsSoon: 0,
+				openRoles: [],
+				toRecord: null,
+				toMix: { workId: 'w', workTitle: 'Nuit', pros: [] }
+			})
+		).toEqual([]);
+	});
+});

@@ -138,6 +138,45 @@ describe.skipIf(!enabled)('coups de pouce (schéma e2e)', () => {
 		expect(record?.href).toBe(`/@${PREFIX}sam`);
 	});
 
+	it('DASH-06c : enregistrement pris soi-même, plus de recrutement ; terminé, place au mixage', async () => {
+		const nuit = await db.work.findFirstOrThrow({ where: { ownerId: ids.moi, title: 'Nuit' } });
+		const step = await db.workStep.create({
+			data: {
+				workId: nuit.id,
+				kind: 'RECORDING',
+				mode: 'SELF',
+				place: 'HOME',
+				status: 'TODO',
+				assigneeId: ids.moi,
+				revision: 1
+			}
+		});
+		let { nudges } = await nudgesFor(ids.moi, { geo, countJamsSoon: noJams });
+		expect(nudges.some((n) => n.kind === 'TO_RECORD')).toBe(false);
+		expect(nudges.some((n) => n.kind === 'TO_MIX')).toBe(false);
+
+		await db.workStep.update({
+			where: { id: step.id },
+			data: { status: 'DONE', startedAt: new Date(), doneAt: new Date() }
+		});
+		({ nudges } = await nudgesFor(ids.moi, { geo, countJamsSoon: noJams }));
+		const mix = nudges.find((n) => n.kind === 'TO_MIX');
+		expect(mix?.title).toBe('« Nuit » est enregistré : place au mixage');
+		expect(mix?.text).toContain('Sam, ingé son de ton réseau');
+		expect(nudges.some((n) => n.kind === 'TO_RECORD')).toBe(false);
+		// Rien n'est écrit sur le morceau : la date reste celle des collaborations.
+		expect((await db.work.findUniqueOrThrow({ where: { id: nuit.id } })).recordedAt).toBeNull();
+
+		// Rouvrir (En cours) : ni mixage, ni recrutement pour l'enregistrement pris.
+		await db.workStep.update({
+			where: { id: step.id },
+			data: { status: 'IN_PROGRESS', doneAt: null }
+		});
+		({ nudges } = await nudgesFor(ids.moi, { geo, countJamsSoon: noJams }));
+		expect(nudges.some((n) => n.kind === 'TO_MIX' || n.kind === 'TO_RECORD')).toBe(false);
+		await db.workStep.delete({ where: { id: step.id } });
+	});
+
 	it('une personne bloquée disparaît des coups de pouce', async () => {
 		await db.block.create({ data: { blockerActorId: ids.lea, blockedActorId: ids.moi } });
 		const { nudges } = await nudgesFor(ids.moi, { geo, countJamsSoon: noJams });

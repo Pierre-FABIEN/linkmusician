@@ -46,7 +46,8 @@
 			<h1 class="lm-title">Qui prend en charge ?</h1>
 			<p class="text-sm text-muted-foreground">
 				Une étape peut se faire soi-même, sans collaboration ni studio. Ce que tu déclares ici reste
-				dans l’équipe du morceau : ce n’est pas une preuve et cela ne rapporte pas de points.
+				dans l’équipe du morceau. Terminée, elle fait avancer le morceau (« déclaré par toi ») ; ce
+				n’est pas une preuve et cela ne rapporte pas de points.
 			</p>
 		</div>
 

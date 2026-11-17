@@ -9,8 +9,9 @@
  *   demandes concurrentes sont sérialisées, la seconde voit la première.
  * - Le client envoie une **intention** (`claim`, `start`…) ; statut, dates,
  *   mode et lieu sont calculés ici. Une action rejouée n'ajoute aucun acte.
- * - Aucun effet sur `recordedAt`, le parcours, les crédits, les coups de
- *   pouce ni l'XP : une étape déclarée n'est pas une preuve (DASH-06c).
+ * - Aucune écriture sur `recordedAt`, les crédits ni l'XP : une étape
+ *   déclarée n'est pas une preuve. Sa lecture fait avancer la fiche, le
+ *   parcours et les coups de pouce (`#lib/works/production`, DASH-06c).
  * - Lecture réservée à l'équipe du morceau ; historique à la gestion et à
  *   la personne responsable.
  */

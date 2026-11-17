@@ -8,8 +8,13 @@
  * - Places libres : rôles d'instrument à pourvoir sur ses morceaux, et les
  *   personnes de son réseau à moins de 50 km qui déclarent cet instrument
  *   (hors équipe du morceau).
- * - À enregistrer : un morceau composé sans prise de son, et les ingés son
- *   (prise de son) ou producteur·rices de son réseau, hors équipe.
+ * - À enregistrer : un morceau composé dont l'enregistrement n'est ni fait
+ *   ni pris en charge (DASH-06c : une étape prise soi-même n'est plus un
+ *   besoin), et les ingés son (prise de son) ou producteur·rices de son
+ *   réseau, hors équipe.
+ * - À mixer (DASH-06c) : un morceau enregistré, même déclaré, dont le mixage
+ *   n'est ni fait ni pris en charge, et les ingés son (mixage) ou
+ *   producteur·rices de son réseau, hors équipe.
  * - Jams : jams à venir près de chez elle cette semaine, où elle ne vient
  *   pas déjà (le filtre des mineur·es, D5, est celui de l'agenda).
  *
@@ -19,6 +24,8 @@ import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { findActorsNear, type GeoTarget } from '#lib/server/geo/queries';
 import { teamWhere } from '#lib/server/works/service';
+import { stepFactsOf } from '#lib/server/works/production';
+import { nextProductionNeed, productionStages } from '#lib/works/production';
 import { JAM_WINDOW_DAYS, isStalled, pickNudges, type NudgeInput } from '#lib/career/nudges';
 
 /** Rayon des personnes proposées pour une place libre. */
@@ -94,6 +101,9 @@ export async function nudgesFor(personId: string, options: Options = {}) {
 				title: true,
 				state: true,
 				recordedAt: true,
+				mixedAt: true,
+				masteredAt: true,
+				producedAt: true,
 				ownerId: true,
 				contributors: { select: { personId: true } },
 				roles: {
@@ -138,24 +148,36 @@ export async function nudgesFor(personId: string, options: Options = {}) {
 		}));
 	});
 
-	const composed = works.find((w) => w.state === 'COMPOSED' && w.recordedAt === null);
-	let toRecord: NudgeInput['toRecord'] = null;
-	if (composed) {
-		const inTeam = team(composed);
-		type Pro = NonNullable<NudgeInput['toRecord']>['pros'][number];
-		const pros = contacts.flatMap((c): Pro[] => {
+	// DASH-06c : le besoin réel de chaque morceau composé (faits et étapes prises).
+	const composedWorks = works.filter((w) => w.state === 'COMPOSED');
+	const facts = await stepFactsOf(composedWorks.map((w) => w.id));
+	const need = (w: (typeof works)[number]) => {
+		const steps = facts.get(w.id) ?? [];
+		return nextProductionNeed(productionStages(w, steps), steps);
+	};
+	type Pro = NonNullable<NudgeInput['toRecord']>['pros'][number];
+	const prosFor = (w: (typeof works)[number], specialty: 'RECORDING' | 'MIXING') => {
+		const inTeam = team(w);
+		return contacts.flatMap((c): Pro[] => {
 			if (inTeam.has(c.id)) return [];
-			if (c.person?.soundProfile?.specialties.includes('RECORDING'))
+			if (c.person?.soundProfile?.specialties.includes(specialty))
 				return [{ ...named(c), craft: 'SOUND_ENGINEER' as const }];
 			if ((c.person?.producerProfile?.specialties.length ?? 0) > 0)
 				return [{ ...named(c), craft: 'PRODUCER' as const }];
 			return [];
 		});
-		toRecord = { workId: composed.id, workTitle: composed.title, pros };
-	}
+	};
+	const recording = composedWorks.find((w) => need(w) === 'RECORDING');
+	const toRecord: NudgeInput['toRecord'] = recording
+		? { workId: recording.id, workTitle: recording.title, pros: prosFor(recording, 'RECORDING') }
+		: null;
+	const mixing = composedWorks.find((w) => need(w) === 'MIXING');
+	const toMix: NudgeInput['toMix'] = mixing
+		? { workId: mixing.id, workTitle: mixing.title, pros: prosFor(mixing, 'MIXING') }
+		: null;
 
 	return {
 		stalled,
-		nudges: pickNudges({ jamsSoon, openRoles, toRecord })
+		nudges: pickNudges({ jamsSoon, openRoles, toRecord, toMix })
 	};
 }

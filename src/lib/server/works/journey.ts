@@ -8,10 +8,20 @@
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { campaignDone, type JourneyStep } from '#lib/works/journey';
+import type { ProductionStages } from '#lib/works/production';
 
 const SOUND_KINDS = ['RECORDING', 'MIXING', 'MASTERING', 'PRODUCTION'] as const;
 
-export async function workJourney(workId: string, now = new Date()) {
+/**
+ * `production` (DASH-06c) : étapes lues par `productionStages`, pour un
+ * lecteur de l'équipe ; ses réalisations déclarées s'ajoutent au chemin,
+ * marquées « déclaré par », jamais vérifiées.
+ */
+export async function workJourney(
+	workId: string,
+	now = new Date(),
+	production: ProductionStages | null = null
+) {
 	const work = await prisma.work.findUnique({
 		where: { id: workId },
 		select: {
@@ -81,8 +91,25 @@ export async function workJourney(workId: string, now = new Date()) {
 			verified: isFirstRecording
 		});
 	}
+	// Réalisations déclarées : seulement là où aucun fait de collaboration
+	// n'existe (`productionStages` donne la priorité au fait indépendant).
+	for (const kind of SOUND_KINDS) {
+		const stage = production?.[kind];
+		if (stage?.source !== 'DECLARED') continue;
+		if (steps.some((s) => s.kind === kind)) continue;
+		steps.push({
+			kind,
+			at: stage.at,
+			pro: null,
+			studio: null,
+			verified: false,
+			declaredBy: stage.declaredBy ?? 'Compte supprimé'
+		});
+	}
+	const head = steps.slice(0, 2);
+	const sound = steps.slice(2).sort((a, b) => a.at.getTime() - b.at.getTime());
 	return {
-		steps,
+		steps: [...head, ...sound],
 		done: campaignDone({ masteredAt: work.masteredAt, producedAt: work.producedAt }),
 		finishedAt: work.producedAt ?? work.masteredAt ?? null,
 		startedAt: work.createdAt

@@ -235,3 +235,28 @@ Retour par revert applicatif conservant les données, avec réintroduction de R2
 - **Tests** : `rules.test.ts`, `own-roles.integration.test.ts` (6 :
   Thomas, rejeu, rôle à pourvoir, tiers/attente, groupe, course, RGPD).
 - **Migration** : `20261117130312_work_role_acts` (ajout seul).
+
+## Réalisation déclarée (DASH-06c, D70)
+
+- **Une seule règle** : `productionStages` (`#lib/works/production`) dit,
+  pour chaque étape du son, si elle est franchie par un **fait de
+  collaboration** (date `Work.recordedAt`…) ou par une **réalisation
+  déclarée** (étape prise soi-même et terminée). Le fait de collaboration
+  prime toujours. Lecture serveur : `stepFactsOf` (`server/works/production.ts`).
+- **Rien n'est écrit** : `recordedAt` reste la date de la première
+  collaboration terminée. La date déclarée est lue sur l'étape ; rouvrir ou
+  libérer l'étape la retire, sans toucher au fait de collaboration.
+- **Affichage** (équipe seulement, D68) : pastille « Enregistré le … ·
+  déclaré par Thomas » sur la fiche, et étape « Fait soi-même · déclaré par »
+  dans le chemin du morceau (`workJourney`, jamais « vérifié »).
+- **Besoin réel** (`nextProductionNeed`) : enregistrement s'il n'est ni fait
+  ni pris en charge ; une fois enregistré (même déclaré), mixage s'il n'est
+  ni fait ni pris en charge. Il règle « La suite du morceau » et les coups de
+  pouce (`TO_RECORD`, nouveau `TO_MIX`). Chercher un·e pro reste possible.
+- **Sans effet** : aucun événement, aucune XP, aucun succès, aucun
+  `collaboration.completed`, aucun crédit automatique. La carte de carrière
+  (acte IV) exige toujours une étape de groupe corroborée ou vérifiée.
+- **Tests** : `production.test.ts` (6), `production.integration.test.ts`
+  (Thomas, collaboration prioritaire et réouverture, lecteur hors équipe),
+  coups de pouce (`nudges.test.ts`, `nudges.integration.test.ts`).
+- **Migration** : aucune.
