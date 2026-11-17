@@ -792,6 +792,15 @@ déploiement de production établi.
 
 ##### DASH-06a / #51 — premier pas réalisable de DASH-06
 
+**Livré localement le 17/11/2026** (modèle validé par l'utilisateur, D68) :
+`WorkStep`/`WorkStepAct`, écran `/morceaux/[id]/etapes`, révision attendue,
+seul·e responsable fait avancer, libération par la gestion. Écarts assumés
+avec la fiche ci-dessous : fichiers nommés `steps.ts` (et non `stages.ts`, pour ne pas confondre avec
+`WORK_STAGES`, les étapes franchies par collaboration) ; pas de projection dans
+`lib/activity/` (journal commun hors périmètre, historique propre à
+l'étape) ; notes et livrables reportés. Reste de #51 : rien côté critères
+d'acceptation ; #52 à #54 restent ouverts. Détail : [morceaux](../morceaux/README.md#étapes-prises-en-charge-dash-06a-d68).
+
 - **Avant de coder** : valider la modélisation exacte proposée dans l'audit,
   puis consigner la règle produit dans conception/decisions. Conserver Work ;
   proposer une ligne d'étape de production par `(workId, kind)` et des actes

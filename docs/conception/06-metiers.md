@@ -541,6 +541,11 @@ elle enregistre les autres. Le niveau de compte reste la somme.
   d'auteur·rice** : il n'entre ni dans la corroboration du morceau composé,
   ni dans l'XP de composition, ni dans le bulletin de partage, et sa
   confirmation ne rapporte rien de plus que la collaboration.
+- **Étape faite soi-même** (D68, DASH-06a) : la gestion d'un morceau peut
+  prendre elle-même l'enregistrement, chez soi, sans studio ni adresse. Seule
+  la personne responsable déclare l'avancement ; c'est une déclaration, pas
+  une collaboration : elle ne crédite rien, ne prouve rien et ne rapporte
+  rien tant que DASH-06c n'en a pas fixé les effets.
 - **Anti-collusion** : rendements décroissants par paire de personnes et
   par morceau (02 §6) ; un même morceau ne rapporte qu'une fois par
   type de collaboration et par personne.

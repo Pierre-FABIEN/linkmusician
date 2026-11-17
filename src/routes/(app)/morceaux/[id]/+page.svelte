@@ -15,6 +15,7 @@
 	import WorkJourney from '#lib/components/linkmusician/works/WorkJourney.svelte';
 	import { WORK_STAGES } from '#lib/collaborations/rules';
 	import { plural } from '#lib/jam/log';
+	import { WORK_STEP_KIND_LABELS, WORK_STEP_STATUS_LABELS } from '#lib/works/steps';
 	import { Check, Circle, FileDown, Megaphone, Music, PartyPopper, UserPlus } from 'lucide-svelte';
 
 	let { data, form } = $props();
@@ -370,6 +371,23 @@
 					</form>
 				{/if}
 			</section>
+		{/if}
+
+		{#if data.steps}
+			<!-- LINKMUSICIAN: qui prend en charge (DASH-06a) : l'essentiel, le détail sur son écran. -->
+			<a
+				href="/morceaux/{work.id}/etapes"
+				class="lm-tile lm-tile--flow block space-y-1 p-4 hover:border-primary"
+			>
+				<span class="block font-semibold">Qui prend en charge ?</span>
+				{#each data.steps as step (step.kind)}
+					<span class="block text-sm text-muted-foreground">
+						{WORK_STEP_KIND_LABELS[step.kind]} : {step.assigned
+							? `${step.mine ? 'toi' : step.assignee} · ${WORK_STEP_STATUS_LABELS[step.status].toLowerCase()}`
+							: 'personne pour l’instant'}
+					</span>
+				{/each}
+			</a>
 		{/if}
 
 		{#if work.manage && composed}

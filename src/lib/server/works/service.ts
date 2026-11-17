@@ -123,7 +123,7 @@ async function requireManage(db: Db, work: WorkHead, personId: string) {
 
 /** Point de décision : work → band, puis existence et gestion relues.
  * Les révocations utilisent la même clé band. Aucun cache ni transaction indépendante. */
-async function loadManagedWork(tx: Tx, workId: string, personId: string) {
+export async function loadManagedWork(tx: Tx, workId: string, personId: string) {
 	await lockWork(tx, workId);
 	let work = await loadWork(tx, workId);
 	if (work.owner.kind === 'ORGANIZATION') {
@@ -144,6 +144,18 @@ async function isTeam(db: Db, work: Pick<WorkHead, 'id' | 'ownerId' | 'owner'>, 
 			: 0
 	]);
 	return credit > 0 || member > 0;
+}
+
+/** DASH-06a : équipe (lecture) et gestion d'un morceau vivant, sans verrou ;
+ * les mutations relisent la gestion sous verrou (`loadManagedWork`). */
+export async function workAccess(workId: string, viewerId: string) {
+	const work = await prisma.work.findUnique({ where: { id: workId }, select: workHead });
+	if (!work || work.owner.deletedAt || work.owner.organization?.dissolvedAt) return null;
+	const [team, manage] = await Promise.all([
+		isTeam(prisma, work, viewerId),
+		canManage(prisma, work, viewerId)
+	]);
+	return { team, manage };
 }
 
 /** Rôles saisis → lignes à créer (instrument du référentiel). */

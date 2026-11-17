@@ -492,6 +492,25 @@ rapporte pas de points, mais un succès (« Premier mixage »…) sur le
 profil de la personne créditée. Et si tu fais tout seul·e, ton morceau
 composé seul·e te vaut « Fait maison ».
 
+### Enregistrer toi-même : « Qui prend en charge ? » {#qui-prend-en-charge}
+
+Sur la fiche d'un morceau, **Qui prend en charge ?** ouvre l'étape
+**Enregistrement**. Si tu gères le morceau, choisis **Moi-même** puis
+**Je m'en charge** : tu enregistres dans ton home studio, sans donner
+d'adresse ni créer de fiche studio, et sans être ingé son sur l'app. Les
+autres réponses te renvoient vers ce qui existe déjà : créditer une personne
+de l'équipe, ou publier une annonce pour un·e ingé son.
+
+Ensuite, toi seul·e fais avancer l'étape : **Commencer**, puis **Terminer**
+(une case à cocher confirme), **Remettre à faire** ou **Rouvrir**. Les autres
+personnes qui gèrent le morceau voient où tu en es et peuvent seulement
+**libérer** une étape non terminée, par exemple si tu n'es plus là. Chaque
+changement est daté dans l'historique de l'étape.
+
+C'est une déclaration pour l'équipe, pas une preuve : le morceau ne passe
+pas **Enregistré**, aucun crédit de prise de son n'est ajouté et cela ne
+rapporte pas de points. Rien n'est visible en dehors de l'équipe.
+
 ## 5. Les démarches {#demarches}
 
 Quand un morceau, un concert ou un groupe devient sérieux, les mêmes

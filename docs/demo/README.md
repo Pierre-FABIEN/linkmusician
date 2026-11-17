@@ -512,3 +512,14 @@ Orbital et Néon Lagune restent « non précisé » : rien ne s'affiche, et rien
 les exclura d'un rapprochement (ONB-13b). Pour modifier : `zoe-violon`, puis
 `/groupes/les-lucioles/modifier`. Le seed (`prisma/seed-band-lineups.ts`) ne
 réécrit jamais une fiche déjà présente ; rejoué, il ne fait rien.
+
+### Enregistrer soi-même (DASH-06a)
+
+Se connecter avec `clara-guitare`, ouvrir **Morceaux → Midnight Groove**, puis
+**Qui prend en charge ?** : Clara a pris l'enregistrement, chez elle (« Mon
+home studio · aucune adresse enregistrée »), et l'a commencé il y a trois
+jours. L'historique montre la prise en charge et le début. Elle peut
+**Terminer** (case de confirmation), **Remettre à faire** ou **Libérer**. Le
+morceau n'est pas marqué « Enregistré » et aucun crédit de prise de son n'est
+ajouté : c'est une déclaration. Scénario rejouable (`prisma/seed-work-steps.ts`,
+identifiants stables) ; aucune progression émise.

@@ -1488,6 +1488,9 @@ model Actor {
   workCreditsInvited         WorkContributor[]        @relation("WorkContributorInviter")
   workCreditActs             WorkCreditAct[]          @relation("WorkCreditSubject")
   workCreditActsAuthored     WorkCreditAct[]          @relation("WorkCreditAuthor")
+  /// DASH-06a : étapes prises en charge et actes sur les étapes.
+  workStepsAssigned          WorkStep[]               @relation("WorkStepAssignee")
+  workStepActsAuthored       WorkStepAct[]            @relation("WorkStepActAuthor")
   milestones                 Milestone[]              @relation("MilestoneBand")
   milestonesDeclared         Milestone[]              @relation("MilestoneDeclarer")
   milestoneAttestations      MilestoneAttestation[]   @relation("MilestoneAttester")
@@ -3076,6 +3079,8 @@ model Work {
 
   genres       WorkGenre[]
   creditActs   WorkCreditAct[]
+  /// Étapes de production prises en charge (DASH-06a).
+  steps        WorkStep[]
   contributors WorkContributor[]
   roles        WorkRole[]
   milestones   Milestone[]
@@ -4055,4 +4060,90 @@ model BandProfile {
   updatedAt  DateTime        @updatedAt
 
   @@map("band_profiles")
+}
+
+// ─── ÉTAPES DE PRODUCTION PRISES EN CHARGE (DASH-06a, D68) ──────────────────
+
+/// Étape de production d'un morceau. Seul l'enregistrement est ouvert (D68).
+enum WorkStepKind {
+  RECORDING
+  MIXING
+  MASTERING
+  PRODUCTION
+}
+
+/// Qui réalise l'étape : la personne elle-même (D68) ; membre et externe plus tard.
+enum WorkStepMode {
+  SELF
+}
+
+/// Lieu privé : chez soi, sans adresse ni fiche studio publiée.
+enum WorkStepPlace {
+  HOME
+}
+
+enum WorkStepStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+/// Actes humains sur une étape, en ajout seul.
+enum WorkStepActKind {
+  CLAIMED
+  STARTED
+  FINISHED
+  RESET
+  REOPENED
+  RELEASED
+}
+
+/// Étape d'un morceau prise en charge (D68). Déclarative : n'alimente ni
+/// `recordedAt`, ni le parcours, ni l'XP (DASH-06c). Visible de l'équipe.
+model WorkStep {
+  id         String          @id @default(cuid())
+  workId     String
+  work       Work            @relation(fields: [workId], references: [id], onDelete: Cascade)
+  kind       WorkStepKind
+  /// Vides quand l'étape est libérée.
+  mode       WorkStepMode?
+  assigneeId String?
+  assignee   Actor?          @relation("WorkStepAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  place      WorkStepPlace?
+  status     WorkStepStatus  @default(TODO)
+  startedAt  DateTime?
+  doneAt     DateTime?
+  /// Révision attendue par le formulaire : un changement périmé est refusé
+  /// sans acte (deux onglets, deux appareils). +1 à chaque transition.
+  revision   Int             @default(0)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  acts       WorkStepAct[]
+
+  @@unique([workId, kind])
+  @@index([assigneeId])
+  @@map("work_steps")
+}
+
+/// Historique minimal d'une étape : auteur réel, responsable concerné,
+/// transition et instant. Jamais modifié ; auteurs oubliés à l'anonymisation.
+model WorkStepAct {
+  id         String          @id @default(cuid())
+  stepId     String
+  step       WorkStep        @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  authorId   String?
+  author     Actor?          @relation("WorkStepActAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  /// Responsable concerné, sans clé étrangère : deux SET NULL vers `actors`
+  /// sur la même ligne, plus la cascade de l'étape, font échouer la
+  /// suppression d'un compte (reproduit en SQL). Oublié à l'anonymisation.
+  assigneeId String?
+  kind       WorkStepActKind
+  fromStatus WorkStepStatus?
+  toStatus   WorkStepStatus?
+  occurredAt DateTime
+
+  @@index([stepId, occurredAt])
+  @@index([authorId])
+  @@index([assigneeId])
+  @@map("work_step_acts")
 }

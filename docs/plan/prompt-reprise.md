@@ -18,15 +18,25 @@ Le bilan documentaire BILAN-01 (e786ba4) est publié sur origin/main. Aucun dép
 Revérifie publications et états au démarrage ; les récits « livraison locale »
 conservent leur état historique et ne décrivent pas forcément la publication.
 
-ONB-12c1 (#26, D64) livré dans un commit local identifié par cet ID : table
-additive band_profiles (formation SOLO/DUO/TRIO/BAND, répertoire
-COVERS/ORIGINALS/BOTH), fiche du groupe gérée par OWNER/ADMIN sous le verrou
-band:, « Sur scène » public et déclaré, valeur absente = non précisé.
-Règles formationMatch/repertoireMatch (#lib/bands/lineup) : yes/no/unknown,
-unknown n'exclut jamais. Migration 20261117023015_band_profiles appliquée sur
-public et e2e. Revérifie si ce commit a été publié.
+ONB-12c1 (#26, D64) et DASH-06a (#51, D68) livrés dans des commits locaux
+identifiés par ces ID ; revérifie leur publication. ONB-12c1 : table
+band_profiles (formation, répertoire), formationMatch/repertoireMatch
+(unknown n'exclut jamais). DASH-06a : WorkStep/WorkStepAct, écran
+/morceaux/[id]/etapes, SELF/HOME, TODO → IN_PROGRESS → DONE, révision attendue
+(changement périmé refusé sans acte), seule la personne responsable fait
+avancer, la gestion peut libérer une étape non terminée. Aucun effet sur
+recordedAt, journey, crédits, nudges ni XP. Le responsable d'un acte est une
+colonne sans clé étrangère (deux SET NULL + cascade bloquaient la suppression
+d'un compte). Deux tests à barrières de locking.integration.test.ts dépassent
+leur lock_timeout de 6 s, à l'identique sur le code d'origine : écart
+d'environnement à surveiller, pas une régression.
 
-Lot suivant proposé : ONB-13b (#27, D63) — annonces qualifiées. Lis
+Suite DASH-06 : #52 (rôle de prise de son ajouté au contributeur existant,
+acte répétable, sans doublon) puis #53 (effets d'une réalisation déclarée sur
+recordedAt/journey/nudges, sans fausse preuve ni XP de collaboration) et #54.
+Suite inscription en parallèle : ONB-13b (#27, D63), puis DASH-07 (#37).
+
+ONB-13b (#27, D63) — annonces qualifiées. Lis
 CLAUDE.md, docs/plan/README.md §4, docs/plan/fin-du-projet.md §3.1,
 docs/conception/06-metiers.md §1.3, docs/annonces/README.md et
 docs/groupes/README.md (formation et répertoire).

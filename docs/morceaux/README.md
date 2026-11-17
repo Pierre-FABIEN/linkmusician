@@ -158,3 +158,52 @@ sont dans `works/access.integration.test.ts` ; le parcours morceaux vérifie aus
 les POST forgés de tiers, crédité et MEMBER. Aucune migration ni modification de
 parcours : aide, seed, export et anonymisation existants restent applicables.
 Retour par revert applicatif conservant les données, avec réintroduction de R2.
+
+## Étapes prises en charge (DASH-06a, D68)
+
+- **Quoi** : « Qui prend en charge ? » (`/morceaux/[id]/etapes`, résumé sur
+  la fiche du morceau). Pour l'enregistrement, quatre réponses : moi-même
+  (seule enregistrée), une personne de l'équipe (renvoie aux crédits), un·e
+  professionnel·le (annonce ingé son existante), plus tard (rien n'est
+  enregistré). Mixage, mastering et production : plus tard.
+- **Modèle** : `WorkStep` (unique par morceau et étape ; mode `SELF`,
+  responsable, lieu `HOME`, statut, `startedAt`, `doneAt`) et `WorkStepAct`
+  (ajout seul : `CLAIMED`, `STARTED`, `FINISHED`, `RESET`, `REOPENED`,
+  `RELEASED`, avec auteur, responsable concerné, statuts de départ et
+  d'arrivée). Contrainte SQL `work_steps_status_dates_check` : dates
+  cohérentes avec le statut. Le responsable d'un acte est une colonne sans
+  clé étrangère (deux `SET NULL` vers `actors` sur une même ligne, plus la
+  cascade de l'étape, faisaient échouer la suppression d'un compte).
+- **Transitions** (`#lib/works/steps`, `planWorkStep`) : prendre → À faire ;
+  commencer → En cours (date de début) ; terminer, avec confirmation → Terminé
+  (date de fin), aussi depuis À faire ; remettre à faire efface le début ;
+  rouvrir un Terminé → En cours. Rejouer une action ne crée aucun acte.
+- **Droits** : prendre l'étape exige de gérer le morceau (porteur, ou
+  OWNER/ADMIN actif d'un groupe vivant). Seule la personne responsable fait
+  avancer le statut, tant qu'elle gère encore le morceau ; les autres
+  gestionnaires peuvent libérer une étape non terminée. Ni métier d'ingé son,
+  ni crédit, ni simple adhésion ne donnent ces droits.
+- **Concurrence** : chaque mutation passe par `loadManagedWork` (verrou
+  `work:` puis `band:`, gestion relue) et relit l'étape sous ce verrou. Le
+  formulaire renvoie la **révision** vue (`WorkStep.revision`, +1 à chaque
+  transition) : un changement calculé sur une révision dépassée est refusé
+  sans acte (deux onglets) ; un rejeu sans effet reste sans effet. L'étape et
+  son acte s'écrivent dans la même transaction (échec de l'acte = rien).
+- **Lecture** : l'équipe du morceau voit l'étape ; l'historique est réservé à
+  la gestion et à la personne responsable. Rien de public.
+- **Sans effet** : ni `recordedAt`, ni parcours de campagne, ni crédit de
+  prise de son, ni coup de pouce, ni XP ; « déclaré par », jamais vérifié
+  (cohérence avec les faits indépendants : DASH-06c, #53).
+- **RGPD** : export (`morceaux.etapes_prises_en_charge`,
+  `morceaux.actes_d_etapes`) ; l'anonymisation oublie responsable et auteurs ;
+  les étapes partent avec les morceaux portés.
+- **Tests** : `steps.test.ts` (20), `steps.integration.test.ts` (parcours,
+  course, groupe et révocation, RGPD, suppression d'un compte, révision
+  périmée, rollback), E2E `etapes-autonomes.spec.ts` (Thomas, clavier,
+  390 px, axe, rechargement, POST forgés et périmés).
+- **Migrations** : `20261117031648_work_steps`,
+  `20261117033626_work_step_acts_responsable_sans_fk`,
+  `20261117040040_work_steps_revision` (ajouts seuls).
+- **Pas encore** (#51 à #54) : modes membre et externe, notes et livrables,
+  journal commun, effets sur le parcours, crédits et suggestions (#52, #53),
+  recette complète du parcours de Thomas (#54).

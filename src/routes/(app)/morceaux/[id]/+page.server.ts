@@ -25,6 +25,7 @@ import {
 import { creditSchema, demoSchema, editWorkSchema, roleInputSchema } from '#lib/works/rules';
 import { demarcheNudge } from '#lib/server/demarches/service';
 import { workJourney } from '#lib/server/works/journey';
+import { workStepsFor } from '#lib/server/works/steps';
 import type { Actions, PageServerLoad } from './$types';
 
 async function me(locals: App.Locals) {
@@ -44,8 +45,11 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		work.state === 'COMPOSED' && Object.values(work.stages).some(Boolean)
 			? await workJourney(work.id)
 			: null;
+	// Étapes prises en charge (DASH-06a) : résumé pour l'équipe seulement.
+	const steps = work.team ? await workStepsFor(work.id, actorId) : null;
 	return {
 		work,
+		steps,
 		journey,
 		families,
 		candidates,

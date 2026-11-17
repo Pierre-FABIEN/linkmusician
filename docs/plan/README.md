@@ -165,6 +165,24 @@ préexistants, identiques avant et après. Migration additive
 `20261117023015_band_profiles` appliquée sur `public` et `e2e`. `seed:demo`
 joué deux fois (trois fiches, puis rien). Commit local, sans push.
 
+Recette DASH-06a (17/11/2026) : contrôle des types sans erreur ni
+avertissement (seul, hors E2E) ; 1 402 tests unitaires réussis (491
+conditionnels non exécutés), dont 20 pour les transitions ; 6 tests
+d'intégration PostgreSQL des étapes (schéma e2e) : parcours de Thomas,
+prises en charge simultanées, groupe avec perte de co-gestion et libération,
+export et anonymisation, suppression définitive d'un compte, révision
+périmée et rollback d'un acte refusé. Non-régressions : 92 tests
+d'intégration morceaux, agences et groupes, dont 2 échecs à barrières de
+`locking.integration.test.ts` (attente de verrou de 6 s dépassée, `55P03`),
+**reproduits à l'identique sur le code d'origine** : écart d'environnement
+préexistant, non corrigé ici. E2E sans reprise : `etapes-autonomes.spec.ts`,
+`morceaux.spec.ts`, `fil-ariane.spec.ts`. La première exécution E2E a révélé
+un vrai défaut (suppression d'un compte bloquée par deux `SET NULL` sur une
+ligne d'acte), reproduit en SQL puis corrigé par migration. ESLint ciblé :
+0 erreur, 3 nouveaux avertissements `no-navigation-without-resolve` sur le
+nouvel écran, règle déjà signalée partout. `seed:demo` joué deux fois.
+Migrations appliquées sur `public` et `e2e`. Commit local, sans push.
+
 ## 6. Navigation et espaces métier — épopée #30
 
 Suivi complémentaire des tickets DASH créés sur GitHub. Ne pas les confondre
@@ -186,20 +204,21 @@ coquille ; « Mon espace » passe dans le menu du compte. Types : 0 erreur et
 sélecteur, thème sombre audité en accessibilité, clavier, filtres). Une première
 exécution a planté à l'ouverture du navigateur (mémoire WSL) ; la relance passe.
 
-| Lot          | Issue                                                          | État            | Périmètre                                                                                                                                                                                 |
-| ------------ | -------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ARCH-MET-01  | [#55](https://github.com/Pierre-FABIEN/linkmusician/issues/55) | ✅ publié, reçu | Audit b30edaa confirmé publié ; suite validée le 15/11/2026, corrections séparées.                                                                                                        |
-| ARCH-MET-02a | [#56](https://github.com/Pierre-FABIEN/linkmusician/issues/56) | ✅ publié       | Ordre groupe avant acteurs et unions transactionnelles corrigés ; 11 courses à barrières, suite PostgreSQL 409 tests, 1 368 unitaires et 5 E2E réussis ; sans migration.                  |
-| ARCH-MET-02b | [#57](https://github.com/Pierre-FABIEN/linkmusician/issues/57) | ✅ publié       | Garde Work sous work → band, gestion/listes communes, maquette atomique et rollback média ; aucune migration.                                                                             |
-| ARCH-MET-02c | [#58](https://github.com/Pierre-FABIEN/linkmusician/issues/58) | ✅ publié       | Clé commune et count transactionnel ; 17 cas de concurrence, 445 non-régressions, 1 368 unitaires et 4 E2E réussis ; sans migration.                                                      |
-| DASH-01      | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ publié       | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
-| DASH-02      | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ publié       | Structures et agences DASH-02a/02b complétées par les affectations consenties DASH-04b ; aucun droit administratif ou artistique par appartenance.                                        |
-| DASH-02a     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ publié       | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
-| DASH-03      | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ publié       | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
-| DASH-04      | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ publié       | Mandats individuels DASH-04a et affectations consenties DASH-04b ; les candidatures et le booking avancé restent dans leurs lots.                                                         |
-| DASH-04a     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ publié       | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous                               |
-| DASH-02b     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ publié       | Agences privées, invitations et rôles, acceptation, révocation, transmission et fermeture ; aucun droit artistique implicite. Affectations et délégations complétées par DASH-04b.        |
-| DASH-04b     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ publié       | Affectations nominatives, double accord, droits explicites, périmètre du mandat et adhésions figées ; recette ci-dessous.                                                                 |
+| Lot          | Issue                                                          | État            | Périmètre                                                                                                                                                                                   |
+| ------------ | -------------------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ARCH-MET-01  | [#55](https://github.com/Pierre-FABIEN/linkmusician/issues/55) | ✅ publié, reçu | Audit b30edaa confirmé publié ; suite validée le 15/11/2026, corrections séparées.                                                                                                          |
+| ARCH-MET-02a | [#56](https://github.com/Pierre-FABIEN/linkmusician/issues/56) | ✅ publié       | Ordre groupe avant acteurs et unions transactionnelles corrigés ; 11 courses à barrières, suite PostgreSQL 409 tests, 1 368 unitaires et 5 E2E réussis ; sans migration.                    |
+| ARCH-MET-02b | [#57](https://github.com/Pierre-FABIEN/linkmusician/issues/57) | ✅ publié       | Garde Work sous work → band, gestion/listes communes, maquette atomique et rollback média ; aucune migration.                                                                               |
+| ARCH-MET-02c | [#58](https://github.com/Pierre-FABIEN/linkmusician/issues/58) | ✅ publié       | Clé commune et count transactionnel ; 17 cas de concurrence, 445 non-régressions, 1 368 unitaires et 4 E2E réussis ; sans migration.                                                        |
+| DASH-06a     | [#51](https://github.com/Pierre-FABIEN/linkmusician/issues/51) | ✅ local        | « Qui prend en charge ? » : enregistrement SELF/HOME, TODO → IN_PROGRESS → DONE, révision, seul·e responsable ; D68, trois migrations additives ; sans effet sur parcours/crédits/XP (#53). |
+| DASH-01      | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ publié       | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                     |
+| DASH-02      | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ publié       | Structures et agences DASH-02a/02b complétées par les affectations consenties DASH-04b ; aucun droit administratif ou artistique par appartenance.                                          |
+| DASH-02a     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ publié       | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance        |
+| DASH-03      | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ publié       | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception   |
+| DASH-04      | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ publié       | Mandats individuels DASH-04a et affectations consenties DASH-04b ; les candidatures et le booking avancé restent dans leurs lots.                                                           |
+| DASH-04a     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ publié       | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous                                 |
+| DASH-02b     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ publié       | Agences privées, invitations et rôles, acceptation, révocation, transmission et fermeture ; aucun droit artistique implicite. Affectations et délégations complétées par DASH-04b.          |
+| DASH-04b     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ publié       | Affectations nominatives, double accord, droits explicites, périmètre du mandat et adhésions figées ; recette ci-dessous.                                                                   |
 
 Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
 Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,

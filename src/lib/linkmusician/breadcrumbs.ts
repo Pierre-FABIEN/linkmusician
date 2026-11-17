@@ -76,6 +76,7 @@ const ROUTES: Record<string, Node> = {
 	'/morceaux': { label: 'Morceaux', parent: '/espace' },
 	'/morceaux/nouveau': { label: 'Nouvelle idée', parent: '/morceaux' },
 	'/morceaux/[id]': { label: 'Morceau', parent: '/morceaux', name: at('work', 'title') },
+	'/morceaux/[id]/etapes': { label: 'Qui prend en charge ?', parent: '/morceaux/[id]' },
 	'/etapes/[id]': { label: 'Confirmer une étape', parent: '/notifications' },
 	'/agences': { label: 'Mes agences', parent: '/structure' },
 	'/agences/nouvelle': { label: 'Créer une agence', parent: '/agences' },

@@ -28,6 +28,7 @@
 import { seedDelegations } from './seed-delegations';
 import { seedAgencies } from './seed-agencies';
 import { seedBandLineups } from './seed-band-lineups';
+import { seedWorkSteps } from './seed-work-steps';
 import { seedJamLife } from './seed-jam-life';
 import {
 	seedOpenStage,
@@ -798,6 +799,7 @@ try {
 	await seedOpenStage(prisma, communes, handleMap);
 	await seedVenueHosts(prisma, communes, handleMap);
 	await seedBandLineups(prisma);
+	await seedWorkSteps(prisma, demoHandles);
 	await seedRepresentations(prisma, communes, handleMap);
 	await seedRepresentationDecisions(prisma, communes, handleMap);
 	await seedComanagementDecisions(prisma, communes, handleMap);

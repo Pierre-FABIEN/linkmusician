@@ -20,6 +20,7 @@ import { getTrackDetails } from '#lib/prisma/actors/specializations';
 import { getActorLocation } from '#lib/server/geo/queries';
 import { getProgress } from '#lib/server/progression/read';
 import { worksExport } from '#lib/server/works/service';
+import { workStepsExport } from '#lib/server/works/steps';
 import { milestonesExport } from '#lib/server/milestones/service';
 import { introductionsExport } from '#lib/server/career/introductions';
 import { proofsExport } from '#lib/server/milestones/proofs';
@@ -626,6 +627,8 @@ export async function exportPersonData(userId: string) {
 			}
 		}
 	});
+	// DASH-06a : étapes prises en charge et actes qui me concernent.
+	const workSteps = await workStepsExport(person.actorId);
 	return {
 		actes_de_participation: membershipDecisions.map((d) => ({
 			role:
@@ -1039,6 +1042,25 @@ export async function exportPersonData(userId: string) {
 				roles: c.roles,
 				confirme_le: c.confirmedAt,
 				cree_le: c.createdAt
+			})),
+			etapes_prises_en_charge: workSteps.steps.map((st) => ({
+				morceau: st.work,
+				etape: st.kind,
+				mode: st.mode,
+				lieu: st.place,
+				statut: st.status,
+				commencee_le: st.startedAt,
+				terminee_le: st.doneAt
+			})),
+			actes_d_etapes: workSteps.acts.map((a) => ({
+				morceau: a.work,
+				etape: a.step,
+				type: a.kind,
+				de: a.fromStatus,
+				vers: a.toStatus,
+				le: a.occurredAt,
+				par_moi: a.byMe,
+				me_concerne: a.aboutMe
 			}))
 		},
 		etapes_de_groupe_declarees: milestonesDeclared,
@@ -1153,6 +1175,20 @@ export async function personAnonymizationOps(
 		prisma.workCreditAct.updateMany({
 			where: { authorId: person.actorId },
 			data: { authorId: null }
+		}),
+		// DASH-06a : étapes d'autrui prises en charge et actes, sans auteur ni
+		// responsable ; les étapes des morceaux portés partent avec eux.
+		prisma.workStep.updateMany({
+			where: { assigneeId: person.actorId },
+			data: { assigneeId: null }
+		}),
+		prisma.workStepAct.updateMany({
+			where: { authorId: person.actorId },
+			data: { authorId: null }
+		}),
+		prisma.workStepAct.updateMany({
+			where: { assigneeId: person.actorId },
+			data: { assigneeId: null }
 		}),
 		prisma.work.deleteMany({ where: { ownerId: person.actorId } }),
 		prisma.workContributor.deleteMany({ where: { personId: person.actorId, confirmedAt: null } }),
