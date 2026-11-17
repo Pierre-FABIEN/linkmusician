@@ -55,7 +55,9 @@
 			// Plateau (P5-05a) : des faits prouvés, jamais l'XP.
 			o.minBandTier && `Rang du groupe : ${o.minBandTier} ou plus`,
 			o.kind === 'GIG_SLOT' &&
-				`Groupes à ${o.radiusKm} km${o.commune ? ` de ${o.commune}` : ''} au plus`
+				`Groupes à ${o.radiusKm} km${o.commune ? ` de ${o.commune}` : ''} au plus`,
+			// Conditions de l'annonce (ONB-13b, D63).
+			...o.conditions.map((c) => `${c.label} : ${c.value}`)
 		].filter(Boolean) as string[]
 	);
 </script>
@@ -286,6 +288,17 @@
 					>
 				</section>
 			{/if}
+			{#if data.gig.adult && o.active && openBands.some((b) => b.unknown.length > 0)}
+				<!-- ONB-13b : non précisé, jamais exclusif. -->
+				<p class="text-sm text-muted-foreground">
+					{#each openBands.filter((b) => b.unknown.length > 0) as b (b.handle)}
+						<span class="block"
+							>{b.name} : non précisé ({b.unknown.join(', ')}). Le groupe peut candidater ; préciser
+							sa fiche aide l’organisation à choisir.</span
+						>
+					{/each}
+				</p>
+			{/if}
 			{#if data.gig.adult && o.active && openBands.length > 0}
 				<form
 					method="POST"
@@ -355,6 +368,13 @@
 					>
 				</p>
 			{:else if o.active}
+				{#if data.unknown.length > 0}
+					<!-- ONB-13b : non précisé, jamais exclusif. -->
+					<p class="text-sm text-muted-foreground">
+						Non précisé : {data.unknown.join(', ')}. Tu peux postuler ; préciser ton profil aide
+						{o.issuer.displayName} à te répondre.
+					</p>
+				{/if}
 				<form
 					method="POST"
 					action="?/apply"

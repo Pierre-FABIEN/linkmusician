@@ -59,5 +59,8 @@ export const UNMET_LABELS = {
 	genre: 'ce genre n’est pas dans ton profil musical',
 	tier: 'ton palier n’est pas encore celui demandé',
 	track: 'l’annonce cherche un autre métier que les tiens',
-	specialty: 'cette spécialité n’est pas cochée dans ton profil de métier'
+	specialty: 'cette spécialité n’est pas cochée dans ton profil de métier',
+	// ONB-13b (D63) : seulement quand le profil dit le contraire.
+	commitment: 'l’annonce cherche un engagement régulier, ton profil dit « de temps en temps »',
+	presence: 'l’annonce demande une autre façon de travailler (sur place ou à distance)'
 } as const;

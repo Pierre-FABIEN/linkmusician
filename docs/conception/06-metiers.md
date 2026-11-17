@@ -156,7 +156,7 @@ C : conditionnel, F : facultatif ; « existe » : déjà dans le code).
 | Organisateur·rice     | Situation, formats de jam, jauge, régie                   | distinguer personne, lieu et événement    | I   | R ou C | précisions       | oui                          |
 | Organisateur·rice     | Rémunération envisagée                                    | conditions habituelles                    | I   | C      | conditions       | oui                          |
 | Annonce               | Métier, spécialité, instrument, rayon                     | critères bloquants                        | A   | R ou F | annonce          | oui                          |
-| Annonce               | Rémunération, fourchette, formation, engagement, présence | critères bloquants (scénarios 1 à 4)      | A   | F      | annonce          | ONB-13b (D63)                |
+| Annonce               | Rémunération, fourchette, formation, engagement, présence | critères bloquants (scénarios 1 à 4)      | A   | F      | annonce          | oui (ONB-13b, D63)           |
 | Label, édition, comms | A&R, démos, soumissions, synchro, formats                 | scénarios 5, 6 (métiers fermés, Q62)      | I   | C      | précisions       | oui, non exigé (« bientôt ») |
 
 La **complétude** d'un métier (`#lib/actors/completeness`, sur

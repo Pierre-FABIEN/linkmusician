@@ -253,4 +253,113 @@ describe.skipIf(!enabled)('plateaux d’un·e organisateur·rice (schéma e2e)',
 		]);
 		expect(progress.questProgress).toEqual({ done: 3, total: 7 });
 	}, 60_000);
+
+	// ONB-13b (#27, D63) : conditions d'annonce, bloquantes seulement si le
+	// profil ou la fiche du groupe dit explicitement le contraire.
+	it('scénario 3 : un duo pour une date rémunérée, jamais un solo', async () => {
+		const duo = (
+			await createGigSlot(ids.orga, {
+				...form(),
+				title: 'Duo acoustique au bar',
+				genre: '',
+				minBandTier: undefined,
+				pay: 'PAID',
+				payMin: 150,
+				payMax: 300,
+				formation: 'DUO'
+			})
+		).id;
+		expect(await db.opportunity.findUniqueOrThrow({ where: { id: duo } })).toMatchObject({
+			pay: 'PAID',
+			payMinEuros: 150,
+			payMaxEuros: 300,
+			formation: 'DUO',
+			repertoire: null,
+			commitment: null
+		});
+		// Fiche du groupe sans formation : non précisé, pas exclu.
+		let [option] = await bandOptionsFor(ids.lea, duo);
+		expect(option.unmet).toEqual([]);
+		expect(option.unknown).toEqual(['la formation du groupe n’est pas précisée']);
+		await db.bandProfile.create({ data: { orgId: rock.id, formation: 'SOLO' } });
+		[option] = await bandOptionsFor(ids.lea, duo);
+		expect(option.unmet).toEqual(['la formation du groupe n’est pas celle recherchée']);
+		await expect(
+			applyAsBand(ids.lea, duo, rock.handle, 'On joue en solo, mais on aimerait venir.')
+		).rejects.toThrow(/formation du groupe/);
+		await db.bandProfile.update({ where: { orgId: rock.id }, data: { formation: 'DUO' } });
+		await applyAsBand(ids.lea, duo, rock.handle, 'Duo guitare-voix, set acoustique de 45 min.');
+		expect(await db.application.count({ where: { opportunityId: duo } })).toBe(1);
+	}, 60_000);
+
+	it('scénario 4 : groupe de reprises avec cachet ; « les deux » convient', async () => {
+		const covers = (
+			await createGigSlot(ids.orga, {
+				...form(),
+				title: 'Soirée reprises',
+				genre: '',
+				minBandTier: undefined,
+				pay: 'VOLUNTEER',
+				payMin: 50,
+				repertoire: 'COVERS',
+				formation: 'BAND'
+			})
+		).id;
+		// Une fourchette n'a de sens que pour « rémunéré » ou « défrayé » ; un
+		// plateau n'a pas d'engagement : rien de fantôme n'est gardé.
+		expect(await db.opportunity.findUniqueOrThrow({ where: { id: covers } })).toMatchObject({
+			pay: 'VOLUNTEER',
+			payMinEuros: null,
+			repertoire: 'COVERS',
+			commitment: null
+		});
+		await db.bandProfile.create({ data: { orgId: jazz.id, repertoire: 'ORIGINALS' } });
+		await expect(
+			applyAsBand(ids.jo, covers, jazz.handle, 'Nos compositions jazz, et quelques standards.')
+		).rejects.toThrow(/répertoire du groupe/);
+		await db.bandProfile.update({ where: { orgId: jazz.id }, data: { repertoire: 'BOTH' } });
+		const [option] = await bandOptionsFor(ids.jo, covers);
+		expect(option.unmet).toEqual([]);
+		expect(option.unknown).toEqual(['la formation du groupe n’est pas précisée']);
+		await applyAsBand(ids.jo, covers, jazz.handle, 'Reprises et compositions, trois sets.');
+		await expect(
+			createGigSlot(ids.orga, { ...form(), pay: 'PAID', payMin: 300, payMax: 100 })
+		).rejects.toThrow(/fourchette/);
+	}, 60_000);
+
+	it('scénario 1 : batteur régulier ; « de temps en temps » écarté, l’inconnu jamais', async () => {
+		const { id } = await createOpportunity(ids.lea, {
+			kind: 'RECRUIT_MEMBER',
+			title: 'Batteur rock régulier',
+			description: 'Groupe de rock à Toulouse, répète chaque semaine, cherche batteur.',
+			radiusKm: 25,
+			durationDays: 14,
+			slots: 1,
+			commitment: 'REGULAR',
+			presence: 'REMOTE'
+		});
+		// La présence ne s'applique pas à une annonce de musicien·nes.
+		expect(await db.opportunity.findUniqueOrThrow({ where: { id } })).toMatchObject({
+			commitment: 'REGULAR',
+			presence: null
+		});
+		await db.musicianProfile.create({ data: { personId: ids.jo, commitment: 'OCCASIONAL' } });
+		await expect(applyTo(ids.jo, id, 'Je joue de temps en temps, ça peut aller ?')).rejects.toThrow(
+			/engagement régulier/
+		);
+		await db.musicianProfile.update({
+			where: { personId: ids.jo },
+			data: { commitment: 'REGULAR' }
+		});
+		await applyTo(ids.jo, id, 'Batteur, je répète chaque semaine, dispo le mardi.');
+		// Sans engagement déclaré : on peut postuler.
+		await applyTo(ids.orga, id, 'Je n’ai rien précisé, mais je suis motivé.');
+		expect(await db.application.count({ where: { opportunityId: id } })).toBe(2);
+		// Revérifié sous verrou : une annonce clôturée refuse, rien n'est créé.
+		await db.opportunity.update({ where: { id }, data: { status: 'CLOSED' } });
+		await expect(applyTo(ids.kid, id, 'Je postule après la clôture.')).rejects.toThrow(
+			/plus ouverte/
+		);
+		expect(await db.application.count({ where: { opportunityId: id } })).toBe(2);
+	}, 60_000);
 });

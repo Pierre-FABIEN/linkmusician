@@ -12,6 +12,8 @@ import { z } from 'zod';
 import { MILESTONE_KEYS, type MilestoneKey } from '#lib/milestones/rules';
 import { parisToUtc } from '#lib/jam/availability';
 import { MAX_DESCRIPTION, MAX_TITLE, OPPORTUNITY_RADII } from './rules';
+import { formationMatch, qualificationFields, repertoireMatch } from './qualification';
+import type { BandFormationValue, BandRepertoireValue } from '#lib/bands/lineup';
 
 /** Groupes à l'affiche d'un plateau. */
 export const MAX_GIG_BANDS = 10;
@@ -58,9 +60,19 @@ export const gigSlotSchema = z.object({
 	slots: z.coerce.number().int().min(1).max(MAX_GIG_BANDS),
 	genre: optional(z.string().regex(/^[a-z0-9-]{1,60}$/)),
 	minBandTier: optional(z.enum(MILESTONE_KEYS)),
-	radiusKm: z.coerce.number().refine((n) => (OPPORTUNITY_RADII as readonly number[]).includes(n))
+	radiusKm: z.coerce.number().refine((n) => (OPPORTUNITY_RADII as readonly number[]).includes(n)),
+	/** ONB-13b (D63) : cachet, formation et répertoire recherchés, facultatifs. */
+	pay: qualificationFields.pay,
+	payMin: qualificationFields.payMin,
+	payMax: qualificationFields.payMax,
+	formation: qualificationFields.formation,
+	repertoire: qualificationFields.repertoire
 });
 export type GigSlotForm = z.infer<typeof gigSlotSchema>;
+type GigQualificationKeys = 'pay' | 'payMin' | 'payMax' | 'formation' | 'repertoire';
+/** Entrée du service : les conditions (ONB-13b) restent facultatives. */
+export type GigSlotInput = Omit<GigSlotForm, GigQualificationKeys> &
+	Partial<Pick<GigSlotForm, GigQualificationKeys>>;
 
 /** Début du plateau (heure de Paris) ; message d'erreur si la date ne va pas. */
 export function checkGigDate(
@@ -87,6 +99,9 @@ export type GigConditions = {
 	genre: string | null;
 	/** Rayon autour de l'organisateur·rice, en km. */
 	radiusKm: number;
+	/** ONB-13b : formation et répertoire recherchés (`null` : peu importe). */
+	formation?: BandFormationValue | null;
+	repertoire?: BandRepertoireValue | null;
 };
 
 /** Ce que l'on sait du groupe candidat. */
@@ -97,9 +112,12 @@ export type BandFacts = {
 	genreSlugs: readonly string[];
 	/** Distance entre le groupe et l'organisateur·rice (km), `null` si le groupe n'a pas de ville. */
 	distanceKm: number | null;
+	/** ONB-13b : fiche du groupe (D64), `null` si non précisé. */
+	formation?: BandFormationValue | null;
+	repertoire?: BandRepertoireValue | null;
 };
 
-export type UnmetGigCondition = 'tier' | 'genre' | 'zone';
+export type UnmetGigCondition = 'tier' | 'genre' | 'zone' | 'formation' | 'repertoire';
 
 const rankOf = (key: string | null) => (key ? MILESTONE_KEYS.indexOf(key as MilestoneKey) : -1);
 
@@ -114,11 +132,30 @@ export function unmetGigConditions(o: GigConditions, band: BandFacts): UnmetGigC
 	if (!reachesTier(band.tier, o.minBandTier)) unmet.push('tier');
 	if (o.genre && !band.genreSlugs.includes(o.genre)) unmet.push('genre');
 	if (band.distanceKm === null || band.distanceKm > o.radiusKm) unmet.push('zone');
+	// ONB-13b : seulement si la fiche du groupe dit le contraire (D63, D64).
+	if (formationMatch(o.formation ?? null, band.formation ?? null) === 'no') unmet.push('formation');
+	if (repertoireMatch(o.repertoire ?? null, band.repertoire ?? null) === 'no')
+		unmet.push('repertoire');
 	return unmet;
+}
+
+/** ONB-13b : ce que la fiche du groupe ne précise pas (jamais exclusif). */
+export function unknownGigConditions(
+	o: GigConditions,
+	band: BandFacts
+): ('formation' | 'repertoire')[] {
+	const out: ('formation' | 'repertoire')[] = [];
+	if (formationMatch(o.formation ?? null, band.formation ?? null) === 'unknown')
+		out.push('formation');
+	if (repertoireMatch(o.repertoire ?? null, band.repertoire ?? null) === 'unknown')
+		out.push('repertoire');
+	return out;
 }
 
 export const UNMET_GIG_LABELS: Readonly<Record<UnmetGigCondition, string>> = {
 	tier: 'le rang du groupe n’est pas encore celui demandé',
 	genre: 'ce genre n’est pas dans la fiche du groupe',
-	zone: 'le groupe est trop loin (ou sa ville n’est pas indiquée)'
+	zone: 'le groupe est trop loin (ou sa ville n’est pas indiquée)',
+	formation: 'la formation du groupe n’est pas celle recherchée',
+	repertoire: 'le répertoire du groupe n’est pas celui recherché'
 };

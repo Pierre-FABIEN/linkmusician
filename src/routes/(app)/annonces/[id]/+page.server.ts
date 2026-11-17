@@ -48,6 +48,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			applications: await listForIssuer(actorId, params.id),
 			mine: null,
 			unmet: [],
+			unknown: [],
 			gig: null
 		};
 	}
@@ -62,12 +63,14 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			applications: [],
 			mine: null,
 			unmet: [],
+			unknown: [],
 			demarche,
 			gig: { bands, adult }
 		};
 	}
 	const mine = await myApplication(actorId, params.id);
 	let unmet: string[] = [];
+	let unknown: string[] = [];
 	if (!mine && opportunity.active) {
 		const raw = await prisma.opportunity.findUniqueOrThrow({
 			where: { id: params.id },
@@ -77,12 +80,14 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 				genreSlug: true,
 				minTier: true,
 				targetTrack: true,
-				targetSpecialty: true
+				targetSpecialty: true,
+				commitment: true,
+				presence: true
 			}
 		});
-		unmet = await eligibilityFor(actorId, raw);
+		({ unmet, unknown } = await eligibilityFor(actorId, raw));
 	}
-	return { opportunity, applications: [], mine, unmet, demarche, gig: null };
+	return { opportunity, applications: [], mine, unmet, unknown, demarche, gig: null };
 };
 
 const guard = async (run: () => Promise<unknown>, message: string) => {

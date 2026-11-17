@@ -108,13 +108,25 @@ organisateur·rice cherche des groupes.
 
 1. **Annonces** → **Publier une annonce** : le type, un titre, ce que tu
    cherches, et si tu veux un instrument et un niveau minimal.
-2. Choisis sa durée (7, 14 ou 30 jours).
-3. Elle s’affiche autour de ta ville. Tu la clôtures quand tu as trouvé. À la fin de sa durée, elle expire :
+2. Si tu veux, précise les **conditions** : la rémunération (rémunéré,
+   défrayé, au chapeau, bénévole, échange, à discuter), avec une fourchette
+   en euros pour une date rémunérée ou défrayée ; l’**engagement**
+   (ponctuel ou régulier) pour des musicien·nes ; la **présence** (sur place
+   ou à distance) pour un·e ingé son ou un·e producteur·rice. Sur un
+   plateau, tu peux aussi demander une **formation** (duo, trio…) et un
+   **répertoire** (reprises, compositions).
+3. Choisis sa durée (7, 14 ou 30 jours).
+4. Elle s’affiche autour de ta ville. Tu la clôtures quand tu as trouvé. À la fin de sa durée, elle expire :
    elle ne reste pas une offre active indéfiniment.
 
 ### Répondre
 
-1. Ouvre l’annonce et touche **Postuler**, avec un message.
+1. Ouvre l’annonce et touche **Postuler**, avec un message. Une condition
+   ne t’écarte que si ton profil dit clairement le contraire (par exemple
+   « de temps en temps » pour une annonce « régulier », ou un groupe en solo
+   pour un plateau qui cherche un duo). Si ton profil ne dit rien, tu peux
+   postuler : l’annonce l’indique « non précisé », et le compléter aide la
+   personne à te répondre.
 2. Suis tes réponses dans **Mes candidatures**.
 3. Si l’auteur accepte, une **conversation** s’ouvre entre vous. Pour une
    annonce de groupe, tu entres dans le groupe.

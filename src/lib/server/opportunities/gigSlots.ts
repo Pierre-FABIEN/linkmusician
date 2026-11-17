@@ -30,9 +30,10 @@ import {
 	GIG_TIER_OPTIONS,
 	UNMET_GIG_LABELS,
 	checkGigDate,
+	unknownGigConditions,
 	unmetGigConditions,
 	type BandFacts,
-	type GigSlotForm
+	type GigSlotInput
 } from '#lib/opportunities/gigSlot';
 import { isActive, type OpportunityStatusValue } from '#lib/opportunities/rules';
 import {
@@ -42,6 +43,10 @@ import {
 import { OpportunityError, managesIssuer } from './service';
 import { checkedMessage } from './applications';
 import { gigSlotGaps } from '#lib/organizations/promoter';
+import { UNKNOWN_LABELS, normalizeQualification } from '#lib/opportunities/qualification';
+import type { Prisma } from '@prisma/client';
+
+type Db = Prisma.TransactionClient | typeof prisma;
 
 export const NOT_PROMOTER_ERROR =
 	'Ajoute d’abord le métier « Organisateur·rice » pour publier un plateau.';
@@ -106,7 +111,7 @@ async function requireIssuerOrg(personId: string, orgId: string) {
  */
 export async function createGigSlot(
 	personId: string,
-	form: GigSlotForm,
+	form: GigSlotInput,
 	now = new Date(),
 	orgId: string | null = null
 ) {
@@ -140,6 +145,9 @@ export async function createGigSlot(
 	if (form.minBandTier && !GIG_TIER_OPTIONS.some((t) => t.id === form.minBandTier)) {
 		throw new OpportunityError('Rang inconnu.');
 	}
+	// Conditions (ONB-13b, D63) : cachet, formation, répertoire.
+	const qualification = normalizeQualification('gig', form);
+	if (!qualification.ok) throw new OpportunityError(qualification.message);
 	const active = await prisma.opportunity.count({
 		where: { issuerActorId: issuerId, status: 'OPEN', expiresAt: { gt: now } }
 	});
@@ -164,16 +172,17 @@ export async function createGigSlot(
 			genreSlug: genre?.slug ?? null,
 			minBandTier: form.minBandTier ?? null,
 			radiusKm: form.radiusKm,
-			expiresAt: date.startsAt
+			expiresAt: date.startsAt,
+			...qualification.value
 		},
 		select: { id: true }
 	});
 }
 
 /** Distance entre deux acteurs (centroïdes de commune floutés), en km ; `null` sans ville. */
-async function distanceKm(a: string, b: string): Promise<number | null> {
+async function distanceKm(a: string, b: string, db: Db = prisma): Promise<number | null> {
 	const t = qualifiedTable('actor_locations');
-	const rows = await prisma.$queryRaw<{ meters: number }[]>`
+	const rows = await db.$queryRaw<{ meters: number }[]>`
 		SELECT public.ST_Distance(x.point, y.point)::float8 AS meters
 		FROM ${t} x JOIN ${t} y ON y."actorId" = ${b}
 		WHERE x."actorId" = ${a}`;
@@ -181,16 +190,27 @@ async function distanceKm(a: string, b: string): Promise<number | null> {
 }
 
 /** Ce que l'on sait d'un groupe pour un plateau : rang prouvé, genres, distance. */
-export async function bandFacts(bandId: string, issuerId: string): Promise<BandFacts> {
-	const [tier, genres, distance] = await Promise.all([
-		bandTierOf(bandId),
-		prisma.actorGenre.findMany({
+export async function bandFacts(
+	bandId: string,
+	issuerId: string,
+	db: Db = prisma
+): Promise<BandFacts> {
+	const [tier, genres, distance, profile] = await Promise.all([
+		bandTierOf(bandId, db),
+		db.actorGenre.findMany({
 			where: { actorId: bandId },
 			select: { genre: { select: { slug: true, parent: { select: { slug: true } } } } }
 		}),
-		distanceKm(bandId, issuerId)
+		distanceKm(bandId, issuerId, db),
+		// ONB-13b : formation et répertoire déclarés (D64), `null` si non précisé.
+		db.bandProfile.findUnique({
+			where: { orgId: bandId },
+			select: { formation: true, repertoire: true }
+		})
 	]);
 	return {
+		formation: profile?.formation ?? null,
+		repertoire: profile?.repertoire ?? null,
 		tier: (tier?.id as MilestoneKey | undefined) ?? null,
 		genreSlugs: [
 			...new Set(
@@ -211,10 +231,12 @@ type GigRow = {
 	genreSlug: string | null;
 	minBandTier: string | null;
 	radiusKm: number;
+	formation: BandFacts['formation'];
+	repertoire: BandFacts['repertoire'];
 };
 
-async function gigOrThrow(opportunityId: string): Promise<GigRow> {
-	const o = await prisma.opportunity.findUnique({
+async function gigOrThrow(opportunityId: string, db: Db = prisma): Promise<GigRow> {
+	const o = await db.opportunity.findUnique({
 		where: { id: opportunityId },
 		select: {
 			id: true,
@@ -225,7 +247,9 @@ async function gigOrThrow(opportunityId: string): Promise<GigRow> {
 			title: true,
 			genreSlug: true,
 			minBandTier: true,
-			radiusKm: true
+			radiusKm: true,
+			formation: true,
+			repertoire: true
 		}
 	});
 	if (!o || o.kind !== 'GIG_SLOT' || o.status === 'REMOVED') {
@@ -234,11 +258,22 @@ async function gigOrThrow(opportunityId: string): Promise<GigRow> {
 	return o;
 }
 
-const unmetFor = async (o: GigRow, bandId: string) =>
-	unmetGigConditions(
-		{ minBandTier: o.minBandTier, genre: o.genreSlug, radiusKm: o.radiusKm },
-		await bandFacts(bandId, o.issuerActorId)
-	).map((u) => UNMET_GIG_LABELS[u]);
+const conditionsOf = (o: GigRow) => ({
+	minBandTier: o.minBandTier,
+	genre: o.genreSlug,
+	radiusKm: o.radiusKm,
+	formation: o.formation,
+	repertoire: o.repertoire
+});
+
+/** Conditions non remplies et non précisées (ONB-13b), en mots. */
+async function checkBand(o: GigRow, bandId: string, db: Db = prisma) {
+	const facts = await bandFacts(bandId, o.issuerActorId, db);
+	return {
+		unmet: unmetGigConditions(conditionsOf(o), facts).map((u) => UNMET_GIG_LABELS[u]),
+		unknown: unknownGigConditions(conditionsOf(o), facts).map((u) => UNKNOWN_LABELS[u])
+	};
+}
 
 /**
  * Les groupes que je gère, face à un plateau : leur rang, les conditions
@@ -253,13 +288,14 @@ export async function bandOptionsFor(personId: string, opportunityId: string) {
 	});
 	return Promise.all(
 		bands.map(async (b) => {
-			const [tier, unmet] = await Promise.all([bandTierOf(b.id), unmetFor(o, b.id)]);
+			const [tier, { unmet, unknown }] = await Promise.all([bandTierOf(b.id), checkBand(o, b.id)]);
 			const app = applications.find((a) => a.applicantActorId === b.id);
 			return {
 				handle: b.handle,
 				name: b.name,
 				tier: tier?.label ?? null,
 				unmet,
+				unknown,
 				application: app
 					? {
 							id: app.id,
@@ -303,12 +339,29 @@ export async function applyAsBand(
 		where: { opportunityId_applicantActorId: { opportunityId, applicantActorId: band.id } }
 	});
 	if (existing) throw new OpportunityError('Ce groupe a déjà candidaté à ce plateau.');
-	const unmet = await unmetFor(o, band.id);
+	const { unmet } = await checkBand(o, band.id);
 	if (unmet.length > 0) {
 		throw new OpportunityError(`Ce groupe ne peut pas candidater : ${unmet.join(', ')}.`);
 	}
 	const message = checkedMessage(raw);
 	return prisma.$transaction(async (tx) => {
+		// ONB-13b : plateau verrouillé puis relu, conditions revérifiées ici
+		// (clôture, fiche du groupe modifiée, envoi simultané).
+		await tx.$queryRaw`SELECT id FROM ${qualifiedTable('opportunities')} WHERE id = ${opportunityId} FOR UPDATE`;
+		const fresh = await gigOrThrow(opportunityId, tx);
+		if (
+			!isActive({ status: fresh.status as OpportunityStatusValue, expiresAt: fresh.expiresAt }, now)
+		) {
+			throw new OpportunityError('Ce plateau n’est plus ouvert.');
+		}
+		const twice = await tx.application.count({
+			where: { opportunityId, applicantActorId: band.id }
+		});
+		if (twice > 0) throw new OpportunityError('Ce groupe a déjà candidaté à ce plateau.');
+		const again = await checkBand(fresh, band.id, tx);
+		if (again.unmet.length > 0) {
+			throw new OpportunityError(`Ce groupe ne peut pas candidater : ${again.unmet.join(', ')}.`);
+		}
 		const created = await tx.application.create({
 			data: { opportunityId, applicantActorId: band.id, sentById: personId, message },
 			select: { id: true }

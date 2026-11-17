@@ -15,6 +15,11 @@
  */
 import { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
+import {
+	normalizeQualification,
+	payLabel,
+	qualificationSummary
+} from '#lib/opportunities/qualification';
 import { qualifiedTable } from '#lib/server/db-schema';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { checkStockQuota } from '#lib/server/trust/quotas';
@@ -28,7 +33,7 @@ import {
 	expiresAtFor,
 	isActive,
 	targetLabel,
-	type OpportunityForm,
+	type OpportunityInput,
 	type OpportunityKindValue,
 	type OpportunityTarget
 } from '#lib/opportunities/rules';
@@ -76,7 +81,7 @@ async function activeCount(actorId: string, now: Date) {
 
 export async function createOpportunity(
 	actorId: string,
-	form: Omit<OpportunityForm, 'target'> & { target?: OpportunityTarget },
+	form: Omit<OpportunityInput, 'target'> & { target?: OpportunityTarget },
 	now = new Date(),
 	/** Publier au nom d'un groupe que l'on gère (recrutement seulement, P3-03). */
 	bandId: string | null = null
@@ -140,6 +145,9 @@ export async function createOpportunity(
 	if (startsAt && startsAt.getTime() < now.getTime() - 24 * 60 * 60 * 1000) {
 		throw new OpportunityError('La date est déjà passée.');
 	}
+	// Conditions (ONB-13b, D63) : seules celles du type d'annonce sont gardées.
+	const qualification = normalizeQualification(pro ? 'craft' : 'musicians', form);
+	if (!qualification.ok) throw new OpportunityError(qualification.message);
 	// Aucune XP ici : la quête rapporte quand elle est remplie (02 §8).
 	return prisma.opportunity.create({
 		data: {
@@ -158,7 +166,8 @@ export async function createOpportunity(
 			radiusKm: form.radiusKm,
 			slots: form.slots,
 			startsAt: startsAt ?? null,
-			expiresAt: expiresAtFor(form.durationDays, now, startsAt)
+			expiresAt: expiresAtFor(form.durationDays, now, startsAt),
+			...qualification.value
 		},
 		select: { id: true }
 	});
@@ -241,6 +250,8 @@ export async function getOpportunity(id: string, viewerId: string, now = new Dat
 		/** Plateau (P5-05a) : lieu et rang de groupe demandé (jamais l'XP). */
 		venue: o.kind === 'GIG_SLOT' ? o.venue : null,
 		minBandTier: o.minBandTier ? (GIG_TIER_LABELS[o.minBandTier as MilestoneKey] ?? null) : null,
+		/** Conditions précisées (ONB-13b, D63), en mots ; vide : rien de précisé. */
+		conditions: qualificationSummary(o),
 		expiresAt: o.expiresAt,
 		createdAt: o.createdAt,
 		commune: o.issuer.location?.communeName ?? null,
@@ -321,6 +332,8 @@ export async function listNearby(
 			: null,
 		slots: o.slots,
 		startsAt: o.startsAt,
+		/** ONB-13b : rémunération en mots, `null` si non précisée. */
+		pay: payLabel(o),
 		issuer: o.issuer.displayName,
 		commune: o.issuer.location?.communeName ?? null,
 		distance: distanceBand(meters.get(o.id) ?? 0)

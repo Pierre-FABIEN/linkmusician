@@ -74,6 +74,7 @@ domaine (dernière colonne) ; lancer un seul spec :
 | `inge-son`               | P4-02a, b    | Profil d'ingé son, recherche par métier, rang, objectifs                  | `docs/metiers-du-son/`               |
 | `producteur`             | P4-04        | Profil de producteur·rice, recherche par spécialité et style              | `docs/metiers-du-son/`               |
 | `annonces-metier`        | P4-05        | Annonce « cherche ingé son », visible du seul métier visé                 | `docs/metiers-du-son/`               |
+| `annonces-qualifiees`    | ONB-13b      | Conditions publiées et affichées, « non précisé », refus revérifié        | `docs/annonces/`                     |
 | `collaborations-morceau` | P4-06, P4-07 | Session confirmée : morceau « Enregistré », crédit confirmé de l'ingé son | `docs/collaborations/`               |
 | `etapes-autonomes`       | DASH-06a     | Enregistrement pris soi-même, home studio, transitions, POST forgés       | `docs/morceaux/`                     |
 | `production-autonome`    | DASH-06b–d   | Thomas de Carrière au mixage : déclaré, prise de son créditée une fois    | `docs/morceaux/`                     |

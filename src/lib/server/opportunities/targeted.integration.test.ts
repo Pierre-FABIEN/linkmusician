@@ -158,11 +158,11 @@ describe.skipIf(!enabled)('annonces par métier (schéma e2e)', { timeout: 60_00
 
 	it('les autres ne remplissent pas les conditions pour répondre', async () => {
 		const raw = await db.opportunity.findUniqueOrThrow({ where: { id: opportunityId } });
-		expect(await eligibilityFor(ids.sam, raw)).toEqual([]);
-		expect(await eligibilityFor(ids.ines, raw)).toEqual([
+		expect((await eligibilityFor(ids.sam, raw)).unmet).toEqual([]);
+		expect((await eligibilityFor(ids.ines, raw)).unmet).toEqual([
 			'cette spécialité n’est pas cochée dans ton profil de métier'
 		]);
-		expect(await eligibilityFor(ids.malik, raw)).toEqual([
+		expect((await eligibilityFor(ids.malik, raw)).unmet).toEqual([
 			'l’annonce cherche un autre métier que les tiens'
 		]);
 	});

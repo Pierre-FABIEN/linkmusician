@@ -2285,6 +2285,19 @@ model Opportunity {
   heldAt          DateTime?
   /// Atelier d'école (P5-11) : `SCHOOL` le réserve aux membres de l'école émettrice.
   audience        OpportunityAudience @default(PUBLIC)
+  /// ONB-13b (D63) : conditions de l'annonce, toutes facultatives (null =
+  /// non précisé). Une condition n'écarte que si le profil dit le contraire.
+  pay             OpportunityPay?
+  /// Fourchette en euros, seulement pour « rémunéré » ou « défrayé ».
+  payMinEuros     Int?
+  payMaxEuros     Int?
+  /// Plateau : formation et répertoire recherchés (face à `band_profiles`).
+  formation       BandFormation?
+  repertoire      BandRepertoire?
+  /// Annonce de musicien·nes : engagement (face à `MusicCommitment`).
+  commitment      OpportunityCommitment?
+  /// Métier du son visé : présence (face à `CraftMobility`).
+  presence        OpportunityPresence?
   expiresAt     DateTime
   closedAt      DateTime?
   createdAt     DateTime          @default(now())
@@ -4176,3 +4189,24 @@ model WorkRoleAct {
   @@index([workId])
   @@map("work_role_acts")
 }
+
+/// ONB-13b (#27, D63) : conditions d'une annonce.
+enum OpportunityPay {
+  PAID
+  EXPENSES
+  HAT
+  VOLUNTEER
+  EXCHANGE
+  TO_DISCUSS
+}
+
+enum OpportunityCommitment {
+  ONE_OFF
+  REGULAR
+}
+
+enum OpportunityPresence {
+  ON_SITE
+  REMOTE
+}
+

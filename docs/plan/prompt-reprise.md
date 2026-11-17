@@ -1,61 +1,70 @@
-# Prompt de reprise — après ONB-12c1
+# Prompt de reprise — après ONB-13b
 
 ```markdown
 Reprends LinkMusician dans /home/pierre/linkmusician. Une session = un lot.
-Travaille directement sur main, sans push. Commence par git status, git log
-et git ls-remote origin refs/heads/main ; préserve commits et modifications.
-Les issues GitHub sont publiques : lis-les par l'API (curl), sans les modifier
-sans instruction.
+Travaille directement sur main, sans push (l'utilisateur pousse depuis VS Code ;
+ce terminal n'a ni gh ni identifiants GitHub). Commence par git status, git log
+et git ls-remote origin refs/heads/main ; préserve commits et modifications,
+y compris celles d'une autre session (ne commite pas un travail qui n'est pas
+le tien sans le dire). Les issues GitHub sont publiques : lis-les par l'API
+(curl), sans les modifier sans instruction.
 
-Bilan du 16/11/2026 : 20 issues fermées sur 45 (44,4 %), 25 ouvertes ;
-voir docs/plan/bilan-issues-2026-11-16.md. Les épopées et sous-lots se recouvrent :
-ce pourcentage ne mesure ni la charge restante ni la préparation à la production.
-Onze corps d’issues ont été actualisés, sans clôture ni suppression supplémentaire.
+État au 17/11/2026 :
+- Publiés sur origin/main (4c773a0, puis 5b91004 si poussé) : DASH-06a à 06d
+  (#51–#54, D68 à D70) et la refonte de l'aide (/aide/<page>/<section>).
+  Commentaires de clôture des issues #52–#54 préparés pour l'utilisateur.
+- ONB-13b (#27, D63) livré en local, commit « (ONB-13b) » à vérifier :
+  conditions facultatives sur opportunities (pay + fourchette payMinEuros/
+  payMaxEuros, commitment, presence, formation, repertoire ; migration
+  20261117142644_opportunity_qualification, contrainte
+  opportunities_pay_range_check). Règles pures #lib/opportunities/qualification :
+  bloquant seulement si le profil dit le contraire (MusicCommitment,
+  CraftMobility, band_profiles), sinon « non précisé » ; rémunération
+  informative. applyTo et applyAsBand verrouillent l'annonce (FOR UPDATE) et
+  revérifient statut, doublon et conditions dans la transaction.
+  eligibilityFor renvoie désormais { unmet, unknown }.
+- Écart d'environnement connu : deux tests à barrières de
+  locking.integration.test.ts dépassent leur lock_timeout (55P03), à
+  l'identique sur le code d'origine. Pas une régression.
 
-Publication confirmée : 9a73d455ab03fff83ce9c1993b60b02fb1b42660 sur origin/main.
-ARCH-MET-01, 02a, 02b et 02c (#55–#58) sont publiés et les issues closes.
-Le bilan documentaire BILAN-01 (e786ba4) est publié sur origin/main. Aucun déploiement de production établi.
-Revérifie publications et états au démarrage ; les récits « livraison locale »
-conservent leur état historique et ne décrivent pas forcément la publication.
+Lot suivant : DASH-07 (#37) — candidature déléguée. Lis CLAUDE.md,
+docs/plan/README.md §4, docs/plan/fin-du-projet.md (DASH-07 et §3.1),
+docs/conception/13-mandats-individuels.md, 15-affectations-delegations.md,
+17-audit-capacites-services.md, docs/annonces/README.md (candidatures,
+plateaux, annonces qualifiées) et src/lib/representation/delegations.ts.
+Audite d'abord, propose le modèle à l'utilisateur, consigne la décision
+(D71) avant toute migration.
 
-ONB-12c1 (#26, D64) et DASH-06a (#51, D68) livrés dans des commits locaux
-identifiés par ces ID ; revérifie leur publication. ONB-12c1 : table
-band_profiles (formation, répertoire), formationMatch/repertoireMatch
-(unknown n'exclut jamais). DASH-06a : WorkStep/WorkStepAct, écran
-/morceaux/[id]/etapes, SELF/HOME, TODO → IN_PROGRESS → DONE, révision attendue
-(changement périmé refusé sans acte), seule la personne responsable fait
-avancer, la gestion peut libérer une étape non terminée. Aucun effet sur
-recordedAt, journey, crédits, nudges ni XP. Le responsable d'un acte est une
-colonne sans clé étrangère (deux SET NULL + cascade bloquaient la suppression
-d'un compte). Deux tests à barrières de locking.integration.test.ts dépassent
-leur lock_timeout de 6 s, à l'identique sur le code d'origine : écart
-d'environnement à surveiller, pas une régression.
+Contrat attendu :
+- Un manager ou un booker candidate au nom d'un artiste (personne ou groupe)
+  seulement par un **droit nouveau, explicite et consenti** par l'artiste
+  (pour un groupe : sa gestion), borné dans le temps et révocable. Aucun
+  mandat, métier, rôle d'agence, ni VIEW_MANDATE/END_MANDATE n'autorise à
+  candidater. Droit relu sous verrou au moment de l'envoi.
+- Auteur réel (Application.sentById) distinct de l'artiste représenté
+  (applicantActorId) ; l'artiste voit la candidature envoyée en son nom et
+  peut la retirer ; notification à l'artiste.
+- Mêmes conditions que la candidature directe (eligibilityFor / checkBand
+  sur l'artiste, pas sur l'agent), revérifiées dans la transaction ; mêmes
+  blocages, visibilité et règles des mineur·es ; pas de doublon (unique
+  opportunity/applicant).
+- Recrutement d'un groupe (RECRUIT_MEMBER) exclu tant qu'il ferait adhérer
+  sans consentement de la personne.
+- Acte répétable en ajout seul (donner, utiliser, révoquer le droit), export
+  et anonymisation RGPD. Aucune XP pour l'agent par la candidature.
+- Tests : unitaires (droit, périmètre, expiration), intégration (droit
+  absent/révoqué/expiré refusé, course révocation contre envoi, mineur·e,
+  groupe), E2E ciblé (390 px, clavier, axe, POST forgé).
+Si le lot dépasse 1 à 4 jours, découpe (DASH-07a : le droit et son
+consentement ; DASH-07b : la candidature déléguée).
 
-Suite DASH-06 : #52 (rôle de prise de son ajouté au contributeur existant,
-acte répétable, sans doublon) puis #53 (effets d'une réalisation déclarée sur
-recordedAt/journey/nudges, sans fausse preuve ni XP de collaboration) et #54.
-Suite inscription en parallèle : ONB-13b (#27, D63), puis DASH-07 (#37).
+Restent ensuite : ONB-12c2 (#26 : portfolio, matériel, tarifs, visibilité
+rate/gear, « postproduction » dans SoundSpecialty), ONB-14 (#28, recette
+continue), suite de #36 (affectation à un membre avec accord, prestataire
+externe, mixage/mastering/production pris soi-même, versions et validations).
 
-ONB-13b (#27, D63) — annonces qualifiées. Lis
-CLAUDE.md, docs/plan/README.md §4, docs/plan/fin-du-projet.md §3.1,
-docs/conception/06-metiers.md §1.3, docs/annonces/README.md et
-docs/groupes/README.md (formation et répertoire).
-Champs facultatifs sur opportunities (migration additive, db:nouvelle-migration,
-relecture, db:deploy puis db:deploy:e2e) : rémunération et fourchette,
-formation (réutiliser l'enum BandFormation), répertoire si utile, engagement,
-présence. Critère bloquant seulement quand le profil dit explicitement le
-contraire ; inconnu affiché « non précisé ». GIG_SLOT : comparer à
-band_profiles. Engagement : MusicCommitment du profil musicien ; présence :
-CraftMobility des métiers du son. Scénarios #29 : 1, 3 et 4. Aucune XP, aucun
-tri par XP. Revérifier les conditions sous transaction à la candidature.
-
-Ensuite seulement DASH-07 (#37) : candidature déléguée par un droit nouveau,
-explicite et consenti (aucun mandat, métier, rôle d'agence ni VIEW/END_MANDATE
-n'autorise à candidater) ; auteur réel (sentById) distinct de l'artiste
-représenté ; recrutement exclu tant qu'il ferait adhérer sans consentement.
-
-ONB-12c2 reste ouvert : portfolio, matériel, tarifs, visibilité rate/gear,
-« postproduction ». DASH-05/06 hors périmètre sauf correction nécessaire.
-Check jamais en même temps que les E2E (mémoire WSL). Termine par conception,
-docs de domaine, aide, démo, tableau, prompt suivant et commit local français.
+Ne lance jamais npm run check pendant les E2E (mémoire WSL) ; ne régénère pas
+le client Prisma pendant qu'un E2E tourne. Migrations : db:nouvelle-migration,
+relecture, db:deploy puis db:deploy:e2e. Termine par conception, docs de
+domaine, aide, démo, tableau §5, prompt suivant et commit local en français.
 ```

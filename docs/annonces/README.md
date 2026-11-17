@@ -131,3 +131,34 @@ membres.
   [docs/scene](../scene/README.md#organisations-dorganisateurrices-p5-05b).
 - **Plus tard** : la date tenue et confirmée par les groupes (`gig.held`,
   P5-06) rapporte l'XP et fait le rang.
+
+## Annonces qualifiées (ONB-13b, #27, D63)
+
+- **Conditions** (toutes facultatives, `null` = non précisé) sur
+  `opportunities` : `pay` (rémunéré, défrayé, au chapeau, bénévole,
+  échange, à discuter) et fourchette `payMinEuros`/`payMaxEuros` (seulement
+  pour rémunéré ou défrayé ; contrainte SQL `opportunities_pay_range_check`),
+  `commitment` (ponctuel, régulier), `presence` (sur place, à distance),
+  `formation` et `repertoire` (enums du groupe, D64).
+- **Par type** (`normalizeQualification`, `#lib/opportunities/qualification`) :
+  engagement pour une annonce de musicien·nes, présence quand un métier du son
+  est visé, formation et répertoire pour un plateau, rémunération partout.
+  Un champ qui ne s'applique pas n'est jamais gardé.
+- **Bloquant seulement si le profil dit le contraire** : « régulier » écarte
+  `MusicCommitment = OCCASIONAL` ; « à distance » exige `CraftMobility`
+  `REMOTE`, « sur place » `ON_SITE` ou `OWN_PLACE` ; formation et répertoire
+  face à `band_profiles` (`formationMatch`, `repertoireMatch` ; un groupe
+  « les deux » convient à des reprises). Profil muet : « non précisé »
+  (`unknownConditions`, `unknownGigConditions`), jamais exclu. La
+  rémunération est informative. Genres et ambition restent des affinités.
+  Jamais l'XP.
+- **Revérifié sous verrou** : `applyTo` et `applyAsBand` verrouillent
+  l'annonce (`FOR UPDATE`), la relisent, revérifient statut, doublon et
+  conditions dans la transaction de la candidature.
+- **Affichage** : « Ce qui est recherché » sur l'annonce, rémunération sur
+  la carte de la liste, « Non précisé : … » pour la personne ou le groupe qui
+  regarde. Export RGPD des annonces avec leurs conditions.
+- **Tests** : `qualification.test.ts` (scénarios #29 n° 1 à 4 en règles
+  pures), `gigSlots.integration.test.ts` (scénarios 1, 3 et 4 en base, clôture
+  revérifiée), E2E `annonces-qualifiees.spec.ts`.
+- **Migration** : `20261117142644_opportunity_qualification` (ajout seul).

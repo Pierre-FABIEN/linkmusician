@@ -17,7 +17,16 @@ import { publicActorWhere } from '#lib/server/actors/visibility';
 import { isBlockedBetween } from '#lib/server/blocking/service';
 import { getMusicianTier } from '#lib/server/progression/read';
 import { checkMessage, pairKey } from '#lib/messaging/rules';
-import { isActive, unmetConditions, type CandidateFacts } from '#lib/opportunities/rules';
+import {
+	isActive,
+	unknownConditions,
+	unmetConditions,
+	type CandidateFacts,
+	type EligibilityCondition
+} from '#lib/opportunities/rules';
+import { UNKNOWN_LABELS } from '#lib/opportunities/qualification';
+import { qualifiedTable } from '#lib/server/db-schema';
+import type { Prisma } from '@prisma/client';
 import {
 	MAX_APPLICATION,
 	MIN_APPLICATION,
@@ -30,33 +39,38 @@ import { BAND_TX, BandError, bandManagerIds, joinFromRecruitment } from '#lib/se
 import { notify } from '#lib/server/notifications/service';
 import { bandTierOf } from '#lib/server/milestones/service';
 
+type Db = Prisma.TransactionClient | typeof prisma;
+
 /** Ce que le profil d'une personne dit des conditions d'une annonce. */
-export async function candidateFacts(actorId: string): Promise<CandidateFacts> {
-	const [instruments, genres, tier, tracks, sound, producer] = await Promise.all([
-		prisma.personInstrument.findMany({
+export async function candidateFacts(actorId: string, db: Db = prisma): Promise<CandidateFacts> {
+	const [instruments, genres, tier, tracks, sound, producer, musician] = await Promise.all([
+		db.personInstrument.findMany({
 			where: { personId: actorId },
 			select: { declaredLevel: true, instrument: { select: { slug: true } } }
 		}),
-		prisma.actorGenre.findMany({
+		db.actorGenre.findMany({
 			where: { actorId },
 			select: { genre: { select: { slug: true, parent: { select: { slug: true } } } } }
 		}),
-		getMusicianTier(actorId, prisma),
+		getMusicianTier(actorId, db),
 		// Métiers du son (P4-05) : métiers, spécialités, styles produits.
-		prisma.personTrack.findMany({ where: { personId: actorId }, select: { track: true } }),
-		prisma.soundEngineerProfile.findUnique({
+		db.personTrack.findMany({ where: { personId: actorId }, select: { track: true } }),
+		db.soundEngineerProfile.findUnique({
 			where: { personId: actorId },
-			select: { specialties: true }
+			select: { specialties: true, mobility: true }
 		}),
-		prisma.producerProfile.findUnique({
+		db.producerProfile.findUnique({
 			where: { personId: actorId },
 			select: {
 				specialties: true,
+				mobility: true,
 				genres: {
 					select: { genre: { select: { slug: true, parent: { select: { slug: true } } } } }
 				}
 			}
-		})
+		}),
+		// ONB-13b : engagement déclaré (ONB-03), `null` si non précisé.
+		db.musicianProfile.findUnique({ where: { personId: actorId }, select: { commitment: true } })
 	]);
 	const allGenres = [...genres, ...(producer?.genres ?? [])];
 	return {
@@ -69,37 +83,46 @@ export async function candidateFacts(actorId: string): Promise<CandidateFacts> {
 		],
 		tiers: tier.reached,
 		tracks: tracks.map((t) => t.track),
-		specialties: [...(sound?.specialties ?? []), ...(producer?.specialties ?? [])]
+		specialties: [...(sound?.specialties ?? []), ...(producer?.specialties ?? [])],
+		commitment: musician?.commitment ?? null,
+		mobility: [...new Set([...(sound?.mobility ?? []), ...(producer?.mobility ?? [])])]
 	};
 }
 
-/** Conditions non remplies, en mots (vide = éligible). */
-export async function eligibilityFor(
-	actorId: string,
-	o: {
-		instrumentId: string | null;
-		minLevel: number | null;
-		genreSlug: string | null;
-		minTier: string | null;
-		targetTrack?: string | null;
-		targetSpecialty?: string | null;
-	}
-) {
+type OpportunityConditions = {
+	instrumentId: string | null;
+	minLevel: number | null;
+	genreSlug: string | null;
+	minTier: string | null;
+	targetTrack?: string | null;
+	targetSpecialty?: string | null;
+	commitment?: EligibilityCondition['commitment'];
+	presence?: EligibilityCondition['presence'];
+};
+
+/**
+ * Conditions non remplies (`unmet`, vide = éligible) et conditions que le
+ * profil ne précise pas (`unknown`, ONB-13b : jamais exclusives), en mots.
+ */
+export async function eligibilityFor(actorId: string, o: OpportunityConditions, db: Db = prisma) {
 	const instrument = o.instrumentId
-		? await prisma.instrument.findUnique({ where: { id: o.instrumentId }, select: { slug: true } })
+		? await db.instrument.findUnique({ where: { id: o.instrumentId }, select: { slug: true } })
 		: null;
-	const unmet = unmetConditions(
-		{
-			instrument: instrument?.slug,
-			minLevel: o.minLevel,
-			genre: o.genreSlug,
-			minTier: o.minTier,
-			targetTrack: o.targetTrack,
-			targetSpecialty: o.targetSpecialty
-		},
-		await candidateFacts(actorId)
-	);
-	return unmet.map((u) => UNMET_LABELS[u]);
+	const condition: EligibilityCondition = {
+		instrument: instrument?.slug,
+		minLevel: o.minLevel,
+		genre: o.genreSlug,
+		minTier: o.minTier,
+		targetTrack: o.targetTrack,
+		targetSpecialty: o.targetSpecialty,
+		commitment: o.commitment ?? null,
+		presence: o.presence ?? null
+	};
+	const facts = await candidateFacts(actorId, db);
+	return {
+		unmet: unmetConditions(condition, facts).map((u) => UNMET_LABELS[u]),
+		unknown: unknownConditions(condition, facts).map((u) => UNKNOWN_LABELS[u])
+	};
 }
 
 export function checkedMessage(raw: string) {
@@ -146,13 +169,28 @@ export async function applyTo(
 		where: { opportunityId_applicantActorId: { opportunityId, applicantActorId: actorId } }
 	});
 	if (existing) throw new OpportunityError('Tu as déjà postulé à cette annonce.');
-	const unmet = await eligibilityFor(actorId, o);
+	const { unmet } = await eligibilityFor(actorId, o);
 	if (unmet.length > 0) {
 		throw new OpportunityError(`Tu ne peux pas postuler : ${unmet.join(', ')}.`);
 	}
+	const message = checkedMessage(raw);
 	return prisma.$transaction(async (tx) => {
+		// ONB-13b : annonce verrouillée puis relue, conditions revérifiées dans
+		// la transaction (une clôture ou un profil modifié entre-temps compte).
+		await tx.$queryRaw`SELECT id FROM ${qualifiedTable('opportunities')} WHERE id = ${opportunityId} FOR UPDATE`;
+		const fresh = await tx.opportunity.findUniqueOrThrow({ where: { id: opportunityId } });
+		if (!isActive(fresh, now)) throw new OpportunityError('Cette annonce n’est plus ouverte.');
+		// Deux envois simultanés : le second voit le premier sous le verrou.
+		const twice = await tx.application.count({
+			where: { opportunityId, applicantActorId: actorId }
+		});
+		if (twice > 0) throw new OpportunityError('Tu as déjà postulé à cette annonce.');
+		const again = await eligibilityFor(actorId, fresh, tx);
+		if (again.unmet.length > 0) {
+			throw new OpportunityError(`Tu ne peux pas postuler : ${again.unmet.join(', ')}.`);
+		}
 		const created = await tx.application.create({
-			data: { opportunityId, applicantActorId: actorId, message: checkedMessage(raw) },
+			data: { opportunityId, applicantActorId: actorId, message },
 			select: { id: true }
 		});
 		// Notification (P2-09a) : la candidature se lit sur l'annonce. Pour un

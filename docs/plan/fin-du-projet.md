@@ -226,13 +226,13 @@ Reste à faire, dans l'ordre :
 - **Acceptation** : une spécialité retirée ne détruit aucun crédit ;
   profils existants intacts ; mobile et clavier.
 
-#### ONB-13 — Découverte selon offres et besoins (découpé : 13a, 13b)
+#### ONB-13 — Découverte selon offres et besoins (découpé : 13a ✅, 13b ✅)
 
 - **ONB-13a — Recherche par offres ✅** (D62) : `searchMusicianIds` filtre
   sur `person_track_intents` (offre ou besoin, métier, spécialité), source
   de distance `CraftMobility`, respect du bloc « spécialités et
   intentions » d'ONB-12b. Sans migration. Scénarios #29 : 2 et 7.
-- **ONB-13b — Annonces qualifiées** (D63) : rémunération, formation,
+- **ONB-13b — Annonces qualifiées ✅** (D63, 17/11/2026, [annonces](../annonces/README.md#annonces-qualifiées-onb-13b-27-d63)) : rémunération, formation,
   engagement, présence sur `opportunities` (migration additive), puis
   rapprochement annonces et profils (formation du groupe : ONB-12c1 ✅,
   `#lib/bands/lineup`). Scénarios #29 : 1, 3 et 4 ; 5 et 6

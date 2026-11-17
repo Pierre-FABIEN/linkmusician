@@ -8,6 +8,15 @@
 import { z } from 'zod';
 import { SOUND_SPECIALTIES, SOUND_SPECIALTY_INFO } from '#lib/crafts/sound';
 import { PRODUCER_SPECIALTIES, PRODUCER_SPECIALTY_INFO } from '#lib/crafts/producer';
+import {
+	commitmentMatch,
+	presenceMatch,
+	qualificationFields,
+	type DeclaredCommitment,
+	type DeclaredMobility,
+	type OpportunityCommitmentValue,
+	type OpportunityPresenceValue
+} from './qualification';
 
 export const OPPORTUNITY_KINDS = ['JAM', 'RECRUIT_MEMBER', 'SESSION_WORK', 'GIG_SLOT'] as const;
 export type OpportunityKindValue = (typeof OPPORTUNITY_KINDS)[number];
@@ -123,9 +132,19 @@ export const opportunitySchema = z.object({
 		.string()
 		.regex(/^[a-z0-9]{10,40}$/)
 		.optional()
-		.or(z.literal('').transform(() => undefined))
+		.or(z.literal('').transform(() => undefined)),
+	/** Conditions (ONB-13b, D63), facultatives ; relues par `normalizeQualification`. */
+	pay: qualificationFields.pay,
+	payMin: qualificationFields.payMin,
+	payMax: qualificationFields.payMax,
+	commitment: qualificationFields.commitment,
+	presence: qualificationFields.presence
 });
 export type OpportunityForm = z.infer<typeof opportunitySchema>;
+type QualificationKeys = 'pay' | 'payMin' | 'payMax' | 'commitment' | 'presence';
+/** Entrée du service : les conditions (ONB-13b) restent facultatives. */
+export type OpportunityInput = Omit<OpportunityForm, QualificationKeys> &
+	Partial<Pick<OpportunityForm, QualificationKeys>>;
 
 export type TargetCheck =
 	| {
@@ -196,6 +215,10 @@ export type CandidateFacts = {
 	tracks?: string[];
 	/** Spécialités déclarées dans ses profils de métier (P4-05). */
 	specialties?: string[];
+	/** ONB-13b : engagement du profil musicien, `null` ou absent si non précisé. */
+	commitment?: DeclaredCommitment | null;
+	/** ONB-13b : où elle travaille (métiers du son), vide si non précisé. */
+	mobility?: DeclaredMobility[];
 };
 
 export type EligibilityCondition = {
@@ -206,9 +229,31 @@ export type EligibilityCondition = {
 	/** Métier visé (P4-05) ; vide : musicien·nes. */
 	targetTrack?: string | null;
 	targetSpecialty?: string | null;
+	/** ONB-13b (D63) : engagement attendu (annonce de musicien·nes). */
+	commitment?: OpportunityCommitmentValue | null;
+	/** ONB-13b (D63) : présence attendue (métier du son visé). */
+	presence?: OpportunityPresenceValue | null;
 };
 
-export type UnmetCondition = 'instrument' | 'level' | 'genre' | 'tier' | 'track' | 'specialty';
+export type UnmetCondition =
+	'instrument' | 'level' | 'genre' | 'tier' | 'track' | 'specialty' | 'commitment' | 'presence';
+
+/**
+ * ONB-13b : conditions de l'annonce que le profil ne précise pas. Elles
+ * n'excluent jamais (D63) ; on les signale « non précisé ».
+ */
+export function unknownConditions(
+	o: EligibilityCondition,
+	facts: CandidateFacts
+): ('commitment' | 'presence')[] {
+	if (o.targetTrack)
+		return presenceMatch(o.presence ?? null, facts.mobility ?? null) === 'unknown'
+			? ['presence']
+			: [];
+	return commitmentMatch(o.commitment ?? null, facts.commitment ?? null) === 'unknown'
+		? ['commitment']
+		: [];
+}
 
 /**
  * Conditions non remplies (vide = éligible). Le genre accepte un sous-genre
@@ -224,6 +269,8 @@ export function unmetConditions(o: EligibilityCondition, facts: CandidateFacts):
 		else if (o.targetSpecialty && !(facts.specialties ?? []).includes(o.targetSpecialty))
 			unmet.push('specialty');
 		if (o.genre && !facts.genreSlugs.includes(o.genre)) unmet.push('genre');
+		// ONB-13b : seulement si le profil dit explicitement le contraire.
+		if (presenceMatch(o.presence ?? null, facts.mobility ?? null) === 'no') unmet.push('presence');
 		return unmet;
 	}
 	if (o.instrument) {
@@ -235,5 +282,7 @@ export function unmetConditions(o: EligibilityCondition, facts: CandidateFacts):
 	}
 	if (o.genre && !facts.genreSlugs.includes(o.genre)) unmet.push('genre');
 	if (o.minTier && !facts.tiers.includes(o.minTier)) unmet.push('tier');
+	if (commitmentMatch(o.commitment ?? null, facts.commitment ?? null) === 'no')
+		unmet.push('commitment');
 	return unmet;
 }

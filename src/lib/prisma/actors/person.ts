@@ -345,7 +345,15 @@ export async function exportPersonData(userId: string) {
 				// Par métier (P4-05).
 				targetTrack: true,
 				targetSpecialty: true,
-				work: { select: { title: true } }
+				work: { select: { title: true } },
+				// Conditions (ONB-13b, D63).
+				pay: true,
+				payMinEuros: true,
+				payMaxEuros: true,
+				formation: true,
+				repertoire: true,
+				commitment: true,
+				presence: true
 			}
 		}),
 		// Candidatures (P2-03).

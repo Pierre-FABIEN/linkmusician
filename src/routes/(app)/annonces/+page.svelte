@@ -103,6 +103,7 @@
 												: ''}</span
 										>
 										{#if o.target}<span class="font-semibold">Cherche : {o.target}</span>{/if}
+										{#if o.pay}<span>{o.pay}</span>{/if}
 										{#if o.instrument}<span
 												>Cherche : {o.instrument}{levelName(o.minLevel)
 													? `, ${levelName(o.minLevel)} ou plus`

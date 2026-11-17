@@ -4,6 +4,16 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import { MAX_DESCRIPTION, MAX_TITLE, OPPORTUNITY_RADII } from '#lib/opportunities/rules';
 	import { MAX_GIG_BANDS } from '#lib/opportunities/gigSlot';
+	import {
+		BAND_FORMATIONS,
+		BAND_FORMATION_INFO,
+		BAND_REPERTOIRES,
+		BAND_REPERTOIRE_INFO,
+		OPPORTUNITY_PAYS,
+		OPPORTUNITY_PAY_LABELS,
+		PAY_WITH_RANGE,
+		type OpportunityPayValue
+	} from '#lib/opportunities/qualification';
 
 	let { data, form } = $props();
 	const v = $derived((form?.values ?? {}) as Record<string, string>);
@@ -16,6 +26,10 @@
 	);
 	const zoneCommune = $derived(issuer ? issuer.commune : data.promoter ? data.commune : null);
 	const field = 'w-full rounded-md border bg-background p-2 text-sm font-normal';
+	// Conditions (ONB-13b) : un cachet peut avoir une fourchette.
+	// svelte-ignore state_referenced_locally
+	let pay = $state<string>(v.pay ?? '');
+	const ranged = $derived(PAY_WITH_RANGE.includes(pay as OpportunityPayValue));
 </script>
 
 <SEO title="Publier un plateau" noindex nofollow />
@@ -189,6 +203,72 @@
 								{#each OPPORTUNITY_RADII as r (r)}
 									<option value={r} selected={(v.radiusKm ?? '50') === String(r)}
 										>Groupes à {r} km de {zoneCommune}</option
+									>
+								{/each}
+							</select>
+						</label>
+					</div>
+				</fieldset>
+
+				<!-- LINKMUSICIAN: conditions du plateau (ONB-13b, D63), toutes facultatives. -->
+				<fieldset class="space-y-3">
+					<legend class="font-medium">Conditions (facultatif)</legend>
+					<p class="text-sm text-muted-foreground">
+						Un groupe n’est écarté que si sa fiche dit clairement le contraire ; une fiche qui ne
+						précise rien reste « non précisé ».
+					</p>
+					<div class="grid gap-4 md:grid-cols-3">
+						<label class="block space-y-1 text-sm font-medium">
+							Cachet
+							<select name="pay" bind:value={pay} class={field}>
+								<option value="">Non précisé</option>
+								{#each OPPORTUNITY_PAYS as p (p)}
+									<option value={p}>{OPPORTUNITY_PAY_LABELS[p]}</option>
+								{/each}
+							</select>
+						</label>
+						{#if ranged}
+							<label class="block space-y-1 text-sm font-medium">
+								De (€, facultatif)
+								<input
+									name="payMin"
+									type="number"
+									inputmode="numeric"
+									min="0"
+									value={v.payMin ?? ''}
+									class={field}
+								/>
+							</label>
+							<label class="block space-y-1 text-sm font-medium">
+								À (€, facultatif)
+								<input
+									name="payMax"
+									type="number"
+									inputmode="numeric"
+									min="0"
+									value={v.payMax ?? ''}
+									class={field}
+								/>
+							</label>
+						{/if}
+						<label class="block space-y-1 text-sm font-medium">
+							Formation recherchée
+							<select name="formation" class={field}>
+								<option value="">Peu importe</option>
+								{#each BAND_FORMATIONS as f (f)}
+									<option value={f} selected={v.formation === f}
+										>{BAND_FORMATION_INFO[f].label}</option
+									>
+								{/each}
+							</select>
+						</label>
+						<label class="block space-y-1 text-sm font-medium">
+							Répertoire recherché
+							<select name="repertoire" class={field}>
+								<option value="">Peu importe</option>
+								{#each BAND_REPERTOIRES as r (r)}
+									<option value={r} selected={v.repertoire === r}
+										>{BAND_REPERTOIRE_INFO[r].label}</option
 									>
 								{/each}
 							</select>

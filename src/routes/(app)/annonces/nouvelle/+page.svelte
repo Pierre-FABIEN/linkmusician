@@ -18,6 +18,16 @@
 		TARGET_SPECIALTIES,
 		type OpportunityTarget
 	} from '#lib/opportunities/rules';
+	import {
+		OPPORTUNITY_COMMITMENTS,
+		OPPORTUNITY_COMMITMENT_LABELS,
+		OPPORTUNITY_PAYS,
+		OPPORTUNITY_PAY_LABELS,
+		OPPORTUNITY_PRESENCES,
+		OPPORTUNITY_PRESENCE_LABELS,
+		PAY_WITH_RANGE,
+		type OpportunityPayValue
+	} from '#lib/opportunities/qualification';
 
 	let { data, form } = $props();
 	const v = $derived((form?.values ?? {}) as Record<string, string>);
@@ -45,6 +55,10 @@
 		if (band) kind = 'RECRUIT_MEMBER';
 	});
 	const field = 'w-full rounded-md border bg-background p-2';
+	// Conditions (ONB-13b) : une fourchette seulement pour « rémunéré » ou « défrayé ».
+	// svelte-ignore state_referenced_locally
+	let pay = $state<string>(v.pay ?? '');
+	const ranged = $derived(PAY_WITH_RANGE.includes(pay as OpportunityPayValue));
 </script>
 
 <SEO title="Publier une annonce" noindex nofollow />
@@ -297,6 +311,74 @@
 						</select>
 					</label>
 				</div>
+				<!-- LINKMUSICIAN: conditions de l'annonce (ONB-13b, D63), toutes facultatives. -->
+				<fieldset class="lm-tile lm-tile--flow space-y-3 p-4">
+					<legend class="px-1 font-medium">Conditions (facultatif)</legend>
+					<p class="text-sm text-muted-foreground">
+						Ce que tu précises ici écarte seulement les profils qui disent clairement le contraire ;
+						un profil qui ne dit rien reste « non précisé ».
+					</p>
+					<div class="grid gap-4 md:grid-cols-3">
+						<label class="block space-y-1 text-sm font-medium">
+							Rémunération
+							<select name="pay" bind:value={pay} class={field}>
+								<option value="">Non précisée</option>
+								{#each OPPORTUNITY_PAYS as p (p)}
+									<option value={p}>{OPPORTUNITY_PAY_LABELS[p]}</option>
+								{/each}
+							</select>
+						</label>
+						{#if ranged}
+							<label class="block space-y-1 text-sm font-medium">
+								De (€, facultatif)
+								<input
+									name="payMin"
+									type="number"
+									inputmode="numeric"
+									min="0"
+									value={v.payMin ?? ''}
+									class={field}
+								/>
+							</label>
+							<label class="block space-y-1 text-sm font-medium">
+								À (€, facultatif)
+								<input
+									name="payMax"
+									type="number"
+									inputmode="numeric"
+									min="0"
+									value={v.payMax ?? ''}
+									class={field}
+								/>
+							</label>
+						{/if}
+						{#if pro}
+							<label class="block space-y-1 text-sm font-medium">
+								Présence
+								<select name="presence" class={field}>
+									<option value="">Peu importe</option>
+									{#each OPPORTUNITY_PRESENCES as p (p)}
+										<option value={p} selected={v.presence === p}
+											>{OPPORTUNITY_PRESENCE_LABELS[p]}</option
+										>
+									{/each}
+								</select>
+							</label>
+						{:else}
+							<label class="block space-y-1 text-sm font-medium">
+								Engagement
+								<select name="commitment" class={field}>
+									<option value="">Peu importe</option>
+									{#each OPPORTUNITY_COMMITMENTS as c (c)}
+										<option value={c} selected={v.commitment === c}
+											>{OPPORTUNITY_COMMITMENT_LABELS[c]}</option
+										>
+									{/each}
+								</select>
+							</label>
+						{/if}
+					</div>
+				</fieldset>
 				<button
 					type="submit"
 					disabled={sending || !commune}
