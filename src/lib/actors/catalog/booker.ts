@@ -4,7 +4,7 @@
  * coexister. Nommer une salle ou un artiste ne revendique rien.
  */
 import { intent, opt } from './helpers';
-import { territoryField, type TrackCatalog } from './types';
+import { territoryField, type TrackCatalog, availabilityFields } from './types';
 
 const PROGRAMMING = { specializations: ['PROGRAMMING', 'SHOWCASES'] };
 const BOOKING = { specializations: ['ARTIST_BOOKING', 'TOUR_BOOKING', 'DIFFUSION'] };
@@ -122,6 +122,7 @@ export const bookerCatalog: TrackCatalog = {
 				opt('ACCOMMODATION', 'Hébergement'),
 				opt('CATERING', 'Repas')
 			]
-		}
+		},
+		...availabilityFields()
 	]
 };

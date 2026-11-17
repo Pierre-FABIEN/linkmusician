@@ -1,7 +1,7 @@
 <script lang="ts" module>
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { IntentInfo } from '#lib/actors/specializations';
-	import type { TrackField } from '#lib/actors/trackFields';
+	import type { FieldStage, TrackField } from '#lib/actors/trackFields';
 	import type { TrackDetailsForm } from '#lib/schema/actors/trackDetailsSchema';
 	import type { TrackKindValue } from '#lib/actors/tracks';
 
@@ -17,6 +17,8 @@
 		offers: readonly IntentInfo[];
 		needs: readonly IntentInfo[];
 		fields: readonly TrackField[];
+		/** Inscription : sans les champs du profil avancé (ONB-12c3). */
+		stage?: FieldStage;
 	};
 </script>
 
@@ -69,7 +71,7 @@
 
 	const missing = $derived($form.specializations.length < data.minSpecializations);
 	const empty = $derived($form.specializations.length === 0);
-	const shown = $derived(visibleFields(data.track, $form));
+	const shown = $derived(visibleFields(data.track, $form, data.stage));
 
 	type List = 'specializations' | 'offers' | 'needs';
 	function toggle(list: List, code: string) {

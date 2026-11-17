@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ProofBadge from '#lib/components/linkmusician/profile/ProofBadge.svelte';
 	// LINKMUSICIAN: carte « Producteur·rice » du profil public (P4-04). Tout
 	// est déclaratif ; les tarifs restent « indicatifs ».
 	import * as Card from '#shadcn/card';
@@ -79,7 +80,9 @@
 						</li>
 					{/each}
 				</ul>
-				<p class="text-xs text-muted-foreground">Ajoutées par la personne, non vérifiées.</p>
+				<p class="text-xs text-muted-foreground">
+					<ProofBadge level="DECLARED" /> Ajoutées par la personne, non vérifiées.
+				</p>
 			</div>
 		{/if}
 		{#if software.length > 0}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ProofBadge from '#lib/components/linkmusician/profile/ProofBadge.svelte';
 	// LINKMUSICIAN: carte « Ingé son » du profil public (P4-02). Les
 	// crédits sont confirmés (P4-07) ; le reste est déclaratif.
 	import * as Card from '#shadcn/card';
@@ -67,7 +68,9 @@
 						</li>
 					{/each}
 				</ul>
-				<p class="text-xs text-muted-foreground">Ajoutés par la personne, non vérifiés.</p>
+				<p class="text-xs text-muted-foreground">
+					<ProofBadge level="DECLARED" /> Ajoutés par la personne, non vérifiés.
+				</p>
 			</div>
 		{/if}
 		{#if gear.length > 0}

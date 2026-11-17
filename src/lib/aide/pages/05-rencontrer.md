@@ -126,7 +126,9 @@ organisateur·rice cherche des groupes.
    « de temps en temps » pour une annonce « régulier », ou un groupe en solo
    pour un plateau qui cherche un duo). Si ton profil ne dit rien, tu peux
    postuler : l’annonce l’indique « non précisé », et le compléter aide la
-   personne à te répondre.
+   personne à te répondre. Un bouton (par exemple **Préciser où tu
+   travailles**) t’emmène là où ça se règle ; une fois enregistré, **reviens
+   à l’annonce** par le lien en haut de la page.
 2. Suis tes réponses dans **Mes candidatures**.
 3. Si l’auteur accepte, une **conversation** s’ouvre entre vous. Pour une
    annonce de groupe, tu entres dans le groupe.

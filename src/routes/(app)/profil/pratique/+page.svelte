@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BackToAnnonce from '#lib/components/linkmusician/profile/BackToAnnonce.svelte';
 	// LINKMUSICIAN: « Ma pratique de musicien·ne » (ONB-03), voir +page.server.ts.
 	import { Button } from '#shadcn/button';
 	import SEO from '#lib/components/SEO.svelte';
@@ -17,6 +18,7 @@
 		<div>
 			<a href="/profil" class="text-sm text-muted-foreground underline">← Mon profil</a>
 			<h1 class="lm-title mt-2">Ma pratique</h1>
+			<BackToAnnonce />
 			<p class="text-sm text-muted-foreground">
 				Où tu en es, ce que tu cherches et ce que tu proposes comme musicien·ne. Tout est
 				déclaratif.

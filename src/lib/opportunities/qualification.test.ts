@@ -137,3 +137,38 @@ describe('annonce qualifiée (ONB-13b, D63)', () => {
 		).toBe(false);
 	});
 });
+
+describe('invitation à compléter (ONB-12c3)', () => {
+	it('engagement, mobilité selon le métier visé, fiche du groupe ; retour vers l’annonce', async () => {
+		const { completeLinks } = await import('./qualification');
+		expect(completeLinks(['commitment'], { opportunityId: 'abc123' })).toEqual([
+			{ label: 'Préciser ton engagement', href: '/profil/pratique?annonce=abc123' }
+		]);
+		expect(
+			completeLinks(['presence'], { opportunityId: 'abc', targetTrack: 'PRODUCER' })[0].href
+		).toBe('/profil/production?annonce=abc');
+		expect(
+			completeLinks(['formation', 'repertoire'], { opportunityId: 'abc', bandHandle: 'les-rats' })
+		).toEqual([
+			{ label: 'Compléter la fiche du groupe', href: '/groupes/les-rats/modifier?annonce=abc' }
+		]);
+	});
+
+	it('rien sans page qui règle le critère', async () => {
+		const { completeLinks } = await import('./qualification');
+		expect(completeLinks(['presence'], { opportunityId: 'a', targetTrack: 'MANAGER' })).toEqual([]);
+		expect(completeLinks(['formation'], { opportunityId: 'a' })).toEqual([]);
+	});
+
+	it('le retour n’accepte qu’un identifiant, jamais une adresse', async () => {
+		const { annonceReturnHref, completeLinks } = await import('./qualification');
+		expect(annonceReturnHref('cmwkzxo780000r8tz9isbj09g')).toBe(
+			'/annonces/cmwkzxo780000r8tz9isbj09g'
+		);
+		for (const bad of ['//evil.example', 'https://x', '../admin', 'a b', '', null])
+			expect(annonceReturnHref(bad)).toBeNull();
+		expect(completeLinks(['commitment'], { opportunityId: '//evil' })[0].href).toBe(
+			'/profil/pratique'
+		);
+	});
+});

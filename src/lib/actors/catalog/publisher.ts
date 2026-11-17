@@ -3,7 +3,7 @@
  * autorisation légale ; les briefs de placement vont dans une annonce.
  */
 import { intent, opt } from './helpers';
-import { territoryField, type TrackCatalog } from './types';
+import { territoryField, type TrackCatalog, availabilityFields } from './types';
 
 const SYNC = { specializations: ['SYNC', 'MUSIC_SUPERVISION'] };
 
@@ -73,6 +73,7 @@ export const publisherCatalog: TrackCatalog = {
 				opt('US_PROS', 'ASCAP, BMI (États-Unis)'),
 				opt('OTHER', 'Autres')
 			]
-		}
+		},
+		...availabilityFields()
 	]
 };

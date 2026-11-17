@@ -155,6 +155,7 @@ C : conditionnel, F : facultatif ; « existe » : déjà dans le code).
 | Tous                  | Spécialités, « Je propose », « Je recherche »             | être trouvé·e pour une prestation (D62)   | I   | F      | intentions       | oui                          |
 | Tous                  | Ouvert aux sollicitations                                 | ne pas solliciter qui ne veut pas         | P   | F      | membres          | ONB-12b                      |
 | Tous                  | Références, portfolio (`CraftReference`, médias)          | confiance (déclaré)                       | P   | F      | public           | oui (son, production)        |
+| Hors musicien·ne      | Disponibilités : délai, rythme                            | savoir quand la personne peut             | P   | F      | précisions       | oui (ONB-12c3)               |
 | Musicien·ne           | Instruments et niveau déclaré                             | critère bloquant d'une annonce            | I   | R      | public           | oui                          |
 | Musicien·ne           | Expérience, engagement                                    | engagement compatible (scénario 1)        | I   | R      | intentions       | oui (D58)                    |
 | Groupe                | Formation, répertoire                                     | duo, groupe de reprises (scénarios 3, 4)  | P   | F      | public           | oui (ONB-12c1, D64)          |
@@ -173,6 +174,28 @@ C : conditionnel, F : facultatif ; « existe » : déjà dans le code).
 | Annonce               | Métier, spécialité, instrument, rayon                     | critères bloquants                        | A   | R ou F | annonce          | oui                          |
 | Annonce               | Rémunération, fourchette, formation, engagement, présence | critères bloquants (scénarios 1 à 4)      | A   | F      | annonce          | oui (ONB-13b, D63)           |
 | Label, édition, comms | A&R, démos, soumissions, synchro, formats                 | scénarios 5, 6 (métiers fermés, Q62)      | I   | C      | précisions       | oui, non exigé (« bientôt ») |
+
+**Profil avancé (ONB-12c3)** : un champ du catalogue marqué
+`stage: 'profile'` (le « P » de la matrice) ne s'affiche que sur la page du
+métier ; l'écran de l'inscription ne le demande pas, le refuse s'il est
+envoyé et ne l'efface pas en enregistrant (`fieldsAt`). Les disponibilités
+(`availability_start`, `availability_rhythm`) sont de ce type : facultatives,
+bloc « précisions », distinctes d'« ouvert aux sollicitations » et du « Je
+suis dispo » des jams ; elles n'entrent dans aucun filtre (Q71).
+
+**Invitation à compléter (ONB-12c3)** : sur une annonce, chaque critère
+« non précisé » (engagement, façon de travailler, formation ou répertoire
+du groupe géré) propose la page où le régler (`completeLinks`), avec
+`?annonce=<id>` ; la page affiche alors un lien de retour. Le paramètre
+n'accepte qu'un identifiant, jamais une adresse. Rien n'est bloqué, et
+aucun lien n'est proposé pour l'artiste représenté·e par un agent.
+
+**Niveaux de preuve (ONB-12c3)** : sur `/@handle`, un mot visible qualifie
+l'origine d'une information (`#lib/actors/proofLevels`) : **déclaré**
+(par la personne : instruments, métiers, travaux en écoute), **confirmé**
+(par une autre personne : collaborations, crédits, concerts, endossements),
+**vérifié** (par une preuve : sortie publiée vérifiée, organisation
+vérifiée). Une légende le définit ; ce n'est ni un score ni la confiance.
 
 La **complétude** d'un métier (`#lib/actors/completeness`, sur
 `/profil/metier/[slug]` et « Ma pratique ») liste ce qui manque pour être

@@ -40,7 +40,11 @@ import type { ApplicationStatusValue } from '#lib/opportunities/applications';
 import { OpportunityError, managesIssuer } from './service';
 import { checkedMessage, withdrawApplication } from './applications';
 import { gigSlotGaps } from '#lib/organizations/promoter';
-import { UNKNOWN_LABELS, normalizeQualification } from '#lib/opportunities/qualification';
+import {
+	UNKNOWN_LABELS,
+	completeLinks,
+	normalizeQualification
+} from '#lib/opportunities/qualification';
 import type { Prisma } from '@prisma/client';
 
 type Db = Prisma.TransactionClient | typeof prisma;
@@ -266,9 +270,11 @@ const conditionsOf = (o: GigRow) => ({
 /** Conditions non remplies et non précisées (ONB-13b), en mots. */
 export async function checkBand(o: GigRow, bandId: string, db: Db = prisma) {
 	const facts = await bandFacts(bandId, o.issuerActorId, db);
+	const unknownCriteria = unknownGigConditions(conditionsOf(o), facts);
 	return {
 		unmet: unmetGigConditions(conditionsOf(o), facts).map((u) => UNMET_GIG_LABELS[u]),
-		unknown: unknownGigConditions(conditionsOf(o), facts).map((u) => UNKNOWN_LABELS[u])
+		unknown: unknownCriteria.map((u) => UNKNOWN_LABELS[u]),
+		unknownCriteria
 	};
 }
 
@@ -291,7 +297,10 @@ export async function bandOptionsFor(personId: string, opportunityId: string) {
 	});
 	return Promise.all(
 		bands.map(async (b) => {
-			const [tier, { unmet, unknown }] = await Promise.all([bandTierOf(b.id), checkBand(o, b.id)]);
+			const [tier, { unmet, unknown, unknownCriteria }] = await Promise.all([
+				bandTierOf(b.id),
+				checkBand(o, b.id)
+			]);
 			const app = applications.find((a) => a.applicantActorId === b.id);
 			return {
 				handle: b.handle,
@@ -299,6 +308,8 @@ export async function bandOptionsFor(personId: string, opportunityId: string) {
 				tier: tier?.label ?? null,
 				unmet,
 				unknown,
+				// Je gère ce groupe : je peux compléter sa fiche (ONB-12c3).
+				complete: completeLinks(unknownCriteria, { opportunityId, bandHandle: b.handle }),
 				application: app
 					? {
 							id: app.id,

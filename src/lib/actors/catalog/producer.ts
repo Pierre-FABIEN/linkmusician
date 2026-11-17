@@ -1,6 +1,6 @@
 /** Producteur·rice (ONB-05) : offres, besoins et champs propres. */
 import { intent, opt, STUDIO_ENVIRONMENTS } from './helpers';
-import type { TrackCatalog } from './types';
+import { availabilityFields, type TrackCatalog } from './types';
 
 export const producerCatalog: TrackCatalog = {
 	offers: [
@@ -94,6 +94,7 @@ export const producerCatalog: TrackCatalog = {
 				opt('ES', 'Espagnol'),
 				opt('OTHER', 'Autre langue')
 			]
-		}
+		},
+		...availabilityFields()
 	]
 };

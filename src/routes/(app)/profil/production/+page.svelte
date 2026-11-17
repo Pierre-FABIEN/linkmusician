@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BackToAnnonce from '#lib/components/linkmusician/profile/BackToAnnonce.svelte';
 	import CraftVisibilityNote from '#lib/components/linkmusician/profile/CraftVisibilityNote.svelte';
 	// LINKMUSICIAN: « Mon profil de producteur·rice » (P4-04), voir +page.server.ts.
 	import TrackCompletenessCard from '#lib/components/linkmusician/profile/TrackCompletenessCard.svelte';
@@ -46,6 +47,7 @@
 		<div>
 			<a href="/profil" class="text-sm text-muted-foreground underline">← Mon profil</a>
 			<h1 class="lm-title mt-2">Mon profil de producteur·rice</h1>
+			<BackToAnnonce />
 			<p class="text-sm text-muted-foreground">
 				Ce que tu produis et comment tu travailles. Les artistes te trouvent dans la recherche dès
 				que tu as coché <a href="/profil/metier/producteur" class="underline">ce que tu proposes</a

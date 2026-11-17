@@ -1,4 +1,4 @@
-# Prompt de reprise — après ONB-12c2
+# Prompt de reprise — après ONB-12c3
 
 ```markdown
 Reprends LinkMusician dans le dossier de travail courant. Une session = un lot.
@@ -9,27 +9,30 @@ Ne modifie pas les issues GitHub sans instruction.
 
 État au 17/11/2026 :
 
-- DASH-07b (#37) commité localement (« (DASH-07b) ») ; ONB-12c2 (#26)
-  commité localement (« (ONB-12c2) »), sans push. Vérifier avec
-  git ls-remote ce que l'utilisateur a publié depuis.
-- ONB-12c2 : les cartes historiques « Ingé son », « Producteur·rice » et
-  « Organisateur·rice » de /@handle suivent les blocs D61, filtrées dans
-  getPublicProfile par #lib/actors/craftCardVisibility (anonyme, membre
-  inscrit, la personne). Tarifs en conditions : privés par défaut, y compris
-  ceux déjà saisis (Q70, défaut appliqué). Références, crédits confirmés et
-  rang restent publics. Découvrir tait les spécialités historiques d'un bloc
-  d'intentions privé. Note « Qui voit quoi » sur /profil/son, /production,
-  /organisateur. Postproduction : code du référentiel (spécialité et offre),
-  sans migration ni enum SoundSpecialty.
-- Résultats de recette : voir les fiches DASH-07b et ONB-12c du plan.
-  #26, #37, #30 et #50 restent ouverts.
+- Commits locaux sans push (vérifier avec git ls-remote ce qui est publié) :
+  « (DASH-07b) », « (ONB-12c2) », « (ONB-12c3) ».
+- ONB-12c2 : cartes historiques de /@handle sous les blocs D61
+  (#lib/actors/craftCardVisibility), tarifs privés par défaut (Q70),
+  postproduction sans migration.
+- ONB-12c3 : disponibilités (availability_start, availability_rhythm) dans
+  le catalogue des métiers hors musicien·ne, `stage: 'profile'` : ni
+  demandées, ni acceptées, ni effacées par l'inscription (fieldsAt). Sur une
+  annonce, critère « non précisé » → lien vers la page qui le règle
+  (completeLinks) avec ?annonce=<id> et lien de retour (BackToAnnonce,
+  identifiant seulement). « Déclaré / Confirmé / Vérifié » sur /@handle
+  (#lib/actors/proofLevels). Q71 ouverte. Aucune migration.
+- Résultats de recette : fiches DASH-07b et ONB-12c du plan. #26 reste
+  ouvert (invitation dans la recherche, expériences) ; #37, #30, #50 aussi.
 
-Lot suivant : ONB-12c3 (#26) — disponibilités, invitation à compléter un
-champ au moment où il sert (candidature, annonce, sans bloquer), distinction
-déclaré / confirmé / vérifié. Lis la fiche ONB-12c dans
-docs/plan/fin-du-projet.md et la conception 06 §1.3. Portfolio, matériel,
-logiciels et tarifs existent déjà : ne pas les dupliquer. Une disponibilité
-est une donnée personnelle : export et anonymisation RGPD.
+Lot suivant : ONB-14 (#28) — inscription, E2E transverse. Lis sa fiche
+dans docs/plan/fin-du-projet.md (« Reste » : label, éditeur·rice,
+communication ; booker programmateur contre booker d'artistes ;
+organisateur·rice jam contre festival ; mutation refusée sur le métier
+d'un autre compte et sur un métier non choisi ; codes d'un autre métier
+refusés côté serveur ; 390 px ; non-régression assistant D47 et mineur·es).
+Ajoute aussi un cas : les champs `stage: 'profile'` absents de
+/demarrer/metier/[slug]. Lot de tests : ne corrige le code que pour un
+défaut trouvé, consigné dans la fiche.
 
 Restent aussi ONB-14 (#28, recette multirôle), la recette transverse #50 et
 les extensions de #36 (membre avec accord, prestataire externe, autres étapes,

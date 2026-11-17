@@ -189,6 +189,28 @@ encadré en haut de chaque fiche rappelle qui voit quoi, avec un lien pour
 le changer. Tes travaux en écoute et tes crédits confirmés restent visibles
 de tous.
 
+Sur la page de ton métier (hors musicien·ne), tu peux aussi dire **quand
+tu es disponible** : dès maintenant, sous quelques semaines ou dans
+plusieurs mois, et plutôt en semaine, en soirée ou le week-end. C’est
+facultatif, rangé dans **Précisions**, et ce n’est pas demandé pendant
+l’inscription. Pense à le mettre à jour quand ton agenda change. Ce n’est
+ni **Ouvert·e aux sollicitations** (veux-tu être contacté·e) ni le **Je
+suis dispo** des jams (un créneau de quelques heures).
+
+### Déclaré, confirmé, vérifié {#niveaux-de-preuve}
+
+Sur un profil, chaque information porte un mot qui dit d’où elle vient :
+
+- **Déclaré** : indiqué par la personne, sans contrôle (instruments et
+  niveau, métiers, travaux en écoute) ;
+- **Confirmé** : confirmé par une autre personne (collaboration, concert,
+  crédit sur un morceau, endossement) ;
+- **Vérifié** : contrôlé par une preuve (sortie publiée vérifiée,
+  organisation vérifiée).
+
+Ce n’est pas une note : cela t’aide à savoir quoi demander avant de
+travailler ensemble.
+
 ### Si tu es ingé son {#inge-son}
 
 Ouvre **Mon profil › Mon profil d’ingé son** :

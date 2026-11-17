@@ -201,7 +201,7 @@ Reste à faire, dans l'ordre :
   `20261112170320_visibilite_par_metier` appliquée (`public`, `e2e`),
   intégration et E2E (`profil-metiers.spec.ts` et specs voisines) au vert.
 
-#### ONB-12c — Profil : informations avancées par métier (découpé : 12c1 ✅, 12c2 ✅, 12c3)
+#### ONB-12c — Profil : informations avancées par métier (découpé : 12c1 ✅, 12c2 ✅, 12c3 ✅)
 
 - **ONB-12c1 — Formation et répertoire du groupe ✅** (17/11/2026, D64) :
   table additive `band_profiles` (`formation`, `repertoire`, valeurs
@@ -228,10 +228,27 @@ Reste à faire, dans l'ordre :
   `producteur` (tarifs masqués puis ouverts, 390 px, clavier, axe),
   `inge-son`, `organisateur`, `profil-metiers`, `recherche`,
   `onboarding-metiers` ✓.
-- **ONB-12c3** : le reste de la fiche ci-dessous (disponibilités,
-  invitations contextuelles à compléter, déclaré / confirmé / vérifié).
-  Portfolio (références), matériel, logiciels et tarifs existent déjà sur
-  les fiches historiques : ne pas les dupliquer.
+- **ONB-12c3 — Disponibilités, invitations, niveaux de preuve ✅**
+  (17/11/2026, Q71, local) : champs `availability_start` et
+  `availability_rhythm` dans le catalogue de chaque métier hors
+  musicien·ne, sans migration (`person_track_attributes`, export et
+  anonymisation existants). Nouvelle propriété `stage: 'profile'` : champ
+  de la page du métier seulement, ni demandé, ni accepté, ni effacé par
+  l'écran de l'inscription (`fieldsAt`, `trackFieldOps`). Sur une annonce,
+  chaque critère « non précisé » propose la page qui le règle
+  (`completeLinks` : engagement, façon de travailler, fiche du groupe géré),
+  avec `?annonce=<id>` et un lien de retour (`BackToAnnonce`), identifiant
+  seulement. Candidature jamais bloquée. Sur `/@handle`, « Déclaré »,
+  « Confirmé », « Vérifié » (`#lib/actors/proofLevels`) et leur légende.
+  Recette : `check` 0 erreur ; unitaires ✓ (stage, disponibilités, liens,
+  retour forgé) ; intégration specializations, opportunités, actors 48 ✓ ;
+  E2E `profil-avance` (390 px, clavier, axe, retour forgé) et 20 specs
+  voisines ✓ (`onboarding-metiers`, `profil-metiers`, `inge-son`,
+  `producteur`, `organisateur`, `annonces-qualifiees`, `annonces-metier`,
+  `candidatures`, `candidature-deleguee`, `collaborations-morceau`,
+  `profil*`, `organisation-organisateurs`).
+  Restent hors lot pour #26 : invitation contextuelle dans la recherche,
+  « expériences » et « compétences avancées » au-delà des catalogues.
 
 - **Ticket** #26. Dépend d'ONB-12b.
 - **À faire** : portfolio et médias, matériel, logiciels, références,

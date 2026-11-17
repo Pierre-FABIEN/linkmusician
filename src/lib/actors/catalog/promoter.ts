@@ -4,7 +4,7 @@
  * l'annonce) ; publier une jam reste soumis à D5 et D51, jamais déduit d'ici.
  */
 import { intent, opt } from './helpers';
-import { territoryField, type TrackCatalog } from './types';
+import { territoryField, type TrackCatalog, availabilityFields } from './types';
 
 export const promoterCatalog: TrackCatalog = {
 	offers: [
@@ -112,6 +112,7 @@ export const promoterCatalog: TrackCatalog = {
 				opt('EXPENSES', 'Défraiement'),
 				opt('DOOR', 'Recette ou chapeau')
 			]
-		}
+		},
+		...availabilityFields()
 	]
 };

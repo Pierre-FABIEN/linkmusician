@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ProofBadge from '#lib/components/linkmusician/profile/ProofBadge.svelte';
 	// LINKMUSICIAN: carte « Organisateur·rice » du profil public (P5-05a). La
 	// fiche est déclarative ; le rang vient des événements tenus et confirmés
 	// par les groupes (P5-06), jamais de l'XP.
@@ -103,7 +104,9 @@
 						</li>
 					{/each}
 				</ul>
-				<p class="text-xs text-muted-foreground">Ajoutés par la personne, non vérifiés.</p>
+				<p class="text-xs text-muted-foreground">
+					<ProofBadge level="DECLARED" /> Ajoutés par la personne, non vérifiés.
+				</p>
 			</div>
 		{/if}
 	</Card.Content>

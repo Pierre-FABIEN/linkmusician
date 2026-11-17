@@ -10,7 +10,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { TRACKS, type TrackKindValue } from '#lib/actors/tracks';
 import { TRACK_ROLES, minSpecializations, trackOfSlug } from '#lib/actors/roles';
 import { CODES_MESSAGES, INTENTS, selectableSpecializations } from '#lib/actors/specializations';
-import { trackFields } from '#lib/actors/trackFields';
+import { fieldsAt, trackFields, type FieldStage } from '#lib/actors/trackFields';
 import { TRACK_STEP_MESSAGES } from '#lib/onboarding/steps';
 import { trackDetailsSchema } from '#lib/schema/actors/trackDetailsSchema';
 import {
@@ -29,7 +29,11 @@ export function stepTrackOf(slug: string): TrackKindValue | null {
 	return track && TRACK_ROLES[track].onboarding.ownStep ? track : null;
 }
 
-export async function trackStepData(personId: string, track: TrackKindValue) {
+export async function trackStepData(
+	personId: string,
+	track: TrackKindValue,
+	stage: FieldStage = 'profile'
+) {
 	const [all, details] = await Promise.all([
 		getTrackDetails(personId),
 		getTrackAnswers(personId, track)
@@ -57,7 +61,8 @@ export async function trackStepData(personId: string, track: TrackKindValue) {
 		})),
 		offers: INTENTS[track].OFFER,
 		needs: INTENTS[track].NEED,
-		fields: trackFields(track),
+		fields: fieldsAt(track, stage),
+		stage,
 		form
 	};
 }
@@ -71,7 +76,7 @@ export async function submitTrackStep(
 	request: Request,
 	personId: string,
 	track: TrackKindValue,
-	options: { confirm?: boolean } = {}
+	options: { confirm?: boolean; stage?: FieldStage } = {}
 ) {
 	const form = await superValidate(request, zod(trackDetailsSchema));
 	form.data.track = track;

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ProofBadge from '#lib/components/linkmusician/profile/ProofBadge.svelte';
+	import ProofLegend from '#lib/components/linkmusician/profile/ProofLegend.svelte';
 	// LINKMUSICIAN: profil public `/@handle` (P1-11), d'après la maquette validée
 	// `/_lab/profil`. Voir +page.server.ts.
 	import Suggestions from '#lib/components/linkmusician/Suggestions.svelte';
@@ -82,7 +84,8 @@
 			},
 			p.confirmed.verifiedReleases > 0 && {
 				icon: Disc3,
-				text: plural(p.confirmed.verifiedReleases, 'sortie vérifiée', 'sorties vérifiées')
+				text: plural(p.confirmed.verifiedReleases, 'sortie vérifiée', 'sorties vérifiées'),
+				verified: true
 			},
 			p.confirmed.distinctEndorsers > 0 && {
 				icon: ThumbsUp,
@@ -256,7 +259,13 @@
 
 					{#if p.instruments.length > 0}
 						<Card.Root>
-							<Card.Header><Card.Title><h2>Instruments</h2></Card.Title></Card.Header>
+							<Card.Header
+								><Card.Title
+									><h2 class="flex items-center gap-2">
+										Instruments <ProofBadge level="DECLARED" />
+									</h2></Card.Title
+								></Card.Header
+							>
 							<Card.Content class="space-y-3">
 								{#each p.instruments as i (i.name)}<InstrumentSkill {...i} />{/each}
 							</Card.Content>
@@ -318,7 +327,11 @@
 
 					<Card.Root>
 						<Card.Header>
-							<Card.Title><h2>Ce que d'autres confirment</h2></Card.Title>
+							<Card.Title
+								><h2 class="flex items-center gap-2">
+									Ce que d'autres confirment <ProofBadge level="CONFIRMED" />
+								</h2></Card.Title
+							>
 							<Card.Description>La réputation : des faits, pas un score.</Card.Description>
 						</Card.Header>
 						<Card.Content class="space-y-3 text-sm">
@@ -342,6 +355,7 @@
 										aria-hidden="true"
 									/>
 									{s.text}
+									{#if 'verified' in s && s.verified}<ProofBadge level="VERIFIED" />{/if}
 								</p>
 							{:else}
 								{#if p.confirmed.appreciations.length === 0}
@@ -351,6 +365,7 @@
 									</p>
 								{/if}
 							{/each}
+							<ProofLegend />
 						</Card.Content>
 					</Card.Root>
 
@@ -400,7 +415,13 @@
 					<!-- LINKMUSICIAN: fiches des métiers (ONB-12b, D61), blocs filtrés par le serveur. -->
 					{#if visibleSheets.length > 0}
 						<Card.Root>
-							<Card.Header><Card.Title><h2>Métiers</h2></Card.Title></Card.Header>
+							<Card.Header
+								><Card.Title
+									><h2 class="flex items-center gap-2">
+										Métiers <ProofBadge level="DECLARED" />
+									</h2></Card.Title
+								></Card.Header
+							>
 							<Card.Content class="space-y-5">
 								{#each visibleSheets as sheet (sheet.track)}
 									<section class="space-y-2" data-testid="fiche-metier">

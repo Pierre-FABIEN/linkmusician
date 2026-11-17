@@ -229,6 +229,43 @@ describe.skipIf(!enabled)('spécialités par métier (schéma e2e)', { timeout: 
 		});
 	});
 
+	it('disponibilités (ONB-12c3) : page du métier seulement, gardées par l’inscription', async () => {
+		const sound = {
+			track: 'SOUND_ENGINEER' as const,
+			specializations: ['MIXING', 'LIVE_FOH'],
+			offers: ['MIXING_SERVICE'],
+			needs: ['FIND_LIVE_DATES']
+		};
+		const base = { environment: ['LIVE'], live_capacity: ['UP_TO_500'] };
+		await setTrackDetails(personId, sound, {
+			answers: { ...base, availability_start: ['WEEKS'], availability_rhythm: ['WEEKENDS'] }
+		});
+		// L'écran de l'inscription ne les connaît pas : il les refuse…
+		await expect(
+			setTrackDetails(personId, sound, {
+				answers: { ...base, availability_start: ['NOW'] },
+				stage: 'onboarding'
+			})
+		).rejects.toBeInstanceOf(InvalidFieldError);
+		// … et, en les ignorant, ne les efface pas.
+		await setTrackDetails(personId, sound, {
+			answers: { environment: ['HOME_STUDIO'], live_capacity: ['UP_TO_500'] },
+			stage: 'onboarding'
+		});
+		expect(await getTrackAnswers(personId, 'SOUND_ENGINEER')).toEqual({
+			environment: ['HOME_STUDIO'],
+			live_capacity: ['UP_TO_500'],
+			availability_start: ['WEEKS'],
+			availability_rhythm: ['WEEKENDS']
+		});
+		const exported = await exportPersonData(userId);
+		expect(exported?.precisions_par_metier).toContainEqual({
+			metier: 'SOUND_ENGINEER',
+			champ: 'availability_start',
+			valeur: 'WEEKS'
+		});
+	});
+
 	it('RGPD : exporté, puis plus rien après l’anonymisation', async () => {
 		const exported = await exportPersonData(userId);
 		expect(exported?.specialites_et_intentions_par_metier).toContainEqual({

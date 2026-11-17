@@ -27,6 +27,7 @@ import {
 	delegatedApplicationsFor
 } from '#lib/server/opportunities/delegated';
 import { demarcheNudge } from '#lib/server/demarches/service';
+import { completeLinks, type CompleteLink } from '#lib/opportunities/qualification';
 import { isAdult } from '#lib/server/jam/publicJams';
 import {
 	applyAsBand,
@@ -59,6 +60,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			mine: null,
 			unmet: [],
 			unknown: [],
+			complete: [],
 			gig: null
 		};
 	}
@@ -75,6 +77,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			mine: null,
 			unmet: [],
 			unknown: [],
+			complete: [],
 			demarche,
 			gig: { bands, adult }
 		};
@@ -82,6 +85,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const mine = await myApplication(actorId, params.id);
 	let unmet: string[] = [];
 	let unknown: string[] = [];
+	let complete: CompleteLink[] = [];
 	if (!mine && opportunity.active) {
 		const raw = await prisma.opportunity.findUniqueOrThrow({
 			where: { id: params.id },
@@ -96,7 +100,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 				presence: true
 			}
 		});
-		({ unmet, unknown } = await eligibilityFor(actorId, raw));
+		const eligibility = await eligibilityFor(actorId, raw);
+		({ unmet, unknown } = eligibility);
+		// Invitation à compléter, sans bloquer (ONB-12c3).
+		complete = completeLinks(eligibility.unknownCriteria, {
+			opportunityId: params.id,
+			targetTrack: raw.targetTrack
+		});
 	}
 	return {
 		opportunity,
@@ -105,6 +115,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		mine,
 		unmet,
 		unknown,
+		complete,
 		demarche,
 		gig: null
 	};

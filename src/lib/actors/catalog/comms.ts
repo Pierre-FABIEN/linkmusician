@@ -4,7 +4,7 @@
  * audience ni aucun crédit ne se déclare ici.
  */
 import { intent, opt } from './helpers';
-import { territoryField, type TrackCatalog } from './types';
+import { territoryField, type TrackCatalog, availabilityFields } from './types';
 
 export const commsCatalog: TrackCatalog = {
 	offers: [
@@ -130,6 +130,7 @@ export const commsCatalog: TrackCatalog = {
 			kind: 'single',
 			when: { specializations: ['PHOTO', 'VIDEO'] },
 			options: [opt('LOCAL', 'Local'), opt('REGIONAL', 'Régional'), opt('NATIONAL', 'National')]
-		}
+		},
+		...availabilityFields()
 	]
 };

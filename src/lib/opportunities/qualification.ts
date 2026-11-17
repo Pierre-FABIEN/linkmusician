@@ -229,3 +229,49 @@ export const UNKNOWN_LABELS = {
 	repertoire: 'le répertoire du groupe n’est pas précisé'
 } as const;
 export type QualificationCriterion = keyof typeof UNKNOWN_LABELS;
+
+/**
+ * Invitation à compléter (ONB-12c3) : pour chaque critère « non précisé »,
+ * la page où le préciser, avec le retour vers l'annonce. Jamais bloquant :
+ * la candidature reste possible. Rien quand aucune page ne le règle (métier
+ * sans fiche de mobilité, artiste représenté·e par un agent).
+ */
+export type CompleteLink = { label: string; href: string };
+
+const PRESENCE_PAGES: Readonly<Record<string, string>> = {
+	SOUND_ENGINEER: '/profil/son',
+	PRODUCER: '/profil/production'
+};
+
+/** Identifiant d'annonce accepté pour le retour : jamais une adresse libre. */
+const OPPORTUNITY_ID = /^[a-z0-9]{1,40}$/i;
+
+export function completeLinks(
+	criteria: readonly QualificationCriterion[],
+	ctx: { opportunityId: string; targetTrack?: string | null; bandHandle?: string }
+): CompleteLink[] {
+	const back = OPPORTUNITY_ID.test(ctx.opportunityId)
+		? `?annonce=${encodeURIComponent(ctx.opportunityId)}`
+		: '';
+	const links: CompleteLink[] = [];
+	const add = (label: string, path: string | undefined) => {
+		if (path && !links.some((l) => l.href === path + back))
+			links.push({ label, href: path + back });
+	};
+	for (const c of criteria) {
+		if (c === 'commitment') add('Préciser ton engagement', '/profil/pratique');
+		if (c === 'presence')
+			add('Préciser où tu travailles', PRESENCE_PAGES[ctx.targetTrack ?? ''] ?? undefined);
+		if ((c === 'formation' || c === 'repertoire') && ctx.bandHandle)
+			add(
+				'Compléter la fiche du groupe',
+				`/groupes/${encodeURIComponent(ctx.bandHandle)}/modifier`
+			);
+	}
+	return links;
+}
+
+/** Lien de retour vers l'annonce d'où l'on vient, ou `null` (paramètre absent ou suspect). */
+export function annonceReturnHref(param: string | null): string | null {
+	return param && OPPORTUNITY_ID.test(param) ? `/annonces/${param}` : null;
+}

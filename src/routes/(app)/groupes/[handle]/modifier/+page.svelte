@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BackToAnnonce from '#lib/components/linkmusician/profile/BackToAnnonce.svelte';
 	// LINKMUSICIAN: fiche du groupe (P3-02), voir +page.server.ts.
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
@@ -57,6 +58,7 @@
 				>← {data.band.name}</a
 			>
 			<h1 class="lm-title">Fiche du groupe</h1>
+			<BackToAnnonce />
 			<p class="text-sm text-muted-foreground">
 				Ce que tout le monde voit sur
 				<a href="/@{data.band.handle}" class="underline">la page publique du groupe</a>. On

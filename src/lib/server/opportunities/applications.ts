@@ -119,9 +119,12 @@ export async function eligibilityFor(actorId: string, o: OpportunityConditions, 
 		presence: o.presence ?? null
 	};
 	const facts = await candidateFacts(actorId, db);
+	const unknownCriteria = unknownConditions(condition, facts);
 	return {
 		unmet: unmetConditions(condition, facts).map((u) => UNMET_LABELS[u]),
-		unknown: unknownConditions(condition, facts).map((u) => UNKNOWN_LABELS[u])
+		unknown: unknownCriteria.map((u) => UNKNOWN_LABELS[u]),
+		/** Codes des critères non précisés, pour l'invitation à compléter (ONB-12c3). */
+		unknownCriteria
 	};
 }
 

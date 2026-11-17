@@ -1,6 +1,6 @@
 /** Ingé son (ONB-04) : prestations, besoins et champs propres. */
 import { intent, opt, STUDIO_ENVIRONMENTS } from './helpers';
-import type { TrackCatalog } from './types';
+import { availabilityFields, type TrackCatalog } from './types';
 
 const LIVE = ['LIVE_FOH', 'LIVE_MONITORS'];
 const STUDIO_WORK = [
@@ -187,6 +187,7 @@ export const soundCatalog: TrackCatalog = {
 				opt('LIVE_STREAM', 'Diffusion en direct'),
 				opt('EVENTS', 'Événements')
 			]
-		}
+		},
+		...availabilityFields()
 	]
 };

@@ -124,7 +124,9 @@ describe('producteur·rice (ONB-05)', () => {
 		expect(ids('PRODUCER', choices({ specializations: ['BEATMAKING'] }))).toEqual([
 			'environment',
 			'beat_formats',
-			'beat_terms'
+			'beat_terms',
+			'availability_start',
+			'availability_rhythm'
 		]);
 	});
 });
@@ -175,7 +177,11 @@ describe('organisateur·rice (ONB-08)', () => {
 describe('label (ONB-09)', () => {
 	it('l’A&R donne sa politique de démos ; le catalogue n’est pas forcé de chercher', () => {
 		expect(ids('LABEL_PRO', choices({ specializations: ['A_AND_R'] }))).toContain('demo_policy');
-		expect(ids('LABEL_PRO', choices({ specializations: ['CATALOG'] }))).toEqual(['territory']);
+		expect(ids('LABEL_PRO', choices({ specializations: ['CATALOG'] }))).toEqual([
+			'territory',
+			'availability_start',
+			'availability_rhythm'
+		]);
 	});
 });
 
@@ -203,5 +209,42 @@ describe('communication (ONB-11)', () => {
 		expect(ids('MUSIC_COMMS', choices({ specializations: ['PHOTO'] }))).not.toContain(
 			'graphic_media'
 		);
+	});
+});
+
+describe('disponibilités (ONB-12c3)', () => {
+	it('facultatives, en précisions, pour chaque métier sauf musicien·ne', () => {
+		for (const track of TRACK_KINDS) {
+			const found = trackFields(track).filter((f) => f.id.startsWith('availability_'));
+			if (track === 'MUSICIAN') {
+				expect(found).toEqual([]);
+				continue;
+			}
+			expect(found.map((f) => f.id)).toEqual(['availability_start', 'availability_rhythm']);
+			for (const f of found) {
+				expect(f.required).toBeFalsy();
+				expect(f.block).toBeUndefined();
+				expect(f.when).toBeUndefined();
+			}
+		}
+	});
+});
+
+describe('étape des champs (ONB-12c3)', () => {
+	it('l’inscription ne demande ni n’accepte les champs du profil avancé', async () => {
+		const { fieldsAt, checkFields } = await import('./trackFields');
+		const onboarding = fieldsAt('SOUND_ENGINEER', 'onboarding').map((f) => f.id);
+		expect(onboarding).not.toContain('availability_start');
+		expect(fieldsAt('SOUND_ENGINEER').map((f) => f.id)).toContain('availability_start');
+		const none = { specializations: [], offers: [], needs: [] };
+		expect(
+			checkFields('LABEL_PRO', none, { availability_start: ['NOW'] }, 'onboarding')
+		).toMatchObject({ ok: false, field: 'availability_start' });
+		expect(
+			checkFields('LABEL_PRO', none, { availability_start: ['NOW'], territory: ['LOCAL'] })
+		).toMatchObject({
+			ok: true,
+			answers: { territory: ['LOCAL'], availability_start: ['NOW'] }
+		});
 	});
 });

@@ -4,7 +4,7 @@
  * qu'aux A&R. Le label lui-même est une organisation vérifiée à part.
  */
 import { intent, opt } from './helpers';
-import { territoryField, type TrackCatalog } from './types';
+import { territoryField, type TrackCatalog, availabilityFields } from './types';
 
 export const labelCatalog: TrackCatalog = {
 	offers: [
@@ -54,6 +54,7 @@ export const labelCatalog: TrackCatalog = {
 				opt('CLOSED', 'Fermée'),
 				opt('INVITATION', 'Sur invitation')
 			]
-		}
+		},
+		...availabilityFields()
 	]
 };

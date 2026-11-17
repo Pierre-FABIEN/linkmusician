@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BackToAnnonce from '#lib/components/linkmusician/profile/BackToAnnonce.svelte';
 	import CraftVisibilityNote from '#lib/components/linkmusician/profile/CraftVisibilityNote.svelte';
 	// LINKMUSICIAN: « Mon profil d'ingé son » (P4-02), voir +page.server.ts.
 	import TrackCompletenessCard from '#lib/components/linkmusician/profile/TrackCompletenessCard.svelte';
@@ -44,6 +45,7 @@
 		<div>
 			<a href="/profil" class="text-sm text-muted-foreground underline">← Mon profil</a>
 			<h1 class="lm-title mt-2">Mon profil d'ingé son</h1>
+			<BackToAnnonce />
 			<p class="text-sm text-muted-foreground">
 				Ce que tu fais et comment tu travailles. Les artistes te trouvent dans la recherche dès que
 				tu as coché <a href="/profil/metier/inge-son" class="underline">ce que tu proposes</a>.

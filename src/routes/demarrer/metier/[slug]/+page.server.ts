@@ -18,7 +18,10 @@ export const load: PageServerLoad = async ({ parent, params }) => {
 	const track = stepTrackOf(params.slug);
 	if (!track) redirect(302, data.step ? stepPath(data.step) : '/jouer');
 	guardStep(trackStepId(track), data);
-	return { stepId: trackStepId(track), ...(await trackStepData(data.actorId, track)) };
+	return {
+		stepId: trackStepId(track),
+		...(await trackStepData(data.actorId, track, 'onboarding'))
+	};
 };
 
 export const actions: Actions = {
@@ -30,7 +33,10 @@ export const actions: Actions = {
 		guardStep(trackStepId(track), onboarding);
 
 		const actorId = onboarding.person.actorId;
-		const result = await submitTrackStep(request, actorId, track, { confirm: true });
+		const result = await submitTrackStep(request, actorId, track, {
+			confirm: true,
+			stage: 'onboarding'
+		});
 		if ('failure' in result && result.failure) {
 			if (result.failure.status === 403) redirect(303, '/qui-es-tu');
 			return result.failure;

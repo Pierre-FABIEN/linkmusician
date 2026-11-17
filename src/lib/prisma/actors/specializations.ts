@@ -35,7 +35,13 @@ import type { SoundSpecialtyValue } from '#lib/crafts/sound';
 import type { ProducerSpecialtyValue } from '#lib/crafts/producer';
 import type { PromoterEventKindValue } from '#lib/crafts/promoter';
 import { intentsOfLookingFor } from '#lib/musician/profile';
-import { checkFields, trackFields, type FieldAnswers } from '#lib/actors/trackFields';
+import {
+	checkFields,
+	fieldsAt,
+	trackFields,
+	type FieldAnswers,
+	type FieldStage
+} from '#lib/actors/trackFields';
 
 type Equals<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 /** Échouent à la compilation si un référentiel pur et son enum Prisma divergent. */
@@ -225,12 +231,12 @@ export function confirmTrackOp(personId: string, track: TrackKindValue) {
 export async function setTrackDetails(
 	personId: string,
 	details: TrackDetails,
-	options: { confirm?: boolean; answers?: FieldAnswers } = {}
+	options: { confirm?: boolean; answers?: FieldAnswers; stage?: FieldStage } = {}
 ) {
 	const { saved, ops } = await trackDetailsOps(personId, details);
 	let answers: FieldAnswers | undefined;
 	if (options.answers) {
-		const fields = trackFieldOps(personId, saved, options.answers);
+		const fields = trackFieldOps(personId, saved, options.answers, options.stage);
 		answers = fields.answers;
 		ops.push(...fields.ops);
 	}
@@ -254,11 +260,17 @@ export class InvalidFieldError extends Error {
  * seulement : les précisions du musicien·ne (selon l'instrument) ont leur
  * propre écriture (`saveMusicianStep`).
  */
-export function trackFieldOps(personId: string, choices: TrackDetails, input: FieldAnswers) {
+export function trackFieldOps(
+	personId: string,
+	choices: TrackDetails,
+	input: FieldAnswers,
+	stage: FieldStage = 'profile'
+) {
 	const { track } = choices;
-	const checked = checkFields(track, choices, input);
+	const checked = checkFields(track, choices, input, stage);
 	if (!checked.ok) throw new InvalidFieldError(checked.field, checked.message);
-	const scope = trackFields(track).map((f) => f.id);
+	// ONB-12c3 : l'inscription ne touche pas aux champs du profil avancé.
+	const scope = fieldsAt(track, stage).map((f) => f.id);
 	const ops: PrismaPromise<unknown>[] = [
 		prisma.personTrackAttribute.deleteMany({ where: { personId, track, field: { in: scope } } }),
 		prisma.personTrackAttribute.createMany({

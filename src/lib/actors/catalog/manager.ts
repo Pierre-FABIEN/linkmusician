@@ -4,7 +4,7 @@
  * une agence se lie à une organisation dans un parcours séparé.
  */
 import { intent, opt } from './helpers';
-import { territoryField, type TrackCatalog } from './types';
+import { territoryField, type TrackCatalog, availabilityFields } from './types';
 
 const ARTIST_NEEDS = ['FIND_EMERGING_ARTISTS', 'FIND_ESTABLISHED_ARTISTS', 'FIND_BANDS'];
 
@@ -107,6 +107,7 @@ export const managerCatalog: TrackCatalog = {
 				opt('PR', 'Relations presse'),
 				opt('DEVELOPMENT', 'Développement')
 			]
-		}
+		},
+		...availabilityFields()
 	]
 };

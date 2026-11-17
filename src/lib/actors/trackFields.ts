@@ -34,6 +34,18 @@ export function trackFields(track: TrackKindValue): readonly TrackField[] {
 	return TRACK_CATALOGS[track].fields;
 }
 
+/** Écran qui montre les champs : l'inscription, ou la page du métier (tous). */
+export type FieldStage = 'onboarding' | 'profile';
+
+/** Champs qu'un écran demande et enregistre (ONB-12c3) : sans `stage: 'profile'` à l'inscription. */
+export function fieldsAt(
+	track: TrackKindValue,
+	stage: FieldStage = 'profile'
+): readonly TrackField[] {
+	const all = trackFields(track);
+	return stage === 'profile' ? all : all.filter((f) => f.stage !== 'profile');
+}
+
 function matches(when: FieldCondition | undefined, choices: TrackChoices): boolean {
 	if (!when) return true;
 	const any = (codes: readonly string[] | undefined, chosen: readonly string[]) =>
@@ -46,8 +58,12 @@ function matches(when: FieldCondition | undefined, choices: TrackChoices): boole
 }
 
 /** Champs à montrer pour ces choix, dans l'ordre du catalogue. */
-export function visibleFields(track: TrackKindValue, choices: TrackChoices): TrackField[] {
-	return trackFields(track).filter((f) => matches(f.when, choices));
+export function visibleFields(
+	track: TrackKindValue,
+	choices: TrackChoices,
+	stage: FieldStage = 'profile'
+): TrackField[] {
+	return fieldsAt(track, stage).filter((f) => matches(f.when, choices));
 }
 
 /** Un champ est-il exigé ? Seulement s'il s'affiche, pour un métier ouvert. */
@@ -73,15 +89,16 @@ export type FieldsCheck =
 export function checkFields(
 	track: TrackKindValue,
 	choices: TrackChoices,
-	input: FieldAnswers
+	input: FieldAnswers,
+	stage: FieldStage = 'profile'
 ): FieldsCheck {
-	const all = trackFields(track);
+	const all = fieldsAt(track, stage);
 	for (const id of Object.keys(input))
 		if (!all.some((f) => f.id === id))
 			return { ok: false, field: id, message: FIELD_MESSAGES.unknownField };
 
 	const answers: FieldAnswers = {};
-	for (const field of visibleFields(track, choices)) {
+	for (const field of visibleFields(track, choices, stage)) {
 		const codes = input[field.id] ?? [];
 		const known = field.options.map((o) => o.code);
 		if (codes.some((c) => !known.includes(c)))

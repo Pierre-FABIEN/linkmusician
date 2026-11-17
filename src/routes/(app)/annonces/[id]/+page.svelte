@@ -300,6 +300,11 @@
 							>{b.name} : non précisé ({b.unknown.join(', ')}). Le groupe peut candidater ; préciser
 							sa fiche aide l’organisation à choisir.</span
 						>
+						{#each b.complete as link (link.href)}
+							<a href={link.href} class="inline-block font-semibold underline"
+								>{link.label} {b.name}</a
+							>
+						{/each}
 					{/each}
 				</p>
 			{/if}
@@ -384,6 +389,14 @@
 						Non précisé : {data.unknown.join(', ')}. Tu peux postuler ; préciser ton profil aide
 						{o.issuer.displayName} à te répondre.
 					</p>
+					{#if data.complete.length > 0}
+						<!-- ONB-12c3 : compléter là où le champ se règle, puis revenir ici. -->
+						<ul class="flex flex-wrap gap-2" aria-label="Compléter mon profil">
+							{#each data.complete as link (link.href)}
+								<li><a href={link.href} class="lm-btn" data-variant="ghost">{link.label}</a></li>
+							{/each}
+						</ul>
+					{/if}
 				{/if}
 				<form
 					method="POST"
