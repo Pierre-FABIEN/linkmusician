@@ -39,6 +39,8 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 					formedAt: true,
 					verifiedAt: true,
 					dissolvedAt: true,
+					// D64 : formation et répertoire déclarés, publics comme la fiche.
+					bandProfile: { select: { formation: true, repertoire: true } },
 					memberships: {
 						where: { status: { in: [...OPEN_STATUSES, 'LEFT', 'REMOVED'] } },
 						select: {
@@ -157,6 +159,9 @@ export async function getPublicBand(handle: string, now = new Date(), viewerId?:
 		indexable: org.formedAt !== null && org.dissolvedAt === null,
 		genres: genres.map((g) => g.genre.name),
 		commune: location?.communeName ?? null,
+		/** Formation et répertoire déclarés (ONB-12c1, D64) ; `null` : non précisé. */
+		formation: org.bandProfile?.formation ?? null,
+		repertoire: org.bandProfile?.repertoire ?? null,
 		members: active.map(card),
 		past: past.map(card),
 		media,

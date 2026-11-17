@@ -496,3 +496,19 @@ restant pour Inès, sans titre ni lien dans le journal. `clara-guitare` voit
 ses deux attributions pour autrui, pas les décisions d'Inès. Scénario idempotent
 `demo-manual-credit-history`, inséré aussi quand les scénarios existaient déjà ;
 aucune ancienne ligne convertie et aucun événement de progression ajouté.
+
+### Formation et répertoire des groupes (ONB-12c1)
+
+Après `npm run seed:demo`, la page publique de trois groupes affiche **Sur
+scène**, avec la mention « Déclaré par le groupe » :
+
+| Groupe            | Formation | Répertoire               | Où                    |
+| ----------------- | --------- | ------------------------ | --------------------- |
+| Les Lucioles      | Duo       | Reprises                 | `/@les-lucioles`      |
+| Fanfare Pirate    | Groupe    | Reprises et compositions | `/@fanfare-pirate`    |
+| Les Rats du Mardi | Groupe    | Compositions             | `/@les-rats-du-mardi` |
+
+Orbital et Néon Lagune restent « non précisé » : rien ne s'affiche, et rien ne
+les exclura d'un rapprochement (ONB-13b). Pour modifier : `zoe-violon`, puis
+`/groupes/les-lucioles/modifier`. Le seed (`prisma/seed-band-lineups.ts`) ne
+réécrit jamais une fiche déjà présente ; rejoué, il ne fait rien.

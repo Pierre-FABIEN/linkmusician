@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lineupSummary } from '#lib/bands/lineup';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
 	// LINKMUSICIAN: un groupe (P3-01), voir +page.server.ts.
 	import { enhance } from '$app/forms';
@@ -92,6 +93,8 @@
 	let confirmLeave = $state(false);
 	/** Membre dont le menu de gestion est ouvert. */
 	let managing = $state<string | null>(null);
+	// ONB-12c1 (D64) : formation et répertoire déclarés, sur la page du groupe.
+	const lineup = $derived(lineupSummary(band));
 </script>
 
 <SEO title={band.name} noindex nofollow />
@@ -120,7 +123,10 @@
 				{#if dissolved}
 					Groupe dissous le {day.format(new Date(band.dissolvedAt!))}.
 				{:else if band.formedAt}
-					Formé le {day.format(new Date(band.formedAt))} · {plural(band.members.length, 'membre')}
+					Formé le {day.format(new Date(band.formedAt))} · {plural(
+						band.members.length,
+						'membre'
+					)}{lineup ? ` · ${lineup}` : ''}
 				{:else}
 					En formation : le groupe est formé dès qu’un premier membre le rejoint.
 				{/if}

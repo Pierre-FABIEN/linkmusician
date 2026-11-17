@@ -286,7 +286,10 @@ demande à sa gestion : tu deviens membre une fois qu'elle est acceptée.
 Une invitation reçue doit également être acceptée.
 
 La gestion ouvre **Modifier la fiche du groupe** pour changer le nom,
-la présentation, les styles, la ville et les liens d'écoute. Sur la fiche
+la présentation, les styles, la ville et les liens d'écoute. La partie
+**Sur scène** dit la formation (solo, duo, trio, groupe) et le répertoire
+(reprises, compositions, les deux) : facultatif, affiché « non précisé »
+sans réponse, et présenté comme déclaré par le groupe, jamais vérifié. Sur la fiche
 de gestion, elle traite les demandes et invitations et gère l'effectif.
 Le ou la responsable peut confier la co-gestion et transmettre la responsabilité.
 Chaque changement réel de rôle est conservé avec son auteur et sa date dans

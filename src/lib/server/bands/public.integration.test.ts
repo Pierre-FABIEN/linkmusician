@@ -181,4 +181,44 @@ describe.skipIf(!enabled)('page publique d’un groupe (schéma e2e)', () => {
 		});
 		expect((await getPublicBand(band.handle, new Date(), null))!.genres).toEqual([]);
 	}, 60_000);
+
+	it('formation et répertoire (D64) : déclarés par la gestion, « non précisé » sinon', async () => {
+		const base = { name: `${PREFIX}Les Rats`, bio: null, genreIds: [], commune: null };
+		// Rien de déclaré : non précisé, jamais « non ».
+		expect(await getPublicBand(band.handle, new Date(), null)).toMatchObject({
+			formation: null,
+			repertoire: null
+		});
+		// Un membre sans gestion est refusé, et rien n'est écrit.
+		await expect(
+			service.updateBandProfile(band.id, ids.zoe, {
+				...base,
+				lineup: { formation: 'DUO', repertoire: 'COVERS' }
+			})
+		).rejects.toThrow(/gèrent/);
+		expect(await db.bandProfile.count({ where: { orgId: band.id } })).toBe(0);
+		await service.updateBandProfile(band.id, ids.lea, {
+			...base,
+			lineup: { formation: 'DUO', repertoire: 'COVERS' }
+		});
+		expect(await getPublicBand(band.handle, new Date(), null)).toMatchObject({
+			formation: 'DUO',
+			repertoire: 'COVERS'
+		});
+		expect(await service.bandPage(band.handle, ids.zoe)).toMatchObject({
+			formation: 'DUO',
+			repertoire: 'COVERS'
+		});
+		// Un appel sans formation (ancien chemin) ne l'efface pas.
+		await service.updateBandProfile(band.id, ids.lea, base);
+		expect((await getPublicBand(band.handle, new Date(), null))!.formation).toBe('DUO');
+		// Revenir à « non précisé » garde une seule ligne.
+		await service.updateBandProfile(band.id, ids.lea, {
+			...base,
+			lineup: { formation: null, repertoire: 'BOTH' }
+		});
+		expect(await db.bandProfile.findMany({ where: { orgId: band.id } })).toMatchObject([
+			{ formation: null, repertoire: 'BOTH' }
+		]);
+	}, 60_000);
 });

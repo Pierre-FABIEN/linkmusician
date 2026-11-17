@@ -8,6 +8,13 @@
 	} from '#lib/components/linkmusician/CommunePicker.svelte';
 	import { MAX_BAND_BIO, MAX_BAND_NAME } from '#lib/bands/rules';
 	import { MAX_GENRES } from '#lib/skills/profile';
+	import {
+		BAND_FORMATIONS,
+		BAND_FORMATION_INFO,
+		BAND_REPERTOIRES,
+		BAND_REPERTOIRE_INFO,
+		formationHint
+	} from '#lib/bands/lineup';
 
 	let { data, form } = $props();
 
@@ -22,6 +29,16 @@
 	let commune = $state<CommuneChoice | null>(data.commune);
 	// svelte-ignore state_referenced_locally
 	let bio = $state(data.band.bio ?? '');
+	// svelte-ignore state_referenced_locally
+	let formation = $state<string>(data.band.formation ?? '');
+	// svelte-ignore state_referenced_locally
+	let repertoire = $state<string>(data.band.repertoire ?? '');
+	const hint = $derived(
+		formationHint(
+			(formation || null) as Parameters<typeof formationHint>[0],
+			data.band.activeMembers
+		)
+	);
 	const genresFull = $derived(genreIds.length >= MAX_GENRES);
 	const STATUS: Record<string, string> = {
 		PUBLISHED: 'publié',
@@ -86,6 +103,77 @@
 				<p class="text-right text-xs text-muted-foreground">{[...bio].length}/{MAX_BAND_BIO}</p>
 			</div>
 			<CommunePicker id="band-commune" label="Ville du groupe" bind:chosen={commune} />
+			<!-- ONB-12c1 (D64) : ce que le groupe propose sur scène, pour les plateaux. -->
+			<section aria-labelledby="lineup-title" class="space-y-3">
+				<div class="space-y-1">
+					<h2 id="lineup-title" class="font-medium">Sur scène</h2>
+					<p class="text-sm text-muted-foreground">
+						Aide un·e organisateur·rice qui cherche un duo ou un groupe de reprises à vous trouver.
+						Facultatif : sans réponse, la fiche affiche « non précisé ».
+					</p>
+				</div>
+				<div class="grid gap-3 sm:grid-cols-2">
+					<fieldset class="lm-tile lm-tile--flow space-y-1 p-3" aria-describedby="formation-hint">
+						<legend class="px-1 font-medium">Formation</legend>
+						<label class="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+							<input type="radio" name="formation" value="" class="size-4" bind:group={formation} />
+							Non précisé
+						</label>
+						{#each BAND_FORMATIONS as f (f)}
+							<label class="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+								<input
+									type="radio"
+									name="formation"
+									value={f}
+									class="size-4"
+									bind:group={formation}
+								/>
+								<span>
+									{BAND_FORMATION_INFO[f].label}
+									<span class="block text-xs text-muted-foreground"
+										>{BAND_FORMATION_INFO[f].hint}</span
+									>
+								</span>
+							</label>
+						{/each}
+						{#if hint}
+							<p id="formation-hint" class="text-xs text-muted-foreground" aria-live="polite">
+								{hint}
+							</p>
+						{/if}
+					</fieldset>
+					<fieldset class="lm-tile lm-tile--flow space-y-1 p-3">
+						<legend class="px-1 font-medium">Répertoire</legend>
+						<label class="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+							<input
+								type="radio"
+								name="repertoire"
+								value=""
+								class="size-4"
+								bind:group={repertoire}
+							/>
+							Non précisé
+						</label>
+						{#each BAND_REPERTOIRES as r (r)}
+							<label class="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+								<input
+									type="radio"
+									name="repertoire"
+									value={r}
+									class="size-4"
+									bind:group={repertoire}
+								/>
+								<span>
+									{BAND_REPERTOIRE_INFO[r].label}
+									<span class="block text-xs text-muted-foreground"
+										>{BAND_REPERTOIRE_INFO[r].hint}</span
+									>
+								</span>
+							</label>
+						{/each}
+					</fieldset>
+				</div>
+			</section>
 			<section aria-labelledby="genres-title" class="space-y-3">
 				<h2 id="genres-title" class="font-medium">
 					Genres <span class="text-sm font-normal text-muted-foreground"

@@ -2948,6 +2948,8 @@ model Organization {
   /// École, MJC, conservatoire (P5-11) : fiche et liens d'invitation des élèves.
   school        SchoolProfile?
   schoolInvites SchoolInvite[]
+  /// Formation et répertoire déclarés d'un groupe (ONB-12c1, D64).
+  bandProfile   BandProfile?
 
   @@map("organizations")
 }
@@ -4023,4 +4025,34 @@ model WorkCreditAct {
   @@index([authorId])
   @@index([workId])
   @@map("work_credit_acts")
+}
+
+// ─── FORMATION ET RÉPERTOIRE DU GROUPE (ONB-12c1, D64) ──────────────────────
+
+/// Formation déclarée par le groupe : solo, duo, trio ou groupe (4 et plus).
+enum BandFormation {
+  SOLO
+  DUO
+  TRIO
+  BAND
+}
+
+/// Répertoire déclaré : reprises, compositions, ou les deux.
+enum BandRepertoire {
+  COVERS
+  ORIGINALS
+  BOTH
+}
+
+/// Fiche de mise en relation d'un groupe (D64). Déclarative, publique comme
+/// la fiche ; une valeur absente vaut « non précisé », jamais « non ».
+/// Données de l'organisation : pas d'auteur conservé, suppression en cascade.
+model BandProfile {
+  orgId      String          @id
+  org        Organization    @relation(fields: [orgId], references: [actorId], onDelete: Cascade)
+  formation  BandFormation?
+  repertoire BandRepertoire?
+  updatedAt  DateTime        @updatedAt
+
+  @@map("band_profiles")
 }

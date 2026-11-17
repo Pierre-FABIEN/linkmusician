@@ -201,7 +201,17 @@ Reste à faire, dans l'ordre :
   `20261112170320_visibilite_par_metier` appliquée (`public`, `e2e`),
   intégration et E2E (`profil-metiers.spec.ts` et specs voisines) au vert.
 
-#### ONB-12c — Profil : informations avancées par métier
+#### ONB-12c — Profil : informations avancées par métier (découpé : 12c1 ✅, 12c2)
+
+- **ONB-12c1 — Formation et répertoire du groupe ✅** (17/11/2026, D64) :
+  table additive `band_profiles` (`formation`, `repertoire`, valeurs
+  facultatives), écrite par la gestion du groupe dans sa fiche sous le verrou
+  `band:` ; « Sur scène » public sur `/@handle`, présenté comme déclaré ;
+  écart avec l'effectif signalé sans correction. Règles de rapprochement
+  `formationMatch`/`repertoireMatch` (`unknown` n'exclut jamais) prêtes pour
+  ONB-13b. Données de l'organisation : hors export personnel, cascade.
+  Détail : [groupes](../groupes/README.md#formation-et-répertoire-onb-12c1-d64).
+- **ONB-12c2** : le reste de la fiche ci-dessous.
 
 - **Ticket** #26. Dépend d'ONB-12b.
 - **À faire** : portfolio et médias, matériel, logiciels, références,
@@ -210,7 +220,7 @@ Reste à faire, dans l'ordre :
   `/profil/organisateur` et « Ma pratique » (pas de doublon). Invitation à
   compléter au moment où le champ sert (candidature, annonce), sans
   bloquer l'application. Distinguer déclaré, confirmé et vérifié.
-- **Questions** : visibilité de `rate` et `gear` des pages historiques ; formation et répertoire du groupe (D64) ;
+- **Questions** : visibilité de `rate` et `gear` des pages historiques ;
   « postproduction » de l'ingé son (exige un code d'enum
   `SoundSpecialty`, donc une migration).
 - **Acceptation** : une spécialité retirée ne détruit aucun crédit ;
@@ -224,7 +234,8 @@ Reste à faire, dans l'ordre :
   intentions » d'ONB-12b. Sans migration. Scénarios #29 : 2 et 7.
 - **ONB-13b — Annonces qualifiées** (D63) : rémunération, formation,
   engagement, présence sur `opportunities` (migration additive), puis
-  rapprochement annonces et profils. Scénarios #29 : 1, 3 et 4 ; 5 et 6
+  rapprochement annonces et profils (formation du groupe : ONB-12c1 ✅,
+  `#lib/bands/lineup`). Scénarios #29 : 1, 3 et 4 ; 5 et 6
   (métiers fermés, Q62) en tests unitaires seulement.
 
 - **Ticket** #27. Dépend d'ONB-12a (ONB-12b pour la visibilité).

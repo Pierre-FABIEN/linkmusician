@@ -16,6 +16,7 @@ import {
 	updateBandProfile
 } from '#lib/server/bands/service';
 import { bandProfileSchema, isManager } from '#lib/bands/rules';
+import { bandLineupSchema } from '#lib/bands/lineup';
 import type { Actions, PageServerLoad } from './$types';
 
 async function managed(locals: App.Locals, handle: string) {
@@ -36,7 +37,15 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		listOwnMedia(band.id)
 	]);
 	return {
-		band: { handle: band.handle, name: band.name, bio: band.bio },
+		band: {
+			handle: band.handle,
+			name: band.name,
+			bio: band.bio,
+			// ONB-12c1 (D64) : formation et répertoire déclarés.
+			formation: band.formation,
+			repertoire: band.repertoire,
+			activeMembers: band.members.length
+		},
 		genres,
 		genreIds: current.map((g) => g.genreId),
 		commune: location
@@ -68,6 +77,14 @@ export const actions: Actions = {
 		if (!parsed.success) {
 			return fail(400, { error: parsed.error.issues[0]?.message ?? 'Vérifie le formulaire.' });
 		}
+		// Formation et répertoire (D64) : codes relus côté serveur, vide = non précisé.
+		const lineup = bandLineupSchema.safeParse({
+			formation: String(data.get('formation') ?? ''),
+			repertoire: String(data.get('repertoire') ?? '')
+		});
+		if (!lineup.success) {
+			return fail(400, { error: 'Choisis une formation et un répertoire dans la liste.' });
+		}
 		let commune = null;
 		if (parsed.data.communeCode) {
 			try {
@@ -80,7 +97,11 @@ export const actions: Actions = {
 			if (!commune) return fail(400, { error: 'Choisis une commune dans la liste.' });
 		}
 		try {
-			await updateBandProfile(band.id, actorId, { ...parsed.data, commune });
+			await updateBandProfile(band.id, actorId, {
+				...parsed.data,
+				commune,
+				lineup: lineup.data
+			});
 		} catch (err) {
 			if (err instanceof BandError) return fail(err.status, { error: err.message });
 			throw err;

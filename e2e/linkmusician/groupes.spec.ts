@@ -203,9 +203,45 @@ test.describe('LinkMusician — groupes', () => {
 				await page.getByRole('link', { name: 'Modifier la fiche du groupe' }).click();
 				await page.getByLabel('Présentation').fill('Rock garage, répètes le jeudi.');
 				await page.getByRole('checkbox', { name: 'Rock', exact: true }).check();
+				// ONB-12c1 (D64) : formation et répertoire, au clavier et à 390 px.
+				await page.setViewportSize({ width: 390, height: 844 });
+				await expect(page.getByRole('radio', { name: 'Non précisé' }).first()).toBeChecked();
+				await page.getByRole('radio', { name: /^Duo/ }).focus();
+				await page.keyboard.press('Space');
+				await expect(page.getByRole('radio', { name: /^Duo/ })).toBeChecked();
+				// Malik est parti : l'écart avec l'effectif est signalé, rien n'est corrigé.
+				await expect(page.getByText(/compte 1 membre actif/)).toBeVisible();
+				await page.getByRole('radio', { name: /^Reprises Vous jouez/ }).check();
 				await page.getByRole('button', { name: 'Enregistrer la fiche' }).click();
 				await expect(page.getByText('La fiche du groupe est enregistrée.')).toBeVisible();
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+				expect(
+					await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
+				).toBe(true);
+				await page.setViewportSize({ width: 1280, height: 800 });
+			});
+
+			await test.step('5b. Les POST forgés sont refusés côté serveur', async () => {
+				const band = await db.actor.findFirstOrThrow({
+					where: { kind: 'ORGANIZATION', displayName: bandName }
+				});
+				const path = `/groupes/${band.handle}/modifier?/save`;
+				const form = { name: bandName, bio: '', formation: 'TRIO', repertoire: 'ORIGINALS' };
+				// Malik a quitté le groupe : il ne gère plus rien.
+				const outsider = await malikPage.request.post(path, {
+					form,
+					headers: { Origin: new URL(page.url()).origin }
+				});
+				expect(outsider.status()).toBe(403);
+				// Un code hors liste est refusé, même pour la gestion.
+				const unknown = await page.request.post(path, {
+					form: { ...form, formation: 'QUARTET' },
+					headers: { Origin: new URL(page.url()).origin }
+				});
+				expect(await unknown.text()).toContain('Choisis une formation');
+				expect(await db.bandProfile.findUniqueOrThrow({ where: { orgId: band.id } })).toMatchObject(
+					{ formation: 'DUO', repertoire: 'COVERS' }
+				);
 			});
 
 			await test.step('6. Un visiteur voit la page publique, anciens membres compris', async () => {
@@ -221,6 +257,11 @@ test.describe('LinkMusician — groupes', () => {
 						visitorPage.getByRole('heading', { name: bandName, level: 1 })
 					).toBeVisible();
 					await expect(visitorPage.getByText('Rock garage, répètes le jeudi.')).toBeVisible();
+					// D64 : déclaré par le groupe, jamais présenté comme vérifié.
+					await expect(visitorPage.getByRole('heading', { name: 'Sur scène' })).toBeVisible();
+					await expect(visitorPage.getByText('Duo', { exact: true })).toBeVisible();
+					await expect(visitorPage.getByText('Reprises', { exact: true })).toBeVisible();
+					await expect(visitorPage.getByText('Déclaré par le groupe.')).toBeVisible();
 					await expect(visitorPage.getByRole('list', { name: 'Membres actuels' })).toContainText(
 						me.actor.displayName
 					);

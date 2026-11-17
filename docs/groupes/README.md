@@ -159,3 +159,29 @@ déjà autorisée sous ces verrous peut terminer avant la révocation.
 `managedBands` partage le prédicat OWNER/ADMIN actifs d’un BAND vivant avec
 la gestion Work. Un membre ou un mandat ne reçoit aucun droit de gestion
 par ce mécanisme. Les règles d’équipe et de visibilité restent distinctes.
+
+## Formation et répertoire (ONB-12c1, D64)
+
+- **Ce que c'est** : la fiche de mise en relation du groupe, table
+  `band_profiles` (une ligne par groupe, `formation` : `SOLO`, `DUO`, `TRIO`,
+  `BAND` ; `repertoire` : `COVERS`, `ORIGINALS`, `BOTH`). Un duo ou un groupe
+  de reprises est une organisation, jamais une personne : rien sur le profil
+  d'un·e musicien·ne seul·e.
+- **Écriture** : la gestion (OWNER, ADMIN) dans « Modifier la fiche du
+  groupe », par `updateBandProfile`, sous le verrou du groupe et la même
+  relecture de gestion que le reste de la fiche. Codes relus par Zod
+  (`bandLineupSchema`) ; vide = non précisé. Un appel sans ces champs ne les
+  efface pas.
+- **Lecture** : publique sur `/@handle` (« Sur scène », « Déclaré par le
+  groupe »), comme la fiche ; résumé sur `/groupes/[handle]`. Un écart avec
+  l'effectif actif est signalé à la gestion, jamais corrigé
+  (`formationHint`) : des membres peuvent ne pas monter sur scène.
+- **Rapprochement** (préparé pour ONB-13b) : `formationMatch` et
+  `repertoireMatch` (`src/lib/bands/lineup.ts`) renvoient `yes`, `no` ou
+  `unknown` ; une valeur absente n'exclut jamais, « les deux » répond aux
+  deux recherches. Aucune XP, aucun tri.
+- **RGPD** : données de l'organisation, comme sa présentation : pas d'auteur
+  conservé, hors export personnel, supprimées en cascade avec le groupe.
+- **Tests** : `lineup.test.ts`, `public.integration.test.ts` (refus d'un
+  membre, non précisé, conservation, une seule ligne), E2E `groupes.spec.ts`
+  (clavier, 390 px, axe, POST forgés hors gestion et code inconnu).

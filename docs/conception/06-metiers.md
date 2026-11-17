@@ -142,7 +142,7 @@ C : conditionnel, F : facultatif ; « existe » : déjà dans le code).
 | Tous                  | Références, portfolio (`CraftReference`, médias)          | confiance (déclaré)                       | P   | F      | public           | oui (son, production)        |
 | Musicien·ne           | Instruments et niveau déclaré                             | critère bloquant d'une annonce            | I   | R      | public           | oui                          |
 | Musicien·ne           | Expérience, engagement                                    | engagement compatible (scénario 1)        | I   | R      | intentions       | oui (D58)                    |
-| Groupe                | Formation, répertoire                                     | duo, groupe de reprises (scénarios 3, 4)  | P   | F      | public           | ONB-12c (D64)                |
+| Groupe                | Formation, répertoire                                     | duo, groupe de reprises (scénarios 3, 4)  | P   | F      | public           | oui (ONB-12c1, D64)          |
 | Ingé son              | Où tu travailles ; `mobility`                             | à distance ou sur place (scénario 2)      | I   | R      | précisions       | oui (Q59 tranchée par D62)   |
 | Ingé son              | Formats, livrables, consoles, jauge tenue                 | prestation adaptée au besoin              | I   | C      | précisions       | oui                          |
 | Ingé son              | Révisions de mixage                                       | conditions de la prestation               | I   | C      | conditions       | oui                          |

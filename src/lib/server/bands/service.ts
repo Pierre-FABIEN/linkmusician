@@ -15,6 +15,7 @@
  * (même règle que les demandes de message), sans que la raison soit dite.
  * Il ou elle peut demander à rejoindre un groupe.
  */
+import type { BandLineup } from '#lib/bands/lineup';
 import type { OrgRole, Prisma } from '@prisma/client';
 import { activeBandManager, structureAccess } from '#lib/server/organizations/access';
 import { prisma } from '#lib/server';
@@ -681,7 +682,14 @@ export const BAND_TX = TX;
 export async function updateBandProfile(
 	bandId: string,
 	managerId: string,
-	input: { name: string; bio: string | null; genreIds: string[]; commune: Commune | null }
+	input: {
+		name: string;
+		bio: string | null;
+		genreIds: string[];
+		commune: Commune | null;
+		/** Formation et répertoire (ONB-12c1, D64) ; absent : inchangés. */
+		lineup?: BandLineup;
+	}
 ) {
 	const genreIds = [...new Set(input.genreIds)];
 	const known = await prisma.genre.count({ where: { id: { in: genreIds }, active: true } });
@@ -700,6 +708,14 @@ export async function updateBandProfile(
 		await tx.actorGenre.createMany({
 			data: genreIds.map((genreId) => ({ actorId: bandId, genreId }))
 		});
+		// D64 : déclaratif, `null` = non précisé ; sous le même verrou que la fiche.
+		if (input.lineup) {
+			await tx.bandProfile.upsert({
+				where: { orgId: bandId },
+				create: { orgId: bandId, ...input.lineup },
+				update: input.lineup
+			});
+		}
 	}, TX);
 	// Comme pour une personne : seul le centre de la commune, sur une grille.
 	if (input.commune) await setActorLocation(bandId, input.commune);
@@ -824,6 +840,7 @@ export async function bandPage(handle: string, viewerId: string, now = new Date(
 			dissolvedAt: true,
 			createdAt: true,
 			actor: { select: { handle: true, displayName: true, bio: true } },
+			bandProfile: { select: { formation: true, repertoire: true } },
 			memberships: {
 				where: { status: { in: ['INVITED', 'REQUESTED', 'ACTIVE', 'LEFT', 'REMOVED'] } },
 				select: {
@@ -874,6 +891,9 @@ export async function bandPage(handle: string, viewerId: string, now = new Date(
 		handle: band.actor.handle,
 		name: band.actor.displayName,
 		bio: band.actor.bio,
+		/** Formation et répertoire déclarés (D64) ; `null` : non précisé. */
+		formation: band.bandProfile?.formation ?? null,
+		repertoire: band.bandProfile?.repertoire ?? null,
 		formedAt: band.formedAt,
 		dissolvedAt: band.dissolvedAt,
 		createdAt: band.createdAt,

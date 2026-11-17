@@ -27,6 +27,7 @@
 // Jamais en production (VERCEL_ENV=production refusé).
 import { seedDelegations } from './seed-delegations';
 import { seedAgencies } from './seed-agencies';
+import { seedBandLineups } from './seed-band-lineups';
 import { seedJamLife } from './seed-jam-life';
 import {
 	seedOpenStage,
@@ -796,6 +797,7 @@ try {
 	await seedScene(prisma, communes, handleMap);
 	await seedOpenStage(prisma, communes, handleMap);
 	await seedVenueHosts(prisma, communes, handleMap);
+	await seedBandLineups(prisma);
 	await seedRepresentations(prisma, communes, handleMap);
 	await seedRepresentationDecisions(prisma, communes, handleMap);
 	await seedComanagementDecisions(prisma, communes, handleMap);

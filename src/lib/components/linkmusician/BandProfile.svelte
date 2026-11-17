@@ -20,6 +20,7 @@
 	} from 'lucide-svelte';
 	import { initialsOf } from '#lib/actors/display';
 	import { ROLE_LABELS, periodLabel } from '#lib/bands/rules';
+	import { BAND_FORMATION_INFO, BAND_REPERTOIRE_INFO } from '#lib/bands/lineup';
 	import { PROOF_LABELS } from '#lib/milestones/rules';
 	import { FROZEN_LABEL, MIN_CONTEST_DETAILS, isContestable } from '#lib/milestones/disputes';
 	import { REPORT_REASONS, REPORT_REASON_LABELS, MAX_REPORT_DETAILS } from '#lib/moderation/rules';
@@ -352,6 +353,26 @@
 									>Connecte-toi pour postuler</a
 								>
 							{/if}
+						</Card.Content>
+					</Card.Root>
+				{/if}
+
+				<!-- ONB-12c1 (D64) : déclaré par le groupe, jamais présenté comme vérifié. -->
+				{#if band.formation || band.repertoire}
+					<Card.Root>
+						<Card.Header><Card.Title><h2>Sur scène</h2></Card.Title></Card.Header>
+						<Card.Content class="space-y-2 text-sm">
+							<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+								<dt class="text-muted-foreground">Formation</dt>
+								<dd>
+									{band.formation ? BAND_FORMATION_INFO[band.formation].label : 'Non précisé'}
+								</dd>
+								<dt class="text-muted-foreground">Répertoire</dt>
+								<dd>
+									{band.repertoire ? BAND_REPERTOIRE_INFO[band.repertoire].label : 'Non précisé'}
+								</dd>
+							</dl>
+							<p class="text-xs text-muted-foreground">Déclaré par le groupe.</p>
 						</Card.Content>
 					</Card.Root>
 				{/if}
