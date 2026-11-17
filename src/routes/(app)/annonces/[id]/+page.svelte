@@ -19,6 +19,7 @@
 
 	let { data, form } = $props();
 	const o = $derived(data.opportunity);
+	const eligibleArtists = $derived(data.delegatedOptions.filter((a) => a.unmet.length === 0));
 
 	$effect(() => {
 		if (form?.message) toast.success(form.message);
@@ -204,6 +205,9 @@
 											.join(' — ')}
 									</p>
 								{/if}
+								{#if a.delegatedBy}<p class="text-sm text-muted-foreground">
+										Envoyée au nom de l’artiste par {a.delegatedBy}.
+									</p>{/if}
 								<p class="whitespace-pre-line text-sm">{a.message}</p>
 								{#if isPending(a.status)}
 									<div class="flex flex-wrap gap-2">
@@ -338,7 +342,13 @@
 					<h2 id="mine-title" class="font-semibold">
 						Ta candidature : {APPLICATION_STATUS_LABELS[data.mine.status]}
 					</h2>
-					{#if data.mine.status === 'ACCEPTED' && data.mine.conversationId}
+					{#if data.mine.delegated}
+						<p>
+							Envoyée en ton nom par {data.mine.sentBy?.displayName ?? 'Compte supprimé'}. En cas
+							d’acceptation, ton agent échange avec l’organisation.
+						</p>
+					{/if}
+					{#if data.mine.status === 'ACCEPTED' && data.mine.conversationId && !data.mine.delegated}
 						<p>
 							{#if o.issuer.isBand && o.kind === 'RECRUIT_MEMBER'}
 								Bravo ! Tu fais maintenant partie de {o.issuer.displayName}. La conversation est
@@ -400,5 +410,74 @@
 			{/if}
 			{@render report()}
 		{/if}
+		{#if data.delegatedApplications.length > 0}
+			<section
+				class="lm-tile lm-tile--flow space-y-3 p-4"
+				aria-labelledby="delegated-history-title"
+			>
+				<h2 id="delegated-history-title" class="font-semibold">Candidatures déléguées</h2>
+				<ul class="space-y-3">
+					{#each data.delegatedApplications as app (app.id)}
+						<li class="space-y-2 text-sm">
+							<p>
+								<strong>{app.artist}</strong> : {APPLICATION_STATUS_LABELS[app.status]}. Envoyée en
+								son nom par {app.sender}.
+							</p>
+							{#if isPending(app.status)}
+								<form method="POST" action="?/withdraw" use:enhance>
+									<input type="hidden" name="applicationId" value={app.id} />
+									<button class="lm-btn" data-variant="ghost"
+										>Retirer la candidature pour {app.artist}</button
+									>
+								</form>
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+		{#if !o.isOwner && o.active && eligibleArtists.length > 0}
+			<form
+				method="POST"
+				action="?/applyDelegated"
+				use:enhance
+				class="lm-tile lm-tile--flow space-y-3 p-4"
+				aria-labelledby="delegated-apply-title"
+			>
+				<h2 id="delegated-apply-title" class="font-semibold">Candidater au nom d’un artiste</h2>
+				<p class="text-sm">
+					Son accord t’autorise à envoyer directement. L’artiste sera prévenu et pourra retirer la
+					candidature. Tu échangeras avec l’organisation si elle accepte.
+				</p>
+				<label class="block space-y-1 text-sm font-medium"
+					>Artiste représenté
+					<select name="artistId" required class="lm-field w-full">
+						{#each eligibleArtists as artist (artist.id)}
+							<option value={artist.id}>{artist.name}</option>
+						{/each}
+					</select>
+				</label>
+				{#each eligibleArtists.filter((a) => a.unknown.length > 0) as artist (artist.id)}
+					<p class="text-sm text-muted-foreground">
+						{artist.name} : non précisé ({artist.unknown.join(', ')}).
+					</p>
+				{/each}
+				<label class="block space-y-1 text-sm font-medium"
+					>Message à {o.issuer.displayName}, au nom de l’artiste
+					<textarea
+						name="message"
+						required
+						rows="4"
+						minlength={MIN_APPLICATION}
+						maxlength={MAX_APPLICATION}
+						class="lm-field w-full"
+					></textarea>
+				</label>
+				<button class="lm-btn" type="submit">Envoyer au nom de l’artiste</button>
+			</form>
+		{/if}
+		{#each data.delegatedOptions.filter((a) => a.unmet.length > 0) as artist (artist.id)}
+			<p class="text-sm">{artist.name} ne peut pas candidater : {artist.unmet.join(', ')}.</p>
+		{/each}
 	</article>
 </div>

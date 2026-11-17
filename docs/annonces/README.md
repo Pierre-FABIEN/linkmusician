@@ -162,3 +162,25 @@ membres.
   pures), `gigSlots.integration.test.ts` (scénarios 1, 3 et 4 en base, clôture
   revérifiée), E2E `annonces-qualifiees.spec.ts`.
 - **Migration** : `20261117142644_opportunity_qualification` (ajout seul).
+
+## Candidatures déléguées — DASH-07b, D71
+
+Depuis une annonce, « Candidater au nom d’un artiste » est proposé au titulaire
+ayant un droit accordé et encore utilisable : JAM/SESSION_WORK pour une
+personne, GIG_SLOT pour un groupe ; recrutement exclu. Le territoire du mandat,
+les blocages de l’émetteur avec les deux parties et les conditions de
+l’artiste sont revérifiés dans la transaction. Un mandat seul ou une
+participation en agence ne suffit jamais.
+
+L’artiste/sa gestion reçoit une notification, suit l’envoi et peut retirer une
+candidature en attente ; l’agent aussi. Tous les retraits conservent date et
+auteur et partagent le verrou de l’annonce avec ses décisions. Révoquer le
+droit ne retire pas les candidatures envoyées : chaque retrait est explicite.
+L’acceptation ouvre la conversation avec l’agent et prévient l’artiste via
+l’annonce. Une conversation marquée déléguée ne rapporte aucune XP de
+réciprocité, même réutilisée et même après anonymisation de l’agent.
+
+Service `src/lib/server/opportunities/delegated.ts`, intégration
+`delegated.integration.test.ts`, E2E `candidature-deleguee.spec.ts`.
+L’export personnel comprend les envois et les retraits avec leur auteur ;
+l’anonymisation oublie les auteurs concernés.

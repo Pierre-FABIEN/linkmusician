@@ -36,12 +36,9 @@ import {
 	type GigSlotInput
 } from '#lib/opportunities/gigSlot';
 import { isActive, type OpportunityStatusValue } from '#lib/opportunities/rules';
-import {
-	applicationTransition,
-	type ApplicationStatusValue
-} from '#lib/opportunities/applications';
+import type { ApplicationStatusValue } from '#lib/opportunities/applications';
 import { OpportunityError, managesIssuer } from './service';
-import { checkedMessage } from './applications';
+import { checkedMessage, withdrawApplication } from './applications';
 import { gigSlotGaps } from '#lib/organizations/promoter';
 import { UNKNOWN_LABELS, normalizeQualification } from '#lib/opportunities/qualification';
 import type { Prisma } from '@prisma/client';
@@ -267,7 +264,7 @@ const conditionsOf = (o: GigRow) => ({
 });
 
 /** Conditions non remplies et non précisées (ONB-13b), en mots. */
-async function checkBand(o: GigRow, bandId: string, db: Db = prisma) {
+export async function checkBand(o: GigRow, bandId: string, db: Db = prisma) {
 	const facts = await bandFacts(bandId, o.issuerActorId, db);
 	return {
 		unmet: unmetGigConditions(conditionsOf(o), facts).map((u) => UNMET_GIG_LABELS[u]),
@@ -284,7 +281,13 @@ export async function bandOptionsFor(personId: string, opportunityId: string) {
 	const bands = await managedBands(personId);
 	const applications = await prisma.application.findMany({
 		where: { opportunityId, applicantActorId: { in: bands.map((b) => b.id) } },
-		select: { id: true, applicantActorId: true, status: true, conversationId: true }
+		select: {
+			id: true,
+			applicantActorId: true,
+			status: true,
+			conversationId: true,
+			delegated: true
+		}
 	});
 	return Promise.all(
 		bands.map(async (b) => {
@@ -300,7 +303,7 @@ export async function bandOptionsFor(personId: string, opportunityId: string) {
 					? {
 							id: app.id,
 							status: app.status as ApplicationStatusValue,
-							conversationId: app.conversationId
+							conversationId: app.delegated ? null : app.conversationId
 						}
 					: null
 			};
@@ -391,17 +394,7 @@ export async function applyAsBand(
 
 /** Retirer la candidature d'un groupe : la personne qui l'a envoyée, ou la gestion du groupe. */
 export async function withdrawBandApplication(personId: string, applicationId: string) {
-	const app = await prisma.application.findUnique({
-		where: { id: applicationId },
-		select: { status: true, sentById: true, applicantActorId: true }
-	});
-	const allowed =
-		app &&
-		(app.sentById === personId ||
-			(await managedBands(personId)).some((b) => b.id === app.applicantActorId));
-	const next = allowed && applicationTransition(app.status as ApplicationStatusValue, 'withdraw');
-	if (!next) throw new OpportunityError('Cette candidature ne peut plus être retirée.');
-	await prisma.application.update({ where: { id: applicationId }, data: { status: next } });
+	await withdrawApplication(personId, applicationId);
 }
 
 /** Libellé d'un rang de groupe demandé (`FIRST_GIG` → « Live »). */

@@ -595,6 +595,22 @@ groupe après ne touche rien pour ce qui s’est passé avant lui.
 Plus de détails sur les points, les niveaux et les succès :
 [Points et progression](./04-points-et-progression.md).
 
+### Envoyer une candidature pour un artiste {#candidature-deleguee}
+
+Avec un droit de candidater accordé et en cours, ouvre une annonce puis
+**Candidater au nom d’un artiste**. Choisis l’artiste représenté et écris ton
+message. Les conditions sont celles de son profil, dans le territoire du
+mandat. Un mandat ou une affectation en agence ne suffit pas.
+
+L’artiste (ou la gestion de son groupe) est prévenu de l’envoi et peut retirer
+la candidature tant qu’elle n’est pas tranchée. L’envoi indique qui a candidaté
+en son nom. Révoquer le droit laisse les candidatures déjà envoyées : il faut
+les retirer une à une si nécessaire.
+
+Si l’organisation accepte, elle échange avec l’agent. L’artiste reçoit une
+notification et suit le résultat sur l’annonce. Le recrutement d’un groupe
+exige toujours une candidature personnelle.
+
 ## Questions fréquentes
 
 <details><summary>Je suis solo, le mode carrière est-il pour moi ?</summary>

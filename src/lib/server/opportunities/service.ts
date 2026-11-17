@@ -58,9 +58,13 @@ const tierLabel = (id: string | null) => TIER_OPTIONS.find((t) => t.id === id)?.
  * La personne gère-t-elle cette annonce ? Son auteur, ou une personne qui
  * gère le groupe émetteur (P3-03).
  */
-export async function managesIssuer(viewerId: string, issuerActorId: string) {
+export async function managesIssuer(
+	viewerId: string,
+	issuerActorId: string,
+	db: Prisma.TransactionClient | typeof prisma = prisma
+) {
 	if (viewerId === issuerActorId) return true;
-	const managed = await prisma.membership.count({
+	const managed = await db.membership.count({
 		where: {
 			orgId: issuerActorId,
 			personId: viewerId,

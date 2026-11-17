@@ -51,6 +51,7 @@ const mandateSelect = {
 	startsAt: true,
 	expiresAt: true,
 	allowedActions: true,
+	departmentCodes: true,
 	agent: {
 		select: { deletedAt: true, displayName: true, person: { select: { birthDate: true } } }
 	},

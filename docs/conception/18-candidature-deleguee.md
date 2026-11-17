@@ -124,3 +124,34 @@ et `sentById` oubliés ; un droit accordé par un groupe reste celui du groupe.
   retrait/refus/révocation/échéance/fin du mandat, course révocation contre
   usage sous verrou, vue et RGPD), E2E `droit-de-candidater.spec.ts` (390 px,
   clavier, axe, POST forgé de l'agent et d'un tiers).
+
+## Réalisation DASH-07b (17/11/2026)
+
+- `opportunities/delegated.ts` : propositions d’artistes uniquement avec un
+  droit actif ; envoi sous `lockGrantPair` puis verrou de l’annonce, droit et
+  mandat relus à l’instant suivant l’attente, territoire de l’émetteur,
+  conditions de l’artiste, visibilité et blocages avec artiste et agent.
+  Un doublon direct/délégué reste refusé sous le même verrou d’annonce.
+- Une candidature porte `delegated` indépendamment de `sentById` (oublié
+  à l’anonymisation). L’acte `USED` est atomique avec candidature et notifications.
+- Retrait par artiste, gestion actuelle ou auteur de l’envoi, sous verrou
+  commun aux décisions ; `withdrawnAt` et `withdrawnById` conservent le geste.
+  Le retrait n’est plus écrasé par une acceptation partie d’un état périmé.
+- Acceptation : conversation avec l’agent, marquée `delegated`, y compris lors
+  de la réutilisation d’une paire existante. La marque reste vraie ensuite ;
+  aucun ancien gain n’est repris. La réciprocité conserve sa date mais n’émet
+  aucun événement de progression pour cette conversation. La marque est relue
+  sous le verrou d’écriture de la conversation avant l’émission éventuelle.
+- Notifications `APPLICATION_SENT` à l’artiste/sa gestion, puis acceptation
+  vers l’annonce (la conversation est privée entre agent et émetteur).
+  Envois, auteur et retrait visibles sur l’annonce et dans Mes candidatures.
+- RGPD : délégation, auteur de l’envoi et date de retrait dans l’export des
+  candidatures ; export des retraits effectués ; anonymisation de l’auteur du
+  retrait et de l’envoi, sans effacer la marque déléguée.
+- Migration additive `20261117174550_delegated_applications` : champs de
+  candidature/retrait, marque de conversation et type de notification.
+  Aucun droit préexistant ou historique de retrait n’est reconstitué.
+
+DASH-07 reste ouvert : ce lot livre les candidatures déléguées, pas toutes les
+extensions d’étapes et propositions structurées de #37. Les garanties de
+non-régression et résultats de recette sont consignés dans le plan.

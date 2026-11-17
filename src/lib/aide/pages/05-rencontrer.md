@@ -151,7 +151,7 @@ place : il faut un **droit de candidater**, que l’artiste accorde.
   soi-même.
 - Le droit ne donne ni signature ni accès à tes conversations. Il ne
   rapporte aucun point à l’agent.
-- L’envoi des candidatures avec ce droit arrive bientôt. Tu seras prévenu·e
+- Sur une annonce couverte, l’agent choisit **Candidater au nom d’un artiste**. Tu es prévenu·e
   de chacune et pourras la retirer.
 
 > ⚠️ **Important** : le nombre d’annonces actives dépend de ta confiance

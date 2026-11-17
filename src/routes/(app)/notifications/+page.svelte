@@ -28,6 +28,7 @@
 		APPLICATION_GRANT: Handshake,
 		CONTACT_REQUEST: MessageCircle,
 		APPLICATION_RECEIVED: CalendarCheck,
+		APPLICATION_SENT: CalendarCheck,
 		APPLICATION_ACCEPTED: PartyPopper,
 		COLLAB_TO_CONFIRM: Handshake,
 		ENDORSEMENT: ThumbsUp,

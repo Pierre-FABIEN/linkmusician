@@ -14,7 +14,6 @@
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
-import { isBlockedBetween } from '#lib/server/blocking/service';
 import { getMusicianTier } from '#lib/server/progression/read';
 import { checkMessage, pairKey } from '#lib/messaging/rules';
 import {
@@ -37,6 +36,7 @@ import {
 import { OpportunityError, managesIssuer } from './service';
 import { BAND_TX, BandError, bandManagerIds, joinFromRecruitment } from '#lib/server/bands/service';
 import { notify } from '#lib/server/notifications/service';
+import { artistAnswerers } from '#lib/server/representation/delegationAccess';
 import { bandTierOf } from '#lib/server/milestones/service';
 
 type Db = Prisma.TransactionClient | typeof prisma;
@@ -210,27 +210,74 @@ export async function applyTo(
 }
 
 export async function withdrawApplication(actorId: string, applicationId: string) {
-	// Ma candidature, ou celle que j'ai envoyée au nom d'un groupe (P5-05a).
-	const app = await prisma.application.findFirst({
-		where: { id: applicationId, OR: [{ applicantActorId: actorId }, { sentById: actorId }] }
+	const first = await prisma.application.findUnique({
+		where: { id: applicationId },
+		select: { opportunityId: true, applicantActorId: true }
 	});
-	const next = app && applicationTransition(app.status as ApplicationStatusValue, 'withdraw');
-	if (!next) throw new OpportunityError('Cette candidature ne peut plus être retirée.');
-	await prisma.application.update({ where: { id: applicationId }, data: { status: next } });
+	if (!first) throw new OpportunityError('Candidature introuvable.', 404);
+	await prisma.$transaction(async (tx) => {
+		await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`band:${first.applicantActorId}`}))`;
+		await tx.$queryRaw`SELECT id FROM ${qualifiedTable('opportunities')} WHERE id = ${first.opportunityId} FOR UPDATE`;
+		const app = await tx.application.findUniqueOrThrow({ where: { id: applicationId } });
+		const manages = await tx.membership.count({
+			where: {
+				orgId: app.applicantActorId,
+				personId: actorId,
+				status: 'ACTIVE',
+				role: { in: ['OWNER', 'ADMIN'] },
+				org: { dissolvedAt: null },
+				person: { deletedAt: null }
+			}
+		});
+		if (app.applicantActorId !== actorId && app.sentById !== actorId && !manages)
+			throw new OpportunityError('Tu ne peux pas retirer cette candidature.', 403);
+		const next = applicationTransition(app.status as ApplicationStatusValue, 'withdraw');
+		if (!next) throw new OpportunityError('Cette candidature ne peut plus être retirée.');
+		await tx.application.update({
+			where: { id: applicationId },
+			data: {
+				status: next,
+				withdrawnAt: new Date(),
+				withdrawnById: actorId
+			}
+		});
+	}, BAND_TX);
 }
 
 /** Ma candidature à une annonce, s'il y en a une. */
 export async function myApplication(actorId: string, opportunityId: string) {
 	return prisma.application.findUnique({
 		where: { opportunityId_applicantActorId: { opportunityId, applicantActorId: actorId } },
-		select: { id: true, status: true, conversationId: true, createdAt: true }
+		select: {
+			id: true,
+			status: true,
+			conversationId: true,
+			createdAt: true,
+			delegated: true,
+			sentBy: { select: { displayName: true } }
+		}
 	});
 }
 
 /** Mes candidatures (et celles envoyées au nom d'un groupe, P5-05a), les plus récentes d'abord. */
 export async function listMyApplications(actorId: string) {
 	const rows = await prisma.application.findMany({
-		where: { OR: [{ applicantActorId: actorId }, { sentById: actorId }] },
+		where: {
+			OR: [
+				{ applicantActorId: actorId },
+				{ sentById: actorId },
+				{
+					applicant: {
+						organization: {
+							dissolvedAt: null,
+							memberships: {
+								some: { personId: actorId, status: 'ACTIVE', role: { in: ['OWNER', 'ADMIN'] } }
+							}
+						}
+					}
+				}
+			]
+		},
 		orderBy: { createdAt: 'desc' },
 		take: 50,
 		select: {
@@ -238,12 +285,17 @@ export async function listMyApplications(actorId: string) {
 			status: true,
 			conversationId: true,
 			applicantActorId: true,
+			sentById: true,
+			delegated: true,
+			sentBy: { select: { displayName: true } },
 			applicant: { select: { displayName: true } },
 			opportunity: { select: { id: true, title: true } }
 		}
 	});
-	return rows.map(({ applicantActorId, applicant, ...r }) => ({
+	return rows.map(({ applicantActorId, applicant, sentById, sentBy, delegated, ...r }) => ({
 		...r,
+		conversationId: delegated && sentById !== actorId ? null : r.conversationId,
+		sender: delegated ? (sentBy?.displayName ?? 'Compte supprimé') : null,
 		/** Groupe au nom duquel j'ai candidaté, sinon `null`. */
 		band: applicantActorId === actorId ? null : applicant.displayName,
 		status: r.status as ApplicationStatusValue
@@ -271,6 +323,8 @@ export async function listForIssuer(viewerId: string, opportunityId: string) {
 			id: true,
 			status: true,
 			message: true,
+			delegated: true,
+			sentBy: { select: { displayName: true } },
 			conversationId: true,
 			createdAt: true,
 			applicant: {
@@ -307,6 +361,7 @@ export async function listForIssuer(viewerId: string, opportunityId: string) {
 		id: r.id,
 		status: r.status as ApplicationStatusValue,
 		message: r.message,
+		delegatedBy: r.delegated ? (r.sentBy?.displayName ?? 'Compte supprimé') : null,
 		conversationId: r.conversationId,
 		createdAt: r.createdAt,
 		applicant: {
@@ -332,42 +387,60 @@ export async function decideApplication(
 	action: 'shortlist' | 'accept' | 'decline',
 	now = new Date()
 ) {
-	const app = await prisma.application.findUnique({
+	const first = await prisma.application.findUnique({
 		where: { id: applicationId },
-		include: { opportunity: true, applicant: { select: { displayName: true } } }
+		select: { opportunityId: true }
 	});
-	if (!app || !(await managesIssuer(issuerId, app.opportunity.issuerActorId))) {
-		throw new OpportunityError('Candidature introuvable.', 404);
-	}
-	const bandId = app.opportunity.issuerActorId === issuerId ? null : app.opportunity.issuerActorId;
-	const next = applicationTransition(app.status as ApplicationStatusValue, action);
-	if (!next) throw new OpportunityError('Cette candidature est déjà tranchée.');
-	if (action !== 'accept') {
-		await prisma.application.update({
-			where: { id: applicationId },
-			data: { status: next, ...(action === 'decline' ? { decidedAt: now } : {}) }
-		});
-		return { conversationId: null, joinedBand: false };
-	}
-	const o = app.opportunity;
-	if (o.status !== 'OPEN') throw new OpportunityError('Cette annonce n’est plus ouverte.');
-	// Plateau (P5-05a) : le groupe candidat parle par la personne qui a
-	// envoyé la candidature ; sans elle (compte supprimé), pas de conversation.
-	const contactId = o.kind === 'GIG_SLOT' ? app.sentById : app.applicantActorId;
-	if (!contactId) {
-		throw new OpportunityError(
-			'La personne qui a envoyé cette candidature n’est plus là : écris au groupe.'
-		);
-	}
-	if (await isBlockedBetween(issuerId, contactId)) {
-		throw new OpportunityError('Impossible d’accepter cette candidature.');
-	}
-
-	const instrument = o.instrumentId
-		? await prisma.instrument.findUnique({ where: { id: o.instrumentId }, select: { name: true } })
-		: null;
-
+	if (!first) throw new OpportunityError('Candidature introuvable.', 404);
 	return prisma.$transaction(async (tx) => {
+		await tx.$queryRaw`SELECT id FROM ${qualifiedTable('opportunities')} WHERE id = ${first.opportunityId} FOR UPDATE`;
+		const app = await tx.application.findUnique({
+			where: { id: applicationId },
+			include: { opportunity: true, applicant: { select: { displayName: true } } }
+		});
+		if (!app || !(await managesIssuer(issuerId, app.opportunity.issuerActorId, tx))) {
+			throw new OpportunityError('Candidature introuvable.', 404);
+		}
+		const bandId =
+			app.opportunity.issuerActorId === issuerId ? null : app.opportunity.issuerActorId;
+		const next = applicationTransition(app.status as ApplicationStatusValue, action);
+		if (!next) throw new OpportunityError('Cette candidature est déjà tranchée.');
+		if (action !== 'accept') {
+			await tx.application.update({
+				where: { id: applicationId },
+				data: { status: next, ...(action === 'decline' ? { decidedAt: now } : {}) }
+			});
+			return { conversationId: null, joinedBand: false };
+		}
+		const o = app.opportunity;
+		if (o.status !== 'OPEN') throw new OpportunityError('Cette annonce n’est plus ouverte.');
+		// Plateau (P5-05a) : le groupe candidat parle par la personne qui a
+		// envoyé la candidature ; sans elle (compte supprimé), pas de conversation.
+		const contactId = app.delegated || o.kind === 'GIG_SLOT' ? app.sentById : app.applicantActorId;
+		if (!contactId) {
+			throw new OpportunityError(
+				'La personne qui a envoyé cette candidature n’est plus là : écris au groupe.'
+			);
+		}
+		const issuerIds = [issuerId, o.issuerActorId];
+		const candidateIds = [contactId, app.applicantActorId];
+		if (
+			await tx.block.count({
+				where: {
+					OR: [
+						{ blockerActorId: { in: issuerIds }, blockedActorId: { in: candidateIds } },
+						{ blockedActorId: { in: issuerIds }, blockerActorId: { in: candidateIds } }
+					]
+				}
+			})
+		) {
+			throw new OpportunityError('Impossible d’accepter cette candidature.');
+		}
+
+		const instrument = o.instrumentId
+			? await tx.instrument.findUnique({ where: { id: o.instrumentId }, select: { name: true } })
+			: null;
+
 		const accepted = await tx.application.count({
 			where: { opportunityId: o.id, status: 'ACCEPTED' }
 		});
@@ -378,9 +451,10 @@ export async function decideApplication(
 		// l'échange réciproque (XP des deux, règle de l'annonce).
 		const key = pairKey(issuerId, contactId);
 		const body =
-			o.kind === 'GIG_SLOT'
+			app.delegated || o.kind === 'GIG_SLOT'
 				? `Candidature à « ${o.title} », au nom de ${app.applicant.displayName} :\n\n${app.message}`
 				: `Candidature à « ${o.title} » :\n\n${app.message}`;
+		await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`conversation-pair:${key}`}))`;
 		const existing = await tx.conversation.findUnique({ where: { pairKey: key } });
 		let conversationId: string;
 		if (existing) {
@@ -389,6 +463,7 @@ export async function decideApplication(
 				where: { id: existing.id },
 				data: {
 					lastMessageAt: now,
+					...(app.delegated ? { delegated: true } : {}),
 					...(existing.opportunityId === null && existing.reciprocatedAt === null
 						? { opportunityId: o.id }
 						: {})
@@ -413,6 +488,7 @@ export async function decideApplication(
 					pairKey: key,
 					initiatorId: contactId,
 					opportunityId: o.id,
+					delegated: app.delegated,
 					lastMessageAt: now,
 					participants: {
 						create: [
@@ -461,6 +537,17 @@ export async function decideApplication(
 			href: `/messages/${conversationId}`,
 			title: o.title
 		});
+		if (app.delegated) {
+			for (const recipientId of await artistAnswerers(tx, app.applicantActorId, now)) {
+				await notify(tx, {
+					recipientId,
+					type: 'APPLICATION_ACCEPTED',
+					fromActorId: issuerId,
+					href: `/annonces/${o.id}`,
+					title: o.title
+				});
+			}
+		}
 		return { conversationId, joinedBand: Boolean(bandId && o.kind === 'RECRUIT_MEMBER') };
 	}, BAND_TX);
 }

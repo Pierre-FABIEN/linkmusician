@@ -1486,6 +1486,7 @@ model Actor {
   schoolInvitesCreated       SchoolInvite[]           @relation("SchoolInviteCreator")
   /// Candidatures envoyées au nom d'un groupe (P5-05a).
   applicationsSent           Application[]            @relation("ApplicationSender")
+  applicationsWithdrawn      Application[]            @relation("ApplicationWithdrawer")
   works                      Work[]                   @relation("WorkOwner")
   worksCreated               Work[]                   @relation("WorkCreator")
   workCredits                WorkContributor[]        @relation("WorkContributorPerson")
@@ -2153,6 +2154,8 @@ model Conversation {
   opportunityId  String?
   /// Première réponse du destinataire (événement `conversation.reciprocated`).
   reciprocatedAt DateTime?
+  /// DASH-07b : échange avec un agent, sans récompense de réciprocité.
+  delegated      Boolean                   @default(false)
   lastMessageAt  DateTime                  @default(now())
   createdAt      DateTime                  @default(now())
 
@@ -2346,6 +2349,11 @@ model Application {
   /// (`applicantActorId`). Oubliée à l'anonymisation.
   sentById         String?
   sentBy           Actor?            @relation("ApplicationSender", fields: [sentById], references: [id], onDelete: SetNull)
+  /// D71 : ne dépend pas de sentById, qui peut être anonymisé.
+  delegated        Boolean           @default(false)
+  withdrawnAt      DateTime?
+  withdrawnById    String?
+  withdrawnBy      Actor?            @relation("ApplicationWithdrawer", fields: [withdrawnById], references: [id], onDelete: SetNull)
   status           ApplicationStatus @default(SENT)
   /// Conversation ouverte à l'acceptation.
   conversationId   String?
@@ -2780,6 +2788,7 @@ model ReputationSnapshot {
 enum NotificationType {
   CONTACT_REQUEST
   APPLICATION_RECEIVED
+  APPLICATION_SENT
   APPLICATION_ACCEPTED
   COLLAB_TO_CONFIRM
   ENDORSEMENT

@@ -12,7 +12,7 @@
 
 ## 1. Où on en est
 
-**20 issues GitHub fermées sur 45 (44,4 %), 25 ouvertes au 16/11/2026.**
+**24 issues GitHub fermées sur 56 (42,9 %), 32 ouvertes au 17/11/2026.**
 Le [bilan consolidé](bilan-issues-2026-11-16.md) distingue les livraisons partielles,
 les épopées et la publication des commits. Le décompte ne mesure pas la charge
 restante ni un taux de préparation au lancement ; l’ancienne estimation
@@ -878,7 +878,7 @@ d'acceptation ; #52 à #54 restent ouverts. Détail : [morceaux](../morceaux/REA
   migration additive éventuelle, tests de concurrence/consentement/RGPD et
   retour applicatif conservant les données. Ne pas déclarer #36 terminé par SELF.
 
-##### DASH-07a / #37 — droit de candidater ✅ (local)
+##### DASH-07a / #37 — droit de candidater ✅ (publié : ad36147)
 
 - **Décision** : D71, [conception 18](../conception/18-candidature-deleguee.md).
 - **Livré** : `ApplicationGrant` et `ApplicationGrantAct` (migration additive
@@ -889,10 +889,10 @@ d'acceptation ; #52 à #54 restent ouverts. Détail : [morceaux](../morceaux/REA
   et anonymisation, démo Élise → Fanfare Pirate, aide « Candidater pour un·e
   artiste ». Aucune candidature n'est encore envoyée par ce droit.
 
-##### DASH-07b / #37 — candidature déléguée
+##### DASH-07b / #37 — candidature déléguée ✅ (local)
 
 - **Dépend** : DASH-07a.
-- **À faire** : depuis une annonce (plateau pour un groupe ; jam ou session
+- **Livré** : depuis une annonce (plateau pour un groupe ; jam ou session
   pour une personne), « Candidater au nom de » pour l'agent qui a un droit
   actif ; dans la transaction : `lockGrantPair` puis verrou de l'annonce,
   `usableGrant`, mêmes conditions que la candidature directe sur l'artiste
@@ -906,6 +906,13 @@ d'acceptation ; #52 à #54 restent ouverts. Détail : [morceaux](../morceaux/REA
 - **Tests** : intégration (droit absent, révoqué, échu, hors type ; course
   révocation contre envoi ; mineur·e ; groupe ; doublon artiste/agent ; aucune
   XP), E2E 390 px, clavier, axe, POST forgé.
+- **Recette (17/11/2026)** : `check` 0 erreur ; ESLint et Prettier propres sur
+  les fichiers du lot ; unitaires 1432 ✓ ; intégration opportunités,
+  représentation et messagerie 70 ✓ ; E2E `candidature-deleguee`,
+  `droit-de-candidater`, `candidatures`, `annonces`, `annonces-metier`,
+  `annonces-qualifiees`, `messagerie` ✓. Correctif de test : `candidatures`
+  attend la fin du toast avant le scan axe (contraste faussé pendant le fondu,
+  aléa antérieur au lot). Migration appliquée aux schémas `public` et `e2e`.
 
 ##### Réutilisation dans les modules métier
 

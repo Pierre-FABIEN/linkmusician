@@ -73,3 +73,14 @@ Module LinkMusician (lot P2-04, décisions D5 et D8). Pages `/messages`,
 - Service : `src/lib/server/messaging/service.ts`.
 - E2E : `e2e/linkmusician/messagerie.spec.ts` (mineur, demande, acceptation,
   réponse, réciprocité tracée sans XP, quota TL0).
+
+## Conversation d’une candidature déléguée (D71)
+
+L’acceptation met en relation l’émetteur et l’agent ayant envoyé la candidature.
+Le message initial précise l’artiste représenté et le fil porte une mention
+« Candidature déléguée ». La marque `Conversation.delegated` est conservée
+lorsqu’une paire existante est réutilisée. La première réponse conserve
+`reciprocatedAt`, mais aucun événement de progression ni gain d’XP n’est émis.
+La marque est relue sous verrou avant cette décision. Les anciennes
+récompenses éventuelles ne sont pas modifiées. L’artiste reçoit une
+notification vers l’annonce ; il n’accède pas à cette conversation privée.

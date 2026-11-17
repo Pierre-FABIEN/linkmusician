@@ -11,6 +11,7 @@ export const NOTIFICATION_TYPES = [
 	'APPLICATION_GRANT',
 	'CONTACT_REQUEST',
 	'APPLICATION_RECEIVED',
+	'APPLICATION_SENT',
 	'APPLICATION_ACCEPTED',
 	'COLLAB_TO_CONFIRM',
 	'ENDORSEMENT',
@@ -38,6 +39,7 @@ export function isNotificationType(value: unknown): value is NotificationTypeVal
 export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, string>> = {
 	CONTACT_REQUEST: 'Demandes de contact',
 	APPLICATION_RECEIVED: 'Candidatures à mes annonces',
+	APPLICATION_SENT: 'Candidatures envoyées en mon nom',
 	APPLICATION_ACCEPTED: 'Candidatures acceptées',
 	COLLAB_TO_CONFIRM: 'Collaborations à confirmer',
 	ENDORSEMENT: 'Appréciations reçues',
@@ -87,6 +89,8 @@ export function notificationText(
 	switch (type) {
 		case 'CONTACT_REQUEST':
 			return `${who} aimerait échanger avec toi.`;
+		case 'APPLICATION_SENT':
+			return `${who} a envoyé une candidature en ton nom${title ? ` : « ${title} »` : ''}.`;
 		case 'APPLICATION_RECEIVED':
 			return `${who} a postulé à ton annonce${what}.`;
 		case 'APPLICATION_ACCEPTED':

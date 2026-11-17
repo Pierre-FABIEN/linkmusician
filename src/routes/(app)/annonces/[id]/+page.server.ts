@@ -21,6 +21,11 @@ import {
 	myApplication,
 	withdrawApplication
 } from '#lib/server/opportunities/applications';
+import {
+	applyDelegated,
+	delegatedOptions,
+	delegatedApplicationsFor
+} from '#lib/server/opportunities/delegated';
 import { demarcheNudge } from '#lib/server/demarches/service';
 import { isAdult } from '#lib/server/jam/publicJams';
 import {
@@ -39,11 +44,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const actorId = person.actorId;
 	const opportunity = await getOpportunity(params.id, actorId);
 	if (!opportunity) error(404, 'Annonce introuvable');
+	const delegation = {
+		delegatedOptions: opportunity.isOwner ? [] : await delegatedOptions(actorId, params.id),
+		delegatedApplications: await delegatedApplicationsFor(actorId, params.id)
+	};
 	// Démarche en contexte (P3-15a, 09 §3) : une session payée, c'est un cachet.
 	const demarche = await demarcheNudge(actorId, { screen: 'annonce', kind: opportunity.kind });
 	if (opportunity.isOwner) {
 		return {
 			opportunity,
+			...delegation,
 			demarche,
 			applications: await listForIssuer(actorId, params.id),
 			mine: null,
@@ -60,6 +70,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		]);
 		return {
 			opportunity,
+			...delegation,
 			applications: [],
 			mine: null,
 			unmet: [],
@@ -87,7 +98,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		});
 		({ unmet, unknown } = await eligibilityFor(actorId, raw));
 	}
-	return { opportunity, applications: [], mine, unmet, unknown, demarche, gig: null };
+	return {
+		opportunity,
+		...delegation,
+		applications: [],
+		mine,
+		unmet,
+		unknown,
+		demarche,
+		gig: null
+	};
 };
 
 const guard = async (run: () => Promise<unknown>, message: string) => {
@@ -101,6 +121,19 @@ const guard = async (run: () => Promise<unknown>, message: string) => {
 };
 
 export const actions: Actions = {
+	applyDelegated: async ({ locals, params, request }) => {
+		const data = await request.formData();
+		return guard(
+			async () =>
+				applyDelegated(
+					(await me(locals)).actorId,
+					params.id,
+					String(data.get('artistId') ?? ''),
+					String(data.get('message') ?? '')
+				),
+			'Candidature envoyée au nom de l’artiste.'
+		);
+	},
 	apply: async ({ locals, params, request }) => {
 		const body = String((await request.formData()).get('message') ?? '');
 		return guard(

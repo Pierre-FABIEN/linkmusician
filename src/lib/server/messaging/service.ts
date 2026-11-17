@@ -114,6 +114,7 @@ async function loadParticipants(actorId: string, conversationId: string) {
 			id: true,
 			initiatorId: true,
 			opportunityId: true,
+			delegated: true,
 			reciprocatedAt: true,
 			participants: { select: { actorId: true, state: true, lastReadAt: true } }
 		}
@@ -174,7 +175,13 @@ export async function sendMessage(actorId: string, conversationId: string, raw: 
 			where: { conversationId_actorId: { conversationId, actorId } },
 			data: { lastReadAt: now, ...(me.state === 'REQUEST' ? { state: 'ACCEPTED' } : {}) }
 		});
-		if (firstReply) {
+		// Lire sous le verrou pris par UPDATE : une acceptation déléguée
+		// concurrente ne doit pas laisser passer une récompense périmée.
+		const fresh = await tx.conversation.findUniqueOrThrow({
+			where: { id: conversationId },
+			select: { delegated: true }
+		});
+		if (firstReply && !fresh.delegated) {
 			// Échange réciproque : un événement par personne (la règle crédite
 			// l'acteur de l'événement, et seulement si la conversation est née
 			// d'une annonce).
@@ -196,7 +203,7 @@ export async function sendMessage(actorId: string, conversationId: string, raw: 
 
 /** Fil d'une conversation (les plus récents), marqué comme lu. */
 export async function openConversation(actorId: string, conversationId: string) {
-	const { me, other } = await loadParticipants(actorId, conversationId);
+	const { conversation, me, other } = await loadParticipants(actorId, conversationId);
 	const [otherActor, messages, mySentCount, blocked] = await Promise.all([
 		prisma.actor.findUniqueOrThrow({
 			where: { id: other.actorId },
@@ -222,6 +229,7 @@ export async function openConversation(actorId: string, conversationId: string) 
 	}
 	return {
 		id: conversationId,
+		delegated: conversation.delegated,
 		/** Repère pour le rafraîchissement léger (`hasNewSince`). */
 		latestAt: messages[0]?.createdAt.toISOString() ?? null,
 		other: {

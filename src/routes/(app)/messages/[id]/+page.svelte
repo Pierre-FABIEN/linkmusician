@@ -121,6 +121,9 @@
 			</section>
 		{/if}
 
+		{#if c.delegated}<p class="text-sm text-muted-foreground">
+				Candidature déléguée : l’agent échange au nom de l’artiste représenté.
+			</p>{/if}
 		{#if data.validationHistory.length > 0}
 			<details class="lm-tile lm-tile--flow space-y-3 p-3">
 				<summary class="min-h-11 cursor-pointer font-semibold"

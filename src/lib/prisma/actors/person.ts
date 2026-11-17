@@ -170,6 +170,8 @@ export async function exportPersonData(userId: string) {
 				select: {
 					message: true,
 					status: true,
+					delegated: true,
+					withdrawnAt: true,
 					createdAt: true,
 					applicant: { select: { displayName: true } },
 					opportunity: { select: { title: true } }
@@ -395,6 +397,9 @@ export async function exportPersonData(userId: string) {
 				message: true,
 				status: true,
 				createdAt: true,
+				delegated: true,
+				withdrawnAt: true,
+				sentBy: { select: { displayName: true } },
 				opportunity: { select: { title: true } }
 			}
 		}),
@@ -668,6 +673,11 @@ export async function exportPersonData(userId: string) {
 	});
 	// DASH-06a : étapes prises en charge et actes qui me concernent.
 	const workSteps = await workStepsExport(person.actorId);
+	const withdrawals = await prisma.application.findMany({
+		where: { withdrawnById: person.actorId },
+		select: { id: true, withdrawnAt: true, opportunity: { select: { title: true } } }
+	});
+
 	return {
 		actes_de_participation: membershipDecisions.map((d) => ({
 			role:
@@ -974,14 +984,24 @@ export async function exportPersonData(userId: string) {
 			ma_prestation: c.participants.find((p) => p.actorId === person.actorId)?.service ?? null,
 			morceau: c.work?.title ?? null
 		})),
+		retraits_de_candidatures: withdrawals.map((a) => ({
+			candidature: a.id,
+			annonce: a.opportunity.title,
+			le: a.withdrawnAt
+		})),
 		candidatures: applications.map((a) => ({
 			annonce: a.opportunity.title,
+			deleguee: a.delegated,
+			envoyee_par: a.sentBy?.displayName ?? null,
+			retiree_le: a.withdrawnAt,
 			message: a.message,
 			statut: a.status,
 			le: a.createdAt
 		})),
 		candidatures_au_nom_d_un_groupe: bandApplications.map((a) => ({
 			plateau: a.opportunity.title,
+			deleguee: a.delegated,
+			retiree_le: a.withdrawnAt,
 			groupe: a.applicant.displayName,
 			message: a.message,
 			statut: a.status,
@@ -1425,6 +1445,10 @@ export async function personAnonymizationOps(
 		// Candidatures (P2-03) : supprimées avec le compte. Celles envoyées au
 		// nom d'un groupe (plateaux, P5-05a) restent au groupe ; on oublie qui
 		// les a envoyées.
+		prisma.application.updateMany({
+			where: { withdrawnById: person.actorId },
+			data: { withdrawnById: null }
+		}),
 		prisma.application.deleteMany({ where: { applicantActorId: person.actorId } }),
 		prisma.application.updateMany({
 			where: { sentById: person.actorId },

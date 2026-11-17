@@ -72,3 +72,36 @@ export async function seedApplicationGrants(prisma: PrismaClient) {
 		});
 	});
 }
+
+/** DASH-07b : annonce de démonstration, sans accorder de droit ni envoyer de candidature. */
+export async function seedDelegatedOpportunity(prisma: PrismaClient) {
+	const title = 'Scène ouverte aux projets accompagnés';
+	const source = await prisma.opportunity.findFirst({
+		where: {
+			kind: 'GIG_SLOT',
+			venueId: { not: null },
+			issuer: { deletedAt: null, person: { user: { email: { endsWith: DEMO } } } }
+		},
+		orderBy: { id: 'asc' },
+		select: { issuerActorId: true, venueId: true }
+	});
+	if (
+		!source ||
+		(await prisma.opportunity.count({ where: { title, issuerActorId: source.issuerActorId } }))
+	)
+		return;
+	const startsAt = new Date(Date.now() + 14 * DAY);
+	await prisma.opportunity.create({
+		data: {
+			...source,
+			kind: 'GIG_SLOT',
+			title,
+			description:
+				'Un plateau ouvert aux groupes de la région, avec ou sans accompagnement. Présentez votre répertoire et vos disponibilités.',
+			startsAt,
+			expiresAt: startsAt,
+			slots: 4,
+			radiusKm: 100
+		}
+	});
+}

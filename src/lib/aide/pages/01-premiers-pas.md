@@ -413,7 +413,7 @@ Les activités, le territoire et la durée du mandat parent s’appliquent toujo
 Chacune des parties peut retirer l’affectation. Quitter l’agence, perdre son
 accès ou terminer le mandat retire les droits ; revenir dans l’agence ne les
 réactive pas. Pour changer les droits, retirez puis soumettez une nouvelle
-proposition. Les candidatures pour autrui ne sont pas encore ouvertes.
+proposition. Candidater pour autrui exige un droit distinct, demandé par le titulaire du mandat et accordé par l’artiste. Une affectation en agence ne suffit pas.
 
 ### Ton métier actif et ton métier principal {#metier-actif}
 

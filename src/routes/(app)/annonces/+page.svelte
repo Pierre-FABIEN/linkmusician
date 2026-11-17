@@ -140,6 +140,8 @@
 										<span class="truncate"
 											>{a.opportunity.title}{#if a.band}<span class="text-muted-foreground">
 													· {a.band}</span
+												>{/if}{#if a.sender}<span class="block text-xs text-muted-foreground"
+													>Envoyée par {a.sender}</span
 												>{/if}</span
 										>
 										<Badge variant={a.status === 'ACCEPTED' ? 'default' : 'outline'}

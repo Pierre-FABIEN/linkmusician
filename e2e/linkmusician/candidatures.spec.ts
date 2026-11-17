@@ -80,6 +80,8 @@ test.describe('LinkMusician — candidatures', () => {
 					.fill('Batteur funk depuis 10 ans, dispo le mardi !');
 				await malikPage.getByRole('button', { name: 'Envoyer ma candidature' }).click();
 				await expect(malikPage.getByText('Ta candidature : Envoyée')).toBeVisible();
+				// Toast en cours d'animation : contraste faussé pendant le fondu.
+				await expect(malikPage.locator('[data-sonner-toast]')).toHaveCount(0, { timeout: 15_000 });
 				await expectNoA11yViolations(malikPage, A11Y_EXCLUDE);
 			});
 

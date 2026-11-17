@@ -71,8 +71,9 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 Étapes A à F : voir [fin-du-projet.md §1](./fin-du-projet.md#1-où-on-en-est).
 Un lot terminé reste dans le tableau avec ✅ jusqu'à la fin de son étape.
 
-**Issues GitHub au 16/11/2026 : 20 fermées sur 45 (44,4 %), 25 ouvertes.**
-[Bilan détaillé et ménage du suivi](bilan-issues-2026-11-16.md).
+**Issues GitHub au 17/11/2026 : 24 fermées sur 56 (42,9 %), 32 ouvertes.**
+[Bilan des issues et des commits](bilan-issues-2026-11-17.md) : quatre clôtures
+sur le périmètre précédent, onze nouveaux tickets UX et idéation.
 Ce taux compte des tickets, dont épopées et sous-lots ; il ne mesure ni une
 charge pondérée ni la préparation à la production. L’ancien compteur de lots
 113/132 ne couvrait pas les extensions DASH/ARCH et est retiré du résumé courant.
@@ -222,8 +223,8 @@ exécution a planté à l'ouverture du navigateur (mémoire WSL) ; la relance pa
 | DASH-04a     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ publié       | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous                                                    |
 | DASH-02b     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ publié       | Agences privées, invitations et rôles, acceptation, révocation, transmission et fermeture ; aucun droit artistique implicite. Affectations et délégations complétées par DASH-04b.                             |
 | DASH-04b     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ publié       | Affectations nominatives, double accord, droits explicites, périmètre du mandat et adhésions figées ; recette ci-dessous.                                                                                      |
-| DASH-07a     | [#37](https://github.com/Pierre-FABIEN/linkmusician/issues/37) | ✅ local        | Droit de candidater (D71) : demande, accord de l’artiste, révocation, actes en ajout seul, RGPD ; migration additive ; 8 + 6 tests, 1 E2E.                                                                     |
-| DASH-07b     | [#37](https://github.com/Pierre-FABIEN/linkmusician/issues/37) | À faire         | Candidature déléguée par ce droit, revérifié sous verrou ; retrait par l’artiste ; conversation avec l’agent, sans XP.                                                                                         |
+| DASH-07a     | [#37](https://github.com/Pierre-FABIEN/linkmusician/issues/37) | ✅ publié       | Droit de candidater (D71) : demande, accord de l’artiste, révocation, actes en ajout seul, RGPD ; migration additive ; 8 + 6 tests, 1 E2E.                                                                     |
+| DASH-07b     | [#37](https://github.com/Pierre-FABIEN/linkmusician/issues/37) | ✅ local        | Candidature déléguée avec droit relu sous verrou, territoire et conditions de l’artiste ; acte USED, notification, retrait avec auteur ; conversation agent sans XP, RGPD.                                     |
 
 Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
 Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,

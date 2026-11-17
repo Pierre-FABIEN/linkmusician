@@ -353,7 +353,16 @@ plateaux au nom du groupe, jusqu’à 90 jours au plus. Lucas, qui gère la
 Fanfare, le voit dans `/accompagnement` › **Droit de candidater →** et peut
 l’accorder ou le refuser ; l’un comme l’autre peut ensuite le révoquer. Le
 seed ne donne jamais l’accord à sa place et ne recrée pas une demande déjà
-tranchée. L’envoi des candidatures avec ce droit arrive avec DASH-07b.
+tranchée.
+
+DASH-07b ajoute l’annonce **Scène ouverte aux projets accompagnés** (plateau
+sans condition de genre ou de rang, rayon de 100 km, quatre places), créée une
+seule fois par `seedDelegatedOpportunity`. Après l’accord de Lucas, ouvrir ce
+plateau avec `elise-booker`, choisir Fanfare Pirate dans **Candidater au nom
+d’un artiste**, puis envoyer un message. Lucas reçoit une notification et
+peut retirer depuis l’annonce ; l’émetteur peut accepter et échanger avec
+Élise, sans gain d’XP de réciprocité. Le seed n’accorde aucun droit et n’envoie
+aucune candidature. Il conserve l’état d’une annonce déjà créée.
 
 ### Historique privé des affectations — DASH-05a
 
