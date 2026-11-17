@@ -98,6 +98,11 @@
 								{/if}
 							</span>
 							<p class="w-full text-sm text-muted-foreground">{mandateSummary(r)}</p>
+							<!-- DASH-07a : droit de candidater, distinct du mandat. -->
+							<a
+								href={resolve('/(app)/accompagnement/[id]/candidatures', { id: r.id })}
+								class="text-sm font-semibold text-primary underline">Droit de candidater →</a
+							>
 							<form method="POST" action="?/end" use:enhance>
 								<input type="hidden" name="id" value={r.id} />
 								<button class="{btn} border hover:bg-muted">Mettre fin</button>
@@ -225,6 +230,12 @@
 								</span>
 								{#if r.status !== 'ENDED'}
 									<p class="w-full text-sm text-muted-foreground">{mandateSummary(r)}</p>
+									{#if r.status === 'CONFIRMED'}
+										<a
+											href={resolve('/(app)/accompagnement/[id]/candidatures', { id: r.id })}
+											class="text-sm font-semibold text-primary underline">Droit de candidater →</a
+										>
+									{/if}
 									<form method="POST" action="?/end" use:enhance>
 										<input type="hidden" name="id" value={r.id} />
 										<button class="{btn} border hover:bg-muted"

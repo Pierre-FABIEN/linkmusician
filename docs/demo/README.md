@@ -346,6 +346,15 @@ de la Fanfare), dans `/delegations`. Elle ne donne aucun accès avant les deux a
 Le seed ne recrée pas la proposition si elle a déjà été retirée ou refusée,
 ne change aucun mandat existant et ne sollicite que les comptes démo.
 
+## Droit de candidater (DASH-07a)
+
+Élise (booker de la Fanfare Pirate) a demandé le droit de candidater aux
+plateaux au nom du groupe, jusqu’à 90 jours au plus. Lucas, qui gère la
+Fanfare, le voit dans `/accompagnement` › **Droit de candidater →** et peut
+l’accorder ou le refuser ; l’un comme l’autre peut ensuite le révoquer. Le
+seed ne donne jamais l’accord à sa place et ne recrée pas une demande déjà
+tranchée. L’envoi des candidatures avec ce droit arrive avec DASH-07b.
+
 ### Historique privé des affectations — DASH-05a
 
 Le scénario d’agence et d’affectation de `seedDelegations` sert aussi de démo

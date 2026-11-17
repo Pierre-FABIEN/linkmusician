@@ -38,7 +38,8 @@ nécessaire, jamais suffisante.
 - **Périmètre** : types d’annonces cochés par l’artiste, parmi ceux qui
   s’appliquent :
   - groupe : plateaux (`GIG_SLOT`) ;
-  - personne : jam, session, remplacement ;
+  - personne : jam (`JAM`), session ou prestation (`SESSION_WORK`, qui couvre
+    aussi les remplacements : il n'existe pas de type distinct) ;
   - booker : plateaux seulement ; manager : tous les types ci-dessus ;
   - **recrutement d’un groupe (`RECRUIT_MEMBER`) exclu** : l’accepter ferait
     adhérer la personne sans son consentement propre.
@@ -95,3 +96,31 @@ et `sentById` oubliés ; un droit accordé par un groupe reste celui du groupe.
   RGPD, pages (accompagnement de l’agent et de l’artiste), notifications.
 - **DASH-07b** : candidature déléguée (envoi, notification, retrait par
   l’artiste, conversation sans XP), E2E 390 px, clavier, axe, POST forgé.
+
+## Réalisation DASH-07a (17/11/2026)
+
+- Règles pures : `src/lib/representation/applicationGrants.ts` (types par
+  couple artiste/métier, durée, état lu à la date, actes).
+- Service : `src/lib/server/representation/applicationGrants.ts` :
+  `requestGrant`, `answerGrant`, `endGrant` (retrait d'une demande ou
+  révocation), `grantsForRepresentation` (vue des deux parties) et, pour
+  DASH-07b, `lockGrantPair` + `usableGrant` (droit et mandat relus sous les
+  verrous `band:<artiste>` puis `rep:<agent>:<artiste>`, ceux des mandats).
+- Page `/accompagnement/[id]/candidatures`, liée depuis chaque mandat
+  confirmé de `/accompagnement` ; notification `APPLICATION_GRANT`.
+- Migration additive `20261117150401_application_grants` : deux tables, une
+  enum d'actes, une valeur de notification, contrainte
+  `application_grants_kinds_check` (types non vides, recrutement exclu). Pas
+  d'index partiel : l'unicité d'un droit ouvert par mandat est garantie sous
+  verrou, une demande échue ne bloquant pas la suivante.
+- Un droit accordé dont le mandat n'est plus actif reste affiché « sans
+  effet » ; on peut toujours le révoquer, ou refuser une demande.
+- RGPD : export `droits_de_candidater` (avec actes) ; anonymisation : droits
+  ouverts terminés par un acte sans auteur, auteurs oubliés.
+- Démo : Élise demande le droit pour la Fanfare Pirate ; la gestion du
+  groupe le tranche.
+- Tests : `applicationGrants.test.ts` (8), `applicationGrants.integration.test.ts`
+  (6 : mandat seul insuffisant, périmètre et durée, gestion majeure du groupe,
+  retrait/refus/révocation/échéance/fin du mandat, course révocation contre
+  usage sous verrou, vue et RGPD), E2E `droit-de-candidater.spec.ts` (390 px,
+  clavier, axe, POST forgé de l'agent et d'un tiers).

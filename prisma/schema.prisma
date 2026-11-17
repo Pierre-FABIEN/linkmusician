@@ -1398,6 +1398,10 @@ model Actor {
   mandateDelegationsProposed RepresentationDelegation[] @relation("DelegationProposer")
   mandateDelegationsApproved RepresentationDelegation[] @relation("DelegationApprover")
   mandateDelegationsEnded RepresentationDelegation[] @relation("DelegationEnder")
+  applicationGrantsRequested ApplicationGrant[] @relation("GrantRequester")
+  applicationGrantsGranted ApplicationGrant[] @relation("GrantGranter")
+  applicationGrantsEnded ApplicationGrant[] @relation("GrantEnder")
+  applicationGrantActs ApplicationGrantAct[]
   id          String    @id @default(cuid())
   kind        ActorKind
   /// Identifiant public (`@handle`), unique, en minuscules : voir `src/lib/server/actors/handle.ts`.
@@ -2808,6 +2812,8 @@ enum NotificationType {
   MESSAGES
   PROGRESS
   DELEGATION_REQUEST
+  /// Droit de candidater pour autrui demandé, accordé ou révoqué (DASH-07a).
+  APPLICATION_GRANT
 }
 
 /// Notification dans l'app (cloche). Le texte est composé à l'affichage
@@ -3860,6 +3866,7 @@ enum RepresentationStatus {
 /// accompagnement repris après la fin est une nouvelle ligne.
 model Representation {
   delegations RepresentationDelegation[]
+  applicationGrants ApplicationGrant[]
   id            String               @id @default(cuid())
   agentId       String
   agent         Actor                @relation("RepresentationAgent", fields: [agentId], references: [id], onDelete: Cascade)
@@ -4210,3 +4217,56 @@ enum OpportunityPresence {
   REMOTE
 }
 
+/// DASH-07a (D71) : droit de candidater au nom d'un artiste, distinct du
+/// mandat parent, qui reste nécessaire. Demandé par l'agent titulaire,
+/// accordé par l'artiste ou la gestion majeure du groupe. Fin exclusive
+/// obligatoire ; immuable : changer = révoquer puis redemander.
+model ApplicationGrant {
+  id               String                @id @default(cuid())
+  representationId String
+  representation   Representation        @relation(fields: [representationId], references: [id], onDelete: Cascade)
+  /// Types d'annonces couverts (GIG_SLOT, JAM, SESSION_WORK).
+  kinds            String[]
+  expiresAt        DateTime
+  requestedById    String?
+  requestedBy      Actor?                @relation("GrantRequester", fields: [requestedById], references: [id], onDelete: SetNull)
+  grantedAt        DateTime?
+  grantedById      String?
+  grantedBy        Actor?                @relation("GrantGranter", fields: [grantedById], references: [id], onDelete: SetNull)
+  /// Refus, retrait de la demande ou révocation, selon le dernier acte.
+  endedAt          DateTime?
+  endedById        String?
+  endedBy          Actor?                @relation("GrantEnder", fields: [endedById], references: [id], onDelete: SetNull)
+  createdAt        DateTime              @default(now())
+  acts             ApplicationGrantAct[]
+
+  @@index([representationId, endedAt])
+  @@map("application_grants")
+}
+
+/// Actes du droit, en ajout seul : jamais modifiés ni supprimés (hors
+/// anonymisation, qui oublie l'auteur).
+model ApplicationGrantAct {
+  id            String                  @id @default(cuid())
+  grantId       String
+  grant         ApplicationGrant        @relation(fields: [grantId], references: [id], onDelete: Cascade)
+  kind          ApplicationGrantActKind
+  byId          String?
+  by            Actor?                  @relation(fields: [byId], references: [id], onDelete: SetNull)
+  /// Candidature envoyée par ce droit (acte USED, DASH-07b).
+  applicationId String?
+  createdAt     DateTime                @default(now())
+
+  @@index([grantId, createdAt])
+  @@index([byId])
+  @@map("application_grant_acts")
+}
+
+enum ApplicationGrantActKind {
+  REQUESTED
+  GRANTED
+  DECLINED
+  WITHDRAWN
+  REVOKED
+  USED
+}

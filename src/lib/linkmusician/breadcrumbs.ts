@@ -130,6 +130,11 @@ const ROUTES: Record<string, Node> = {
 		label: 'Historique des accompagnements',
 		parent: '/accompagnement'
 	},
+	'/accompagnement/[id]/candidatures': {
+		label: 'Droit de candidater',
+		parent: '/accompagnement',
+		name: at('view', 'artistName')
+	},
 	'/accompagnement/[id]/historique': {
 		label: 'Actes conservés',
 		parent: '/accompagnement/historique'

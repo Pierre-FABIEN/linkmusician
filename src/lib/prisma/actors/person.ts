@@ -214,6 +214,37 @@ export async function exportPersonData(userId: string) {
 			}
 		})
 	]);
+	// DASH-07a : droits de candidater demandés, accordés, reçus ou terminés, et leurs actes.
+	const applicationGrants = await prisma.applicationGrant.findMany({
+		where: {
+			OR: [
+				{ requestedById: person.actorId },
+				{ grantedById: person.actorId },
+				{ endedById: person.actorId },
+				{ acts: { some: { byId: person.actorId } } },
+				{ representation: { OR: [{ agentId: person.actorId }, { artistId: person.actorId }] } }
+			]
+		},
+		orderBy: { createdAt: 'asc' },
+		select: {
+			kinds: true,
+			expiresAt: true,
+			createdAt: true,
+			grantedAt: true,
+			endedAt: true,
+			representation: {
+				select: {
+					kind: true,
+					artist: { select: { displayName: true } },
+					agent: { select: { displayName: true } }
+				}
+			},
+			acts: {
+				orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+				select: { kind: true, createdAt: true, by: { select: { displayName: true } } }
+			}
+		}
+	});
 	const mandateDelegations = await prisma.representationDelegation.findMany({
 		where: {
 			OR: [
@@ -753,6 +784,21 @@ export async function exportPersonData(userId: string) {
 			fin_exclue: d.expiresAt,
 			retire_le: d.endedAt
 		})),
+		droits_de_candidater: applicationGrants.map((g) => ({
+			artiste: g.representation.artist.displayName,
+			agent: g.representation.agent.displayName,
+			metier: g.representation.kind,
+			types_d_annonces: g.kinds,
+			demande_le: g.createdAt,
+			accorde_le: g.grantedAt,
+			fin_exclue: g.expiresAt,
+			termine_le: g.endedAt,
+			actes: g.acts.map((a) => ({
+				acte: a.kind,
+				le: a.createdAt,
+				par: a.by?.displayName ?? null
+			}))
+		})),
 		accompagnements: representations.map((r) => ({
 			role:
 				r.agentId === person.actorId
@@ -1111,6 +1157,16 @@ export async function personAnonymizationOps(
 	const person = await prisma.person.findUnique({ where: { userId }, select: { actorId: true } });
 	if (!person) return [];
 	const bandOps = await bandAnonymizationOps(person.actorId);
+	// DASH-07a : droits de candidater encore ouverts où la personne est
+	// l'agent ou l'artiste ; ils se terminent par un acte sans auteur.
+	const openGrants = await prisma.applicationGrant.findMany({
+		where: {
+			endedAt: null,
+			representation: { OR: [{ agentId: person.actorId }, { artistId: person.actorId }] }
+		},
+		select: { id: true, grantedAt: true }
+	});
+	const grantEnd = new Date();
 	return [
 		...bandOps,
 		prisma.person.update({ where: { userId }, data: { birthDate: null } }),
@@ -1153,6 +1209,35 @@ export async function personAnonymizationOps(
 		prisma.representationDelegation.updateMany({
 			where: { endedById: person.actorId },
 			data: { endedById: null }
+		}),
+		// DASH-07a : droits ouverts terminés (acte sans auteur), auteurs oubliés ;
+		// un droit accordé par un groupe reste au groupe.
+		prisma.applicationGrant.updateMany({
+			where: { id: { in: openGrants.map((g) => g.id) } },
+			data: { endedAt: grantEnd }
+		}),
+		prisma.applicationGrantAct.createMany({
+			data: openGrants.map((g) => ({
+				grantId: g.id,
+				kind: g.grantedAt ? ('REVOKED' as const) : ('WITHDRAWN' as const),
+				createdAt: grantEnd
+			}))
+		}),
+		prisma.applicationGrant.updateMany({
+			where: { requestedById: person.actorId },
+			data: { requestedById: null }
+		}),
+		prisma.applicationGrant.updateMany({
+			where: { grantedById: person.actorId },
+			data: { grantedById: null }
+		}),
+		prisma.applicationGrant.updateMany({
+			where: { endedById: person.actorId },
+			data: { endedById: null }
+		}),
+		prisma.applicationGrantAct.updateMany({
+			where: { byId: person.actorId },
+			data: { byId: null }
 		}),
 		prisma.agentProfile.deleteMany({ where: { personId: person.actorId } }),
 		prisma.representation.deleteMany({

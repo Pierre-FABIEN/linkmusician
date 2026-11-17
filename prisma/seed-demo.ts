@@ -26,6 +26,7 @@
 // Mot de passe des comptes : SEED_DEMO_PASSWORD, ou celui de `seed.js`.
 // Jamais en production (VERCEL_ENV=production refusé).
 import { seedDelegations } from './seed-delegations';
+import { seedApplicationGrants } from './seed-application-grants';
 import { seedAgencies } from './seed-agencies';
 import { seedBandLineups } from './seed-band-lineups';
 import { seedWorkSteps } from './seed-work-steps';
@@ -805,6 +806,7 @@ try {
 	await seedComanagementDecisions(prisma, communes, handleMap);
 	await seedAgencies(prisma, handleMap);
 	await seedDelegations(prisma);
+	await seedApplicationGrants(prisma);
 	const schoolLink = await seedSchool(prisma, communes, handleMap);
 	// Organisateurs de jams (D51) : les personnes qui en ont publié une.
 	const hosts = await prisma.opportunity.findMany({

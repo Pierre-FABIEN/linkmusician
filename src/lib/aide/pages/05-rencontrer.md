@@ -131,6 +131,29 @@ organisateur·rice cherche des groupes.
 3. Si l’auteur accepte, une **conversation** s’ouvre entre vous. Pour une
    annonce de groupe, tu entres dans le groupe.
 
+### Candidater pour un·e artiste {#candidater-pour-autrui}
+
+Être manager ou booker d’un artiste ne suffit pas pour candidater à sa
+place : il faut un **droit de candidater**, que l’artiste accorde.
+
+1. **Manager ou booker** : dans **Mon espace › Accompagnement**, ouvre
+   **Droit de candidater →** sous l’artiste. Choisis les annonces couvertes
+   et une date de fin (six mois au plus), puis envoie la demande.
+2. **Artiste** (ou la gestion du groupe, si tu es majeur·e) : tu es
+   prévenu·e. Ouvre la demande, relis les annonces et la date de fin, puis
+   **Accorde** ou **Refuse**.
+3. Chacun·e peut **révoquer** le droit à tout moment. Il s’arrête aussi
+   tout seul à sa date de fin, ou quand l’accompagnement se termine.
+
+- Pour un groupe : les **plateaux**. Pour une personne : les **jams** et les
+  **sessions ou prestations**. Un·e booker ne couvre que les plateaux.
+- Un **recrutement de groupe** n’est jamais couvert : on rejoint un groupe
+  soi-même.
+- Le droit ne donne ni signature ni accès à tes conversations. Il ne
+  rapporte aucun point à l’agent.
+- L’envoi des candidatures avec ce droit arrive bientôt. Tu seras prévenu·e
+  de chacune et pourras la retirer.
+
 > ⚠️ **Important** : le nombre d’annonces actives dépend de ta confiance
 > (1 pour un compte nouveau, puis 3).
 

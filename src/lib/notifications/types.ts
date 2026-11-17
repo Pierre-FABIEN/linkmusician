@@ -8,6 +8,7 @@
 
 export const NOTIFICATION_TYPES = [
 	'DELEGATION_REQUEST',
+	'APPLICATION_GRANT',
 	'CONTACT_REQUEST',
 	'APPLICATION_RECEIVED',
 	'APPLICATION_ACCEPTED',
@@ -49,6 +50,7 @@ export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, st
 	GROUP_DISCUSSION_INVITE: 'Invitations à une discussion de groupe',
 	STUDIO_INVITE: 'Invitations à gérer un studio',
 	DELEGATION_REQUEST: 'Affectations et délégations à confirmer',
+	APPLICATION_GRANT: 'Droits de candidater pour un·e artiste (manager, booker)',
 	ORG_INVITE: 'Invitations à rejoindre une organisation, un lieu ou une agence',
 	VENUE_HOST_INVITE: 'Invitations à animer les scènes ouvertes d’un lieu',
 	REPRESENTATION_REQUEST: 'Propositions d’accompagnement (manager, booker)',
@@ -109,6 +111,9 @@ export function notificationText(
 			return `${who} t’invite à gérer le studio${what} à ses côtés.`;
 		case 'DELEGATION_REQUEST':
 			return `${who} propose une affectation${what}. Consulte les droits puis réponds depuis « Affectations et délégations ».`;
+		case 'APPLICATION_GRANT':
+			// DASH-07a : le titre porte le geste (« demandé pour Les Pistons »).
+			return `${who} : droit de candidater${title ? ` ${title}` : ''}. Ouvre « Accompagnement » pour voir où il en est.`;
 		case 'ORG_INVITE':
 			return `${who} t’invite à rejoindre${what}. Consulte le rôle proposé avant d’accepter.`;
 		case 'VENUE_HOST_INVITE':

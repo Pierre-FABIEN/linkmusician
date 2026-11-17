@@ -32,7 +32,7 @@ porte sur ce mandat entier, dans son périmètre déjà accepté, pas sur un aut
 mandat du même artiste. Les gains et crédits du titulaire ne sont jamais
 attribués au collaborateur ; l’affectation ne rapporte aucune XP.
 
-Les candidatures et propositions pour autrui restent DASH-07/#37 et DASH-14/#44 ;
+Les candidatures pour autrui passent par un droit distinct, [DASH-07](./18-candidature-deleguee.md) (D71) ; les propositions restent DASH-14/#44 ;
 options et négociation des dates restent DASH-15/#45. Ces futures actions
 nécessiteront leurs propres droits et gardes. Pas de délégation en chaîne :
 seul le titulaire du mandat propose, jamais un collaborateur délégué.

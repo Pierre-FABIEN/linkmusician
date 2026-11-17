@@ -878,6 +878,35 @@ d'acceptation ; #52 à #54 restent ouverts. Détail : [morceaux](../morceaux/REA
   migration additive éventuelle, tests de concurrence/consentement/RGPD et
   retour applicatif conservant les données. Ne pas déclarer #36 terminé par SELF.
 
+##### DASH-07a / #37 — droit de candidater ✅ (local)
+
+- **Décision** : D71, [conception 18](../conception/18-candidature-deleguee.md).
+- **Livré** : `ApplicationGrant` et `ApplicationGrantAct` (migration additive
+  `20261117150401_application_grants`), demande par l'agent titulaire,
+  accord ou refus par l'artiste majeur·e ou la gestion majeure du groupe,
+  retrait et révocation, état lu à la date, page
+  `/accompagnement/[id]/candidatures`, notification `APPLICATION_GRANT`, export
+  et anonymisation, démo Élise → Fanfare Pirate, aide « Candidater pour un·e
+  artiste ». Aucune candidature n'est encore envoyée par ce droit.
+
+##### DASH-07b / #37 — candidature déléguée
+
+- **Dépend** : DASH-07a.
+- **À faire** : depuis une annonce (plateau pour un groupe ; jam ou session
+  pour une personne), « Candidater au nom de » pour l'agent qui a un droit
+  actif ; dans la transaction : `lockGrantPair` puis verrou de l'annonce,
+  `usableGrant`, mêmes conditions que la candidature directe sur l'artiste
+  (`eligibilityFor`, `checkBand`, blocages avec l'artiste **et** l'agent,
+  visibilité), doublon, acte `USED` avec `applicationId`. `applicantActorId` =
+  artiste, `sentById` = agent. Notification de l'artiste (ou de sa gestion),
+  candidature visible « envoyée en ton nom par … », retrait par l'artiste sous
+  verrou avec auteur. À l'acceptation, conversation avec l'agent, réciprocité
+  sans XP pour personne (marquer la conversation déléguée). `RECRUIT_MEMBER`
+  refusé. Retraits existants passés sous verrou avec auteur.
+- **Tests** : intégration (droit absent, révoqué, échu, hors type ; course
+  révocation contre envoi ; mineur·e ; groupe ; doublon artiste/agent ; aucune
+  XP), E2E 390 px, clavier, axe, POST forgé.
+
 ##### Réutilisation dans les modules métier
 
 Impacts détaillés de #30, #36/#37, #41–#50 et #51–#54 :

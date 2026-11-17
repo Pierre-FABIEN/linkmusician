@@ -25,6 +25,7 @@
 
 	const ICONS: Record<NotificationTypeValue, typeof Bell> = {
 		DELEGATION_REQUEST: Handshake,
+		APPLICATION_GRANT: Handshake,
 		CONTACT_REQUEST: MessageCircle,
 		APPLICATION_RECEIVED: CalendarCheck,
 		APPLICATION_ACCEPTED: PartyPopper,
