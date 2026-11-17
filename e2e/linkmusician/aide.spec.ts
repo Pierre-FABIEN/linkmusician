@@ -20,10 +20,8 @@ test.describe('LinkMusician — centre d’aide', () => {
 			const page = await visitor.newPage();
 			await page.goto('/aide');
 			await waitForAppReady(page);
-			await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-				'Bienvenue dans l’aide de LinkMusician'
-			);
-			await expect(page.getByRole('complementary', { name: 'En bref' })).toBeVisible();
+			await expect(page.getByRole('heading', { level: 1 })).toHaveText('Comment peut-on t’aider ?');
+			await expect(page.getByRole('searchbox', { name: 'Rechercher dans l’aide' })).toBeVisible();
 			const cards = page.getByRole('list', { name: 'Toutes les pages de l’aide' });
 			await expect(cards.getByRole('link')).toHaveCount(6);
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
@@ -53,6 +51,35 @@ test.describe('LinkMusician — centre d’aide', () => {
 				await page.screenshot({ path: `${shots}/aide-carriere-mobile.png`, fullPage: true });
 
 			const missing = await page.goto('/aide/nexiste-pas');
+			expect(missing?.status()).toBe(404);
+		} finally {
+			await visitor.close();
+		}
+	});
+
+	test('rechercher un sujet et lire une réponse sur mobile', async ({ browser }) => {
+		const visitor = await browser.newContext({ viewport: { width: 390, height: 844 } });
+		try {
+			const page = await visitor.newPage();
+			await page.goto('/aide');
+			await waitForAppReady(page);
+			const search = page.getByRole('searchbox', { name: 'Rechercher dans l’aide' });
+			await search.fill('après la jam');
+			await page
+				.getByRole('link', { name: /Après la jam/ })
+				.first()
+				.click();
+			await expect(page).toHaveURL(/\/aide\/mode-jam\/apres-la-jam$/);
+			await expect(page.getByRole('heading', { level: 1 })).toHaveText('Après la jam');
+			await expectNoA11yViolations(page, A11Y_EXCLUDE);
+			await page.getByRole('link', { name: /Voir le guide complet/ }).click();
+			await expect(page).toHaveURL(/\/aide\/mode-jam$/);
+			await page.goto('/aide');
+			await search.fill('zzzintrouvablezzz');
+			await expect(page.getByText('Aucun sujet trouvé')).toBeVisible();
+			await page.getByRole('button', { name: 'Effacer la recherche et les filtres' }).click();
+			await expect(search).toHaveValue('');
+			const missing = await page.goto('/aide/mode-jam/inexistant');
 			expect(missing?.status()).toBe(404);
 		} finally {
 			await visitor.close();

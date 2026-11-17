@@ -34,7 +34,12 @@
 		html: string;
 		toc: { id: string; text: string }[];
 	};
-	let { page, help, memberShell }: { page: HelpPage; help: Help; memberShell: boolean } = $props();
+	let {
+		page,
+		help,
+		memberShell,
+		category
+	}: { page: HelpPage; help: Help; memberShell: boolean; category?: HelpPage } = $props();
 
 	const ICONS: Record<HelpIcon, typeof LifeBuoy> = {
 		home: LifeBuoy,
@@ -78,7 +83,7 @@
 					<li>
 						<a
 							href={helpHref(p)}
-							aria-current={p.slug === page.slug ? 'page' : undefined}
+							aria-current={p.slug === (category?.slug ?? page.slug) ? 'page' : undefined}
 							class="flex min-h-11 items-center gap-2 rounded-xl px-3 hover:bg-muted {p.slug ===
 							page.slug
 								? 'bg-muted font-semibold'
@@ -100,6 +105,11 @@
 				>
 					<ArrowLeft class="size-4" aria-hidden="true" /> Aide
 				</a>
+			{/if}
+			{#if category}
+				<a href={helpHref(category)} class="block text-sm text-muted-foreground underline"
+					>{category.nav} · Voir le guide complet</a
+				>
 			{/if}
 			<header class="space-y-3">
 				<span
@@ -148,32 +158,34 @@
 				<MarkdownContent html={parts[1]} />
 			{/if}
 
-			<nav aria-label="Pages voisines" class="grid gap-3 border-t pt-6 sm:grid-cols-2">
-				{#if around.previous}
-					<a
-						href={helpHref(around.previous)}
-						class="lm-tile lm-tile--flow flex min-h-11 flex-col p-4"
-					>
-						<span class="flex items-center gap-1 text-sm text-muted-foreground">
-							<ArrowLeft class="size-4" aria-hidden="true" /> Page précédente
-						</span>
-						<span class="font-semibold">{around.previous.nav}</span>
-					</a>
-				{:else}
-					<span></span>
-				{/if}
-				{#if around.next}
-					<a
-						href={helpHref(around.next)}
-						class="lm-tile lm-tile--flow flex min-h-11 flex-col p-4 text-right"
-					>
-						<span class="flex items-center justify-end gap-1 text-sm text-muted-foreground">
-							Page suivante <ArrowRight class="size-4" aria-hidden="true" />
-						</span>
-						<span class="font-semibold">{around.next.nav}</span>
-					</a>
-				{/if}
-			</nav>
+			{#if !category}
+				<nav aria-label="Pages voisines" class="grid gap-3 border-t pt-6 sm:grid-cols-2">
+					{#if around.previous}
+						<a
+							href={helpHref(around.previous)}
+							class="lm-tile lm-tile--flow flex min-h-11 flex-col p-4"
+						>
+							<span class="flex items-center gap-1 text-sm text-muted-foreground">
+								<ArrowLeft class="size-4" aria-hidden="true" /> Page précédente
+							</span>
+							<span class="font-semibold">{around.previous.nav}</span>
+						</a>
+					{:else}
+						<span></span>
+					{/if}
+					{#if around.next}
+						<a
+							href={helpHref(around.next)}
+							class="lm-tile lm-tile--flow flex min-h-11 flex-col p-4 text-right"
+						>
+							<span class="flex items-center justify-end gap-1 text-sm text-muted-foreground">
+								Page suivante <ArrowRight class="size-4" aria-hidden="true" />
+							</span>
+							<span class="font-semibold">{around.next.nav}</span>
+						</a>
+					{/if}
+				</nav>
+			{/if}
 		</article>
 	</div>
 </div>

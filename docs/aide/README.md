@@ -5,6 +5,25 @@
 > recherche et visibilité, jams, carrière, scène, progression et confidentialité.
 > Les pages s'adressent aux **utilisateur·rices** (tutoiement, comme dans l'app).
 
+## Navigation et croissance du centre d’aide
+
+L’accueil `/aide` propose une recherche dans le texte intégral (y compris les
+questions fréquentes), des filtres par thème et des liens vers les sujets.
+Les recherches ignorent la casse et les accents ; tous les mots saisis doivent
+être présents. Un état vide permet de réinitialiser recherche et filtres.
+
+Chaque section `##` d’un guide devient automatiquement une réponse accessible
+à `/aide/<page>/<ancre>`. Son titre et son extrait viennent du Markdown ;
+`src/lib/server/aide/directory.ts` construit le répertoire côté serveur.
+La réponse affiche un retour au guide complet. Les adresses historiques et
+leurs ancres restent disponibles. L’introduction et les explications générales
+restent consultables dans un panneau repliable sur l’accueil.
+
+Pour enrichir l’aide, ajouter une section avec une ancre stable dans le guide
+concerné, ou un fichier et une entrée dans le catalogue pour un nouveau thème.
+Préférer un sujet précis par section, formulé à partir d’un besoin utilisateur.
+La recherche et les liens vers les réponses sont mis à jour automatiquement.
+
 ## Comment c'est fait
 
 - **Contenu** : un fichier Markdown par page dans `src/lib/aide/pages/`,
