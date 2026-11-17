@@ -71,7 +71,13 @@ Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ dé
 Étapes A à F : voir [fin-du-projet.md §1](./fin-du-projet.md#1-où-on-en-est).
 Un lot terminé reste dans le tableau avec ✅ jusqu'à la fin de son étape.
 
-**Terminé : 113 lots sur 132.** Phases 0, 1 et 2 complètes ; phase 3
+**Issues GitHub au 16/11/2026 : 20 fermées sur 45 (44,4 %), 25 ouvertes.**
+[Bilan détaillé et ménage du suivi](bilan-issues-2026-11-16.md).
+Ce taux compte des tickets, dont épopées et sous-lots ; il ne mesure ni une
+charge pondérée ni la préparation à la production. L’ancien compteur de lots
+113/132 ne couvrait pas les extensions DASH/ARCH et est retiré du résumé courant.
+
+Phases 0, 1 et 2 complètes ; phase 3
 complète sauf P3-10a et P3-10 ; phase 4 complète pour le lancement ;
 phase 5 : P5-01, P5-02, P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06, P5-07, P5-08 et P5-11 ;
 étape B : MET-01, MET-02 et MET-07 ; inscription : ONB-01 à ONB-12b et ONB-13a (restent ONB-12c, 13b et 14, fiches dans [fin-du-projet.md §3.1](./fin-du-projet.md#31-inscription-adaptative-multirôle-épopée-14)). Le détail de chaque lot terminé est
@@ -169,15 +175,15 @@ exécution a planté à l'ouverture du navigateur (mémoire WSL) ; la relance pa
 | ARCH-MET-01  | [#55](https://github.com/Pierre-FABIEN/linkmusician/issues/55) | ✅ publié, reçu | Audit b30edaa confirmé publié ; suite validée le 15/11/2026, corrections séparées.                                                                                                        |
 | ARCH-MET-02a | [#56](https://github.com/Pierre-FABIEN/linkmusician/issues/56) | ✅ publié       | Ordre groupe avant acteurs et unions transactionnelles corrigés ; 11 courses à barrières, suite PostgreSQL 409 tests, 1 368 unitaires et 5 E2E réussis ; sans migration.                  |
 | ARCH-MET-02b | [#57](https://github.com/Pierre-FABIEN/linkmusician/issues/57) | ✅ publié       | Garde Work sous work → band, gestion/listes communes, maquette atomique et rollback média ; aucune migration.                                                                             |
-| ARCH-MET-02c | [#58](https://github.com/Pierre-FABIEN/linkmusician/issues/58) | ✅ local        | Clé commune et count transactionnel ; 17 cas de concurrence, 445 non-régressions, 1 368 unitaires et 4 E2E réussis ; sans migration.                                                      |
-| DASH-01      | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ local        | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
-| DASH-02      | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local        | Structures et agences DASH-02a/02b complétées par les affectations consenties DASH-04b ; aucun droit administratif ou artistique par appartenance.                                        |
-| DASH-02a     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local        | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
-| DASH-03      | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ local        | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
-| DASH-04      | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local        | Mandats individuels DASH-04a et affectations consenties DASH-04b ; les candidatures et le booking avancé restent dans leurs lots.                                                         |
-| DASH-04a     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local        | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous                               |
-| DASH-02b     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ local        | Agences privées, invitations et rôles, acceptation, révocation, transmission et fermeture ; aucun droit artistique implicite. Affectations et délégations complétées par DASH-04b.        |
-| DASH-04b     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ local        | Affectations nominatives, double accord, droits explicites, périmètre du mandat et adhésions figées ; recette ci-dessous.                                                                 |
+| ARCH-MET-02c | [#58](https://github.com/Pierre-FABIEN/linkmusician/issues/58) | ✅ publié       | Clé commune et count transactionnel ; 17 cas de concurrence, 445 non-régressions, 1 368 unitaires et 4 E2E réussis ; sans migration.                                                      |
+| DASH-01      | [#31](https://github.com/Pierre-FABIEN/linkmusician/issues/31) | ✅ publié       | Navigation globale et contexte métier validé côté serveur ; filtres et principal conservés ; 4 E2E et 1 315 tests unitaires réussis, types sans erreur ni avertissement                   |
+| DASH-02      | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ publié       | Structures et agences DASH-02a/02b complétées par les affectations consenties DASH-04b ; aucun droit administratif ou artistique par appartenance.                                        |
+| DASH-02a     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ publié       | Cinq types de structures, capacités communes relues côté serveur, menu privé des participations, invitations et révocation effective ; aucun droit par métier ou simple appartenance      |
+| DASH-03      | [#33](https://github.com/Pierre-FABIEN/linkmusician/issues/33) | ✅ publié       | Audit des services, menus Metro de priorités pour les six métiers ouverts, données réelles et états vides ; droits/visibilité/blocages/âge filtrés ; recette détaillée dans la conception |
+| DASH-04      | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ publié       | Mandats individuels DASH-04a et affectations consenties DASH-04b ; les candidatures et le booking avancé restent dans leurs lots.                                                         |
+| DASH-04a     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ publié       | Périmètres immuables, dates, départements et activités consentis, contrôle des crédits concert, révocation et droits relus sous verrou ; recette ci-dessous                               |
+| DASH-02b     | [#32](https://github.com/Pierre-FABIEN/linkmusician/issues/32) | ✅ publié       | Agences privées, invitations et rôles, acceptation, révocation, transmission et fermeture ; aucun droit artistique implicite. Affectations et délégations complétées par DASH-04b.        |
+| DASH-04b     | [#34](https://github.com/Pierre-FABIEN/linkmusician/issues/34) | ✅ publié       | Affectations nominatives, double accord, droits explicites, périmètre du mandat et adhésions figées ; recette ci-dessous.                                                                 |
 
 Conception : [navigation et contextes](../conception/10-navigation-metiers.md).
 Les dépendances fonctionnelles encore ouvertes de #26/#27 (profils avancés,
@@ -279,7 +285,7 @@ Les dépendances DASH-02 et DASH-04 sont publiées et présentes dans la base
 | DASH-05j       | ✅ publié | Validations de collaboration : lecture privée des dates conservées, mutations atomiques sous verrou et export RGPD.                       |
 | DASH-05k       | ✅ publié | Refus et annulations de collaboration conservés atomiquement, auteurs/dates, accès privés et RGPD ; aucune reprise.                       |
 | DASH-05l       | ✅ publié | Actes répétables d’appréciation de collaboration, transactionnels, privés et RGPD ; aucune reprise ancienne.                              |
-| DASH-05m       | ✅ local  | Actes humains des crédits manuels : registre minimal, périodes, lecture personnelle et RGPD ; aucune reprise ancienne.                    |
+| DASH-05m       | ✅ publié | Actes humains des crédits manuels : registre minimal, périodes, lecture personnelle et RGPD ; aucune reprise ancienne.                    |
 | DASH-05, suite | ⬜        | Autres circuits à cadrer ; futures options dans leur propre lot.                                                                          |
 
 Le journal commun n’est pas terminé. Conception et limites :
@@ -1061,6 +1067,10 @@ Prochaine proposition : 02c/R3 dans une issue distincte ; R4 et SELF #51–#54,
 #36 et #30/#35/#50 restent ouverts selon leurs propres critères.
 
 ### ARCH-MET-02c — proposition effective (#58, 16/11/2026)
+
+**Publication revérifiée au bilan du 16/11/2026 :** `9a73d45` est désormais
+sur `origin/main`. Le récit local ci-dessous conserve l’état initial de livraison.
+Aucun déploiement de production établi. Voir [BILAN-01](bilan-issues-2026-11-16.md).
 
 Démarrage : `main` propre, préparation documentaire locale `aa9e043` conservée.
 `git ls-remote origin refs/heads/main` confirme `cba0234caa3681e3ae26931de65ca28e48253e0e` :

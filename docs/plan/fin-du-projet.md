@@ -12,19 +12,21 @@
 
 ## 1. Où on en est
 
-**111 lots terminés sur 129** (86 %) ; **≈ 90 % du périmètre du
-lancement**. Phases 0 à 2 complètes, phase 3 complète sauf l'ouverture,
-phase 4 complète pour le lancement, phase 5 commencée (P5-01, P5-02,
-P5-03a, P5-03b, P5-03d, P5-04a, P5-04b, P5-05a, P5-05b, P5-06, P5-07, P5-08, P5-11). La phase 6 vient après le lancement.
+**20 issues GitHub fermées sur 45 (44,4 %), 25 ouvertes au 16/11/2026.**
+Le [bilan consolidé](bilan-issues-2026-11-16.md) distingue les livraisons partielles,
+les épopées et la publication des commits. Le décompte ne mesure pas la charge
+restante ni un taux de préparation au lancement ; l’ancienne estimation
+111/129 et « ≈90 % du lancement » n’est plus un indicateur courant fiable.
+L’étape A est terminée ; les critères des étapes B à D restent à satisfaire.
 
-| Étape                              | Lots                                                                                      | Quand                     |
-| ---------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------- |
-| A. Finir la scène                  | ✅ (P5-07, P5-11 le 12/11/2026)                                                           | Nov. → déc. 2026          |
-| B. Revue de phase 5 et revue UX    | Revue de fin de phase, Metro (MET-01 à 07), suite e2e (P0-01), inscription (ONB-12b à 14) | Déc. 2026 → janv. 2027    |
-| C. Audit de sécurité (bloquant)    | P3-10a                                                                                    | Janv. → fév. 2027         |
-| D. Ouverture publique à Toulouse   | P3-10                                                                                     | Objectif début mars 2027  |
-| E. Après le lancement              | P5-00, P5-09, P5-10, P5-03c, P4-08, P4-11, P4-12                                          | Après 3 mois d'usage réel |
-| F. Phase 6 : sortie, développement | P6-01 à P6-07                                                                             | Selon les indicateurs     |
+| Étape                              | Lots                                                                                                    | Quand                     |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------- |
+| A. Finir la scène                  | ✅ (P5-07, P5-11 le 12/11/2026)                                                                         | Nov. → déc. 2026          |
+| B. Revue de phase 5 et revue UX    | Revue de fin de phase, Metro (MET-01 à 07), suite e2e (P0-01), inscription (ONB-12c, ONB-13b et ONB-14) | Déc. 2026 → janv. 2027    |
+| C. Audit de sécurité (bloquant)    | P3-10a                                                                                                  | Janv. → fév. 2027         |
+| D. Ouverture publique à Toulouse   | P3-10                                                                                                   | Objectif début mars 2027  |
+| E. Après le lancement              | P5-00, P5-09, P5-10, P5-03c, P4-08, P4-11, P4-12                                                        | Après 3 mois d'usage réel |
+| F. Phase 6 : sortie, développement | P6-01 à P6-07                                                                                           | Selon les indicateurs     |
 
 On a de l'avance sur la feuille de route (D28, février pour la phase 5) :
 le temps gagné va à la revue UX et à l'audit, **pas** à de nouveaux lots.
@@ -738,10 +740,10 @@ recette complète et réserves de lint préexistantes dans [le suivi](README.md#
 
 ##### ARCH-MET-02c — une proposition effective
 
-**Livré localement le 16/11/2026**, issue distincte
+**Publié, confirmation au bilan du 16/11/2026** (`9a73d45`), issue distincte
 [#58](https://github.com/Pierre-FABIEN/linkmusician/issues/58) créée avant code.
 Publication distante à `cba0234` au démarrage, puis préparation `aa9e043`
-confirmée publiée pendant la recette ; code 02c local. Aucun push par l’agent ni
+confirmée publiée pendant la recette ; code 02c ensuite publié avant BILAN-01. Aucun push par l’agent ni
 déploiement de production établi.
 
 - **Contrat livré** : clé partagée conversation/date de prestation UTC,

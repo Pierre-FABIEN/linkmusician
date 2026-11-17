@@ -6,12 +6,17 @@ Travaille directement sur main, sans push. Commence par git status, git log
 et git ls-remote origin refs/heads/main ; fetch seulement si nécessaire, en
 préservant tous les commits et toutes les modifications présents.
 
-État de livraison locale du 16/11/2026 : ARCH-MET-02c dans le commit français
-identifié par cet ID dans git log, précédé de la préparation locale aa9e043.
-Dernière publication confirmée : aa9e04381d1cd8e0d036d5a2b6c3a83b34896992.
-02a/02b et la préparation aa9e043 sont publiés ; le code 02c est local, sans push ni déploiement de production
-établi. Revérifie ces faits et l’état des issues #55/#56/#57/#58 au démarrage.
-Les récits de livraison initiale ne décrivent pas forcément la publication.
+Bilan du 16/11/2026 : 20 issues fermées sur 45 (44,4 %), 25 ouvertes ;
+voir docs/plan/bilan-issues-2026-11-16.md. Les épopées et sous-lots se recouvrent :
+ce pourcentage ne mesure ni la charge restante ni la préparation à la production.
+Onze corps d’issues ont été actualisés, sans clôture ni suppression supplémentaire.
+
+Publication confirmée : 9a73d455ab03fff83ce9c1993b60b02fb1b42660 sur origin/main.
+ARCH-MET-01, 02a, 02b et 02c (#55–#58) sont publiés et les issues closes.
+Le bilan documentaire BILAN-01 est ensuite commité localement, sans push ;
+retrouver son SHA dans git log. Aucun déploiement de production établi.
+Revérifie publications et états au démarrage ; les récits « livraison locale »
+conservent leur état historique et ne décrivent pas forcément la publication.
 
 Lis CLAUDE.md, CONTRIBUTING.md, docs/plan/README.md (§4 et recette 02c),
 docs/plan/preuves-arch-met-02c.md, docs/plan/fin-du-projet.md,
