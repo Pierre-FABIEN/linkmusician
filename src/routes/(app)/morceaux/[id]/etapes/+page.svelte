@@ -46,7 +46,7 @@
 			<h1 class="lm-title">Qui prend en charge ?</h1>
 			<p class="text-sm text-muted-foreground">
 				Une étape peut se faire soi-même, sans collaboration ni studio. Ce que tu déclares ici reste
-				dans l’équipe du morceau. Terminée, elle fait avancer le morceau (« déclaré par toi ») ; ce
+				dans l’équipe du morceau. Terminée, elle fait avancer le morceau comme une déclaration : ce
 				n’est pas une preuve et cela ne rapporte pas de points.
 			</p>
 		</div>
@@ -181,6 +181,35 @@
 								{/if}
 							</form>
 						{/each}
+					</div>
+				{/if}
+
+				{#if step.mine && step.status === 'DONE' && step.kind === 'RECORDING'}
+					<!-- LINKMUSICIAN: DASH-06d, après l'enregistrement : crédit puis suite. -->
+					<div
+						role="group"
+						aria-label="Et maintenant"
+						class="lm-tile lm-tile--flow space-y-3 p-3 text-sm"
+					>
+						{#if data.recordingCredit === 'addable'}
+							<p>Ton nom à la prise de son ? Il s’ajoute à ton crédit, sans en créer un second.</p>
+							<form method="POST" action="?/creditRecording" use:enhance>
+								<button class="lm-btn">Ajouter « Prise de son » à mon crédit</button>
+							</form>
+						{:else if data.recordingCredit === 'held'}
+							<p class="text-muted-foreground">« Prise de son » figure dans ton crédit.</p>
+						{/if}
+						{#if data.mixHref}
+							<p>Prochaine étape : le mixage.</p>
+							<div class="flex flex-wrap gap-2">
+								<a class="lm-btn" data-variant="ghost" href={data.mixHref}
+									>Trouver un·e ingé son pour le mixage</a
+								>
+								<a class="lm-btn" data-variant="ghost" href="/morceaux/{data.work.id}"
+									>Voir le morceau</a
+								>
+							</div>
+						{/if}
 					</div>
 				{/if}
 

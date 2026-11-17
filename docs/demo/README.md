@@ -519,7 +519,18 @@ Se connecter avec `clara-guitare`, ouvrir **Morceaux → Midnight Groove**, puis
 **Qui prend en charge ?** : Clara a pris l'enregistrement, chez elle (« Mon
 home studio · aucune adresse enregistrée »), et l'a commencé il y a trois
 jours. L'historique montre la prise en charge et le début. Elle peut
-**Terminer** (case de confirmation), **Remettre à faire** ou **Libérer**. Le
-morceau n'est pas marqué « Enregistré » et aucun crédit de prise de son n'est
-ajouté : c'est une déclaration. Scénario rejouable (`prisma/seed-work-steps.ts`,
-identifiants stables) ; aucune progression émise.
+**Terminer** (case de confirmation), **Remettre à faire** ou **Libérer**.
+Une fois terminé, l'écran propose d'ajouter « Prise de son » à son crédit et
+de passer au mixage (DASH-06b à 06d). Scénario rejouable
+(`prisma/seed-work-steps.ts`, identifiants stables) ; aucune progression émise.
+
+### Enregistré chez soi, puis le mixage (DASH-06b à 06d)
+
+Toujours avec `clara-guitare`, ouvrir **Morceaux → Night Drive** : composé
+seule, enregistré chez elle il y a cinq jours. La fiche affiche « Enregistré
+le … · déclaré par Clara » (jamais « vérifié »), le chemin du morceau indique
+« Fait soi-même », et son crédit porte « Composition, Prise de son » sur une
+seule ligne. **La suite du morceau** propose le **mixage**, pas un·e ingé son
+pour l'enregistrement. Dans **Carrière → Campagnes en cours**, la ligne dit
+« Enregistré · déclaré ». Rouvrir l'étape retire la mention et le besoin de
+mixage ; le crédit de prise de son reste. Aucune XP, aucune collaboration.

@@ -86,3 +86,24 @@ export function nextProductionNeed(
 	if (stages.RECORDING && !stageHandled('MIXING', stages, steps)) return 'MIXING';
 	return null;
 }
+
+export type RecordingSummary = 'RECORDED' | 'DECLARED' | 'IN_PROGRESS' | 'CLAIMED' | null;
+
+/** DASH-06d : où en est l'enregistrement, pour les listes (Carrière, morceaux). */
+export function recordingSummary(
+	stages: ProductionStages,
+	steps: readonly StepFact[]
+): RecordingSummary {
+	const fact = stages.RECORDING;
+	if (fact) return fact.source === 'COLLABORATION' ? 'RECORDED' : 'DECLARED';
+	const step = steps.find((s) => s.kind === 'RECORDING' && s.assigned);
+	if (!step) return null;
+	return step.status === 'IN_PROGRESS' ? 'IN_PROGRESS' : 'CLAIMED';
+}
+
+export const RECORDING_SUMMARY_LABELS: Readonly<Record<Exclude<RecordingSummary, null>, string>> = {
+	RECORDED: 'Enregistré',
+	DECLARED: 'Enregistré · déclaré',
+	IN_PROGRESS: 'Enregistrement en cours',
+	CLAIMED: 'Enregistrement pris en charge'
+};

@@ -75,6 +75,8 @@ domaine (dernière colonne) ; lancer un seul spec :
 | `producteur`             | P4-04        | Profil de producteur·rice, recherche par spécialité et style              | `docs/metiers-du-son/`               |
 | `annonces-metier`        | P4-05        | Annonce « cherche ingé son », visible du seul métier visé                 | `docs/metiers-du-son/`               |
 | `collaborations-morceau` | P4-06, P4-07 | Session confirmée : morceau « Enregistré », crédit confirmé de l'ingé son | `docs/collaborations/`               |
+| `etapes-autonomes`       | DASH-06a     | Enregistrement pris soi-même, home studio, transitions, POST forgés       | `docs/morceaux/`                     |
+| `production-autonome`    | DASH-06b–d   | Thomas de Carrière au mixage : déclaré, prise de son créditée une fois    | `docs/morceaux/`                     |
 | `aide`                   | —            | Centre d'aide : sommaire, ancres, navigation conservée                    | `docs/aide/`                         |
 | `fil-ariane`             | D52          | Fil d'Ariane en badges dans le mode jam                                   | —                                    |
 | `organiser`              | D51          | « Lancer une jam » après « prêt·e à organiser »                           | `docs/jam/`                          |

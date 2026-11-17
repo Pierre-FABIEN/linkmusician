@@ -4,6 +4,7 @@
 	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { Badge } from '#shadcn/badge';
 	import { Music } from 'lucide-svelte';
+	import { RECORDING_SUMMARY_LABELS } from '#lib/works/production';
 
 	let { data } = $props();
 </script>
@@ -55,6 +56,10 @@
 								<Badge variant={w.state === 'IDEA' ? 'outline' : 'secondary'}
 									>{w.state === 'IDEA' ? 'Idée' : 'Composé'}</Badge
 								>
+								{#if w.recording}
+									<!-- LINKMUSICIAN: DASH-06d, enregistrement fait ou déclaré. -->
+									<Badge variant="outline">{RECORDING_SUMMARY_LABELS[w.recording]}</Badge>
+								{/if}
 								{#if w.openRoles > 0}
 									<Badge
 										>{w.openRoles} place{w.openRoles > 1 ? 's' : ''} libre{w.openRoles > 1

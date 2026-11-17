@@ -260,3 +260,26 @@ Retour par revert applicatif conservant les données, avec réintroduction de R2
   (Thomas, collaboration prioritaire et réouverture, lecteur hors équipe),
   coups de pouce (`nudges.test.ts`, `nudges.integration.test.ts`).
 - **Migration** : aucune.
+
+## Parcours complet et recette (DASH-06d, #54)
+
+- **Parcours** : Carrière (`/espace/campagnes`) → nouvelle idée → maquette et
+  « C'est composé » → **Qui prend en charge ?** → Je m'en charge (home
+  studio) → Commencer → Terminer → **Ajouter « Prise de son » à mon crédit**
+  (action `?/creditRecording`, même règle que DASH-06b) → **Prochaine étape :
+  le mixage**. Aucun tiers, aucun métier d'ingé son.
+- **Carrière et listes** : `myWorks` donne `recording` (`recordingSummary`) :
+  « Enregistrement pris en charge », « Enregistrement en cours »,
+  « Enregistré · déclaré » ou « Enregistré » (collaboration). Affiché dans
+  Campagnes en cours et Mes morceaux.
+- **Recette E2E** : `production-autonome.spec.ts` (persistance au
+  rechargement, Carrière et fiche cohérentes, crédit unique malgré un rejeu,
+  « déclaré » sans « vérifié », aucune XP ni collaboration, lecteur hors
+  équipe sans mention ni POST, réouverture qui recalcule les besoins,
+  390 px, clavier, axe). Non-régression : `etapes-autonomes`, `morceaux`,
+  `campagne`, `collaborations-morceau`, `carriere`.
+- **Démo** : « Night Drive » de Clara (`prisma/seed-work-steps.ts`), voir
+  [démo](../demo/README.md#enregistré-chez-soi-puis-le-mixage-dash-06b-à-06d).
+- **Reste de #36** : affectation à un membre avec accord, prestataire
+  externe, mixage/mastering/production pris soi-même, versions et
+  validations. À découper en lots distincts.

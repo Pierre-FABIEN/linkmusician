@@ -4,7 +4,7 @@
 // intention : statut, dates, mode et lieu sont calculés par le serveur.
 import { error, fail } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
-import { WorkError, workPage } from '#lib/server/works/service';
+import { WorkError, addOwnSoundRole, workPage } from '#lib/server/works/service';
 import { applyWorkStep, workStepsFor } from '#lib/server/works/steps';
 import { craftAnnounceHref } from '#lib/works/rules';
 import { workStepFormSchema, type WorkStepAct } from '#lib/works/steps';
@@ -21,6 +21,21 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	return {
 		work: { id: work.id, title: work.title, manage: work.manage },
 		steps,
+		// DASH-06d : après l'étape, son nom à la prise de son (DASH-06b) et la suite.
+		recordingCredit: work.myCredit?.addableSoundRoles.includes('RECORDING')
+			? ('addable' as const)
+			: work.credits.some((c) => c.me && c.roles.includes('Prise de son'))
+				? ('held' as const)
+				: null,
+		mixHref:
+			work.nextNeed === 'MIXING'
+				? craftAnnounceHref({
+						workId: work.id,
+						workTitle: work.title,
+						target: 'SOUND_ENGINEER',
+						specialty: 'MIXING'
+					})
+				: null,
 		// « Un·e professionnel·le externe » : le parcours d'annonce existant (P4-05).
 		externalHref: work.manage
 			? craftAnnounceHref({
@@ -43,6 +58,21 @@ const MESSAGES: Record<WorkStepAct, string> = {
 };
 
 export const actions: Actions = {
+	// DASH-06b : la prise de son ajoutée à son propre crédit, sans doublon.
+	creditRecording: async ({ locals, params }) => {
+		const { actorId } = (await getPersonByUserId(locals.user!.id))!;
+		try {
+			const { changed } = await addOwnSoundRole(params.id, actorId, 'RECORDING');
+			return {
+				message: changed
+					? '« Prise de son » est ajoutée à ton crédit.'
+					: '« Prise de son » figure déjà dans ton crédit.'
+			};
+		} catch (err) {
+			if (err instanceof WorkError) return fail(err.status, { error: err.message });
+			throw err;
+		}
+	},
 	step: async ({ locals, params, request }) => {
 		const { actorId } = (await getPersonByUserId(locals.user!.id))!;
 		const parsed = workStepFormSchema.safeParse(Object.fromEntries(await request.formData()));

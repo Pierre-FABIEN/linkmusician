@@ -43,8 +43,8 @@ import {
 import { canInviteMinor } from '#lib/server/bands/service';
 import { syncComposition, lockBand, bandProgressActorIds } from '#lib/server/milestones/service';
 import { publicMember } from '#lib/bands/rules';
-import { nextProductionNeed, productionStages } from '#lib/works/production';
-import { stepFactsFor } from './production';
+import { nextProductionNeed, productionStages, recordingSummary } from '#lib/works/production';
+import { stepFactsFor, stepFactsOf } from './production';
 import {
 	MAX_CONTRIBUTORS,
 	MAX_PENDING_CREDITS,
@@ -900,11 +900,18 @@ export async function myWorks(personId: string) {
 			contributors: {
 				select: { personId: true, confirmedAt: true, invitedBy: { select: { displayName: true } } }
 			},
-			roles: { where: { contributorId: null }, select: { id: true } }
+			roles: { where: { contributorId: null }, select: { id: true } },
+			recordedAt: true,
+			mixedAt: true,
+			masteredAt: true,
+			producedAt: true
 		}
 	});
+	// DASH-06d : l'enregistrement, fait ou déclaré, lu par la même règle que la fiche.
+	const facts = await stepFactsOf(rows.map((w) => w.id));
 	const works = rows.map((w) => {
 		const mine = w.contributors.find((c) => c.personId === personId);
+		const steps = facts.get(w.id) ?? [];
 		return {
 			id: w.id,
 			title: w.title,
@@ -916,6 +923,7 @@ export async function myWorks(personId: string) {
 					: null,
 			credits: w.contributors.filter((c) => c.confirmedAt).length,
 			openRoles: w.roles.length,
+			recording: recordingSummary(productionStages(w, steps), steps),
 			toConfirm: Boolean(mine && !mine.confirmedAt),
 			invitedBy: mine && !mine.confirmedAt ? (mine.invitedBy?.displayName ?? null) : null
 		};

@@ -6,6 +6,7 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import { plural } from '#lib/jam/log';
 	import { Music, Plus } from 'lucide-svelte';
+	import { RECORDING_SUMMARY_LABELS } from '#lib/works/production';
 
 	let { data, form } = $props();
 
@@ -89,6 +90,7 @@
 									<span class="text-sm text-muted-foreground">
 										{w.band ? w.band.name : 'À moi'} · {plural(w.credits, 'crédit')}
 										{#if w.openRoles > 0}· {plural(w.openRoles, 'rôle', 'rôles')} à pourvoir{/if}
+										{#if w.recording}· {RECORDING_SUMMARY_LABELS[w.recording]}{/if}
 									</span>
 								</span>
 								<span
