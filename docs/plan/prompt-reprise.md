@@ -24,10 +24,17 @@ Avant de coder :
 
 À faire :
 
-- projet + prestataire : session d'ingé son sur un morceau, crédit unique,
-  POST forgés d'un tiers et d'un MEMBER sans gestion, mineur·e, 390 px, axe ;
-- une concurrence dans un parcours (deux acceptations ou deux réponses
-  simultanées), sans dupliquer les tests d'intégration existants ;
+- projet + prestataire : un·e ingé son propose une session sur le morceau
+  **d'un groupe** (collaborations-morceau.spec.ts ne couvre que le morceau
+  d'une personne). Actions `proposeCollab`, `respondCollab`, `confirmCollab`
+  et `cancelCollab` de `/messages/[id]` (service
+  src/lib/server/collaborations/service.ts). Vérifier : qui répond pour le
+  groupe (gestion majeure), POST forgés d'un tiers et d'un MEMBER sans
+  gestion, mineur·e de la gestion, crédit unique, 390 px, axe ;
+- une concurrence dans un parcours : deux `confirmCollab` envoyés en même
+  temps (`Promise.all` de deux POST) donnent un seul crédit et une seule
+  transaction d'XP. La concurrence de proposition (R3) est déjà couverte par
+  proposal.integration.test.ts : ne pas la refaire ;
 - si le temps le permet, T10 (gdpr-data, voir a-trancher) dans un lot à part.
 
 Ne modifie le code que pour un défaut trouvé, avec un test qui le
