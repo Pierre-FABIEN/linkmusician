@@ -1,5 +1,7 @@
 # Plan d'exécution — pilotage du projet
 
+> **Plan actif réorganisé (18/11/2026)** : [backlog exécutable G0–G6](https://github.com/Pierre-FABIEN/linkmusician/blob/main/docs/plan/backlog-ordonne-2026-11-18.md). Les descriptifs des 44 tickets ouverts ont été réécrits et les textes antérieurs archivés dans `archive-issues-avant-refonte-2026-11-18.md`. Le tableau de lots et le compteur plus bas concernent le plan historique et ne doivent pas être utilisés pour choisir l'ordre des nouvelles évolutions.
+
 > **Audit transversal du 18/11/2026 :** [cartographie structurelle et feuille de route G0–G6](./audit-structurel-roadmap-2026-11-18.md). Ce document complète le pilotage historique et confronte les nouvelles issues Rencontre/Collab aux capacités existantes. Le compteur d'issues ci-dessous est un **instantané au 17/11** et ne décrit plus le backlog du 18/11 ; ne pas le confondre avec un taux d'achèvement produit.
 
 Le dossier [conception/](../conception/README.md) dit **quoi** construire
