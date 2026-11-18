@@ -71,6 +71,34 @@ Conception : [07 §4.1 et §4.2](../conception/07-modes-de-jeu.md#41-choisir-son
   `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/career`, e2e
   `carriere.spec.ts` (carte).
 
+## Lecture unifiée des réalisations (N1, #72)
+
+- La carte et la fiche ne comptent plus elles-mêmes : elles lisent les
+  **réalisations** de la personne (conception 21 §6.3, D73 NL3), puis en
+  déduisent leurs faits. Résultats identiques à avant N1.
+- Règle pure `src/lib/career/realisations.ts` : type `Realisation` (clé du
+  fait source, type, branche, porteur, objet, rôles, date, preuve, statut
+  `ACTIVE` / `FROZEN` / `RETIRED`, visibilité), `dedupeRealisations` (une
+  entrée par clé, rôles cumulés), `careerFactsOf`, `creditsOf`,
+  `firstVerifiedGigOf`, `byBranch`. Aucun champ de points.
+- Clés : `work:<id>:composed`, `work:<id>:produced`, `credit:<workRoleId>`,
+  `collab:<collaborationId>`, `milestone:<bandId>:<definitionId>` (stable
+  après un retrait puis une redéclaration).
+- Projection serveur `src/lib/server/career/realisations.ts` :
+  `readRealisations(actorId)` (vue complète, réservée aux services de
+  carrière) et `realisationsOf(actorId, reader)`, qui ne rend à un autre
+  lecteur que des faits actifs, au moins corroborés, sur des objets publics
+  (ni idée, ni collaboration) d'acteurs qu'il peut voir (blocages compris).
+- Les appréciations de jam et le nombre de collaborations restent lus dans
+  le résumé musicien (`tierOf`), qui fait foi pour le palier.
+- Requêtes SQL mesurées sur le même scénario : faits de la carte 8 → 6,
+  fiche publique 17 → 14, fiche privée 20 → 17, carte souvenir 13 → 10.
+- Tests : `src/lib/career/realisations.test.ts`,
+  `src/lib/server/career/realisations.test.ts`, intégration
+  `realisations.integration.test.ts` (non-régression sur les valeurs
+  relevées avant N1, budget de requêtes, droits du lecteur, gel, retrait,
+  révocation).
+
 ## Fiche de carrière et cartes souvenirs (P3-14)
 
 - `/espace/fiche` : fiche privée avec les statistiques confirmées et les

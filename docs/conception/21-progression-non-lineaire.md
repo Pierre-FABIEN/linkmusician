@@ -586,7 +586,7 @@ sortie vérifiée. **Une tâche validée ne devient pas une réalisation** : la
 preuve d'une prestation reste la collaboration terminée (conception 19
 §2.12).
 
-### 6.3 La lecture unifiée des réalisations [Proposé]
+### 6.3 La lecture unifiée des réalisations [Proposé ; livré par N1]
 
 Un type de lecture, **sans table**, rassemble les réalisations d'un acteur :
 
@@ -622,6 +622,30 @@ Realisation = {
   les types, la déduplication par clé et le classement par branche ; le
   serveur (`src/lib/server/career/realisations.ts`, proposé) lit les
   tables existantes. C'est le lot **N1**.
+
+**Livré par N1 (18/11/2026)** [Existant] : `src/lib/career/realisations.ts`
+(pur) et `src/lib/server/career/realisations.ts` (`readRealisations`,
+`realisationsOf(actorId, reader)`) ; la carte et la fiche en déduisent leurs
+faits, avec des résultats identiques (détail : `docs/carriere/README.md`).
+Écarts techniques avec l'esquisse ci-dessus, sans effet sur une règle :
+
+- `roles[]` au lieu de `role` : une même entrée porte tous les rôles du
+  lecteur sur le fait (créditée **et** membre du groupe porteur), ce qui
+  garantit NL3 sans choisir un rôle « principal » ;
+- champ `visibility` (`PUBLIC` / `PRIVATE`) : une idée de morceau et une
+  collaboration ne sortent que pour l'acteur lui-même ;
+- clé d'étape `milestone:<bandId>:<definitionId>` (unique en base, stable
+  après un retrait), et non l'identifiant de ligne ;
+- types livrés : `WORK_COMPOSED`, `CREDIT`, `PRODUCTION_STAGE`,
+  `COLLABORATION`, `MILESTONE` (étapes de scène lues par la carte :
+  enregistrement, concert, tournée). `GIG`, `TOUR` comme réalisations
+  répétables, `RELEASE` et `MANAGEMENT` viendront avec les lots qui les
+  lisent (N3, N7) ;
+- les appréciations de jam et le compte des collaborations de la carte
+  restent lus dans le résumé musicien, qui fait foi pour le palier ;
+- `PRODUCTION_STAGE` est la vue, par le lecteur, de la production d'un
+  morceau où il a part (acte IV) ; pour le ou la producteur·rice, le fait
+  est sa `COLLABORATION` (DC2 : deux parties, deux contributions).
 
 ---
 
@@ -1312,6 +1336,13 @@ dans aucun calcul.
   base de démo).
 - Les coups de pouce ne se calculent que si la personne n'avance plus
   (`onlyIfStalled`), ce qui protège l'accueil.
+- **Mesuré par N1** (18/11/2026, schéma `e2e`, scénario de
+  `realisations.integration.test.ts`) : faits de la carte 8 → 6 requêtes
+  SQL, fiche publique 17 → 14, fiche privée 20 → 17, carte souvenir
+  13 → 10 ; latence médiane des faits de la carte inchangée au bruit près
+  (57–59 ms avant, 52–61 ms après, base Neon distante). Prisma charge
+  chaque relation par une requête (`relationJoins` non activé) : passer
+  sous six demanderait du SQL brut ou une option du schéma, hors N1.
 
 ### 13.2 Stratégie [Proposé]
 
@@ -1397,6 +1428,10 @@ flowchart LR
   tests `map.integration.test.ts`) ; comptage des requêtes.
 - **Acceptation** : la carte et la fiche donnent les mêmes résultats ;
   une requête de moins au moins par chargement.
+- **État** : ✅ livré le 18/11/2026 (mesures §13.1). Non fait : la
+  mémorisation par requête HTTP (§13.2, point 1) ; le layout et la page de
+  `/espace` lisent encore chacun les réalisations quand une célébration est
+  à vérifier. À reprendre avec N3, qui ajoute un troisième lecteur.
 
 ### N2 — Carte à épreuves parallèles · #72
 
