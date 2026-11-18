@@ -107,7 +107,7 @@ reachFacts)`) : état d'épreuve `passed` (Franchie), `within_reach` (À
   6 quand tout est franchi (comme les faits seuls), faits + 2 pour un
   compte neuf, page de branche faits + 2 au plus ; fiche et carte
   souvenir inchangées (14, 17, 10).
-- Différé : prochaines actions globales (N3), « Plus tard » / « Pas pour
+- Différé : « Plus tard » / « Pas pour
   moi » par branche (N4, aucun faux contrôle affiché), avancement d'un
   projet (N5), Studio et Scène pour une personne seule (N6, après P8),
   antériorité déclarée (N7).
@@ -144,6 +144,64 @@ src/lib/server/career`, e2e `carriere.spec.ts` (création, scène à
   `realisations.integration.test.ts` (non-régression sur les valeurs
   relevées avant N1, budget de requêtes, droits du lecteur, gel, retrait,
   révocation).
+
+## Prochaines actions (N3, #72)
+
+- **Moteur en deux couches** (conception 21 §8–§9, D73 NL4–NL5).
+  Règle pure `src/lib/career/next/` : `candidatesFrom(faits)` produit les
+  candidates, `rankSuggestions` les filtre (titre, raison, geste et
+  destination interne obligatoires), les dédoublonne (une par clé
+  `règle:type:objet`, puis une par objet, puis une par règle aux rangs 3 à
+  5), les trie (rang, échéance réelle, attente la plus longue, clé) et
+  tronque (3 sur l'accueil, 5 dans une vue détaillée, une seule de rang
+  5). Aucun champ d'XP, rien d'aléatoire.
+- Projection serveur `src/lib/server/career/next.ts` : `nextFactsFor`
+  lit les faits du lecteur lui-même avec les prédicats existants, puis
+  `nextActionsFor` appelle la règle pure. `suggestionView` ne passe au
+  navigateur que la clé, le rang, la branche, la phrase et le geste.
+- **Règles livrées** :
+
+  | Rang | Règle                                      | Source réutilisée                                                                  |
+  | ---- | ------------------------------------------ | ---------------------------------------------------------------------------------- |
+  | 1    | `collab.confirm` (l'autre a déjà confirmé) | `pendingForMe` filtré par `spacePriorityFacts` (conversation acceptée, ni blocage) |
+  | 2    | `collab.confirm`, `collab.respond`         | idem ; échéance : le jour de la session à venir                                    |
+  | 2    | `credit.confirm`                           | `teamWhere`, porteur ni bloqué ni bloquant                                         |
+  | 2    | `band.invitation`                          | invitations de groupe vivant (comme `bandCounts`), sans blocage                    |
+  | 2    | `representation.respond`                   | `representationsForMe` (réservé aux majeur·es pour les propositions)               |
+  | 2    | `applications.review`, `contact.respond`   | compteurs des priorités ; contact : adultes seulement                              |
+  | 3    | `work.step`                                | étape ouverte prise en charge, morceau que je gère (`manageableOwnerWhere`)        |
+  | 3    | `crea.demo`, `crea.compose`                | idée que je gère, modifiée depuis moins de 30 jours                                |
+  | 4    | `prod.mix`                                 | `nextProductionNeed` ; pros du réseau réel (`MusicalTie`), adultes, hors équipe    |
+  | 4/5  | `prod.record`                              | idem ; rang 4 si l'ambition est « Enregistrer » ou « Devenir pro », sinon rang 5   |
+  | 4    | `team.fill_role`                           | places libres ; réseau proche, sinon rien si une annonce ouverte recrute déjà      |
+  | 5    | `trial.within_reach`                       | épreuves à portée de la carte N2                                                   |
+  | 5    | `objective`                                | `craftQuests` sur l'espace d'un métier (le héros musicien montre déjà le sien)     |
+
+- **Prudence** : sans pro du réseau, une recherche filtrée
+  (`/decouvrir?metier=inge-son&specialite=…`) ; jamais pour un·e
+  mineur·e, qui garde la prise en charge de l'enregistrement sur la fiche
+  du morceau. Rien n'est envoyé : chaque suggestion ouvre un écran. Aucune
+  jam (`JAMS_SOON` reste aux coups de pouce).
+- **Dédoublonnage** : une épreuve à portée qui vise une collaboration n'est
+  pas répétée à côté de sa demande, et n'est gardée que si la collaboration
+  a passé le filtre de visibilité. Sur la page de branche (N2), une
+  collaboration proposée dans « Possible maintenant » n'est plus répétée
+  dans « En cours ».
+- **Affichage** : pivot « priorités » de `/espace` (musicien·ne et
+  espaces métier), bloc « À faire maintenant » au-dessus des aperçus,
+  trois tuiles au plus, rien quand il n'y a rien. Le héros `NextStep`
+  reste inchangé tant qu'UX-1 n'est pas tranché.
+- **Lectures** : `requestMemo(event.locals, clé)` mémorise, le temps
+  d'une requête HTTP et pour l'identité de la clé, la lecture des
+  réalisations, la carte, les priorités et l'accompagnement (layout et
+  page de `/espace`). Lectures à plat : les détails (titres, noms, rôles,
+  profils du réseau) ne partent que s'il y a des lignes.
+- Requêtes SQL ajoutées à l'accueil (scénario `next.integration.test.ts`) :
+  **5** pour un compte neuf, **17** pour un compte actif ; budget du test :
+  6 et 20.
+- Tests : `src/lib/career/next/next.test.ts`, `branch.test.ts`,
+  intégration `PROGRESSION_INTEGRATION=1 npx vitest --run
+src/lib/server/career/next`, e2e `prochaines-actions.spec.ts`.
 
 ## Fiche de carrière et cartes souvenirs (P3-14)
 

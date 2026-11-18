@@ -1,7 +1,7 @@
 # D73 — Progression non linéaire et prochaines actions
 
 - **Statut : Acceptée** (18/11/2026). Arbitrages explicites du fondateur **Q-NL-1 à Q-NL-8** dans G0-04, [#72](https://github.com/Pierre-FABIEN/linkmusician/issues/72).
-- **Portée : décision de conception.** N1 (lecture unifiée des réalisations, première prise en compte de NL3) et N2 (carte à épreuves parallèles, Q-NL-1 et Q-NL-3) livrés le 18/11/2026 ; les lots N3 à N7 restent à développer et à tester.
+- **Portée : décision de conception.** N1 (lecture unifiée des réalisations, première prise en compte de NL3), N2 (carte à épreuves parallèles, Q-NL-1 et Q-NL-3) et N3 (prochaines actions v1, NL4 et NL5) livrés le 18/11/2026 ; les lots N4 à N7 restent à développer et à tester.
 - Référence détaillée : [conception 21](../conception/21-progression-non-lineaire.md). Architecture préservée : [D72](./D72-architecture-projets-collab.md), acceptée.
 
 ## Contexte
@@ -10,16 +10,16 @@ L'audit G0-04 établit que l'ordre perçu comme imposé provient surtout du poin
 
 ## Décisions du fondateur
 
-| Question | Décision acceptée | Conséquences et lot |
-| --- | --- | --- |
-| **Q-NL-1 — Oui** | Carte de carrière en mosaïque de branches, jusqu'à **trois épreuves à portée** ; aucun « acte en cours » unique ni numérotation romaine mise en avant. | N2 ; conserver les conditions actuelles hors révision explicite. |
-| **Q-NL-2 — Oui** | Après le lot solo **P8**, une personne franchit **Studio** et **Scène** par ses faits personnels admissibles, sans doublon avec les faits collectifs. | N6 ; **révision ciblée de D53** pour ces deux épreuves, sans réécrire son reste. |
-| **Q-NL-3 — Oui** | L'épreuve Rencontre conserve les appréciations de jam comme preuves ; les liens orientent vers **Rencontre**, pas vers l'agenda jam dans Collab. | N2 ; lien d'interface, pas nouvelle source de preuve. |
-| **Q-NL-4 — Oui** | Suggestions « **Plus tard** » pendant **30 jours** et « **Pas pour moi** » jusqu'à réactivation. | N4 ; persistance, réversibilité, export/anonymisation RGPD. |
-| **Q-NL-5 — Non** | **Pas d'orientation de groupe autonome au lancement** : les types de projets et le répertoire existant suffisent. | Aucun nouveau champ ; réévaluer au pilote. |
-| **Q-NL-6 — Oui** | Déclaration d'expérience passée pour améliorer les suggestions **sans XP, épreuve, badge ni preuve**. | N7 ; donnée personnelle soumise aux règles RGPD, distincte de la preuve de collaboration et de la limite actuelle des 60 jours. |
-| **Q-NL-7 — Oui** | **Palier de groupe inchangé**, affiché avec les « premières fois » du groupe comme ensemble. | Aucun changement de calcul du rang. |
-| **Q-NL-8 — Oui** | Adoption des cinq invariants **NL1 à NL5** ci-dessous. | Première prise en compte N1 ; tous les lots N concernés. |
+| Question         | Décision acceptée                                                                                                                                      | Conséquences et lot                                                                                                             |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| **Q-NL-1 — Oui** | Carte de carrière en mosaïque de branches, jusqu'à **trois épreuves à portée** ; aucun « acte en cours » unique ni numérotation romaine mise en avant. | N2 ; conserver les conditions actuelles hors révision explicite.                                                                |
+| **Q-NL-2 — Oui** | Après le lot solo **P8**, une personne franchit **Studio** et **Scène** par ses faits personnels admissibles, sans doublon avec les faits collectifs.  | N6 ; **révision ciblée de D53** pour ces deux épreuves, sans réécrire son reste.                                                |
+| **Q-NL-3 — Oui** | L'épreuve Rencontre conserve les appréciations de jam comme preuves ; les liens orientent vers **Rencontre**, pas vers l'agenda jam dans Collab.       | N2 ; lien d'interface, pas nouvelle source de preuve.                                                                           |
+| **Q-NL-4 — Oui** | Suggestions « **Plus tard** » pendant **30 jours** et « **Pas pour moi** » jusqu'à réactivation.                                                       | N4 ; persistance, réversibilité, export/anonymisation RGPD.                                                                     |
+| **Q-NL-5 — Non** | **Pas d'orientation de groupe autonome au lancement** : les types de projets et le répertoire existant suffisent.                                      | Aucun nouveau champ ; réévaluer au pilote.                                                                                      |
+| **Q-NL-6 — Oui** | Déclaration d'expérience passée pour améliorer les suggestions **sans XP, épreuve, badge ni preuve**.                                                  | N7 ; donnée personnelle soumise aux règles RGPD, distincte de la preuve de collaboration et de la limite actuelle des 60 jours. |
+| **Q-NL-7 — Oui** | **Palier de groupe inchangé**, affiché avec les « premières fois » du groupe comme ensemble.                                                           | Aucun changement de calcul du rang.                                                                                             |
+| **Q-NL-8 — Oui** | Adoption des cinq invariants **NL1 à NL5** ci-dessous.                                                                                                 | Première prise en compte N1 ; tous les lots N concernés.                                                                        |
 
 ## Invariants acceptés
 

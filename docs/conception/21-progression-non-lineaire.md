@@ -729,7 +729,7 @@ gains éventuels de chaque fait.
 
 ## 8. Règles des suggestions contextuelles
 
-### 8.1 Le contrat du moteur [Proposé]
+### 8.1 Le contrat du moteur [Proposé ; livré par N3, voir §9.5]
 
 Un moteur **déterministe**, en deux couches, comme les coups de pouce
 existants :
@@ -921,7 +921,7 @@ groupées si elles portent sur les mêmes titres.
 
 ## 9. Priorité des prochaines actions
 
-### 9.1 Les cinq rangs [Proposé, cohérent avec UX-1 et la conception 20 §7.3]
+### 9.1 Les cinq rangs [Livré par N3 pour les sources existantes ; cohérent avec UX-1 et la conception 20 §7.3]
 
 | Rang  | Nature                                               | Critères (tous requis)                                                                                                                                         | Exemples                                                                                                                                                |
 | ----- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -968,6 +968,64 @@ reste stable pendant la session (conception 20 P11).
 
 Aucun état vide ne dit ce que la personne « n'a pas fait » (NL2), ni
 depuis combien de temps.
+
+### 9.5 Ce que N3 a livré, et les écarts [Livré le 18/11/2026]
+
+[Détail du code : [docs/carriere](../carriere/README.md#prochaines-actions-n3-72)]
+
+- **Emplacements** : règle pure `src/lib/career/next/` (`candidatesFrom`,
+  `rankSuggestions`), projection `src/lib/server/career/next.ts`
+  (`nextFactsFor`, `nextActionsFor`). Contrat de §8.1 tenu (`key`,
+  `rank`, `branch`, `scope` = `HOME` ou `DETAIL`, `title`, `why`, `href`,
+  `cta`, `dismissal`, `subject`), plus `deadline` et `waitingSince` pour
+  le tri §9.2. Le navigateur ne reçoit que la clé, le rang, la branche, la
+  phrase et le geste.
+- **Règles livrées** : `collab.confirm` (rang 1 si une autre partie a déjà
+  confirmé, sinon 2), `collab.respond`, `credit.confirm`,
+  `band.invitation`, `representation.respond`, `applications.review`,
+  `contact.respond` (rang 2) ; `work.step`, `crea.demo`, `crea.compose`
+  (rang 3) ; `prod.mix`, `prod.record`, `team.fill_role` (rang 4) ;
+  `trial.within_reach`, `objective` (rang 5).
+- **Écarts avec §8.4, faute de `Project` (P2)** : `prod.record` ne lit pas
+  de type de projet ; il est au rang 4 si l'ambition est « Enregistrer » ou
+  « Devenir pro », sinon **rétrogradé au rang 5** (§8.5 : l'orientation
+  change l'ordre, pas les droits). `prod.mix` reste au rang 4 (son
+  déclencheur est un fait : le morceau est enregistré). `prod.find_pro`
+  est fusionné dans `prod.record` / `prod.mix` (le geste nomme la personne
+  du réseau ou ouvre la recherche filtrée), comme le prévoit §8.7.
+- **Droits (NL4)** : les besoins (rangs 3 et 4) ne portent que sur des
+  morceaux que le lecteur **gère** (prédicat `manageableOwnerWhere` des
+  mutations) : un·e membre sans gestion garde les coups de pouce, qui
+  restent inchangés. Une étape n'est proposée que si son type est ouvert
+  (`OPEN_WORK_STEP_KINDS`), sinon `applyWorkStep` la refuserait.
+- **Personnes nommées (§8.8)** : réseau réel, visibles, hors équipe, et
+  **majeures** ; sinon recherche filtrée pour un·e adulte, et pour un·e
+  mineur·e la fiche du morceau (prise en charge soi-même) ou rien.
+- **Non livré, faute de source** : `crea.credit` (relance d'un crédit
+  attendu chez une autre personne), `scene.slot`, `scene.next_date`,
+  `scene.rehearsal`, `proof.attest` hors épreuve à portée, tâches et
+  livrables (P13). Rien n'est inventé à leur place.
+- **Limites d'affichage** : 3 sur l'accueil, 5 en vue détaillée (aucune
+  vue détaillée n'existe encore), une seule de rang 5, une par règle aux
+  rangs 3 à 5 (une même règle ne remplit pas l'écran). « Plus tard » et
+  « Pas pour moi » sont typés (`dismissal`) mais **aucun bouton n'est
+  affiché** et rien n'est enregistré avant N4.
+- **Intégration UI** : bloc « À faire maintenant » en tête du pivot
+  « priorités » de `/espace` (musicien·ne et espaces métier), au-dessus
+  des quatre aperçus existants, qui restent. **Le héros `NextStep` n'est
+  pas changé** : UX-1 n'est pas tranché (#71). Point d'intégration pour
+  U0 : si UX-1 est accepté, le héros d'« avancer » prend
+  `next[0]` quand il existe, et `NextStep` passe en tête de « repères » ;
+  l'accueil musicien passe alors l'objectif au moteur (option `objective`,
+  rang 5) puisqu'il ne sera plus montré par le héros.
+- **Dédoublonnage N2** : la page de branche ne répète plus dans « En
+  cours » une collaboration déjà proposée dans « Possible maintenant ».
+- **Constat de sécurité (non corrigé, hors N3)** : les déclencheurs de la
+  carte (`collaborationsToConfirm`) et la page `/espace/a-confirmer` lisent
+  les collaborations sans le filtre de blocage des priorités. Le moteur ne
+  reprend une épreuve visant une collaboration que si elle a passé ce
+  filtre ; la carte et la page sont laissées telles quelles (N2 inchangée)
+  et sont à aligner dans U0 (« À traiter »).
 
 ---
 
@@ -1378,7 +1436,15 @@ dans aucun calcul.
   chaque relation par une requête (`relationJoins` non activé) : passer
   sous six demanderait du SQL brut ou une option du schéma, hors N1.
 
-### 13.2 Stratégie [Proposé]
+- **Mesuré par N3** (18/11/2026, schéma `e2e`, scénario de
+  `next.integration.test.ts`) : l'accueil lisait 31 requêtes (compte
+  neuf) et 32 (compte actif) pour la carte, les priorités et
+  l'accompagnement ; avec les prochaines actions et la mémorisation par
+  requête, **36 et 49** (sans mémorisation : 67 et 81). Latence médiane
+  observée : 162 → 173 ms (neuf), 160 → 222 ms (actif), base Neon
+  distante. Le layout ne relit plus les réalisations quand la page les lit.
+
+### 13.2 Stratégie [Proposé ; points 1, 2 et 7 livrés par N3]
 
 1. **Une lecture des réalisations par requête HTTP** (N1), mémorisée le
    temps de la requête et partagée par la carte, les suggestions et la
@@ -1502,6 +1568,12 @@ flowchart LR
   accueil (compte neuf, groupe de scène, ingé son).
 - **Acceptation** : scénarios A, B, C, E et H (partie existante) rejoués
   sans suggestion interdite du §11.
+- **État** : ✅ moteur livré le 18/11/2026 (§9.5) ; héros de l'accueil
+  laissé à U0 tant qu'UX-1 n'est pas tranché. Les scénarios du §11 ne
+  sont pas rejoués un à un : leurs règles interdites sont couvertes par les
+  tests unitaires et d'intégration (aucune jam, aucune absence présentée
+  comme un manque, aucun nom hors réseau). Budget de requêtes fixé :
+  5 et 17 requêtes ajoutées à l'accueil (seuils 6 et 20).
 
 ### N4 — Différer et masquer · #72
 
