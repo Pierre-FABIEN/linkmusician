@@ -117,11 +117,9 @@ s'il n'est pas tranché.
 
 ### Domaine Collab : progression non linéaire (G0-04, #72)
 
-Arbitrages issus de la [conception 21](../conception/21-progression-non-lineaire.md#16-questions-à-arbitrer).
-Aucun ne change le barème XP ni les règles de preuve. Le défaut s'applique
-au démarrage du lot s'il n'est pas tranché.
+**Arbitrages validés par le fondateur le 18/11/2026** : [D73 — Progression non linéaire](../decisions/D73-progression-non-lineaire.md), issus de la [conception 21](../conception/21-progression-non-lineaire.md#16-questions-à-arbitrer). **Toutes les réponses Q-NL-1 à Q-NL-8 sont rendues** ; elles ne modifient pas le barème XP. Q-NL-2 révise D53 pour les épreuves solo après P8. Les lots restent non implémentés.
 
-| #      | Question                                                                                                                                                     | Par défaut                                                                        | Lot |
+| #      | Question                                                                                                                                                     | Décision validée                                                                        | Lot |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- | --- |
 | Q-NL-1 | Remplacer « l'acte en cours » par jusqu'à trois **épreuves à portée**, en mosaïque de branches, sans numéros romains ?                                       | **Oui** ; épreuves et conditions de D53 inchangées                                | N2  |
 | Q-NL-2 | Après P8, une **personne** franchit-elle « Le studio » et « La scène » par ses propres faits ?                                                               | **Oui**, dédupliqué avec son groupe (une soirée compte une fois) ; **révise D53** | N6  |
