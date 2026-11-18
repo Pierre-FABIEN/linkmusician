@@ -1,7 +1,6 @@
 # D72 — Architecture métier Collab : groupes, projets, œuvres, collaborations
 
-- Statut : **Proposée** (18/11/2026). En attente des arbitrages du fondateur
-  (§8). Rien n'est implémenté.
+- Statut : **Acceptée** (18/11/2026), validation explicite du fondateur de la **révision 2** après revue produit. **Architecture approuvée, non implémentée** : aucun code applicatif ni schéma Prisma modifié par cette décision.
 - **Révision 2** (18/11/2026), après la revue produit de #83 : capacités
   limitées au projet, morceau d'autrui partagé sans transfert, partage
   explicite des réalisations, plateaux par format pour les solos,
@@ -324,6 +323,4 @@ distinct des capacités (Q-G0-8), carte non linéaire (Q-G0-9), mineur·es
 (Q-G0-12), porteurs admis (Q-G0-13), vocabulaire (Q-G0-14), répertoire
 public partagé reporté (Q-G0-16).
 
-Une fois les arbitrages rendus, cette fiche passe en **Acceptée**, avec
-les réponses. Une question rejetée modifie la fiche avant son acceptation,
-pas après.
+**Arbitrage du fondateur (18/11/2026) :** la proposition **B + C — révision 2** est **acceptée** avec les recommandations Q-G0-1 à Q-G0-16 détaillées au §9 de la conception 19 et dans la synthèse fondateur. Les choix de lancement et les reports qui y figurent sont retenus comme décisions de cadrage, **pas comme fonctionnalités livrées**. En particulier : le transfert de gestion, le répertoire public partagé, les mandats limités aux projets et l'extension œuvre/enregistrement/sortie restent différés. La conservation minimale des crédits demeure **conditionnée à un avis juridique RGPD avant implémentation** ; aucune conservation de données personnelles n'est autorisée par principe. Toute modification structurante ultérieure doit suivre le registre des décisions.
