@@ -10,7 +10,7 @@
  * - Invitations de groupe vivant : groupe ni bloqué ni bloquant.
  * - Accompagnement : propositions qu'une personne majeure peut trancher
  *   (`representationsForMe`, lue une fois avec la tuile de l'accueil), sans
- *   blocage avec l'agent.
+ *   blocage avec l'agent : le filtre est dans la requête même (#85).
  * - Candidatures et demandes de contact : les compteurs des priorités.
  *
  * Les catégories à venir (invitations de projet, tâches, livrables) s'y
@@ -75,8 +75,7 @@ async function readInbox(person: InboxPerson, now: Date, scope?: RequestScope) {
 	// Titres et noms seulement s'il y a des lignes (Prisma lirait sinon chaque relation, même vide).
 	const workIds = credits.map((c) => c.workId);
 	const bandIds = invitations.map((m) => m.orgId);
-	const agentHandles = [...new Set(proposed.map((r) => r.agent.handle))];
-	const [works, bands, agents] = await Promise.all([
+	const [works, bands] = await Promise.all([
 		workIds.length
 			? prisma.work.findMany({ where: { id: { in: workIds } }, select: { id: true, title: true } })
 			: [],
@@ -85,16 +84,8 @@ async function readInbox(person: InboxPerson, now: Date, scope?: RequestScope) {
 					where: { id: { in: bandIds } },
 					select: { id: true, handle: true, displayName: true }
 				})
-			: [],
-		// U0 : aucune proposition d'un agent qui m'a bloqué·e ou que j'ai bloqué·e.
-		agentHandles.length
-			? prisma.actor.findMany({
-					where: { handle: { in: agentHandles }, ...notBlockedWith(me) },
-					select: { handle: true }
-				})
 			: []
 	]);
-	const allowedAgents = new Set(agents.map((a) => a.handle));
 	const title = new Map(works.map((w) => [w.id, w.title]));
 	const band = new Map(bands.map((b) => [b.id, b]));
 	const inbox = {
@@ -107,9 +98,9 @@ async function readInbox(person: InboxPerson, now: Date, scope?: RequestScope) {
 			const b = band.get(m.orgId);
 			return b ? [{ bandId: b.id, handle: b.handle, name: b.displayName, since: m.createdAt }] : [];
 		}),
-		representations: proposed
-			.filter((r) => allowedAgents.has(r.agent.handle))
-			.map((r) => ({ id: r.id })),
+		// Blocages déjà écartés à la source (#85) : `representationsForMe` applique
+		// `notBlockedWith(me)` aux propositions, comme `pendingRepresentations`.
+		representations: proposed.map((r) => ({ id: r.id })),
 		applications: priority.applications,
 		contactRequests: priority.canReceiveRequests ? priority.requests : 0
 	};

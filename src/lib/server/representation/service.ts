@@ -478,8 +478,12 @@ export async function representationsForMe(personId: string, now = new Date()) {
 		where: {
 			agent: { deletedAt: null },
 			OR: [
+				// Consenti, l'accompagnement reste lisible malgré un blocage pour qu'on puisse y
+				// mettre fin (le blocage coupe déjà ses droits) ; jamais ses termes privés.
 				{ artistId: { in: artistIds }, status: 'CONFIRMED' },
-				{ artistId: { in: answerFor }, status: 'PROPOSED' }
+				// #85 : comme `pendingRepresentations`, aucune proposition d'une personne qui
+				// m'a bloqué·e ou que j'ai bloquée — ni son nom, ni son pseudo, ni son message.
+				{ artistId: { in: answerFor }, status: 'PROPOSED', agent: notBlockedWith(personId) }
 			]
 		},
 		orderBy: [{ status: 'desc' }, { createdAt: 'desc' }],

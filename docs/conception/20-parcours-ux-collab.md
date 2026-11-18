@@ -450,9 +450,11 @@ UX-1 tranché : [D74](../decisions/D74-heros-accueil-collab.md).
   l'agenda ; l'en-tête garde « Mode carrière » jusqu'aux textes de #74.
   Mosaïque `sm`/`band` de §6.1 non reprise : les tuiles restent en menu
   (projets absents). « Mes contributions » (U1) n'existe pas encore : aucune
-  entrée. La page `/accompagnement` liste encore les propositions sans le
-  filtre de blocage (hors écrans U0) : la tuile et « À traiter » ne les
-  comptent plus.
+  entrée. Corrigé par #85 : `/accompagnement` écarte aussi, dans la
+  requête de `representationsForMe`, les propositions d'une personne
+  bloquée (dans les deux sens) ; page, tuile et « À traiter » lisent la
+  même source. Un accompagnement confirmé reste lisible pour y mettre fin
+  (Q75).
 
 ---
 

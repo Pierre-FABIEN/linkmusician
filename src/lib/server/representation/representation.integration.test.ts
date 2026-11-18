@@ -493,6 +493,103 @@ describe.skipIf(!enabled)(
 			});
 		});
 
+		it('blocage (#85) : une proposition d’une personne bloquée ne révèle ni nom, ni pseudo, ni message', async () => {
+			const { blockActor, unblockActor } = await import('../blocking/service');
+			const { inboxFor } = await import('../space/inbox');
+			const agt = await person('agt85', ['MANAGER', 'BOOKER']);
+			const art = await person('art85', ['MUSICIAN']);
+			const co = await person('co85', ['MUSICIAN']);
+			const ghost = await person('ghost85', ['MANAGER']);
+			const SECRET = 'Message très privé #85';
+			const groupe = await bands.createBand(art, { name: `${PREFIX}Groupe 85`, title: 'chant' });
+			await db.membership.create({
+				data: {
+					orgId: groupe.id,
+					personId: co,
+					role: 'ADMIN',
+					status: 'ACTIVE',
+					startedAt: new Date()
+				}
+			});
+			await reps.proposeRepresentation(agt, {
+				artist: PREFIX + 'art85',
+				kind: 'MANAGER',
+				message: SECRET
+			});
+			await reps.proposeRepresentation(agt, { artist: groupe.handle, kind: 'BOOKER' });
+			await reps.proposeRepresentation(ghost, { artist: PREFIX + 'art85', kind: 'MANAGER' });
+
+			const view = async (me: string) => {
+				const rows = await reps.representationsForMe(me);
+				const proposed = rows.filter((r) => r.status === 'PROPOSED');
+				const birthDate = (await db.person.findUniqueOrThrow({ where: { actorId: me } })).birthDate;
+				const inbox = await inboxFor({ actorId: me, birthDate });
+				// Compteurs cohérents : rien ne trahit une proposition masquée.
+				expect(await reps.pendingRepresentationCount(me)).toBe(proposed.length);
+				expect(inbox.representations).toHaveLength(proposed.length);
+				return { rows, proposed, json: JSON.stringify(rows) };
+			};
+			const leaks = (json: string) =>
+				[PREFIX + 'agt85', '"agt85"', SECRET].filter((s) => json.includes(s));
+
+			// Sans blocage : les deux propositions de l'agent, et celle de ghost.
+			let v = await view(art);
+			expect(v.proposed).toHaveLength(3);
+			expect(v.json).toContain(SECRET);
+			expect((await view(co)).proposed).toHaveLength(1); // celle du groupe
+
+			// Agent supprimé : sa proposition disparaît (règle existante).
+			await db.actor.update({ where: { id: ghost }, data: { deletedAt: new Date() } });
+			expect((await view(art)).proposed).toHaveLength(2);
+
+			// Artiste → agent, puis agent → artiste : rien de l'agent, dans aucune proposition.
+			for (const [blocker, blocked] of [
+				[art, agt],
+				[agt, art]
+			]) {
+				await blockActor(blocker, blocked);
+				v = await view(art);
+				expect(v.proposed).toEqual([]);
+				expect(leaks(v.json)).toEqual([]);
+				// L'autre gestionnaire du groupe, non bloqué, voit toujours la proposition du groupe.
+				expect((await view(co)).proposed).toHaveLength(1);
+				await unblockActor(blocker, blocked);
+				// Déblocage : la proposition encore valable revient, avec son message.
+				v = await view(art);
+				expect(v.proposed).toHaveLength(2);
+				expect(v.json).toContain(SECRET);
+			}
+
+			// Groupe géré : le blocage d'un·e gestionnaire ne masque la proposition qu'à lui ou elle.
+			await blockActor(co, agt);
+			expect((await view(co)).proposed).toEqual([]);
+			expect(leaks((await view(co)).json)).toEqual([]);
+			expect((await view(art)).proposed).toHaveLength(2);
+			await unblockActor(co, agt);
+			// Retrait du droit de gestion : plus rien du groupe.
+			await db.membership.updateMany({
+				where: { orgId: groupe.id, personId: co },
+				data: { role: 'MEMBER' }
+			});
+			expect((await view(co)).rows).toEqual([]);
+
+			// Confirmé : l'accompagnement consenti reste lisible malgré un blocage, pour pouvoir
+			// y mettre fin ; ses termes privés (le message) ne sont jamais renvoyés.
+			const { id } = await db.representation.findFirstOrThrow({
+				where: { agentId: agt, artistId: art, status: 'PROPOSED' }
+			});
+			await reps.answerRepresentation(id, art, true);
+			await blockActor(art, agt);
+			v = await view(art);
+			expect(v.rows).toMatchObject([{ id, status: 'CONFIRMED', message: null }]);
+			expect(v.json).not.toContain(SECRET);
+			await reps.endRepresentation(id, art);
+			expect(await db.representation.findUniqueOrThrow({ where: { id } })).toMatchObject({
+				status: 'ENDED'
+			});
+			await unblockActor(art, agt);
+		});
+
 		it('RGPD : fiche et accompagnements exportés ; après l’anonymisation, la fiche part et l’accompagnement se termine', async () => {
 			const rock = (
 				await db.genre.findFirstOrThrow({ where: { active: true }, select: { id: true } })
