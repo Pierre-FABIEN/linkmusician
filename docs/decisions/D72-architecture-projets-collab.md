@@ -2,6 +2,11 @@
 
 - Statut : **Proposée** (18/11/2026). En attente des arbitrages du fondateur
   (§8). Rien n'est implémenté.
+- **Révision 2** (18/11/2026), après la revue produit de #83 : capacités
+  limitées au projet, morceau d'autrui partagé sans transfert, partage
+  explicite des réalisations, plateaux par format pour les solos,
+  conservation minimale et purgeable. Synthèse pour la décision :
+  [D72 — synthèse pour le fondateur](./D72-synthese-fondateur.md).
 - Lot concerné : G0-02 ([#83](https://github.com/Pierre-FABIEN/linkmusician/issues/83)).
   Alimente #71, #72, #36 et #40.
 - Détail complet (modèle, droits, scénarios, lots) :
@@ -101,9 +106,11 @@ n'en modifie aucun.
 - **B n'est pas un prérequis de C**, contrairement à ce que suggérait
   l'audit. Les deux chantiers sont indépendants et peuvent avancer dans
   n'importe quel ordre.
-- **Coût** : B + C ajoute 5 à 6 tables. Chacune a une seule responsabilité,
-  et le projet n'introduit **aucun nouveau système de droits** : sa gestion
-  est celle de son porteur.
+- **Coût** : B + C ajoute 5 à 6 tables, plus la table des livrables cadrée par #36. Chacune a une seule
+  responsabilité. Le projet introduit un **jeu de capacités borné**
+  (participant·e, coordinateur·rice), limité au projet, sans effet sur un
+  groupe, une œuvre ou un crédit. Sans lui, un producteur ne peut
+  travailler qu'en devenant ADMIN du groupe.
 
 Matrice des huit scénarios (détail en
 [conception 19, §8](../conception/19-architecture-cible-collab.md#8-les-huit-scénarios-rejoués)) :
@@ -116,8 +123,9 @@ Matrice des huit scénarios (détail en
 | D Sortie multi-structures | Non            | Non     | Partiel        | **Partiel** (#40, #47) |
 | E Festival                | Non            | Non     | Partiel        | **Partiel** (G3)       |
 | F Départ du fondateur     | Partiel        | Oui     | Partiel        | **Oui**                |
-| G Œuvre préexistante      | Doublon        | Oui     | Doublon        | **Oui**                |
+| G Œuvre préexistante      | Doublon        | Oui     | Doublon        | **Oui** (partage)      |
 | H Parcours non linéaire   | Linéaire       | Oui     | Linéaire       | **Oui**                |
+| Producteur coordinateur   | ADMIN          | ADMIN   | Sans droit     | **Oui** (capacités)    |
 
 ## 5. Architecture recommandée
 
@@ -127,56 +135,95 @@ approuvée.
 
 Cinq relations distinctes, chacune portée par un seul objet :
 
-| Relation     | Objet                                                |
-| ------------ | ---------------------------------------------------- |
-| Appartenance | `Membership` (inchangé)                              |
-| Portage      | `Work.ownerId` (transférable), `Project.ownerId`     |
-| Crédit       | `WorkContributor`, `WorkRole` (inchangés)            |
-| Acte prouvé  | `Collaboration` (N morceaux, interprète acteur)      |
-| Regroupement | **`Project`** (nouveau), qui référence sans posséder |
+| Relation     | Objet                                                     |
+| ------------ | --------------------------------------------------------- |
+| Appartenance | `Membership` (inchangé)                                   |
+| Portage      | `Work.ownerId` (transfert d'exception), `Project.ownerId` |
+| Crédit       | `WorkContributor`, `WorkRole` (inchangés)                 |
+| Acte prouvé  | `Collaboration` (N morceaux, interprète acteur)           |
+| Regroupement | **`Project`** (nouveau), qui référence sans posséder      |
+
+Deux réglages du projet, chacun décidé par une seule partie :
+
+| Réglage      | Décidé par                          | Objet                             |
+| ------------ | ----------------------------------- | --------------------------------- |
+| **Partage**  | La gestion de **la réalisation**    | `ProjectItem.share`               |
+| **Capacité** | La gestion **du porteur du projet** | `ProjectParticipant.capabilities` |
 
 **Le projet** : un objectif situé (EP, album, single, tournée, concert,
 festival, production, campagne) porté par **un seul acteur** (une personne
 ou une organisation). Il référence 0..N morceaux, collaborations et
 annonces (plus tard événements, enregistrements, sorties), réunit des
-participant·es invité·es, et garde un historique en ajout seul. Un même
-morceau peut être dans plusieurs projets. Il n'existe ni sous-projet, ni
-co-portage.
+participant·es invité·es, organise les tâches confiées, et garde un
+historique en ajout seul. Un même morceau peut être dans plusieurs
+projets. Il n'existe ni sous-projet, ni co-portage.
 
-**Invariants nouveaux proposés** (détail §5.4 de la conception 19) :
+**Capacités** (conception 19, §9.1) : au MVP, deux préréglages.
+**Participant·e** lit la fiche et les résumés partagés.
+**Coordinateur·rice** modifie dates et description, confie les tâches des
+éléments partagés « travail », invite des participant·es simples et
+propose des besoins. Il ou elle ne peut ni accorder une capacité, ni
+changer un partage, ni toucher titre, crédits ou maquette, ni publier au
+nom du porteur. La personne à qui une tâche est confiée la fait avancer et
+dépose ses livrables ; la gestion de l'élément les valide. Le tout est
+stocké comme un ensemble de capacités extensible.
+
+**Partage** (§9.3) : `NONE` (lié, rien de révélé), `SUMMARY` (titre ou
+titre de travail, étape), `WORK` (résumé plus tâches et livrables du
+projet). Par défaut, un élément public est proposé en résumé, un élément
+privé en « rien ». Le partage n'ouvre jamais la page du morceau.
+
+**Invariants nouveaux proposés** (détail §5.4 de la conception 19 ;
+« rév. » : modifié par la révision 2) :
 
 - **I1** Le projet ne possède rien : le clore ou le supprimer ne touche
   aucune réalisation.
-- **I2** La participation ne donne **aucun droit** sur les réalisations,
-  ni l'adhésion au groupe porteur.
+- **I2** (rév.) La participation seule ne donne **aucun droit** sur les
+  réalisations, ni l'adhésion au groupe porteur ; seul le partage décidé
+  par la gestion de la réalisation en ouvre, dans ce projet.
 - **I3** Le projet ne prouve rien : aucune XP, aucune étape, aucune
   corroboration. Son avancement est calculé à la lecture.
 - **I4** Le projet est **facultatif** : tout geste existant reste possible
   sans lui.
-- **I5** On ne range dans un projet que ce à quoi l'on est partie.
-- **I6** Une réalisation liée se lit avec **ses propres** droits.
-- **I7** La gestion du projet est celle de son porteur, relue à chaque
-  écriture ; rien n'est stocké.
+- **I5** (rév.) Une réalisation n'entre dans un projet qu'avec l'accord de
+  sa gestion, qui en a l'initiative quand le projet est celui d'autrui.
+- **I6** (rév.) Un lien ne révèle rien ; seul un partage révèle, et
+  seulement ce qu'il dit. Compteurs, journal et notifications compris.
+- **I7** (rév.) La gestion du projet est celle de son porteur, relue à
+  chaque écriture, jamais stockée ; seules les capacités consenties des
+  participant·es le sont.
 - **I8** Historique en ajout seul.
 - **I9** Crédit ≠ portage ≠ propriété intellectuelle.
-- **I10** Une réalisation qui porte un crédit confirmé d'autrui survit à
-  son porteur (archivage).
+- **I10** (rév.) Une preuve d'autrui survit à son porteur **sous forme
+  minimale** (rôle, date, titre masquable), sans média ni donnée du
+  porteur, et elle est purgée quand plus aucun crédit vivant n'en dépend.
+- **I11** (nouveau) Non-élévation : une capacité ne dépasse jamais les
+  droits de qui l'accorde, n'en accorde aucune, et ne touche ni groupe,
+  ni mandat, ni crédit, ni gestion d'œuvre.
+- **I12** (nouveau) La révocation l'emporte : effet à l'écriture suivante,
+  sous verrou `project:`.
 
 **Corrections associées** (chacune dans son ticket) :
 
-- transfert consenti d'un morceau d'une personne vers un groupe (#40) ;
-- archivage d'un morceau qui porte des crédits d'autrui ; crédits publics
-  conservés après dissolution (#40) ;
+- morceau d'autrui **partagé** dans un projet sans transfert (#71, #40) ;
+  transfert de gestion consenti des deux côtés en exception, après pilote
+  (#40) ;
+- conservation minimale d'un morceau qui porte des crédits d'autrui,
+  médias retirés, purge ; crédits publics conservés après dissolution
+  (#40) ;
 - collaboration sur plusieurs morceaux, unicité par jour **et** par morceau
   (#36) ;
 - concert joué par une **personne** interprète, étapes de scène portées par
-  la personne ; le groupe `SOLO` reste pour un nom de scène (#36, #72) ;
+  la personne ; plateaux ouverts au solo **quand l'organisateur le
+  choisit** ; le groupe `SOLO` reste pour un nom de scène (#36, #72, #77) ;
+- tâches confiées et livrables versionnés dans un projet (#36) ;
 - étapes de production libérées au départ d'un membre (#36) ;
 - carte de carrière à épreuves parallèles (#72) ;
 - principe œuvre → enregistrement → sortie, réalisé dans #40.
 
-**Verrous** : `project:` se place en tête de l'ordre existant. La
-finalisation d'une collaboration ne le prend jamais (I3).
+**Verrous** : `project:` se place en tête de l'ordre existant. Toute
+écriture qui s'appuie sur une capacité ou un partage le prend d'abord.
+La finalisation d'une collaboration ne le prend jamais (I3).
 
 ## 6. Conséquences
 
@@ -184,18 +231,24 @@ finalisation d'une collaboration ne le prend jamais (I3).
 
 - Un groupe porte plusieurs projets en parallèle ; un·e solo, un
   producteur ou un organisateur porte les siens sans groupe.
-- Plus de groupe fantôme ni de morceau en doublon ; les preuves d'un tiers
-  ne disparaissent plus par le geste d'un autre.
+- Un producteur, une ingé son ou une régie coordonnent réellement un
+  projet sans entrer dans la gouvernance du groupe.
+- Plus de groupe fantôme ni de morceau en doublon ; l'autrice d'un
+  morceau garde la main en le partageant ; les preuves d'un tiers ne
+  disparaissent plus par le geste d'un autre.
+- Rien de privé n'est montré sans un geste de sa gestion.
 - Les deuxièmes EP et tournées existent comme projets terminés, sans
   toucher aux étapes « premières fois ».
 - Un point d'accroche unique pour les chantiers futurs : sortie (#40),
   événement (G3), label (#47), mandat de projet (#44, #45).
-- Aucun nouveau système de droits à sécuriser.
-
-**Négatives**
+  **Négatives**
 
 - Cinq à six tables de plus, et un objet de plus à expliquer dans
   l'interface.
+- Un jeu de capacités et trois niveaux de partage à sécuriser et à
+  tester (matrice §6.2 de la conception 19, révocation concurrente).
+- Une politique de conservation à faire confirmer juridiquement, et une
+  purge planifiée à maintenir.
 - Deux notions proches à distinguer dans les textes : **groupe** (le
   collectif) et **projet** (l'objectif). Le mot « campagne » actuel doit
   disparaître (#71).
@@ -208,48 +261,68 @@ finalisation d'une collaboration ne le prend jamais (I3).
 
 - Créer un projet automatiquement, ou l'exiger pour créer un morceau,
   collaborer ou rejoindre une jam.
-- Dériver un droit, un crédit, une XP ou une preuve d'une participation ou
-  d'un rangement dans un projet.
+- Dériver un droit, un crédit, une XP ou une preuve d'une participation,
+  d'une capacité, d'une tâche validée ou d'un rangement dans un projet.
 - Faire porter un morceau par un projet.
+- Ranger le morceau d'autrui sans l'initiative de sa gestion ; montrer un
+  élément privé sans partage.
+- Conserver indéfiniment un média ou une donnée du porteur au nom d'un
+  crédit.
 
 ## 7. Risques
 
-| Risque                                                                     | Type          | Mitigation                                                                                  |
-| -------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------- |
-| Ranger le morceau d'autrui dans son projet pour le lire (IDOR)             | Sécurité      | I5 et I6 ; tests de POST forgés à chaque lot                                                |
-| Participation utilisée comme droit d'accès                                 | Sécurité      | I2 ; aucun prédicat existant ne lit la participation                                        |
-| Interblocage entre projet, morceau et groupe                               | Concurrence   | Ordre `project:` → `collaboration:` → `work:` → `band:` ; tests à barrières                 |
-| Spam d'invitations, mineur·es                                              | Sécurité      | Quotas comme D66 ; règles de D37 et D46 ; Q-G0-12                                           |
-| Titre d'un morceau co-crédité conservé après suppression du compte porteur | RGPD          | Avis à consigner dans le lot d'archivage ; maquette retirée ; « Compte supprimé »           |
-| Double comptage d'une étape de scène (personne et groupe le même soir)     | Progression   | Règles distinctes, tests dédiés dans le lot solo                                            |
-| Projet perçu comme obligatoire                                             | UX            | I4 ; tuile « Hors projet » ; aucun formulaire ne l'exige                                    |
-| Migration de `Collaboration.workId` et `bandId`                            | Migration     | Recopie idempotente, ancienne colonne lue pendant la transition, retrait dans un lot séparé |
-| Index partiels SQL supprimés par Prisma                                    | Migration     | Ajoutés à la liste de `db:nettoyer-migration`                                               |
-| Tests existants qui attendent la suppression des morceaux                  | Compatibilité | Réécrits dans le lot d'archivage ; changement de règle consigné dans la conception          |
+| Risque                                                                     | Type            | Mitigation                                                                                      |
+| -------------------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------- |
+| Ranger le morceau d'autrui dans son projet pour le lire (IDOR)             | Sécurité        | I5 (initiative du côté de l'élément) et I6 ; tests de POST forgés à chaque lot                  |
+| Participation utilisée comme droit d'accès                                 | Sécurité        | I2 ; aucun prédicat existant ne lit la participation                                            |
+| Coordinateur·rice qui s'accorde plus de droits                             | Sécurité        | I11 ; seule la gestion accorde ; matrice testée profil par profil                               |
+| Droit retiré mais encore utilisé (course)                                  | Concurrence     | I12 ; relecture sous `project:` ; tests à barrières                                             |
+| Divulgation indirecte (compteurs, journal, notifications, 403)             | Confidentialité | Lecture unique `projectView` ; 404 uniforme ; contenu minimal des notifications                 |
+| Plateau rouvert aux solos sans l'organisateur                              | Produit         | Plateaux existants inchangés ; défaut « groupe »                                                |
+| Interblocage entre projet, morceau et groupe                               | Concurrence     | Ordre `project:` → `collaboration:` → `work:` → `band:` ; tests à barrières                     |
+| Spam d'invitations, mineur·es                                              | Sécurité        | Quotas comme D66 ; règles de D37 et D46 ; Q-G0-12                                               |
+| Titre d'un morceau co-crédité conservé après suppression du compte porteur | RGPD            | Conservation minimale et purgeable ; titre masquable ; médias retirés ; avis juridique avant P6 |
+| Double comptage d'une étape de scène (personne et groupe le même soir)     | Progression     | Règles distinctes, tests dédiés dans le lot solo                                                |
+| Projet perçu comme obligatoire                                             | UX              | I4 ; tuile « Hors projet » ; aucun formulaire ne l'exige                                        |
+| Migration de `Collaboration.workId` et `bandId`                            | Migration       | Recopie idempotente, ancienne colonne lue pendant la transition, retrait dans un lot séparé     |
+| Index partiels SQL supprimés par Prisma                                    | Migration       | Ajoutés à la liste de `db:nettoyer-migration`                                                   |
+| Tests existants qui attendent la suppression des morceaux                  | Compatibilité   | Réécrits dans le lot d'archivage ; changement de règle consigné dans la conception              |
 
 ## 8. Questions nécessitant une validation produit
 
-Le détail et les défauts sont dans la
-[conception 19, §9](../conception/19-architecture-cible-collab.md#9-questions-à-trancher-par-le-fondateur).
+Le détail est dans la
+[conception 19, §9](../conception/19-architecture-cible-collab.md#9-questions-à-trancher-par-le-fondateur) :
+une fiche par arbitrage révisé (§9.1 à §9.5), avec problème, options,
+recommandation, conséquences techniques, scénarios couverts et décisions
+restantes, puis le tableau de toutes les questions (§9.6). La
+[synthèse pour le fondateur](./D72-synthese-fondateur.md) les résume.
+
 Les plus structurantes :
 
 1. **Q-G0-1** — Adopter un projet persistant léger dès le lancement
-   (recommandé : **oui**, contrairement au défaut de l'audit) ?
-2. **Q-G0-3** — Une personne seule peut-elle être interprète d'un concert et
-   franchir « Premier concert » sans groupe (recommandé : oui ; demande une
-   révision partielle de D64) ?
-3. **Q-G0-4** — Transfert d'un morceau d'une personne vers un groupe, sans
-   co-portage (recommandé : oui) ?
-4. **Q-G0-5** — Archivage au lieu de suppression quand des crédits d'autrui
-   existent (recommandé : oui) ?
-5. **Q-G0-11** — Un·e participant·e voit le titre et l'état des
-   réalisations du projet, rien d'autre (recommandé : oui) ?
+   (recommandé : **oui**) ?
+2. **Q-G0-15** (nouvelle) — Des capacités limitées au projet :
+   participant·e et coordinateur·rice au MVP, sur un ensemble extensible
+   (recommandé : **oui**) ?
+3. **Q-G0-4** (révisée) — Le morceau d'autrui est **partagé** dans le
+   projet sans changer de porteur ; le transfert de gestion, consenti des
+   deux côtés, devient une exception après le pilote (recommandé : oui) ?
+4. **Q-G0-11** (révisée) — Rien d'une réalisation n'est montré sans
+   partage explicite de sa gestion ; par défaut, public → résumé, privé →
+   rien (recommandé : oui) ?
+5. **Q-G0-3 et Q-G0-10** (révisée) — Une personne seule joue en son nom
+   et candidate aux plateaux dont l'organisateur accepte le format solo ;
+   plateaux existants inchangés (recommandé : oui ; révision partielle de
+   D64) ?
+6. **Q-G0-5** (précisée) — Conservation minimale, conditionnelle et
+   purgeable des réalisations prouvées, sous réserve d'un avis juridique
+   (recommandé : oui) ?
 
 Les autres : porteur unique (Q-G0-2), œuvre/master dans #40 (Q-G0-6),
-concert engagé par un membre (Q-G0-7), mandat de projet plus tard
-(Q-G0-8), carte non linéaire (Q-G0-9), plateaux ouverts aux solos
-(Q-G0-10), mineur·es (Q-G0-12), porteurs admis (Q-G0-13), vocabulaire
-(Q-G0-14).
+concert engagé par un membre (Q-G0-7), mandat de projet plus tard et
+distinct des capacités (Q-G0-8), carte non linéaire (Q-G0-9), mineur·es
+(Q-G0-12), porteurs admis (Q-G0-13), vocabulaire (Q-G0-14), répertoire
+public partagé reporté (Q-G0-16).
 
 Une fois les arbitrages rendus, cette fiche passe en **Acceptée**, avec
 les réponses. Une question rejetée modifie la fiche avant son acceptation,

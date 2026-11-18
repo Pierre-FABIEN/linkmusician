@@ -110,4 +110,6 @@ Groupes, morceaux, collaborations et initiatives : [audit structurel G0-01, #84]
 
 Architecture cible proposée (groupes, projets, œuvres, collaborations) :
 [conception 19, G0-02, #83](./19-architecture-cible-collab.md), décision
-[D72](../decisions/D72-architecture-projets-collab.md) en statut **Proposée**.
+[D72](../decisions/D72-architecture-projets-collab.md) en statut **Proposée**
+(révision 2 du 18/11/2026 : capacités de projet, partage explicite, solo et
+plateaux, conservation minimale).

@@ -82,18 +82,20 @@ sort de cette liste.
 
 ### Domaine Collab : questions pour G0-02 (#83)
 
-Quatorze questions Q-G0-1 à Q-G0-14 attendent l'arbitrage du fondateur. Les
+Seize questions Q-G0-1 à Q-G0-16 attendent l'arbitrage du fondateur. Les
 neuf premières viennent de l'[audit structurel G0-01](../conception/audit-structurel-collab.md#10-questions-à-trancher-dans-83-g0-02) ;
 la proposition [D72](../decisions/D72-architecture-projets-collab.md)
-(statut **Proposée**) donne pour chacune une recommandation, et en ajoute
-cinq (plateaux ouverts aux solos, ce que voit un·e participant·e, mineur·es,
-porteurs admis, vocabulaire) : voir la
-[conception 19, §9](../conception/19-architecture-cible-collab.md#9-questions-à-trancher-par-le-fondateur).
-Seule recommandation qui **change** par rapport à l'audit : Q-G0-1 (projet
-persistant léger dès le lancement : oui).
+(statut **Proposée**, révision 2 du 18/11/2026) donne pour chacune une
+recommandation et en ajoute sept : voir la
+[conception 19, §9](../conception/19-architecture-cible-collab.md#9-questions-à-trancher-par-le-fondateur)
+et la [synthèse pour le fondateur](../decisions/D72-synthese-fondateur.md).
+La revue produit de #83 a fait réviser Q-G0-4 (partage avant transfert),
+Q-G0-5 (conservation minimale et purgeable), Q-G0-10 (plateaux par
+format), Q-G0-11 (rien sans partage explicite), et ajouter Q-G0-15
+(capacités de projet) et Q-G0-16 (répertoire partagé, reporté).
 
 En attendant, le code garde son comportement actuel ; aucun défaut nouveau
-n'est appliqué, et aucun lot P2 à P12 ne démarre.
+n'est appliqué, et aucun lot P2 à P13 ne démarre.
 
 ## À vérifier hors code
 
