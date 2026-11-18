@@ -1461,6 +1461,8 @@ model Actor {
   notificationsCaused        Notification[]           @relation("NotificationFrom")
   notificationPreferences    NotificationPreference[]
   suggestionsDismissed       SuggestionDismissal[]    @relation("SuggestionOwner")
+  /// N4 : « Plus tard » et « Pas pour moi » sur les prochaines actions.
+  suggestionChoices          SuggestionChoice[]
   dismissedAsSuggestion      SuggestionDismissal[]    @relation("SuggestionTarget")
   organization               Organization?
   memberships                Membership[]             @relation("MembershipPerson")
@@ -4278,4 +4280,37 @@ enum ApplicationGrantActKind {
   WITHDRAWN
   REVOKED
   USED
+}
+
+// ─── PROCHAINES ACTIONS : PLUS TARD, PAS POUR MOI (N4, D73 Q-NL-4) ─────────
+
+/// Choix d'affichage d'une personne sur ses prochaines actions (conception
+/// 21 §8.6). Une préférence, jamais un droit : rien n'est retiré ni bloqué.
+enum SuggestionChoiceKind {
+  /// Une suggestion (rangs 3 à 5) écartée 30 jours, ou jusqu'à un fait nouveau.
+  LATER
+  /// Une règle ou une branche (rangs 4 et 5) écartée jusqu'à réactivation.
+  NOT_FOR_ME
+}
+
+/// Aucun texte de suggestion n'est stocké : seulement sa cible et, pour un
+/// report, l'empreinte du fait qui l'a fait naître (`version`). Supprimée
+/// avec le compte ; exportée (RGPD).
+model SuggestionChoice {
+  id        String               @id @default(cuid())
+  ownerId   String
+  owner     Actor                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  kind      SuggestionChoiceKind
+  /// LATER : clé de suggestion `règle:TYPE:objet` ; NOT_FOR_ME : `rule:<règle>`
+  /// ou `branch:<BRANCHE>`. Validée côté serveur contre les règles connues.
+  target    String
+  /// LATER : empreinte du fait déclencheur ; un fait différent fait revenir la suggestion.
+  version   String?
+  /// LATER : fin du report, calculée par le serveur (30 jours).
+  until     DateTime?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@unique([ownerId, kind, target])
+  @@map("suggestion_choices")
 }
