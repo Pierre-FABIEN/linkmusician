@@ -708,6 +708,16 @@ function view(actorId: string, c: Row, now: Date) {
 				? ('other' as const)
 				: null,
 		work: c.work ? { id: c.work.id, title: c.work.title } : null,
+		/** Date de la proposition (prochaines actions, N3 : ancienneté de l'attente). */
+		proposedAt: c.createdAt,
+		/** Dernière confirmation d'une autre partie (N3 : quelqu'un attend la mienne). */
+		othersConfirmedAt: others.reduce<Date | null>(
+			(last, p) =>
+				p.confirmedCompletionAt && (!last || p.confirmedCompletionAt > last)
+					? p.confirmedCompletionAt
+					: last,
+			null
+		),
 		step: nextStep(
 			status,
 			{ accepted: me.acceptedAt !== null, confirmed: me.confirmedCompletionAt !== null },

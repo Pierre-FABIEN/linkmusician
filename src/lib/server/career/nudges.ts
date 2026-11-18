@@ -26,7 +26,14 @@ import { findActorsNear, type GeoTarget } from '#lib/server/geo/queries';
 import { teamWhere } from '#lib/server/works/service';
 import { stepFactsOf } from '#lib/server/works/production';
 import { nextProductionNeed, productionStages } from '#lib/works/production';
-import { JAM_WINDOW_DAYS, isStalled, pickNudges, type NudgeInput } from '#lib/career/nudges';
+import {
+	JAM_WINDOW_DAYS,
+	isStalled,
+	pickNudges,
+	type NamedPerson,
+	type NudgeInput
+} from '#lib/career/nudges';
+import { canReceiveRequest } from '#lib/messaging/rules';
 
 /** Rayon des personnes proposées pour une place libre. */
 export const NUDGE_RADIUS_KM = 50;
@@ -62,35 +69,23 @@ async function lastProgressAt(personId: string) {
 	return last?.occurredAt ?? null;
 }
 
-export async function nudgesFor(personId: string, options: Options = {}) {
+/**
+ * Le réseau réel et les morceaux de l'équipe, avec leurs besoins (lecture
+ * commune aux coups de pouce et aux prochaines actions, N3). Rien n'est
+ * filtré par la gestion du morceau : l'appelant décide qui peut agir.
+ */
+export async function workNetworkFacts(
+	personId: string,
+	options: Pick<Options, 'now' | 'geo'> = {}
+) {
 	const now = options.now ?? new Date();
 	const visible = publicActorWhere(now, personId);
-	const [person, last] = await Promise.all([
-		prisma.actor.findUniqueOrThrow({ where: { id: personId }, select: { createdAt: true } }),
-		lastProgressAt(personId)
-	]);
-	const stalled = isStalled(last, person.createdAt, now);
-	if (options.onlyIfStalled && !stalled) return { stalled, nudges: [] };
-
-	const [ties, works, jamsSoon] = await Promise.all([
+	// Lecture à plat d'abord : Prisma lancerait sinon une requête par relation,
+	// même sans aucune ligne (compte neuf). Les détails ne partent que s'il y en a.
+	const [ties, rows] = await Promise.all([
 		prisma.musicalTie.findMany({
 			where: { ownerId: personId, contact: { ...visible, person: { isNot: null } } },
-			select: {
-				contact: {
-					select: {
-						id: true,
-						handle: true,
-						displayName: true,
-						person: {
-							select: {
-								instruments: { select: { instrumentId: true } },
-								soundProfile: { select: { specialties: true } },
-								producerProfile: { select: { specialties: true } }
-							}
-						}
-					}
-				}
-			}
+			select: { contactId: true }
 		}),
 		prisma.work.findMany({
 			where: teamWhere(personId),
@@ -100,80 +95,149 @@ export async function nudgesFor(personId: string, options: Options = {}) {
 				id: true,
 				title: true,
 				state: true,
+				updatedAt: true,
+				demoMediaId: true,
 				recordedAt: true,
 				mixedAt: true,
 				masteredAt: true,
 				producedAt: true,
-				ownerId: true,
-				contributors: { select: { personId: true } },
-				roles: {
-					where: { kind: 'INSTRUMENT', contributorId: null, instrumentId: { not: null } },
-					orderBy: { createdAt: 'asc' },
-					select: { instrumentId: true, instrument: { select: { name: true } } }
-				}
+				ownerId: true
 			}
-		}),
-		(options.countJamsSoon ?? defaultJamsSoon)(personId, now)
+		})
 	]);
+	const workIds = rows.map((w) => w.id);
+	const [contacts, contributors, roles] = await Promise.all([
+		ties.length
+			? prisma.actor.findMany({
+					where: { id: { in: ties.map((t) => t.contactId) } },
+					orderBy: { id: 'asc' },
+					select: {
+						id: true,
+						handle: true,
+						displayName: true,
+						person: {
+							select: {
+								birthDate: true,
+								instruments: { select: { instrumentId: true } },
+								soundProfile: { select: { specialties: true } },
+								producerProfile: { select: { specialties: true } }
+							}
+						}
+					}
+				})
+			: [],
+		workIds.length
+			? prisma.workContributor.findMany({
+					where: { workId: { in: workIds } },
+					select: { workId: true, personId: true }
+				})
+			: [],
+		workIds.length
+			? prisma.workRole.findMany({
+					where: {
+						workId: { in: workIds },
+						kind: 'INSTRUMENT',
+						contributorId: null,
+						instrumentId: { not: null }
+					},
+					orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+					select: { workId: true, instrumentId: true, instrument: { select: { name: true } } }
+				})
+			: []
+	]);
+	const works = rows.map((w) => ({
+		...w,
+		contributors: contributors.filter((c) => c.workId === w.id),
+		roles: roles.filter((r) => r.workId === w.id)
+	}));
 
-	const contacts = ties.map((t) => t.contact);
 	// Proches : à moins de NUDGE_RADIUS_KM (commune déclarée des deux côtés).
+	// Seulement s'il y a une place libre à proposer : la recherche géographique coûte.
 	const near =
-		contacts.length > 0
+		contacts.length > 0 && works.some((w) => w.roles.length > 0)
 			? new Set(
 					(await findActorsNear(personId, NUDGE_RADIUS_KM, options.geo)).map((a) => a.actorId)
 				)
 			: new Set<string>();
-	const named = (c: (typeof contacts)[number]) => ({
-		handle: c.handle,
-		displayName: c.displayName
-	});
+	type Contact = (typeof contacts)[number];
+	const named = (c: Contact) => ({ handle: c.handle, displayName: c.displayName });
 	const team = (w: (typeof works)[number]) =>
 		new Set([w.ownerId, ...w.contributors.map((c) => c.personId)]);
 
-	const openRoles: NudgeInput['openRoles'] = works.flatMap((w) => {
+	// DASH-06c : le besoin réel de chaque morceau composé (faits et étapes prises).
+	const composed = works.filter((w) => w.state === 'COMPOSED');
+	const facts = await stepFactsOf(composed.map((w) => w.id));
+	type Pro = NamedPerson & { craft: 'SOUND_ENGINEER' | 'PRODUCER'; adult: boolean };
+	const adult = (c: Contact) => canReceiveRequest(c.person?.birthDate ?? null, now);
+
+	return works.map((w) => {
 		const inTeam = team(w);
-		return w.roles.map((r) => ({
+		const steps = facts.get(w.id) ?? [];
+		const prosFor = (specialty: 'RECORDING' | 'MIXING') =>
+			contacts.flatMap((c): Pro[] => {
+				if (inTeam.has(c.id)) return [];
+				if (c.person?.soundProfile?.specialties.includes(specialty))
+					return [{ ...named(c), craft: 'SOUND_ENGINEER' as const, adult: adult(c) }];
+				if ((c.person?.producerProfile?.specialties.length ?? 0) > 0)
+					return [{ ...named(c), craft: 'PRODUCER' as const, adult: adult(c) }];
+				return [];
+			});
+		const need =
+			w.state === 'COMPOSED' ? nextProductionNeed(productionStages(w, steps), steps) : null;
+		return {
+			id: w.id,
+			title: w.title,
+			state: w.state,
+			updatedAt: w.updatedAt,
+			hasDemo: w.demoMediaId !== null,
+			ownerId: w.ownerId,
+			need,
+			pros: need ? prosFor(need) : [],
+			openRoles: w.roles.map((r) => ({
+				instrument: r.instrument!.name,
+				candidates: contacts
+					.filter(
+						(c) =>
+							near.has(c.id) &&
+							!inTeam.has(c.id) &&
+							c.person?.instruments.some((i) => i.instrumentId === r.instrumentId)
+					)
+					.map((c) => ({ ...named(c), adult: adult(c) }))
+			}))
+		};
+	});
+}
+
+export async function nudgesFor(personId: string, options: Options = {}) {
+	const now = options.now ?? new Date();
+	const [person, last] = await Promise.all([
+		prisma.actor.findUniqueOrThrow({ where: { id: personId }, select: { createdAt: true } }),
+		lastProgressAt(personId)
+	]);
+	const stalled = isStalled(last, person.createdAt, now);
+	if (options.onlyIfStalled && !stalled) return { stalled, nudges: [] };
+
+	const [works, jamsSoon] = await Promise.all([
+		workNetworkFacts(personId, { now, geo: options.geo }),
+		(options.countJamsSoon ?? defaultJamsSoon)(personId, now)
+	]);
+	const strip = <T extends { adult: boolean }>({ adult: _adult, ...p }: T) => p;
+
+	const openRoles: NudgeInput['openRoles'] = works.flatMap((w) =>
+		w.openRoles.map((r) => ({
 			workId: w.id,
 			workTitle: w.title,
-			instrument: r.instrument!.name,
-			candidates: contacts
-				.filter(
-					(c) =>
-						near.has(c.id) &&
-						!inTeam.has(c.id) &&
-						c.person?.instruments.some((i) => i.instrumentId === r.instrumentId)
-				)
-				.map(named)
-		}));
-	});
-
-	// DASH-06c : le besoin réel de chaque morceau composé (faits et étapes prises).
-	const composedWorks = works.filter((w) => w.state === 'COMPOSED');
-	const facts = await stepFactsOf(composedWorks.map((w) => w.id));
-	const need = (w: (typeof works)[number]) => {
-		const steps = facts.get(w.id) ?? [];
-		return nextProductionNeed(productionStages(w, steps), steps);
-	};
-	type Pro = NonNullable<NudgeInput['toRecord']>['pros'][number];
-	const prosFor = (w: (typeof works)[number], specialty: 'RECORDING' | 'MIXING') => {
-		const inTeam = team(w);
-		return contacts.flatMap((c): Pro[] => {
-			if (inTeam.has(c.id)) return [];
-			if (c.person?.soundProfile?.specialties.includes(specialty))
-				return [{ ...named(c), craft: 'SOUND_ENGINEER' as const }];
-			if ((c.person?.producerProfile?.specialties.length ?? 0) > 0)
-				return [{ ...named(c), craft: 'PRODUCER' as const }];
-			return [];
-		});
-	};
-	const recording = composedWorks.find((w) => need(w) === 'RECORDING');
+			instrument: r.instrument,
+			candidates: r.candidates.map(strip)
+		}))
+	);
+	const recording = works.find((w) => w.need === 'RECORDING');
 	const toRecord: NudgeInput['toRecord'] = recording
-		? { workId: recording.id, workTitle: recording.title, pros: prosFor(recording, 'RECORDING') }
+		? { workId: recording.id, workTitle: recording.title, pros: recording.pros.map(strip) }
 		: null;
-	const mixing = composedWorks.find((w) => need(w) === 'MIXING');
+	const mixing = works.find((w) => w.need === 'MIXING');
 	const toMix: NudgeInput['toMix'] = mixing
-		? { workId: mixing.id, workTitle: mixing.title, pros: prosFor(mixing, 'MIXING') }
+		? { workId: mixing.id, workTitle: mixing.title, pros: mixing.pros.map(strip) }
 		: null;
 
 	return {

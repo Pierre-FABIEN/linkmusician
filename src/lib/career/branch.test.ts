@@ -73,6 +73,7 @@ describe('page d’une branche (N2, conception 21 §10.3)', () => {
 				declaredRecordings: [{ bandHandle: 'les-rats', bandName: 'Les Rats', manager: true }],
 				toConfirm: [
 					{
+						id: 'c1',
 						kind: 'PRODUCTION',
 						title: 'Prod',
 						happenedOn: '2026-11-01',
@@ -87,6 +88,37 @@ describe('page d’une branche (N2, conception 21 §10.3)', () => {
 		expect(d.possible).toHaveLength(MAX_POSSIBLE);
 		expect(d.possible[0].label).toBe('Demander une confirmation');
 		expect(d.possible[1].label).toBe('Confirmer la production');
+	});
+
+	it('N3 : une collaboration proposée dans « Possible maintenant » n’est pas répétée dans « En cours »', () => {
+		const toConfirm = [
+			{
+				id: 'c1',
+				kind: 'OTHER',
+				title: 'Session du jeudi',
+				happenedOn: '2026-11-08',
+				asProvider: false,
+				bandSide: false,
+				verifiedHostName: null,
+				hasWork: false
+			},
+			{
+				id: 'c2',
+				kind: 'OTHER',
+				title: 'Session du vendredi',
+				happenedOn: '2026-11-09',
+				asProvider: false,
+				bandSide: false,
+				verifiedHostName: null,
+				hasWork: false
+			}
+		];
+		const d = detail('EQUIPE', {}, { toConfirm });
+		expect(d.possible[0].reason).toMatch(/Session du jeudi/);
+		// L'information reste : la première dans le geste, la seconde dans « En cours ».
+		expect(d.inProgress.map((i) => i.text)).toEqual([
+			'« Session du vendredi » (09/11/2026) : à confirmer de ton côté.'
+		]);
 	});
 
 	it('une épreuve franchie ne propose plus son geste', () => {
@@ -153,16 +185,7 @@ describe('page d’une branche (N2, conception 21 §10.3)', () => {
 	});
 
 	it('une collaboration à confirmer se range dans sa branche', () => {
-		const c = (kind: string, asProvider = false) =>
-			collaborationBranch({
-				kind,
-				title: '',
-				happenedOn: '2026-11-01',
-				asProvider,
-				bandSide: false,
-				verifiedHostName: null,
-				hasWork: false
-			});
+		const c = (kind: string, asProvider = false) => collaborationBranch({ kind, asProvider });
 		expect(c('GIG')).toBe('SCENE');
 		expect(c('REHEARSAL')).toBe('SCENE');
 		expect(c('MIXING')).toBe('PRODUCTION');

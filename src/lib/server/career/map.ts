@@ -45,17 +45,22 @@ import { careerFactsOf, firstVerifiedGigOf } from '#lib/career/realisations';
 import { isManager } from '#lib/bands/rules';
 import { parisDay } from '#lib/metrics/indicators';
 import { readRealisations } from './realisations';
+import { requestMemo, type RequestScope } from '#lib/server/request-memo';
 
 /**
  * Faits de la carte, depuis la lecture unifiée des réalisations (N1) : six
  * requêtes SQL au lieu de huit, mêmes résultats (`realisations.integration.test.ts`).
  */
-async function careerEvidence(actorId: string) {
-	const read = await readRealisations(actorId);
-	return {
-		...read,
-		facts: careerFactsOf(read.realisations, read.tier.summary)
-	};
+function careerEvidence(actorId: string, scope?: RequestScope) {
+	// N3 : une lecture par requête HTTP, partagée par le layout (célébrations),
+	// la carte et les prochaines actions ; jamais entre deux requêtes.
+	return requestMemo(scope, `career:evidence:${actorId}`, async () => {
+		const read = await readRealisations(actorId);
+		return {
+			...read,
+			facts: careerFactsOf(read.realisations, read.tier.summary)
+		};
+	});
 }
 
 /**
@@ -89,8 +94,8 @@ export async function firstVerifiedGig(actorId: string) {
 	};
 }
 
-export async function careerFacts(actorId: string): Promise<CareerFacts> {
-	return (await careerEvidence(actorId)).facts;
+export async function careerFacts(actorId: string, scope?: RequestScope): Promise<CareerFacts> {
+	return (await careerEvidence(actorId, scope)).facts;
 }
 
 export async function careerEvidenceForSheet(actorId: string) {
@@ -156,6 +161,7 @@ async function collaborationsToConfirm(actorId: string, now: Date) {
 	const verifiedHost = new Map(hosts.map((h) => [h.id, h.displayName]));
 	const memberOf = new Set(memberships.map((m) => m.orgId));
 	return rows.map((c) => ({
+		id: c.id,
 		kind: c.kind,
 		title: c.title,
 		happenedOn: c.happenedOn.toISOString().slice(0, 10),
@@ -263,15 +269,22 @@ async function reachFactsFor(
 	};
 }
 
-/** Carte parallèle (N2) : faits, puis déclencheurs des épreuves non franchies. */
-export async function careerMapFor(
+/**
+ * Carte parallèle (N2) : faits, puis déclencheurs des épreuves non franchies.
+ * Avec `scope` (N3), lue une fois par requête : l'accueil et ses prochaines
+ * actions la partagent.
+ */
+export function careerMapFor(
 	actorId: string,
 	ambition: AmbitionValue | null,
-	now = new Date()
+	now = new Date(),
+	scope?: RequestScope
 ) {
-	const { facts, realisations } = await careerEvidence(actorId);
-	const reach = await reachFactsFor(actorId, facts, corroboratedGigOf(realisations), now);
-	return careerMap(facts, ambition, reach);
+	return requestMemo(scope, `career:map:${actorId}:${ambition ?? ''}`, async () => {
+		const { facts, realisations } = await careerEvidence(actorId, scope);
+		const reach = await reachFactsFor(actorId, facts, corroboratedGigOf(realisations), now);
+		return careerMap(facts, ambition, reach);
+	});
 }
 
 /**
@@ -329,14 +342,18 @@ export async function careerBranchFor(
  * aussitôt marquées comme fêtées. `hasNews` : il y a eu du neuf depuis la
  * dernière visite (sans gain, aucune épreuve n'a pu être franchie).
  */
-export async function pendingActCelebrations(actorId: string, hasNews: boolean) {
+export async function pendingActCelebrations(
+	actorId: string,
+	hasNews: boolean,
+	scope?: RequestScope
+) {
 	if (!hasNews) return [];
 	const person = await prisma.person.findUnique({
 		where: { actorId },
 		select: { actsCelebrated: true }
 	});
 	if (!person) return [];
-	const map = careerMap(await careerFacts(actorId));
+	const map = careerMap(await careerFacts(actorId, scope));
 	const fresh = actsToCelebrate(map.passed, person.actsCelebrated);
 	if (fresh.length === 0) return [];
 	await prisma.person.update({

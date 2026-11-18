@@ -10,13 +10,24 @@ import { visibleJamIds } from '#lib/server/jam/publicJams';
 import { agenda } from '#lib/server/career/service';
 import { priorityActions } from '#lib/linkmusician/priorityActions';
 import { TRACKS, type TrackKindValue } from '#lib/actors/tracks';
+import { requestMemo, type RequestScope } from '#lib/server/request-memo';
 
-export async function spacePriorities(
-	person: { actorId: string; birthDate: Date | null },
-	track: TrackKindValue,
-	now = new Date()
-) {
-	if (!TRACKS[track].available) return [];
+type PriorityPerson = { actorId: string; birthDate: Date | null };
+
+/**
+ * Faits des priorités, communs à tous les métiers : ce qui attend la
+ * personne, déjà filtré par la visibilité (conversation acceptée des deux
+ * côtés, aucun refus, blocage ni profil masqué, suspendu ou supprimé).
+ * Lue une fois par requête HTTP (`scope`), partagée par les tuiles
+ * prioritaires et les prochaines actions (N3).
+ */
+export function spacePriorityFacts(person: PriorityPerson, now = new Date(), scope?: RequestScope) {
+	return requestMemo(scope, `space:priorities:${person.actorId}`, () =>
+		readPriorityFacts(person, now)
+	);
+}
+
+async function readPriorityFacts(person: PriorityPerson, now: Date) {
 	const actorId = person.actorId;
 	const visible = publicActorWhere(now, actorId);
 	const [conversations, pending, dates, mine, allowed] = await Promise.all([
@@ -57,11 +68,30 @@ export async function spacePriorities(
 	const safeDates = dates.filter((d) =>
 		d.kind === 'JAM' ? safeJams.has(d.href) : accepted.has(d.href.split('/').pop()!)
 	);
-	return priorityActions(track, {
-		confirmations: pending.filter((p) => p.conversationId && accepted.has(p.conversationId)).length,
+	const canReceiveRequests = canReceiveRequest(person.birthDate, now);
+	return {
+		/** Collaborations à répondre ou confirmer, dans une conversation visible et acceptée. */
+		collaborations: pending.filter((p) => p.conversationId && accepted.has(p.conversationId)),
 		applications,
 		requests: conversations.filter((c) => ids.has(c.id) && c.myState === 'REQUEST').length,
-		canReceiveRequests: canReceiveRequest(person.birthDate, now),
+		canReceiveRequests,
 		nextDate: safeDates[0]?.at ?? null
+	};
+}
+
+export async function spacePriorities(
+	person: PriorityPerson,
+	track: TrackKindValue,
+	now = new Date(),
+	scope?: RequestScope
+) {
+	if (!TRACKS[track].available) return [];
+	const facts = await spacePriorityFacts(person, now, scope);
+	return priorityActions(track, {
+		confirmations: facts.collaborations.length,
+		applications: facts.applications,
+		requests: facts.requests,
+		canReceiveRequests: facts.canReceiveRequests,
+		nextDate: facts.nextDate
 	});
 }

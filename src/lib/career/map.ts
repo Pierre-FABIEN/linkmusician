@@ -65,6 +65,8 @@ export type ReachFacts = {
 	 * confirmation (`nextStep` = `confirm`), la plus ancienne d'abord.
 	 */
 	toConfirm: {
+		/** Identifiant de la collaboration (dédoublonnage des prochaines actions, N3). */
+		id: string;
 		kind: string;
 		title: string;
 		/** Jour `AAAA-MM-JJ`. */
@@ -148,8 +150,16 @@ export const TRIAL_STATE_LABEL: Readonly<Record<TrialState, string>> = {
 	soon: 'Bientôt'
 };
 
-/** Pourquoi une épreuve est à portée, et le geste unique qui la fait avancer. */
-export type Reach = { reason: string; action: { label: string; href: string } };
+/**
+ * Pourquoi une épreuve est à portée, et le geste unique qui la fait avancer.
+ * `subject` (N3) : l'objet que vise ce geste, quand il en a un, pour qu'une
+ * même collaboration ne soit pas proposée deux fois.
+ */
+export type Reach = {
+	reason: string;
+	action: { label: string; href: string };
+	subject: { type: 'COLLABORATION' | 'WORK'; id: string } | null;
+};
 
 export type Act = {
 	/** Identifiant interne (célébrations, carte souvenir) ; jamais affiché comme un rang. */
@@ -212,7 +222,8 @@ const ACTS: ActDef[] = [
 			return c
 				? {
 						reason: `« ${c.title} » (${day(c.happenedOn)}) n’attend plus que ta confirmation.`,
-						action: { label: 'Confirmer la collaboration', href: TO_CONFIRM }
+						action: { label: 'Confirmer la collaboration', href: TO_CONFIRM },
+						subject: { type: 'COLLABORATION', id: c.id }
 					}
 				: null;
 		}
@@ -235,7 +246,8 @@ const ACTS: ActDef[] = [
 			return w
 				? {
 						reason: `Un rôle attend sa confirmation sur « ${w.title} » : une fois confirmé, le morceau compte comme composé à plusieurs.`,
-						action: { label: 'Voir le morceau', href: `/morceaux/${w.workId}` }
+						action: { label: 'Voir le morceau', href: `/morceaux/${w.workId}` },
+						subject: { type: 'WORK', id: w.workId }
 					}
 				: null;
 		}
@@ -264,11 +276,13 @@ const ACTS: ActDef[] = [
 			return m.manager
 				? {
 						reason: `Le premier enregistrement de ${m.bandName} est déclaré : une personne extérieure qui y était peut le confirmer.`,
-						action: { label: 'Demander une confirmation', href }
+						action: { label: 'Demander une confirmation', href },
+						subject: null
 					}
 				: {
 						reason: `Le premier enregistrement de ${m.bandName} est déclaré : la gestion du groupe peut demander sa confirmation à une personne extérieure qui y était.`,
-						action: { label: 'Voir le parcours du groupe', href }
+						action: { label: 'Voir le parcours du groupe', href },
+						subject: null
 					};
 		}
 	},
@@ -290,7 +304,8 @@ const ACTS: ActDef[] = [
 			return c
 				? {
 						reason: `La production « ${c.title} » (${day(c.happenedOn)}) n’attend plus que ta confirmation.`,
-						action: { label: 'Confirmer la production', href: TO_CONFIRM }
+						action: { label: 'Confirmer la production', href: TO_CONFIRM },
+						subject: { type: 'COLLABORATION', id: c.id }
 					}
 				: null;
 		}
@@ -317,13 +332,15 @@ const ACTS: ActDef[] = [
 			if (gig)
 				return {
 					reason: `Le concert du ${day(gig.happenedOn)} peut être vérifié par ${gig.verifiedHostName}.`,
-					action: { label: 'Confirmer le concert', href: TO_CONFIRM }
+					action: { label: 'Confirmer le concert', href: TO_CONFIRM },
+					subject: { type: 'COLLABORATION', id: gig.id }
 				};
 			return r.corroboratedGig
 				? {
 						reason:
 							'Ton groupe a déjà un concert confirmé. Un concert accueilli par un lieu ou une organisation vérifiée franchit l’épreuve.',
-						action: { label: 'Voir les plateaux ouverts', href: '/annonces?type=GIG_SLOT' }
+						action: { label: 'Voir les plateaux ouverts', href: '/annonces?type=GIG_SLOT' },
+						subject: null
 					}
 				: null;
 		}

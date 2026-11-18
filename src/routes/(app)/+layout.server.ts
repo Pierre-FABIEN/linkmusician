@@ -52,7 +52,8 @@ export const load: LayoutServerLoad = async ({ locals, cookies }) => {
 	]);
 
 	// Épreuves de la carte franchies (P3-13), fêtées une fois, en tête.
-	const acts = await pendingActCelebrations(person.actorId, celebrations.items.length > 0);
+	// Portée de la requête (N3) : la page `/espace` relit les mêmes réalisations.
+	const acts = await pendingActCelebrations(person.actorId, celebrations.items.length > 0, locals);
 
 	return {
 		navigation: readNavigation(person, cookies),

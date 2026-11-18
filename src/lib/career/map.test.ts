@@ -36,6 +36,7 @@ const state = (facts: Partial<CareerFacts>, reach: Partial<ReachFacts> = {}) =>
 	careerMap({ ...none, ...facts }, null, { ...NO_REACH, ...reach }).acts.map((a) => a.state);
 
 const collab = (over: Partial<ReachFacts['toConfirm'][number]> = {}) => ({
+	id: 'c1',
 	kind: 'SESSION_WORK',
 	title: 'Session du jeudi',
 	happenedOn: '2026-11-08',
@@ -202,7 +203,8 @@ describe('épreuves à portée (N2)', () => {
 		expect(map.withinReach.map((a) => a.number)).toEqual([1]);
 		expect(map.withinReach[0].reach).toEqual({
 			reason: '« Session du jeudi » (08/11/2026) n’attend plus que ta confirmation.',
-			action: { label: 'Confirmer la collaboration', href: '/espace/a-confirmer' }
+			action: { label: 'Confirmer la collaboration', href: '/espace/a-confirmer' },
+			subject: { type: 'COLLABORATION', id: 'c1' }
 		});
 	});
 

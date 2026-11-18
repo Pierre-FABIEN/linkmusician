@@ -26,7 +26,9 @@ export const MAX_POSSIBLE = 2;
 const TO_CONFIRM = '/espace/a-confirmer';
 
 /** Branche d'une collaboration à confirmer, comme `collaborationRealisations`. */
-export function collaborationBranch(c: ReachFacts['toConfirm'][number]): CareerBranch {
+export function collaborationBranch(
+	c: Pick<ReachFacts['toConfirm'][number], 'kind' | 'asProvider'>
+): CareerBranch {
 	if (c.kind === 'GIG' || c.kind === 'REHEARSAL') return 'SCENE';
 	if (
 		c.asProvider ||
@@ -115,29 +117,36 @@ export function branchDetail(
 	const own = realisations.filter((r) => r.branch === branch);
 
 	const possible: { label: string; href: string; reason: string }[] = [];
+	// N3 : une collaboration proposée comme geste n'est pas répétée dans « En cours ».
+	const shown = new Set<string>();
 	const push = (p: { label: string; href: string; reason: string }) => {
-		if (possible.length >= MAX_POSSIBLE) return;
-		if (possible.some((x) => x.href === p.href && x.label === p.label)) return;
+		if (possible.length >= MAX_POSSIBLE) return false;
+		if (possible.some((x) => x.href === p.href && x.label === p.label)) return false;
 		possible.push(p);
+		return true;
 	};
-	for (const a of acts) if (a.reach) push({ ...a.reach.action, reason: a.reach.reason });
+	for (const a of acts)
+		if (a.reach && push({ ...a.reach.action, reason: a.reach.reason }) && a.reach.subject)
+			shown.add(`${a.reach.subject.type}:${a.reach.subject.id}`);
 	for (const a of acts)
 		if (a.state === 'open' && a.cta) push({ ...a.cta, reason: `${a.name} · ${a.content}` });
 
 	const inProgress: { text: string; href: string | null }[] = [];
 	for (const c of reach.toConfirm) {
-		if (collaborationBranch(c) !== branch) continue;
+		if (collaborationBranch(c) !== branch || shown.has(`COLLABORATION:${c.id}`)) continue;
 		inProgress.push({
 			text: `« ${c.title} » (${day(c.happenedOn)}) : à confirmer de ton côté.`,
 			href: TO_CONFIRM
 		});
 	}
 	if (branch === 'CREATION')
-		for (const w of reach.pendingCoauthors)
+		for (const w of reach.pendingCoauthors) {
+			if (shown.has(`WORK:${w.workId}`)) continue;
 			inProgress.push({
 				text: `« ${w.title} » : un rôle attend sa confirmation.`,
 				href: `/morceaux/${w.workId}`
 			});
+		}
 	if (branch === 'PRODUCTION')
 		for (const m of reach.declaredRecordings)
 			inProgress.push({

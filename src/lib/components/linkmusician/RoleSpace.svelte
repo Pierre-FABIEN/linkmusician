@@ -1,6 +1,7 @@
 <script lang="ts">
 	/** DASH-01 : menu du métier actif, basé uniquement sur les écrans livrés. */
 	import { Briefcase, FileText, Sparkles, Trophy } from 'lucide-svelte';
+	import type { ComponentProps } from 'svelte';
 	import PriorityActions from './metro/PriorityActions.svelte';
 	import type { PriorityAction } from '#lib/linkmusician/priorityActions';
 	import MetroHome from './metro/MetroHome.svelte';
@@ -12,13 +13,16 @@
 		available,
 		entries,
 		tier,
-		priorities
+		priorities,
+		next = []
 	}: {
 		title: string;
 		available: boolean;
 		entries: RoleMenuEntry[];
 		tier: { id: string; label: string } | null;
 		priorities: PriorityAction[];
+		/** Prochaines actions (N3), communes aux métiers. */
+		next?: ComponentProps<typeof PriorityActions>['next'];
 	} = $props();
 	const pivots = $derived([
 		{
@@ -59,7 +63,7 @@
 </script>
 
 {#snippet actionsSnippet()}
-	{#if available}<PriorityActions actions={priorities} />{/if}
+	{#if available}<PriorityActions actions={priorities} {next} />{/if}
 {/snippet}
 
 <MetroHome label="Espace {title}" {pivots} priorities={available ? actionsSnippet : undefined}>

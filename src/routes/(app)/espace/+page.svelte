@@ -208,10 +208,10 @@
 <SEO title="Mon espace" noindex nofollow />
 
 {#if data.roleSpace}
-	<RoleSpace {...data.roleSpace} priorities={data.priorities} />
+	<RoleSpace {...data.roleSpace} priorities={data.priorities} next={data.next} />
 {:else}
 	<MetroHome label="Mode carrière" {pivots}>
-		{#snippet priorities()}<PriorityActions actions={data.priorities} />{/snippet}
+		{#snippet priorities()}<PriorityActions actions={data.priorities} next={data.next} />{/snippet}
 		{#snippet header()}
 			<!-- En-tête : identité et progression -->
 			<header class="flex max-w-3xl flex-col gap-4">

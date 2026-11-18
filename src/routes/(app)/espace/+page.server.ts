@@ -17,13 +17,16 @@ import { getActorLocation } from '#lib/server/geo/queries';
 import { getDashboard } from '#lib/server/progression/dashboard';
 import { bandCounts } from '#lib/server/bands/service';
 import { campaigns, linkable } from '#lib/server/career/service';
+import { myRepresentations, nextActionsFor, suggestionView } from '#lib/server/career/next';
 import { ambitionPriorities } from '#lib/career/ambition';
 import { careerMapFor } from '#lib/server/career/map';
 import { nudgesFor } from '#lib/server/career/nudges';
-import { representationsForMe } from '#lib/server/representation/service';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, cookies }) => {
+	// N3 : les lectures communes (carte, priorités, accompagnement) partent une
+	// fois par requête, partagées avec le layout et les prochaines actions.
+	const scope = locals;
 	// La garde de `(app)/+layout.server.ts` a déjà vérifié compte et personne.
 	const person = (await getPersonByUserId(locals.user!.id))!;
 	const navigation = readNavigation(person, cookies)!;
@@ -47,7 +50,8 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 		map,
 		nudges,
 		representations,
-		priorities
+		priorities,
+		next
 	] = await Promise.all([
 		roleProgress,
 		getDashboard(person.actorId, ambitionPriorities(person.ambition)),
@@ -55,18 +59,28 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 		bandCounts(person.actorId),
 		campaigns(person.actorId),
 		// Carte de carrière (N2) : les épreuves à portée, pour l'entrée du menu.
-		careerMapFor(person.actorId, person.ambition),
+		careerMapFor(person.actorId, person.ambition, undefined, scope),
 		// Coups de pouce (P4-13a) : l'entrée n'apparaît que si l'on n'avance plus.
 		nudgesFor(person.actorId, { onlyIfStalled: true }),
 		// Accompagnement (P5-07) : propositions à trancher, accompagnements en cours.
-		representationsForMe(person.actorId),
-		spacePriorities(person, track)
+		myRepresentations(person.actorId, scope),
+		spacePriorities(person, track, undefined, scope),
+		// Prochaines actions (N3) : trois au plus. Le héros musicien (`NextStep`)
+		// montre déjà le premier objectif ; un métier propose le sien au rang 5.
+		(async () => {
+			const p = await roleProgress;
+			return nextActionsFor(person, {
+				request: scope,
+				objective: track === 'MUSICIAN' ? null : (linkable(p?.objectives ?? [])[0] ?? null)
+			});
+		})()
 	]);
 	const pendingReps = representations.filter((r) => r.status === 'PROPOSED').length;
 	const isAgent = person.tracks.some((t) => t.track === 'MANAGER' || t.track === 'BOOKER');
 	const inProgress = works.works.filter((w) => w.state === 'IDEA');
 	return {
 		priorities,
+		next: next.map(suggestionView),
 		roleSpace:
 			track === 'MUSICIAN'
 				? null
