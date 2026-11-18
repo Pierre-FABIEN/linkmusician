@@ -1,7 +1,6 @@
 # D72 — Synthèse pour la décision du fondateur
 
-> Statut de D72 : **Proposée** (révision 2, 18/11/2026). Rien n'est
-> décidé ni implémenté. Ce document se lit seul ; le détail est dans
+> Statut de D72 : **Acceptée** (révision 2, 18/11/2026) par validation explicite du fondateur. **Décision de conception, non implémentée**. Le lot de conservation des crédits reste conditionné à un avis juridique RGPD. Ce document se lit seul ; le détail est dans
 > [D72](./D72-architecture-projets-collab.md) et la
 > [conception 19, §9](../conception/19-architecture-cible-collab.md#9-questions-à-trancher-par-le-fondateur).
 > Issue : [#83](https://github.com/Pierre-FABIEN/linkmusician/issues/83).
@@ -31,7 +30,7 @@ approuver formellement.
    solo sans groupe fictif, collaboration sur plusieurs morceaux le même
    jour, preuves d'autrui protégées contre la suppression.
 
-## 2. Arbitrages structurants encore ouverts
+## 2. Arbitrages structurants validés
 
 | #   | Question                                                                | Recommandation                                                                                                                  |
 | --- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -41,7 +40,7 @@ approuver formellement.
 | 4   | Un·e artiste solo peut-il ou elle jouer et candidater sans groupe ?     | **Oui**, en son nom, aux plateaux dont l'organisateur accepte le format solo                                                    |
 | 5   | Que garde-t-on quand quelqu'un supprime un morceau crédité à d'autres ? | **Le minimum** qui donne sens à leur crédit, tant qu'il existe ; jamais les fichiers ni les données de la personne qui supprime |
 
-## 3. Choix recommandés et conséquences
+## 3. Choix retenus et conséquences
 
 **1. Rôles de projet.** Le **coordinateur·rice** (un producteur, une
 régie) modifie les dates, confie les tâches, invite et propose des
@@ -105,7 +104,7 @@ la politique de confidentialité doit être mise à jour.
   Le compromis : réutiliser les étapes de production existantes, et
   attendre le pilote pour des tâches libres.
 
-## 5. Ordre proposé des lots
+## 5. Ordre retenu en principe pour les lots
 
 1. Libérer les tâches d'un membre qui part (petite correction, sans
    décision).
@@ -123,4 +122,4 @@ la politique de confidentialité doit être mise à jour.
     transfert de gestion, événements et festivals, mandat limité à un
     projet.
 
-Aucun lot, hors le premier, ne démarre avant que D72 soit acceptée.
+D72 est acceptée : les lots peuvent être préparés et réalisés selon leurs dépendances et leurs critères de sécurité. Le lot de conservation des crédits ne démarre pas sans validation juridique RGPD préalable.
