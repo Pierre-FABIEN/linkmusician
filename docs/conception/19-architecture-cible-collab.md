@@ -1,10 +1,11 @@
 # Architecture métier cible du domaine Collab (G0-02, #83)
 
-> **Statut : proposition.** Ce document détaille la proposition
+> **Statut : architecture cible validée** (18/11/2026). Ce document détaille
 > [D72](../decisions/D72-architecture-projets-collab.md), en statut
-> **Proposée**. Rien n'y est validé tant que le fondateur n'a pas tranché les
-> questions du §9. **Aucune ligne de code, aucun schéma, aucune migration
-> modifiés.**
+> **Acceptée — révision 2**, après validation explicite du fondateur.
+> Les recommandations du §9 deviennent les arbitrages de référence pour les lots
+> prévus, sous réserve de l'avis juridique RGPD avant le lot de conservation.
+> **Aucune ligne de code, aucun schéma, aucune migration modifiés.**
 >
 > **Révision 2 (18/11/2026)**, après la [revue produit de
 > #83](https://github.com/Pierre-FABIEN/linkmusician/issues/83) : capacités
@@ -856,7 +857,7 @@ crédit naîtrait d'une collaboration terminée avec lui, comme aujourd'hui.
 
 ---
 
-## 9. Questions à trancher par le fondateur
+## 9. Arbitrages validés par le fondateur (18/11/2026)
 
 Elles reprennent Q-G0-1 à Q-G0-9 de l'audit, avec la recommandation de
 cette proposition, et en ajoutent sept. **Aucune n'est tranchée.** Tant
@@ -1250,7 +1251,7 @@ confirmer la base légale.
 
 ---
 
-## 10. Découpage proposé en lots
+## 10. Découpage validé en principe, lots à implémenter
 
 Chaque lot est indépendant, testable et réutilise une issue existante.
 **Aucune issue n'est créée** : chaque lot entre dans une issue existante
