@@ -10,7 +10,7 @@
 ## G0 — Décider le domaine avant de modeler les projets
 | Ordre | Issue | Livrable | Prérequis |
 |---|---|---|---|
-| G0-01 | [#84](https://github.com/Pierre-FABIEN/linkmusician/issues/84) | Cartographie relationnelle code ↔ métier ↔ droits ↔ tests | Aucun, audit existant partiel |
+| G0-01 | [#84](https://github.com/Pierre-FABIEN/linkmusician/issues/84) | Cartographie relationnelle code ↔ métier ↔ droits ↔ tests : **livrée** dans [audit-structurel-collab.md](../conception/audit-structurel-collab.md) (18/11/2026) | Aucun |
 | G0-02 | [#83](https://github.com/Pierre-FABIEN/linkmusician/issues/83) | Décision d'architecture Projet/Groupe/Œuvre/Contribution | G0-01 |
 | G0-03 | [#71](https://github.com/Pierre-FABIEN/linkmusician/issues/71) | Parcours « Mes projets », créer projet/groupe séparés | G0-02 pour les choix structurels |
 | G0-04 | [#72](https://github.com/Pierre-FABIEN/linkmusician/issues/72) | Graphe de progression non linéaire | G0-02 |

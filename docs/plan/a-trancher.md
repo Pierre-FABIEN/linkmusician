@@ -80,6 +80,15 @@ sort de cette liste.
 | Q73 | Une collaboration sur le **morceau d'un groupe** attend : la personne qui gérait le groupe perd la gestion. Peut-elle encore répondre ou confirmer ?                                            | **Non** : le morceau doit être géré par l'un·e des deux au moment de répondre ou de confirmer (403) ; refuser et annuler restent possibles, puis proposer sans le morceau. Alternative : terminer sans relier le morceau                   | `requireWorkStillManaged` (`collaborations/service.ts`)             | DASH-20c    |
 | Q74 | Une collaboration terminée fait passer le morceau « enregistré », mais l'étape planifiée « Enregistrement » (DASH-06a) reste « personne pour l'instant » : la clore ?                           | **Laissé** : les tâches planifiées sont celles de l'équipe, distinctes des étapes réalisées. Alternative : assigner et clore la tâche à la prestation confirmée                                                                            | `/morceaux/[id]/etapes`                                             | DASH-20c    |
 
+### Domaine Collab : questions pour G0-02 (#83)
+
+Neuf questions Q-G0-1 à Q-G0-9 (initiative, porteur, artiste solo sur scène,
+transfert de morceau, suppression et crédits d'autrui, œuvre/master, concert
+engagé par un membre, portée des mandats, carte de carrière) sont posées avec
+leur défaut recommandé dans l'[audit structurel G0-01](../conception/audit-structurel-collab.md#10-questions-à-trancher-dans-83-g0-02).
+En attendant, le code garde son comportement actuel ; aucun défaut nouveau
+n'est appliqué.
+
 ## À vérifier hors code
 
 | #   | Point                                                                                                   | En attendant                                                  | Lot    |

@@ -104,3 +104,6 @@ Historique privé et suite du journal : [DASH-05a](./16-journal-activite.md).
 Capacités, services, frontières et plan de modularisation : [audit ARCH-MET-01](./17-audit-capacites-services.md).
 
 Candidature pour autrui et droit de candidater : [DASH-07, D71](./18-candidature-deleguee.md).
+
+Groupes, morceaux, collaborations et initiatives : [audit structurel G0-01, #84](./audit-structurel-collab.md)
+(faits vérifiés, huit scénarios, options et questions pour #83).
