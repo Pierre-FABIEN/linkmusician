@@ -1,6 +1,6 @@
 # Progression non linéaire : réalisations, preuves et prochaines actions (G0-04, #72)
 
-> **Nature du document** : conception métier et UX, **sans code**. Les arbitrages Q-NL-1 à Q-NL-8 ont été **acceptés le 18/11/2026** par le fondateur et consignés dans [D73](../decisions/D73-progression-non-lineaire.md). Aucun
+> **Nature du document** : conception métier et UX, **sans code** (les lots N1 et N2, livrés, sont notés en §15). Les arbitrages Q-NL-1 à Q-NL-8 ont été **acceptés le 18/11/2026** par le fondateur et consignés dans [D73](../decisions/D73-progression-non-lineaire.md). Aucun
 > schéma Prisma, aucune route, aucun service, aucun barème n'est modifié.
 > Base vérifiée : `main` à `f3e10fb` (18/11/2026).
 >
@@ -973,7 +973,7 @@ depuis combien de temps.
 
 ## 10. Proposition UX de la carte de carrière
 
-### 10.1 Ce qui change [Proposé, Q-NL-1]
+### 10.1 Ce qui change [Q-NL-1 ; livré par N2, sauf « Pas pour moi » (N4)]
 
 - **Plus d'« acte en cours »** : la carte montre **jusqu'à trois épreuves
   à portée**, choisies parmi les épreuves non franchies dont un fait
@@ -989,7 +989,7 @@ depuis combien de temps.
 - **« Pas pour moi »** sur une branche : la tuile se replie en bas de la
   carte, sans perte ; elle sort des suggestions.
 
-### 10.2 Mobile, 390 px [Proposé]
+### 10.2 Mobile, 390 px [Livré par N2, voir §10.7]
 
 ```text
 ┌──────────────────────────────────────┐
@@ -1024,7 +1024,7 @@ depuis combien de temps.
 - Desktop : la même mosaïque élargie (conception 20 P10) ; aucune tuile en
   plus.
 
-### 10.3 La page d'une branche [Proposé]
+### 10.3 La page d'une branche [Livré par N2, sans moteur de suggestions]
 
 Sections, dans l'ordre, chacune repliée si vide :
 
@@ -1065,6 +1065,40 @@ le nombre d'épreuves ; l'ordre de lecture suit l'ordre visuel ;
 `prefers-reduced-motion` coupe les animations de célébration ; contraste
 des pastilles conforme à D55 §4.9. La carte se calcule en une lecture
 (N1), les pages de branche à la demande (§13).
+
+### 10.7 Ce que N2 a livré, et les écarts avec l'esquisse
+
+[Livré le 18/11/2026, [docs/carriere](../carriere/README.md)]
+
+- **Branches des épreuves** : Équipe (La rencontre), Création (La
+  création), Production (Le studio, La production), Scène (La scène),
+  Diffusion (La sortie, bientôt), Accompagnement (Le développement et La
+  carrière, bientôt). Le numéro interne 1 à 8 ne s'affiche plus nulle
+  part (carte, accueil, célébration, fiche, carte souvenir).
+- **Faits déclencheurs retenus** (aucune condition de franchissement
+  nouvelle) : collaboration passée qui n'attend que ma confirmation
+  (Rencontre ; Production pour une production côté artiste ; Scène pour un
+  concert côté groupe chez un hôte vérifié) ; rôle en attente sur un
+  morceau composé déclaré où je suis confirmé·e (Création) ; « Premier
+  enregistrement » déclaré, non gelé, d'un de mes groupes (Studio) ;
+  « Premier concert » corroboré non vérifié (Scène). Une session
+  d'enregistrement avec un·e pro n'est **pas** retenue : sa vérification
+  dépend de conditions (studio, membres, formation du groupe) qu'on ne
+  peut pas promettre à l'affichage.
+- **Tuiles** : grille 2 colonnes sur mobile, 4 sur grand écran, hauteur
+  libre (pas de `lm-mosaic` à rangées fixes, qui couperait les textes à
+  390 px). Ligne d'état tirée de `CareerFacts` seulement (rien d'affiché
+  quand il n'y a rien, NL2) ; « ✓ n » compte les **épreuves** franchies de
+  la branche (les premières fois sont sur la page de branche). Trois tons
+  vifs : violet (héros), ambre (autres épreuves à portée), bleu (branches).
+- **Page de branche** : « Possible maintenant » réutilise le geste des
+  épreuves à portée, puis la porte d'entrée (`cta`) des épreuves ouvertes ;
+  « En cours » lit les mêmes déclencheurs et les réalisations gelées ;
+  aucune suggestion nouvelle (N3).
+- **Non fait** : « Pas pour moi » par branche (N4 : aucun bouton factice
+  n'est affiché) ; héros alimenté par le moteur N3 ; « 14 concerts » de
+  l'esquisse (les concerts confirmés ne sont pas dans `CareerFacts` ; la
+  tuile Scène montre les premiers concerts vérifiés et les tournées).
 
 ---
 
@@ -1375,7 +1409,7 @@ dans aucun calcul.
 | Besoin de la conception          | Service existant                                                                     | Sort                                                                                        | Lot     |
 | -------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- | ------- |
 | Lecture unifiée des réalisations | `server/career/map.ts` `careerEvidence`, `getMusicianTier`, `server/career/sheet.ts` | Extraire en `realisationsOf` ; la carte et la fiche la consomment                           | N1      |
-| Épreuves parallèles              | `lib/career/map.ts` `careerMap`                                                      | Remplacer `current` par `withinReach[]` ; garder `passed`, célébrations, déblocages         | N2      |
+| Épreuves parallèles              | `lib/career/map.ts` `careerMap`                                                      | ✅ `withinReach[]` au lieu de `current` ; `passed`, célébrations, déblocages gardés (N2)    | N2      |
 | Ambition                         | `lib/career/ambition.ts`                                                             | Inchangée ; ordonne les épreuves à portée et le rang 5                                      | N2, N3  |
 | Rangs 1–2                        | `linkmusician/priorityActions.ts`, `server/space/priorities.ts`, `pendingForMe`      | Source des rangs 1–2 ; « À traiter » (U0) les détaille                                      | N3      |
 | Rang 3                           | `works` (`teamWhere`, morceaux `IDEA`), `stepFactsOf`                                | Source « travail en cours »                                                                 | N3      |
@@ -1446,6 +1480,13 @@ flowchart LR
   E2E `carriere.spec.ts` adapté (390 px, axe).
 - **Acceptation** : « aucun acte ne reste en cours parce qu'un autre
   n'est pas franchi » (P9 de la conception 19).
+- **État** : ✅ livré le 18/11/2026 (§10.7). `careerMap` rend `state`
+  (Franchie, À portée, Ouverte, Bientôt), `withinReach` (≤ 3) et
+  `branches` ; plus de `current` ni de `roman`. Requêtes : carte 6 dans le
+  scénario de référence (inchangé), faits + 2 pour un compte neuf ; fiche
+  et carte souvenir inchangées. Conditions, preuves, XP, célébrations
+  (`actsCelebrated`) inchangées ; seul le titre affiché de la célébration
+  perd son numéro (« Épreuve franchie : La rencontre »).
 
 ### N3 — Prochaines actions v1 · #72, #71
 

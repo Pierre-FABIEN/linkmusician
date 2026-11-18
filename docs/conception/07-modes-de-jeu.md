@@ -56,6 +56,14 @@ Un acte n'est pas un passage obligé : un artiste solo peut enregistrer
 chez lui et sortir un titre sans groupe. La carte montre ce qui est
 **prouvé**, pas un ordre imposé.
 
+> **Présentation révisée par D73 (Q-NL-1), livrée par N2 le 18/11/2026.**
+> À l'écran, plus d'« acte en cours », de brouillard ni de numéro romain :
+> les huit épreuves ci-dessous sont rangées en six branches indépendantes,
+> chacune _Franchie_, _À portée_, _Ouverte_ ou _Bientôt_, et la carte
+> propose jusqu'à trois épreuves à portée. La colonne « Acte » n'est plus
+> qu'un identifiant interne. Les conditions et preuves du tableau sont
+> inchangées. Détail : [conception 21 §10](./21-progression-non-lineaire.md#10-proposition-ux-de-la-carte-de-carrière).
+
 | Acte | Nom              | Dans l'industrie                                                                      | Métiers qui entrent en jeu                             | Épreuve de fin d'acte (preuve)                                    | Phase |
 | ---- | ---------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------- | ----- |
 | I    | La rencontre     | Trouver avec qui jouer : annonces, jams, bœufs                                        | Musicien·nes                                           | Premier jam confirmé par les deux côtés                           | 2     |

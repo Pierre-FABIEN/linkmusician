@@ -43,33 +43,79 @@ Conception : [07 §4.1 et §4.2](../conception/07-modes-de-jeu.md#41-choisir-son
 - Tests : `src/lib/career/ambition.test.ts`, quêtes
   `progression/core/core.test.ts` ; e2e `e2e/linkmusician/carriere.spec.ts`.
 
-## Carte de carrière (P3-13, D53)
+## Carte de carrière (P3-13, D53 ; carte parallèle N2, D73 Q-NL-1)
 
-- `/espace/carte`, entrée « Ma carte de carrière » en tête du menu (acte en
-  cours et son épreuve, nombre d'épreuves franchies).
-- Règle pure `src/lib/career/map.ts` (`careerMap`) : huit actes, I à V
-  jouables (IV depuis P4-10, V depuis P5-08), la suite dans le brouillard (contenu visible) ; statut
-  `passed`, `current` (premier jouable non franchi), `open`, `fog` ;
-  l'ambition met des actes en avant sans changer leur état.
+- `/espace/carte`, entrée « Ma carte de carrière » en tête du menu : la
+  première épreuve **à portée** et sa raison, sinon une phrase neutre ;
+  pastille « n à portée » ou « n épreuves franchies ».
+- **N2 (18/11/2026) : plus d'« acte en cours » ni de numéro romain à
+  l'écran.** Huit épreuves rangées en six **branches** indépendantes
+  (Équipe : La rencontre ; Création : La création ; Production : Le
+  studio, La production ; Scène : La scène ; Diffusion : La sortie ;
+  Accompagnement : Le développement, La carrière). Le numéro 1 à 8 reste
+  un identifiant interne (`actsCelebrated`, `act-n`, carte souvenir).
+- Règle pure `src/lib/career/map.ts` (`careerMap(facts, ambition,
+reachFacts)`) : état d'épreuve `passed` (Franchie), `within_reach` (À
+  portée), `open` (Ouverte), `soon` (Bientôt), distinct du niveau de
+  preuve des faits ; `withinReach` (au plus trois) ; `branches` (tuiles :
+  faits comptés, épreuves et états, nombre de franchies). Les **conditions
+  de franchissement sont inchangées**.
+- **À portée** = un fait déclencheur réel et un geste possible
+  (`ReachFacts`, lus côté serveur seulement pour les épreuves non
+  franchies) :
+  - La rencontre : une collaboration passée qui n'attend que ma
+    confirmation → `/espace/a-confirmer` ;
+  - La création : un morceau composé déclaré où je suis confirmé·e et où un
+    autre rôle attend sa confirmation → la fiche du morceau ;
+  - Le studio : « Premier enregistrement » déclaré, non gelé, d'un de mes
+    groupes → parcours du groupe (« Demander une confirmation » pour la
+    gestion, « Voir le parcours du groupe » sinon) ;
+  - La production : une production (avec morceau) à confirmer côté
+    artiste ;
+  - La scène : un concert à confirmer côté groupe chez un hôte **vérifié**,
+    ou un « Premier concert » corroboré mais pas vérifié → les plateaux.
+    Tri : ambition, puis branche, puis numéro interne. Jamais l'XP.
+- Page d'une branche `/espace/carte/[branche]` (`#lib/career/branch`,
+  `careerBranchFor`) : Possible maintenant (au plus deux gestes), En cours
+  (confirmations attendues, contestations), Réalisé (avec sa preuve :
+  « Simple déclaration », « Confirmé par d'autres », « Vérifié » ; retiré
+  barré), Premières fois et épreuves, Pas possible pour l'instant
+  (« Bientôt sur Melokiva », version solo de Studio et Scène prévue). Les
+  sections vides sont omises.
+- Q-NL-3 : la porte de « La rencontre » mène à **Rencontre** (`/jam`) ;
+  les appréciations de jam restent des faits admissibles, inchangés.
 - Faits (`src/lib/server/career/map.ts`, `careerFacts`), jamais l'XP :
   appréciations de jam reçues et collaborations (résumé des événements),
   morceaux composés à plusieurs (`Work.proof = CORROBORATED`) ou seul·e
-  (`DECLARED`, rappel « compose à plusieurs »), premier enregistrement de
+  (`DECLARED`, rappel sur la page Création), premier enregistrement de
   groupe corroboré dont on était membre à la date (étape toujours là, non
-  gelée), morceau produit (acte IV), « Premier concert » **vérifié** d'un
-  groupe dont on était membre à la date (acte V, P5-08 : un concert
-  seulement corroboré ne suffit pas, l'hôte ne franchit rien).
+  gelée), morceau produit, « Premier concert » **vérifié** d'un groupe dont
+  on était membre à la date (un concert seulement corroboré ne suffit pas,
+  l'hôte ne franchit rien).
 - Épreuve de plus (`Act.bonusTrial`), affichée, jamais bloquante : la
-  « Première tournée » vérifiée pour l'acte V.
-- Carte souvenir de l'acte V (`firstVerifiedGig`) : le groupe, l'hôte et
-  le mois du premier concert vérifié, faits publics seulement.
-- Déblocages affichés avec leurs liens, sans verrou au MVP (D53).
+  « Première tournée » vérifiée pour « La scène ».
+- Carte souvenir de « La scène » (`firstVerifiedGig`) : le groupe, l'hôte
+  et le mois du premier concert vérifié, faits publics seulement ; titre
+  « La scène » (plus « Acte V · »).
+- Déblocages affichés avec leurs liens, sans verrou (D53) ; ceux qui ne
+  sont pas livrés passent dans « Pas possible pour l'instant ».
 - Célébration d'épreuve : `pendingActCelebrations`, appelée par le layout
-  de l'espace quand il y a du neuf ; une fois par acte
-  (`Person.actsCelebrated`), carte « Épreuve franchie » en tête.
-- Tests : `src/lib/career/map.test.ts`, intégration
-  `PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/career`, e2e
-  `carriere.spec.ts` (carte).
+  de l'espace quand il y a du neuf ; une fois par épreuve
+  (`Person.actsCelebrated`, inchangé), titre « Épreuve franchie : La
+  rencontre ».
+- Requêtes (scénario `realisations.integration.test.ts`) : carte complète
+  6 quand tout est franchi (comme les faits seuls), faits + 2 pour un
+  compte neuf, page de branche faits + 2 au plus ; fiche et carte
+  souvenir inchangées (14, 17, 10).
+- Différé : prochaines actions globales (N3), « Plus tard » / « Pas pour
+  moi » par branche (N4, aucun faux contrôle affiché), avancement d'un
+  projet (N5), Studio et Scène pour une personne seule (N6, après P8),
+  antériorité déclarée (N7).
+- Tests : `src/lib/career/map.test.ts`, `src/lib/career/branch.test.ts`,
+  intégration `PROGRESSION_INTEGRATION=1 npx vitest --run
+src/lib/server/career`, e2e `carriere.spec.ts` (création, scène à
+  portée puis franchie, mobile 390 px, clavier, Rencontre, axe) et
+  `campagne.spec.ts`.
 
 ## Lecture unifiée des réalisations (N1, #72)
 
@@ -105,10 +151,10 @@ Conception : [07 §4.1 et §4.2](../conception/07-modes-de-jeu.md#41-choisir-son
   données privées (présences déclarées, morceaux solo, XP et niveau).
 - Le profil `@handle` ne reçoit que des faits confirmés ; aucune XP ni
   confiance n'entre dans la fiche publique.
-- Une carte PNG 1200 × 630 peut être téléchargée pour chaque acte
-  effectivement franchi : `/api/carriere/souvenir/[handle]/[act].png`.
+- Une carte PNG 1200 × 630 peut être téléchargée pour chaque épreuve
+  effectivement franchie : `/api/carriere/souvenir/[handle]/[act].png`.
   L'image n'est rendue que pour un profil public et une épreuve encore
-  franchie ; elle ne contient que le nom public, l'acte, son épreuve et le
+  franchie ; elle ne contient que le nom public, le nom de l'épreuve, sa condition et le
   mois de création de la carte. Le profil utilise la dernière carte comme
   image Open Graph.
 - Rendu serveur par Satori et resvg, police Open Sans embarquée ; tests
