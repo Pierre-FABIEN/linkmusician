@@ -1041,9 +1041,9 @@ depuis combien de temps.
   des quatre aperçus existants, qui restent. **Le héros `NextStep` n'est
   pas changé** lors de N3 : UX-1 a été **accepté le 18/11/2026** (#71). Point d'intégration pour
   U0 : conformément à UX-1 accepté, le héros d'« avancer » prend
-  `next[0]` quand il existe, et `NextStep` passe en tête de « repères » ;
-  l'accueil musicien passe alors l'objectif au moteur (option `objective`,
-  rang 5) puisqu'il ne sera plus montré par le héros.
+  `next[0]` quand il existe, et `NextStep` passe en tête de « repères ».
+  (Il était prévu de passer alors l'objectif musicien au moteur ; U0 ne
+  l'a pas fait, voir la ligne U0 ci-dessous.)
 - **Dédoublonnage N2** : la page de branche ne répète plus dans « En
   cours » une collaboration déjà proposée dans « Possible maintenant ».
 - **U0 (18/11/2026)** : point d'intégration réalisé, UX-1 tranché
