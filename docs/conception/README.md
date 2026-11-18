@@ -118,3 +118,9 @@ Parcours UX de Collab centré sur les projets (accueil, Mes projets, fiche
 projet, partage, Mes contributions, six scénarios, lots U0 à U7) :
 [conception 20, G0-03, #71](./20-parcours-ux-collab.md), proposition UX
 sans code, arbitrages UX-1 à UX-8.
+
+Progression non linéaire (état, réalisation, preuve, progression ; graphe
+de branches ; moteur de prochaines actions à cinq rangs ; carte à
+épreuves parallèles ; huit scénarios ; lots N1 à N7) :
+[conception 21, G0-04, #72](./21-progression-non-lineaire.md), proposition
+sans code, arbitrages Q-NL-1 à Q-NL-8.

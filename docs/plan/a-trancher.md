@@ -115,6 +115,23 @@ s'il n'est pas tranché.
 | UX-7 | Aperçu « **comme un·e participant·e** » pour la gestion d'un projet ?                                                | **Non au lancement** ; à revoir au pilote                                                           | —   |
 | UX-8 | Membres d'un groupe porteur **invités d'office** aux projets du groupe ?                                             | **Non** : raccourci « Inviter les membres du groupe », une invitation acceptée par personne (I2)    | U3  |
 
+### Domaine Collab : progression non linéaire (G0-04, #72)
+
+Arbitrages issus de la [conception 21](../conception/21-progression-non-lineaire.md#16-questions-à-arbitrer).
+Aucun ne change le barème XP ni les règles de preuve. Le défaut s'applique
+au démarrage du lot s'il n'est pas tranché.
+
+| #      | Question                                                                                                                                                     | Par défaut                                                                        | Lot |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- | --- |
+| Q-NL-1 | Remplacer « l'acte en cours » par jusqu'à trois **épreuves à portée**, en mosaïque de branches, sans numéros romains ?                                       | **Oui** ; épreuves et conditions de D53 inchangées                                | N2  |
+| Q-NL-2 | Après P8, une **personne** franchit-elle « Le studio » et « La scène » par ses propres faits ?                                                               | **Oui**, dédupliqué avec son groupe (une soirée compte une fois) ; **révise D53** | N6  |
+| Q-NL-3 | « La rencontre » garde-t-elle les appréciations de jam comme fait, avec un lien vers Rencontre au lieu de `/jam/agenda` ?                                    | **Oui** : le fait reste, le lien change d'espace                                  | N2  |
+| Q-NL-4 | Conserver « plus tard » (30 jours) et « pas pour moi » (jusqu'à annulation) sur les suggestions ?                                                            | **Oui**, donnée personnelle couverte par le RGPD                                  | N4  |
+| Q-NL-5 | Une **orientation de groupe** distincte de l'ambition et du type de projet ?                                                                                 | **Non au lancement** : type de projet + répertoire (D64)                          | —   |
+| Q-NL-6 | Déclarer son **expérience** pour ne plus recevoir d'objectifs de débutant·e ?                                                                                | **Oui**, sans XP, épreuve ni badge ; filtre de suggestions seulement ; RGPD       | N7  |
+| Q-NL-7 | Le palier de groupe (dernière étape du référentiel) reste-t-il affiché comme un rang ?                                                                       | **Oui**, inchangé ; premières fois montrées aussi comme un ensemble               | —   |
+| Q-NL-8 | Inscrire les invariants NL1 à NL5 (aucun ordre musical requis, absence ≠ défaut, une réalisation compte une fois, suggestion exécutable, priorité sans XP) ? | **Oui**, décision dédiée au premier lot N                                         | N1  |
+
 ## À vérifier hors code
 
 | #   | Point                                                                                                   | En attendant                                                  | Lot    |

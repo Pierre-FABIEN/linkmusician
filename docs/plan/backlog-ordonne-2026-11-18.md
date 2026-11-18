@@ -13,7 +13,7 @@
 | G0-01 | [#84](https://github.com/Pierre-FABIEN/linkmusician/issues/84) | Cartographie relationnelle code ↔ métier ↔ droits ↔ tests : **livrée** dans [audit-structurel-collab.md](../conception/audit-structurel-collab.md) (18/11/2026) | Aucun |
 | G0-02 | [#83](https://github.com/Pierre-FABIEN/linkmusician/issues/83) | Décision d'architecture Projet/Groupe/Œuvre/Contribution : **acceptée** (18/11/2026) dans [D72](../decisions/D72-architecture-projets-collab.md) et [conception 19](../conception/19-architecture-cible-collab.md) (révision 2), non implémentée | G0-01 |
 | G0-03 | [#71](https://github.com/Pierre-FABIEN/linkmusician/issues/71) | Parcours « Mes projets », créer projet/groupe séparés : **conception UX publiée** dans [conception 20](../conception/20-parcours-ux-collab.md) (18/11/2026), arbitrages UX-1 à UX-8 et code (lots U0 à U7) restants | G0-02 pour les choix structurels |
-| G0-04 | [#72](https://github.com/Pierre-FABIEN/linkmusician/issues/72) | Graphe de progression non linéaire | G0-02 |
+| G0-04 | [#72](https://github.com/Pierre-FABIEN/linkmusician/issues/72) | Graphe de progression non linéaire : **conception publiée** dans [conception 21](../conception/21-progression-non-lineaire.md) (18/11/2026), arbitrages Q-NL-1 à Q-NL-8 et code (lots N1 à N7) restants | G0-02 |
 
 **Critère de sortie** : ADR documentée, modèle conceptualisé et scénarios solo, groupe EP+tournée, prestataire externe, transfert et multi-métiers validés. Ne pas créer un modèle `Project` par réflexe.
 
