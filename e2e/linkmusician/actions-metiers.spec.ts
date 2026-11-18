@@ -45,20 +45,22 @@ test('priorités multirôles : vides, données, permissions, blocage et âge', a
 	if (await cookieNotice.isVisible()) await cookieNotice.click();
 	const section = page.getByRole('region', { name: 'Actions prioritaires' });
 	const tile = (title: string) => section.getByRole('link', { name: new RegExp(`^${title}`) });
+	// DASH-01 (5e7f982) : sélecteur « Rôle » compact, envoyé dès le changement.
+	const selector = page.getByLabel('Rôle', { exact: true });
 	const switchTo = async (track: (typeof tracks)[number]) => {
-		await page.getByLabel('Mon espace', { exact: true }).selectOption(track);
-		await Promise.all([
-			page.waitForResponse(
-				(response) =>
-					response.request().method() === 'POST' && new URL(response.url()).pathname === '/jouer'
-			),
-			page.getByRole('button', { name: 'Changer', exact: true }).click()
-		]);
+		if ((await selector.inputValue()) !== track)
+			await Promise.all([
+				page.waitForResponse(
+					(response) =>
+						response.request().method() === 'POST' && new URL(response.url()).pathname === '/jouer'
+				),
+				selector.selectOption(track)
+			]);
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText(
 			track === 'MUSICIAN' ? /^Salut/ : TRACKS[track].label
 		);
 		await waitForAppReady(page);
-		await expect(page.getByLabel('Mon espace', { exact: true })).toHaveValue(track);
+		await expect(selector).toHaveValue(track);
 	};
 	await test.step('six espaces vides : explication et liens utilisables', async () => {
 		for (const track of tracks) {
