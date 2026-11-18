@@ -106,6 +106,8 @@ base légale avant P6 (avis RGPD) et les décisions laissées aux lots.
 
 **UX-1 a été explicitement accepté le 18/11/2026 : OUI, priorité aux demandes et au travail avant la progression.** UX-5 demeure ouvert avant U1.
 
+**U1 livré le 18/11/2026 avec les défauts de UX-4 et UX-5, qui restent non tranchés** : « Mes contributions » en tête de l'espace métier ; crédits et collaborations confirmés seulement (sans effet tant que `Project` n'existe pas).
+
 Arbitrages de présentation issus de la [conception 20](../conception/20-parcours-ux-collab.md#15-arbitrages-ux-demandés-au-fondateur).
 Aucun ne remet en cause D72. Le défaut s'applique au démarrage du lot
 s'il n'est pas tranché.

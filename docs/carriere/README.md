@@ -156,6 +156,25 @@ src/lib/server/career`, e2e `carriere.spec.ts` (création, scène à
   relevées avant N1, budget de requêtes, droits du lecteur, gel, retrait,
   révocation).
 
+## Mes contributions (U1, #71)
+
+- Écran `/espace/contributions` : ce que la personne a réalisé et qui le
+  confirme (conception 20 §10.2 bis). Lecture personnelle, jamais pour un
+  autre lecteur ; la fiche publique garde ses comptes (P3-14).
+- Règle pure `src/lib/career/contributions.ts` : `contributionLines`
+  (réalisations N1 → une ligne par réalisation, meilleure preuve, rôles et
+  familles), `partyName` (« Compte supprimé », personne bloquée non
+  nommée), `filterContributions`, `presentCategories`, `byYear`.
+- Projection serveur `src/lib/server/career/contributions.ts` :
+  `contributionsOf(actorId)` = `readRealisations` + morceaux crédités et
+  collaborations terminées (blocages dans les deux sens lus dans la même
+  requête) + conversations où la personne figure. Nombre fixe de
+  requêtes (5 à 19 ; 18 pour 140 lignes).
+- Aucun point, aucune règle de confiance, aucune migration.
+- Tests : `src/lib/career/contributions.test.ts`, intégration
+  `contributions.integration.test.ts` (isolation, blocages, retrait,
+  groupe dissous, compte supprimé, mesures), e2e `contributions.spec.ts`.
+
 ## Prochaines actions (N3, #72)
 
 - **Moteur en deux couches** (conception 21 §8–§9, D73 NL4–NL5).

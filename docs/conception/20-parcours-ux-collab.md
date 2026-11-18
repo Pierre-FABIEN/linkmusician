@@ -449,7 +449,7 @@ UX-1 tranché : [D74](../decisions/D74-heros-accueil-collab.md).
 - **Écarts** : le nom « Collab » n'est posé que sur « À traiter » et
   l'agenda ; l'en-tête garde « Mode carrière » jusqu'aux textes de #74.
   Mosaïque `sm`/`band` de §6.1 non reprise : les tuiles restent en menu
-  (projets absents). « Mes contributions » (U1) n'existe pas encore : aucune
+  (projets absents). « Mes contributions » (U1) n'existait pas encore (livrée depuis, §10.2 bis) : aucune
   entrée. Corrigé par #85 : `/accompagnement` écarte aussi, dans la
   requête de `representationsForMe`, les propositions d'une personne
   bloquée (dans les deux sens) ; page, tuile et « À traiter » lisent la
@@ -953,6 +953,55 @@ Pour un·e **professionnel·le** sans projet porté, cet écran est la
 mémoire de son activité, et la source de sa fiche de carrière
 (`/espace/fiche`) qu'il ou elle partage.
 
+### 10.2 bis Ce que U1 a livré, et les écarts [Livré le 18/11/2026]
+
+UX-5 **non tranché** : le défaut s'applique (la participation à un projet
+n'est pas une contribution), sans valoir décision. Il est sans effet tant
+que `Project` n'existe pas : aucune source `ProjectParticipant`. UX-4
+**non tranché**, défaut appliqué.
+
+- **Adresse** : `/espace/contributions`, page personnelle (identité tirée
+  de la session). Entrées : « Mes contributions » dans `ma musique`
+  (musicien·ne) et **en tête** du pivot « activité » de chaque espace
+  métier ouvert (`roleMenu`, UX-4). Un seul écran pour tous les métiers.
+- **Sources** : la lecture unifiée N1 (`readRealisations`), rien d'autre.
+  Comptent : `CREDIT` (rôle confirmé sur un morceau), `WORK_COMPOSED`
+  (crédit sans rôle précisé), `COLLABORATION` (terminée, confirmée par
+  chaque partie : jeu, prestation du son ou de production, accueil d'une
+  date). Ne comptent pas : `MILESTONE` (« mon groupe l'a fait ») et
+  `PRODUCTION_STAGE` (morceau produit du groupe, ou doublon d'un crédit).
+- **Une ligne par réalisation** : `work:<id>` regroupe tous mes rôles sur
+  un morceau **et** les collaborations terminées liées à ce morceau ;
+  `collab:<id>` pour une collaboration sans morceau. La ligne garde les
+  clés N1 de ses faits. Deux morceaux d'une séance donnent deux lignes ;
+  `CraftSummary` n'est pas touché.
+- **Meilleure preuve** : « Confirmé » (collaboration terminée) >
+  « Crédité·e » (crédit accepté, morceau corroboré ou rôle du son) >
+  « Déclaré » (morceau composé sans autre crédit confirmé). Un fait gelé
+  ne confirme rien (« En vérification ») ; un fait retiré disparaît.
+- **Confidentialité** : seuls les objets dont je suis partie sont lus.
+  Une personne bloquée dans un sens ou l'autre n'est pas nommée, sa fiche
+  et la conversation ne sont pas liées ; le fait reste. Compte anonymisé :
+  « Compte supprimé ». Groupe dissous : mention, pas de lien (la fiche
+  répond 404). Idée : mention « idée ». Collaboration du registre sans
+  ligne en base : « Collaboration terminée », rien d'inventé.
+- **Filtres** : Son, Production, Scène, Jeu, Écriture, **seulement** les
+  familles présentes dans mes lignes (`?role=`, relu côté serveur).
+  Regroupement par année (heure de Paris), 50 lignes par page.
+- **Requêtes** (schéma `e2e`, base Neon distante) : compte neuf 5 ;
+  musicienne, 5 lignes : 19 ; ingé son, 6 lignes : 19 ; multirôle,
+  2 lignes : 11 ; 140 lignes (120 crédits, 30 collaborations) : 18, en
+  160 à 340 ms. Nombre constant : aucune requête par ligne.
+- **Écarts** : « Morceau non publié » n'est pas employé, faute de
+  masquage du titre par le porteur (P6) ; la conservation des crédits
+  après suppression d'un morceau suit encore E6 (supprimés en cascade).
+  Aucune contestation de collaboration n'existe : l'état est prévu
+  (`FROZEN`), jamais produit aujourd'hui. Les **dates bookées**
+  (`gig.held`, `bookerIds`) et les **sorties vérifiées**
+  (`release.credit_verified`, sans émetteur) ne sont pas dans N1 : non
+  reprises, à ajouter dans N1 si besoin. Pas de lien « dans EP Lumière »
+  (U2).
+
 ### 10.3 Le réseau professionnel
 
 [Proposition UX] Le pivot `réseau` de Collab regroupe :
@@ -1222,7 +1271,7 @@ avant (P4 : jamais d'écran pour un droit que le serveur n'a pas).
 | Lot UX | Contenu                                                                                                                                               | Lot D72       | Issues             | Prérequis                    |
 | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------ | ---------------------------- |
 | **U0** | Réorganiser les pivots de `/espace` (§4.2) ; fusion « groupes et structures » ; « À traiter » renommé ; agenda Collab sans jams                       | aucun         | #71, #74, #76, #70 | UX-1 tranché ; textes de #74 |
-| **U1** | « Mes contributions » sur les données existantes (crédits, collaborations terminées)                                                                  | aucun         | #71, #41–#45       | UX-5                         |
+| **U1** | ✅ « Mes contributions » sur les données existantes (crédits, collaborations terminées), livré le 18/11/2026 (§10.2 bis)                              | aucun         | #71, #41–#45       | UX-5 (défaut appliqué)       |
 | **U2** | `/projets`, `/projets/nouveau`, fiche (socle, trois familles), ranger ses éléments, `ShareLevelChoice`, journal, « Hors projet », tuiles de l'accueil | P2, P3        | #71, #70           | D72 (fait), UX-2, UX-3       |
 | **U3** | Équipe : inviter, accepter, refuser, quitter, retirer ; coordination ; besoins et propositions ; « À traiter » étendu ; « Transformer en projet »     | P4            | #71, #36           | U2                           |
 | **U4** | Partager mon morceau dans un projet (côté morceau et côté projet)                                                                                     | P5            | #71, #40           | U3                           |
