@@ -107,3 +107,7 @@ Candidature pour autrui et droit de candidater : [DASH-07, D71](./18-candidature
 
 Groupes, morceaux, collaborations et initiatives : [audit structurel G0-01, #84](./audit-structurel-collab.md)
 (faits vérifiés, huit scénarios, options et questions pour #83).
+
+Architecture cible proposée (groupes, projets, œuvres, collaborations) :
+[conception 19, G0-02, #83](./19-architecture-cible-collab.md), décision
+[D72](../decisions/D72-architecture-projets-collab.md) en statut **Proposée**.

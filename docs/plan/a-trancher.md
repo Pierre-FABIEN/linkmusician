@@ -82,12 +82,18 @@ sort de cette liste.
 
 ### Domaine Collab : questions pour G0-02 (#83)
 
-Neuf questions Q-G0-1 à Q-G0-9 (initiative, porteur, artiste solo sur scène,
-transfert de morceau, suppression et crédits d'autrui, œuvre/master, concert
-engagé par un membre, portée des mandats, carte de carrière) sont posées avec
-leur défaut recommandé dans l'[audit structurel G0-01](../conception/audit-structurel-collab.md#10-questions-à-trancher-dans-83-g0-02).
+Quatorze questions Q-G0-1 à Q-G0-14 attendent l'arbitrage du fondateur. Les
+neuf premières viennent de l'[audit structurel G0-01](../conception/audit-structurel-collab.md#10-questions-à-trancher-dans-83-g0-02) ;
+la proposition [D72](../decisions/D72-architecture-projets-collab.md)
+(statut **Proposée**) donne pour chacune une recommandation, et en ajoute
+cinq (plateaux ouverts aux solos, ce que voit un·e participant·e, mineur·es,
+porteurs admis, vocabulaire) : voir la
+[conception 19, §9](../conception/19-architecture-cible-collab.md#9-questions-à-trancher-par-le-fondateur).
+Seule recommandation qui **change** par rapport à l'audit : Q-G0-1 (projet
+persistant léger dès le lancement : oui).
+
 En attendant, le code garde son comportement actuel ; aucun défaut nouveau
-n'est appliqué.
+n'est appliqué, et aucun lot P2 à P12 ne démarre.
 
 ## À vérifier hors code
 
