@@ -30,7 +30,7 @@ vi.mock('#lib/server', () => ({ prisma: db }));
 
 const { nextActionsFor, nextFactsFor, suggestionView } = await import('./next');
 const { careerMapFor } = await import('./map');
-const { spacePriorities } = await import('#lib/server/space/priorities');
+const { spacePriorities } = await import('#lib/server/space/inbox');
 
 const PREFIX = 'next-test-';
 /** Requêtes SQL ajoutées à l'accueil par N3, au plus (mesurées le 18/11/2026). */
@@ -283,9 +283,9 @@ describe.skipIf(!enabled)('prochaines actions (schéma e2e)', { timeout: 120_000
 			const all = { scope: 'DETAIL' as const, geo, limit: 50, perRule: 50, maxOptional: 50 };
 			const out = await nextActionsFor(reader('moi'), all);
 			expect(JSON.stringify(out)).not.toMatch(/Prise de son/);
-			// La carte N2 garde son comportement (lecture inchangée).
+			// U0 : la carte ne la propose plus non plus (déclencheurs filtrés par blocage).
 			const map = await careerMapFor(ids.moi, 'RECORD');
-			expect(map.withinReach.some((a) => a.reach?.subject?.type === 'COLLABORATION')).toBe(true);
+			expect(map.withinReach.some((a) => a.reach?.subject?.type === 'COLLABORATION')).toBe(false);
 		} finally {
 			await db.block.deleteMany({ where: { blockerActorId: ids.ines } });
 		}
@@ -358,7 +358,7 @@ describe.skipIf(!enabled)('prochaines actions (schéma e2e)', { timeout: 120_000
 	});
 
 	it('budget de requêtes et mutualisation par requête HTTP', async () => {
-		const { myRepresentations } = await import('./next');
+		const { representationsForMeOnce: myRepresentations } = await import('#lib/server/space/inbox');
 		// Ce que l'accueil lisait déjà avant N3 (carte, priorités, accompagnement).
 		const before = (key: string, request?: object) =>
 			Promise.all([

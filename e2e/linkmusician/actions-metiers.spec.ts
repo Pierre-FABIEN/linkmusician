@@ -179,8 +179,8 @@ test('priorités multirôles : vides, données, permissions, blocage et âge', a
 				await switchTo(track);
 				await expect(tile('Candidatures reçues')).toContainText('2 dans l’aperçu');
 				await expect(tile('Demandes de contact')).toContainText('1 dans l’aperçu');
-				await expect(tile('Collaborations à valider')).toContainText('1 dans l’aperçu');
-				await expect(tile('Prochaines dates')).not.toContainText('Aucune date');
+				await expect(tile('À traiter')).toContainText('1 dans l’aperçu');
+				await expect(tile('Agenda')).not.toContainText('Aucune collaboration prévue');
 			}
 			expect(await db.application.count({ where: { opportunityId: own.id, status: 'SENT' } })).toBe(
 				1
@@ -232,8 +232,8 @@ test('priorités multirôles : vides, données, permissions, blocage et âge', a
 					}
 				});
 				await page.reload();
-				await expect(tile('Collaborations à valider')).toContainText('Aucune collaboration');
-				await expect(tile('Prochaines dates')).toContainText('Aucune date');
+				await expect(tile('À traiter')).toContainText('Aucune demande');
+				await expect(tile('Agenda')).toContainText('Aucune collaboration prévue');
 				await db.block.deleteMany({
 					where: { OR: [{ blockerActorId: partner.actorId }, { blockedActorId: partner.actorId }] }
 				});

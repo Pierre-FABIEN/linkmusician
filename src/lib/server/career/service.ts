@@ -8,7 +8,7 @@ import { prisma } from '#lib/server';
 import { isAmbition, type AmbitionValue } from '#lib/career/ambition';
 import { myWorks } from '#lib/server/works/service';
 import { myBands } from '#lib/server/bands/service';
-import { publicActorWhere } from '#lib/server/actors/visibility';
+import { notBlockedWith, publicActorWhere } from '#lib/server/actors/visibility';
 
 export class CareerError extends Error {}
 
@@ -73,7 +73,7 @@ export async function team(personId: string, now = new Date()) {
 }
 
 export type AgendaItem = {
-	kind: 'JAM' | 'COLLAB';
+	kind: 'COLLAB';
 	title: string;
 	at: Date;
 	/** Ce que la personne y fait. */
@@ -83,75 +83,34 @@ export type AgendaItem = {
 };
 
 /**
- * L'agenda : les jams à venir où l'on vient, qu'on organise ou où l'on est
- * invité·e (accepté), et les collaborations prévues (acceptées, date à venir).
+ * L'agenda Collab (U0, #76) : les collaborations prévues (acceptées, date à
+ * venir). Les jams vivent dans Rencontre (`/jam/agenda`), jamais ici
+ * (conception 20 P9). Aucune collaboration avec une personne qui m'a
+ * bloqué·e ou que j'ai bloquée.
  */
 export async function agenda(personId: string, now = new Date()): Promise<AgendaItem[]> {
 	const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-	const [jams, collabs] = await Promise.all([
-		prisma.opportunity.findMany({
-			where: {
-				kind: 'JAM',
-				status: { in: ['OPEN', 'FILLED'] },
-				startsAt: { gte: now },
-				OR: [
-					{ issuerActorId: personId },
-					{ leadActorId: personId },
-					{ attendances: { some: { actorId: personId, removedAt: null } } },
-					{ jamInvites: { some: { actorId: personId, status: 'ACCEPTED' } } }
-				]
-			},
-			orderBy: { startsAt: 'asc' },
-			take: 30,
-			select: {
-				id: true,
-				title: true,
-				startsAt: true,
-				issuerActorId: true,
-				leadActorId: true,
-				venue: { select: { name: true } }
+	const collabs = await prisma.collaboration.findMany({
+		where: {
+			status: 'ACCEPTED',
+			happenedOn: { gte: today },
+			participants: {
+				some: { actorId: personId },
+				none: { actorId: { not: personId }, actor: { NOT: notBlockedWith(personId) } }
 			}
-		}),
-		prisma.collaboration.findMany({
-			where: {
-				status: 'ACCEPTED',
-				happenedOn: { gte: today },
-				participants: { some: { actorId: personId } }
-			},
-			orderBy: { happenedOn: 'asc' },
-			take: 30,
-			select: {
-				id: true,
-				title: true,
-				happenedOn: true,
-				conversationId: true
-			}
-		})
-	]);
-	const items: AgendaItem[] = [
-		...jams.map((j) => ({
-			kind: 'JAM' as const,
-			title: j.title,
-			at: j.startsAt!,
-			role:
-				j.issuerActorId === personId
-					? 'Tu organises'
-					: j.leadActorId === personId
-						? 'Tu mènes la formation'
-						: 'Tu viens',
-			where: j.venue?.name ?? null,
-			href: `/jams/${j.id}`
-		})),
-		...collabs.map((c) => ({
-			kind: 'COLLAB' as const,
-			title: c.title,
-			at: c.happenedOn,
-			role: 'Collaboration prévue',
-			where: null,
-			href: c.conversationId ? `/messages/${c.conversationId}` : '/messages'
-		}))
-	];
-	return items.sort((a, b) => a.at.getTime() - b.at.getTime());
+		},
+		orderBy: [{ happenedOn: 'asc' }, { id: 'asc' }],
+		take: 30,
+		select: { id: true, title: true, happenedOn: true, conversationId: true }
+	});
+	return collabs.map((c) => ({
+		kind: 'COLLAB' as const,
+		title: c.title,
+		at: c.happenedOn,
+		role: 'Collaboration prévue',
+		where: null,
+		href: c.conversationId ? `/messages/${c.conversationId}` : '/messages'
+	}));
 }
 
 /** Écrans déjà construits : un objectif qui mène ailleurs est affiché « bientôt ». */

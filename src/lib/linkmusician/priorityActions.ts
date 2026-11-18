@@ -1,4 +1,8 @@
-/** DASH-03 : sélection de liens réels, sans score de progression. */
+/**
+ * DASH-03 : sélection de liens réels, sans score de progression. U0 :
+ * « Collaborations à valider » devient « À traiter » (toutes les demandes),
+ * l'agenda ne parle plus que de collaborations (Rencontre garde les jams).
+ */
 import { TRACKS, type TrackKindValue } from '#lib/actors/tracks';
 
 export type PriorityKind = 'confirmations' | 'applications' | 'requests' | 'agenda';
@@ -32,12 +36,12 @@ export function priorityActions(track: TrackKindValue, facts: PriorityFacts): Pr
 	const actions: Record<PriorityKind, PriorityAction> = {
 		confirmations: {
 			kind: 'confirmations',
-			title: 'Collaborations à valider',
+			title: 'À traiter',
 			href: '/espace/a-confirmer',
 			text:
 				facts.confirmations > 0
-					? 'Des propositions ou réalisations attendent ta réponse. Tous tes métiers.'
-					: 'Aucune collaboration à valider dans l’aperçu. Retrouve aussi tes crédits et invitations sur cet écran.',
+					? 'Collaborations, crédits, invitations ou accompagnements attendent ta réponse. Tous tes métiers.'
+					: 'Aucune demande en attente : collaborations, crédits, invitations et accompagnements arrivent ici.',
 			summary: count(facts.confirmations),
 			highlight: facts.confirmations > 0
 		},
@@ -66,11 +70,11 @@ export function priorityActions(track: TrackKindValue, facts: PriorityFacts): Pr
 		},
 		agenda: {
 			kind: 'agenda',
-			title: 'Prochaines dates',
+			title: 'Agenda',
 			href: '/espace/agenda',
 			text: facts.nextDate
-				? 'Ta prochaine jam ou collaboration prévue. L’agenda est commun à tes métiers.'
-				: 'Aucune date à venir dans l’aperçu. L’agenda rassemble tes jams et collaborations acceptées.',
+				? 'Ta prochaine collaboration prévue. L’agenda est commun à tes métiers.'
+				: 'Aucune collaboration prévue. Tes jams sont dans Rencontre.',
 			summary: facts.nextDate
 				? new Intl.DateTimeFormat('fr-FR', {
 						dateStyle: 'medium',

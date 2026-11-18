@@ -145,12 +145,12 @@ test.describe('LinkMusician — candidatures', () => {
 			});
 
 			await test.step('8. Malik confirme depuis son tableau de bord : XP pour les deux', async () => {
-				// Écran de carrière : la priorité « Collaborations à valider ».
+				// Accueil Collab : la tuile « À traiter » (U0, ex-« Collaborations à valider »).
 				await malikPage.goto('/espace');
 				await waitForAppReady(malikPage);
 				await malikPage
 					.getByRole('navigation', { name: 'Mode carrière' })
-					.getByRole('link', { name: /Collaborations à valider/ })
+					.getByRole('link', { name: /^À traiter/ })
 					.click();
 				const toConfirm = malikPage.getByRole('list', { name: 'Collaborations à confirmer' });
 				await expect(toConfirm).toContainText('Jam funk au local');

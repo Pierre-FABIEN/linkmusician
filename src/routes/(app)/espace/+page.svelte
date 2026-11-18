@@ -1,24 +1,28 @@
 <script lang="ts">
-	// LINKMUSICIAN: écran de carrière (P3-12), page-menu (D50) en panorama
-	// Metro (MET-02, D55), voir +page.server.ts. Les valeurs viennent toutes du
-	// serveur.
-	import PriorityActions from '#lib/components/linkmusician/metro/PriorityActions.svelte';
+	// LINKMUSICIAN: accueil Collab (P3-12, D50 ; Metro MET-02, D55 ; U0, D74),
+	// voir +page.server.ts. Quatre pivots : avancer (le héros, ce qui attend,
+	// le travail en cours), ma musique, réseau, repères. Les valeurs viennent
+	// toutes du serveur ; aucune entrée ne mène à un écran qui n'existe pas.
 	import RoleSpace from '#lib/components/linkmusician/RoleSpace.svelte';
+	import CollabAdvance from '#lib/components/linkmusician/metro/CollabAdvance.svelte';
 	import SEO from '#lib/components/SEO.svelte';
 	import * as Avatar from '#shadcn/avatar';
 	import {
 		BookOpen,
 		Briefcase,
-		CalendarDays,
 		Compass,
 		EyeOff,
 		FileText,
 		HandHelping,
 		Handshake,
 		Map as MapIcon,
+		Megaphone,
 		Music,
 		Scale,
+		Search,
+		SlidersHorizontal,
 		Sparkles,
+		Target,
 		Trophy,
 		UsersRound
 	} from 'lucide-svelte';
@@ -26,7 +30,6 @@
 	import XpBar from '#lib/components/linkmusician/progress/XpBar.svelte';
 	import LevelBadge from '#lib/components/linkmusician/progress/LevelBadge.svelte';
 	import TierBadge from '#lib/components/linkmusician/progress/TierBadge.svelte';
-	import NextStep from '#lib/components/linkmusician/NextStep.svelte';
 	import MetroHome, { type MetroPivot } from '#lib/components/linkmusician/metro/MetroHome.svelte';
 	import type { MetroMenuItem } from '#lib/components/linkmusician/metro/MetroMenu.svelte';
 	import { TONE_OF } from '#lib/components/linkmusician/metro/tones';
@@ -47,45 +50,38 @@
 	const only = (items: (MetroMenuItem | false)[]) =>
 		items.filter((i): i is MetroMenuItem => i !== false);
 
-	// Quatre pivots : avancer (le héros et ce qui attend), le parcours, le
-	// réseau, les repères. Un ton par sens (D55, `docs/design` §4.2).
+	// Quatre pivots (conception 20 §4.2). Trois tons vifs au plus dans
+	// « avancer » : violet (héros), bleu (travail), et les tuiles en papier.
 	const pivots = $derived<MetroPivot[]>([
 		{
 			id: 'avancer',
 			title: 'avancer',
-			items: only([
+			items: [
 				{
-					href: '/espace/objectifs',
-					icon: Sparkles,
-					tone: TONE_OF.goals,
-					title: 'Mes objectifs',
-					text: 'Les trois prochaines étapes atteignables maintenant.',
-					summary: `${Math.min(d.questProgress.done + 1, d.questProgress.total)} sur ${d.questProgress.total}`
-				},
-				{
-					href: '/espace/ambition',
-					icon: Compass,
-					title: 'Mon ambition',
-					text: data.ambition
-						? AMBITION_INFO[data.ambition].pitch
-						: 'Ce que tu vises : on met en avant les bons objectifs. Tu peux en changer.',
-					summary: data.ambition ? AMBITION_INFO[data.ambition].label : 'À choisir',
-					highlight: data.ambition === null
-				},
-				// Coups de pouce (P4-13a) : une marche facile, quand on n'avance plus.
-				data.nudges > 0 && {
-					href: '/espace/coups-de-pouce',
-					icon: HandHelping,
-					title: 'Un coup de pouce',
-					text: 'Des idées simples, tirées de ton réseau, pour reprendre quand tu veux.',
-					summary: plural(data.nudges, 'idée', 'idées')
+					href: '/espace/campagnes',
+					icon: Music,
+					tone: TONE_OF.works,
+					title: 'Travaux en cours',
+					text: 'Tes idées de morceaux : leur état et leurs places libres.',
+					summary:
+						c.campaigns > 0
+							? c.openRoles > 0
+								? plural(c.openRoles, 'place libre', 'places libres')
+								: plural(c.campaigns, 'morceau', 'morceaux')
+							: null
 				}
-			])
+			]
 		},
 		{
-			id: 'parcours',
-			title: 'parcours',
+			id: 'ma-musique',
+			title: 'ma musique',
 			items: [
+				{
+					href: '/morceaux',
+					icon: Music,
+					title: 'Mes morceaux',
+					text: 'Ce que tu portes, seul·e ou avec ton groupe, et tes crédits.'
+				},
 				{
 					href: '/espace/carte',
 					icon: MapIcon,
@@ -102,26 +98,6 @@
 								: 'En branches'
 				},
 				{
-					href: '/espace/campagnes',
-					icon: Music,
-					tone: TONE_OF.works,
-					title: 'Campagnes en cours',
-					text: 'Chaque morceau est une aventure : son état et ses places libres.',
-					summary:
-						c.campaigns > 0
-							? c.openRoles > 0
-								? plural(c.openRoles, 'place libre', 'places libres')
-								: plural(c.campaigns, 'morceau', 'morceaux')
-							: null
-				},
-				{
-					href: '/espace/agenda',
-					icon: CalendarDays,
-					tone: TONE_OF.agenda,
-					title: 'Agenda',
-					text: 'Jams et collaborations à venir.'
-				},
-				{
 					href: '/espace/fiche',
 					icon: FileText,
 					title: 'Ma fiche de carrière',
@@ -136,23 +112,34 @@
 			items: only([
 				{
 					href: '/structure',
-					title: 'Mes structures',
-					text: 'Mes participations et mes invitations, communes à mes métiers.',
-					icon: Briefcase
-				},
-				{
-					href: '/espace/equipe',
 					icon: UsersRound,
 					tone: TONE_OF.people,
-					title: 'Mon équipe',
-					text: 'Tes groupes et les personnes avec qui tu joues le plus.',
+					title: 'Mes groupes et structures',
+					text: 'Tes groupes, studios, lieux, agences et écoles, communs à tes métiers.',
 					summary: c.bands > 0 ? plural(c.bands, 'groupe') : null
+				},
+				{
+					href: '/messages/contacts',
+					icon: Handshake,
+					title: 'Mes contacts',
+					text: 'Les personnes que tu as gardées, sans échanger ton numéro.'
+				},
+				{
+					href: '/decouvrir',
+					icon: Search,
+					title: 'Trouver quelqu’un',
+					text: 'Musicien·nes, ingés son, producteur·rices près de chez toi.'
+				},
+				{
+					href: '/annonces',
+					icon: Megaphone,
+					title: 'Annonces et candidatures',
+					text: 'Publier une annonce, répondre, suivre tes candidatures.'
 				},
 				// Accompagnement (P5-07) : managers, bookers, et les artistes accompagnés.
 				!!data.representation && {
 					href: '/accompagnement',
 					icon: Briefcase,
-					tone: TONE_OF.people,
 					title: 'Accompagnement',
 					text: data.representation.isAgent
 						? 'Les artistes que tu accompagnes, comme manager ou booker.'
@@ -178,7 +165,41 @@
 		{
 			id: 'reperes',
 			title: 'repères',
-			items: [
+			items: only([
+				// UX-1 (D74) : l'objectif passe ici quand le héros montre une action.
+				!!data.step && {
+					href: data.step.href,
+					icon: Target,
+					tone: TONE_OF.nextStep,
+					title: `Ta prochaine étape : ${data.step.title}`,
+					text: data.step.text,
+					summary: `${data.step.index} sur ${data.step.total}`
+				},
+				{
+					href: '/espace/objectifs',
+					icon: Sparkles,
+					title: 'Mes objectifs',
+					text: 'Les trois prochaines étapes atteignables maintenant.',
+					summary: `${Math.min(d.questProgress.done + 1, d.questProgress.total)} sur ${d.questProgress.total}`
+				},
+				{
+					href: '/espace/ambition',
+					icon: Compass,
+					title: 'Mon ambition',
+					text: data.ambition
+						? AMBITION_INFO[data.ambition].pitch
+						: 'Ce que tu vises : on met en avant les bons objectifs. Tu peux en changer.',
+					summary: data.ambition ? AMBITION_INFO[data.ambition].label : 'À choisir',
+					highlight: data.ambition === null
+				},
+				// Coups de pouce (P4-13a) : une marche facile, quand on n'avance plus.
+				data.nudges > 0 && {
+					href: '/espace/coups-de-pouce',
+					icon: HandHelping,
+					title: 'Un coup de pouce',
+					text: 'Des idées simples, tirées de ton réseau, pour reprendre quand tu veux.',
+					summary: plural(data.nudges, 'idée', 'idées')
+				},
 				{
 					href: '/espace/progression',
 					icon: Trophy,
@@ -195,12 +216,18 @@
 					text: 'Tes derniers gains, et d’où ils viennent.'
 				},
 				{
+					href: '/espace/propositions',
+					icon: SlidersHorizontal,
+					title: 'Ce que Melokiva me propose',
+					text: 'Les suggestions que tu as écartées ou reportées.'
+				},
+				{
 					href: '/demarches',
 					icon: Scale,
 					title: 'Les démarches',
 					text: 'Protéger un morceau, être payé·e pour jouer, l’association du groupe.'
 				}
-			]
+			])
 		}
 	]);
 </script>
@@ -208,19 +235,9 @@
 <SEO title="Mon espace" noindex nofollow />
 
 {#if data.roleSpace}
-	<RoleSpace
-		{...data.roleSpace}
-		priorities={data.priorities}
-		next={data.next}
-		hasChoices={data.hasChoices}
-	/>
+	<RoleSpace {...data.roleSpace} priorities={data.priorities} advance={data.advance} />
 {:else}
 	<MetroHome label="Mode carrière" {pivots}>
-		{#snippet priorities()}<PriorityActions
-				actions={data.priorities}
-				next={data.next}
-				hasChoices={data.hasChoices}
-			/>{/snippet}
 		{#snippet header()}
 			<!-- En-tête : identité et progression -->
 			<header class="flex max-w-3xl flex-col gap-4">
@@ -265,19 +282,7 @@
 			</header>
 		{/snippet}
 		{#snippet hero()}
-			{#if d.objectives[0]}
-				{@const o = d.objectives[0]}
-				<NextStep
-					index={Math.min(d.questProgress.done + 1, d.questProgress.total)}
-					total={d.questProgress.total}
-					title={o.label}
-					text={o.xp
-						? `Une étape réelle de ta carrière : environ ${o.xp} XP à la clé.`
-						: 'Une étape réelle de ta carrière, à franchir avec d’autres.'}
-					href={o.href ?? '/annonces'}
-					cta={o.href ? 'J’y vais' : 'Bientôt disponible'}
-				/>
-			{/if}
+			<CollabAdvance {...data.advance} priorities={data.priorities} />
 		{/snippet}
 	</MetroHome>
 {/if}

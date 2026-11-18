@@ -39,6 +39,7 @@ test.describe('LinkMusician — prochaines actions', () => {
 			});
 			await page.setViewportSize({ width: 390, height: 844 });
 			const next = page.getByRole('region', { name: 'À faire maintenant' });
+			const hero = page.getByTestId('action-hero');
 
 			await test.step('1. Compte neuf : aucune prochaine action', async () => {
 				await page.goto('/espace');
@@ -47,6 +48,15 @@ test.describe('LinkMusician — prochaines actions', () => {
 				if (await cookieNotice.isVisible()) await cookieNotice.click();
 				await expect(page.getByRole('region', { name: 'Actions prioritaires' })).toBeVisible();
 				await expect(next).toHaveCount(0);
+				await expect(hero).toHaveCount(0);
+				// « Commence ici » : trois portes réelles, dont Rencontre (UX-1, D74).
+				const start = page.getByTestId('start-hero');
+				await expect(start.getByRole('link')).toHaveCount(3);
+				await expect(
+					start.getByRole('link', { name: /Rencontrer des musicien·nes/ })
+				).toHaveAttribute('href', '/jam');
+				// L'objectif reste accessible, en tête de « repères ».
+				await expect(page.getByRole('link', { name: /^Ta prochaine étape/ })).toBeVisible();
 			});
 
 			const ines = await createMusician({ name: 'Ines', commune: toulouse });
@@ -107,25 +117,30 @@ test.describe('LinkMusician — prochaines actions', () => {
 				}
 			});
 
-			await test.step('2. Trois actions au plus, l’attente réelle en tête', async () => {
+			await test.step('2. L’attente réelle est le héros, la suite en dessous (UX-1, D74)', async () => {
 				await page.reload();
 				await waitForAppReady(page);
-				const items = next.getByRole('list', { name: 'Prochaines actions' }).getByRole('link');
-				await expect(items).toHaveCount(3);
-				await expect(items.nth(0)).toContainText('Quelqu’un t’attend');
-				await expect(items.nth(0)).toContainText(
+				await expect(hero).toContainText('Quelqu’un t’attend');
+				await expect(hero).toContainText(
 					`Confirme « Prise de son Lumière » avec ${ines.displayName}`
 				);
-				await expect(items.nth(1)).toContainText('Confirme ton rôle sur « Nuit blanche »');
-				await expect(items.nth(2)).toContainText('« Aube » est enregistré : place au mixage');
+				// Une demande : aucun « Plus tard » ni « Pas pour moi ».
+				await expect(hero.getByRole('button')).toHaveCount(0);
+				// Trois au plus en tout : le héros et deux dans la liste, sans doublon.
+				const items = next.getByRole('list', { name: 'Prochaines actions' }).getByRole('link');
+				await expect(items).toHaveCount(2);
+				await expect(items.nth(0)).toContainText('Confirme ton rôle sur « Nuit blanche »');
+				await expect(items.nth(1)).toContainText('« Aube » est enregistré : place au mixage');
+				await expect(next).not.toContainText('Prise de son Lumière');
 				// Ni XP, ni jam, ni reproche.
+				await expect(hero).not.toContainText(/XP|jam|toujours pas|retard/i);
 				await expect(next).not.toContainText(/XP|jam|toujours pas|retard/i);
 				expect(await horizontalOverflow(page)).toEqual([]);
 				await expectNoA11yViolations(page, ['.cartButton']);
 			});
 
-			await test.step('3. Au clavier, la tuile ouvre l’écran du geste', async () => {
-				const first = next.getByRole('link').first();
+			await test.step('3. Au clavier, le héros ouvre l’écran du geste', async () => {
+				const first = hero.getByRole('link', { name: /Confirmer/ });
 				await first.focus();
 				await expect(first).toBeFocused();
 				await page.keyboard.press('Enter');
@@ -142,11 +157,10 @@ test.describe('LinkMusician — prochaines actions', () => {
 				});
 				await page.goto('/espace');
 				await waitForAppReady(page);
-				const items = next.getByRole('list', { name: 'Prochaines actions' }).getByRole('link');
-				await expect(items).toHaveCount(1);
-				await expect(next).not.toContainText(/Aube|Prise de son/);
-				await expect(items.first()).toContainText('Nuit blanche');
-				await items.first().click();
+				await expect(hero).toContainText('Nuit blanche');
+				await expect(hero).not.toContainText(/Aube|Prise de son/);
+				await expect(next).toHaveCount(0);
+				await hero.getByRole('link', { name: /Voir mon rôle/ }).click();
 				await waitForPath(page, `/morceaux/${nuit.id}`);
 			});
 		} finally {

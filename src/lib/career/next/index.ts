@@ -2,3 +2,4 @@
 export * from './engine';
 export * from './rules';
 export * from './choices';
+export * from './hero';

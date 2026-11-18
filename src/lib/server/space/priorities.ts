@@ -6,10 +6,7 @@ import { pendingForMe } from '#lib/server/collaborations/service';
 import { listConversations } from '#lib/server/messaging/service';
 import { listMine } from '#lib/server/opportunities/service';
 import { pendingVisibleApplications } from '#lib/server/opportunities/applications';
-import { visibleJamIds } from '#lib/server/jam/publicJams';
 import { agenda } from '#lib/server/career/service';
-import { priorityActions } from '#lib/linkmusician/priorityActions';
-import { TRACKS, type TrackKindValue } from '#lib/actors/tracks';
 import { requestMemo, type RequestScope } from '#lib/server/request-memo';
 
 type PriorityPerson = { actorId: string; birthDate: Date | null };
@@ -55,19 +52,13 @@ async function readPriorityFacts(person: PriorityPerson, now: Date) {
 			.filter((c) => ids.has(c.id) && c.myState === 'ACCEPTED' && c.otherState === 'ACCEPTED')
 			.map((c) => c.id)
 	);
-	const jamIds = dates.filter((d) => d.kind === 'JAM').map((d) => d.href.split('/').pop()!);
-	const [applications, jams] = await Promise.all([
-		pendingVisibleApplications(
-			actorId,
-			mine.filter((o) => o.status === 'OPEN').map((o) => o.id),
-			now
-		),
-		visibleJamIds(jamIds, actorId, now)
-	]);
-	const safeJams = new Set(jams.map((id) => `/jams/${id}`));
-	const safeDates = dates.filter((d) =>
-		d.kind === 'JAM' ? safeJams.has(d.href) : accepted.has(d.href.split('/').pop()!)
+	const applications = await pendingVisibleApplications(
+		actorId,
+		mine.filter((o) => o.status === 'OPEN').map((o) => o.id),
+		now
 	);
+	// U0 (#76) : l'agenda Collab ne contient plus de jams (elles sont dans Rencontre).
+	const safeDates = dates.filter((d) => accepted.has(d.href.split('/').pop()!));
 	const canReceiveRequests = canReceiveRequest(person.birthDate, now);
 	return {
 		/** Collaborations à répondre ou confirmer, dans une conversation visible et acceptée. */
@@ -77,21 +68,4 @@ async function readPriorityFacts(person: PriorityPerson, now: Date) {
 		canReceiveRequests,
 		nextDate: safeDates[0]?.at ?? null
 	};
-}
-
-export async function spacePriorities(
-	person: PriorityPerson,
-	track: TrackKindValue,
-	now = new Date(),
-	scope?: RequestScope
-) {
-	if (!TRACKS[track].available) return [];
-	const facts = await spacePriorityFacts(person, now, scope);
-	return priorityActions(track, {
-		confirmations: facts.collaborations.length,
-		applications: facts.applications,
-		requests: facts.requests,
-		canReceiveRequests: facts.canReceiveRequests,
-		nextDate: facts.nextDate
-	});
 }

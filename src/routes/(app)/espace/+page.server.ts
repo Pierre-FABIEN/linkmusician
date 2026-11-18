@@ -1,7 +1,9 @@
 // LINKMUSICIAN: écran de carrière (P3-12, conception 07 §4.2), page-menu
 // (D50) : identité et progression, « Ta prochaine étape » selon l'ambition,
 // puis une entrée par écran. Seulement des compteurs, aucun contenu.
-import { spacePriorities } from '#lib/server/space/priorities';
+import { inboxFor, representationsForMeOnce, spacePriorities } from '#lib/server/space/inbox';
+import { isNewAccount, pickHero } from '#lib/career/next';
+import type { CollabHero } from '#lib/components/linkmusician/metro/CollabAdvance.svelte';
 import { readNavigation } from '#lib/server/actors/navigation';
 import { roleMenu } from '#lib/linkmusician/navigation';
 import { TRACKS } from '#lib/actors/tracks';
@@ -17,12 +19,7 @@ import { getActorLocation } from '#lib/server/geo/queries';
 import { getDashboard } from '#lib/server/progression/dashboard';
 import { bandCounts } from '#lib/server/bands/service';
 import { campaigns, linkable } from '#lib/server/career/service';
-import {
-	myRepresentations,
-	nextActionsFor,
-	readChoices,
-	suggestionView
-} from '#lib/server/career/next';
+import { nextActionsFor, readChoices, suggestionView } from '#lib/server/career/next';
 import { ChoiceError, chooserOf, declineSuggestion, postpone } from '#lib/server/career/choices';
 import { fail, type Cookies } from '@sveltejs/kit';
 import type { TrackKindValue } from '#lib/actors/tracks';
@@ -47,11 +44,29 @@ function roleProgressFor(person: Person, track: TrackKindValue) {
 }
 
 /**
- * Objectif proposé au rang 5 : celui du métier actif. Le héros musicien
- * (`NextStep`) montre déjà le sien, il n'est donc pas repris.
+ * Objectif proposé au rang 5 : celui du métier actif. Celui du musicien
+ * n'est pas repris : il est déjà en tête de « repères », et redevient le
+ * héros quand rien d'autre n'attend (U0, D74).
  */
 function objectiveOf(track: TrackKindValue, progress: Awaited<ReturnType<typeof roleProgressFor>>) {
 	return track === 'MUSICIAN' ? null : (linkable(progress?.objectives ?? [])[0] ?? null);
+}
+
+/** « Ta prochaine étape » (P2-12b) : un objectif, et où il en est. */
+function objectiveStep(
+	o: { label: string; href: string | null; xp?: number },
+	progress: { done: number; total: number }
+) {
+	return {
+		index: Math.min(progress.done + 1, progress.total),
+		total: progress.total,
+		title: o.label,
+		text: o.xp
+			? `Une étape réelle de ta carrière : environ ${o.xp} XP à la clé.`
+			: 'Une étape réelle de ta carrière, à franchir avec d’autres.',
+		href: o.href ?? '/annonces',
+		cta: o.href ? 'J’y vais' : 'Bientôt disponible'
+	};
 }
 
 export const load: PageServerLoad = async ({ locals, cookies }) => {
@@ -74,7 +89,8 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 		representations,
 		priorities,
 		next,
-		choices
+		choices,
+		inbox
 	] = await Promise.all([
 		roleProgress,
 		getDashboard(person.actorId, ambitionPriorities(person.ambition)),
@@ -86,28 +102,58 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 		// Coups de pouce (P4-13a) : l'entrée n'apparaît que si l'on n'avance plus.
 		nudgesFor(person.actorId, { onlyIfStalled: true }),
 		// Accompagnement (P5-07) : propositions à trancher, accompagnements en cours.
-		myRepresentations(person.actorId, scope),
+		representationsForMeOnce(person.actorId, scope),
 		spacePriorities(person, track, undefined, scope),
-		// Prochaines actions (N3) : trois au plus. Le héros musicien (`NextStep`)
-		// montre déjà le premier objectif ; un métier propose le sien au rang 5.
+		// Prochaines actions (N3) : trois au plus, héros compris (U0, D74). L'objectif
+		// musicien reste dans « repères » ; un métier propose le sien au rang 5.
 		(async () => {
 			const p = await roleProgress;
 			return nextActionsFor(person, { request: scope, objective: objectiveOf(track, p) });
 		})(),
 		// N4 : la même lecture que le moteur (mémorisée), pour l'état « tout écarté ».
-		readChoices(person.actorId, scope)
+		readChoices(person.actorId, scope),
+		// U0 : « À traiter », déjà lu par le moteur (mémorisé).
+		inboxFor(person, undefined, scope)
 	]);
 	const now = Date.now();
-	const pendingReps = representations.filter((r) => r.status === 'PROPOSED').length;
+	// Les propositions à trancher, comme « À traiter » (sans blocage avec l'agent).
+	const pendingReps = inbox.representations.length;
+	const confirmedReps = representations.filter((r) => r.status === 'CONFIRMED').length;
+	const objectives = linkable(dashboard.objectives);
+	const quest = track === 'MUSICIAN' ? dashboard.questProgress : professional?.questProgress;
+	const firstObjective =
+		track === 'MUSICIAN' ? objectives[0] : linkable(professional?.objectives ?? [])[0];
+	const step = firstObjective && quest ? objectiveStep(firstObjective, quest) : null;
+	const views = next.map(suggestionView);
+	const choice = pickHero(views, {
+		newAccount: isNewAccount({
+			works: works.works.length,
+			bands: bands.active,
+			trialsPassed: map.passed.length
+		}),
+		hasObjective: step !== null
+	});
+	const hero: CollabHero =
+		choice.kind === 'action'
+			? { kind: 'action', action: choice.action }
+			: choice.kind === 'objective' && step
+				? { kind: 'objective', step }
+				: { kind: 'start' };
 	const isAgent = person.tracks.some((t) => t.track === 'MANAGER' || t.track === 'BOOKER');
 	const inProgress = works.works.filter((w) => w.state === 'IDEA');
 	return {
 		priorities,
-		next: next.map(suggestionView),
-		/** N4 : la personne a écarté ou reporté quelque chose (lien vers ses choix). */
-		hasChoices:
-			choices.notForMe.length > 0 ||
-			choices.later.some((c) => c.until !== null && c.until.getTime() > now),
+		/** U0 (D74) : le héros, puis la suite des prochaines actions et les tuiles. */
+		advance: {
+			hero,
+			rest: choice.rest,
+			/** N4 : la personne a écarté ou reporté quelque chose (lien vers ses choix). */
+			hasChoices:
+				choices.notForMe.length > 0 ||
+				choices.later.some((c) => c.until !== null && c.until.getTime() > now)
+		},
+		/** L'objectif, en tête de « repères » quand il n'est pas le héros. */
+		step: hero.kind === 'objective' ? null : step,
 		roleSpace:
 			track === 'MUSICIAN'
 				? null
@@ -117,7 +163,7 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 						entries: roleMenu(track),
 						tier: professional?.tier ?? null
 					},
-		dashboard: { ...dashboard, objectives: linkable(dashboard.objectives) },
+		dashboard: { ...dashboard, objectives },
 		commune: location?.communeName ?? null,
 		ambition: person.ambition,
 		/** Première épreuve à portée (N2), sans « acte en cours ». */
@@ -133,7 +179,7 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 		/** Entrée « Accompagnement » : pour les agents, ou qui est accompagné·e (P5-07). */
 		representation:
 			isAgent || representations.length > 0
-				? { pending: pendingReps, current: representations.length - pendingReps, isAgent }
+				? { pending: pendingReps, current: confirmedReps, isAgent }
 				: null,
 		hidden: person.actor.hidden
 	};

@@ -7,9 +7,9 @@
  * rien n'est écrit, rien n'est notifié, aucune XP n'est lue.
  *
  * Sources réutilisées (aucune règle réimplémentée) :
- * - rangs 1–2 : `spacePriorityFacts` (`pendingForMe` filtré par la
- *   visibilité des conversations, candidatures, demandes de contact), crédits
- *   en attente (`teamWhere`), invitations de groupe, `representationsForMe` ;
+ * - rangs 1–2 : `inboxFor` (« À traiter », U0) : collaborations filtrées par
+ *   la visibilité des conversations, crédits, invitations de groupe et
+ *   propositions d'accompagnement sans blocage, candidatures, contacts ;
  * - rang 3 : étapes prises en charge sur un morceau que je gère
  *   (`manageableOwnerWhere`, comme `applyWorkStep`), idées récentes ;
  * - rang 4 : `workNetworkFacts` (réseau réel `MusicalTie`, `nextProductionNeed`,
@@ -36,9 +36,7 @@ import {
 	type Suggestion
 } from '#lib/career/next';
 import { OPEN_WORK_STEP_KINDS, WORK_STEP_KIND_LABELS } from '#lib/works/steps';
-import { spacePriorityFacts } from '#lib/server/space/priorities';
-import { representationsForMe } from '#lib/server/representation/service';
-import { teamWhere } from '#lib/server/works/service';
+import { inboxFor } from '#lib/server/space/inbox';
 import { manageableOwnerWhere } from '#lib/server/works/access';
 import type { GeoTarget } from '#lib/server/geo/queries';
 import { requestMemo, type RequestScope } from '#lib/server/request-memo';
@@ -47,7 +45,7 @@ import { workNetworkFacts } from './nudges';
 
 /** Une idée de morceau compte comme « travail en cours » si on y a touché depuis ce nombre de jours. */
 export const IDEA_RECENT_DAYS = 30;
-/** Demandes nominatives lues au plus par famille (les rangs 1–2 tiennent déjà l'écran). */
+/** Étapes prises en charge lues au plus. */
 const PENDING_TAKE = 5;
 const DAY = 86_400_000;
 
@@ -74,17 +72,6 @@ export type NextOptions = RankOptions & {
 	ignoreChoices?: boolean;
 };
 
-/** Ni le lecteur n'a bloqué, ni il n'a été bloqué par cet acteur. */
-const notBlocked = (viewerId: string) => ({
-	blocksMade: { none: { blockedActorId: viewerId } },
-	blocksReceived: { none: { blockerActorId: viewerId } }
-});
-
-/** Propositions et accompagnements, une lecture par requête (partagée avec l'accueil). */
-export function myRepresentations(actorId: string, scope?: RequestScope) {
-	return requestMemo(scope, `representation:me:${actorId}`, () => representationsForMe(actorId));
-}
-
 /** Les faits autorisés du lecteur, entrée de la règle pure. */
 export async function nextFactsFor(
 	reader: NextReader,
@@ -93,35 +80,9 @@ export async function nextFactsFor(
 	const now = options.now ?? new Date();
 	const me = reader.actorId;
 	const adult = canReceiveRequest(reader.birthDate, now);
-	const [priority, credits, invitations, representations, steps, works, map] = await Promise.all([
-		spacePriorityFacts(reader, now, options.request),
-		// Crédits à confirmer sur un morceau de mon équipe ; porteur ni bloqué ni bloquant.
-		prisma.workContributor.findMany({
-			where: {
-				personId: me,
-				confirmedAt: null,
-				work: { AND: [teamWhere(me), { owner: notBlocked(me) }] }
-			},
-			orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
-			take: PENDING_TAKE,
-			select: { createdAt: true, workId: true }
-		}),
-		// Invitations de groupe vivant, ni bloqué ni bloquant (comme `bandCounts`).
-		prisma.membership.findMany({
-			where: {
-				personId: me,
-				status: 'INVITED',
-				org: {
-					kind: 'BAND',
-					dissolvedAt: null,
-					actor: { deletedAt: null, ...notBlocked(me) }
-				}
-			},
-			orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
-			take: PENDING_TAKE,
-			select: { createdAt: true, orgId: true }
-		}),
-		myRepresentations(me, options.request),
+	const [inbox, steps, works, map] = await Promise.all([
+		// U0 : ce qui attend ma réponse, déjà filtré (droits, blocages), lu une fois par requête.
+		inboxFor(reader, now, options.request),
 		// Mes étapes prises en charge, sur un morceau que je gère encore (droit d'`applyWorkStep`).
 		prisma.workStep.findMany({
 			where: {
@@ -138,25 +99,17 @@ export async function nextFactsFor(
 		careerMapFor(me, reader.ambition, now, options.request)
 	]);
 
-	// Titres et noms, seulement s'il y a des lignes (une requête par relation sinon, même vide).
-	const titleIds = [...new Set([...credits, ...steps].map((r) => r.workId))];
-	const bandIds = invitations.map((m) => m.orgId);
-	const [titleRows, bandRows] = await Promise.all([
-		titleIds.length
-			? prisma.work.findMany({
+	// Titres, seulement s'il y a des lignes (une requête par relation sinon, même vide).
+	const titleIds = [...new Set(steps.map((r) => r.workId))];
+	const titleOf = new Map(
+		(titleIds.length
+			? await prisma.work.findMany({
 					where: { id: { in: titleIds } },
 					select: { id: true, title: true }
 				})
-			: [],
-		bandIds.length
-			? prisma.actor.findMany({
-					where: { id: { in: bandIds } },
-					select: { id: true, displayName: true }
-				})
 			: []
-	]);
-	const titleOf = new Map(titleRows.map((w) => [w.id, w.title]));
-	const bandName = new Map(bandRows.map((b) => [b.id, b.displayName]));
+		).map((w) => [w.id, w.title])
+	);
 
 	// Gestion relue avec le prédicat des mutations (`manageableOwnerWhere`).
 	const ownerIds = [...new Set(works.map((w) => w.ownerId))];
@@ -184,14 +137,14 @@ export async function nextFactsFor(
 			: []
 	);
 	const today = parisDay(now);
-	const visibleCollabs = new Set(priority.collaborations.map((c) => c.id));
+	const visibleCollabs = new Set(inbox.collaborations.map((c) => c.id));
 	const recentSince = now.getTime() - IDEA_RECENT_DAYS * DAY;
 	const adultOnly = <T extends { adult: boolean }>(people: readonly T[]) =>
 		people.filter((p) => p.adult).map(({ adult: _adult, ...p }) => p);
 
 	return {
 		reader: { adult, ambition: reader.ambition },
-		collaborations: priority.collaborations.flatMap((c) =>
+		collaborations: inbox.collaborations.flatMap((c) =>
 			(c.step === 'respond' || c.step === 'confirm') && c.conversationId
 				? [
 						{
@@ -210,19 +163,15 @@ export async function nextFactsFor(
 					]
 				: []
 		),
-		credits: credits.flatMap((c) => {
-			const title = titleOf.get(c.workId);
-			return title ? [{ workId: c.workId, title, since: c.createdAt }] : [];
-		}),
-		bandInvitations: invitations.flatMap((m) => {
-			const name = bandName.get(m.orgId);
-			return name ? [{ bandId: m.orgId, name, since: m.createdAt }] : [];
-		}),
-		representations: representations
-			.filter((r) => r.status === 'PROPOSED')
-			.map((r) => ({ id: r.id })),
-		applications: priority.applications,
-		contactRequests: priority.canReceiveRequests ? priority.requests : 0,
+		credits: inbox.credits,
+		bandInvitations: inbox.bandInvitations.map((b) => ({
+			bandId: b.bandId,
+			name: b.name,
+			since: b.since
+		})),
+		representations: inbox.representations.map((r) => ({ id: r.id })),
+		applications: inbox.applications,
+		contactRequests: inbox.contactRequests,
 		steps: steps.flatMap((s) => {
 			const title = titleOf.get(s.workId);
 			if (!title) return [];

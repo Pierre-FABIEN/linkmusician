@@ -67,7 +67,7 @@ const ROUTES: Record<string, Node> = {
 	'/espace/agenda': { label: 'Agenda', parent: '/espace' },
 	'/espace/journal': { label: 'Journal de bord', parent: '/espace' },
 	'/espace/progression': { label: 'Points et succès', parent: '/espace' },
-	'/espace/a-confirmer': { label: 'À confirmer', parent: '/espace' },
+	'/espace/a-confirmer': { label: 'À traiter', parent: '/espace' },
 	'/espace/coups-de-pouce': { label: 'Coups de pouce', parent: '/espace' },
 	'/espace/propositions': { label: 'Ce que Melokiva me propose', parent: '/espace' },
 	'/espace/parrainage': { label: 'Parrainer', parent: '/espace' },

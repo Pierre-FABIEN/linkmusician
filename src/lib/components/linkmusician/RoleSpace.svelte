@@ -1,8 +1,7 @@
 <script lang="ts">
 	/** DASH-01 : menu du métier actif, basé uniquement sur les écrans livrés. */
 	import { Briefcase, FileText, Sparkles, Trophy } from 'lucide-svelte';
-	import type { ComponentProps } from 'svelte';
-	import PriorityActions from './metro/PriorityActions.svelte';
+	import CollabAdvance, { type CollabAdvanceProps } from './metro/CollabAdvance.svelte';
 	import type { PriorityAction } from '#lib/linkmusician/priorityActions';
 	import MetroHome from './metro/MetroHome.svelte';
 	import TierBadge from './progress/TierBadge.svelte';
@@ -14,17 +13,15 @@
 		entries,
 		tier,
 		priorities,
-		next = [],
-		hasChoices = false
+		advance
 	}: {
 		title: string;
 		available: boolean;
 		entries: RoleMenuEntry[];
 		tier: { id: string; label: string } | null;
 		priorities: PriorityAction[];
-		/** Prochaines actions (N3), communes aux métiers. */
-		next?: ComponentProps<typeof PriorityActions>['next'];
-		hasChoices?: boolean;
+		/** U0 : héros, prochaines actions et « À traiter », communs aux métiers. */
+		advance: CollabAdvanceProps;
 	} = $props();
 	const pivots = $derived([
 		{
@@ -65,7 +62,7 @@
 </script>
 
 {#snippet actionsSnippet()}
-	{#if available}<PriorityActions actions={priorities} {next} {hasChoices} />{/if}
+	{#if available}<CollabAdvance {...advance} {priorities} />{/if}
 {/snippet}
 
 <MetroHome label="Espace {title}" {pivots} priorities={available ? actionsSnippet : undefined}>
@@ -76,7 +73,7 @@
 			{#if tier}<TierBadge {...tier} />{/if}
 			<p class="text-muted-foreground">
 				{available
-					? 'Tes outils pour ce métier. Change de contexte avec le sélecteur Mon espace, en haut.'
+					? 'Tes outils pour ce métier. Change de contexte avec le sélecteur Rôle, en haut.'
 					: 'Ce parcours métier arrive bientôt. Tu peux déjà compléter ta fiche ; ses fonctions professionnelles ne sont pas encore ouvertes.'}
 			</p>
 		</header>

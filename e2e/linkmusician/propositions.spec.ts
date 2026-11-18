@@ -63,8 +63,9 @@ test.describe('LinkMusician — ce que Melokiva me propose', () => {
 				await waitForAppReady(page);
 				const cookieNotice = page.getByRole('button', { name: 'Compris', exact: true });
 				if (await cookieNotice.isVisible()) await cookieNotice.click();
-				const credit = list.getByRole('listitem').filter({ hasText: 'Nuit blanche' });
-				await expect(credit).toBeVisible();
+				// La demande (rang 2) est le héros (UX-1, D74) : aucun bouton de choix.
+				const credit = page.getByTestId('action-hero');
+				await expect(credit).toContainText('Nuit blanche');
 				await expect(credit.getByRole('button')).toHaveCount(0);
 				await expect(mix.getByRole('button', { name: /^Plus tard/ })).toBeVisible();
 				await expect(mix.getByRole('button', { name: /^Pas pour moi/ })).toBeVisible();
@@ -77,19 +78,23 @@ test.describe('LinkMusician — ce que Melokiva me propose', () => {
 				await button.focus();
 				await page.keyboard.press('Enter');
 				await expect(page.getByText(/ne te sera plus proposé/)).toBeVisible();
-				await expect(list.getByText('place au mixage')).toHaveCount(0);
-				await expect(list.getByText('Nuit blanche')).toBeVisible();
+				await expect(page.getByText('place au mixage')).toHaveCount(0);
+				await expect(page.getByTestId('action-hero')).toContainText('Nuit blanche');
 			});
 
 			await test.step('3. Après rechargement, toujours écartée', async () => {
 				await page.reload();
 				await waitForAppReady(page);
-				await expect(list.getByText('Nuit blanche')).toBeVisible();
-				await expect(next).not.toContainText('place au mixage');
+				await expect(page.getByTestId('action-hero')).toContainText('Nuit blanche');
+				await expect(page.getByText('place au mixage')).toHaveCount(0);
 			});
 
 			await test.step('4. Je la retrouve et la réactive dans mes choix', async () => {
-				await next.getByRole('link', { name: 'Ce que Melokiva me propose' }).click();
+				// U0 : l'entrée vit dans le pivot « repères ».
+				await page
+					.getByRole('navigation', { name: 'Mode carrière' })
+					.getByRole('link', { name: /^Ce que Melokiva me propose/ })
+					.click();
 				await waitForPath(page, '/espace/propositions');
 				await waitForAppReady(page);
 				const declined = page.getByRole('list', { name: 'Suggestions écartées' });
