@@ -1,6 +1,6 @@
 # Progression non linéaire : réalisations, preuves et prochaines actions (G0-04, #72)
 
-> **Nature du document** : conception métier et UX, **sans code**. Aucun
+> **Nature du document** : conception métier et UX, **sans code**. Les arbitrages Q-NL-1 à Q-NL-8 ont été **acceptés le 18/11/2026** par le fondateur et consignés dans [D73](../decisions/D73-progression-non-lineaire.md). Aucun
 > schéma Prisma, aucune route, aucun service, aucun barème n'est modifié.
 > Base vérifiée : `main` à `f3e10fb` (18/11/2026).
 >
@@ -348,8 +348,7 @@ aucun droit ; **I3 le projet ne prouve rien et son avancement est calculé
 compteurs et suggestions compris ; I11 non-élévation ; I12 la révocation
 l'emporte.
 
-**Nouveaux invariants proposés** [Proposé] (à inscrire dans D72 ou une
-décision dédiée si acceptés) :
+**Invariants NL1–NL5 acceptés** [D73] (décision dédiée du 18/11/2026 ; non implémentés) :
 
 - **NL1 — Aucun ordre musical n'est un prérequis.** Un prérequis serveur
   porte sur un droit, un consentement, l'existence de l'objet visé, une
@@ -1493,11 +1492,9 @@ aucune nouvelle source d'XP.
 
 ## 16. Questions à arbitrer
 
-### 16.1 Validation produit nécessaire
+### 16.1 Décisions produit rendues (D73 acceptée)
 
-Chaque question est consignée dans
-[a-trancher.md](../plan/a-trancher.md#domaine-collab--progression-non-linéaire-g0-04-72)
-avec son défaut, appliqué au démarrage du lot si rien n'est tranché.
+Chaque question a été **tranchée explicitement le 18/11/2026**. La colonne « Défaut proposé » ci-dessous décrit la valeur **retenue** dans [D73](../decisions/D73-progression-non-lineaire.md), et non une proposition en attente. Le code reste à livrer dans N1–N7.
 
 | #      | Question                                                                                                                                                                                                         | Défaut proposé                                                                                              | Change une règle ?  | Lot |
 | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------- | --- |
