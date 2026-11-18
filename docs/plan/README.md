@@ -1,5 +1,7 @@
 # Plan d'exécution — pilotage du projet
 
+> **Audit transversal du 18/11/2026 :** [cartographie structurelle et feuille de route G0–G6](./audit-structurel-roadmap-2026-11-18.md). Ce document complète le pilotage historique et confronte les nouvelles issues Rencontre/Collab aux capacités existantes. Le compteur d'issues ci-dessous est un **instantané au 17/11** et ne décrit plus le backlog du 18/11 ; ne pas le confondre avec un taux d'achèvement produit.
+
 Le dossier [conception/](../conception/README.md) dit **quoi** construire
 et **pourquoi**. Ce dossier dit **dans quel ordre** et **où on en est**.
 
