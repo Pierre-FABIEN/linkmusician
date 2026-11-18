@@ -14,6 +14,7 @@
 		Compass,
 		EyeOff,
 		FileText,
+		FolderOpen,
 		HandHelping,
 		Handshake,
 		Map as MapIcon,
@@ -82,6 +83,13 @@
 					icon: Music,
 					title: 'Mes morceaux',
 					text: 'Ce que tu portes, seul·e ou avec ton groupe, et tes crédits.'
+				},
+				// P2 (D72) : regrouper ses morceaux autour d'un objectif, facultatif.
+				{
+					href: '/projets',
+					icon: FolderOpen,
+					title: 'Projets',
+					text: 'Un EP, une tournée : tes morceaux autour d’un objectif.'
 				},
 				// U1 : ce que j'ai réalisé et qui le confirme (crédits, collaborations).
 				{
