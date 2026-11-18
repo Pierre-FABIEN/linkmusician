@@ -8,6 +8,7 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import * as Avatar from '#shadcn/avatar';
 	import {
+		BadgeCheck,
 		BookOpen,
 		Briefcase,
 		Compass,
@@ -81,6 +82,13 @@
 					icon: Music,
 					title: 'Mes morceaux',
 					text: 'Ce que tu portes, seul·e ou avec ton groupe, et tes crédits.'
+				},
+				// U1 : ce que j'ai réalisé et qui le confirme (crédits, collaborations).
+				{
+					href: '/espace/contributions',
+					icon: BadgeCheck,
+					title: 'Mes contributions',
+					text: 'Ce que tu as réalisé avec d’autres, et qui le confirme.'
 				},
 				{
 					href: '/espace/carte',

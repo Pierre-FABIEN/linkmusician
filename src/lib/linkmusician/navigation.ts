@@ -186,5 +186,12 @@ export function roleMenu(track: TrackKindValue): RoleMenuEntry[] {
 			}
 		]
 	};
-	return [profile, objectives, ...(byTrack[track] ?? [])];
+	// U1 (UX-4, défaut) : un métier ouvert met « Mes contributions » en tête :
+	// c'est la mémoire de son activité, et la source de sa fiche de carrière.
+	const contributions = {
+		href: '/espace/contributions',
+		title: 'Mes contributions',
+		text: 'Mes prestations et crédits confirmés, et qui les confirme.'
+	};
+	return [contributions, profile, objectives, ...(byTrack[track] ?? [])];
 }
