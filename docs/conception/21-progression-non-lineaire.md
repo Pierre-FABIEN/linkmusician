@@ -1039,8 +1039,8 @@ depuis combien de temps.
 - **Intégration UI** : bloc « À faire maintenant » en tête du pivot
   « priorités » de `/espace` (musicien·ne et espaces métier), au-dessus
   des quatre aperçus existants, qui restent. **Le héros `NextStep` n'est
-  pas changé** : UX-1 n'est pas tranché (#71). Point d'intégration pour
-  U0 : si UX-1 est accepté, le héros d'« avancer » prend
+  pas changé** lors de N3 : UX-1 a été **accepté le 18/11/2026** (#71). Point d'intégration pour
+  U0 : conformément à UX-1 accepté, le héros d'« avancer » prend
   `next[0]` quand il existe, et `NextStep` passe en tête de « repères » ;
   l'accueil musicien passe alors l'objectif au moteur (option `objective`,
   rang 5) puisqu'il ne sera plus montré par le héros.
@@ -1595,7 +1595,7 @@ flowchart LR
 - **Acceptation** : scénarios A, B, C, E et H (partie existante) rejoués
   sans suggestion interdite du §11.
 - **État** : ✅ moteur livré le 18/11/2026 (§9.5) ; héros de l'accueil
-  laissé à U0 tant qu'UX-1 n'est pas tranché. Les scénarios du §11 ne
+  laissé à U0 : UX-1 est désormais validé, mais le héros n'était pas encore modifié par N3. Les scénarios du §11 ne
   sont pas rejoués un à un : leurs règles interdites sont couvertes par les
   tests unitaires et d'intégration (aucune jam, aucune absence présentée
   comme un manque, aucun nom hors réseau). Budget de requêtes fixé :
