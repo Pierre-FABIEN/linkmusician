@@ -1,7 +1,7 @@
 # D73 — Progression non linéaire et prochaines actions
 
 - **Statut : Acceptée** (18/11/2026). Arbitrages explicites du fondateur **Q-NL-1 à Q-NL-8** dans G0-04, [#72](https://github.com/Pierre-FABIEN/linkmusician/issues/72).
-- **Portée : décision de conception.** N1 (lecture unifiée des réalisations, première prise en compte de NL3), N2 (carte à épreuves parallèles, Q-NL-1 et Q-NL-3) et N3 (prochaines actions v1, NL4 et NL5) livrés le 18/11/2026 ; les lots N4 à N7 restent à développer et à tester.
+- **Portée : décision de conception.** N1 (lecture unifiée des réalisations, première prise en compte de NL3), N2 (carte à épreuves parallèles, Q-NL-1 et Q-NL-3) N3 (prochaines actions v1, NL4 et NL5) et N4 (« Plus tard » et « Pas pour moi », Q-NL-4, périmètre personnel) livrés le 18/11/2026 ; les lots N5 à N7 restent à développer et à tester.
 - Référence détaillée : [conception 21](../conception/21-progression-non-lineaire.md). Architecture préservée : [D72](./D72-architecture-projets-collab.md), acceptée.
 
 ## Contexte

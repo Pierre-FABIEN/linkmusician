@@ -107,8 +107,9 @@ reachFacts)`) : état d'épreuve `passed` (Franchie), `within_reach` (À
   6 quand tout est franchi (comme les faits seuls), faits + 2 pour un
   compte neuf, page de branche faits + 2 au plus ; fiche et carte
   souvenir inchangées (14, 17, 10).
-- Différé : « Plus tard » / « Pas pour
-  moi » par branche (N4, aucun faux contrôle affiché), avancement d'un
+- « Pas pour moi » par branche : depuis « Ce que Melokiva me propose »
+  (N4), pas depuis la carte, qui ne masque rien.
+- Différé : avancement d'un
   projet (N5), Studio et Scène pour une personne seule (N6, après P8),
   antériorité déclarée (N7).
 - Tests : `src/lib/career/map.test.ts`, `src/lib/career/branch.test.ts`,
@@ -202,6 +203,56 @@ src/lib/server/career`, e2e `carriere.spec.ts` (création, scène à
 - Tests : `src/lib/career/next/next.test.ts`, `branch.test.ts`,
   intégration `PROGRESSION_INTEGRATION=1 npx vitest --run
 src/lib/server/career/next`, e2e `prochaines-actions.spec.ts`.
+
+## Plus tard et Pas pour moi (N4, #72)
+
+- **Gestes** (D73 Q-NL-4, conception 21 §8.6) : sur une tuile « À faire
+  maintenant », « Plus tard » (rangs 3 à 5) et « Pas pour moi » (rangs 4 et 5) ; jamais sur une demande des rangs 1 et 2. Un message confirme le
+  geste, la tuile suivante prend la place.
+- **Plus tard** : 30 jours à l'heure du serveur, ou moins si le fait
+  déclencheur change : chaque règle donne un fait stable (`Candidate.fact`),
+  dont seule l'empreinte FNV-1a (`version`) est enregistrée. Un report en
+  cours sur le même fait n'est ni prolongé ni recréé.
+- **Pas pour moi** : la règle de la tuile, ou une branche depuis la page
+  des choix, jusqu'à réactivation.
+- **Page** `/espace/propositions`, « Ce que Melokiva me propose » : ce qui
+  est écarté (Réactiver), ce qui est reporté, avec sa date (Revoir
+  maintenant), et « Pas pour moi » par branche. Seulement le libellé de la
+  règle, jamais le titre d'un objet. Lien sous le bloc, et état « Tu as
+  choisi ce que Melokiva te propose » quand tout est écarté.
+- **Code** : règle pure `src/lib/career/next/choices.ts` (cibles
+  acceptées, empreinte, `hiddenBy`), appliquée par `rankSuggestions` avant
+  le dédoublonnage ; service `src/lib/server/career/choices.ts`
+  (`postpone`, `declineSuggestion`, `declineTarget`, `reactivate`,
+  `choicesPage`) ; lecture groupée `readChoices` dans
+  `src/lib/server/career/next.ts`, mémorisée par requête.
+- **Sécurité** : le propriétaire vient de la session (`chooserOf` : compte,
+  e-mail vérifié, personne, suspension, car les actions de formulaire ne
+  passent pas par la garde du layout) ; un report ou un « Pas pour moi »
+  depuis une tuile n'est accepté que pour une clé que le serveur **propose
+  en ce moment** au lecteur, au bon rang ; toute autre clé reçoit la même
+  réponse (« Cette suggestion n'est plus proposée. »), sans rien dire de
+  l'objet. Une cible de branche ou de règle est lue dans une liste fermée.
+  Réactiver supprime seulement un choix du lecteur. Unicité (propriétaire,
+  choix, cible) ; deux envois simultanés donnent une ligne.
+- **Données personnelles** (table `suggestion_choices`) :
+  - finalité : n'afficher que les suggestions que la personne veut voir ;
+  - contenu : propriétaire, type de choix, cible (règle, branche, ou clé
+    `règle:TYPE:objet` d'un objet de la personne), empreinte, échéance,
+    dates ; aucun texte, aucun nom ;
+  - durée : un report vit 30 jours et se purge à la prochaine écriture ou
+    visite de la page des choix (pas de tâche planifiée) ; un « Pas pour
+    moi » vit jusqu'à sa réactivation ou la suppression du compte ;
+  - export : `prochaines_actions_choix` dans l'export du compte ;
+    anonymisation : supprimés (`personAnonymizationOps`), et en cascade si
+    l'acteur est supprimé.
+- **Coût** : une requête de plus par chargement de l'accueil, la même avec
+  0 ou 40 choix (`choices.integration.test.ts`).
+- **Différé** : « Pas pour nous » sur un projet, avec le socle projet
+  (P2/P3) et ses capacités (P4).
+- Tests : `src/lib/career/next/choices.test.ts`, intégration
+  `PROGRESSION_INTEGRATION=1 npx vitest --run
+src/lib/server/career/choices`, e2e `propositions.spec.ts`.
 
 ## Fiche de carrière et cartes souvenirs (P3-14)
 

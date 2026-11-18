@@ -865,7 +865,7 @@ jamais de « créditer quelqu'un » à partir d'une supposition.
   l'ordre et le tri des suggestions, pas les droits ni l'accès aux écrans
   (conception 20 P8).
 
-### 8.6 Différer et masquer [Proposé]
+### 8.6 Différer et masquer [Q-NL-4 ; livré par N4 pour le périmètre personnel]
 
 | Geste            | Effet                                                                          | Rangs concernés | Retour                                                           |
 | ---------------- | ------------------------------------------------------------------------------ | --------------- | ---------------------------------------------------------------- |
@@ -881,6 +881,32 @@ jamais de « créditer quelqu'un » à partir d'une supposition.
   changement de schéma : lot **N4**, après arbitrage Q-NL-4. Avant N4,
   la règle de dédoublonnage et la limite de **une suggestion de rang 5 par
   écran** tiennent lieu de garde-fou.
+
+**Ce que N4 a livré (18/11/2026)** [détail : [docs/carriere](../carriere/README.md#plus-tard-et-pas-pour-moi-n4-72)] :
+
+- Table `suggestion_choices` (migration additive
+  `20261118144040_suggestion_choices`) : propriétaire, `LATER` ou
+  `NOT_FOR_ME`, cible, empreinte du fait (`version`), échéance (`until`),
+  dates ; unique par (propriétaire, choix, cible). Aucun texte de
+  suggestion n'est stocké.
+- **Plus tard** (rangs 3 à 5) : 30 jours calculés par le serveur. Le
+  « nouveau fait sur son objet » est l'**empreinte** du fait déclencheur
+  de chaque règle (`Candidate.fact` : besoin du morceau et personnes du
+  réseau qui peuvent aider, statut de l'étape, maquette, instrument de la
+  place libre et personnes proches, épreuve et objet visé) : si elle
+  change, la suggestion revient. Une visite ou une reformulation du titre
+  ne change rien (la clé `règle:TYPE:objet` ne dépend pas du texte).
+- **Pas pour moi** (rangs 4 et 5) : une règle (depuis la tuile) ou une
+  branche (depuis la page des choix), jusqu'à réactivation. Une branche
+  écartée n'écarte pas les objectifs, qui n'ont pas de branche réelle.
+- Les choix sont appliqués **avant** le dédoublonnage et la troncature :
+  une suggestion écartée laisse sa place. Jamais aux rangs 1 et 2.
+- Page « Ce que Melokiva me propose » (`/espace/propositions`) : règles et
+  branches écartées, reports en cours avec leur date, réactivation, et
+  l'explication qu'écarter ne retire rien.
+- **Non livré** : « Pas pour nous » (choix d'un projet par sa gestion),
+  qui attend le socle `Project` (P2/P3) et ses capacités (P4). Aucun droit
+  de gestion n'est accordé à un·e participant·e.
 
 ### 8.7 Le cas de référence : quatre compositions et un EP
 
@@ -1009,7 +1035,7 @@ depuis combien de temps.
   vue détaillée n'existe encore), une seule de rang 5, une par règle aux
   rangs 3 à 5 (une même règle ne remplit pas l'écran). « Plus tard » et
   « Pas pour moi » sont typés (`dismissal`) mais **aucun bouton n'est
-  affiché** et rien n'est enregistré avant N4.
+  affiché** et rien n'est enregistré avant N4 (livrés depuis par N4, §8.6).
 - **Intégration UI** : bloc « À faire maintenant » en tête du pivot
   « priorités » de `/espace` (musicien·ne et espaces métier), au-dessus
   des quatre aperçus existants, qui restent. **Le héros `NextStep` n'est
@@ -1583,6 +1609,10 @@ flowchart LR
   anonymisation).
 - **Tests** : intégration (clé forgée refusée, échéance, « pas pour
   nous » réservé à la gestion) ; export RGPD.
+- **État** : ✅ livré le 18/11/2026 pour le périmètre personnel (§8.6).
+  Une requête de plus par chargement de l'accueil, quel que soit le nombre
+  de choix (0 ou 40 : même nombre de requêtes). « Pas pour nous » reste à
+  faire avec le socle projet.
 
 ### N5 — Prochaine action et avancement du projet · #72, #71, #36
 
