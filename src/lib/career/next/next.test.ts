@@ -57,6 +57,7 @@ const cand = (rank: SuggestionRank, id: string, over: Partial<Candidate> = {}): 
 	cta: 'Aller',
 	deadline: null,
 	waitingSince: null,
+	fact: '',
 	...over
 });
 

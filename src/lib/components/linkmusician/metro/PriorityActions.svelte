@@ -13,16 +13,19 @@
 	};
 	let {
 		actions,
-		next = []
+		next = [],
+		hasChoices = false
 	}: {
 		actions: PriorityAction[];
 		/** Prochaines actions (N3), au-dessus des aperçus. */
 		next?: ComponentProps<typeof NextActions>['actions'];
+		/** N4 : des choix « Plus tard » / « Pas pour moi » existent. */
+		hasChoices?: boolean;
 	} = $props();
 	const items = $derived(actions.map((a) => ({ ...a, icon: icons[a.kind] })));
 </script>
 
-<NextActions actions={next} />
+<NextActions actions={next} {hasChoices} />
 <section aria-label="Actions prioritaires" class="space-y-3">
 	<p class="text-sm text-muted-foreground">Aperçus de ton compte, partagés entre tes métiers.</p>
 	<MetroMenu {items} />

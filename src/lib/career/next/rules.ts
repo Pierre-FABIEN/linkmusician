@@ -157,7 +157,8 @@ function pending(f: NextFacts): Candidate[] {
 				href,
 				cta: 'Répondre',
 				deadline: c.upcoming ? new Date(`${c.happenedOn}T00:00:00Z`) : null,
-				waitingSince: c.proposedAt
+				waitingSince: c.proposedAt,
+				fact: `respond|${c.happenedOn}`
 			});
 		} else {
 			// Quelqu'un a déjà confirmé : sans ma confirmation, la réalisation reste en suspens.
@@ -174,7 +175,8 @@ function pending(f: NextFacts): Candidate[] {
 				href,
 				cta: 'Confirmer',
 				deadline: null,
-				waitingSince: c.othersConfirmedAt ?? new Date(`${c.happenedOn}T00:00:00Z`)
+				waitingSince: c.othersConfirmedAt ?? new Date(`${c.happenedOn}T00:00:00Z`),
+				fact: ''
 			});
 		}
 	}
@@ -189,7 +191,8 @@ function pending(f: NextFacts): Candidate[] {
 			href: `/morceaux/${c.workId}#credits-title`,
 			cta: 'Voir mon rôle',
 			deadline: null,
-			waitingSince: c.since
+			waitingSince: c.since,
+			fact: ''
 		});
 	for (const b of f.bandInvitations)
 		out.push({
@@ -202,7 +205,8 @@ function pending(f: NextFacts): Candidate[] {
 			href: '/groupes',
 			cta: 'Répondre',
 			deadline: null,
-			waitingSince: b.since
+			waitingSince: b.since,
+			fact: ''
 		});
 	for (const r of f.representations)
 		out.push({
@@ -215,7 +219,8 @@ function pending(f: NextFacts): Candidate[] {
 			href: '/accompagnement',
 			cta: 'Répondre',
 			deadline: null,
-			waitingSince: null
+			waitingSince: null,
+			fact: ''
 		});
 	if (f.applications > 0)
 		out.push({
@@ -228,7 +233,8 @@ function pending(f: NextFacts): Candidate[] {
 			href: '/annonces',
 			cta: 'Voir mes annonces',
 			deadline: null,
-			waitingSince: null
+			waitingSince: null,
+			fact: ''
 		});
 	if (f.reader.adult && f.contactRequests > 0)
 		out.push({
@@ -241,7 +247,8 @@ function pending(f: NextFacts): Candidate[] {
 			href: '/messages',
 			cta: 'Voir les demandes',
 			deadline: null,
-			waitingSince: null
+			waitingSince: null,
+			fact: ''
 		});
 	return out;
 }
@@ -263,7 +270,8 @@ function work(f: NextFacts): Candidate[] {
 			href: `/morceaux/${s.workId}#suite-title`,
 			cta: 'Voir la suite du morceau',
 			deadline: null,
-			waitingSince: s.since
+			waitingSince: s.since,
+			fact: s.status
 		});
 	for (const i of f.ideas)
 		out.push(
@@ -278,7 +286,8 @@ function work(f: NextFacts): Candidate[] {
 						href: `/morceaux/${i.workId}#compose-title`,
 						cta: 'Voir le morceau',
 						deadline: null,
-						waitingSince: i.updatedAt
+						waitingSince: i.updatedAt,
+						fact: 'demo'
 					}
 				: {
 						rule: 'crea.demo',
@@ -290,7 +299,8 @@ function work(f: NextFacts): Candidate[] {
 						href: `/morceaux/${i.workId}#demo-title`,
 						cta: 'Ajouter une maquette',
 						deadline: null,
-						waitingSince: i.updatedAt
+						waitingSince: i.updatedAt,
+						fact: 'no-demo'
 					}
 		);
 	return out;
@@ -317,7 +327,11 @@ function needs(f: NextFacts): Candidate[] {
 					? `« ${w.title} » est enregistré : place au mixage`
 					: `« ${w.title} » est prêt à enregistrer`,
 				deadline: null,
-				waitingSince: null
+				waitingSince: null,
+				fact: `${w.need}|${w.pros
+					.map((p) => p.handle)
+					.sort()
+					.join(',')}`
 			};
 			if (w.pros.length > 0) {
 				// Seulement des personnes du réseau réel (« vous avez joué ensemble »), §8.8.
@@ -360,7 +374,11 @@ function needs(f: NextFacts): Candidate[] {
 				href: `/morceaux/${w.workId}#open-title`,
 				cta: 'Voir les places libres',
 				deadline: null,
-				waitingSince: null
+				waitingSince: null,
+				fact: `${role.instrument}|${role.candidates
+					.map((p) => p.handle)
+					.sort()
+					.join(',')}`
 			});
 		else if (f.reader.adult && !w.hasOpenOpportunity)
 			out.push({
@@ -373,7 +391,8 @@ function needs(f: NextFacts): Candidate[] {
 				href: `/morceaux/${w.workId}#open-title`,
 				cta: 'Voir les places libres',
 				deadline: null,
-				waitingSince: null
+				waitingSince: null,
+				fact: `${role.instrument}|`
 			});
 	}
 	return out;
@@ -392,7 +411,8 @@ function optional(f: NextFacts): Candidate[] {
 		href: t.action.href,
 		cta: t.action.label,
 		deadline: null,
-		waitingSince: null
+		waitingSince: null,
+		fact: `${t.number}|${t.subject ? `${t.subject.type}:${t.subject.id}` : ''}|${t.action.href}`
 	}));
 	if (f.objective)
 		out.push({
@@ -405,7 +425,8 @@ function optional(f: NextFacts): Candidate[] {
 			href: f.objective.href,
 			cta: 'J’y vais',
 			deadline: null,
-			waitingSince: null
+			waitingSince: null,
+			fact: f.objective.id
 		});
 	return out;
 }

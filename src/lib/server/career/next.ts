@@ -26,7 +26,11 @@ import { parisDay } from '#lib/metrics/indicators';
 import type { AmbitionValue } from '#lib/career/ambition';
 import {
 	candidatesFrom,
+	canDecline,
+	canPostpone,
+	NO_CHOICES,
 	rankSuggestions,
+	type ChoiceState,
 	type NextFacts,
 	type RankOptions,
 	type Suggestion
@@ -63,6 +67,11 @@ export type NextOptions = RankOptions & {
 	 * héros (`NextStep`) montre déjà le premier objectif.
 	 */
 	objective?: { id: string; label: string; href: string | null } | null;
+	/**
+	 * N4 : ne pas appliquer les choix du lecteur (validation d'un report : la
+	 * suggestion doit être proposée, qu'elle soit déjà reportée ou non).
+	 */
+	ignoreChoices?: boolean;
 };
 
 /** Ni le lecteur n'a bloqué, ni il n'a été bloqué par cet acteur. */
@@ -272,7 +281,31 @@ export async function nextActionsFor(
 	reader: NextReader,
 	options: NextOptions = {}
 ): Promise<Suggestion[]> {
-	return rankSuggestions(candidatesFrom(await nextFactsFor(reader, options)), options);
+	const now = options.now ?? new Date();
+	const [facts, choices] = await Promise.all([
+		nextFactsFor(reader, { ...options, now }),
+		options.ignoreChoices ? NO_CHOICES : readChoices(reader.actorId, options.request)
+	]);
+	return rankSuggestions(candidatesFrom(facts), { ...options, now, choices });
+}
+
+/**
+ * Choix « Plus tard » et « Pas pour moi » du lecteur (N4) : une seule
+ * lecture, quelle que soit la quantité, mémorisée le temps de la requête.
+ */
+export function readChoices(ownerId: string, scope?: RequestScope): Promise<ChoiceState> {
+	return requestMemo(scope, `career:choices:${ownerId}`, async () => {
+		const rows = await prisma.suggestionChoice.findMany({
+			where: { ownerId },
+			select: { kind: true, target: true, version: true, until: true }
+		});
+		return {
+			later: rows
+				.filter((r) => r.kind === 'LATER')
+				.map((r) => ({ target: r.target, version: r.version, until: r.until })),
+			notForMe: rows.filter((r) => r.kind === 'NOT_FOR_ME').map((r) => r.target)
+		};
+	});
 }
 
 /** Ce que reçoit le navigateur : la phrase et le geste, sans dates ni objet. */
@@ -284,7 +317,10 @@ export function suggestionView(s: Suggestion) {
 		title: s.title,
 		why: s.why,
 		href: s.href,
-		cta: s.cta
+		cta: s.cta,
+		/** N4 : gestes permis par le rang (jamais aux rangs 1 et 2). */
+		postpone: canPostpone(s),
+		decline: canDecline(s)
 	};
 }
 export type SuggestionView = ReturnType<typeof suggestionView>;

@@ -12,11 +12,15 @@
  *    clé (ordre lexical) ;
  * 4. tronque à `limit`, avec au plus `maxOptional` suggestion de rang 5.
  *
+ * N4 : les choix du lecteur (« Plus tard », « Pas pour moi ») sont appliqués
+ * juste après le premier filtre, jamais aux rangs 1 et 2 (`./choices`).
+ *
  * Aucune entrée n'est une valeur de progression : le type `Candidate` n'a
  * pas de champ d'XP, de niveau ou de palier (NL5), et rien d'aléatoire.
  * Module pur, partagé par le serveur et le navigateur.
  */
 import type { CareerBranch } from '../map';
+import { fingerprint, hiddenBy, NO_CHOICES, type ChoiceState } from './choices';
 
 export type SuggestionRank = 1 | 2 | 3 | 4 | 5;
 
@@ -75,6 +79,12 @@ export type Candidate = {
 	deadline: Date | null;
 	/** Depuis quand l'autre attend (date de la demande), sinon `null`. */
 	waitingSince: Date | null;
+	/**
+	 * Le fait déclencheur, sous forme stable (N4) : s'il change, un « Plus
+	 * tard » cesse de s'appliquer. Jamais une phrase affichée ni une date de
+	 * visite ; seule son empreinte (`version`) est enregistrée.
+	 */
+	fact: string;
 };
 
 export type Suggestion = Candidate & {
@@ -82,6 +92,8 @@ export type Suggestion = Candidate & {
 	key: string;
 	scope: SuggestionScope;
 	dismissal: Dismissal;
+	/** Empreinte de `fact` (N4). */
+	version: string;
 };
 
 /** Limites d'affichage (§9.3). */
@@ -96,6 +108,10 @@ export type RankOptions = {
 	maxOptional?: number;
 	/** Suggestions d'une même règle au plus, aux rangs 3 à 5. */
 	perRule?: number;
+	/** « Plus tard » et « Pas pour moi » du lecteur (N4), appliqués avant la troncature. */
+	choices?: ChoiceState;
+	/** Heure du serveur, pour l'échéance des reports. */
+	now?: Date;
 };
 
 export function suggestionKey(c: Pick<Candidate, 'rule' | 'subject'>): string {
@@ -145,15 +161,21 @@ export function rankSuggestions(
 	const limit = options.limit ?? (scope === 'HOME' ? HOME_LIMIT : DETAIL_LIMIT);
 	const maxOptional = options.maxOptional ?? 1;
 	const perRule = options.perRule ?? 1;
+	const choices = options.choices ?? NO_CHOICES;
+	const now = options.now ?? new Date();
 
+	// Choix du lecteur filtrés avant le dédoublonnage et la troncature : une
+	// suggestion écartée laisse sa place à la suivante.
 	const sorted = candidates
 		.filter(isActionable)
 		.map((c): Suggestion => ({
 			...c,
 			key: suggestionKey(c),
 			scope,
-			dismissal: dismissalOf(c.rank)
+			dismissal: dismissalOf(c.rank),
+			version: fingerprint(c.fact)
 		}))
+		.filter((s) => !hiddenBy(s, choices, now))
 		.sort(compareSuggestions);
 
 	const keys = new Set<string>();

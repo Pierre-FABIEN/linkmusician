@@ -14,7 +14,8 @@
 		entries,
 		tier,
 		priorities,
-		next = []
+		next = [],
+		hasChoices = false
 	}: {
 		title: string;
 		available: boolean;
@@ -23,6 +24,7 @@
 		priorities: PriorityAction[];
 		/** Prochaines actions (N3), communes aux métiers. */
 		next?: ComponentProps<typeof PriorityActions>['next'];
+		hasChoices?: boolean;
 	} = $props();
 	const pivots = $derived([
 		{
@@ -63,7 +65,7 @@
 </script>
 
 {#snippet actionsSnippet()}
-	{#if available}<PriorityActions actions={priorities} {next} />{/if}
+	{#if available}<PriorityActions actions={priorities} {next} {hasChoices} />{/if}
 {/snippet}
 
 <MetroHome label="Espace {title}" {pivots} priorities={available ? actionsSnippet : undefined}>

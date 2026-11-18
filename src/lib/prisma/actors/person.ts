@@ -309,6 +309,7 @@ export async function exportPersonData(userId: string) {
 		notificationPreferences,
 		collusionCases,
 		suggestionsDismissed,
+		suggestionChoices,
 		memberships,
 		works,
 		milestonesDeclared,
@@ -585,6 +586,12 @@ export async function exportPersonData(userId: string) {
 			where: { ownerId: person.actorId },
 			orderBy: { createdAt: 'asc' },
 			select: { createdAt: true, actor: { select: { displayName: true } } }
+		}),
+		// Prochaines actions (N4) : « Plus tard » et « Pas pour moi ».
+		prisma.suggestionChoice.findMany({
+			where: { ownerId: person.actorId },
+			orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+			select: { kind: true, target: true, until: true, createdAt: true, updatedAt: true }
 		}),
 		// Groupes (P3-01) : chaque période, invitation ou demande.
 		prisma.membership.findMany({
@@ -1156,6 +1163,15 @@ export async function exportPersonData(userId: string) {
 			nom: d.actor.displayName,
 			le: d.createdAt
 		})),
+		// N4 : la cible est une règle, une branche ou une clé `règle:TYPE:objet`
+		// (un objet de la personne) ; aucun texte de suggestion n'est stocké.
+		prochaines_actions_choix: suggestionChoices.map((c) => ({
+			choix: c.kind === 'LATER' ? 'Plus tard' : 'Pas pour moi',
+			cible: c.target,
+			jusqu_au: c.until,
+			cree_le: c.createdAt,
+			modifie_le: c.updatedAt
+		})),
 		verifications_de_moderation: collusionCases.map((c) => ({
 			objet: 'Cercle fermé de collaborations et d’appréciations (détection automatique)',
 			statut: c.status,
@@ -1365,6 +1381,8 @@ export async function personAnonymizationOps(
 		prisma.suggestionDismissal.deleteMany({
 			where: { OR: [{ ownerId: person.actorId }, { actorId: person.actorId }] }
 		}),
+		// Prochaines actions (N4) : préférences d'affichage, sans objet après l'effacement.
+		prisma.suggestionChoice.deleteMany({ where: { ownerId: person.actorId } }),
 		// Parrainage (P4-13b) : présentations faites ou reçues, supprimées
 		// (le succès Passeur déjà obtenu reste à qui l'a gagné).
 		prisma.introduction.deleteMany({
