@@ -84,6 +84,7 @@ domaine (dernière colonne) ; lancer un seul spec :
 | `fil-ariane`             | D52          | Fil d'Ariane en badges dans le mode jam                                   | —                                    |
 | `organiser`              | D51          | « Lancer une jam » après « prêt·e à organiser »                           | `docs/jam/`                          |
 | `lancement`              | —            | Feuille de route réservée à l'administration                              | `docs/lancement/`                    |
+| `projets`                | P2 (D72)     | Créer, ranger, partager, retirer, supprimer ; tiers et membre en 404      | `docs/projets/`                      |
 
 Deux pièges constatés le 10/11/2026 :
 

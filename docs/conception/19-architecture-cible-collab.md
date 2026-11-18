@@ -600,15 +600,15 @@ groupe range son propre morceau), elle agit à ce second titre.
 
 ### 6.5 Départ d'un responsable, dissolution
 
-| Situation                                           | Conséquence proposée                                                                                                                                                                                       |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| L'OWNER d'un groupe porteur transmet puis part      | Le projet reste au groupe ; la gestion suit la gouvernance du groupe (existant, testé).                                                                                                                    |
-| Un ADMIN qui coordonnait le projet quitte le groupe | Il perd la gestion à l'instant (relue) et les capacités reçues comme membre ; s'il était participant, il le reste jusqu'à ce qu'il parte ou soit retiré ; ses étapes `WorkStep` sont libérées (P1).        |
-| Le producteur coordinateur est retiré du projet     | Ses capacités tombent ; ses propositions en attente sont annulées ; les tâches qui lui sont confiées sont libérées ; ses livrables déposés restent à la gestion de l'élément, qui peut encore les valider. |
-| Le groupe porteur est dissous                       | Le projet passe en lecture seule, état figé. Ses réalisations suivent leurs propres règles (archivage, I10).                                                                                               |
-| La personne porteuse supprime son compte            | Ses projets personnels sont supprimés (conteneurs) ; les réalisations liées suivent leurs règles (I10) ; les participations sont effacées avec eux.                                                        |
-| Un·e participant·e supprime son compte              | Sa participation est anonymisée (« Compte supprimé »), comme les autres actes.                                                                                                                             |
-| Le projet personnel doit continuer au nom du groupe | Transfert du projet vers le groupe, accepté par sa gestion. Les morceaux restent à leur porteur tant qu'ils ne sont pas transférés à leur tour (I9).                                                       |
+| Situation                                           | Conséquence proposée                                                                                                                                                                                                              |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| L'OWNER d'un groupe porteur transmet puis part      | Le projet reste au groupe ; la gestion suit la gouvernance du groupe (existant, testé).                                                                                                                                           |
+| Un ADMIN qui coordonnait le projet quitte le groupe | Il perd la gestion à l'instant (relue) et les capacités reçues comme membre ; s'il était participant, il le reste jusqu'à ce qu'il parte ou soit retiré ; ses étapes `WorkStep` sont libérées (P1).                               |
+| Le producteur coordinateur est retiré du projet     | Ses capacités tombent ; ses propositions en attente sont annulées ; les tâches qui lui sont confiées sont libérées ; ses livrables déposés restent à la gestion de l'élément, qui peut encore les valider.                        |
+| Le groupe porteur est dissous                       | Le projet passe en lecture seule, état figé. Ses réalisations suivent leurs propres règles (archivage, I10). **P2** : sans participant·es, plus personne ne le lit avant P4 ; la gestion de chaque morceau retire son lien (Q77). |
+| La personne porteuse supprime son compte            | Ses projets personnels sont supprimés (conteneurs) ; les réalisations liées suivent leurs règles (I10) ; les participations sont effacées avec eux.                                                                               |
+| Un·e participant·e supprime son compte              | Sa participation est anonymisée (« Compte supprimé »), comme les autres actes.                                                                                                                                                    |
+| Le projet personnel doit continuer au nom du groupe | Transfert du projet vers le groupe, accepté par sa gestion. Les morceaux restent à leur porteur tant qu'ils ne sont pas transférés à leur tour (I9).                                                                              |
 
 ### 6.6 Crédits confirmés et données privées
 
@@ -632,7 +632,10 @@ groupe range son propre morceau), elle agit à ce second titre.
 ### 6.7 Concurrence et verrous
 
 Ordre proposé, qui prolonge ARCH-MET-02a : **`project:` → `collaboration:`
-→ `work:` → `band:`/`org:` → acteurs (moteur)**. La finalisation d'une
+→ `work:` → `band:`/`org:` → acteurs (moteur)**. [P2] Un verrou
+`project-owner:` (quota de projets du porteur, création et réouverture)
+précède `project:` ; `studio:` se range avec `band:` et `org:`, et ces
+verrous de porteurs sont pris triés quand un rangement en demande deux. La finalisation d'une
 collaboration ne prend **jamais** `project:`, puisque I3 interdit à un
 projet de réagir à une preuve. Ranger un morceau prend `project:` puis
 `work:` puis `band:`, ce qui respecte l'ordre existant. Tests à barrières
@@ -1346,6 +1349,17 @@ flowchart LR
 - **Acceptation** : I1 à I8 et I6 révisé démontrés par des tests ; un
   morceau se crée toujours sans projet (I4) ; aucun événement d'XP émis
   (I3).
+- **[Livré le 19/11/2026]** Détail : [docs/projets](../projets/README.md).
+  Tables `projects`, `project_items`, `project_acts` (migration additive
+  `20261118185848_projects_foundation`, trigger d'ajout seul sur le
+  journal) ; seuls des **morceaux** se rangent. Lecture : seule la gestion
+  du porteur lit un projet tant que P4 n'existe pas. Verrous : un niveau
+  `project-owner:` (quota du porteur) précède `project:` ; les verrous de
+  porteurs (`band:`, `studio:`, `org:`) sont triés. Quotas et journal :
+  défauts Q76, Q77. Interface minimale `/projets`, `/projets/nouveau`,
+  `/projets/[id]` ; U2 reste à faire. Invariants testés : I1 à I8 ; I11
+  sans objet (aucune capacité) ; I12 pour la perte de gestion (barrière),
+  les capacités restant à P4.
 
 ### P3 — « Mes projets » · #71
 

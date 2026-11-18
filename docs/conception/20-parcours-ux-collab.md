@@ -532,6 +532,13 @@ aucun pourcentage.
   « Faire un projet » ;
 - carnet de contacts : « Transformer en projet » (P4).
 
+**[Livré P2, 19/11/2026] Interface minimale de validation**, pas U2 :
+`/projets` (liste simple), `/projets/nouveau` (nom, type en `MetroChoice`,
+porteur si j'en gère, dates et phrase repliées ; `?porteur=` présélectionne),
+une entrée « Projets » dans « ma musique ». Pas de héros de premier pas, de
+tuile « Pour démarrer » ni d'entrée depuis la fiche d'un groupe (U2).
+Détail : [docs/projets](../projets/README.md).
+
 ### 7.2 La fiche projet : un socle, trois compositions
 
 [Proposition UX] Toutes les fiches partagent les mêmes blocs, dans le
@@ -795,6 +802,15 @@ et peut la changer en un geste (« Changer le partage »). Abaisser de
 Travail à Résumé ou Rien affiche l'effet avant de confirmer : « Les 2
 étapes confiées dans ce projet redeviennent libres. Les fichiers déposés
 restent à toi. »
+
+**[Livré P2, 19/11/2026]** Sur `/projets/[id]` : ranger un de **mes**
+morceaux (sélecteur « Morceau à ranger », partage proposé selon le morceau,
+phrases de chaque niveau, titre affiché), changer le partage (gestion du
+morceau seulement), retirer, journal nominal filtré. Le contrôle est un
+`MetroChoice` au rangement et des boutons radio dans « Changer le
+partage » ; le composant `ShareLevelChoice` et le `MetroSheet` restent à
+U2. Suppression confirmée dans un `MetroSheet` : « Les morceaux rangés
+restent intacts, avec leurs crédits et leur maquette. »
 
 ### 9.2 Le morceau personnel dans le projet du groupe (Léa)
 
