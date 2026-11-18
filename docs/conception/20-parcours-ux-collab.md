@@ -74,7 +74,7 @@ P2 et P3 (projet, partage), P4 (équipe, coordination), P5 (morceau
 d'autrui), P13 (tâches et livrables).
 
 **Ce qui bloque** : six arbitrages UX (§15). Aucun ne bloque la
-conception ; deux (UX-1 et UX-5) conditionnent le premier lot d'écrans.
+conception ; UX-1 est **accepté** (18/11/2026), UX-5 reste à arbitrer avant U1.
 #71 reste ouverte : son critère de clôture exige du code.
 
 ---
@@ -1178,7 +1178,7 @@ Le défaut s'applique si rien n'est tranché au démarrage du lot.
 | UX-7 | Un **aperçu « comme un·e participant·e »** pour la gestion ?                                                                 | **Non au lancement** : la phrase de chaque niveau de partage suffit ; à revoir au pilote                       | —      |
 | UX-8 | Les membres d'un groupe porteur sont-ils **invités d'office** aux projets du groupe ?                                        | **Non** : un raccourci « Inviter les membres du groupe » (une invitation chacun, acceptée) ; I2 préservé       | U3     |
 
-Les arbitrages UX-1 et UX-5 conditionnent les premiers lots (U0, U1).
+**UX-1 — Accepté par le fondateur le 18/11/2026 : Oui, le travail avant la progression.** UX-5 reste à arbitrer avant U1.
 Aucun ne remet en cause D72 : ce sont des choix de présentation.
 
 ---
