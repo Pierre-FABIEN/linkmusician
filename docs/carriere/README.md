@@ -4,11 +4,14 @@ Conception : [07 §4.1 et §4.2](../conception/07-modes-de-jeu.md#41-choisir-son
 
 ## Écran de carrière
 
-- **`/espace`**, page-menu (D50) : identité, niveau, XP et palier ; « Ta
-  prochaine étape » (premier objectif) ; puis le menu (`MenuList`,
-  « Mode carrière ») : À confirmer (s'il y a lieu, en évidence), Mon
-  ambition, Mes objectifs, Campagnes en cours, Mon équipe, Agenda, Journal
-  de bord, Points, succès et confiance. Seulement des compteurs.
+- **`/espace`**, accueil Collab en quatre pivots (U0, D74 ; détail :
+  [conception 20 §6.4](../conception/20-parcours-ux-collab.md#64-ce-que-u0-a-livré-et-les-écarts-livré-le-18112026)) :
+  identité, niveau, XP et palier en en-tête ; pivot `avancer` ouvert par le
+  **héros** (première prochaine action N3, sinon « Commence ici » pour un
+  compte neuf, sinon « Ta prochaine étape »), « À faire maintenant », les
+  tuiles « À traiter », candidatures, contacts et agenda, « Travaux en
+  cours » ; `ma musique` ; `réseau` ; `repères` (dont « Ta prochaine étape »
+  quand elle n'est pas le héros). Seulement des compteurs.
 - Écrans (`/espace/…`, fil d'Ariane D52) :
   - `ambition` : choix parmi cinq, « Je ne sais pas encore » pour retirer ;
   - `objectifs` : les trois prochains (`nextObjectives`) et l'avancement ;
@@ -16,11 +19,13 @@ Conception : [07 §4.1 et §4.2](../conception/07-modes-de-jeu.md#41-choisir-son
     libres (rôles à pourvoir), crédits à confirmer ;
   - `equipe` : groupes actifs avec leur rang (P3-08), partenaires réguliers
     (collaborations confirmées, les plus nombreuses d'abord) ;
-  - `agenda` : jams à venir (organisées, menées, « Je viens », invitation
-    acceptée) et collaborations acceptées à date future ;
+  - `agenda` : collaborations acceptées à date future, sans personne
+    bloquée ; les jams sont dans Rencontre (`/jam/agenda`, U0, #76) ;
   - `journal` : historique des gains (privé, D1) ;
   - `progression` : confiance et ce qu'il manque, succès ;
-  - `a-confirmer` : collaborations, crédits, invitations de groupe.
+  - `a-confirmer`, titré « À traiter » (U0) : collaborations, crédits,
+    invitations de groupe, accompagnement, candidatures et demandes de
+    contact, droits et blocages appliqués (`src/lib/server/space/inbox.ts`).
 
 ## Ambition
 

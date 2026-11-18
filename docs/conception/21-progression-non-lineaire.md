@@ -1046,7 +1046,13 @@ depuis combien de temps.
   rang 5) puisqu'il ne sera plus montré par le héros.
 - **Dédoublonnage N2** : la page de branche ne répète plus dans « En
   cours » une collaboration déjà proposée dans « Possible maintenant ».
-- **Constat de sécurité (non corrigé, hors N3)** : les déclencheurs de la
+- **U0 (18/11/2026)** : point d'intégration réalisé, UX-1 tranché
+  ([D74](../decisions/D74-heros-accueil-collab.md)). Le héros d'« avancer »
+  prend la première action du moteur (`pickHero`), `NextStep` passe en tête
+  de « repères » ; l'objectif musicien n'est pas passé au moteur (il est
+  déjà dans « repères »). Le moteur lit « À traiter » (`inboxFor`) au lieu
+  de ses propres requêtes de crédits, d'invitations et d'accompagnement.
+- **Constat de sécurité (corrigé par U0, voir conception 20 §6.4)** : les déclencheurs de la
   carte (`collaborationsToConfirm`) et la page `/espace/a-confirmer` lisent
   les collaborations sans le filtre de blocage des priorités. Le moteur ne
   reprend une épreuve visant une collaboration que si elle a passé ce

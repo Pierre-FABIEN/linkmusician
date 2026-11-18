@@ -408,6 +408,52 @@ nature, chacune un `MetroList` :
 Une ligne n'affiche que ce que je suis autorisé·e à lire **au moment de
 l'affichage** (droits réévalués, P5). Une section vide disparaît.
 
+### 6.4 Ce que U0 a livré, et les écarts [Livré le 18/11/2026]
+
+UX-1 tranché : [D74](../decisions/D74-heros-accueil-collab.md).
+
+- **Pivots** de `/espace` (musicien·ne) : `avancer` (héros, « À faire
+  maintenant », tuiles « À traiter », candidatures, demandes de contact,
+  agenda, puis « Travaux en cours » `/espace/campagnes`), `ma musique`
+  (Mes morceaux, Ma carte, Ma fiche), `réseau` (Mes groupes et
+  structures → `/structure`, Mes contacts, Trouver quelqu'un, Annonces et
+  candidatures, Accompagnement si concerné·e, Parrainer si palier),
+  `repères` (Ta prochaine étape quand elle n'est pas le héros, Mes
+  objectifs, Mon ambition, Coup de pouce, Points, succès et confiance,
+  Journal de bord, Ce que Melokiva me propose, Les démarches). Le pivot
+  séparé « priorités » disparaît : son contenu ouvre `avancer`.
+- **Doublons résorbés** : « Mon équipe » et « Mes structures » deviennent
+  « Mes groupes et structures » (`/structure`, qui liste déjà les groupes) ;
+  `/espace/equipe` garde sa route, sans entrée. « Campagnes en cours »
+  devient « Travaux en cours » (pas encore « Hors projet », faute de
+  projets). Aucune route supprimée, aucun lien vers `/projets`.
+- **Héros** (`pickHero`) : première action du moteur N3 (hors
+  candidatures et contacts), sinon « Commence ici » pour un compte neuf,
+  sinon `NextStep`. Le projet principal (étape 2 de §5.2) viendra avec U2.
+  Les métiers (`RoleSpace`) reçoivent le même héros dans leur pivot
+  « priorités », avec leurs entrées propres inchangées.
+- **« À traiter »** (`/espace/a-confirmer`, adresse conservée) : sections
+  Collaborations, Crédits de morceaux, Invitations de groupe, Autres
+  demandes (accompagnement, candidatures, contacts) ; une section vide
+  disparaît. La tuile de l'accueil compte collaborations, crédits,
+  invitations et accompagnements (les candidatures et contacts ont leur
+  tuile). Une seule lecture (`inboxFor`), partagée avec le moteur N3.
+- **Agenda Collab** sans jams (#76) : collaborations prévues seulement, un
+  lien « voir les jams à venir » vers Rencontre (`/jam/agenda`).
+- **Blocages** (correction de sécurité, constat N3) : la carte (déclencheurs
+  « collaboration à confirmer » et « rôle en attente »), « À traiter »
+  (collaborations, crédits, propositions d'accompagnement), l'agenda Collab
+  et la pastille des crédits de `/morceaux` ignorent désormais toute
+  personne qui m'a bloqué·e ou que j'ai bloquée (`notBlockedWith`). Les
+  faits restent en base : lever le blocage les rend.
+- **Écarts** : le nom « Collab » n'est posé que sur « À traiter » et
+  l'agenda ; l'en-tête garde « Mode carrière » jusqu'aux textes de #74.
+  Mosaïque `sm`/`band` de §6.1 non reprise : les tuiles restent en menu
+  (projets absents). « Mes contributions » (U1) n'existe pas encore : aucune
+  entrée. La page `/accompagnement` liste encore les propositions sans le
+  filtre de blocage (hors écrans U0) : la tuile et « À traiter » ne les
+  comptent plus.
+
 ---
 
 ## 7. Créer et consulter un projet
@@ -1167,16 +1213,16 @@ Consignés avec leur défaut dans
 [a-trancher.md](../plan/a-trancher.md#domaine-collab--parcours-ux-g0-03-71).
 Le défaut s'applique si rien n'est tranché au démarrage du lot.
 
-| #    | Question                                                                                                                     | Défaut proposé                                                                                                 | Bloque |
-| ---- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------ |
-| UX-1 | Le héros de l'accueil Collab parle-t-il du **travail** (ce qui m'attend, mon projet) avant la **progression** (`NextStep`) ? | **Oui** : le travail d'abord ; `NextStep` en tête de `repères`, et héros quand il n'y a rien d'autre (§5.2)    | U0     |
-| UX-2 | Le type « **Autre** » (et « Événement » pour un festival) s'ajoute-t-il aux huit types de D72 ?                              | **Oui pour « Autre »** (composition « Autre ») ; **non** pour « Événement », « Festival » suffit jusqu'à G3    | U2     |
-| UX-3 | Le projet principal de l'accueil : choisi par la personne (**épingler**) ou déduit de sa dernière action ?                   | **Déduit** au lancement ; épinglage après le pilote s'il manque                                                | U2     |
-| UX-4 | Pour un métier non musicien, « Mes contributions » remonte-t-il dans le pivot `avancer` ?                                    | **Oui** pour les métiers dont `RoleSpace` est actif ; non pour le musicien                                     | U1     |
-| UX-5 | La **participation** à un projet compte-t-elle comme une contribution ?                                                      | **Non** : elle vit dans « Mes projets » ; les contributions ne listent que crédits et collaborations confirmés | U1     |
-| UX-6 | La gestion d'un élément peut-elle **demander une nouvelle version** d'un livrable (et pas seulement valider) ?               | **Oui**, avec un message court ; la demande ne change aucun droit. À fixer dans #36                            | U5     |
-| UX-7 | Un **aperçu « comme un·e participant·e »** pour la gestion ?                                                                 | **Non au lancement** : la phrase de chaque niveau de partage suffit ; à revoir au pilote                       | —      |
-| UX-8 | Les membres d'un groupe porteur sont-ils **invités d'office** aux projets du groupe ?                                        | **Non** : un raccourci « Inviter les membres du groupe » (une invitation chacun, acceptée) ; I2 préservé       | U3     |
+| #    | Question                                                                                                                     | Défaut proposé                                                                                                                                        | Bloque |
+| ---- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| UX-1 | Le héros de l'accueil Collab parle-t-il du **travail** (ce qui m'attend, mon projet) avant la **progression** (`NextStep`) ? | ✅ **Tranché : oui** ([D74](../decisions/D74-heros-accueil-collab.md)) ; `NextStep` en tête de `repères`, et héros quand il n'y a rien d'autre (§5.2) | U0     |
+| UX-2 | Le type « **Autre** » (et « Événement » pour un festival) s'ajoute-t-il aux huit types de D72 ?                              | **Oui pour « Autre »** (composition « Autre ») ; **non** pour « Événement », « Festival » suffit jusqu'à G3                                           | U2     |
+| UX-3 | Le projet principal de l'accueil : choisi par la personne (**épingler**) ou déduit de sa dernière action ?                   | **Déduit** au lancement ; épinglage après le pilote s'il manque                                                                                       | U2     |
+| UX-4 | Pour un métier non musicien, « Mes contributions » remonte-t-il dans le pivot `avancer` ?                                    | **Oui** pour les métiers dont `RoleSpace` est actif ; non pour le musicien                                                                            | U1     |
+| UX-5 | La **participation** à un projet compte-t-elle comme une contribution ?                                                      | **Non** : elle vit dans « Mes projets » ; les contributions ne listent que crédits et collaborations confirmés                                        | U1     |
+| UX-6 | La gestion d'un élément peut-elle **demander une nouvelle version** d'un livrable (et pas seulement valider) ?               | **Oui**, avec un message court ; la demande ne change aucun droit. À fixer dans #36                                                                   | U5     |
+| UX-7 | Un **aperçu « comme un·e participant·e »** pour la gestion ?                                                                 | **Non au lancement** : la phrase de chaque niveau de partage suffit ; à revoir au pilote                                                              | —      |
+| UX-8 | Les membres d'un groupe porteur sont-ils **invités d'office** aux projets du groupe ?                                        | **Non** : un raccourci « Inviter les membres du groupe » (une invitation chacun, acceptée) ; I2 préservé                                              | U3     |
 
 **UX-1 — Accepté par le fondateur le 18/11/2026 : Oui, le travail avant la progression.** UX-5 reste à arbitrer avant U1.
 Aucun ne remet en cause D72 : ce sont des choix de présentation.

@@ -35,7 +35,7 @@ L'audit G0-04 établit que l'ordre perçu comme imposé provient surtout du poin
 - **D72 I3 préservé :** créer ou terminer un projet ne prouve rien et n'apporte pas d'XP. Plusieurs projets qui référencent une même réalisation ne créent aucune nouvelle preuve.
 - Les droits d'accès et de lecture sont vérifiés côté serveur. Les suggestions, compteurs et résumés ne révèlent pas d'éléments privés ou de projets sans permission.
 - Aucune proposition de `Q-NL-6` ou de `Q-NL-4` n'est une autorisation d'enregistrer des données personnelles sans les intégrer aux flux d'export/anonymisation.
-- **UX-1 et UX-5**, issus de G0-03 (#71), n'ont pas été arbitrés par cette validation Q-NL ; ils restent à confirmer avant U0 et U1.
+- **UX-1 et UX-5**, issus de G0-03 (#71), n'ont pas été arbitrés par cette validation Q-NL. **UX-1** a été tranché depuis ([D74](./D74-heros-accueil-collab.md), 18/11/2026) ; UX-5 reste à confirmer avant U1.
 - **Hors périmètre :** pas de changement du barème XP, pas de nouveau type de preuve, pas d'implémentation ou de migration dans cette décision.
 
 ## Ordre de mise en œuvre recommandé
