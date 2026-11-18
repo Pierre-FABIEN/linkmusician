@@ -54,7 +54,7 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 		getActorLocation(person.actorId),
 		bandCounts(person.actorId),
 		campaigns(person.actorId),
-		// Carte de carrière (P3-13) : l'acte en cours, pour l'entrée du menu.
+		// Carte de carrière (N2) : les épreuves à portée, pour l'entrée du menu.
 		careerMapFor(person.actorId, person.ambition),
 		// Coups de pouce (P4-13a) : l'entrée n'apparaît que si l'on n'avance plus.
 		nudgesFor(person.actorId, { onlyIfStalled: true }),
@@ -79,7 +79,8 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 		dashboard: { ...dashboard, objectives: linkable(dashboard.objectives) },
 		commune: location?.communeName ?? null,
 		ambition: person.ambition,
-		act: map.current ? (map.acts.find((a) => a.number === map.current) ?? null) : null,
+		/** Première épreuve à portée (N2), sans « acte en cours ». */
+		withinReach: map.withinReach.map((a) => ({ name: a.name, reason: a.reach?.reason ?? '' })),
 		actsPassed: map.passed.length,
 		counts: {
 			bands: bands.active,

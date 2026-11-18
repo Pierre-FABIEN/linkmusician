@@ -54,6 +54,11 @@ const ROUTES: Record<string, Node> = {
 
 	// Mode carrière
 	'/espace/carte': { label: 'Ma carte', parent: '/espace' },
+	'/espace/carte/[branche]': {
+		label: 'Branche',
+		parent: '/espace/carte',
+		name: at('branch', 'label')
+	},
 	'/espace/fiche': { label: 'Ma fiche de carrière', parent: '/espace' },
 	'/espace/ambition': { label: 'Mon ambition', parent: '/espace' },
 	'/espace/objectifs': { label: 'Mes objectifs', parent: '/espace' },

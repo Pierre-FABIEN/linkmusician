@@ -91,11 +91,42 @@ describe.skipIf(!enabled)('carte de carrière (schéma e2e)', { timeout: 90_000 
 		await db.$disconnect();
 	});
 
-	it('au départ : rien de franchi, acte I en cours', async () => {
+	it('au départ : rien de franchi, rien de faussement à portée (N2)', async () => {
 		const m = careerMap(await map.careerFacts(ids.lea));
 		expect(m.passed).toEqual([]);
-		expect(m.current).toBe(1);
+		expect(m.acts.slice(0, 5).map((a) => a.state)).toEqual(Array(5).fill('open'));
+		expect((await map.careerMapFor(ids.lea, null)).withinReach).toEqual([]);
 		expect(await map.pendingActCelebrations(ids.lea, true)).toEqual([]);
+	});
+
+	it('une collaboration passée qui n’attend que sa confirmation met « La rencontre » à portée (N2)', async () => {
+		const yesterday = new Date(Date.now() - 2 * 86_400_000);
+		const collab = await db.collaboration.create({
+			data: {
+				kind: 'SESSION_WORK',
+				status: 'ACCEPTED',
+				title: 'Carte Test session',
+				happenedOn: yesterday,
+				proposedById: ids.malik,
+				participants: {
+					create: [
+						{ actorId: ids.malik, acceptedAt: yesterday, confirmedCompletionAt: new Date() },
+						{ actorId: ids.lea, acceptedAt: yesterday }
+					]
+				}
+			}
+		});
+		try {
+			const m = await map.careerMapFor(ids.lea, null);
+			expect(m.withinReach.map((a) => a.number)).toEqual([1]);
+			expect(m.withinReach[0].reach?.action.href).toBe('/espace/a-confirmer');
+			// Malik a déjà confirmé : rien à portée pour lui, aucune fuite de l'autre côté.
+			expect((await map.careerMapFor(ids.malik, null)).withinReach).toEqual([]);
+			// Les faits, eux, n'ont pas bougé : rien n'est franchi avant la confirmation.
+			expect((await map.careerFacts(ids.lea)).collaborations).toBe(0);
+		} finally {
+			await db.collaboration.delete({ where: { id: collab.id } });
+		}
 	});
 
 	it('une appréciation reçue après une jam franchit l’acte I, fêté une seule fois', async () => {
@@ -110,7 +141,9 @@ describe.skipIf(!enabled)('carte de carrière (schéma e2e)', { timeout: 90_000 
 		);
 		expect((await map.careerFacts(ids.lea)).jamAppreciations).toBe(1);
 		const first = await map.pendingActCelebrations(ids.lea, true);
-		expect(first.map((c) => c.title)).toEqual(['Épreuve franchie : Acte I · La rencontre']);
+		// N2 : le nom de l'épreuve, sans numéro d'acte ; l'identifiant reste `act-1`.
+		expect(first.map((c) => c.title)).toEqual(['Épreuve franchie : La rencontre']);
+		expect(first.map((c) => c.id)).toEqual(['act-1']);
 		expect(await map.pendingActCelebrations(ids.lea, true)).toEqual([]);
 	});
 
@@ -119,10 +152,33 @@ describe.skipIf(!enabled)('carte de carrière (schéma e2e)', { timeout: 90_000 
 		let m = careerMap(await map.careerFacts(ids.lea));
 		expect(m.passed).toEqual([1]);
 		expect(m.soloOnly).toBe(true);
+		// Composé seul·e, sans autre rôle en attente : pas de fausse épreuve à portée.
+		expect((await map.careerMapFor(ids.lea, null)).acts[1].state).toBe('open');
+		// Un rôle attend sa confirmation : « La création » à portée, sans être franchie.
+		const pending = await db.work.create({
+			data: {
+				ownerId: ids.lea,
+				createdById: ids.lea,
+				title: 'Carte Test en attente',
+				state: 'COMPOSED',
+				proof: 'DECLARED',
+				composedAt: new Date(),
+				contributors: {
+					create: [{ personId: ids.lea, confirmedAt: new Date() }, { personId: ids.malik }]
+				}
+			}
+		});
+		const reach = await map.careerMapFor(ids.lea, null);
+		expect(reach.acts[1].state).toBe('within_reach');
+		expect(reach.acts[1].reach?.action.href).toBe(`/morceaux/${pending.id}`);
+		expect(reach.passed).toEqual([1]);
+		// Malik n'a rien confirmé : le morceau ne lui ouvre rien.
+		expect((await map.careerMapFor(ids.malik, null)).acts[1].state).toBe('open');
+		await db.work.delete({ where: { id: pending.id } });
 		await work('Carte Test à deux', 'CORROBORATED', ['lea', 'malik']);
 		m = careerMap(await map.careerFacts(ids.lea));
 		expect(m.passed).toEqual([1, 2]);
-		expect(m.current).toBe(3);
+		expect(m).not.toHaveProperty('current');
 		expect((await map.pendingActCelebrations(ids.lea, true)).map((c) => c.id)).toEqual(['act-2']);
 	});
 

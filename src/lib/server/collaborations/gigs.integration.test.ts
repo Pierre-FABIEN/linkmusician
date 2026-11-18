@@ -262,10 +262,10 @@ describe.skipIf(!enabled)('concerts vérifiés (schéma e2e)', { timeout: 120_00
 		await gig('asso1', 'orga', daysAgo(20));
 		expect(await milestone('FIRST_GIG')).toEqual({ proof: 'VERIFIED' });
 		expect(await milestone('FIRST_TOUR')).toBeNull();
-		// Acte V franchi par les membres, pas par qui accueille (P5-08).
+		// « La scène » franchie par les membres, pas par qui accueille (P5-08).
 		for (const name of ['lea', 'malik']) {
 			const act5 = careerMap(await careerFacts(ids[name])).acts[4];
-			expect(act5.status).toBe('passed');
+			expect(act5.state).toBe('passed');
 			expect(act5.bonusTrial?.done).toBe(false);
 		}
 		expect((await careerFacts(ids.orga)).verifiedGigs).toBe(0);

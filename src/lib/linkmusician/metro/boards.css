@@ -73,13 +73,13 @@
 	border-color: color-mix(in oklch, currentColor 60%, transparent);
 	background: color-mix(in oklch, currentColor 16%, transparent);
 }
-.lm-career-act[data-status='current'] {
+.lm-career-act[data-status='within_reach'] {
 	font-weight: 700;
 }
-.lm-career-act[data-status='current'] .lm-career-act__number {
+.lm-career-act[data-status='within_reach'] .lm-career-act__number {
 	background: color-mix(in oklch, var(--t-fg) 16%, transparent);
 }
-.lm-career-act[data-status='fog'] {
+.lm-career-act[data-status='soon'] {
 	opacity: 0.65;
 }
 .lm-career-act__name {

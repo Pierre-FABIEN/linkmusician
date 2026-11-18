@@ -91,13 +91,15 @@
 					icon: MapIcon,
 					tone: TONE_OF.career,
 					title: 'Ma carte de carrière',
-					text: data.act
-						? `Acte ${data.act.roman} · ${data.act.name} : ${data.act.trial}`
-						: 'Les actes I à III sont franchis : la suite arrive bientôt.',
+					text: data.withinReach[0]
+						? `À portée · ${data.withinReach[0].name} : ${data.withinReach[0].reason}`
+						: 'Tes branches avancent chacune à son rythme, dans l’ordre que tu veux.',
 					summary:
-						data.actsPassed > 0
-							? `${data.actsPassed} épreuve${data.actsPassed > 1 ? 's' : ''} franchie${data.actsPassed > 1 ? 's' : ''}`
-							: 'Acte I'
+						data.withinReach.length > 0
+							? `${data.withinReach.length} à portée`
+							: data.actsPassed > 0
+								? `${data.actsPassed} épreuve${data.actsPassed > 1 ? 's' : ''} franchie${data.actsPassed > 1 ? 's' : ''}`
+								: 'En branches'
 				},
 				{
 					href: '/espace/campagnes',

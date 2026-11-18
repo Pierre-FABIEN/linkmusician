@@ -5,7 +5,7 @@ describe('carte souvenir (P3-14)', () => {
 	it('génère un PNG 1200 × 630', async () => {
 		const png = await renderSouvenir({
 			displayName: 'Léa Martin',
-			actTitle: 'Acte II · La création',
+			actTitle: 'La création',
 			trial: 'Un morceau composé à plusieurs, rôles confirmés par l’équipe.',
 			date: 'novembre 2026'
 		});

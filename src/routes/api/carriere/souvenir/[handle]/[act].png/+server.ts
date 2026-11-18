@@ -19,7 +19,7 @@ export const GET: RequestHandler = async ({ params }) => {
 	const act = careerMap(await careerFacts(profile.id)).acts.find(
 		(item) => item.number === actNumber
 	);
-	if (!act || act.status !== 'passed') error(404, 'Carte souvenir introuvable');
+	if (!act || act.state !== 'passed') error(404, 'Carte souvenir introuvable');
 
 	const month = (d: Date) =>
 		new Intl.DateTimeFormat('fr-FR', {
@@ -27,11 +27,12 @@ export const GET: RequestHandler = async ({ params }) => {
 			year: 'numeric',
 			timeZone: 'Europe/Paris'
 		}).format(d);
-	// Acte V (P5-08) : la carte souvenir du concert, avec le groupe et l'hôte.
+	// « La scène » (P5-08, numéro interne 5) : la carte souvenir du concert, avec le groupe et l'hôte.
 	const gig = actNumber === 5 ? await firstVerifiedGig(profile.id) : null;
 	const png = await renderSouvenir({
 		displayName: profile.displayName,
-		actTitle: `Acte ${act.roman} · ${act.name}`,
+		// N2 : le nom de l'épreuve, sans numéro d'acte.
+		actTitle: act.name,
 		trial: gig
 			? `Premier concert vérifié avec ${gig.bandName}${gig.hostName ? `, accueilli par ${gig.hostName}` : ''}.`
 			: act.trial,

@@ -294,6 +294,32 @@ describe.skipIf(!enabled)('réalisations (schéma e2e)', { timeout: 120_000 }, (
 		}
 	});
 
+	it('carte parallèle (N2) : mêmes faits, aucune requête de plus pour qui a tout franchi', async () => {
+		const facts = await countQueries(() => map.careerFacts(ids.lea));
+		const full = await countQueries(() => map.careerMapFor(ids.lea, null));
+		// Léa a franchi les cinq épreuves jouables : aucun déclencheur à lire.
+		expect(full.result.passed).toEqual(BEFORE_N1.sheet.actsPassed);
+		expect(full.result.withinReach).toEqual([]);
+		expect(full.queries).toBe(facts.queries);
+		// Sam n'a rien franchi : les déclencheurs se lisent, en parallèle des faits.
+		const freshFacts = await countQueries(() => map.careerFacts(ids.sam));
+		const fresh = await countQueries(() => map.careerMapFor(ids.sam, null));
+		expect(fresh.result.withinReach).toEqual([]);
+		const branch = await countQueries(() => map.careerBranchFor(ids.lea, null, 'PRODUCTION'));
+		console.log('Requêtes SQL N2', {
+			facts: facts.queries,
+			mapAllPassed: full.queries,
+			factsNothingPassed: freshFacts.queries,
+			mapNothingPassed: fresh.queries,
+			branchProduction: branch.queries
+		});
+		// Collaborations à confirmer et enregistrements déclarés ; Sam n'a aucun
+		// morceau déclaré (pas de lecture des rôles en attente).
+		expect(fresh.queries).toBe(freshFacts.queries + 2);
+		// Page de branche : titres des morceaux et noms des groupes, à la demande.
+		expect(branch.queries).toBeLessThanOrEqual(facts.queries + 2);
+	});
+
 	it('un même fait vu de deux contextes ne compte qu’une fois', async () => {
 		const all = await realisations.realisationsOf(ids.lea, { actorId: ids.lea });
 		const keys = all.map((r) => r.key);

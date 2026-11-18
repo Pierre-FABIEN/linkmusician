@@ -11,7 +11,7 @@ import { createMusician, deleteMusicians, skipOnboarding } from '../support/link
  * composé « Lumière » (crédit confirmé) et Sam, ingé son, l'a enregistré.
  * Nora, productrice, propose la production dans leur conversation ; Léa
  * confirme. Le morceau est produit : sa fiche affiche « Campagne bouclée »
- * avec le chemin et les pros, et la carte de Léa franchit l'acte IV.
+ * avec le chemin et les pros, et la carte de Léa franchit « La production ».
  */
 test.describe('LinkMusician — campagne d’un morceau', () => {
 	test.setTimeout(6 * 60_000);
@@ -101,14 +101,17 @@ test.describe('LinkMusician — campagne d’un morceau', () => {
 					}
 				}
 			});
-			const acts = page.getByRole('list', { name: 'Actes de la carrière' });
-			const actIV = acts.locator(':scope > li').filter({ hasText: 'La production' });
+			// N2 : l'épreuve se lit dans la tuile de sa branche, avec son état en toutes lettres.
+			const actIV = page
+				.getByRole('list', { name: 'Épreuves · Production' })
+				.locator(':scope > li')
+				.filter({ hasText: 'La production' });
 
-			await test.step('1. Avant : l’acte IV reste à franchir', async () => {
+			await test.step('1. Avant : « La production » reste à franchir', async () => {
 				await page.goto('/espace/carte');
 				await waitForAppReady(page);
 				await expect(actIV).toBeVisible();
-				await expect(actIV).not.toContainText('Épreuve franchie');
+				await expect(actIV).not.toContainText('Franchie');
 			});
 
 			await test.step('2. Nora propose la production du morceau', async () => {
@@ -147,10 +150,10 @@ test.describe('LinkMusician — campagne d’un morceau', () => {
 				await expectNoA11yViolations(page, ['.cartButton']);
 			});
 
-			await test.step('5. Ma carte : l’acte IV est franchi', async () => {
+			await test.step('5. Ma carte : « La production » est franchie', async () => {
 				await page.goto('/espace/carte');
 				await waitForAppReady(page);
-				await expect(actIV).toContainText('Épreuve franchie');
+				await expect(actIV).toContainText('La production · Franchie');
 			});
 		} finally {
 			await noraContext.close();

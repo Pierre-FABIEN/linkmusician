@@ -4,7 +4,7 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import Aurora from '#lib/components/linkmusician/metro/Aurora.svelte';
 	import Tile from '#lib/components/linkmusician/metro/Tile.svelte';
-	import { careerMap } from '#lib/career/map';
+	import { careerMap, TRIAL_STATE_LABEL } from '#lib/career/map';
 	import { achievements, gains, lea, quests } from '../../data';
 	import {
 		ArrowLeft,
@@ -14,6 +14,7 @@
 		Check,
 		CircleCheck,
 		Disc3,
+		Flag,
 		Guitar,
 		Lock,
 		Moon,
@@ -37,7 +38,8 @@
 		},
 		'RECORD'
 	);
-	const currentAct = dashboard.acts.find((act) => act.status === 'current')!;
+	// N2 : plus d'« acte en cours », la première épreuve à portée s'il y en a une.
+	const reachAct = dashboard.withinReach[0] ?? null;
 	const percent = Math.round((lea.xpIntoLevel / lea.xpForNextLevel) * 100);
 	const currentQuest = quests[0];
 </script>
@@ -115,7 +117,9 @@
 							<i style:--progress={percent / 100}></i>
 						</div>
 						<div class="flex flex-wrap items-center justify-between gap-3">
-							<p class="lm-tile__text">Acte {currentAct.roman} · {currentAct.name}</p>
+							<p class="lm-tile__text">
+								{reachAct ? `À portée · ${reachAct.name}` : 'Des branches en parallèle'}
+							</p>
 							<a class="lm-btn" href="#career-objective">
 								Prochaine étape <ArrowRight class="size-4" aria-hidden="true" />
 							</a>
@@ -127,27 +131,27 @@
 					<div class="flex items-start justify-between gap-3">
 						<div>
 							<p class="lm-tile__kicker">Carte de carrière · ambition studio</p>
-							<h2 class="lm-pattern-title">Huit actes, un parcours à toi.</h2>
+							<h2 class="lm-pattern-title">Des branches, un parcours à toi.</h2>
 						</div>
-						<span class="lm-pill">{dashboard.passed.length} actes franchis</span>
+						<span class="lm-pill">{dashboard.passed.length} épreuves franchies</span>
 					</div>
-					<ol class="lm-career-acts" aria-label="Actes de carrière">
+					<ul class="lm-career-acts" aria-label="Épreuves de carrière">
 						{#each dashboard.acts as act (act.number)}
-							<li class="lm-career-act" data-status={act.status}>
+							<li class="lm-career-act" data-status={act.state}>
 								<span class="lm-career-act__number">
-									{#if act.status === 'passed'}<Check
+									{#if act.state === 'passed'}<Check
 											class="size-4"
 											aria-hidden="true"
-										/>{:else if act.status === 'fog'}<Lock
+										/>{:else if act.state === 'soon'}<Lock
 											class="size-3.5"
 											aria-hidden="true"
-										/>{:else}{act.roman}{/if}
+										/>{:else}<Flag class="size-3.5" aria-hidden="true" />{/if}
 								</span>
 								<span class="lm-career-act__name">{act.name}</span>
-								{#if act.status === 'current'}<span class="sr-only">Acte en cours</span>{/if}
+								<span class="sr-only">{TRIAL_STATE_LABEL[act.state]}</span>
 							</li>
 						{/each}
-					</ol>
+					</ul>
 					<a class="lm-pattern-action" href="/_lab/metro">
 						Explorer ma carte <ArrowRight class="size-4" aria-hidden="true" />
 					</a>

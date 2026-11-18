@@ -1,28 +1,33 @@
 <script lang="ts">
-	// LINKMUSICIAN: carte de carrière (P3-13), voir +page.server.ts.
+	// LINKMUSICIAN: carte de carrière parallèle (N2), voir +page.server.ts.
+	// Héros : la première épreuve à portée et son seul geste ; puis, au plus,
+	// deux autres ; puis la mosaïque des branches, chacune vers sa page.
 	import SEO from '#lib/components/SEO.svelte';
 	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
-	import { CircleCheck, CloudFog, Flag, Lock, MapPin } from 'lucide-svelte';
+	import MetroEmpty from '#lib/components/linkmusician/metro/MetroEmpty.svelte';
+	import Tile from '#lib/components/linkmusician/metro/Tile.svelte';
+	import TrialState from '#lib/components/linkmusician/career/TrialState.svelte';
+	import { TONE_OF } from '#lib/components/linkmusician/metro/tones';
+	import { ArrowRight, Compass, Target } from 'lucide-svelte';
 	import { AMBITION_INFO } from '#lib/career/ambition';
+	import { BRANCH_INFO } from '#lib/career/map';
+	import { BRANCH_ICON } from '#lib/components/linkmusician/career/branchIcons';
 
 	let { data } = $props();
 	const m = $derived(data.map);
-	const STATUS = {
-		passed: 'Épreuve franchie',
-		current: 'Acte en cours',
-		open: 'Ouvert',
-		fog: 'Dans le brouillard'
-	} as const;
+	const hero = $derived(m.withinReach[0] ?? null);
+	const others = $derived(m.withinReach.slice(1));
+	const plural = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`;
 </script>
 
 <SEO title="Ma carte de carrière" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-3xl space-y-6">
+	<div class="mx-auto max-w-5xl space-y-6">
 		<MetroPageHeader
 			kicker="Mode carrière"
 			title="Ma carte de carrière"
-			intro="Huit actes, comme le vrai parcours d’un·e artiste. Chacun finit par une épreuve prouvée par quelqu’un d’autre. Pas d’ordre imposé : la carte montre ce que tu as prouvé."
+			intro="Des branches qui avancent chacune à son rythme. Chaque épreuve est prouvée par quelqu’un d’autre, et aucune n’en attend une autre."
 		/>
 		{#if data.ambition}
 			<p class="text-sm">
@@ -30,86 +35,92 @@
 				<a href="/espace/ambition" class="underline">Changer</a>
 			</p>
 		{/if}
-		{#if m.soloOnly}
-			<p class="lm-tile lm-tile--flow p-4 text-sm">
-				Tu as composé seul·e : bravo ! Pour franchir l’acte II, compose un morceau à plusieurs,
-				chacun confirme son rôle, avec une maquette.
-			</p>
-		{/if}
 
-		<ol class="space-y-3" aria-label="Actes de la carrière">
-			{#each m.acts as a (a.number)}
-				<li
-					class="rounded-2xl border p-4 {a.status === 'current'
-						? 'border-2 border-primary bg-primary/5'
-						: a.status === 'fog'
-							? 'border-dashed bg-muted/40'
-							: 'bg-card'}"
-					aria-current={a.status === 'current' ? 'step' : undefined}
-				>
-					<div class="flex flex-wrap items-start justify-between gap-2">
-						<h2 class="flex items-center gap-2 text-lg font-bold">
-							{#if a.status === 'passed'}
-								<CircleCheck class="size-5 lm-tone-icon" data-tone="lime" aria-hidden="true" />
-							{:else if a.status === 'current'}
-								<MapPin class="size-5 text-primary" aria-hidden="true" />
-							{:else if a.status === 'fog'}
-								<CloudFog class="size-5 text-muted-foreground" aria-hidden="true" />
+		<section class="space-y-3" aria-labelledby="reach-title">
+			<h2 id="reach-title" class="lm-kicker text-muted-foreground">À portée</h2>
+			{#if hero?.reach}
+				<Tile tone={TONE_OF.career} icon={Target} class="lm-tile--flow space-y-3 p-5">
+					<p class="lm-tile__kicker">
+						{BRANCH_INFO[hero.branch].label}{hero.highlighted ? ' · ton ambition' : ''}
+					</p>
+					<h3 class="lm-tile__title wrap-break-word">{hero.name}</h3>
+					<p class="lm-tile__text wrap-break-word">{hero.reach.reason}</p>
+					<a href={hero.reach.action.href} class="lm-btn min-h-11">
+						{hero.reach.action.label}<ArrowRight class="size-4" aria-hidden="true" />
+					</a>
+				</Tile>
+				{#if others.length > 0}
+					<ul class="grid gap-3 sm:grid-cols-2" aria-label="Autres épreuves à portée">
+						{#each others as a (a.number)}
+							{#if a.reach}
+								<li class="min-w-0">
+									<Tile
+										tone={TONE_OF.nextStep}
+										href={a.reach.action.href}
+										class="lm-tile--flow h-full space-y-1 p-4"
+									>
+										<p class="lm-tile__kicker">{BRANCH_INFO[a.branch].label}</p>
+										<h3 class="font-semibold wrap-break-word">{a.name}</h3>
+										<p class="lm-tile__text wrap-break-word">{a.reach.reason}</p>
+										<p class="text-sm font-semibold underline">{a.reach.action.label}</p>
+									</Tile>
+								</li>
+							{/if}
+						{/each}
+					</ul>
+				{/if}
+			{:else}
+				<MetroEmpty
+					icon={Compass}
+					title="Rien n’attend de geste de ta part"
+					text="Chaque branche reste ouverte : commence par celle qui te parle, dans l’ordre que tu veux."
+				/>
+			{/if}
+		</section>
+
+		<section class="space-y-3" aria-labelledby="branches-title">
+			<h2 id="branches-title" class="lm-kicker text-muted-foreground">Tes branches</h2>
+			<ul class="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Branches de la carrière">
+				{#each m.branches as b, i (b.branch)}
+					{@const Icon = BRANCH_ICON[b.branch]}
+					<li class="min-w-0 {b.soon ? 'col-span-2' : ''}">
+						<Tile
+							href="/espace/carte/{b.slug}"
+							tone={b.soon ? TONE_OF.neutral : TONE_OF.work}
+							icon={Icon}
+							index={i}
+							class="lm-tile--flow flex h-full min-h-32 flex-col gap-2 p-4"
+						>
+							<div class="flex flex-wrap items-center justify-between gap-1">
+								<h3 class="lm-tile__kicker">{b.label}</h3>
+								{#if b.passedCount > 0}
+									<span class="lm-pill">
+										✓ {b.passedCount}<span class="sr-only">
+											: {plural(b.passedCount, 'épreuve franchie', 'épreuves franchies')}</span
+										>
+									</span>
+								{/if}
+							</div>
+							{#if b.soon}
+								<p class="lm-tile__text wrap-break-word">Bientôt sur Melokiva : {b.pitch}</p>
+							{:else if b.figures.length > 0}
+								<ul class="space-y-0.5 text-sm wrap-break-word">
+									{#each b.figures as f (f)}<li>{f}</li>{/each}
+								</ul>
 							{:else}
-								<Flag class="size-5 text-muted-foreground" aria-hidden="true" />
+								<p class="lm-tile__text wrap-break-word">{b.pitch}</p>
 							{/if}
-							Acte {a.roman} · {a.name}
-						</h2>
-						<span class="flex flex-wrap gap-1">
-							{#if a.highlighted}
-								<span class="lm-pill" data-tone="violet">Ton ambition</span>
+							{#if !b.soon}
+								<ul class="mt-auto flex flex-wrap gap-1" aria-label="Épreuves · {b.label}">
+									{#each b.trials as t (t.number)}
+										<li><TrialState name={t.name} state={t.state} /></li>
+									{/each}
+								</ul>
 							{/if}
-							<span class="lm-pill" data-tone="paper">{STATUS[a.status]}</span>
-						</span>
-					</div>
-					<p class="mt-1 text-sm text-muted-foreground">{a.content}</p>
-					<p class="mt-2 text-sm"><strong>Épreuve :</strong> {a.trial}</p>
-					{#if a.bonusTrial}
-						<p class="mt-1 flex items-start gap-1.5 text-sm">
-							{#if a.bonusTrial.done}
-								<CircleCheck class="mt-0.5 size-4 shrink-0 text-emerald-600" aria-hidden="true" />
-							{/if}
-							<span>
-								<strong>Pour aller plus loin :</strong>
-								{a.bonusTrial.label}
-								{#if a.bonusTrial.done}<span class="font-semibold">Faite !</span>{/if}
-							</span>
-						</p>
-					{/if}
-					{#if a.unlocks.length > 0}
-						<div class="mt-2 text-sm">
-							<p class="font-medium">
-								{a.status === 'passed' ? 'Ce que ça t’a ouvert :' : 'Ce que ça ouvre :'}
-							</p>
-							<ul class="mt-1 space-y-1">
-								{#each a.unlocks as u (u.label)}
-									<li class="flex items-center gap-2">
-										{#if a.status !== 'passed'}<Lock
-												class="size-3.5 text-muted-foreground"
-												aria-hidden="true"
-											/>{/if}
-										{#if u.href && a.status === 'passed'}
-											<a href={u.href} class="underline">{u.label}</a>
-										{:else}
-											<span>{u.label}</span>
-										{/if}
-									</li>
-								{/each}
-							</ul>
-						</div>
-					{/if}
-					{#if a.status === 'current' && a.cta}
-						<a href={a.cta.href} class="lm-btn mt-3">{a.cta.label}</a>
-					{:else if a.status === 'fog'}
-						<p class="mt-2 text-xs text-muted-foreground">Bientôt dans LinkMusician.</p>
-					{/if}
-				</li>
-			{/each}
-		</ol>
+						</Tile>
+					</li>
+				{/each}
+			</ul>
+		</section>
 	</div>
 </div>

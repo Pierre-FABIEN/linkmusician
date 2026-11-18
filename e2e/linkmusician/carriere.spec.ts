@@ -62,7 +62,7 @@ test.describe('LinkMusician — écran de carrière', () => {
 		});
 	});
 
-	test('carte : un morceau composé à plusieurs franchit l’acte II, pas seul·e', async ({
+	test('carte : un morceau composé à plusieurs franchit « La création », pas seul·e', async ({
 		page,
 		account
 	}) => {
@@ -83,23 +83,31 @@ test.describe('LinkMusician — écran de carrière', () => {
 					contributors: { create: [{ personId: person.actorId, confirmedAt: new Date() }] }
 				}
 			});
-		const acts = page.getByRole('list', { name: 'Actes de la carrière' });
+		const creation = page.getByRole('list', { name: 'Épreuves · Création' });
 
-		await test.step('1. Composé seul·e : l’acte II reste à franchir', async () => {
+		await test.step('1. Composé seul·e : une simple déclaration, l’épreuve reste ouverte', async () => {
 			await work('Ma compo solo', 'DECLARED');
 			await page.goto('/espace/carte');
 			await waitForAppReady(page);
+			await expect(creation).toContainText('La création · Ouverte');
+			await page.goto('/espace/carte/creation');
+			await waitForAppReady(page);
 			await expect(page.getByText(/Tu as composé seul·e/)).toBeVisible();
-			await expect(acts.locator(':scope > li').nth(1)).toContainText('Ouvert');
+			await expect(page.getByText('Morceau composé « Ma compo solo »')).toBeVisible();
+			await expect(page.getByText('Simple déclaration')).toBeVisible();
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 		});
 
-		await test.step('2. Composé à plusieurs : épreuve franchie', async () => {
+		await test.step('2. Composé à plusieurs : franchie, et aucune autre épreuve « en cours »', async () => {
 			await work('Notre compo', 'CORROBORATED');
-			await page.reload();
+			await page.goto('/espace/carte');
 			await waitForAppReady(page);
-			await expect(acts.locator(':scope > li').nth(1)).toContainText('Épreuve franchie');
-			await expect(acts.locator(':scope > li').first()).toContainText('Acte en cours');
+			await expect(creation).toContainText('La création · Franchie');
+			await expect(page.getByRole('list', { name: 'Épreuves · Équipe' })).toContainText(
+				'La rencontre · Ouverte'
+			);
+			// N2 : ni acte en cours, ni numérotation chronologique.
+			await expect(page.locator('#main-content')).not.toContainText(/Acte en cours|Acte [IVX]+\b/);
 		});
 	});
 
@@ -154,9 +162,7 @@ test.describe('LinkMusician — écran de carrière', () => {
 				await expect(sheet).toContainText('Morceaux à plusieurs');
 				await expect(sheet).not.toContainText('XP');
 				await expect(sheet).not.toContainText('Rien que pour toi');
-				await expect(
-					page.getByRole('link', { name: /Télécharger · Acte II · La création/ })
-				).toBeVisible();
+				await expect(page.getByRole('link', { name: /Télécharger · La création/ })).toBeVisible();
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
 
 				const response = await page.request.get(
@@ -170,7 +176,7 @@ test.describe('LinkMusician — écran de carrière', () => {
 			await db.actor.delete({ where: { id: peer.id } });
 		}
 	});
-	test('acte V : un concert vérifié franchit la scène, la tournée reste à faire', async ({
+	test('scène : un concert confirmé met l’épreuve à portée, vérifié il la franchit', async ({
 		page,
 		account
 	}) => {
@@ -183,7 +189,7 @@ test.describe('LinkMusician — écran de carrière', () => {
 		const suffix = Math.random().toString(36).slice(2, 8);
 		const bandName = `E2E Les Rats ${suffix}`;
 		// Concert préparé en base : le groupe de la personne, son « Premier
-		// concert » vérifié par un hôte vérifié, et l'attestation qui la crédite.
+		// concert » et l'attestation qui la crédite.
 		const band = await db.actor.create({
 			data: {
 				kind: 'ORGANIZATION',
@@ -207,56 +213,80 @@ test.describe('LinkMusician — écran de carrière', () => {
 				}
 			}
 		});
-		const acts = page.getByRole('list', { name: 'Actes de la carrière' });
-		const act5 = acts.locator(':scope > li').nth(4);
+		const occurredAt = new Date(Date.now() - 7 * 86_400_000);
+		const attested = (to: 'CORROBORATED' | 'VERIFIED') =>
+			db.domainEvent.create({
+				data: {
+					type: 'milestone.attested',
+					actorIds: [band.id, person.actorId],
+					processedAt: new Date(),
+					payload: {
+						type: 'milestone.attested',
+						bandId: band.id,
+						milestone: 'FIRST_GIG',
+						from: to === 'VERIFIED' ? 'CORROBORATED' : null,
+						to,
+						memberIds: [person.actorId],
+						occurredAt: occurredAt.toISOString()
+					}
+				}
+			});
+		const scene = page.getByRole('list', { name: 'Épreuves · Scène' });
+		const reach = page.getByRole('region', { name: 'À portée' });
 		try {
-			await test.step('1. Avant le concert : l’acte V est ouvert, on candidate à un plateau', async () => {
+			await test.step('1. Avant le concert : « La scène » est ouverte, rien de faussement à portée', async () => {
 				await page.goto('/espace/carte');
 				await waitForAppReady(page);
-				await expect(act5).toContainText('Acte V · La scène');
-				await expect(act5).toContainText('Ouvert');
-				await expect(act5).toContainText(/Pour aller plus loin :.*tournée/);
+				await expect(scene).toContainText('La scène · Ouverte');
+				await expect(reach.getByText('Rien n’attend de geste de ta part')).toBeVisible();
+				await page.goto('/espace/carte/scene');
+				await waitForAppReady(page);
+				await expect(page.getByText(/Pour aller plus loin :.*tournée/)).toBeVisible();
+				await expect(page.getByText(/se franchit avec un groupe/)).toBeVisible();
 			});
 
-			await test.step('2. Concert vérifié : épreuve franchie, la tournée reste à faire', async () => {
+			await test.step('2. Concert confirmé, pas vérifié : à portée, un seul geste', async () => {
 				const definition = await db.milestoneDefinition.findUniqueOrThrow({
 					where: { id: 'FIRST_GIG' }
 				});
-				const occurredAt = new Date(Date.now() - 7 * 86_400_000);
 				await db.milestone.create({
 					data: {
 						definitionId: 'FIRST_GIG',
 						bandId: band.id,
-						proof: 'VERIFIED',
+						proof: 'CORROBORATED',
 						occurredAt,
 						definitionVersion: definition.version
 					}
 				});
-				await db.domainEvent.create({
-					data: {
-						type: 'milestone.attested',
-						actorIds: [band.id, person.actorId],
-						processedAt: new Date(),
-						payload: {
-							type: 'milestone.attested',
-							bandId: band.id,
-							milestone: 'FIRST_GIG',
-							from: null,
-							to: 'VERIFIED',
-							memberIds: [person.actorId],
-							occurredAt: occurredAt.toISOString()
-						}
-					}
-				});
-				await page.reload();
+				await attested('CORROBORATED');
+				await page.goto('/espace/carte');
 				await waitForAppReady(page);
-				await expect(act5).toContainText('Épreuve franchie');
-				await expect(act5).not.toContainText('Faite !');
-				await expect(act5.getByRole('link', { name: /carte souvenir du concert/ })).toBeVisible();
+				await expect(scene).toContainText('La scène · À portée');
+				await expect(reach.getByRole('heading', { name: 'La scène' })).toBeVisible();
+				await expect(
+					reach.getByRole('link', { name: /Voir les plateaux ouverts/ })
+				).toHaveAttribute('href', '/annonces?type=GIG_SLOT');
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
 			});
 
-			await test.step('3. La carte souvenir du concert se partage', async () => {
+			await test.step('3. Concert vérifié : épreuve franchie, la tournée reste à faire', async () => {
+				await db.milestone.update({
+					where: { bandId_definitionId: { bandId: band.id, definitionId: 'FIRST_GIG' } },
+					data: { proof: 'VERIFIED' }
+				});
+				await attested('VERIFIED');
+				await page.reload();
+				await waitForAppReady(page);
+				await expect(scene).toContainText('La scène · Franchie');
+				await page.goto('/espace/carte/scene');
+				await waitForAppReady(page);
+				await expect(page.getByText('Faite !')).toHaveCount(0);
+				await expect(page.getByRole('link', { name: /carte souvenir du concert/ })).toBeVisible();
+				await expect(page.getByText(new RegExp(`Premier concert · ${bandName}`))).toBeVisible();
+				await expectNoA11yViolations(page, A11Y_EXCLUDE);
+			});
+
+			await test.step('4. La carte souvenir du concert se partage', async () => {
 				const response = await page.request.get(
 					`/api/carriere/souvenir/${person.actor.handle}/5.png`
 				);
@@ -267,5 +297,46 @@ test.describe('LinkMusician — écran de carrière', () => {
 			await db.domainEvent.deleteMany({ where: { actorIds: { has: band.id } } });
 			await db.actor.delete({ where: { id: band.id } });
 		}
+	});
+
+	test('carte parallèle sur mobile (390 px) : branches, clavier, Rencontre', async ({
+		page,
+		account
+	}) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await signUpAndVerify(page, account);
+		await skipOnboarding(page, account.email);
+
+		await test.step('1. Compte neuf : un état vide sans reproche, six branches', async () => {
+			await page.goto('/espace/carte');
+			await waitForAppReady(page);
+			await expect(page.getByText('Rien n’attend de geste de ta part')).toBeVisible();
+			const branches = page.getByRole('list', { name: 'Branches de la carrière' });
+			await expect(branches.locator(':scope > li')).toHaveCount(6);
+			await expect(branches).toContainText('Bientôt sur Melokiva');
+			await expect(page.locator('#main-content')).not.toContainText(/Acte|en cours|%/);
+			// Aucun débordement horizontal à 390 px.
+			const overflow = await page.evaluate(
+				() => document.documentElement.scrollWidth - document.documentElement.clientWidth
+			);
+			expect(overflow).toBeLessThanOrEqual(0);
+			await expectNoA11yViolations(page, A11Y_EXCLUDE);
+		});
+
+		await test.step('2. Au clavier, la tuile Équipe ouvre sa branche', async () => {
+			const equipe = page.getByRole('link', { name: /^Équipe/ });
+			await equipe.focus();
+			await expect(equipe).toBeFocused();
+			await page.keyboard.press('Enter');
+			await expect(page).toHaveURL(/\/espace\/carte\/equipe$/);
+			await waitForAppReady(page);
+			await expect(page.getByRole('heading', { level: 1, name: 'Équipe' })).toBeVisible();
+		});
+
+		await test.step('3. Les jams mènent à Rencontre (Q-NL-3)', async () => {
+			const jam = page.getByRole('link', { name: /Trouver une jam dans Rencontre/ });
+			await expect(jam).toHaveAttribute('href', '/jam');
+			await expectNoA11yViolations(page, A11Y_EXCLUDE);
+		});
 	});
 });

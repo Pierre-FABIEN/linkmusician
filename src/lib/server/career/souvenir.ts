@@ -1,7 +1,7 @@
 /**
  * Carte souvenir (P3-14, conception 07 §4.6) : image PNG 1200 × 630 (Open
- * Graph), générée côté serveur pour une épreuve franchie : « Acte II · La
- * création — Épreuve franchie — Léa ». Mise en page par satori (SVG, texte
+ * Graph), générée côté serveur pour une épreuve franchie : « Épreuve franchie —
+ * La création — Léa » (N2 : plus de numéro d'acte affiché). Mise en page par satori (SVG, texte
  * en tracés : aucune police système), rendu PNG par resvg.
  *
  * Seulement des faits publics : le nom affiché, l'acte et son épreuve.
