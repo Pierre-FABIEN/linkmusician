@@ -21,6 +21,7 @@ import { getActorLocation } from '#lib/server/geo/queries';
 import { getProgress } from '#lib/server/progression/read';
 import { worksExport } from '#lib/server/works/service';
 import { workStepsExport } from '#lib/server/works/steps';
+import { projectAnonymizationOps, projectsExport } from '#lib/server/projects/export';
 import { milestonesExport } from '#lib/server/milestones/service';
 import { introductionsExport } from '#lib/server/career/introductions';
 import { proofsExport } from '#lib/server/milestones/proofs';
@@ -312,6 +313,7 @@ export async function exportPersonData(userId: string) {
 		suggestionChoices,
 		memberships,
 		works,
+		projects,
 		milestonesDeclared,
 		milestoneProofs,
 		contactGroups,
@@ -610,6 +612,8 @@ export async function exportPersonData(userId: string) {
 		}),
 		// Morceaux (P3-11) : portés et crédits.
 		worksExport(person.actorId),
+		// Projets (P2, D72) : portés en mon nom, actes dans ceux d'une structure.
+		projectsExport(person.actorId),
 		// Étapes de groupe déclarées (P3-04).
 		milestonesExport(person.actorId),
 		// Preuves d'étapes (P3-05) : confirmations demandées, liens joints.
@@ -1165,6 +1169,7 @@ export async function exportPersonData(userId: string) {
 		})),
 		// N4 : la cible est une règle, une branche ou une clé `règle:TYPE:objet`
 		// (un objet de la personne) ; aucun texte de suggestion n'est stocké.
+		projets: projects,
 		prochaines_actions_choix: suggestionChoices.map((c) => ({
 			choix: c.kind === 'LATER' ? 'Plus tard' : 'Pas pour moi',
 			cible: c.target,
@@ -1383,6 +1388,9 @@ export async function personAnonymizationOps(
 		}),
 		// Prochaines actions (N4) : préférences d'affichage, sans objet après l'effacement.
 		prisma.suggestionChoice.deleteMany({ where: { ownerId: person.actorId } }),
+		// Projets (P2, D72 §6.5) : les miens supprimés (conteneurs, aucun morceau
+		// touché) ; dans ceux d'une structure, je suis oublié·e comme auteur·rice.
+		...projectAnonymizationOps(person.actorId),
 		// Parrainage (P4-13b) : présentations faites ou reçues, supprimées
 		// (le succès Passeur déjà obtenu reste à qui l'a gagné).
 		prisma.introduction.deleteMany({
