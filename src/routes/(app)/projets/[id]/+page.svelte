@@ -1,6 +1,7 @@
 <script lang="ts">
 	// LINKMUSICIAN: fiche minimale d'un projet (P2), voir +page.server.ts. Les
 	// tuiles par famille, la prochaine action et l'équipe viennent avec U2/U3.
+	import { untrack } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import SEO from '#lib/components/SEO.svelte';
@@ -38,8 +39,8 @@
 		share = data.rangeable.find((w) => w.id === id)?.defaultShare ?? 'NONE';
 	}
 
-	// Modifiable localement, réinitialisé quand la fiche se recharge.
-	let editKind = $derived<ProjectKindValue | undefined>(p.kind);
+	// Valeur de départ du formulaire « Modifier » ; le type enregistré y revient.
+	let editKind = $state<ProjectKindValue | undefined>(untrack(() => data.project.kind));
 	let confirmDelete = $state(false);
 
 	const day = (d: Date | string | null) =>
@@ -55,13 +56,20 @@
 		}).format(new Date(d));
 
 	const ACTS: Record<string, string> = {
-		CREATED: 'a créé le projet',
-		UPDATED: 'a modifié le projet',
-		STATUS_CHANGED: 'a changé l’état',
-		ITEM_ADDED: 'a rangé',
-		ITEM_REMOVED: 'a retiré',
-		SHARE_CHANGED: 'a changé le partage de'
+		CREATED: 'Projet créé',
+		UPDATED: 'Projet modifié',
+		STATUS_CHANGED: 'État changé',
+		ITEM_ADDED: 'Morceau rangé',
+		ITEM_REMOVED: 'Morceau retiré',
+		SHARE_CHANGED: 'Partage changé'
 	};
+	/** Une ligne de journal, sans tournure à accorder : « Partage changé : « Aube » (Résumé → Travail) ». */
+	function line(j: (typeof p.journal)[number]) {
+		const what = ACTS[j.kind] ?? j.kind;
+		const subject = j.subject ? ` : « ${j.subject} »` : '';
+		const more = detail(j);
+		return `${what}${subject}${more ? ` (${more})` : ''}`;
+	}
 	function detail(j: (typeof p.journal)[number]) {
 		if (j.kind === 'STATUS_CHANGED') return `${j.fromStatus} → ${j.toStatus}`;
 		if (j.kind === 'SHARE_CHANGED' && j.fromShare !== j.toShare)
@@ -205,7 +213,11 @@
 						class="lm-tile lm-tile--flow space-y-4 p-4"
 					>
 						<h3 class="font-medium">Ranger un de mes morceaux</h3>
-						<MetroField id="workId" label="Morceau" help="Seulement les morceaux que tu gères.">
+						<MetroField
+							id="workId"
+							label="Morceau à ranger"
+							help="Seulement les morceaux que tu gères."
+						>
 							{#snippet children(attrs)}
 								<select
 									{...attrs}
@@ -256,10 +268,8 @@
 			<ul class="space-y-2 text-sm">
 				{#each p.journal as j (j.id)}
 					<li>
-						<span class="text-muted-foreground">{when(j.occurredAt)}</span> · {j.author}
-						{ACTS[j.kind] ?? j.kind}{#if j.subject}
-							« {j.subject} »{/if}{#if detail(j)}
-							<span class="text-muted-foreground"> ({detail(j)})</span>{/if}
+						{line(j)}
+						<span class="text-muted-foreground"> · {j.author} · {when(j.occurredAt)}</span>
 					</li>
 				{/each}
 			</ul>

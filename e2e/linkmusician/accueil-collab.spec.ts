@@ -62,11 +62,15 @@ test.describe('LinkMusician — accueil Collab (U0)', () => {
 					[/^Les démarches/, '/demarches']
 				] as const)
 					await expect(home.getByRole('link', { name })).toHaveAttribute('href', href);
-				// Doublons résorbés : plus de « Mon équipe » ni de « Mes structures » séparés,
-				// aucun lien vers des projets avant P2/P3.
+				// Doublons résorbés : plus de « Mon équipe » ni de « Mes structures » séparés.
+				// P2 : une seule entrée vers les projets, dans « ma musique » (P3/U2 la refondra).
 				await expect(home.getByRole('link', { name: /^Mon équipe/ })).toHaveCount(0);
 				await expect(home.getByRole('link', { name: /^Mes structures/ })).toHaveCount(0);
-				await expect(page.locator('a[href^="/projets"]')).toHaveCount(0);
+				await expect(page.locator('a[href^="/projets"]')).toHaveCount(1);
+				await expect(home.getByRole('link', { name: /^Projets/ })).toHaveAttribute(
+					'href',
+					'/projets'
+				);
 				// Compte neuf : « Commence ici », sans reproche.
 				await expect(page.getByTestId('start-hero')).toBeVisible();
 				await expect(page.getByTestId('start-hero')).not.toContainText(/retard|pas encore|XP/i);

@@ -16,10 +16,8 @@
 
 	let { data, form } = $props();
 	let sending = $state(false);
-	// Après un refus, le type choisi revient avec les autres valeurs.
-	let kind = $derived<ProjectKindValue | undefined>(
-		(form?.values?.kind as ProjectKindValue | undefined) || undefined
-	);
+	// Avec use:enhance, un refus ne remonte pas la page : le type choisi reste.
+	let kind = $state<ProjectKindValue | undefined>(undefined);
 	const kinds = PROJECT_KINDS.map((value) => ({ value, label: PROJECT_KIND_LABELS[value] }));
 	const ownerValue = $derived(form?.values?.owner ?? data.defaultOwner ?? '');
 </script>
