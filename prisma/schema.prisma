@@ -1515,6 +1515,10 @@ model Actor {
   introductionsMade          Introduction[]           @relation("IntroductionIntroducer")
   introductionsAsFirst       Introduction[]           @relation("IntroductionFirst")
   introductionsAsSecond      Introduction[]           @relation("IntroductionSecond")
+  /// P2 (D72) : projets portés, éléments rangés, actes de projet.
+  projectsOwned              Project[]                @relation("ProjectOwner")
+  projectItemsAdded          ProjectItem[]            @relation("ProjectItemAdder")
+  projectActsAuthored        ProjectAct[]             @relation("ProjectActAuthor")
 
   @@map("actors")
 }
@@ -3126,6 +3130,8 @@ model Work {
   collaborations Collaboration[]
   /// Annonces liées au morceau (P4-05).
   opportunities Opportunity[]
+  /// P2 (D72) : projets où le morceau est rangé (référence, jamais portage).
+  projectItems  ProjectItem[]
 
   @@index([ownerId, state])
   @@map("works")
@@ -4313,4 +4319,117 @@ model SuggestionChoice {
 
   @@unique([ownerId, kind, target])
   @@map("suggestion_choices")
+}
+
+// ─── PROJETS : SOCLE (P2, D72 révision 2, conception 19 §2.3, §5, §9.3) ────
+
+/// Types de lancement (conception 19 §2.3). « Autre » (UX-2) n'est pas tranché.
+enum ProjectKind {
+  SINGLE
+  EP
+  ALBUM
+  PRODUCTION
+  CONCERT
+  TOUR
+  FESTIVAL
+  CAMPAIGN
+}
+
+/// `ACTIVE` → `DONE` (atteint) ou `ABANDONED` (laissé de côté), réouvrable.
+enum ProjectStatus {
+  ACTIVE
+  DONE
+  ABANDONED
+}
+
+/// Ce qu'un élément rangé révèle à qui ne le gère pas (§9.3). Décidé par la
+/// gestion de l'élément, jamais par le seul porteur du projet.
+enum ProjectShare {
+  /// Lié, rien de révélé : ni titre, ni existence.
+  NONE
+  /// Titre (ou titre de travail) et état.
+  SUMMARY
+  /// Résumé, plus les tâches et livrables de ce projet (P13).
+  WORK
+}
+
+enum ProjectActKind {
+  CREATED
+  UPDATED
+  STATUS_CHANGED
+  ITEM_ADDED
+  ITEM_REMOVED
+  SHARE_CHANGED
+}
+
+/// Un objectif situé, porté par un seul acteur (personne, ou BAND, PROMOTER,
+/// STUDIO, VENUE). Facultatif, jamais créé automatiquement. Il ne possède
+/// rien (I1), ne prouve rien (I3) ; sa gestion est celle de son porteur,
+/// relue à chaque écriture, jamais stockée (I7). Privé au lancement.
+model Project {
+  id          String        @id @default(cuid())
+  ownerId     String
+  owner       Actor         @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  name        String
+  kind        ProjectKind
+  /// Une phrase d'objectif, facultative.
+  description String?
+  startsOn    DateTime?     @db.Date
+  dueOn       DateTime?     @db.Date
+  status      ProjectStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  items       ProjectItem[]
+  acts        ProjectAct[]
+
+  @@index([ownerId, status])
+  @@map("projects")
+}
+
+/// Référence à une réalisation existante (P2 : un morceau), sans transfert de
+/// portage, de gestion ni de crédit (I1, I9). Supprimer le projet ou retirer
+/// le lien ne touche pas le morceau ; supprimer le morceau retire le lien.
+model ProjectItem {
+  id           String       @id @default(cuid())
+  projectId    String
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  workId       String
+  work         Work         @relation(fields: [workId], references: [id], onDelete: Cascade)
+  share        ProjectShare
+  /// Affiché à la place du titre pour qui ne gère pas le morceau (« Titre 3 »).
+  workingTitle String?
+  /// Qui l'a rangé (P4 : un·e coordinateur·rice retire ceux qu'il ou elle a rangés).
+  addedById    String?
+  addedBy      Actor?       @relation("ProjectItemAdder", fields: [addedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@unique([projectId, workId])
+  @@index([workId])
+  @@index([addedById])
+  @@map("project_items")
+}
+
+/// Journal en ajout seul (I8) : jamais modifié ni supprimé, sauf l'oubli de
+/// l'auteur à l'anonymisation ; il disparaît avec son projet. Aucun texte
+/// libre ni titre : le titre est relu, filtré, à l'affichage (I6).
+model ProjectAct {
+  id         String         @id @default(cuid())
+  projectId  String
+  project    Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  authorId   String?
+  author     Actor?         @relation("ProjectActAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  kind       ProjectActKind
+  /// Morceau concerné, sans clé étrangère : l'acte survit au lien et au morceau,
+  /// et n'est montré qu'à qui voit encore l'élément.
+  workId     String?
+  fromShare  ProjectShare?
+  toShare    ProjectShare?
+  fromStatus ProjectStatus?
+  toStatus   ProjectStatus?
+  occurredAt DateTime       @default(now())
+
+  @@index([projectId, occurredAt])
+  @@index([authorId])
+  @@map("project_acts")
 }
