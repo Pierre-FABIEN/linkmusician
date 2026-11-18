@@ -17,128 +17,28 @@
  *   d'un groupe dont on était membre à la date ; la « Première tournée »
  *   vérifiée est une épreuve de plus, affichée, pas bloquante.
  *
+ * Les faits viennent de la lecture unifiée des réalisations (N1,
+ * `./realisations`) : un fait vu depuis deux contextes (crédité·e sur un
+ * morceau du groupe dont on est membre) ne compte qu'une fois.
+ *
  * Célébration d'épreuve (P2-11) : une seule fois par acte
  * (`Person.actsCelebrated`).
  */
 import { prisma } from '#lib/server';
-import { getMusicianTier } from '#lib/server/progression/read';
 import { actTitle, actsToCelebrate, careerMap, type CareerFacts } from '#lib/career/map';
 import type { AmbitionValue } from '#lib/career/ambition';
-
-/** Étapes de groupe qui comptent sur la carte (actes III et V). */
-const SCENE_MILESTONES = ['FIRST_RECORDING', 'FIRST_GIG', 'FIRST_TOUR'] as const;
-type SceneMilestone = (typeof SCENE_MILESTONES)[number];
+import { careerFactsOf, firstVerifiedGigOf } from '#lib/career/realisations';
+import { readRealisations } from './realisations';
 
 /**
- * Groupes, par étape, dont une attestation au moins corroborée crédite la
- * personne (membre à la date de l'étape).
+ * Faits de la carte, depuis la lecture unifiée des réalisations (N1) : six
+ * requêtes SQL au lieu de huit, mêmes résultats (`realisations.integration.test.ts`).
  */
-function creditedBands(events: { payload: unknown }[], actorId: string) {
-	const out = Object.fromEntries(SCENE_MILESTONES.map((k) => [k, new Set<string>()])) as Record<
-		SceneMilestone,
-		Set<string>
-	>;
-	for (const e of events) {
-		const p = e.payload as {
-			milestone?: string;
-			bandId?: string;
-			to?: string;
-			memberIds?: string[];
-		};
-		if (!p.bandId || p.to === 'DECLARED' || !p.memberIds?.includes(actorId)) continue;
-		out[p.milestone as SceneMilestone]?.add(p.bandId);
-	}
-	return out;
-}
-
-/** L'étape doit être toujours là (pas retirée par une contestation) et non gelée. */
-async function countMilestones(
-	bands: Set<string>,
-	key: SceneMilestone,
-	proofs: ('CORROBORATED' | 'VERIFIED')[]
-) {
-	if (bands.size === 0) return 0;
-	return prisma.milestone.count({
-		where: {
-			bandId: { in: [...bands] },
-			definitionId: key,
-			proof: { in: proofs },
-			frozenAt: null
-		}
-	});
-}
-
 async function careerEvidence(actorId: string) {
-	const [tier, together, solo, attestations, productions] = await Promise.all([
-		getMusicianTier(actorId, prisma),
-		prisma.workContributor.count({
-			where: {
-				personId: actorId,
-				confirmedAt: { not: null },
-				work: { state: 'COMPOSED', proof: 'CORROBORATED' }
-			}
-		}),
-		prisma.workContributor.count({
-			where: {
-				personId: actorId,
-				confirmedAt: { not: null },
-				work: { state: 'COMPOSED', proof: 'DECLARED' }
-			}
-		}),
-		prisma.domainEvent.findMany({
-			where: {
-				type: 'milestone.attested',
-				actorIds: { has: actorId },
-				OR: SCENE_MILESTONES.map((key) => ({ payload: { path: ['milestone'], equals: key } }))
-			},
-			select: { payload: true }
-		}),
-		prisma.work.count({
-			where: {
-				producedAt: { not: null },
-				OR: [
-					{
-						contributors: {
-							some: {
-								personId: actorId,
-								confirmedAt: { not: null },
-								roles: {
-									some: { kind: { in: ['INSTRUMENT', 'COMPOSITION', 'LYRICS', 'ARRANGEMENT'] } }
-								}
-							}
-						}
-					},
-					{
-						owner: {
-							organization: {
-								kind: 'BAND',
-								memberships: { some: { personId: actorId, status: 'ACTIVE' } }
-							}
-						}
-					}
-				]
-			}
-		})
-	]);
-	const bands = creditedBands(attestations, actorId);
-	const [recordings, verifiedGigs, tours] = await Promise.all([
-		countMilestones(bands.FIRST_RECORDING, 'FIRST_RECORDING', ['CORROBORATED', 'VERIFIED']),
-		countMilestones(bands.FIRST_GIG, 'FIRST_GIG', ['VERIFIED']),
-		countMilestones(bands.FIRST_TOUR, 'FIRST_TOUR', ['VERIFIED'])
-	]);
+	const read = await readRealisations(actorId);
 	return {
-		tier,
-		gigBands: [...bands.FIRST_GIG],
-		facts: {
-			jamAppreciations: tier.summary.jamAppreciations,
-			collaborations: tier.summary.collaborations,
-			worksTogether: together,
-			worksSolo: solo,
-			recordings,
-			productions,
-			verifiedGigs,
-			tours
-		} satisfies CareerFacts
+		...read,
+		facts: careerFactsOf(read.realisations, read.tier.summary)
 	};
 }
 
@@ -149,33 +49,27 @@ async function careerEvidence(actorId: string) {
  * n'est pas franchi.
  */
 export async function firstVerifiedGig(actorId: string) {
-	const { gigBands } = await careerEvidence(actorId);
-	if (gigBands.length === 0) return null;
-	const milestone = await prisma.milestone.findFirst({
-		where: {
-			bandId: { in: gigBands },
-			definitionId: 'FIRST_GIG',
-			proof: 'VERIFIED',
-			frozenAt: null
-		},
-		orderBy: { occurredAt: 'asc' },
-		select: { bandId: true, occurredAt: true, band: { select: { displayName: true } } }
-	});
-	if (!milestone) return null;
-	const gig = await prisma.collaboration.findFirst({
-		where: {
-			bandId: milestone.bandId,
-			kind: 'GIG',
-			status: 'COMPLETED',
-			hostOrg: { verifiedAt: { not: null } }
-		},
-		orderBy: { happenedOn: 'asc' },
-		select: { hostOrg: { select: { actor: { select: { displayName: true } } } } }
-	});
+	const { realisations } = await readRealisations(actorId);
+	const first = firstVerifiedGigOf(realisations);
+	if (!first || first.object.type !== 'MILESTONE' || !first.occurredAt) return null;
+	const { bandId } = first.object;
+	const [band, gig] = await Promise.all([
+		prisma.actor.findUniqueOrThrow({ where: { id: bandId }, select: { displayName: true } }),
+		prisma.collaboration.findFirst({
+			where: {
+				bandId,
+				kind: 'GIG',
+				status: 'COMPLETED',
+				hostOrg: { verifiedAt: { not: null } }
+			},
+			orderBy: { happenedOn: 'asc' },
+			select: { hostOrg: { select: { actor: { select: { displayName: true } } } } }
+		})
+	]);
 	return {
-		bandName: milestone.band.displayName,
+		bandName: band.displayName,
 		hostName: gig?.hostOrg?.actor.displayName ?? null,
-		occurredAt: milestone.occurredAt
+		occurredAt: first.occurredAt
 	};
 }
 

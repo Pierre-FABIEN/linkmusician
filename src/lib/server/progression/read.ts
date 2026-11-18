@@ -5,7 +5,7 @@
  */
 import type { PrismaClient } from '@prisma/client';
 import { ACHIEVEMENTS, ACHIEVEMENTS_BY_ID } from './core/achievements';
-import type { DomainEventType } from './core/events';
+import type { DomainEvent, DomainEventType } from './core/events';
 import { levelProgress } from './core/levels';
 import { musicianSummary } from './core/summary';
 import { musicianTier, type MusicianSummary } from './core/tiers';
@@ -55,14 +55,27 @@ export const SUMMARY_EVENTS: readonly DomainEventType[] = [
 	'milestone.revoked'
 ];
 
-/** Résumé musicien lu dans les événements de domaine, et palier qui en découle. */
-export async function getMusicianTier(actorId: string, db: Pick<PrismaClient, 'domainEvent'>) {
+/**
+ * Événements du résumé musicien d'un acteur. Lus une fois, ils servent au
+ * palier et aux réalisations (N1 : les attestations d'étapes en font partie).
+ */
+export async function summaryEventsOf(actorId: string, db: Pick<PrismaClient, 'domainEvent'>) {
 	const rows = await db.domainEvent.findMany({
 		where: { actorIds: { has: actorId }, type: { in: [...SUMMARY_EVENTS] } },
 		select: { id: true, type: true, payload: true, occurredAt: true }
 	});
-	const summary: MusicianSummary = musicianSummary(actorId, rows.map(toDomainEvent));
+	return rows.map(toDomainEvent);
+}
+
+/** Résumé musicien et palier, depuis des événements déjà lus (`summaryEventsOf`). */
+export function tierOf(actorId: string, events: readonly DomainEvent[]) {
+	const summary: MusicianSummary = musicianSummary(actorId, events);
 	return { summary, ...musicianTier(summary) };
+}
+
+/** Résumé musicien lu dans les événements de domaine, et palier qui en découle. */
+export async function getMusicianTier(actorId: string, db: Pick<PrismaClient, 'domainEvent'>) {
+	return tierOf(actorId, await summaryEventsOf(actorId, db));
 }
 
 /**

@@ -8,44 +8,32 @@ import { careerMap } from '#lib/career/map';
 import type { CareerSheet, PrivateExtras } from '#lib/career/sheet';
 import { bandsOfPerson } from '#lib/server/bands/public';
 import { careerEvidenceForSheet } from './map';
-import { SOUND_ROLE_KINDS } from '#lib/works/rules';
+import { creditsOf } from '#lib/career/realisations';
 
 async function publicSheetData(actorId: string, viewerId?: string | null) {
-	const [evidence, appreciations, collabEndorsers, collaborators, credits, bands] =
-		await Promise.all([
-			careerEvidenceForSheet(actorId),
-			prisma.jamEndorsement.findMany({
-				where: { toActorId: actorId, revokedAt: null },
-				select: {
-					fromActorId: true,
-					opportunityId: true,
-					opportunity: { select: { venue: { select: { communeName: true } } } }
-				}
-			}),
-			prisma.collabEndorsement.findMany({
-				where: { toActorId: actorId, revokedAt: null },
-				select: { fromActorId: true }
-			}),
-			prisma.collaborationParticipant.findMany({
-				where: {
-					actorId: { not: actorId },
-					collaboration: { status: 'COMPLETED', participants: { some: { actorId } } }
-				},
-				select: { actorId: true }
-			}),
-			prisma.workRole.count({
-				where: {
-					contributor: { personId: actorId, confirmedAt: { not: null } },
-					// Un rôle d'écriture compte sur un morceau corroboré ; un rôle du
-					// son (P4-07), confirmé des deux côtés, compte dès sa confirmation.
-					OR: [
-						{ work: { state: 'COMPOSED', proof: 'CORROBORATED' } },
-						{ kind: { in: [...SOUND_ROLE_KINDS] } }
-					]
-				}
-			}),
-			bandsOfPerson(actorId, new Date(), viewerId)
-		]);
+	const [evidence, appreciations, collabEndorsers, collaborators, bands] = await Promise.all([
+		careerEvidenceForSheet(actorId),
+		prisma.jamEndorsement.findMany({
+			where: { toActorId: actorId, revokedAt: null },
+			select: {
+				fromActorId: true,
+				opportunityId: true,
+				opportunity: { select: { venue: { select: { communeName: true } } } }
+			}
+		}),
+		prisma.collabEndorsement.findMany({
+			where: { toActorId: actorId, revokedAt: null },
+			select: { fromActorId: true }
+		}),
+		prisma.collaborationParticipant.findMany({
+			where: {
+				actorId: { not: actorId },
+				collaboration: { status: 'COMPLETED', participants: { some: { actorId } } }
+			},
+			select: { actorId: true }
+		}),
+		bandsOfPerson(actorId, new Date(), viewerId)
+	]);
 	const cities = [
 		...new Set(
 			appreciations
@@ -59,7 +47,7 @@ async function publicSheetData(actorId: string, viewerId?: string | null) {
 		...collaborators.map((c) => c.actorId)
 	]);
 	peopleMet.delete(actorId);
-	const { facts, tier } = evidence;
+	const { facts, tier, realisations } = evidence;
 
 	return {
 		facts,
@@ -68,7 +56,10 @@ async function publicSheetData(actorId: string, viewerId?: string | null) {
 			peopleMet: peopleMet.size,
 			collaborations: facts.collaborations,
 			worksTogether: facts.worksTogether,
-			credits,
+			// Un rôle d'écriture compte sur un morceau corroboré ; un rôle du son
+			// (P4-07), confirmé des deux côtés, dès sa confirmation (N1 : lu
+			// dans les réalisations, plus de requête à part).
+			credits: creditsOf(realisations),
 			gigs: tier.summary.corroboratedGigs,
 			cities,
 			appreciatedBy: tier.summary.distinctEndorsers,
