@@ -23,11 +23,18 @@ export function publicActorWhere(
 				OR: [{ until: null }, { until: { gt: now } }]
 			}
 		},
-		...(viewerId
-			? {
-					blocksMade: { none: { blockedActorId: viewerId } },
-					blocksReceived: { none: { blockerActorId: viewerId } }
-				}
-			: {})
+		...(viewerId ? notBlockedWith(viewerId) : {})
+	};
+}
+
+/**
+ * Ni bloqué par le lecteur, ni l'ayant bloqué (U0) : seulement la règle de
+ * blocage, pour les lectures privées où un profil masqué reste légitime
+ * (un crédit à confirmer, une collaboration à confirmer, une invitation).
+ */
+export function notBlockedWith(viewerId: string): Prisma.ActorWhereInput {
+	return {
+		blocksMade: { none: { blockedActorId: viewerId } },
+		blocksReceived: { none: { blockerActorId: viewerId } }
 	};
 }

@@ -45,6 +45,7 @@ import { careerFactsOf, firstVerifiedGigOf } from '#lib/career/realisations';
 import { isManager } from '#lib/bands/rules';
 import { parisDay } from '#lib/metrics/indicators';
 import { readRealisations } from './realisations';
+import { notBlockedWith } from '#lib/server/actors/visibility';
 import { requestMemo, type RequestScope } from '#lib/server/request-memo';
 
 /**
@@ -121,7 +122,9 @@ async function collaborationsToConfirm(actorId: string, now: Date) {
 					confirmedCompletionAt: null,
 					declinedAt: null,
 					cancelledAt: null
-				}
+				},
+				// U0 : rien avec une personne qui m'a bloqué·e ou que j'ai bloquée.
+				none: { actorId: { not: actorId }, actor: { NOT: notBlockedWith(actorId) } }
 			}
 		},
 		orderBy: [{ happenedOn: 'asc' }, { id: 'asc' }],
@@ -186,7 +189,16 @@ async function pendingCoauthors(actorId: string) {
 				owner: { deletedAt: null },
 				AND: [
 					{ contributors: { some: { personId: actorId, confirmedAt: { not: null } } } },
-					{ contributors: { some: { personId: { not: actorId }, confirmedAt: null } } }
+					{
+						contributors: {
+							some: {
+								personId: { not: actorId },
+								confirmedAt: null,
+								// U0 : pas un rôle d'une personne bloquée, dans un sens ou dans l'autre.
+								person: notBlockedWith(actorId)
+							}
+						}
+					}
 				]
 			},
 			orderBy: [{ composedAt: 'asc' }, { id: 'asc' }],

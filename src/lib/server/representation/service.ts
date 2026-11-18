@@ -21,6 +21,7 @@
 import { delegatedEndAccess } from './delegationAccess';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
+import { notBlockedWith } from '#lib/server/actors/visibility';
 import { isBlockedBetween } from '#lib/server/blocking/service';
 import { notify } from '#lib/server/notifications/service';
 import { emitAndProcess } from '#lib/server/progression/processor';
@@ -511,10 +512,25 @@ export async function representationsForMe(personId: string, now = new Date()) {
 
 /** Nombre de propositions qui attendent ma réponse (tableau de bord). */
 export async function pendingRepresentationCount(personId: string, now = new Date()) {
-	if (!(await isAdultPerson(prisma, personId, now))) return 0;
+	return (await pendingRepresentations(personId, now)).length;
+}
+
+/**
+ * Propositions d'accompagnement qui attendent ma réponse (majeur·e, Q48),
+ * pour moi ou un groupe que je gère. U0 : jamais d'une personne qui m'a
+ * bloqué·e ou que j'ai bloquée.
+ */
+export async function pendingRepresentations(personId: string, now = new Date()) {
+	if (!(await isAdultPerson(prisma, personId, now))) return [];
 	const artistIds = [personId, ...(await bandsIManage(personId))];
-	return prisma.representation.count({
-		where: { artistId: { in: artistIds }, status: 'PROPOSED', agent: { deletedAt: null } }
+	return prisma.representation.findMany({
+		where: {
+			artistId: { in: artistIds },
+			status: 'PROPOSED',
+			agent: { deletedAt: null, ...notBlockedWith(personId) }
+		},
+		orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+		select: { id: true, createdAt: true }
 	});
 }
 

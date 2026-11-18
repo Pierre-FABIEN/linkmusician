@@ -26,7 +26,7 @@ import type { Prisma, WorkCreditActKind } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { workCreditTimeline } from '#lib/activity/work-credit-timeline';
 import { isIndexable } from '#lib/actors/visibility';
-import { publicActorWhere } from '#lib/server/actors/visibility';
+import { publicActorWhere, notBlockedWith } from '#lib/server/actors/visibility';
 import { isBlockedBetween } from '#lib/server/blocking/service';
 import { notify } from '#lib/server/notifications/service';
 import {
@@ -955,7 +955,12 @@ export async function manageableWorks(personId: string) {
 /** Nombre de crédits à confirmer (pastille de `/morceaux`). */
 export async function pendingCredits(personId: string) {
 	return prisma.workContributor.count({
-		where: { personId, confirmedAt: null, work: teamWhere(personId) }
+		where: {
+			personId,
+			confirmedAt: null,
+			// U0 : comme « À traiter », aucun morceau d'une personne bloquée (deux sens).
+			work: { AND: [teamWhere(personId), { owner: notBlockedWith(personId) }] }
+		}
 	});
 }
 
