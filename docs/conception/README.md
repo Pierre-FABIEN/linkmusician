@@ -108,8 +108,13 @@ Candidature pour autrui et droit de candidater : [DASH-07, D71](./18-candidature
 Groupes, morceaux, collaborations et initiatives : [audit structurel G0-01, #84](./audit-structurel-collab.md)
 (faits vérifiés, huit scénarios, options et questions pour #83).
 
-Architecture cible proposée (groupes, projets, œuvres, collaborations) :
+Architecture cible validée (groupes, projets, œuvres, collaborations) :
 [conception 19, G0-02, #83](./19-architecture-cible-collab.md), décision
-[D72](../decisions/D72-architecture-projets-collab.md) en statut **Proposée**
+[D72](../decisions/D72-architecture-projets-collab.md) **Acceptée**
 (révision 2 du 18/11/2026 : capacités de projet, partage explicite, solo et
-plateaux, conservation minimale).
+plateaux, conservation minimale), non implémentée.
+
+Parcours UX de Collab centré sur les projets (accueil, Mes projets, fiche
+projet, partage, Mes contributions, six scénarios, lots U0 à U7) :
+[conception 20, G0-03, #71](./20-parcours-ux-collab.md), proposition UX
+sans code, arbitrages UX-1 à UX-8.

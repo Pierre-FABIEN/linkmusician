@@ -84,8 +84,8 @@ sort de cette liste.
 
 Seize questions Q-G0-1 à Q-G0-16 attendent l'arbitrage du fondateur. Les
 neuf premières viennent de l'[audit structurel G0-01](../conception/audit-structurel-collab.md#10-questions-à-trancher-dans-83-g0-02) ;
-la proposition [D72](../decisions/D72-architecture-projets-collab.md)
-(statut **Proposée**, révision 2 du 18/11/2026) donne pour chacune une
+la décision [D72](../decisions/D72-architecture-projets-collab.md)
+(**Acceptée** le 18/11/2026, révision 2) donne pour chacune une
 recommandation et en ajoute sept : voir la
 [conception 19, §9](../conception/19-architecture-cible-collab.md#9-questions-à-trancher-par-le-fondateur)
 et la [synthèse pour le fondateur](../decisions/D72-synthese-fondateur.md).
@@ -94,8 +94,26 @@ Q-G0-5 (conservation minimale et purgeable), Q-G0-10 (plateaux par
 format), Q-G0-11 (rien sans partage explicite), et ajouter Q-G0-15
 (capacités de projet) et Q-G0-16 (répertoire partagé, reporté).
 
-En attendant, le code garde son comportement actuel ; aucun défaut nouveau
-n'est appliqué, et aucun lot P2 à P13 ne démarre.
+**Tranchées le 18/11/2026** : le fondateur a validé les recommandations
+de la révision 2 (D72 acceptée, #83 close). Restent la confirmation de la
+base légale avant P6 (avis RGPD) et les décisions laissées aux lots.
+
+### Domaine Collab : parcours UX (G0-03, #71)
+
+Arbitrages de présentation issus de la [conception 20](../conception/20-parcours-ux-collab.md#15-arbitrages-ux-demandés-au-fondateur).
+Aucun ne remet en cause D72. Le défaut s'applique au démarrage du lot
+s'il n'est pas tranché.
+
+| #    | Question                                                                                                             | Par défaut                                                                                          | Lot |
+| ---- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | --- |
+| UX-1 | Le héros de l'accueil Collab met-il le **travail** (ce qui m'attend, mon projet) avant la progression (`NextStep`) ? | **Oui** ; `NextStep` en tête du pivot `repères`, et héros quand rien d'autre n'attend               | U0  |
+| UX-2 | Ajouter « **Autre** » (et « Événement ») aux huit types de projet de D72 ?                                           | « Autre » **oui** ; « Événement » **non** (« Festival » suffit jusqu'à G3)                          | U2  |
+| UX-3 | Projet principal de l'accueil : **épinglé** par la personne ou déduit de sa dernière action ?                        | **Déduit** ; épinglage après le pilote si besoin                                                    | U2  |
+| UX-4 | « Mes contributions » dans le pivot `avancer` pour un métier non musicien ?                                          | **Oui** quand `RoleSpace` est actif ; non pour le musicien                                          | U1  |
+| UX-5 | La **participation** à un projet compte-t-elle comme une contribution ?                                              | **Non** : crédits et collaborations confirmés seulement ; la participation vit dans « Mes projets » | U1  |
+| UX-6 | La gestion d'un élément peut-elle **demander une nouvelle version** d'un livrable ?                                  | **Oui**, message court, sans effet sur les droits ; à fixer dans #36                                | U5  |
+| UX-7 | Aperçu « **comme un·e participant·e** » pour la gestion d'un projet ?                                                | **Non au lancement** ; à revoir au pilote                                                           | —   |
+| UX-8 | Membres d'un groupe porteur **invités d'office** aux projets du groupe ?                                             | **Non** : raccourci « Inviter les membres du groupe », une invitation acceptée par personne (I2)    | U3  |
 
 ## À vérifier hors code
 
