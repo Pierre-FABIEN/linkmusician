@@ -46,7 +46,15 @@ npm run test:e2e:parallele                       # parts selon la RAM libre (~3 
 npm run test:e2e:parallele -- --parts=4
 npm run test:e2e:parallele -- --parts=3 e2e/linkmusician
 npx playwright show-report                       # rapport fusionné
+npm run test:e2e:parallele -- --reprendre        # reste d'une passe interrompue
+npm run test:e2e:parallele -- --reprendre --simuler   # affiche ce reste, sans lancer
 ```
+
+`--reprendre` relit `e2e-parallele/part-<n>.log` (et tout journal donné par
+`--journal=<fichier>`, par exemple une passe `test:e2e` séquentielle) : un
+spec est terminé quand sa part est passée au fichier suivant ; les specs non
+terminés **ou en échec** sont rejoués. Liste dans `~/e2e-journaux/reste.txt`,
+anciens journaux copiés dans `~/e2e-journaux/passe-<horodatage>/`.
 
 Deux machines sur la même base Neon : donner à chacune son préfixe de
 schéma, sinon leurs parts se mélangent (ex. sur le portable,

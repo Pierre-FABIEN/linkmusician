@@ -3,6 +3,8 @@
 //   npm run test:e2e:parallele                      (nombre de parts selon la RAM)
 //   npm run test:e2e:parallele -- --parts=4
 //   npm run test:e2e:parallele -- --parts=3 e2e/linkmusician
+//   npm run test:e2e:parallele -- --reprendre        (seulement le reste d'une passe interrompue)
+//   npm run test:e2e:parallele -- --reprendre --simuler   (affiche ce reste sans le lancer)
 //
 // La suite reste mono-worker par part (serveur de dev, limiteurs en mémoire,
 // boîte mail commune) : on la découpe plutôt (`--shard=i/N`), et chaque part a
@@ -24,7 +26,71 @@ const ROOT = 'e2e-parallele';
 
 const args = process.argv.slice(2);
 const partsArg = args.find((a) => a.startsWith('--parts='));
-const passThrough = args.filter((a) => a !== partsArg);
+const resume = args.includes('--reprendre');
+const journals = args.filter((a) => a.startsWith('--journal=')).map((a) => a.slice(10));
+const passThrough = args.filter(
+	(a) => a !== partsArg && a !== '--reprendre' && a !== '--simuler' && !a.startsWith('--journal=')
+);
+
+/**
+ * `--reprendre` : après une passe interrompue (redémarrage de WSL…), relit
+ * les journaux des parts (et ceux de `--journal=<fichier>`) et ne relance que
+ * les specs non terminés ou en échec. Un spec est terminé quand sa part est
+ * passée au fichier suivant ; le dernier fichier d'un journal est rejoué.
+ */
+function remainingSpecs() {
+	const logs = [
+		...(fs.existsSync(ROOT)
+			? fs
+					.readdirSync(ROOT)
+					.filter((f) => /^part-\d+\.log$/.test(f))
+					.map((f) => path.join(ROOT, f))
+			: []),
+		...journals
+	];
+	const done = new Set();
+	const failed = new Set();
+	for (const log of logs) {
+		let current = null;
+		for (const line of fs.readFileSync(log, 'utf8').split(/\r?\n/)) {
+			const start = line.match(/^\[\d+\/\d+\] \[chromium\] › (e2e\/[^:]+):/);
+			if (start) {
+				if (current && current !== start[1]) done.add(current);
+				current = start[1];
+			}
+			const fail = line.match(/^\s+\d+\) \[chromium\] › (e2e\/[^:]+):/);
+			if (fail) failed.add(fail[1]);
+		}
+	}
+	const all = fs
+		.readdirSync('e2e', { recursive: true })
+		.map((f) => `e2e/${f}`.replaceAll(path.sep, '/'))
+		.filter((f) => f.endsWith('.spec.ts'))
+		.sort();
+	const rest = all.filter((f) => !done.has(f) || failed.has(f));
+	console.log(
+		`[e2e] reprise : ${logs.length} journal(aux), ${done.size} spec(s) terminé(s) dont ${failed.size} en échec ; ${rest.length} sur ${all.length} à jouer.`
+	);
+	fs.writeFileSync(path.join(os.homedir(), 'e2e-journaux', 'reste.txt'), rest.join('\n') + '\n');
+	return rest;
+}
+if (resume) {
+	fs.mkdirSync(path.join(os.homedir(), 'e2e-journaux'), { recursive: true });
+	const rest = remainingSpecs();
+	if (args.includes('--simuler')) {
+		// Affiche ce qui serait rejoué, sans rien lancer.
+		console.log(rest.join('\n'));
+		process.exit(0);
+	}
+	if (rest.length === 0) {
+		console.log('[e2e] rien à reprendre.');
+		process.exit(0);
+	}
+	// Les journaux de la passe interrompue sont gardés à côté avant d'être remplacés.
+	const keep = path.join(os.homedir(), 'e2e-journaux', `passe-${Date.now()}`);
+	if (fs.existsSync(ROOT)) fs.cpSync(ROOT, keep, { recursive: true });
+	passThrough.push(...rest);
+}
 const byMemory = Math.floor((os.freemem() - 2 * GIB) / PER_PART);
 const parts = Math.max(1, Math.min(8, partsArg ? Number(partsArg.split('=')[1]) : byMemory));
 if (!Number.isInteger(parts)) {
