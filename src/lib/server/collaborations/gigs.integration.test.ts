@@ -7,7 +7,16 @@
  * vérifient « Première tournée ». `gig.held` crédite qui organise, jamais
  * en collaboration de musicien·ne. Carte de carrière (P5-08) : l'acte V se
  * franchit au concert vérifié, pas au corroboré ; la tournée s'affiche en
- * plus ; l'hôte ne franchit rien. Désactivé par défaut :
+ * plus ; l'hôte ne franchit rien.
+ *
+ * Concert déclaré par un simple membre (P1c, D75) : un membre `MEMBER` fait
+ * reconnaître un concert de son groupe quand la gestion de l'hôte confirme,
+ * sans gagner aucun droit de gestion ; il ne déclare pas l'étape à la main ;
+ * un ancien membre ne propose pas ; un départ avant la confirmation ne donne
+ * ni `gig.held` ni étape. Écrit le 19/11/2026, **non exécuté** dans la
+ * session (recette globale ultérieure).
+ *
+ * Désactivé par défaut :
  *
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/collaborations/gigs
  */
@@ -30,6 +39,7 @@ vi.mock('#lib/server', () => ({ prisma: db }));
 
 const service = await import('./service');
 const bands = await import('../bands/service');
+const { declareMilestone } = await import('../milestones/service');
 const { setActorLocation } = await import('../geo/queries');
 const { careerFacts, firstVerifiedGig } = await import('../career/map');
 const { careerMap } = await import('#lib/career/map');
@@ -285,5 +295,238 @@ describe.skipIf(!enabled)('concerts vérifiés (schéma e2e)', { timeout: 120_00
 		});
 		expect(events).toBe(4);
 		expect(careerMap(await careerFacts(ids.malik)).acts[4].bonusTrial?.done).toBe(true);
+	});
+	/**
+	 * P1c (D75) : un groupe neuf, pour lire ses étapes sans l'historique des
+	 * tests précédents. Chef le gère (`OWNER`) ; Zoé et Nina y sont `MEMBER` ;
+	 * Ancien y a joué puis l'a quitté. Les hôtes sont ceux du dessus : le bar
+	 * (non vérifié, géré par Patron) et asso1 (vérifiée, gérée par Orga).
+	 */
+	describe('P1c — concert déclaré par un simple membre (D75)', () => {
+		let crew = { id: '', handle: '' };
+		const c: Record<string, string> = {};
+
+		async function join(personName: string) {
+			await bands.inviteToBand(crew.id, ids.chef, { handle: PREFIX + personName, title: null });
+			const invite = await db.membership.findFirstOrThrow({
+				where: { orgId: crew.id, personId: ids[personName], status: 'INVITED' }
+			});
+			await bands.answerInvite(invite.id, ids[personName], true);
+		}
+
+		/** `who` propose un concert passé du groupe à l'hôte (proposer vaut confirmer). */
+		function proposeCrewGig(who: string, conversationId: string, hostKey: string, day: string) {
+			return service.proposeCollaboration(ids[who], conversationId, {
+				kind: 'GIG',
+				title: `Les Fourmis ${hostKey} ${day}`,
+				happenedOn: day,
+				performer: crew.handle,
+				host: orgs[hostKey].handle
+			});
+		}
+
+		const crewMilestone = (key: string) =>
+			db.milestone.findUnique({
+				where: { bandId_definitionId: { bandId: crew.id, definitionId: key } },
+				select: { proof: true, occurredAt: true }
+			});
+		const roleOf = async (personName: string) =>
+			(
+				await db.membership.findFirst({
+					where: { orgId: crew.id, personId: ids[personName], status: 'ACTIVE' },
+					select: { role: true }
+				})
+			)?.role ?? null;
+		const heldFor = (gigId: string) =>
+			db.domainEvent.count({
+				where: { type: 'gig.held', payload: { path: ['gigId'], equals: gigId } }
+			});
+
+		beforeAll(async () => {
+			for (const name of ['chef', 'zoe', 'nina', 'ancien']) ids[name] = await person(name);
+			crew = await bands.createBand(ids.chef, { name: `${PREFIX}Les Fourmis`, title: 'batterie' });
+			for (const name of ['zoe', 'nina', 'ancien']) await join(name);
+			// Ancien quitte le groupe avant toute proposition (Q89).
+			await bands.leaveBand(crew.id, ids.ancien);
+			c.zoePatron = await conversation(ids.zoe, ids.patron);
+			c.zoeOrga = await conversation(ids.zoe, ids.orga);
+			c.ninaPatron = await conversation(ids.nina, ids.patron);
+			c.ancienOrga = await conversation(ids.ancien, ids.orga);
+		}, 180_000);
+
+		it('fixtures : Zoé et Nina sont de simples membres, Chef seul gère le groupe', async () => {
+			expect(await roleOf('zoe')).toBe('MEMBER');
+			expect(await roleOf('nina')).toBe('MEMBER');
+			expect(await roleOf('ancien')).toBeNull();
+			expect(await bands.bandManagerIds(crew.id)).toEqual([ids.chef]);
+		});
+
+		it('scénario A : un membre propose, le lieu non vérifié confirme : concert reconnu, « Premier concert » corroboré', async () => {
+			const { id } = await proposeCrewGig('zoe', c.zoePatron, 'bar', daysAgo(25));
+			// Rien avant la confirmation du tiers.
+			expect(await crewMilestone('FIRST_GIG')).toBeNull();
+			expect(await heldFor(id)).toBe(0);
+			await service.respondToCollaboration(ids.patron, id, true);
+
+			expect(
+				await db.collaboration.findUniqueOrThrow({
+					where: { id },
+					select: { status: true, bandId: true, performerId: true }
+				})
+			).toEqual({ status: 'COMPLETED', bandId: crew.id, performerId: crew.id });
+			expect(await crewMilestone('FIRST_GIG')).toMatchObject({ proof: 'CORROBORATED' });
+
+			// `gig.held` : le groupe joue, Zoé confirme côté groupe, Patron organise.
+			const held = await db.domainEvent.findFirstOrThrow({
+				where: { type: 'gig.held', payload: { path: ['gigId'], equals: id } }
+			});
+			expect(held.payload).toMatchObject({
+				performerIds: [crew.id],
+				confirmerIds: [ids.zoe],
+				organizerIds: [ids.patron],
+				firstDateIds: [crew.id],
+				verified: false
+			});
+			// L'étape est attestée et créditée aux membres présents (Zoé comprise).
+			const attested = await db.domainEvent.findFirstOrThrow({
+				where: {
+					type: 'milestone.attested',
+					actorIds: { has: crew.id },
+					payload: { path: ['milestone'], equals: 'FIRST_GIG' }
+				}
+			});
+			expect(attested.payload).toMatchObject({ milestone: 'FIRST_GIG', to: 'CORROBORATED' });
+			expect((attested.payload as { memberIds: string[] }).memberIds).toEqual(
+				expect.arrayContaining([ids.chef, ids.zoe])
+			);
+
+			// Progression : barème existant, rien d'autre.
+			const rules = async (actorId: string) =>
+				(
+					await db.xpTransaction.findMany({
+						where: { actorId, ruleId: { in: ['collaboration.completed', 'gig.held'] } },
+						select: { ruleId: true, track: true }
+					})
+				).map((t) => `${t.ruleId}:${t.track}`);
+			expect(await rules(ids.zoe)).toEqual(['collaboration.completed:MUSICIAN']);
+			expect(await rules(ids.patron)).toContain('gig.held:PROMOTER');
+			expect(await rules(ids.patron)).not.toContain('collaboration.completed:MUSICIAN');
+			// Corroboré : l'acte V reste à franchir pour le membre (P5-08).
+			expect((await careerFacts(ids.zoe)).verifiedGigs).toBe(0);
+		});
+
+		it('scénario A : une organisation vérifiée confirme : « Premier concert » vérifié, l’acte V franchi', async () => {
+			const before = await crewMilestone('FIRST_GIG');
+			const { id } = await proposeCrewGig('zoe', c.zoeOrga, 'asso1', daysAgo(20));
+			await service.respondToCollaboration(ids.orga, id, true);
+			const after = await crewMilestone('FIRST_GIG');
+			expect(after?.proof).toBe('VERIFIED');
+			// La montée de preuve garde la date du premier concert.
+			expect(after?.occurredAt).toEqual(before?.occurredAt);
+			expect(await crewMilestone('FIRST_TOUR')).toBeNull();
+			expect(careerMap(await careerFacts(ids.zoe)).acts[4].state).toBe('passed');
+			expect(await firstVerifiedGig(ids.zoe)).toMatchObject({
+				bandName: `${PREFIX}Les Fourmis`
+			});
+		});
+
+		it('scénario A : aucune élévation de privilèges, aucune étape personnelle (D75 §4, DC4)', async () => {
+			// Reconnaître un concert ne change ni le rôle ni la gestion.
+			expect(await roleOf('zoe')).toBe('MEMBER');
+			expect(await bands.bandManagerIds(crew.id)).toEqual([ids.chef]);
+			// Ni gestion de l'hôte : aucune adhésion de Zoé hors de son groupe.
+			expect(
+				await db.membership.count({
+					where: { personId: ids.zoe, orgId: { not: crew.id } }
+				})
+			).toBe(0);
+			// Un concert du groupe n'écrit pas d'étape personnelle (P8) ; le cas
+			// symétrique est couvert par `solo-gigs.integration.test.ts`.
+			expect(await db.milestone.count({ where: { bandId: ids.zoe } })).toBe(0);
+		});
+
+		it('scénario B : le même membre ne déclare pas l’étape à la main (403)', async () => {
+			const before = await db.milestone.count({ where: { bandId: crew.id } });
+			const attempt = declareMilestone(crew.id, ids.zoe, {
+				key: 'FIRST_GIG',
+				day: daysAgo(30),
+				note: null
+			});
+			await expect(attempt).rejects.toThrow(/gèrent le groupe/);
+			await expect(attempt).rejects.toMatchObject({ status: 403 });
+			// Même pour une étape absente du parcours : c'est le droit qui manque.
+			await expect(
+				declareMilestone(crew.id, ids.zoe, { key: 'FIRST_REHEARSAL', day: daysAgo(30), note: null })
+			).rejects.toMatchObject({ status: 403 });
+			expect(await db.milestone.count({ where: { bandId: crew.id } })).toBe(before);
+		});
+
+		it('scénario C : un ancien membre ne propose pas de concert du groupe (Q89)', async () => {
+			await expect(proposeCrewGig('ancien', c.ancienOrga, 'asso1', daysAgo(22))).rejects.toThrow(
+				/jouer dans ce groupe/
+			);
+			// Ni la gestion de l'hôte avec lui : personne de la paire n'y joue.
+			await expect(
+				proposeCrewGig('orga', c.ancienOrga, 'asso1', daysAgo(22))
+			).rejects.toMatchObject({ status: 403 });
+			expect(await db.collaboration.count({ where: { conversationId: c.ancienOrga } })).toBe(0);
+		});
+
+		it('scénario D : parti avant la confirmation : collaboration terminée, ni `gig.held` ni étape', async () => {
+			const { id } = await proposeCrewGig('nina', c.ninaPatron, 'bar', daysAgo(12));
+			await bands.leaveBand(crew.id, ids.nina);
+			const milestonesBefore = await db.milestone.findMany({
+				where: { bandId: crew.id },
+				select: { definitionId: true, proof: true, occurredAt: true },
+				orderBy: { definitionId: 'asc' }
+			});
+			const attestedBefore = await db.domainEvent.count({
+				where: { type: 'milestone.attested', actorIds: { has: crew.id } }
+			});
+			const patronHeldBefore = await db.xpTransaction.count({
+				where: { actorId: ids.patron, ruleId: { startsWith: 'gig.' } }
+			});
+			const ninaMilestoneXpBefore = await db.xpTransaction.count({
+				where: { actorId: ids.nina, ruleId: { startsWith: 'milestone.' } }
+			});
+
+			await service.respondToCollaboration(ids.patron, id, true);
+
+			// D75 §8 : la collaboration se termine (adhésion relue à la confirmation)…
+			expect(
+				await db.collaboration.findUniqueOrThrow({ where: { id }, select: { status: true } })
+			).toEqual({ status: 'COMPLETED' });
+			// … mais le concert n'est pas reconnu : ni `gig.held`, ni étape, ni gain d'hôte.
+			expect(await heldFor(id)).toBe(0);
+			expect(
+				await db.milestone.findMany({
+					where: { bandId: crew.id },
+					select: { definitionId: true, proof: true, occurredAt: true },
+					orderBy: { definitionId: 'asc' }
+				})
+			).toEqual(milestonesBefore);
+			expect(
+				await db.domainEvent.count({
+					where: { type: 'milestone.attested', actorIds: { has: crew.id } }
+				})
+			).toBe(attestedBefore);
+			expect(
+				await db.xpTransaction.count({
+					where: { actorId: ids.patron, ruleId: { startsWith: 'gig.' } }
+				})
+			).toBe(patronHeldBefore);
+			// Nina garde le gain de la collaboration terminée (barème existant, D75
+			// §8), sans aucune part d'étape nouvelle.
+			expect(
+				await db.xpTransaction.count({
+					where: { actorId: ids.nina, ruleId: 'collaboration.completed' }
+				})
+			).toBe(1);
+			expect(
+				await db.xpTransaction.count({
+					where: { actorId: ids.nina, ruleId: { startsWith: 'milestone.' } }
+				})
+			).toBe(ninaMilestoneXpBefore);
+		});
 	});
 });

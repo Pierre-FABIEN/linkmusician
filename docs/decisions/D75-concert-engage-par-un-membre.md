@@ -90,7 +90,9 @@ terminée, elle, ne se signale pas : `ReportTarget` n'a pas de valeur
 **Tests.** `gigs.integration.test.ts` couvre la séparation des rôles,
 l'hôte non vérifié, l'organisation vérifiée et la tournée, mais toujours
 avec une personne `OWNER` du groupe. **Le chemin d'un `MEMBER` n'est pas
-testé** (voir §8, P1c).
+testé** (voir §8, P1c). _Mise à jour du 19/11/2026 : les tests P1c sont
+écrits (même fichier, `describe` « P1c », scénarios A à D), non exécutés ;
+ils ont relevé Q106._
 
 ## 3. Règle retenue (D72, Q-G0-7)
 

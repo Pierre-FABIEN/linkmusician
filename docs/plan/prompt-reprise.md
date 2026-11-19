@@ -1,9 +1,9 @@
-# Prompt de reprise — passe de tests U3b-b, U3b-c, P8 et U6a
+# Prompt de reprise — passe de tests U3b-b, U3b-c, P8, U6a et P1c
 
 ```markdown
 Reprends LinkMusician dans le dossier de travail courant. Une session = un lot :
-**valider U3b-b, U3b-c, P8 et U6a**, livrés le 19/11/2026 sans qu'**aucun
-test** n'ait été exécuté (consigne de l'utilisateur). Aucun nouveau code hors
+**valider U3b-b, U3b-c, P8, U6a et P1c**, livrés le 19/11/2026 sans
+qu'**aucun test** n'ait été exécuté (consigne de l'utilisateur). Aucun nouveau code hors
 corrections. Machine conseillée : le PC de recette (mémoire WSL : jamais
 `npm run check` pendant les E2E).
 
@@ -11,7 +11,8 @@ corrections. Machine conseillée : le PC de recette (mémoire WSL : jamais
    locaux du 19/11/2026 : U3b (`1b99704`, `6f940e9`, `cbd7a21`, `268f680`,
    `b89e6a2`, `38ff3e6`, doc `243d0d9`, publiés à `243d0d9`), puis P8
    (`6027d05` métier et migration, `8759727` tests), U6a (`30b0ab1`) et la doc
-   P8 (non publiés au départ). Note ce que l'utilisateur a publié ; préserve
+   P8 (`a55eae2`, publiés depuis), puis P1c (tests et doc, commit local
+   « (P1c) », non publié). Note ce que l'utilisateur a publié ; préserve
    tout.
 
 1. Migrations (jamais `npx prisma migrate`, jamais en production) :
@@ -50,20 +51,31 @@ verif` : aucune différence attendue ; supprime ce brouillon). Puis
      mineure ; le texte « en ton nom ou avec ton groupe » affiché dans la
      branche Scène (E2E étape 1).
 
+3 bis. **Tests différés de P1c** (après les migrations P8 : le `describe`
+P1c utilise `performer`) :
+
+- `PROGRESSION_INTEGRATION=1 npm run test:unit -- --run src/lib/server/collaborations/gigs.integration.test.ts`
+  (les cas historiques puis le `describe` « P1c », scénarios A à D).
+- À regarder de près : l'ordre des cas (D après A, car `firstDateIds`
+  compterait la collaboration de D, voir Q106) ; `memberIds` de
+  l'attestation (créditée à l'effectif de la formation, Chef et Zoé) ;
+  le 403 de `declareMilestone` avant le blocage « déjà dans votre
+  parcours ».
+
 4. Puis `npm run test:unit -- --run` en entier si la machine le permet.
    `locking.integration` : 2 échecs `55P03` préexistants, à ne pas confondre.
    Pour chaque échec : cause, lien avec le lot, correction du code ou du
    test selon la conception 22 et D76 (U3b), D77 et la conception 19 §9.4
    (P8) — jamais un test assoupli pour couvrir un défaut. Commits
-   « (U3b-b) », « (U3b-c) », « (P8) » ou « (U6) ».
+   « (U3b-b) », « (U3b-c) », « (P8) », « (U6) » ou « (P1c) ».
 
-5. Fin : fiches U3b-b, U3b-c, P8 et U6a de docs/plan/fin-du-projet.md, lignes
-   G0-03, P8 et U6a du tableau §5, docs/projets/README.md et
+5. Fin : fiches U3b-b, U3b-c, P8, U6a et P1c de docs/plan/fin-du-projet.md,
+   lignes G0-03, P8, U6a et P1c du tableau §5, docs/projets/README.md et
    docs/scene/README.md à « tests passés » avec les chiffres réels ; issues
-   #71, #36 et #72 (ne ferme ni #36 ni #72 : P13, P1c, P8b, N6 y restent) ;
+   #71, #36 et #72 (ne ferme ni #36 ni #72 : P13, P8b, N6 y restent) ;
    prompt de reprise. Commits en français, sans push.
 
-Hors périmètre : U3c, P13, P1c, P7, #89, paiements.
+Hors périmètre : U3c, P13, P7, #89, paiements ; Q106 (consigner, ne pas corriger).
 ```
 
 ## Ce qui reste à développer après la passe de tests
@@ -80,7 +92,6 @@ Hors périmètre : U3c, P13, P1c, P7, #89, paiements.
 
 ## Autres lots planifiés
 
-**P1c** (test du concert d'un simple membre), **T10**
-(`gdpr-data.spec.ts`), puis P7, U4 + P5, U5 + P13. **P6** attend l'avis
+**T10** (`gdpr-data.spec.ts`), puis P7, U4 + P5, U5 + P13. **P6** attend l'avis
 RGPD. Production : migrations P1, U3b et P8 non appliquées ;
 `npm run seed:demo` à rejouer pour voir les besoins de la démo.

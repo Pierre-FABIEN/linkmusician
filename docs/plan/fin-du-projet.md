@@ -1475,21 +1475,43 @@ une personne étrangère au groupe ou un ancien membre ne peut pas proposer.
 
 **Écarts** : le chemin `MEMBER` n'est couvert par aucun test (les
 fixtures de `gigs.integration` font jouer une personne `OWNER`) → lot
-**P1c**. Gestion du groupe non prévenue (Q88), ancien membre (Q89),
+**P1c** (tests écrits le 19/11/2026, non exécutés). Gestion du groupe non prévenue (Q88), ancien membre (Q89),
 collaboration terminée non signalable (Q90) : au défaut.
 
-### P1c — Test du concert déclaré par un simple membre (à faire)
+### P1c — Test du concert déclaré par un simple membre 🟡 (tests écrits, non exécutés)
 
 - **Objectif** : prouver par un test d'intégration le comportement décrit
   par D75, sans le changer.
-- **Tests** : dans `gigs.integration.test.ts`, un membre `MEMBER` propose
-  un concert à la gestion d'un hôte, l'hôte confirme : collaboration
-  terminée, « Premier concert » `CORROBORATED` (ou `VERIFIED`) ; le même
-  membre ne peut pas déclarer l'étape à la main (`declareMilestone`, 403) ;
-  un ancien membre ne peut pas proposer ; un membre parti avant la
-  confirmation ne donne ni `gig.held` ni étape.
-- **Migration** : aucune. **Dépendances** : aucune. Lot court, à glisser
-  avant ou après U3b.
+- **Livré le 19/11/2026** (commit local « (P1c) », non publié) : un
+  `describe` « P1c » dans `gigs.integration.test.ts`, groupe neuf (Chef
+  `OWNER`, Zoé et Nina `MEMBER`, Ancien parti), hôtes réutilisés (bar non
+  vérifié, asso1 vérifiée). **Aucun test exécuté** (consigne de la
+  session) ; `npm run check` : 0 erreur ; ESLint et Prettier : conformes.
+  - **A** : Zoé (`MEMBER`) propose, le bar confirme : collaboration
+    `COMPLETED`, `gig.held` (interprète le groupe, Zoé confirme, Patron
+    organise, première date), « Premier concert » `CORROBORATED`,
+    `milestone.attested` crédité à Zoé ; XP : `collaboration.completed`
+    pour Zoé seulement, `gig.held` pour l'hôte. Puis asso1 confirme :
+    `VERIFIED`, date d'origine gardée, acte V franchi. Rôle de Zoé et
+    gestion du groupe inchangés, aucune adhésion ailleurs, aucune étape
+    personnelle (DC4).
+  - **B** : `declareMilestone` par Zoé refusé (403), étape présente ou
+    absente ; aucune étape écrite.
+  - **C** : Ancien ne propose pas (403), ni la gestion de l'hôte avec lui ;
+    aucune collaboration créée (Q89).
+  - **D** : Nina propose, quitte le groupe, l'hôte confirme : collaboration
+    `COMPLETED` et `collaboration.completed` pour Nina (D75 §8), mais ni
+    `gig.held`, ni étape, ni attestation, ni gain d'hôte.
+  - **E** : le cas « concert de groupe → pas d'étape personnelle » est
+    vérifié dans A ; le symétrique reste dans `solo-gigs.integration`
+    (pas de doublon).
+- **Écart relevé, non corrigé** : **Q106**. Une collaboration terminée sans
+  `gig.held` (scénario D) compte quand même comme date antérieure
+  (`firstDateIds`) et dans la tournée du groupe (`firstTour`).
+- **Reste** : exécuter
+  `PROGRESSION_INTEGRATION=1 npm run test:unit -- --run src/lib/server/collaborations/gigs.integration.test.ts`
+  pendant la passe de tests (prompt de reprise).
+- **Migration** : aucune. **Dépendances** : aucune.
 
 ### P8 — Artiste solo sur scène 🟡 (code livré, tests à exécuter)
 
