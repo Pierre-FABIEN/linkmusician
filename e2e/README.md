@@ -48,6 +48,15 @@ npm run test:e2e:parallele -- --parts=3 e2e/linkmusician
 npx playwright show-report                       # rapport fusionné
 ```
 
+Deux machines sur la même base Neon : donner à chacune son préfixe de
+schéma, sinon leurs parts se mélangent (ex. sur le portable,
+`E2E_SCHEMA_PREFIX=e2e_portable` dans `.env.test`, d'où `e2e_portable_1`…).
+
+| Machine (RAM Windows) | `memory=` dans `.wslconfig` | Parts conseillées |
+| --------------------- | --------------------------- | ----------------- |
+| 32 Go (PC fixe)       | `24GB`                      | 5 à 6             |
+| 16 Go (portable)      | `10GB`                      | 2 à 3             |
+
 Journaux par part : `e2e-parallele/part-<n>.log`. Plus de RAM pour WSL
 (`%UserProfile%\.wslconfig`, `memory=`) permet plus de parts.
 

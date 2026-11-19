@@ -21,7 +21,9 @@ if (SHARD) {
 	process.env.E2E_PORT = String(2010 + n);
 	process.env.SMTP_PORT = String(2600 + 2 * n);
 	process.env.SMTP_HTTP_PORT = String(2601 + 2 * n);
-	process.env.E2E_DB_SCHEMA = `e2e_${n}`;
+	// `E2E_SCHEMA_PREFIX` (ex. `e2e_portable`) : deux machines sur la même base
+	// Neon ne partagent pas leurs schémas.
+	process.env.E2E_DB_SCHEMA = `${process.env.E2E_SCHEMA_PREFIX ?? 'e2e'}_${n}`;
 }
 // LINKMUSICIAN ▲
 
