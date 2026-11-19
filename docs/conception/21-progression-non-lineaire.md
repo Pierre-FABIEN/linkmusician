@@ -1636,6 +1636,9 @@ flowchart LR
 
 - **Objectif** : épreuves Studio et Scène franchissables par une personne
   (Q-NL-2) ; DC4.
+- **[Scène livrée avec P8, le 19/11/2026, tests non exécutés]** : « La
+  scène » compte l'étape personnelle (`PERFORMER`) et celles des groupes,
+  chacune par sa clé (DC4). Reste **« Le studio »** pour une personne.
 - **Dépendances** : P8 ; N2.
 - **Tests** : unitaires et intégration (personne et groupe le même soir,
   une seule fois ; solo qui franchit Scène sans groupe).

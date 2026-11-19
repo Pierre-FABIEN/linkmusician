@@ -1490,3 +1490,92 @@ collaboration terminée non signalable (Q90) : au défaut.
   confirmation ne donne ni `gig.held` ni étape.
 - **Migration** : aucune. **Dépendances** : aucune. Lot court, à glisser
   avant ou après U3b.
+
+### P8 — Artiste solo sur scène 🟡 (code livré, tests à exécuter)
+
+Fiche « P8 » de la [conception 19 §10](../conception/19-architecture-cible-collab.md)
+(#36 règles de concert, #72 carte). Décision
+[D77](../decisions/D77-artiste-solo-sur-scene.md), **Acceptée** dans le
+périmètre de D72 (Q-G0-3) ; elle respecte D64, dont la révision partielle
+est renvoyée à P8b ([D78](../decisions/D78-plateaux-par-format-revision-D64.md),
+**Proposée**).
+
+**Livré le 19/11/2026** (commits locaux `6027d05` métier et migration,
+`8759727` tests, puis doc). **Aucun test exécuté** (consigne de la
+session) ; `npm run check` : 0 erreur ; ESLint : 0 erreur (3 avertissements
+préexistants `no-navigation-without-resolve` dans la messagerie) ;
+Prettier : conforme.
+
+- **Interprète** : `Collaboration.performerId` (`Actor`), le groupe **ou**
+  la personne ; migration additive `20261119180000_collaboration_performer`
+  recopiée depuis `bandId`, **écrite à la main, non appliquée** (ni dev, ni
+  e2e, ni production) : `npm run db:status`, puis `db:deploy` et
+  `db:deploy:e2e`.
+- **Proposer** : « Qui a joué » (`performer`, `band` en repli) ; la personne
+  doit être de la conversation et avoir le métier musicien·ne (Q104) ;
+  l'autre gère l'hôte ; on ne s'accueille pas soi-même (`gigSplitOk`) ;
+  booker confirmé de la personne accepté (Q105).
+- **Confirmer** : `verifySoloGigFromCollaboration` relit tout sous verrou ;
+  `gig.held` avec la personne comme interprète (organisateur et booker
+  crédités, jamais l'interprète) ; « Premier concert » et « Première
+  tournée » **personnels**, sans `milestone.attested` ni XP nouvelle.
+- **DC4** : un concert de groupe ne franchit pas l'étape personnelle ; un
+  concert solo ne touche aucune étape ni tournée de groupe.
+- **Carrière** : lecture N1 (`PERFORMER`, même requête que les étapes de
+  groupe), « La scène » franchissable seul·e, carte souvenir « en son
+  nom », fiche (concert personnel ajouté) ; palier musicien inchangé
+  (Q103).
+- **Contestation** : refusée pour une étape personnelle (Q102).
+- **RGPD** : export `etapes_de_scene_personnelles` et
+  `collaborations[].interprete` ; effacement à l'anonymisation.
+
+**Tests écrits, non exécutés** :
+
+- unitaires : `src/lib/collaborations/solo.test.ts`,
+  `src/lib/milestones/personal.test.ts`, `src/lib/career/solo.test.ts`,
+  `branch.test.ts` (avertissement de groupe retiré pour « La scène ») ;
+- intégration : `src/lib/server/collaborations/solo-gigs.integration.test.ts`
+  (13 cas : refus, gain unilatéral, refus et annulation, corroboré puis
+  vérifié, DC4 dans les deux sens, tournée, confirmation concurrente,
+  mineure, concert d'avant P8, contestation, RGPD) ;
+  `realisations.integration` (champ `solo` de la carte souvenir) ;
+- non-régression à relancer : `gigs.integration`, `realisations.integration`
+  (budget de requêtes : une requête de plus seulement pour qui n'a aucun
+  groupe crédité), `representation.integration`, `map.integration`.
+
+**Écarts** : pas de recherche ni de candidature solo (P8b) ; « Le studio »
+solo (N6) ; Q101 à Q105 au défaut.
+
+### U6a — Parcours scénique solo, adaptations minimales 🟡 (code livré, tests à exécuter)
+
+Première tranche de U6 ([conception 20 §14](../conception/20-parcours-ux-collab.md)),
+sur le socle P8. **Livré le 19/11/2026** (commit local `30b0ab1`).
+
+- Messagerie : « Qui a joué » (« Moi » en son nom, puis les groupes),
+  phrase d'effet adaptée, état vide qui demande le métier musicien·ne et
+  jamais un groupe.
+- Carte : épreuve « La scène » « en ton nom ou avec ton groupe »,
+  déclencheur corroboré sans « ton groupe », étape « en ton nom »,
+  avertissement « se franchit avec un groupe » retiré pour la scène.
+- Aide « Mode Carrière ».
+- E2E : `e2e/linkmusician/solo-scene.spec.ts` (scénario B jusqu'à « La
+  scène » franchie et la carte souvenir) ; `concerts`, `booker` et
+  `carriere` mis à jour. **Non exécutés.**
+
+### U6b — Parcours solo : plateaux et profil (à faire, après P8b)
+
+- **Objectif** : formats sur le formulaire de plateau, déclaration solo sur
+  le profil, « Candidater en mon nom », recherche solo, scénario B jusqu'à la
+  date confirmée depuis un plateau.
+- **Dépendances** : D78 acceptée, P8b.
+
+### P8b — Plateaux par format (à faire, D78 à valider)
+
+- **Objectif** : l'organisateur choisit les formats acceptés (solo, duo,
+  trio, groupe) ; une personne déclarée solo candidate en son nom ; un
+  agent mandaté le fait pour elle (D71) ; plateaux existants inchangés.
+- **Découpage** (D78 §3) : P8b-1 formats sur `Opportunity(GIG_SLOT)`
+  (défaut `BAND`) ; P8b-2 déclaration solo et recherche, RGPD ; P8b-3
+  candidature en son nom, refus « groupe » et mineur·e ; P8b-4 mandat
+  `GIG_SLOT` d'une personne ; P8b-5 E2E.
+- **Dépendances** : **D78 (Proposée)** à valider ; P8 testé.

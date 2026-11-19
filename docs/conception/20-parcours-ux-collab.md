@@ -1322,6 +1322,19 @@ avant (P4 : jamais d'écran pour un droit que le serveur n'a pas).
 | **U7** | Prochaine action et avancement non linéaires, carte à épreuves parallèles                                                                             | P9            | #72                | U2, P8                       |
 | —      | Aperçu participant, page publique, transfert, tâches libres, structures participantes, mandat de projet                                               | P5b, P11, P12 | #40, #77, #44, #45 | Après pilote                 |
 
+**U6, préparation et première tranche (19/11/2026).** U6 est découpé :
+**U6a** (livré avec P8, tests non exécutés) adapte la proposition de concert
+de la messagerie (« Qui a joué » : « Moi », en son nom, puis les groupes ;
+phrase d'effet ; un état vide qui demande le métier musicien·ne, jamais un
+groupe), l'épreuve « La scène » (« en ton nom ou avec ton groupe »), le
+libellé « Premier concert · en ton nom » et l'aide. Aucun écran n'invite à
+créer un groupe pour débloquer la scène. **U6b** (après P8b et D78) :
+formats sur le formulaire de plateau, déclaration « je me produis en solo »
+sur le profil, « Candidater en mon nom », recherche solo, E2E du scénario B
+jusqu'à la date obtenue depuis un plateau. Écran de référence : la
+proposition de collaboration de `/messages/[id]` (sélecteur natif groupé,
+Metro, 390 px) ; la carte et sa branche Scène.
+
 ### 14.2 Ordre recommandé
 
 1. **U0 et U1** d'abord : aucune dépendance au nouveau modèle, ils

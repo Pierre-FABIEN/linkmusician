@@ -152,6 +152,22 @@ s'il n'est pas tranché.
 | Q99  | **Annonce** pour un porteur `PROMOTER`, `STUDIO` ou `VENUE` ?                                                                                                                              | **Pas en U3b** : l'émetteur d'annonce reste la personne ou un groupe géré ; lot à part si le pilote le demande                                                                                   | U3b   |
 | Q100 | **Annonce depuis le besoin d'un projet de groupe** : au nom d'un groupe, `createOpportunity` ne publie qu'un recrutement de membre (P3-03), ce qu'un besoin n'est pas (conception 22 §7.6) | **Pas d'annonce liée** pour un projet de groupe (U3b-c) : une phrase le dit, « Trouver un pro » et « Inviter » restent ; l'annonce liée vaut pour un projet porté en son nom. À rouvrir avec Q99 | U3b-c |
 
+### Artiste solo sur scène (P8, #36, #72)
+
+Points que [D72](../decisions/D72-architecture-projets-collab.md) (Q-G0-3) et
+[D77](../decisions/D77-artiste-solo-sur-scene.md) ne tranchent pas. **Défauts
+appliqués par P8 le 19/11/2026**, à valider par le fondateur. La révision de
+D64 pour P8b est une décision à part, **Proposée** :
+[D78](../decisions/D78-plateaux-par-format-revision-D64.md).
+
+| #    | Question                                                                                                | Défaut appliqué                                                                                                                                                                                                                                                             | Lot |
+| ---- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| Q101 | Une ou un **mineur·e** peut-il faire reconnaître un concert **en son nom** ?                            | **Oui**, comme un groupe qui compte un·e mineur·e : seulement dans une conversation déjà ouverte (D5 inchangée : pas de nouvelle demande d'un·e inconnu·e), même preuve ; aucun booker sans accompagnement (artiste majeur·e, D71). La candidature solo reste refusée (D78) | P8  |
+| Q102 | Contester une **étape personnelle** ?                                                                   | **Pas par la contestation des étapes de groupe** (refusée avec un message) : elle vient d'un concert confirmé par l'hôte et ne rapporte aucune XP propre ; signalement du profil à la modération. Un recours dédié, si le pilote le demande                                 | P8  |
+| Q103 | Le **palier musicien** (« 3 concerts corroborés », moteur) compte-t-il l'étape personnelle ?            | **Non en P8** : le moteur ne lit que `milestone.attested` (règles de progression inchangées). La **fiche** additionne les concerts de groupe et le sien (fait, pas de points). À trancher avec N6                                                                           | P8  |
+| Q104 | Faut-il le **métier musicien·ne** pour jouer en son nom ?                                               | **Oui** : sans lui, « Qui a joué » ne propose pas la personne, et le formulaire dit comment l'ajouter (aucun groupe demandé)                                                                                                                                                | P8  |
+| Q105 | Un·e **booker** d'une personne (accompagnement confirmé) peut-il être « Booké par » d'un concert solo ? | **Oui** : `confirmedBookerOf` lit déjà un artiste `Actor` ; mêmes conditions de date et de territoire qu'un groupe                                                                                                                                                          | P8  |
+
 ### Domaine Collab : progression non linéaire (G0-04, #72)
 
 **Arbitrages validés par le fondateur le 18/11/2026** : [D73 — Progression non linéaire](../decisions/D73-progression-non-lineaire.md), issus de la [conception 21](../conception/21-progression-non-lineaire.md#16-questions-à-arbitrer). **Toutes les réponses Q-NL-1 à Q-NL-8 sont rendues** ; elles ne modifient pas le barème XP. Q-NL-2 révise D53 pour les épreuves solo après P8. Les lots restent non implémentés.

@@ -165,6 +165,37 @@ Le lieu a sa propre doc ([docs/jam](../jam/README.md#revendication-dun-lieu-nive
   intégration `server/representation/representation.integration.test.ts`,
   recherche ; e2e `e2e/linkmusician/booker.spec.ts`.
 
+## Artiste solo sur scène (P8, D77)
+
+Code livré le 19/11/2026, **tests écrits et non exécutés**.
+
+- **Interprète** : `Collaboration.performerId` (un `Actor`) dit qui a joué :
+  le groupe (`bandId` aussi rempli, recopié pour les concerts d'avant P8)
+  **ou** une personne en son nom (`bandId` vide). Jamais les deux.
+- **Proposer** : dans une conversation ouverte, « Qui a joué » propose les
+  personnes de la paire qui ont le métier musicien·ne, puis les groupes.
+  L'autre personne gère l'hôte ; on ne s'accueille pas soi-même
+  (`gigSplitOk`, `#lib/collaborations/rules`).
+- **Confirmer** : `verifySoloGigFromCollaboration`
+  (`#lib/server/milestones/service`) relit la personne, l'hôte et ses
+  gestionnaires ; `gig.held` avec la personne pour interprète ; « Premier
+  concert » et « Première tournée » portés par la personne (`Milestone`,
+  `bandId` = la personne), **sans** `milestone.attested`, donc sans XP
+  d'étape. La collaboration terminée rapporte comme avant.
+- **DC4** : un concert de groupe ne franchit pas l'étape personnelle de ses
+  membres ; un concert solo ne touche aucune étape ni tournée de groupe.
+- **Lecture** : réalisation `MILESTONE` au rôle `PERFORMER`
+  (`#lib/server/career/realisations`) ; « La scène » de la carte ; fiche
+  (concerts de groupe + le sien) ; carte souvenir « en son nom ».
+- **RGPD** : `etapes_de_scene_personnelles` et `collaborations[].interprete`
+  dans l'export ; étapes personnelles effacées à l'anonymisation.
+- **Pas encore** (P8b, [D78](../decisions/D78-plateaux-par-format-revision-D64.md)
+  proposée) : formats de plateau, candidature et recherche solo.
+- **Tests** : `collaborations/solo.test.ts`, `milestones/personal.test.ts`,
+  `career/solo.test.ts` ; intégration
+  `server/collaborations/solo-gigs.integration.test.ts` ; e2e
+  `e2e/linkmusician/solo-scene.spec.ts`.
+
 ## À venir
 
 - Festivals : leurs jams « off » se publient comme des jams (P2-14b) ;

@@ -1554,6 +1554,16 @@ flowchart LR
 - **Acceptation** : une artiste solo franchit « Premier concert » sans
   créer de groupe ; un concert de son groupe ne franchit pas ses étapes
   personnelles.
+- **[Livré le 19/11/2026, tests non exécutés]** ([D77](../decisions/D77-artiste-solo-sur-scene.md)).
+  Écarts avec cette fiche : (1) l'étape personnelle **n'émet pas**
+  `milestone.attested` (il verserait de l'XP de groupe à une personne) :
+  la ligne `Milestone` fait foi, lue directement par la carte ; (2) jouer
+  en son nom demande le **métier musicien·ne** (Q104) ; (3) une étape
+  personnelle ne se conteste pas comme une étape de groupe (Q102) ; (4) le
+  palier musicien du moteur ne la compte pas (Q103) ; (5) le candidat
+  `Actor` d'un plateau et `grantableKinds` restent à P8b ; la révision de
+  D64 y est portée par [D78](../decisions/D78-plateaux-par-format-revision-D64.md)
+  (**Proposée**), P8 la respectant sans la réviser.
 
 ### P8b — Plateaux par format · #77 (ou avec les opportunités existantes)
 
