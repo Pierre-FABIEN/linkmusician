@@ -1482,7 +1482,7 @@ collaboration terminée non signalable (Q90) : au défaut.
 
 - **Objectif** : prouver par un test d'intégration le comportement décrit
   par D75, sans le changer.
-- **Livré le 19/11/2026** (commit local « (P1c) », non publié) : un
+- **Livré le 19/11/2026** (commit « (P1c) » `cb8ec9d`, publié) : un
   `describe` « P1c » dans `gigs.integration.test.ts`, groupe neuf (Chef
   `OWNER`, Zoé et Nina `MEMBER`, Ancien parti), hôtes réutilisés (bar non
   vérifié, asso1 vérifiée). **Aucun test exécuté** (consigne de la
