@@ -284,7 +284,8 @@ describe.skipIf(!enabled)('réalisations (schéma e2e)', { timeout: 120_000 }, (
 		expect(gig.result).toEqual({
 			bandName: 'Réalis nuit',
 			hostName: null,
-			occurredAt: new Date('2026-06-01T12:00:00Z')
+			occurredAt: new Date('2026-06-01T12:00:00Z'),
+			solo: false
 		});
 		const after = { facts: facts.queries, pub: pub.queries, priv: priv.queries, gig: gig.queries };
 		console.log('Requêtes SQL avant N1', BEFORE_N1.queries, 'après', after);
