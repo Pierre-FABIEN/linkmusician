@@ -1,0 +1,79 @@
+<mxfile host="Melokiva" agent="docs/diagram/conventions.md" version="24.0.0">
+  <diagram id="dataflow-besoin-ajouter" name="Dataflow : ajouter un besoin">
+    <mxGraphModel grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" page="0" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="grp-transaction" value="Transaction Prisma (15 s) : ROLLBACK sur toute ProjectError" style="rounded=1;dashed=1;fillColor=none;verticalAlign=top;align=left;spacingLeft=12;lm=group;" vertex="1" parent="1">
+          <mxGeometry x="260" y="300" width="680" height="645" as="geometry"/>
+        </mxCell>
+        <mxCell id="df-form" value="Formulaire « Ajouter un besoin » (POST ?/besoin-ajouter)" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="300" y="0" width="240" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="df-action" value="Action serveur : identité relue depuis la session" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="300" y="110" width="240" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="df-zod" value="Validation Zod `projectNeedDraftSchema`" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="300" y="220" width="240" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="df-lock-author" value="Transaction Prisma, verrou `project-need-author:&lt;personne&gt;`" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="300" y="330" width="240" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="df-lock-project" value="`lockProjectContext` : `project:` puis le verrou du porteur" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="300" y="440" width="240" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="df-access" value="`projectAccess` : rôle relu sous verrou" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="300" y="550" width="240" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="df-quota" value="`needQuota` : trois comptages" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="300" y="660" width="240" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="df-write" value="INSERT `project_needs` et `project_acts`" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=amber;" vertex="1" parent="1">
+          <mxGeometry x="300" y="770" width="240" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="df-response" value="COMMIT, puis réponse : message et fiche rechargée" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="300" y="880" width="240" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="df-400" value="`fail(400)` : premier message de validation" style="rounded=1;whiteSpace=wrap;html=0;dashed=1;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="220" width="240" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="df-refus" value="`ProjectError` : 404, 403 ou 409, ROLLBACK" style="rounded=1;whiteSpace=wrap;html=0;dashed=1;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="605" width="240" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-df-form-df-action" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="df-form" target="df-action">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-df-action-df-zod" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="df-action" target="df-zod">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-df-zod-df-lock-author" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="df-zod" target="df-lock-author">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-df-zod-df-400" value="invalide" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="df-zod" target="df-400">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-df-lock-author-df-lock-project" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="df-lock-author" target="df-lock-project">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-df-lock-project-df-access" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="df-lock-project" target="df-access">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-df-access-df-quota" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="df-access" target="df-quota">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-df-access-df-refus" value="404 / 403 / 409" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="df-access" target="df-refus">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-df-quota-df-write" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="df-quota" target="df-write">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-df-quota-df-refus" value="409 quota" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="df-quota" target="df-refus">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-df-write-df-response" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="df-write" target="df-response">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

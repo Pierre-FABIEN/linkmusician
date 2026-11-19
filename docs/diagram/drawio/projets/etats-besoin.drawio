@@ -1,0 +1,52 @@
+<mxfile host="Melokiva" agent="docs/diagram/conventions.md" version="24.0.0">
+  <diagram id="etats-besoin" name="Cycle de vie d’un besoin">
+    <mxGraphModel grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" page="0" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="need-start" value="Ajout" style="ellipse;whiteSpace=wrap;html=0;lm=step;lmTone=ink;" vertex="1" parent="1">
+          <mxGeometry x="0" y="170" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="need-proposed" value="PROPOSED" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=blue;" vertex="1" parent="1">
+          <mxGeometry x="240" y="40" width="180" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="need-open" value="OPEN" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="600" y="170" width="180" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="need-filled" value="FILLED" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=lime;" vertex="1" parent="1">
+          <mxGeometry x="960" y="170" width="180" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="need-declined" value="DECLINED" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="240" y="340" width="180" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="need-cancelled" value="CANCELLED" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="600" y="400" width="180" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-start-need-proposed" value="coordination ajoute" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="need-start" target="need-proposed">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-start-need-open" value="gestion ajoute" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="need-start" target="need-open">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-proposed-need-open" value="gestion valide" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="need-proposed" target="need-open">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-proposed-need-declined" value="gestion refuse" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="need-proposed" target="need-declined">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-proposed-need-cancelled" value="auteur·rice retire · perte du droit" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="need-proposed" target="need-cancelled">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-open-need-filled" value="gestion ou coordination" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="need-open" target="need-filled">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-open-need-cancelled" value="gestion annule" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="need-open" target="need-cancelled">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-filled-need-open" value="rouvrir" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="need-filled" target="need-open">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

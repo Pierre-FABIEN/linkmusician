@@ -1,0 +1,88 @@
+<mxfile host="Melokiva" agent="docs/diagram/conventions.md" version="24.0.0">
+  <diagram id="donnees-projets" name="Modèle de données : projets, équipe et besoins">
+    <mxGraphModel grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" page="0" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="ent-actor" value="Actor" style="rounded=0;lmShape=entity;whiteSpace=wrap;html=0;lm=step;lmTone=cyan;" vertex="1" parent="1">
+          <mxGeometry x="520" y="0" width="240" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="ent-membership" value="Membership" style="rounded=0;lmShape=entity;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="240" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="ent-project" value="Project" style="rounded=0;lmShape=entity;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="520" y="220" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="ent-item" value="ProjectItem" style="rounded=0;lmShape=entity;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="0" y="420" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="ent-work" value="Work" style="rounded=0;lmShape=entity;whiteSpace=wrap;html=0;lm=step;lmTone=orange;" vertex="1" parent="1">
+          <mxGeometry x="0" y="640" width="240" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="ent-participant" value="ProjectParticipant" style="rounded=0;lmShape=entity;whiteSpace=wrap;html=0;lm=step;lmTone=rose;" vertex="1" parent="1">
+          <mxGeometry x="520" y="420" width="240" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="ent-need" value="ProjectNeed" style="rounded=0;lmShape=entity;whiteSpace=wrap;html=0;lm=step;lmTone=amber;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="420" width="260" height="170" as="geometry"/>
+        </mxCell>
+        <mxCell id="ent-opportunity" value="Opportunity" style="rounded=0;lmShape=entity;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="220" width="240" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="ent-instrument" value="Instrument" style="rounded=0;lmShape=entity;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="640" width="240" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="ent-act" value="ProjectAct" style="rounded=0;lmShape=entity;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="520" y="680" width="260" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-membership-ent-actor" value="N → 1 orgId, personId" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="ent-membership" target="ent-actor">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-project-ent-actor" value="N → 1 ownerId · Cascade" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="ent-project" target="ent-actor">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-project-ent-membership" value="gestion relue (calculée)" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="ent-project" target="ent-membership">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-item-ent-project" value="N → 1 · Cascade" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="ent-item" target="ent-project">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-item-ent-work" value="N → 1 · Cascade · unique (projet, morceau)" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="ent-item" target="ent-work">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-participant-ent-project" value="N → 1 · Cascade" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="ent-participant" target="ent-project">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-participant-ent-actor" value="N → 1 personId · Cascade" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="ent-participant" target="ent-actor">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-need-ent-project" value="N → 1 · Cascade" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="ent-need" target="ent-project">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-need-ent-actor" value="createdBy, decidedBy, filledBy · SetNull" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="ent-need" target="ent-actor">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-need-ent-opportunity" value="0..1 ↔ 0..1 · unique · SetNull" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="ent-need" target="ent-opportunity">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-need-ent-instrument" value="N → 0..1 · SetNull" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="ent-need" target="ent-instrument">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-need-ent-participant" value="filledBy : participation active, non liée" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="ent-need" target="ent-participant">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-act-ent-project" value="N → 1 · Cascade" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="ent-act" target="ent-project">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-act-ent-actor" value="author, subject · SetNull" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="ent-act" target="ent-actor">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-act-ent-need" value="needId sans FK" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="ent-act" target="ent-need">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-ent-act-ent-work" value="workId sans FK" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="ent-act" target="ent-work">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

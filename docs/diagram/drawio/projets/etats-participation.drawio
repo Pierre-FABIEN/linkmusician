@@ -1,0 +1,46 @@
+<mxfile host="Melokiva" agent="docs/diagram/conventions.md" version="24.0.0">
+  <diagram id="etats-participation" name="Cycle de vie d’une participation à un projet">
+    <mxGraphModel grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" page="0" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="part-start" value="Invitation" style="ellipse;whiteSpace=wrap;html=0;lm=step;lmTone=ink;" vertex="1" parent="1">
+          <mxGeometry x="0" y="160" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="part-invited" value="INVITED" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=rose;" vertex="1" parent="1">
+          <mxGeometry x="240" y="160" width="180" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="part-active" value="ACTIVE" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="600" y="40" width="180" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="part-declined" value="DECLINED" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="600" y="300" width="180" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="part-left" value="LEFT" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="960" y="40" width="180" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="part-removed" value="REMOVED" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="960" y="300" width="180" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-part-start-part-invited" value="gestion ou coordination invite" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="part-start" target="part-invited">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-part-invited-part-active" value="la personne accepte" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="part-invited" target="part-active">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-part-invited-part-declined" value="la personne refuse" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="part-invited" target="part-declined">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-part-invited-part-removed" value="gestion retire" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="part-invited" target="part-removed">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-part-active-part-left" value="la personne quitte" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="part-active" target="part-left">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-part-active-part-removed" value="gestion retire" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="part-active" target="part-removed">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

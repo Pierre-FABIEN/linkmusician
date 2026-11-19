@@ -1,0 +1,115 @@
+<mxfile host="Melokiva" agent="docs/diagram/conventions.md" version="24.0.0">
+  <diagram id="parcours-groupe-ep" name="Un groupe prépare un EP et invite un ingé son">
+    <mxGraphModel grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" page="0" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="band-create" value="Inès monte le groupe « Lumière »" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=orange;" vertex="1" parent="1">
+          <mxGeometry x="300" y="0" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="band-invite" value="Inès invite Malik par son @identifiant" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="300" y="110" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="band-accept" value="Malik accepte : le groupe est formé" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=orange;" vertex="1" parent="1">
+          <mxGeometry x="300" y="220" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="project-create" value="Inès crée l’EP « Aube » au nom du groupe" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="300" y="330" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="need-add" value="Elle ajoute le besoin « Ingé son · Prise de son »" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="300" y="440" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="need-search" value="« Trouver un pro » ouvre la recherche préremplie" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="300" y="550" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="contact-first" value="Inès écrit d’abord à Sam" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="300" y="660" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="contact-accept" value="Sam répond : le contact est accepté" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=rose;" vertex="1" parent="1">
+          <mxGeometry x="300" y="770" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="invite-handle" value="Ou : inviter Sam directement par son @identifiant" style="rounded=1;whiteSpace=wrap;html=0;dashed=1;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="-40" y="715" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="invite" value="Inès invite Sam au projet" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="300" y="880" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="invite-answer" value="Sam accepte depuis « À traiter »" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=rose;" vertex="1" parent="1">
+          <mxGeometry x="300" y="990" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="need-fill" value="Inès marque le besoin pourvu, en désignant Sam" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1100" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="team-ready" value="L’équipe de l’EP est constituée" style="ellipse;whiteSpace=wrap;html=0;lm=step;lmTone=lime;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1210" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="alt-quota" value="Refus : quota atteint (409)" style="rounded=1;whiteSpace=wrap;html=0;dashed=1;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="640" y="385" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="alt-no-opportunity" value="Pas d’annonce depuis ce besoin : le projet est porté par le groupe" style="rounded=1;whiteSpace=wrap;html=0;dashed=1;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="640" y="550" width="220" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="alt-invite-refused" value="Refus silencieux de l’invitation" style="rounded=1;whiteSpace=wrap;html=0;dashed=1;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="640" y="880" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="invite-declined" value="Sam refuse l’invitation" style="rounded=1;whiteSpace=wrap;html=0;dashed=1;lm=step;lmTone=rose;" vertex="1" parent="1">
+          <mxGeometry x="640" y="990" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-band-create-band-invite" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="band-create" target="band-invite">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-band-invite-band-accept" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="band-invite" target="band-accept">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-band-accept-project-create" value="groupe formé" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="band-accept" target="project-create">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-project-create-need-add" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="project-create" target="need-add">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-project-create-alt-quota" value="" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="project-create" target="alt-quota">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-add-need-search" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="need-add" target="need-search">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-add-alt-quota" value="" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="need-add" target="alt-quota">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-search-contact-first" value="personne trouvée" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="need-search" target="contact-first">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-search-alt-no-opportunity" value="annonce ?" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="need-search" target="alt-no-opportunity">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-search-invite-handle" value="majeur·e" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="need-search" target="invite-handle">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-contact-first-contact-accept" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="contact-first" target="contact-accept">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-contact-accept-invite" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="contact-accept" target="invite">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-invite-handle-invite" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="invite-handle" target="invite">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-invite-invite-answer" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="invite" target="invite-answer">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-invite-alt-invite-refused" value="refus" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="invite" target="alt-invite-refused">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-invite-answer-need-fill" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="invite-answer" target="need-fill">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-invite-answer-invite-declined" value="non" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="invite-answer" target="invite-declined">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-need-fill-team-ready" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="need-fill" target="team-ready">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

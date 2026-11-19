@@ -1,0 +1,79 @@
+<mxfile host="Melokiva" agent="docs/diagram/conventions.md" version="24.0.0">
+  <diagram id="couloirs-besoin-coordination" name="Qui fait quoi : besoin proposé par la coordination">
+    <mxGraphModel grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" page="0" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="lane-coordination" value="Coordination" style="swimlane;horizontal=0;startSize=120;fillColor=none;lm=lane;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1840" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="lane-gestion" value="Gestion" style="swimlane;horizontal=0;startSize=120;fillColor=none;lm=lane;" vertex="1" parent="1">
+          <mxGeometry x="0" y="180" width="1840" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="lane-inge" value="Ingé son" style="swimlane;horizontal=0;startSize=120;fillColor=none;lm=lane;" vertex="1" parent="1">
+          <mxGeometry x="0" y="360" width="1840" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="lane-systeme" value="Système" style="swimlane;horizontal=0;startSize=120;fillColor=none;lm=lane;" vertex="1" parent="1">
+          <mxGeometry x="0" y="540" width="1840" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="c-propose" value="Proposer le besoin « Producteur·rice · Arrangement »" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=blue;" vertex="1" parent="1">
+          <mxGeometry x="150" y="20" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="s-inbox" value="Ligne dans « À traiter » de la gestion" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="390" y="560" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-decide" value="Ouvrir ce besoin (après retouche éventuelle)" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="630" y="200" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-decline" value="Ne pas retenir" style="rounded=1;whiteSpace=wrap;html=0;dashed=1;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="630" y="275" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-revoke" value="Retirer la coordination" style="rounded=1;whiteSpace=wrap;html=0;dashed=1;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="870" y="275" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="s-cancel" value="Propositions en attente annulées" style="rounded=1;whiteSpace=wrap;html=0;dashed=1;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="635" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="c-invite" value="Inviter une productrice connue" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=blue;" vertex="1" parent="1">
+          <mxGeometry x="870" y="20" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="i-accept" value="Accepter l’invitation" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=rose;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="380" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="s-notify" value="Notification `PROJECT_JOINED` à qui a invité" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="1350" y="560" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="c-fill" value="Marquer le besoin pourvu" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=blue;" vertex="1" parent="1">
+          <mxGeometry x="1590" y="20" width="220" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-c-propose-s-inbox" value="PROPOSED" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="c-propose" target="s-inbox">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-s-inbox-g-decide" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="s-inbox" target="g-decide">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-decide-c-invite" value="OPEN" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-decide" target="c-invite">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-decide-g-decline" value="refuser" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="g-decide" target="g-decline">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-decide-g-revoke" value="retrait du droit" style="endArrow=block;html=0;dashed=1;lm=edge;" edge="1" parent="1" source="g-decide" target="g-revoke">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-revoke-s-cancel" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-revoke" target="s-cancel">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-c-invite-i-accept" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="c-invite" target="i-accept">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-i-accept-s-notify" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="i-accept" target="s-notify">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-s-notify-c-fill" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="s-notify" target="c-fill">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

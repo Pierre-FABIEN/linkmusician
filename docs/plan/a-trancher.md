@@ -169,6 +169,16 @@ D64 pour P8b est une décision à part, **Proposée** :
 | Q104 | Faut-il le **métier musicien·ne** pour jouer en son nom ?                                               | **Oui** : sans lui, « Qui a joué » ne propose pas la personne, et le formulaire dit comment l'ajouter (aucun groupe demandé)                                                                                                                                                | P8  |
 | Q105 | Un·e **booker** d'une personne (accompagnement confirmé) peut-il être « Booké par » d'un concert solo ? | **Oui** : `confirmedBookerOf` lit déjà un artiste `Actor` ; mêmes conditions de date et de territoire qu'un groupe                                                                                                                                                          | P8  |
 
+### Melokiva Diagram (DIAGRAM-01 à 03, D80)
+
+Défauts appliqués le 19/11/2026, à valider par le fondateur.
+
+| #    | Question                                                                             | Défaut appliqué                                                                                                                                                              | Lot        |
+| ---- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| Q107 | Qui lit `/diagram` ? Faut-il un rôle dédié en base ?                                 | **Rôle `ADMIN`**, plus une liste d'identifiants de compte en variable d'environnement serveur (`DIAGRAM_READER_IDS`) ; pas de migration. Un rôle en base si l'équipe grandit | DIAGRAM-02 |
+| Q108 | Un compte connecté non autorisé reçoit-il une 403 ou une 404 ?                       | **404**, comme une page inexistante : l'existence de l'outil n'est pas révélée. Anonyme : redirection vers la connexion                                                      | DIAGRAM-02 |
+| Q109 | Les boutiques, blog et administration du boilerplate entrent-ils dans l'inventaire ? | **Non** : écartés avec leur raison (`OUT_OF_SCOPE`, D6) ; l'authentification, le compte et le RGPD y sont                                                                    | DIAGRAM-01 |
+
 ### Domaine Collab : progression non linéaire (G0-04, #72)
 
 **Arbitrages validés par le fondateur le 18/11/2026** : [D73 — Progression non linéaire](../decisions/D73-progression-non-lineaire.md), issus de la [conception 21](../conception/21-progression-non-lineaire.md#16-questions-à-arbitrer). **Toutes les réponses Q-NL-1 à Q-NL-8 sont rendues** ; elles ne modifient pas le barème XP. Q-NL-2 révise D53 pour les épreuves solo après P8. Les lots restent non implémentés.

@@ -1,0 +1,127 @@
+<mxfile host="Melokiva" agent="docs/diagram/conventions.md" version="24.0.0">
+  <diagram id="global-carte" name="Vue globale de Melokiva">
+    <mxGraphModel grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" page="0" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="g-personne" value="Personne" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=rose;" vertex="1" parent="1">
+          <mxGeometry x="300" y="0" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-groupe" value="Groupe" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=orange;" vertex="1" parent="1">
+          <mxGeometry x="0" y="170" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-structure" value="Structures" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=lime;" vertex="1" parent="1">
+          <mxGeometry x="0" y="340" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-lieu" value="Lieu" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=lime;" vertex="1" parent="1">
+          <mxGeometry x="900" y="170" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-projet" value="Projet" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="300" y="170" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-besoin" value="Besoin" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=amber;" vertex="1" parent="1">
+          <mxGeometry x="300" y="340" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-annonce" value="Annonce et candidature" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="300" y="510" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-jam" value="Jam" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=orange;" vertex="1" parent="1">
+          <mxGeometry x="900" y="0" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-conversation" value="Conversation" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="600" y="0" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-collaboration" value="Collaboration confirmée" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=blue;" vertex="1" parent="1">
+          <mxGeometry x="600" y="170" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-oeuvre" value="Morceau et crédits" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="600" y="340" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-concert" value="Concert reconnu" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=cyan;" vertex="1" parent="1">
+          <mxGeometry x="900" y="340" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-accompagnement" value="Accompagnement" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=paper;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="g-progression" value="Progression" style="rounded=1;whiteSpace=wrap;html=0;lm=step;lmTone=violet;" vertex="1" parent="1">
+          <mxGeometry x="750" y="510" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-personne-g-groupe" value="adhère" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-personne" target="g-groupe">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-personne-g-projet" value="porte, participe" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-personne" target="g-projet">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-personne-g-annonce" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-personne" target="g-annonce">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-personne-g-jam" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-personne" target="g-jam">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-personne-g-conversation" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-personne" target="g-conversation">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-personne-g-accompagnement" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-personne" target="g-accompagnement">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-groupe-g-projet" value="porte" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-groupe" target="g-projet">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-groupe-g-concert" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-groupe" target="g-concert">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-structure-g-projet" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-structure" target="g-projet">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-structure-g-annonce" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-structure" target="g-annonce">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-structure-g-concert" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-structure" target="g-concert">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-lieu-g-jam" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-lieu" target="g-jam">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-lieu-g-concert" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-lieu" target="g-concert">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-projet-g-besoin" value="manque" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-projet" target="g-besoin">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-projet-g-oeuvre" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-projet" target="g-oeuvre">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-besoin-g-annonce" value="prépare" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-besoin" target="g-annonce">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-annonce-g-collaboration" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-annonce" target="g-collaboration">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-jam-g-progression" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-jam" target="g-progression">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-conversation-g-collaboration" value="propose" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-conversation" target="g-collaboration">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-collaboration-g-oeuvre" value="crédits" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-collaboration" target="g-oeuvre">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-collaboration-g-concert" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-collaboration" target="g-concert">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-collaboration-g-progression" value="événements" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-collaboration" target="g-progression">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-oeuvre-g-progression" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-oeuvre" target="g-progression">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-concert-g-progression" value="" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-concert" target="g-progression">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e-g-accompagnement-g-annonce" value="candidate pour" style="endArrow=block;html=0;lm=edge;" edge="1" parent="1" source="g-accompagnement" target="g-annonce">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
