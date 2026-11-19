@@ -1253,11 +1253,12 @@ une coordination proposée se tranche sur la fiche, « À traiter » y mène ;
 « Inviter » en prochaine action de la gestion seulement pour un projet de
 groupe (Q84) ; Q83 et Q84 au défaut. Reste **U3b** (besoins proposés).
 
-### U3b-a — Conception des besoins d'un projet 🟡 (conception proposée)
+### U3b-a — Conception des besoins d'un projet ✅
 
 Reliquat de U3 (#71, #36). **Livré le 19/11/2026, documentaire** :
-[conception 22](../conception/22-besoins-projet.md) et décision **D76
-Proposée** ; aucune ligne de code, aucune migration. U3b n'est **pas
+[conception 22](../conception/22-besoins-projet.md) et décision **D76**,
+**Acceptée** par le fondateur le 19/11/2026 avec les défauts Q91 à Q99 (Q96
+et Q99 gardées comme pistes d'évolution) ; aucune ligne de code, aucune migration. U3b n'est **pas
 livré** : il le sera avec U3b-b et U3b-c.
 
 - **Modèle** : `ProjectNeed` (métier parmi les six de la recherche,

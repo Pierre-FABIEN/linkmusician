@@ -127,5 +127,5 @@ de branches ; moteur de prochaines actions à cinq rangs ; carte à
 Besoins d'un projet et intervenants proposés (modèle `ProjectNeed`, cycle
 de vie, matrice des droits, « Proposer à la gestion », annonce et
 invitation, RGPD, compatibilité #89, lots U3b-b et U3b-c) :
-[conception 22, U3b-a, #71](./22-besoins-projet.md), proposée, décision
-[D76](../decisions/README.md) **Proposée** ; aucun code.
+[conception 22, U3b-a, #71](./22-besoins-projet.md), validée, décision
+[D76](../decisions/README.md) **Acceptée** (19/11/2026) ; U3b-b et U3b-c à livrer.

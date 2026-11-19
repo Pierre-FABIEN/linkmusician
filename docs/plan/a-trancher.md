@@ -137,9 +137,9 @@ s'il n'est pas tranché.
 
 ### Domaine Collab : besoins d'un projet (U3b, #71)
 
-Conception [22](../conception/22-besoins-projet.md) §14, décision [D76](../decisions/README.md) Proposée.
+**Arbitrages validés par le fondateur le 19/11/2026** : défauts retenus tels quels, décision [D76](../decisions/README.md) **Acceptée** ([conception 22](../conception/22-besoins-projet.md) §14). **Q96 et Q99 restent des pistes d'évolution produit** : à terme, les participant·es pourront suggérer des besoins, et les structures professionnelles publier des annonces adaptées à leur métier.
 
-| #   | Question                                                                             | Par défaut, en attendant                                                                                                                                                             | Lot |
+| #   | Question                                                                             | Décision validée                                                                                                                                                                     | Lot |
 | --- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --- |
 | Q91 | **Notifier** la gestion d'un besoin proposé, et l'auteur·rice de la décision ?       | **Non** : « À traiter » (compteur, N3) et la fiche suffisent ; un type de notification demanderait une migration et des préférences                                                  | U3b |
 | Q92 | « **Demander une modification** » comme état distinct ? Motif de refus obligatoire ? | **Non** : la gestion retouche puis valide, ou refuse sans motif obligatoire ; l'auteur·rice repropose                                                                                | U3b |
