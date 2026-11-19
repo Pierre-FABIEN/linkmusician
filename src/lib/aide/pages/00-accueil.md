@@ -7,8 +7,8 @@ simplement._
 >
 > - LinkMusician t’aide à **trouver avec qui jouer** près de chez toi, puis
 >   à **faire avancer ta musique**, comme dans un jeu.
-> - Deux façons de jouer : le **mode jam** (pour le plaisir, sans
->   engagement) et le **mode carrière** (pour monter un projet).
+> - Deux univers : **Rencontre** (pour jouer et rencontrer, sans
+>   engagement) et **Collab** (pour monter un projet à plusieurs).
 > - Tu gagnes des points seulement pour ce qui se passe **vraiment** :
 >   jouer ensemble, composer, monter sur scène. Jamais pour envoyer des
 >   messages ou te connecter.
@@ -46,16 +46,16 @@ de l'app.
 
 ## Choisis ton mode
 
-| 🎸 Mode jam                                                  | 🗺️ Mode carrière                                                     |
+| 🎸 Rencontre                                                 | 🗺️ Collab                                                            |
 | ------------------------------------------------------------ | -------------------------------------------------------------------- |
 | **Jouer pour le plaisir**, ce soir ou ce week-end            | **Monter un projet**, en ton nom ou avec un groupe                   |
 | Tu te mets dispo, tu rejoins une jam, tu rencontres du monde | Tu suis ta prochaine étape, tu collabores, tu prouves ce que tu fais |
 | Pas d’objectif, pas de pression                              | Tes projets, ton équipe et des branches de progression indépendantes |
-| [Comment marche le mode jam →](./02-mode-jam.md)             | [Comment marche le mode carrière →](./03-mode-carriere.md)           |
+| [Comment marche Rencontre →](./02-mode-jam.md)               | [Comment marche Collab →](./03-mode-carriere.md)                     |
 
-> 💡 **Astuce** : beaucoup de groupes naissent d’une jam. Commence par le
-> mode jam si tu ne sais pas par où commencer : tu passeras en mode
-> carrière quand l’envie viendra.
+> 💡 **Astuce** : beaucoup de groupes naissent d’une jam. Commence par
+> Rencontre si tu ne sais pas par où commencer : tu passeras dans
+> Collab quand l’envie viendra.
 
 ## Toutes les pages {#toutes-les-pages}
 

@@ -25,7 +25,7 @@
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-5xl space-y-6">
 		<div class="space-y-2">
-			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
+			<a href="/jam" class="text-sm text-muted-foreground underline">← Rencontre</a>
 			<h1 class="lm-title">
 				{again ? 'Rejouer ensemble' : 'Publier une jam'}
 			</h1>

@@ -83,8 +83,8 @@ export function jamNextStep(s: JamState): JamStep {
 	}
 	return step(5, {
 		title: 'Et maintenant, un projet ?',
-		text: 'Tu as joué avec d’autres musicien·nes : monte un groupe ou un morceau en passant en mode carrière.',
+		text: 'Tu as joué avec d’autres musicien·nes : monte un groupe ou un morceau en passant dans Collab.',
 		href: '/jouer',
-		cta: 'Passer en mode carrière'
+		cta: 'Passer dans Collab'
 	});
 }

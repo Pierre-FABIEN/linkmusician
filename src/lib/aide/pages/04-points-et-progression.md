@@ -73,7 +73,7 @@ et ne te compare à personne.
 Le palier dit **où tu en es dans la musique**, avec des faits : **Premiers
 pas**, **En réseau**, **Collaborateur·rice**, **Musicien·ne de scène**,
 **Pilier local**, **Référence**. Les conditions de chacun sont dans
-[Le mode carrière](./03-mode-carriere.md#paliers).
+[Collab](./03-mode-carriere.md#paliers).
 
 Les groupes ont aussi leur rang, d’après leurs étapes : la dernière étape
 corroborée (ou mieux) donne le rang du groupe.
@@ -95,7 +95,7 @@ rapportent pas de points.
 | **Fait maison**            | Un morceau composé seul·e, maquette jointe                                                 |
 | **Orchestre à soi seul·e** | Composé seul·e, et la prise de son, le mixage ou la production aussi                       |
 | **Premier mixage**…        | Crédité·e à la prise de son, au mixage, au mastering ou à la production d’un morceau       |
-| Les succès du mode jam     | Noctambule, Touche-à-tout, Brise-glace, Chef d’orchestre ([voir](./02-mode-jam.md#carnet)) |
+| Les succès de Rencontre    | Noctambule, Touche-à-tout, Brise-glace, Chef d’orchestre ([voir](./02-mode-jam.md#carnet)) |
 
 ## Les célébrations
 
@@ -178,7 +178,7 @@ par ses sessions ou ses événements ; son rang ne s'achète pas en points.
 
 <details><summary>Où vois-je mes points ?</summary>
 
-Dans **Mon espace** (mode carrière). Ouvre **Journal de bord** pour
+Dans **Mon espace** (Collab). Ouvre **Journal de bord** pour
 retrouver chaque gain, sa raison et une éventuelle correction. Ton profil public ne les montre jamais.
 
 </details>
@@ -201,4 +201,4 @@ l’action ; les anciens gains ne sont pas augmentés rétroactivement.
 
 ---
 
-[← Le mode carrière](./03-mode-carriere.md) · [Rencontrer des musicien·nes →](./05-rencontrer.md)
+[← Collab](./03-mode-carriere.md) · [Rencontrer des musicien·nes →](./05-rencontrer.md)

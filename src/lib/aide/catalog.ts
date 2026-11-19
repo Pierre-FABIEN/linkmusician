@@ -34,14 +34,14 @@ export const HELP_PAGES: readonly HelpPage[] = [
 	{
 		slug: 'mode-jam',
 		file: '02-mode-jam.md',
-		nav: 'Le mode jam',
+		nav: 'Rencontre',
 		summary: 'Se mettre dispo, trouver une jam, l’après-jam et ton carnet.',
 		icon: 'jam'
 	},
 	{
 		slug: 'mode-carriere',
 		file: '03-mode-carriere.md',
-		nav: 'Le mode carrière',
+		nav: 'Collab',
 		summary: 'Tes projets, leur équipe et leurs besoins, tes morceaux et ton parcours scénique.',
 		icon: 'career'
 	},

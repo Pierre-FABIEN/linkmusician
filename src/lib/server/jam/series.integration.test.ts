@@ -190,7 +190,7 @@ describe.skipIf(!enabled)('scènes ouvertes récurrentes (schéma e2e)', { timeo
 		expect(await db.opportunity.count({ where: { seriesId } })).toBe(5);
 	});
 
-	it('le mode jam la montre « Tous les jeudis », hébergée par le lieu', async () => {
+	it('Rencontre la montre « Tous les jeudis », hébergée par le lieu', async () => {
 		const first = await db.opportunity.findFirstOrThrow({
 			where: { seriesId },
 			orderBy: { startsAt: 'asc' }

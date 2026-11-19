@@ -1,4 +1,4 @@
-# Le mode jam
+# Rencontre
 
 _Jouer pour le plaisir, rencontrer du monde, sans projet ni pression._
 
@@ -20,10 +20,10 @@ _Jouer pour le plaisir, rencontrer du monde, sans projet ni pression._
 | ----------------------------------- | ---------------- | ------------------------------------ | ------------------------------------------- |
 | Je me mets dispo, je trouve une jam | On joue, en vrai | « J’y étais », j’apprécie les autres | Rejouer ensemble, garder le contact, carnet |
 
-Ton accueil du mode jam te montre toujours **ta prochaine étape** :
+Ton accueil de Rencontre te montre toujours **ta prochaine étape** :
 indique ta ville, mets-toi dispo (ou repère une jam), écris à un·e
 musicien·ne, trouve un lieu, jouez ensemble… puis, si l’envie vient,
-passe au mode carrière.
+passe à Collab.
 
 Tout l’accueil est un **menu de tuiles**, rangé en trois volets que tu
 fais glisser du doigt (ou que tu choisis par leur nom, en haut) ; chaque
@@ -42,7 +42,7 @@ tuile mène à son écran :
 
 ### Te mettre dispo
 
-1. Dans le mode jam, ouvre **Les musicos dispo autour de moi**, puis
+1. Dans Rencontre, ouvre **Les musicos dispo autour de moi**, puis
    touche **Je suis dispo**.
 2. Choisis ton créneau : **ce soir**, **demain** ou **ce week-end**.
 3. Ajoute une note si tu veux (« plutôt funk, j’ai mon ampli »).
@@ -82,7 +82,7 @@ Tu tiens une scène ouverte, ou tu veux réunir quelques musicien·nes ?
 
 D’abord, dans **Mon profil**, coche **Je suis prêt·e à organiser des
 jams** et enregistre. C’est ce qui fait apparaître **Lancer une jam** dans
-le mode jam, et les lieux autour de toi peuvent t’inviter à animer leurs
+Rencontre, et les lieux autour de toi peuvent t’inviter à animer leurs
 scènes ouvertes : l’invitation arrive dans **Mes jams**, tu acceptes ou tu
 déclines. Animer, c’est mener la soirée (composer la formation, accueillir
 les musicos), pas gérer le lieu ; tu peux arrêter quand tu veux. Tu n’as pas envie d’organiser ? Pas besoin : écris aux musicos
@@ -135,7 +135,7 @@ revendiquer. Une fois la demande acceptée, **Gérer la fiche du lieu** :
   candidatent, tu choisis ;
 - **Publier une scène ouverte** : ton bœuf du jeudi, une seule fois (le
   jour, les heures, les places souhaitées). Les jams des quatre semaines à
-  venir apparaissent dans le mode jam des musicien·nes autour, les
+  venir apparaissent dans Rencontre des musicien·nes autour, les
   suivantes arrivent d’elles-mêmes. Toutes les personnes qui gèrent le
   lieu en sont hôtes. **Arrêter** annule les soirées à venir ;
 - **Qui anime** : des musicien·nes prêt·es à organiser des jams autour de
@@ -155,7 +155,7 @@ revendiquer. Une fois la demande acceptée, **Gérer la fiche du lieu** :
 
 Ton prof t’a envoyé un **lien d’invitation** ? Ouvre-le et choisis
 **Rejoindre l’école** (crée d’abord ton compte si besoin : on te ramène au
-lien ensuite). Tu retrouves ton école dans **Mode jam › Mon école** :
+lien ensuite). Tu retrouves ton école dans **Rencontre › Mon école** :
 
 - ses **ateliers jam**, que seuls ses élèves voient. Dis « Je viens »
   comme pour une jam ;
@@ -194,7 +194,7 @@ On joue ! L’app s’efface : rien à faire sur ton téléphone.
 ## 3. Après la jam {#apres-la-jam}
 
 Dès le début de la jam et pendant **7 jours** après (le plus simple :
-**Apprécier les musicos croisés**, en tête du mode jam) :
+**Apprécier les musicos croisés**, en tête de Rencontre) :
 
 1. Touche **J’y étais** sur la fiche de la jam.
 2. **Qui était là ?** te montre les présent·es en grille (photo ou
@@ -212,8 +212,8 @@ Puis, avec les gens avec qui le courant est passé :
   ton numéro**, la mettre dans un groupe pour un projet, et l’app te la
   proposera en premier le jour où tu chercheras quelqu’un.
 
-> 💡 **Astuce** : laisse des appréciations ! C’est ce qui fait vivre le
-> mode jam, et ça ne te coûte rien.
+> 💡 **Astuce** : laisse des appréciations ! C’est ce qui fait vivre
+> Rencontre, et ça ne te coûte rien.
 
 ### Ce que ça rapporte
 
@@ -241,7 +241,7 @@ Dans **Mon carnet de jams**, tes jams façon souvenirs : les jams où tu étais,
 personnes et les instruments croisés, les styles joués, les communes, les
 appréciations reçues. Ton carnet est privé.
 
-### Les succès du mode jam
+### Les succès de Rencontre
 
 Pour le plaisir, sans points :
 
@@ -286,11 +286,11 @@ elle, vient d’une autre personne qui t’a entendu jouer.
 
 </details>
 
-<details><summary>Le mode jam compte-t-il pour ma carrière ?</summary>
+<details><summary>Rencontre compte-t-elle pour ma carrière ?</summary>
 
 Oui. Les appréciations reçues comptent pour tes points et pour le palier
-**En réseau**, et tes contacts t’aident à monter un projet. Mais le
-mode jam ne te fixe aucun objectif.
+**En réseau**, et tes contacts t’aident à monter un projet. Mais
+Rencontre ne te fixe aucun objectif.
 
 </details>
 
@@ -314,4 +314,4 @@ ton compte a atteint la confiance **Membre**. Tes droits actuels sont dans
 
 ---
 
-[← Premiers pas](./01-premiers-pas.md) · [Le mode carrière →](./03-mode-carriere.md)
+[← Premiers pas](./01-premiers-pas.md) · [Collab →](./03-mode-carriere.md)

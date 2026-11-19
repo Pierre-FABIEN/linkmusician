@@ -8,6 +8,15 @@ d'accueil propose deux modes (D21) :
 | **Carrière** | Construire son parcours, étape par étape | Mode carrière       | Monter une équipe, créer des morceaux, enregistrer, jouer sur scène, sortir, signer |
 | **Jam**      | Jouer pour le plaisir, ici et maintenant | Match rapide        | Jammer avec des gens dispos près de chez soi, faire des rencontres musicales        |
 
+> **Noms affichés (G1-01, #74, 19/11/2026).** À l'écran, le mode jam
+> s'appelle **Rencontre** et le mode carrière **Collab** (deux univers
+> d'intention ouverts à tous les métiers ; Collab est centré sur les
+> projets, [conception 20](./20-parcours-ux-collab.md)). Les valeurs
+> `JAM` et `CAREER`, les adresses (`/jam`, `/espace`, `/jouer/carriere`,
+> `/aide/mode-jam`, `/aide/mode-carriere`) et les préférences enregistrées
+> sont inchangées. Ce document garde les termes « mode jam » et « mode
+> carrière » pour désigner ces deux modes dans la conception.
+
 On passe de l'un à l'autre quand on veut (depuis le 05/11/2026 : écran
 `/jouer`, accueil de l'espace, qui retient le dernier mode choisi ; hub
 `/jam` pour le mode jam). Le jam ne sert pas à lancer

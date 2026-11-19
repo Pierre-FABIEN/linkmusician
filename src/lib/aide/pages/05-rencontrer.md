@@ -76,7 +76,7 @@ Deux types d’annonces :
 Une annonce de recrutement peut être publiée **au nom d’un groupe** par
 les personnes qui le gèrent : elle s’affiche alors dans la ville du
 groupe, et sur sa page (« Le groupe recrute »). Pour une jam, passe par
-le mode jam (**Lancer une jam**).
+Rencontre (**Lancer une jam**).
 
 ### Chercher un·e ingé son ou un·e producteur·rice {#metiers-du-son}
 
@@ -177,7 +177,7 @@ sache.
 
 Dans une conversation ouverte, après avoir joué ensemble, touche
 **Proposer une collaboration**. C’est ce qui fait avancer vos parcours
-(voir [Le mode carrière](./03-mode-carriere.md#collaborer)).
+(voir [Collab](./03-mode-carriere.md#collaborer)).
 
 > ⚠️ **Important** : un compte nouveau peut écrire à 10 nouvelles
 > personnes par jour. Ça monte avec ta confiance. Et un message refusé, ce n’est pas

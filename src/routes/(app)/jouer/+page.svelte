@@ -67,11 +67,11 @@
 								aria-label={m.label}
 							>
 								<div class="flex items-start justify-between gap-2">
-									<p class="lm-tile__kicker">mode</p>
+									<p class="lm-tile__kicker">univers</p>
 									{#if m.resume}<span class="lm-pill">Reprendre</span>{/if}
 								</div>
 								<div class="space-y-1">
-									<h3 class="lm-tile__title">{m.mode === 'CAREER' ? 'carrière' : 'jam'}</h3>
+									<h3 class="lm-tile__title">{m.mode === 'CAREER' ? 'collab' : 'rencontre'}</h3>
 									<p class="lm-tile__text">
 										{m.mode === 'CAREER'
 											? 'Monte un projet : groupe, morceaux, concerts.'
@@ -83,8 +83,8 @@
 					</form>
 					<p class="mt-6 text-sm text-muted-foreground">
 						Comment ça marche ?
-						<a href="/aide/mode-jam" class="font-semibold underline">Le mode jam</a> ·
-						<a href="/aide/mode-carriere" class="font-semibold underline">Le mode carrière</a>
+						<a href="/aide/mode-jam" class="font-semibold underline">Rencontre</a> ·
+						<a href="/aide/mode-carriere" class="font-semibold underline">Collab</a>
 					</p>
 				</Pivot>
 

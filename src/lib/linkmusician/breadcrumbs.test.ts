@@ -23,7 +23,7 @@ describe('breadcrumbs', () => {
 				}
 			)
 		).toEqual([
-			{ label: 'Mode jam', href: '/jam' },
+			{ label: 'Rencontre', href: '/jam' },
 			{ label: 'Jams à venir', href: '/jam/agenda' },
 			{ label: 'Bœuf funk du mardi', href: '/jams/j1' },
 			{ label: 'Qui était là ?', href: '/jams/j1/presents' }
@@ -32,7 +32,7 @@ describe('breadcrumbs', () => {
 
 	it('sans nom dans les données : le libellé générique', () => {
 		expect(crumbs('/(app)/lieux/[id]', '/lieux/v1', { id: 'v1' }).map((c) => c.label)).toEqual([
-			'Mode jam',
+			'Rencontre',
 			'Jams à venir',
 			'Lieux',
 			'Lieu'
@@ -51,18 +51,18 @@ describe('breadcrumbs', () => {
 				'JAM'
 			)
 		).toEqual([
-			{ label: 'Mode jam', href: '/jam' },
+			{ label: 'Rencontre', href: '/jam' },
 			{ label: 'Messages', href: '/messages' },
 			{ label: 'Malik', href: '/messages/c1' }
 		]);
 		expect(crumbs('/(app)/profil/ville', '/profil/ville').map((c) => c.label)).toEqual([
-			'Mode carrière',
+			'Collab',
 			'Mon profil',
 			'Ma ville'
 		]);
 	});
 
-	it('le mode carrière : groupes sous l’espace', () => {
+	it('Collab : groupes sous l’espace', () => {
 		expect(
 			crumbs(
 				'/(app)/groupes/[handle]/modifier',
@@ -77,7 +77,7 @@ describe('breadcrumbs', () => {
 
 	it('la fiche de carrière remonte à l’espace', () => {
 		expect(crumbs('/(app)/espace/fiche', '/espace/fiche')).toEqual([
-			{ label: 'Mode carrière', href: '/espace' },
+			{ label: 'Collab', href: '/espace' },
 			{ label: 'Ma fiche de carrière', href: '/espace/fiche' }
 		]);
 	});

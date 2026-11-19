@@ -33,7 +33,7 @@
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-6">
 		<MetroPageHeader
-			kicker="Mode carrière"
+			kicker="Collab"
 			title="Parrainer"
 			intro="Tu connais deux personnes qui devraient jouer ensemble ? Présente-les. Si elles collaborent, tu deviens Passeur."
 		/>

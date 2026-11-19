@@ -36,7 +36,7 @@
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
 		<div class="space-y-2">
-			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
+			<a href="/jam" class="text-sm text-muted-foreground underline">← Rencontre</a>
 			<h1 class="lm-title">Lieux de jam</h1>
 			<p class="text-sm text-muted-foreground">
 				Bars, cafés-concerts, salles, MJC, locaux de répète, studios : une jam se tient toujours

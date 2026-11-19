@@ -5,7 +5,7 @@ import { expectNoA11yViolations } from '../support/a11y';
 import { skipOnboarding } from '../support/linkmusician';
 
 /**
- * Centre d'aide : un visiteur lit l'accueil de l'aide, ouvre le mode jam,
+ * Centre d'aide : un visiteur lit l'accueil de l'aide, ouvre Rencontre,
  * suit le sommaire et passe à la page suivante ; une personne connectée y
  * arrive depuis le choix du mode et garde la navigation de son espace.
  */
@@ -14,7 +14,7 @@ test.describe('LinkMusician — centre d’aide', () => {
 	const A11Y_EXCLUDE = ['.cartButton'];
 	const shots = process.env.AIDE_SCREENSHOTS;
 
-	test('un visiteur lit l’aide du mode jam', async ({ browser }) => {
+	test('un visiteur lit l’aide de Rencontre', async ({ browser }) => {
 		const visitor = await browser.newContext();
 		try {
 			const page = await visitor.newPage();
@@ -27,9 +27,9 @@ test.describe('LinkMusician — centre d’aide', () => {
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 			if (shots) await page.screenshot({ path: `${shots}/aide-accueil.png`, fullPage: true });
 
-			await cards.getByRole('link', { name: /Le mode jam/ }).click();
+			await cards.getByRole('link', { name: /^Rencontre\b/ }).click();
 			await expect(page).toHaveURL(/\/aide\/mode-jam$/);
-			await expect(page.getByRole('heading', { level: 1 })).toHaveText('Le mode jam');
+			await expect(page.getByRole('heading', { level: 1 })).toHaveText('Rencontre');
 			await page
 				.getByRole('navigation', { name: 'Sur cette page' })
 				.getByRole('link', { name: '3. Après la jam' })
@@ -40,12 +40,12 @@ test.describe('LinkMusician — centre d’aide', () => {
 			if (shots) await page.screenshot({ path: `${shots}/aide-jam.png`, fullPage: true });
 
 			await page.getByRole('link', { name: /Page suivante/ }).click();
-			await expect(page.getByRole('heading', { level: 1 })).toHaveText('Le mode carrière');
+			await expect(page.getByRole('heading', { level: 1 })).toHaveText('Collab');
 
 			await page.setViewportSize({ width: 390, height: 844 });
 			await page.goto('/aide/mode-carriere');
 			await waitForAppReady(page);
-			await expect(page.getByRole('heading', { level: 1 })).toHaveText('Le mode carrière');
+			await expect(page.getByRole('heading', { level: 1 })).toHaveText('Collab');
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 			if (shots)
 				await page.screenshot({ path: `${shots}/aide-carriere-mobile.png`, fullPage: true });
@@ -91,9 +91,9 @@ test.describe('LinkMusician — centre d’aide', () => {
 		await skipOnboarding(page, account.email);
 		await page.goto('/jouer');
 		await waitForAppReady(page);
-		await page.getByRole('link', { name: 'Le mode carrière' }).click();
+		await page.getByRole('link', { name: 'Collab' }).click();
 		await expect(page).toHaveURL(/\/aide\/mode-carriere$/);
-		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Le mode carrière');
+		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Collab');
 		// Membre connecté : les raccourcis de la coquille restent visibles.
 		await expect(page.locator('header').getByRole('link', { name: 'Découvrir' })).toBeVisible();
 		await expectNoA11yViolations(page, A11Y_EXCLUDE);

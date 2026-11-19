@@ -29,8 +29,8 @@ test.describe('LinkMusician — modes de jeu', () => {
 			await page.goto('/jouer');
 			await waitForAppReady(page);
 			await expect(page.getByRole('heading', { level: 1, name: 'LinkMusician' })).toBeVisible();
-			await expect(careerChoice).toHaveAccessibleName('Mode carrière');
-			await expect(jamChoice).toHaveAccessibleName('Mode jam');
+			await expect(careerChoice).toHaveAccessibleName('Collab');
+			await expect(jamChoice).toHaveAccessibleName('Rencontre');
 			const sections = page.getByRole('navigation', {
 				name: 'Sections de l’application'.replace('’', "'")
 			});
@@ -66,7 +66,7 @@ test.describe('LinkMusician — modes de jeu', () => {
 			await expectNoA11yViolations(page, A11Y_EXCLUDE);
 		});
 
-		await test.step('2. Mode jam, la première fois : présentation en 3 étapes', async () => {
+		await test.step('2. Rencontre, la première fois : présentation en 3 étapes', async () => {
 			await jamChoice.click();
 			await expect(page).toHaveURL(/\/jouer\/jam$/);
 			await expect(page.getByText('Étape 1 sur 3')).toBeVisible();
@@ -85,13 +85,13 @@ test.describe('LinkMusician — modes de jeu', () => {
 		await test.step('3. Ensuite : accès direct, « Reprendre »', async () => {
 			await page.goto('/jouer');
 			await waitForAppReady(page);
-			await expect(jamChoice).toHaveAccessibleName('Mode jam');
+			await expect(jamChoice).toHaveAccessibleName('Rencontre');
 			await expect(jamChoice).toContainText('Reprendre');
 			await jamChoice.click();
 			await expect(page).toHaveURL(/\/jam$/);
 		});
 
-		await test.step('4. Mode carrière : présentation passée, prochaine étape', async () => {
+		await test.step('4. Collab : présentation passée, prochaine étape', async () => {
 			await page.goto('/jouer');
 			await waitForAppReady(page);
 			await careerChoice.click();
@@ -108,11 +108,11 @@ test.describe('LinkMusician — modes de jeu', () => {
 			await page.goto(`/@${person.actor.handle}`);
 			await waitForAppReady(page);
 			await expect(page.locator('header').getByRole('link', { name: 'Découvrir' })).toBeVisible();
-			await page.getByRole('button', { name: 'Passer au Mode jam' }).click();
+			await page.getByRole('button', { name: 'Passer à Rencontre' }).click();
 			await expect(page).toHaveURL(/\/jam$/);
 			let saved = await db.person.findUniqueOrThrow({ where: { actorId: person.actorId } });
 			expect(saved.preferredMode).toBe('JAM');
-			await page.getByRole('button', { name: 'Passer au Mode carrière' }).click();
+			await page.getByRole('button', { name: 'Passer à Collab' }).click();
 			await expect(page).toHaveURL(/\/espace$/);
 			saved = await db.person.findUniqueOrThrow({ where: { actorId: person.actorId } });
 			expect(saved.preferredMode).toBe('CAREER');

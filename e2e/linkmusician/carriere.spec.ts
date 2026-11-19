@@ -29,7 +29,7 @@ test.describe('LinkMusician — écran de carrière', () => {
 		await db.actorGenre.create({ data: { actorId: person.actorId, genreId: rock.id } });
 		await setCity(page);
 
-		const menu = page.getByRole('navigation', { name: 'Mode carrière' });
+		const menu = page.getByRole('navigation', { name: 'Collab' });
 		await test.step('1. Le menu de carrière : l’ambition est à choisir', async () => {
 			await page.goto('/espace');
 			await waitForAppReady(page);

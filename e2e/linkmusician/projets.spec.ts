@@ -96,7 +96,7 @@ test.describe('LinkMusician — projets (P2)', () => {
 				await page.goto('/espace');
 				await waitForAppReady(page);
 				await dismissCookies(page);
-				const home = page.getByRole('navigation', { name: 'Mode carrière' });
+				const home = page.getByRole('navigation', { name: 'Collab' });
 				// U2 : « Mes projets » est dans « avancer », le pivot ouvert.
 				await home.getByRole('link', { name: /^Mes projets/ }).click();
 				await waitForPath(page, '/projets');

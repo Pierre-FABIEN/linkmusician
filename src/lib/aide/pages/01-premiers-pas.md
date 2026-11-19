@@ -393,8 +393,8 @@ Les aperçus dépendent des données disponibles : l'app n'invente pas de jam,
 d'annonce ni de succès si tu n'en as pas encore.
 
 L'app retient ton dernier choix de mode. Pour basculer ensuite, touche la
-pastille du mode en haut de l'écran. [Comprendre le mode jam](./02-mode-jam.md)
-ou [le mode carrière](./03-mode-carriere.md).
+pastille du mode en haut de l'écran. [Comprendre Rencontre](./02-mode-jam.md)
+ou [Collab](./03-mode-carriere.md).
 
 ### Tes structures et tes équipes {#structures}
 

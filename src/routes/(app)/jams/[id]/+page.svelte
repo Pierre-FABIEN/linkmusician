@@ -56,7 +56,7 @@
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<article class="mx-auto max-w-6xl space-y-6 lg:space-y-8">
 		<div class="space-y-2">
-			<a href="/jam" class="text-sm text-muted-foreground underline">← Mode jam</a>
+			<a href="/jam" class="text-sm text-muted-foreground underline">← Rencontre</a>
 			<h1 class="lm-title">{jam.title}</h1>
 			<p class="flex items-center gap-2">
 				<CalendarDays class="size-4" aria-hidden="true" />

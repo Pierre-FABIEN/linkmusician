@@ -66,7 +66,7 @@ test.describe('LinkMusician — Mes projets (P3, U2)', () => {
 			});
 			const xpBefore = await db.xpTransaction.count({ where: { actorId: me.actorId } });
 			await page.setViewportSize({ width: 390, height: 844 });
-			const home = page.getByRole('navigation', { name: 'Mode carrière' });
+			const home = page.getByRole('navigation', { name: 'Collab' });
 			let epId = '';
 
 			await test.step('S1. Compte neuf : « Commence ici », « Mes projets » facultatif', async () => {

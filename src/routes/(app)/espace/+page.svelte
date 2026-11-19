@@ -233,7 +233,7 @@
 {#if data.roleSpace}
 	<RoleSpace {...data.roleSpace} priorities={data.priorities} advance={data.advance} />
 {:else}
-	<MetroHome label="Mode carrière" {pivots}>
+	<MetroHome label="Collab" {pivots}>
 		{#snippet header()}
 			<!-- En-tête : identité et progression -->
 			<header class="flex max-w-3xl flex-col gap-4">
@@ -245,7 +245,7 @@
 					</Avatar.Root>
 					<div class="min-w-0 space-y-1">
 						<p class="lm-kicker flex items-center gap-2 text-muted-foreground">
-							<Trophy class="size-4" aria-hidden="true" /> Mode carrière
+							<Trophy class="size-4" aria-hidden="true" /> Collab
 						</p>
 						<h1 class="lm-title">Salut {firstName} !</h1>
 					</div>

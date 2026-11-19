@@ -20,12 +20,12 @@
 	const modes = [
 		{
 			icon: Trophy,
-			title: 'Mode carrière',
-			text: 'Monte ton groupe, enregistre, joue sur scène, sors ta musique : chaque étape réelle fait avancer ta carrière.'
+			title: 'Collab',
+			text: 'Monte un projet avec d’autres : groupe, morceaux, studio, scène, sortie. Chaque étape réelle compte.'
 		},
 		{
 			icon: Guitar,
-			title: 'Mode jam',
+			title: 'Rencontre',
 			text: 'Envie de jouer ce soir ? Trouve des musicien·nes dispos près de chez toi et fais des rencontres.'
 		}
 	];

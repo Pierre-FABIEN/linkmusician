@@ -92,7 +92,7 @@ test.describe('LinkMusician — ce que Melokiva me propose', () => {
 			await test.step('4. Je la retrouve et la réactive dans mes choix', async () => {
 				// U0 : l'entrée vit dans le pivot « repères ».
 				await page
-					.getByRole('navigation', { name: 'Mode carrière' })
+					.getByRole('navigation', { name: 'Collab' })
 					.getByRole('link', { name: /^Ce que Melokiva me propose/ })
 					.click();
 				await waitForPath(page, '/espace/propositions');

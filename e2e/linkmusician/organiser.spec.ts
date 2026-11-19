@@ -20,7 +20,7 @@ test.describe('LinkMusician — organiser des jams', () => {
 	}) => {
 		await signUpAndVerify(page, account);
 		await skipOnboarding(page, account.email);
-		const menu = page.getByRole('navigation', { name: 'Mode jam' });
+		const menu = page.getByRole('navigation', { name: 'Rencontre' });
 
 		await test.step('1. Sans la case : pas de « Lancer une jam »', async () => {
 			await page.goto('/jam');

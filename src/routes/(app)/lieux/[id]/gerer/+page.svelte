@@ -33,7 +33,7 @@
 	});
 	$effect(() => {
 		if (page.url.searchParams.get('scene') === '1')
-			toast.success('Scène ouverte publiée : les 4 prochaines jams sont dans le mode jam.');
+			toast.success('Scène ouverte publiée : les 4 prochaines jams sont dans Rencontre.');
 	});
 	const activeSeries = $derived(data.series.filter((s) => !s.stopped));
 

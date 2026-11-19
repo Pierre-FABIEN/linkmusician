@@ -17,7 +17,7 @@
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-6">
 		<MetroPageHeader
-			kicker="Mode carrière"
+			kicker="Collab"
 			title="Mon ambition"
 			intro="Qu’est-ce que tu vises ? On met en avant les objectifs qui t’en rapprochent. Tu peux en changer quand tu veux : il n’y a jamais d’échec, et rien n’est retiré."
 		/>

@@ -40,7 +40,7 @@ test.describe('LinkMusician — mes contributions (U1)', () => {
 				data: { birthDate: new Date('1990-01-01') }
 			});
 			await page.setViewportSize({ width: 390, height: 844 });
-			const home = page.getByRole('navigation', { name: 'Mode carrière' });
+			const home = page.getByRole('navigation', { name: 'Collab' });
 
 			await test.step('1. Depuis « ma musique », un état vide neutre', async () => {
 				await page.goto('/espace');

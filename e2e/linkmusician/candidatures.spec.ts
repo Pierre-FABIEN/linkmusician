@@ -149,7 +149,7 @@ test.describe('LinkMusician — candidatures', () => {
 				await malikPage.goto('/espace');
 				await waitForAppReady(malikPage);
 				await malikPage
-					.getByRole('navigation', { name: 'Mode carrière' })
+					.getByRole('navigation', { name: 'Collab' })
 					.getByRole('link', { name: /^À traiter/ })
 					.click();
 				const toConfirm = malikPage.getByRole('list', { name: 'Collaborations à confirmer' });

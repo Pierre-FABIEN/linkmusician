@@ -43,8 +43,8 @@
 			</h1>
 			<p class="text-sm text-muted-foreground">
 				Le même jour, aux mêmes heures. Les jams des {SERIES_WEEKS_AHEAD} semaines à venir apparaissent
-				tout de suite dans le mode jam des musicien·nes autour ; les suivantes arrivent d’elles-mêmes.
-				Personne ne reçoit de notification : on la découvre dans le calendrier.
+				tout de suite dans Rencontre des musicien·nes autour ; les suivantes arrivent d’elles-mêmes. Personne
+				ne reçoit de notification : on la découvre dans le calendrier.
 			</p>
 		</div>
 

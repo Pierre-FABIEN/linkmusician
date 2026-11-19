@@ -37,7 +37,7 @@ test.describe('LinkMusician — accueil Collab (U0)', () => {
 				data: { birthDate: new Date('1990-01-01') }
 			});
 			await page.setViewportSize({ width: 390, height: 844 });
-			const home = page.getByRole('navigation', { name: 'Mode carrière' });
+			const home = page.getByRole('navigation', { name: 'Collab' });
 
 			await test.step('1. Quatre pivots, chacun avec ses entrées réelles', async () => {
 				await page.goto('/espace');

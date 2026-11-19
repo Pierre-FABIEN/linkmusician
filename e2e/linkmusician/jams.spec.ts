@@ -65,7 +65,7 @@ test.describe('LinkMusician — jams publiques', () => {
 				})
 			).actorId;
 
-			await test.step('1. La jam du lieu voisin est dans le mode jam', async () => {
+			await test.step('1. La jam du lieu voisin est dans Rencontre', async () => {
 				const viewport = page.viewportSize();
 				await page.goto('/jam/agenda');
 				await waitForAppReady(page);

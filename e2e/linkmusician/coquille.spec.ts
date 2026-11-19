@@ -72,8 +72,8 @@ test.describe('LinkMusician — coquille de l’espace', () => {
 			await page.goto('/accueil');
 			await waitForAppReady(page);
 			await expect(page.getByRole('heading', { level: 1, name: 'LinkMusician' })).toBeVisible();
-			await expect(page.getByRole('heading', { name: 'Mode carrière' })).toBeVisible();
-			await expect(page.getByRole('heading', { name: 'Mode jam' })).toBeVisible();
+			await expect(page.getByRole('heading', { name: 'Collab' })).toBeVisible();
+			await expect(page.getByRole('heading', { name: 'Rencontre' })).toBeVisible();
 			await expect(page.getByRole('link', { name: 'Créer un compte' }).first()).toHaveAttribute(
 				'href',
 				'/auth/signup'

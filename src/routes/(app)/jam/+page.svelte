@@ -123,13 +123,13 @@
 	]);
 </script>
 
-<SEO title="Mode jam" noindex nofollow />
+<SEO title="Rencontre" noindex nofollow />
 
-<MetroHome label="Mode jam" {pivots}>
+<MetroHome label="Rencontre" {pivots}>
 	{#snippet header()}
 		<header class="space-y-2">
 			<p class="lm-kicker flex items-center gap-2 text-muted-foreground">
-				<Guitar class="size-5" aria-hidden="true" /> Mode jam
+				<Guitar class="size-5" aria-hidden="true" /> Rencontre
 			</p>
 			<h1 class="lm-title">Envie de jouer ?</h1>
 			{#if data.commune}

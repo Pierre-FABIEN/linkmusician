@@ -25,7 +25,7 @@
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-5xl space-y-6">
 		<MetroPageHeader
-			kicker="Mode carrière"
+			kicker="Collab"
 			title="Ma carte de carrière"
 			intro="Des branches qui avancent chacune à son rythme. Chaque épreuve est prouvée par quelqu’un d’autre, et aucune n’en attend une autre."
 		/>

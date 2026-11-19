@@ -10,7 +10,7 @@ import { setCity, skipOnboarding } from '../support/linkmusician';
  * P5-04a — Scène ouverte récurrente : le patron d'un bar dont la fiche est
  * publiée (préparée en base) publie « tous les jeudis, 20 h-23 h » depuis la
  * gestion du lieu. Léa, musicienne à Toulouse, trouve la scène ouverte du
- * jeudi dans le calendrier du mode jam, hébergée par le lieu.
+ * jeudi dans le calendrier de Rencontre, hébergée par le lieu.
  */
 test.describe('LinkMusician — scène ouverte du jeudi', () => {
 	test.setTimeout(6 * 60_000);
@@ -110,7 +110,7 @@ test.describe('LinkMusician — scène ouverte du jeudi', () => {
 				);
 			});
 
-			await test.step('2. Léa trouve la scène ouverte du jeudi dans le mode jam', async () => {
+			await test.step('2. Léa trouve la scène ouverte du jeudi dans Rencontre', async () => {
 				await signUpAndVerify(leaPage, leaAccount);
 				await skipOnboarding(leaPage, leaAccount.email);
 				await setCity(leaPage);

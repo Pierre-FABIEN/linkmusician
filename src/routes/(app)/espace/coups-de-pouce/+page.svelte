@@ -20,7 +20,7 @@
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<div class="mx-auto max-w-3xl space-y-6">
 		<MetroPageHeader
-			kicker="Mode carrière"
+			kicker="Collab"
 			title="Coups de pouce"
 			intro="Des idées simples, tirées de ton réseau et de ce qui se passe près de chez toi. Rien d’obligatoire."
 		/>

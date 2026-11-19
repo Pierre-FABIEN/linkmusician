@@ -1,4 +1,4 @@
-# Le mode carrière
+# Collab
 
 _Prépare tes projets, retrouve ton équipe et fais avancer ta musique à ton rythme._
 
@@ -276,7 +276,7 @@ proposées. Ce palier musical est distinct de la confiance **Pilier**.
 
 ## 2. Rencontrer et collaborer {#collaborer}
 
-C’est le cœur du mode carrière : **ce qui fait monter, c’est de jouer
+C’est le cœur de Collab : **ce qui fait monter, c’est de jouer
 ensemble**.
 
 1. Trouve quelqu’un : **Découvrir**, une **annonce**, une jam (voir
@@ -347,7 +347,7 @@ Une proposition envoyée ne suffit donc pas à gagner des points.
    gagnez des points tous les deux.
 
 Pour recruter, utilise les **Annonces**. Pour organiser une jam, passe par
-le **mode jam**.
+**Rencontre**.
 
 Le groupe a sa **page publique** (`/@nom-du-groupe`) : son effectif
 actuel et passé avec les dates (comme un club), sa présentation, ses
@@ -729,7 +729,7 @@ exige toujours une candidature personnelle.
 
 ## Questions fréquentes
 
-<details><summary>Je suis solo, le mode carrière est-il pour moi ?</summary>
+<details><summary>Je suis solo, Collab est-il pour moi ?</summary>
 
 Oui. Tu peux composer, collaborer en session, enregistrer sans groupe. Le
 parcours montre ce que tu as prouvé, pas un ordre obligatoire.
@@ -760,4 +760,4 @@ du groupe, avec ses dates.
 
 ---
 
-[← Le mode jam](./02-mode-jam.md) · [Points et progression →](./04-points-et-progression.md)
+[← Rencontre](./02-mode-jam.md) · [Points et progression →](./04-points-et-progression.md)

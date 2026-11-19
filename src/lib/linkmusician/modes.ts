@@ -1,5 +1,6 @@
 /**
- * LINKMUSICIAN: les deux modes de jeu (D21, P2-12), affichés à l'accueil de
+ * LINKMUSICIAN: les deux modes de jeu (D21, P2-12), nommés Rencontre (`JAM`)
+ * et Collab (`CAREER`) à l'écran (#74, G1-01) ; les valeurs ne changent pas. Affichés à l'accueil de
  * l'espace comme le menu d'un jeu, avec une présentation en trois étapes la
  * première fois (P2-12b). Module pur.
  */
@@ -24,15 +25,16 @@ export const PLAY_MODE_INFO: Readonly<
 	>
 > = {
 	CAREER: {
-		label: 'Mode carrière',
-		pitch: 'Monte ton groupe, enregistre, joue sur scène : chaque étape réelle te fait avancer.',
+		label: 'Collab',
+		pitch:
+			'Monte un projet avec d’autres : groupe, morceaux, studio, scène. Chaque étape réelle te fait avancer.',
 		how: 'Tu avances en complétant ton profil, puis en jouant avec d’autres.',
 		href: '/espace',
 		slug: 'carriere',
 		intro: [
 			{
-				title: 'Ta carrière, comme dans un jeu',
-				text: 'Rencontre, création, studio, scène, sortie : ta carrière avance étape par étape, et chaque étape franchie est réelle.'
+				title: 'Tes projets, comme dans un jeu',
+				text: 'Création, studio, scène, sortie : tes projets avancent étape par étape, avec les bonnes personnes, et chaque étape franchie est réelle.'
 			},
 			{
 				title: 'Comment tu gagnes des points',
@@ -45,7 +47,7 @@ export const PLAY_MODE_INFO: Readonly<
 		]
 	},
 	JAM: {
-		label: 'Mode jam',
+		label: 'Rencontre',
 		pitch:
 			'Envie de jouer ce soir ? Trouve des jams autour de toi et rencontre d’autres musicien·nes.',
 		how: 'Tu découvres des musicien·nes, et tes points montent quand ceux avec qui tu joues t’apprécient.',
@@ -62,7 +64,7 @@ export const PLAY_MODE_INFO: Readonly<
 			},
 			{
 				title: 'Et peut-être plus',
-				text: 'Les rencontres d’un soir deviennent souvent des groupes. Quand tu veux, passe en mode carrière pour monter un projet.'
+				text: 'Les rencontres d’un soir deviennent souvent des groupes. Quand tu veux, passe dans Collab pour monter un projet.'
 			}
 		]
 	}

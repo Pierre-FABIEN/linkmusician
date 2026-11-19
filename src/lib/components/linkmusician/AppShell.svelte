@@ -119,8 +119,8 @@
 					type="submit"
 					class="lm-mode-pill shrink-0"
 					data-tone={toneOfMode(mode)}
-					aria-label="Passer au {PLAY_MODE_INFO[targetMode].label}"
-					title="Passer au {PLAY_MODE_INFO[targetMode].label}"
+					aria-label="Passer à {PLAY_MODE_INFO[targetMode].label}"
+					title="Passer à {PLAY_MODE_INFO[targetMode].label}"
 				>
 					<ModeIcon class="size-4" aria-hidden="true" />
 					<span class="hidden sm:inline">{PLAY_MODE_INFO[mode].label}</span>
