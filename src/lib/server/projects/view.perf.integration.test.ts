@@ -180,7 +180,8 @@ describe.skipIf(!enabled)('projectView : coût', { timeout: 300_000 }, () => {
 		expect(results[7].ops).toBe(results[1].ops);
 		// Aucune requête par élément : le coût ne dépend pas du nombre d'éléments.
 		// P4a : une requête de plus pour l'équipe (participant·es et invitations).
-		for (const r of results) expect(r.ops).toBeLessThanOrEqual(7);
+		// U3b-b : une de plus pour les besoins, en parallèle des autres.
+		for (const r of results) expect(r.ops).toBeLessThanOrEqual(8);
 		// Même coût à 10 et à 100 éléments. Des actes sur des morceaux invisibles
 		// ajoutent une seule requête (ceux que le lecteur gère), jamais une par acte.
 		expect(results[1].ops).toBe(results[2].ops);
@@ -194,5 +195,45 @@ describe.skipIf(!enabled)('projectView : coût', { timeout: 300_000 }, () => {
 			`${'10 lectures indépendantes (workAccess)'.padEnd(44)}   10 él. ${counter.ops} req. total ${(performance.now() - t).toFixed(0)} ms`
 		);
 		expect(counter.ops).toBeGreaterThan(results[1].ops);
+	});
+
+	it('U3b-b : besoins, une seule requête quel que soit leur nombre (0, 5, 20)', async () => {
+		const me = await person('besoins');
+		const coord = await person('besoins-coord');
+		const withNeeds = async (count: number) => {
+			const id = await project(me, await works(me, 5));
+			await base.projectNeed.createMany({
+				data: Array.from({ length: count }, (_, i) => ({
+					projectId: id,
+					status: i % 2 === 0 ? ('OPEN' as const) : ('PROPOSED' as const),
+					track: 'SOUND_ENGINEER' as const,
+					specialty: 'MIXING',
+					createdById: i % 2 === 0 ? me : coord,
+					description: `Besoin ${i}`
+				}))
+			});
+			const needs = await base.projectNeed.findMany({
+				where: { projectId: id },
+				select: { id: true }
+			});
+			await base.projectAct.createMany({
+				data: needs.map((need) => ({
+					projectId: id,
+					kind: 'NEED_OPENED' as const,
+					needId: need.id,
+					authorId: me
+				}))
+			});
+			return id;
+		};
+		const results = [
+			await measure('5 éléments, 0 besoin', await withNeeds(0), me),
+			await measure('5 éléments, 5 besoins', await withNeeds(5), me),
+			await measure('5 éléments, 20 besoins', await withNeeds(20), me)
+		];
+		// Pas de N+1 : le coût ne dépend pas du nombre de besoins.
+		expect(results[1].ops).toBe(results[0].ops);
+		expect(results[2].ops).toBe(results[0].ops);
+		for (const r of results) expect(r.ops).toBeLessThanOrEqual(8);
 	});
 });
