@@ -1,7 +1,7 @@
 # Melokiva Diagram — cartographie des flux
 
-> Chantier **DIAGRAM** (décision [D80](../decisions/README.md)), issue GitHub
-> dédiée : voir §7. Espace interne `/diagram`, réservé aux comptes
+> Chantier **DIAGRAM** (décision [D80](../decisions/README.md)), issue
+> [#90](https://github.com/Pierre-FABIEN/linkmusician/issues/90). Espace interne `/diagram`, réservé aux comptes
 > autorisés : jamais public, aucune mutation métier.
 
 Melokiva Diagram permet de suivre chaque action significative de son
@@ -187,5 +187,6 @@ et « Acteurs sans parcours » dans [coverage.md](./coverage.md).
 
 ## 7. Suivi
 
-Lots DIAGRAM-01 à DIAGRAM-06 : issue GitHub dédiée au chantier. Ajouter un
+Lots DIAGRAM-01 à DIAGRAM-06 : issue
+[#90](https://github.com/Pierre-FABIEN/linkmusician/issues/90). Ajouter un
 diagramme ne ferme aucun ticket métier.
