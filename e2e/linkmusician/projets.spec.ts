@@ -123,10 +123,9 @@ test.describe('LinkMusician — projets (P2)', () => {
 					name: 'EP',
 					exact: true
 				});
-				// Entrée : Espace est intercepté par smooth-scrollbar dans toute
-				// l'application (T11, antérieur à P2).
+				// Espace active le bouton (T11 corrigé, `clavier-espace.spec.ts`).
 				await ep.focus();
-				await page.keyboard.press('Enter');
+				await page.keyboard.press('Space');
 				await expect(ep).toHaveAttribute('aria-pressed', 'true');
 				expect(await horizontalOverflow(page)).toEqual([]);
 				await expectNoA11yViolations(page, ['.cartButton']);

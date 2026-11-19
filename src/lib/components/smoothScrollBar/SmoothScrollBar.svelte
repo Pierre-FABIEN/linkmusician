@@ -7,6 +7,10 @@
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';
 	import Scrollbar from 'smooth-scrollbar';
 	import type { ScrollStatus } from 'smooth-scrollbar/interfaces/scrollbar';
+	// LINKMUSICIAN: Espace active les boutons au lieu de faire défiler (T11).
+	import { NativeSpacePlugin } from './nativeSpace';
+
+	Scrollbar.use(NativeSpacePlugin);
 
 	let { children } = $props();
 
