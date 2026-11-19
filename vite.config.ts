@@ -25,7 +25,8 @@ export default defineConfig({
 	cacheDir: process.env.VITEST
 		? 'node_modules/.vite-vitest'
 		: process.env.E2E_SERVER
-			? 'node_modules/.vite-e2e'
+			? // Une part de `test:e2e:parallele` a son propre cache (`E2E_SHARD`).
+				`node_modules/.vite-e2e${process.env.E2E_SHARD ? `-${process.env.E2E_SHARD}` : ''}`
 			: undefined,
 
 	optimizeDeps: {
@@ -92,6 +93,11 @@ export default defineConfig({
 				...['.svelte-kit', '.svelte-kit-e2e', '.svelte-kit-vitest']
 					.filter((dir) => dir !== svelteKitConfig.outDir)
 					.map((dir) => `**/${dir}/**`),
+				// LINKMUSICIAN: les dossiers des autres parts de `test:e2e:parallele`.
+				(path: string) =>
+					/[\\/]\.svelte-kit-e2e-\d+[\\/]/.test(path) &&
+					!path.includes(`${svelteKitConfig.outDir}/`),
+				'**/e2e-parallele/**',
 				`**/${svelteKitConfig.outDir}/output/**`
 			]
 		},

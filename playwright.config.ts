@@ -12,6 +12,19 @@ dns.setDefaultResultOrder('ipv4first');
 // `e2e` et sur le puits SMTP local, jamais sur les données de développement.
 dotenv.config({ path: '.env.test', override: true });
 
+// LINKMUSICIAN ▼ une part de `npm run test:e2e:parallele` (scripts/e2e-parallele.mjs) :
+// ports, puits SMTP et schéma propres, posés APRÈS `.env.test` qui fixe
+// `SMTP_PORT`. Le serveur de dev hérite de ces valeurs (`webServer.env`).
+const SHARD = process.env.E2E_SHARD;
+if (SHARD) {
+	const n = Number(SHARD);
+	process.env.E2E_PORT = String(2010 + n);
+	process.env.SMTP_PORT = String(2600 + 2 * n);
+	process.env.SMTP_HTTP_PORT = String(2601 + 2 * n);
+	process.env.E2E_DB_SCHEMA = `e2e_${n}`;
+}
+// LINKMUSICIAN ▲
+
 // LINKMUSICIAN ▼ base e2e déduite de `.env`, pour n'avoir qu'un endroit où
 // coller l'URL fournie par Neon. Si `.env.test` ne définit pas
 // `DATABASE_URL` (ni `DIRECT_URL`, plus utilisée), on reprend celles de `.env` en ajoutant
@@ -59,9 +72,12 @@ export default defineConfig({
 	forbidOnly: !!process.env.CI,
 	// En local, `step-reporter` commente l'avancement en direct : le parcours est
 	// un test unique de plusieurs minutes, sinon la console reste muette.
-	reporter: process.env.CI
-		? [['github'], ['html', { open: 'never' }]]
-		: [['list'], ['./e2e/support/step-reporter.ts'], ['html', { open: 'never' }]],
+	reporter: SHARD
+		? [['line'], ['blob', { outputDir: 'e2e-parallele/blob', fileName: `part-${SHARD}.zip` }]]
+		: process.env.CI
+			? [['github'], ['html', { open: 'never' }]]
+			: [['list'], ['./e2e/support/step-reporter.ts'], ['html', { open: 'never' }]],
+	...(SHARD ? { outputDir: `e2e-parallele/resultats-${SHARD}` } : {}),
 
 	use: {
 		baseURL: `http://localhost:${PORT}`,

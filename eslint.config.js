@@ -98,6 +98,8 @@ export default ts.config(
 			'.svelte-kit/',
 			'.svelte-kit-vitest/', // LINKMUSICIAN: dossiers générés séparés (sveltekit.config.ts)
 			'.svelte-kit-e2e/',
+			'.svelte-kit-e2e-*/',
+			'e2e-parallele/',
 			'dist/',
 			'static/tinymce/',
 			'.vercel/',

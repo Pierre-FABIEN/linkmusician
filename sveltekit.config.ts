@@ -11,7 +11,8 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 export const KIT_OUT_DIR = process.env.VITEST
 	? '.svelte-kit-vitest'
 	: process.env.E2E_SERVER
-		? '.svelte-kit-e2e'
+		? // Chaque part de `test:e2e:parallele` a son dossier (`E2E_SHARD`).
+			`.svelte-kit-e2e${process.env.E2E_SHARD ? `-${process.env.E2E_SHARD}` : ''}`
 		: '.svelte-kit';
 // LINKMUSICIAN ▲
 

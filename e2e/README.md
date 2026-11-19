@@ -31,6 +31,26 @@ worker) :
 
 <!-- LINKMUSICIAN ▼ -->
 
+## LinkMusician — suite en parallèle (`npm run test:e2e:parallele`)
+
+La suite reste mono-worker (serveur de dev, limiteurs en mémoire, boîte mail
+commune) ; pour aller plus vite, on la **découpe en parts isolées** lancées
+en même temps (`scripts/e2e-parallele.mjs`). Chaque part `n` a son serveur
+Vite (port `2010+n`), son puits SMTP (`2600+2n`, `2601+2n`), son schéma
+PostgreSQL `e2e_<n>` (créé et migré par la préparation globale) et ses
+dossiers générés (`.svelte-kit-e2e-<n>`, `node_modules/.vite-e2e-<n>`,
+`e2e-parallele/`). Le schéma `e2e` de `npm run test:e2e` n'est pas touché.
+
+```bash
+npm run test:e2e:parallele                       # parts selon la RAM libre (~3 Gio chacune)
+npm run test:e2e:parallele -- --parts=4
+npm run test:e2e:parallele -- --parts=3 e2e/linkmusician
+npx playwright show-report                       # rapport fusionné
+```
+
+Journaux par part : `e2e-parallele/part-<n>.log`. Plus de RAM pour WSL
+(`%UserProfile%\.wslconfig`, `memory=`) permet plus de parts.
+
 ## LinkMusician — `e2e/linkmusician/`
 
 Un spec par lot ou par décision. Le détail des étapes est dans la doc du
