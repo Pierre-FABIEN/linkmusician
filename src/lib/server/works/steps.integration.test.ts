@@ -239,13 +239,13 @@ describe.skipIf(!enabled)('étapes prises en charge (schéma e2e)', () => {
 		);
 		expect((await steps.workStepsFor(work.id, ids.zoe))![0].history).toEqual([]);
 
-		// Thomas perd la co-gestion : il ne fait plus rien avancer.
+		// Thomas perd la co-gestion : il ne fait plus rien avancer, et son
+		// étape est libérée aussitôt (P1, E10) ; libérer à nouveau ne fait rien.
 		await bands.setRole(thomasRow.id, ids.lea, 'MEMBER', now);
 		await expect(apply(work.id, ids.thomas, act('finish', true), later)).rejects.toThrow(
 			/portent ce morceau/
 		);
-		// Léa libère l'étape ; l'acte garde Thomas comme responsable concerné.
-		await apply(work.id, ids.lea, act('release'), later);
+		expect(await apply(work.id, ids.lea, act('release'), later)).toEqual({ changed: false });
 		expect(await db.workStep.findFirstOrThrow({ where: { workId: work.id } })).toMatchObject({
 			assigneeId: null,
 			status: 'TODO',
@@ -255,7 +255,7 @@ describe.skipIf(!enabled)('étapes prises en charge (schéma e2e)', () => {
 		});
 		expect(
 			await db.workStepAct.findFirstOrThrow({
-				where: { step: { workId: work.id }, kind: 'RELEASED' }
+				where: { step: { workId: work.id }, kind: 'AUTO_RELEASED' }
 			})
 		).toMatchObject({ authorId: ids.lea, assigneeId: ids.thomas, fromStatus: 'IN_PROGRESS' });
 	}, 120_000);
@@ -266,10 +266,10 @@ describe.skipIf(!enabled)('étapes prises en charge (schéma e2e)', () => {
 		expect(morceaux.etapes_prises_en_charge.length).toBeGreaterThanOrEqual(2);
 		expect(morceaux.actes_d_etapes).toEqual(
 			expect.arrayContaining([
-				expect.objectContaining({ type: 'RELEASED', par_moi: false, me_concerne: true })
+				expect.objectContaining({ type: 'AUTO_RELEASED', par_moi: false, me_concerne: true })
 			])
 		);
-		// Léa a libéré l'étape de Thomas : après son anonymisation, l'acte reste sans auteur.
+		// Léa a rétrogradé Thomas, d'où la libération : après son anonymisation, l'acte reste sans auteur.
 		await db.$transaction(await personAnonymizationOps(users.lea));
 		expect(await db.workStepAct.count({ where: { authorId: ids.lea } })).toBe(0);
 		await db.$transaction(await personAnonymizationOps(users.thomas));

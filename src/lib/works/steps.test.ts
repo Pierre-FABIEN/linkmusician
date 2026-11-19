@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	staleWorkStep,
 	availableWorkStepActions,
+	planAccessLossRelease,
 	planWorkStep,
 	workStepFormSchema,
 	type WorkStepState
@@ -151,6 +152,51 @@ describe('availableWorkStepActions', () => {
 	});
 	it('les autres gestionnaires peuvent seulement libérer', () => {
 		expect(availableWorkStepActions(step(), 'lea', true)).toEqual(['release']);
+	});
+});
+
+describe('planAccessLossRelease — P1 (E10)', () => {
+	const freed = {
+		status: 'TODO',
+		assigneeId: null,
+		startedAt: null,
+		doneAt: null,
+		mode: null,
+		place: null
+	};
+	it('libère une étape à faire ou en cours, avec un acte dédié', () => {
+		expect(planAccessLossRelease(step(), 'thomas')).toEqual({
+			kind: 'apply',
+			act: 'AUTO_RELEASED',
+			next: freed
+		});
+		expect(
+			planAccessLossRelease(step({ status: 'IN_PROGRESS', startedAt: earlier }), 'thomas')
+		).toEqual({ kind: 'apply', act: 'AUTO_RELEASED', next: freed });
+	});
+	it('une étape terminée reste intacte, à son nom', () => {
+		expect(planAccessLossRelease(step({ status: 'DONE', doneAt: now }), 'thomas')).toEqual({
+			kind: 'noop'
+		});
+	});
+	it('idempotent : rien pour une étape déjà libérée, reprise par autrui ou absente', () => {
+		expect(planAccessLossRelease(step({ assigneeId: null }), 'thomas')).toEqual({ kind: 'noop' });
+		expect(planAccessLossRelease(step({ assigneeId: 'lea' }), 'thomas')).toEqual({ kind: 'noop' });
+		expect(planAccessLossRelease(null, 'thomas')).toEqual({ kind: 'noop' });
+	});
+	it('la libération manuelle produit le même état, avec son propre acte', () => {
+		const manual = planWorkStep(step({ status: 'IN_PROGRESS' }), 'release', 'lea', now);
+		expect(manual).toEqual({ kind: 'apply', act: 'RELEASED', next: freed });
+	});
+	it('une étape terminée sans responsable (compte supprimé) ne se reprend pas', () => {
+		const erased = step({ status: 'DONE', assigneeId: null, doneAt: now });
+		expect(planWorkStep(erased, 'claim', 'lea', now)).toMatchObject({
+			kind: 'error',
+			status: 409
+		});
+		expect(availableWorkStepActions(erased, 'lea', true)).toEqual([]);
+		// Libérée (à faire, sans responsable) : la gestion la reprend.
+		expect(availableWorkStepActions(step({ assigneeId: null }), 'lea', true)).toEqual(['claim']);
 	});
 });
 
