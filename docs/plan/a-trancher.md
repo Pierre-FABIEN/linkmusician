@@ -135,6 +135,22 @@ s'il n'est pas tranché.
 | UX-7 | Aperçu « **comme un·e participant·e** » pour la gestion d'un projet ?                                                | **Non au lancement** ; à revoir au pilote                                                                                                                                                  | —   |
 | UX-8 | Membres d'un groupe porteur **invités d'office** aux projets du groupe ?                                             | **Non** : raccourci « Inviter les membres du groupe », une invitation acceptée par personne (I2)                                                                                           | U3  |
 
+### Domaine Collab : besoins d'un projet (U3b, #71)
+
+Conception [22](../conception/22-besoins-projet.md) §14, décision [D76](../decisions/README.md) Proposée.
+
+| #   | Question                                                                             | Par défaut, en attendant                                                                                                                                                             | Lot |
+| --- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --- |
+| Q91 | **Notifier** la gestion d'un besoin proposé, et l'auteur·rice de la décision ?       | **Non** : « À traiter » (compteur, N3) et la fiche suffisent ; un type de notification demanderait une migration et des préférences                                                  | U3b |
+| Q92 | « **Demander une modification** » comme état distinct ? Motif de refus obligatoire ? | **Non** : la gestion retouche puis valide, ou refuse sans motif obligatoire ; l'auteur·rice repropose                                                                                | U3b |
+| Q93 | **Quotas** et **expiration** des besoins                                             | 20 besoins ouverts ou proposés par projet, 5 propositions en attente par personne et par projet, 30 créations par personne sur 24 h ; pas d'expiration (l'annonce liée expire, elle) | U3b |
+| Q94 | Relier un besoin à des **morceaux rangés** du projet ?                               | **Non au lancement** : la phrase le dit                                                                                                                                              | U3b |
+| Q95 | Métiers **sans recherche** (label, édition, communication) ?                         | **Exclus** jusqu'à #47 et #48 ; six métiers : musicien·ne, ingé son, producteur·rice, organisateur·rice, manager, booker                                                             | U3b |
+| Q96 | La **participation simple** peut-elle proposer un besoin ou un **intervenant** ?     | **Non au lancement** ; `PROPOSE` à la carte et `ProjectNeedSuggestion` en U3c                                                                                                        | U3b |
+| Q97 | L'annonce publique préparée depuis un besoin **nomme-t-elle le projet** ?            | **Non** (projets privés, D72)                                                                                                                                                        | U3b |
+| Q98 | Relier en base l'**invitation** au besoin (`needId` sur la participation) ?          | **Non** : rôle libre prérempli ; « pourvu » reste un geste explicite                                                                                                                 | U3b |
+| Q99 | **Annonce** pour un porteur `PROMOTER`, `STUDIO` ou `VENUE` ?                        | **Pas en U3b** : l'émetteur d'annonce reste la personne ou un groupe géré ; lot à part si le pilote le demande                                                                       | U3b |
+
 ### Domaine Collab : progression non linéaire (G0-04, #72)
 
 **Arbitrages validés par le fondateur le 18/11/2026** : [D73 — Progression non linéaire](../decisions/D73-progression-non-lineaire.md), issus de la [conception 21](../conception/21-progression-non-lineaire.md#16-questions-à-arbitrer). **Toutes les réponses Q-NL-1 à Q-NL-8 sont rendues** ; elles ne modifient pas le barème XP. Q-NL-2 révise D53 pour les épreuves solo après P8. Les lots restent non implémentés.

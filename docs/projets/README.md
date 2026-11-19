@@ -407,7 +407,8 @@ coordinations proposées).
 
 ### Laissé après U3
 
-- **U3b** : besoins et intervenants proposés (`PROPOSE`) : il faut un objet
+- **U3b** (conception proposée : [conception 22](../conception/22-besoins-projet.md),
+  U3b-a) : besoins et intervenants proposés (`PROPOSE`) : il faut un objet
   « besoin » (modèle, droits, migration).
 - **P13 / U5** : tâches confiées ; les effets d'un retrait les citeront.
 - Structure participante (studio, label) ; aperçu « comme un·e

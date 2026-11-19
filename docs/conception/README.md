@@ -123,3 +123,9 @@ Progression non linéaire (état, réalisation, preuve, progression ; graphe
 de branches ; moteur de prochaines actions à cinq rangs ; carte à
 épreuves parallèles ; huit scénarios ; lots N1 à N7) :
 [conception 21, G0-04, #72](./21-progression-non-lineaire.md), conception validée par [D73](../decisions/D73-progression-non-lineaire.md) **Acceptée** (Q-NL-1 à Q-NL-8) ; aucun code livré.
+
+Besoins d'un projet et intervenants proposés (modèle `ProjectNeed`, cycle
+de vie, matrice des droits, « Proposer à la gestion », annonce et
+invitation, RGPD, compatibilité #89, lots U3b-b et U3b-c) :
+[conception 22, U3b-a, #71](./22-besoins-projet.md), proposée, décision
+[D76](../decisions/README.md) **Proposée** ; aucun code.

@@ -1253,6 +1253,55 @@ une coordination proposée se tranche sur la fiche, « À traiter » y mène ;
 « Inviter » en prochaine action de la gestion seulement pour un projet de
 groupe (Q84) ; Q83 et Q84 au défaut. Reste **U3b** (besoins proposés).
 
+### U3b-a — Conception des besoins d'un projet 🟡 (conception proposée)
+
+Reliquat de U3 (#71, #36). **Livré le 19/11/2026, documentaire** :
+[conception 22](../conception/22-besoins-projet.md) et décision **D76
+Proposée** ; aucune ligne de code, aucune migration. U3b n'est **pas
+livré** : il le sera avec U3b-b et U3b-c.
+
+- **Modèle** : `ProjectNeed` (métier parmi les six de la recherche,
+  précision, une phrase, auteur·rice, décision, personne qui pourvoit
+  facultative, annonce liée facultative) ; états `PROPOSED`, `OPEN`,
+  `FILLED`, `DECLINED`, `CANCELLED` ; actes `NEED_*` dans `ProjectAct`
+  (colonne `needId` sans clé étrangère). Une proposition est un besoin
+  `PROPOSED`, pas une table ; aucun brouillon stocké.
+- **Droits** : la gestion ajoute ouvert, valide, refuse, modifie, annule ;
+  la coordination propose, retire ou modifie les siennes, marque pourvu ;
+  la participation simple lit les besoins ouverts et pourvus ; invité·e et
+  extérieur·e : rien. Invariants N1 à N6 (conception 22 §5).
+- **Écarts relevés** : annonces possibles seulement pour un porteur
+  personne ou groupe et pour trois métiers (Q95, Q99) ; « intervenant
+  proposé » cité par les conceptions 19 et 20 sans auteur possible au
+  lancement, reporté en **U3c** (Q96).
+- Défauts **Q91 à Q99** dans a-trancher.
+
+### U3b-b — Besoins : modèle, services et interface minimale (à faire)
+
+- **Objectif** : le métier de la conception 22 (§3 à §7, §9, §10), sous
+  verrou, avec une interface minimale sur la fiche.
+- **Migration** : une, additive (§12) ; relire, protéger les index partiels.
+- **Services** : `server/projects/needs.ts` (intentions `add`, `update`,
+  `withdraw`, `open`, `decline`, `fill`, `reopen`, `cancel`) ;
+  `cancelPendingNeeds` dans les retraits et départs P4a ; lecture filtrée
+  dans `projectView` ; export et anonymisation RGPD.
+- **Tests** : unitaires des règles et du schéma de brouillon ; intégration
+  de la matrice §5, des courses à barrières, des quotas, de N4 (aucun
+  événement, aucune XP), du RGPD et du coût de `projectView`.
+- **Acceptation** : une proposition validée donne un besoin ouvert, sans
+  invitation ni annonce ; un retrait de coordination annule ses
+  propositions en attente ; aucun gain.
+
+### U3b-c — Besoins : écrans, « À traiter », annonce et recherche (à faire)
+
+- **Objectif** : bloc « Besoins » Metro, feuille d'ajout, sous-écran,
+  « À traiter » et règle N3 `project.need`, prochaine action, « Trouver un
+  pro », « Inviter pour ce besoin », « Préparer l'annonce » (lien posé par
+  `createOpportunity`, modification minimale) ; aide, démo.
+- **Tests** : E2E `projets-besoins` (S5 au clavier, S1 jusqu'à pourvu,
+  participant·e simple, 390 px, axe) ; intégration du lien d'annonce.
+- **Dépendances** : U3b-b.
+
 ### P1 — Libérer les étapes d'une personne qui perd la gestion (E10) ✅
 
 Fiche « P1 » de la [conception 19 §10](../conception/19-architecture-cible-collab.md)

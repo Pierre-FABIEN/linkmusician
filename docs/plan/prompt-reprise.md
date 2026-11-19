@@ -1,86 +1,66 @@
-# Prompt de reprise — après P1b (U3b, besoins et intervenants proposés)
+# Prompt de reprise — après U3b-a (U3b-b, besoins : modèle et services)
 
 ```markdown
 Reprends LinkMusician dans le dossier de travail courant. Une session = un lot :
-**U3b — Besoins et intervenants proposés dans les projets** (#71, conception
-20 §8.2 ; reliquat de U3). **Ce lot commence par la conception métier** :
-aucune migration ni implémentation avant qu'elle soit écrite et que ses
-questions aient un défaut consigné. Si la conception déborde la session,
-découpe : **U3b-a** (conception, documentaire) puis **U3b-b** (modèle,
-services, écrans).
+**U3b-b — Besoins d'un projet : modèle, services et interface minimale**
+(#71, #36). La conception est écrite : docs/conception/22-besoins-projet.md
+(U3b-a, 19/11/2026). Décision **D76 Proposée** : vérifie d'abord dans
+docs/decisions/README.md si l'utilisateur l'a validée ou amendée, et dans
+docs/plan/a-trancher.md (section « besoins d'un projet ») si Q91 à Q99 ont
+été tranchées ; sinon, applique les défauts et dis-le.
 
 Avant d'écrire :
 
-1. Lis CLAUDE.md, docs/plan/README.md §4, la fiche « U3 » de
-   docs/plan/fin-du-projet.md (son « Laissé ») et, dans
-   docs/conception/20-parcours-ux-collab.md : §8.1 (matrice : « Proposer un
-   besoin », « Publier l'annonce au nom du porteur »), §8.2 (« Ajouter un
-   besoin »), §8.4 (écarts de U3), P4 et P12 (§2), §6.3 (« À traiter »).
-   Dans docs/conception/19-architecture-cible-collab.md : §9.1 (capacités
-   `PROPOSE` et `APPROVE`, Q-G0-15), §5.3 (cardinalités), fiche P4. Dans
-   docs/projets/README.md : modèle P2/P4a (`Project`, `ProjectItem`,
-   `ProjectParticipant`, actes, `projectAccess`).
-2. git status, git log -8 et git ls-remote origin refs/heads/main. Le
-   commit P1b (doc, « (P1b) ») était local le 19/11/2026 ; P1 et U3 étaient
-   publiés (`bbec47c`). Note ce que l'utilisateur a publié depuis. Préserve
-   les commits des autres sessions.
-3. Relis le code des annonces (`Opportunity`, `/annonces/nouvelle`) et de
-   `/decouvrir` : un besoin s'y appuie, il ne les redouble pas.
+1. Lis CLAUDE.md, docs/plan/README.md §4, les fiches « U3b-a » et « U3b-b »
+   de docs/plan/fin-du-projet.md, puis la conception 22 en entier (§3 modèle,
+   §4 cycle de vie, §5 matrice et invariants N1–N6, §6 propositions et
+   révocation, §9 RGPD et quotas, §10 architecture, §12 migration, §13 tests).
+   Relis docs/projets/README.md (P2, P4a, U3) et le code :
+   src/lib/server/projects/{access,service,participants,view,export}.ts,
+   src/lib/projects/{rules,participants}.ts.
+2. git status, git log -8 et git ls-remote origin refs/heads/main. Les
+   commits P1b (`6926699`) et U3b-a (doc, « (U3b-a) ») étaient locaux le
+   19/11/2026. Note ce que l'utilisateur a publié depuis. Préserve les
+   commits des autres sessions.
 
-Conception à écrire (nouvelle section de la conception 20, ou fiche dédiée
-liée depuis §8.2), en confrontant chaque point au code réel :
+À faire (U3b-b seulement) :
 
-- **L'objet « besoin »** rattaché à un projet : métier recherché, phrase,
-  commune du porteur (jamais de localisation précise), lien éventuel vers
-  une annonce publiée ; ce qu'il n'est pas (ni annonce, ni invitation, ni
-  participation, ni droit).
-- **Statuts et cycle de vie** : proposé, ouvert, publié en annonce, pourvu,
-  abandonné ; ce que devient un besoin quand le projet est clos, laissé de
-  côté, supprimé, ou que son porteur (groupe) est dissous ; actes en ajout
-  seul, comme `ProjectAct`.
-- **Droits de proposition et de validation** : la gestion ajoute et publie ;
-  la coordination ajoute ou propose ; qui accepte, refuse, retire ; aucune
-  capacité nouvelle implicite (I2, I11) ; relecture sous verrou `project:`
-  (I12) et ordre des verrous.
-- **« Proposer à la gestion »** : la proposition, sa place dans « À
-  traiter » (rang, compteur, N3), sa réponse, son expiration ; notification
-  ou non (comme Q80).
-- **Besoin, invitation, participant·e** : un besoin pourvu ne fait entrer
-  personne dans l'équipe sans invitation consentie (D37, personne connue) ;
-  « Trouver un pro » mène à `/decouvrir` prérempli, sans envoi automatique
-  (P12) ; l'XP n'entre jamais dans le tri.
-- **Rôles de coordination** : ce que la coordination voit et fait sur un
-  besoin, ce qu'elle perd à la révocation (propositions en attente).
-- **Confidentialité et consentement** : qui voit un besoin (équipe, public
-  via l'annonce seulement) ; mineur·es (Q-G0-12) ; blocages ; RGPD (export,
-  anonymisation de l'auteur·rice d'une proposition).
-- **Quotas anti-abus** (besoins ouverts par projet, propositions), comme
-  Q76 et Q79.
-- **Compatibilité Melokiva Assistant (#89)** : l'assistant devra pouvoir
-  préparer un brouillon de besoin et le soumettre au même service, avec
-  confirmation humaine. Prévoir des intentions serveur explicites et un
-  état « brouillon » si utile ; **ne développe pas l'assistant**.
+- Migration additive : `ProjectNeed`, `ProjectNeedStatus`, valeurs `NEED_*`
+  de `ProjectActKind`, colonne `project_acts.needId` (sans clé étrangère).
+  `npm run db:migrate -- --create-only --name project_needs`, puis
+  `npm run db:nettoyer-migration`, relire (index partiels protégés), puis
+  `db:deploy` et `db:deploy:e2e`. Jamais `npx prisma migrate`.
+- Règles pures `src/lib/projects/needs.ts`, schémas
+  `src/lib/schema/projects/need.ts` (`projectNeedDraftSchema`, réutilisable
+  par #89, qui refuse tout état ou auteur venu du client).
+- Services `src/lib/server/projects/needs.ts`, sous `lockProjectContext`,
+  `projectAccess` relu ; `cancelPendingNeeds` appelé par retrait, départ et
+  retrait de coordination ; lecture filtrée par rôle dans `projectView` ;
+  export et anonymisation RGPD (§9.2).
+- Interface minimale sur la fiche (liste, ajout, proposer, valider,
+  refuser, pourvu) ; les écrans Metro complets, « À traiter », N3,
+  l'annonce liée et l'E2E sont **U3b-c**.
+- Tests : unitaires, intégration (matrice §5 par profil, courses à
+  barrières, quotas, N4 : aucun `DomainEvent` ni `XpTransaction`, journal
+  en ajout seul, RGPD, coût de `projectView` à 0, 5, 20 besoins).
 
-Puis, seulement après la conception : migration additive (relire la
-migration, index partiels protégés, `db:nettoyer-migration`), services,
-écrans Metro, aide, démo, tests (unitaires des règles, intégration des
-droits et des courses à barrières, E2E au clavier, 390 px, axe).
+Hors périmètre : P13 (tâches), #89 (assistant), U3c (intervenant proposé),
+P1c, paiements.
 
 Repères :
 
-- P1c (test d'intégration du concert déclaré par un simple `MEMBER`, D75)
-  reste à faire ; lot court, indépendant.
-- Production : migrations P1 (`20261119120151_work_step_auto_released`,
-  `20261119120152_work_step_release_stale`) appliquées en dev et e2e
-  seulement. `npm run seed:demo` non rejoué depuis P1.
+- P1c (test du concert déclaré par un simple `MEMBER`, D75) reste à faire.
+- Production : migrations P1 non appliquées ; `npm run seed:demo` non
+  rejoué depuis P1.
 - `locking.integration.test.ts` : 2 échecs `55P03` préexistants.
+- Mémoire WSL : ne lance pas `npm run check` pendant les E2E.
 - Une question qui bloque : consigne-la dans a-trancher avec un défaut, et
-  avance. Q88 à Q90 (P1b) sont au défaut.
+  avance.
 
-Fin de lot : fiche, tableau §5, issues #71 (et #36 si les besoins y
-touchent), prompt de reprise. Commits en français préfixés « (U3b) », sans
-push.
+Fin de lot : fiche U3b-b, tableau §5, docs/projets, issues #71 et #36
+(commits locaux ou publiés), prompt de reprise vers U3b-c. Commits en
+français préfixés « (U3b-b) », sans push.
 
-Restent ensuite : **P1c**, **T10** (`gdpr-data.spec.ts`), puis U6 + P8, P7,
-U4 + P5 et U5 + P13. **P6** attend l'avis RGPD sur la base légale.
+Restent ensuite : **U3b-c**, **P1c**, **T10** (`gdpr-data.spec.ts`), puis
+U6 + P8, P7, U4 + P5 et U5 + P13. **P6** attend l'avis RGPD.
 ```

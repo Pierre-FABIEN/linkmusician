@@ -823,7 +823,8 @@ livrables déjà déposés restent à valider. » Bouton `danger`.
   groupe sans personne d'autre (Q84) ; la coordination l'a tant qu'elle est
   seule.
 - **Besoins et propositions** (bloc « Besoins », « Proposer à la
-  gestion ») : non livrés, faute d'objet « besoin » ; lot **U3b**. Les
+  gestion ») : non livrés, faute d'objet « besoin » ; lot **U3b**, conçu
+  dans la [conception 22](./22-besoins-projet.md) (U3b-a, proposée). Les
   effets d'un retrait ne citent pas de tâches (P13).
 
 ---
