@@ -1323,6 +1323,14 @@ flowchart LR
   pour la gestion.
 - **Acceptation** : aucune étape non terminée n'est au nom d'une personne
   qui ne gère plus le morceau ; l'acte de libération est historisé.
+- **Livré** (19/11/2026, P1) : départ, retrait, **rétrogradation en simple
+  membre** et suppression de compte libèrent les étapes non terminées
+  (acte `AUTO_RELEASED`), dans la transaction de départ sous le `band:`
+  déjà tenu : toute écriture d'étape de groupe prend `work:` puis `band:`
+  avant de relire l'étape, donc aucun `work:` n'est pris après `band:`.
+  L'anonymisation verrouille d'abord les `work:` triés. Une étape terminée
+  reste intacte. Détail : [fin du projet, P1](../plan/fin-du-projet.md).
+  Q-G0-7 (E11) passe en P1b.
 
 ### P2 — Socle du projet · #71
 

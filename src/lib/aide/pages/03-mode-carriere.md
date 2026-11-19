@@ -555,6 +555,12 @@ personnes qui gèrent le morceau voient où tu en es et peuvent seulement
 **libérer** une étape non terminée, par exemple si tu n'es plus là. Chaque
 changement est daté dans l'historique de l'étape.
 
+Si tu quittes le groupe, en es retiré·e, repasses simple membre ou
+supprimes ton compte, tes étapes non terminées sur ses morceaux sont
+**libérées automatiquement** : elles repassent « À faire » et une autre
+personne de la gestion peut les prendre. L'historique garde ce que tu as
+fait. Une étape que tu as terminée reste terminée, à ton nom.
+
 C'est une déclaration pour l'équipe, pas une preuve. Une fois l'étape
 terminée, le morceau affiche **Enregistré** avec la mention « déclaré par »
 ton nom, dans ses étapes et dans le chemin du morceau. Si tu rouvres

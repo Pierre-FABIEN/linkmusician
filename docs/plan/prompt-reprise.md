@@ -1,61 +1,51 @@
-# Prompt de reprise — après U3 (P1, libérer les étapes d'une personne qui part)
+# Prompt de reprise — après P1 (P1b, consigner Q-G0-7 en décision)
 
 ```markdown
 Reprends LinkMusician dans le dossier de travail courant. Une session = un lot :
-**P1**, corrections ciblées (conception 19 §10, « P1 » ; #36) : libérer les
-étapes `WorkStep` d'une personne qui quitte un groupe ou en est retirée
-(E10), avec un acte historisé ; consigner Q-G0-7 en décision (E11). Lot
-court et indépendant. S'il déborde, découpe-le (P1a la libération, P1b la
-décision) plutôt que de le prolonger.
+**P1b**, fin de la fiche « P1 » (conception 19 §10 ; #36) : consigner
+Q-G0-7 (E11, concert engagé par un simple membre) en décision. Lot court,
+documentaire ; aucun code attendu, sauf si la décision révèle un écart
+avec le comportement actuel (dans ce cas, le consigner et l'ouvrir en lot).
 
-Avant de coder :
+Avant d'écrire :
 
-1. Lis CLAUDE.md et docs/plan/README.md §4 (définition de terminé). Dans
-   docs/conception/19-architecture-cible-collab.md : la fiche « P1 » (§10),
-   E10 et E11 (tableau des écarts), §9.1 (ce que devient une tâche à la
-   révocation) et la ligne `WorkStep` du tableau des entités.
-2. Vérifie que Q-G0-7 est tranchée (D72) ; crée une fiche P1 courte dans
-   docs/plan/fin-du-projet.md, avec ce que tu livres et ce que tu laisses
-   (P13 : tâches confiées dans un projet).
-3. git status, git log -8 et git ls-remote origin refs/heads/main. Les
-   commits U3 (`6653e69`, `988c9bd`, `29cd85d` et la doc) étaient locaux le
-   19/11/2026 : note ce que l'utilisateur a publié depuis. Préserve les
-   commits et changements des autres sessions.
-4. Lis `src/lib/server/bands/service.ts` (`leaveBand`, `removeMember`,
-   `leaveOrRemoveManager`, anonymisation), le service des étapes
-   (`WorkStep`, `WorkStepAct`, `applyWorkStep`) et la façon dont P4a appelle
-   `dropMemberCapabilities` **après** la transaction de départ (ordre des
-   verrous : `work:` avant `band:` ; ARCH-MET-02a).
+1. Lis CLAUDE.md, docs/plan/README.md §4 et la fiche « P1 » de
+   docs/plan/fin-du-projet.md (fin du fichier). Dans
+   docs/conception/19-architecture-cible-collab.md : E11 (tableau des
+   écarts), Q-G0-7 (§9) ; dans docs/decisions/D72-architecture-projets-collab.md,
+   l'arbitrage du 18/11/2026.
+2. git status, git log -8 et git ls-remote origin refs/heads/main. Les
+   commits U3 (`6653e69`, `988c9bd`, `29cd85d`, `69138b9`) et P1
+   (`a2ed036`, `6a08471` et la doc) étaient locaux le 19/11/2026 : note ce
+   que l'utilisateur a publié depuis. Préserve les commits des autres
+   sessions.
+3. Vérifie dans le code ce que fait aujourd'hui un concert proposé par un
+   simple membre (collaboration `GIG`, `server/collaborations/`) : la
+   décision décrit le comportement réel, pas l'intention.
 
 À faire :
 
-- Au départ ou au retrait d'un groupe, chaque étape non terminée au nom de
-  la personne, sur un morceau du groupe, redevient libre, avec un acte de
-  libération (valeur d'enum additive : relis la migration, scripts `db:*`).
-- Suppression de compte : même effet (anonymisation RGPD).
-- Tests : intégration (départ, retrait, suppression de compte, course
-  départ ↔ prise en charge à barrières) ; E2E : l'étape apparaît libre pour
-  la gestion du morceau.
-- Démo et aide si l'écran change (« libérée au départ de … »).
+- Une fiche `docs/decisions/D7x-concert-engage-par-un-membre.md` (numéro
+  suivant), statut Acceptée, qui renvoie à D72 et Q-G0-7 ; ligne dans
+  docs/decisions/README.md ; E11 marqué dans la conception 19.
+- Fiche P1 et ligne P1 du tableau §5 passées à ✅ ; issue #36 : commentaire
+  « P1b livré » (commits locaux ou publiés). Ne ferme pas #36 : P13 y reste.
 
 Repères :
 
-- Le serveur e2e est un `vite dev` : ne touche pas au code source, ne lance
-  pas npm run check et ne régénère pas Prisma pendant un E2E (mémoire WSL).
-- `npm run lint` global échoue pour des raisons extérieures : passe ESLint
-  et Prettier sur les fichiers du lot. Tableaux Markdown : garde la largeur
-  des colonnes. Jamais `prisma format` sur tout le schéma.
-- Instabilités connues : M1, T1, T2 dans docs/plan/a-trancher.md. Relance
-  seul un test qui échoue avant de conclure, et dis lequel.
+- Production : les migrations P1 `20261119120151_work_step_auto_released`
+  et `20261119120152_work_step_release_stale` ne sont appliquées qu'en dev
+  et e2e.
+- Tests `locking.integration.test.ts` : 2 échecs `55P03` préexistants,
+  identiques sans P1 (README §5).
 - Une question qui bloque : consigne-la dans a-trancher avec un défaut, et
-  avance.
+  avance. Q85 à Q87 (P1) sont au défaut.
 
-Fin de lot : fiche P1, ligne du tableau §5 et issue #36 (livré, partiel ou
-restant, commits locaux ou publiés), prompt de reprise. Commits en
-français préfixés « (P1) », sans push.
+Fin de lot : fiche, tableau §5, issue #36, prompt de reprise. Commits en
+français préfixés « (P1b) », sans push.
 
 Restent ensuite : **U3b** (besoins et intervenants proposés : objet
-« besoin », « Proposer à la gestion », conception 20 §8.2 « Ajouter un
-besoin » ; à concevoir d'abord), **T10** (`gdpr-data.spec.ts`), puis U6 + P8,
-P7, U4 + P5 et U5 + P13. **P6** attend l'avis RGPD sur la base légale.
+« besoin », « Proposer à la gestion », conception 20 §8.2 ; à concevoir
+d'abord), **T10** (`gdpr-data.spec.ts`), puis U6 + P8, P7, U4 + P5 et
+U5 + P13. **P6** attend l'avis RGPD sur la base légale.
 ```

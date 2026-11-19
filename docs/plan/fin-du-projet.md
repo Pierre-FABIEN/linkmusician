@@ -1252,3 +1252,47 @@ migration. Écarts : pas d'écran d'invitation séparé (la carte en tient lieu)
 une coordination proposée se tranche sur la fiche, « À traiter » y mène ;
 « Inviter » en prochaine action de la gestion seulement pour un projet de
 groupe (Q84) ; Q83 et Q84 au défaut. Reste **U3b** (besoins proposés).
+
+### P1 — Libérer les étapes d'une personne qui perd la gestion (E10) ✅
+
+Fiche « P1 » de la [conception 19 §10](../conception/19-architecture-cible-collab.md)
+(#36). Aucune dépendance ; indépendant de U3b. Découpé : **P1** (E10, ce
+lot) et **P1b** (consigner Q-G0-7, E11, en décision).
+
+**Livré le 19/11/2026** (commits locaux `a2ed036` correctif et migrations,
+`6a08471` tests, puis doc) :
+
+- **Quatre chemins** font perdre la gestion d'un morceau de groupe :
+  quitter le groupe, en être retiré·e, repasser simple membre (`setRole`,
+  oublié par la fiche) et supprimer son compte. Les trois premiers
+  appellent `releaseStepsOnBandExit` (`server/works/release.ts`) **dans la
+  transaction** du changement d'adhésion, sous le `band:` déjà tenu :
+  toute écriture d'étape d'un morceau de groupe prend `work:` puis `band:`
+  avant de relire l'étape, donc tenir `band:` suffit à sérialiser, sans
+  prendre `work:` après `band:`. Aucune fenêtre après le commit, aucune
+  double attribution.
+- La gestion est **relue** (`manageableOwnerWhere`) : une gestion conservée
+  (transmission du groupe, autre groupe, morceau personnel) ne libère rien.
+  Idempotent : un rejeu ne trouve plus rien, aucun acte en double.
+- Étape non terminée → « À faire », sans responsable ni mode ni lieu, acte
+  `AUTO_RELEASED` (auteur : la personne qui part ou la gestion qui retire ;
+  responsable concerné conservé). Étape **terminée** : intacte, au nom de
+  qui l'a faite. Ni crédit, ni collaboration, ni preuve, ni XP touchés.
+- **Compte supprimé** : `stepReleaseOnErasureOps` en tête de
+  l'anonymisation (verrous `work:` triés, acte inséré dans la même
+  instruction que sa sélection). Une étape terminée y reste terminée,
+  « Compte supprimé », et ne se reprend plus (avant, « Je m'en charge »
+  l'effaçait).
+- Migrations : valeur d'enum additive `AUTO_RELEASED`, puis réparation des
+  étapes déjà orphelines (une seule instruction, rejouable ; 0 ligne en dev
+  et e2e). Production non appliquée.
+- Écran : historique « Libérée automatiquement (X ne gère plus le
+  morceau) » ; la gestion voit « Je m'en charge ».
+
+**Écarts** : l'avancement d'une étape libérée repart de « À faire », comme
+une libération manuelle (D68) ; il reste lisible dans l'historique (Q85).
+Aucune notification à la gestion restante (Q86). Une étape terminée par
+une personne partie ne se rouvre plus (Q87).
+
+**Laissé** : P1b (Q-G0-7) ; libération des tâches confiées dans un projet
+(P13).
