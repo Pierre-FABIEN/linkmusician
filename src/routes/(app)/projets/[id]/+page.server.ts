@@ -17,6 +17,8 @@ import {
 } from '#server/projects/service';
 import {
 	answerCapability,
+	inviteCandidates,
+	inviteMany,
 	inviteParticipant,
 	leaveProject,
 	proposeCapability,
@@ -34,6 +36,7 @@ import {
 	participantRefSchema
 } from '#lib/schema/projects/project';
 import { FAMILY_BLOCKS, familyOf, nextProjectAction, progressLine } from '#lib/projects/overview';
+import { bulkInviteSummary } from '#lib/projects/participants';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, params, setHeaders, url }) => {
@@ -46,7 +49,13 @@ export const load: PageServerLoad = async ({ locals, params, setHeaders, url }) 
 		project.status === 'ACTIVE' &&
 		project.can.live &&
 		(project.can.manage || project.can.coordinate);
-	const rangeable = organise ? await rangeableWorks(person.actorId, project.id) : [];
+	// U3 : personnes connues à inviter, lues pour qui peut inviter seulement.
+	const [rangeable, invite] = organise
+		? await Promise.all([
+				rangeableWorks(person.actorId, project.id),
+				inviteCandidates(person.actorId, project.id)
+			])
+		: [[], null];
 	// U2 : composition par famille et une seule prochaine action, calculées
 	// sur ce que je vois et ce que je peux faire (`#lib/projects/overview`).
 	const family = familyOf(project.kind);
@@ -55,6 +64,10 @@ export const load: PageServerLoad = async ({ locals, params, setHeaders, url }) 
 		status: project.status,
 		family,
 		manages: organise,
+		role: project.role,
+		others: project.team.filter((m) => !m.isMe).length,
+		ownerIsBand: project.owner.isBand,
+		capabilityOffer: (project.me?.proposed.length ?? 0) > 0,
 		visibleItems: project.counts.items,
 		resumable: project.resumable,
 		rangeable: rangeable.length,
@@ -77,6 +90,7 @@ export const load: PageServerLoad = async ({ locals, params, setHeaders, url }) 
 			dueOn: project.dueOn
 		}),
 		rangeable,
+		invite: invite ?? { candidates: [], canPropose: false },
 		preselect: wanted && rangeable.some((w) => w.id === wanted) ? wanted : null
 	};
 };
@@ -163,6 +177,27 @@ export const actions: Actions = {
 		} catch (err) {
 			if (err instanceof ProjectError)
 				return fail(err.status, { action: 'inviter', error: err.message });
+			throw err;
+		}
+	},
+	// U3 (UX-8) : une invitation par membre du groupe porteur, chacune à
+	// accepter. La liste est relue côté serveur : le client n'envoie que l'intention.
+	'inviter-membres': async ({ locals, params }) => {
+		const person = await requirePerson(locals);
+		const found = await inviteCandidates(person.actorId, params.id);
+		if (!found) return fail(404, { action: 'inviter-membres', error: PROJECT_NOT_FOUND });
+		const members = found.candidates.filter((c) => c.member).map((c) => c.id);
+		if (members.length === 0)
+			return fail(409, {
+				action: 'inviter-membres',
+				error: 'Tous les membres du groupe sont déjà invité·es ou dans le projet.'
+			});
+		try {
+			const result = await inviteMany(person.actorId, params.id, members);
+			return { action: 'inviter-membres', ok: bulkInviteSummary(result) };
+		} catch (err) {
+			if (err instanceof ProjectError)
+				return fail(err.status, { action: 'inviter-membres', error: err.message });
 			throw err;
 		}
 	},

@@ -59,7 +59,7 @@
 						required
 						minlength="2"
 						maxlength={MAX_PROJECT_NAME}
-						value={form?.values?.name ?? ''}
+						value={form?.values?.name ?? data.group?.name ?? ''}
 						placeholder="EP Lumière"
 					/>
 				{/snippet}
@@ -84,6 +84,26 @@
 							/>
 							{o.isMe ? 'Moi' : o.name}
 						</label>
+					{/each}
+				</fieldset>
+			{/if}
+
+			{#if data.group}
+				<!-- U3 : « Transformer en projet ». Une invitation par contact coché. -->
+				<input type="hidden" name="contactGroup" value={data.group.id} />
+				<fieldset class="space-y-2" data-testid="group-invites">
+					<legend class="text-sm font-medium">Inviter aussi, depuis « {data.group.name} »</legend>
+					<p class="text-sm text-muted-foreground">
+						Chacun·e reçoit une invitation et choisit de rejoindre ou non ; personne n’est ajouté
+						d’office. Une ou un mineur·e ne s’invite que dans un projet de son groupe.
+					</p>
+					{#each data.group.members as m (m.id)}
+						<label class="flex min-h-11 items-center gap-2">
+							<input type="checkbox" name="invite" value={m.id} checked />
+							{m.name}
+						</label>
+					{:else}
+						<p class="text-sm">Ce groupe n’a personne pour l’instant.</p>
 					{/each}
 				</fieldset>
 			{/if}

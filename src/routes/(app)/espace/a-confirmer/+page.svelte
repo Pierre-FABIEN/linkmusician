@@ -4,10 +4,13 @@
 	import SEO from '#lib/components/SEO.svelte';
 	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { plural } from '#lib/jam/log';
+	import ProjectInvitation from '#lib/components/linkmusician/projects/ProjectInvitation.svelte';
 
-	let { data } = $props();
+	let { data, form } = $props();
+	const projects = $derived(data.projectInvitations.length + data.capabilityOffers.length);
 	const empty = $derived(
-		data.collaborations.length === 0 &&
+		projects === 0 &&
+			data.collaborations.length === 0 &&
 			data.credits.length === 0 &&
 			data.bandInvitations.length === 0 &&
 			data.representations === 0 &&
@@ -26,10 +29,44 @@
 			intro="Ce qui attend ta réponse. Une confirmation des deux côtés, et ça compte dans vos parcours."
 			back={{ href: '/espace', label: 'Mon espace' }}
 		/>
+		<div aria-live="polite">
+			{#if form?.ok}<p role="status" class="text-sm">{form.ok}</p>{/if}
+		</div>
+		{#if form?.error}<p role="alert" class="lm-alert p-3 text-sm">{form.error}</p>{/if}
 		{#if empty}
 			<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
-				Rien en attente pour l’instant.
+				Rien n’attend ta réponse.
 			</p>
+		{/if}
+		{#if projects > 0}
+			<!-- U3 (§6.3) : invitations à un projet, puis coordinations proposées. -->
+			<section id="projets" class="space-y-2" aria-labelledby="projects-title">
+				<h2 id="projects-title" class="text-xl font-bold">Projets</h2>
+				{#if data.projectInvitations.length > 0}
+					<ul class="grid gap-3 md:grid-cols-2" aria-label="Invitations à un projet">
+						{#each data.projectInvitations as inv (inv.id)}
+							<ProjectInvitation invitation={inv} />
+						{/each}
+					</ul>
+				{/if}
+				{#if data.capabilityOffers.length > 0}
+					<ul class="space-y-2" aria-label="Coordinations proposées">
+						{#each data.capabilityOffers as o (o.projectId)}
+							<li>
+								<a
+									href="/projets/{o.projectId}#equipe"
+									class="lm-tile lm-tile--flow flex min-h-11 items-center justify-between gap-3 p-3 text-sm"
+								>
+									<span class="min-w-0 truncate"
+										>Coordonner « {o.projectName} » · porté par {o.owner}</span
+									>
+									<span class="shrink-0 font-semibold text-primary">Répondre →</span>
+								</a>
+							</li>
+						{/each}
+					</ul>
+				{/if}
+			</section>
 		{/if}
 		{#if data.collaborations.length > 0}
 			<section class="space-y-2" aria-labelledby="collabs-title">

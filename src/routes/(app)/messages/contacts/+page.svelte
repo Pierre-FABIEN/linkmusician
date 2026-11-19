@@ -91,6 +91,10 @@
 										></button
 									>
 								</form>
+								<!-- U3 : le groupe devient un projet ; chacun·e est invité·e, jamais ajouté·e. -->
+								<a href="/projets/nouveau?contacts={g.id}" class="lm-btn" data-variant="ghost"
+									>Transformer en projet<span class="sr-only"> : {g.name}</span></a
+								>
 							{/if}
 							{#if managing === g.id}
 								<div class="space-y-3 border-t pt-3 text-sm">

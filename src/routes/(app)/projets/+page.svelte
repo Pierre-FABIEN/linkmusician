@@ -11,9 +11,7 @@
 	import { TONE_OF } from '#lib/components/linkmusician/metro/tones';
 	import { FolderOpen, FolderPlus, Music } from 'lucide-svelte';
 	import { plural } from '#lib/jam/log';
-	import { enhance } from '$app/forms';
-	import { PROJECT_KIND_LABELS } from '#lib/projects/rules';
-	import { CAPABILITY_LABELS, PRESETS } from '#lib/projects/participants';
+	import ProjectInvitation from '#lib/components/linkmusician/projects/ProjectInvitation.svelte';
 
 	let { data, form } = $props();
 	const s = $derived(data.sections);
@@ -71,46 +69,7 @@
 				</h2>
 				<ul class="grid gap-3 md:grid-cols-2">
 					{#each data.invitations as inv (inv.id)}
-						<li
-							data-tone="paper"
-							class="lm-tile lm-tile--flow space-y-3 p-4"
-							data-testid="project-invitation"
-						>
-							<p class="lm-tile__kicker">Projet · {PROJECT_KIND_LABELS[inv.kind]}</p>
-							<p class="font-medium">{inv.projectName}</p>
-							<p class="text-sm">
-								Porté par {inv.owner}{inv.invitedBy ? ` · invitation de ${inv.invitedBy}` : ''}
-							</p>
-							{#if inv.role}<p class="text-sm">Rôle proposé : {inv.role}</p>{/if}
-							<p class="text-sm">
-								{#if inv.capabilities.length > 0}
-									Proposé : {inv.capabilities.map((c) => CAPABILITY_LABELS[c]).join(', ')}. {PRESETS
-										.coordinator.phrase}
-								{:else}
-									{PRESETS.participant.phrase}
-								{/if}
-							</p>
-							<p class="text-sm text-muted-foreground">
-								Si tu acceptes, ton nom figurera dans l’équipe, visible des autres personnes du
-								projet.
-							</p>
-							<div class="flex flex-wrap gap-3">
-								<form method="POST" action="?/repondre" use:enhance>
-									<input type="hidden" name="participantId" value={inv.id} />
-									<input type="hidden" name="answer" value="accept" />
-									<button class="lm-btn"
-										>Accepter<span class="sr-only"> : {inv.projectName}</span></button
-									>
-								</form>
-								<form method="POST" action="?/repondre" use:enhance>
-									<input type="hidden" name="participantId" value={inv.id} />
-									<input type="hidden" name="answer" value="decline" />
-									<button class="lm-btn" data-variant="ghost"
-										>Non merci<span class="sr-only"> : {inv.projectName}</span></button
-									>
-								</form>
-							</div>
-						</li>
+						<ProjectInvitation invitation={inv} />
 					{/each}
 				</ul>
 			</section>

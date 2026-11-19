@@ -6,10 +6,8 @@
 import { requirePerson } from '#server/actors/tracksForm';
 import { outsideCount, projectsOverview } from '#server/projects/overview';
 import { projectSections } from '#lib/projects/overview';
-import { answerInvitation, myInvitations } from '#server/projects/participants';
-import { ProjectError } from '#server/projects/service';
-import { answerSchema } from '#lib/schema/projects/project';
-import { fail, redirect } from '@sveltejs/kit';
+import { myInvitations } from '#server/projects/participants';
+import { answerInvitationForm } from '#server/projects/answer-form';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, setHeaders }) => {
@@ -25,20 +23,6 @@ export const load: PageServerLoad = async ({ locals, setHeaders }) => {
 };
 
 export const actions: Actions = {
-	// P4a : répondre à une invitation (la personne elle-même ; relu sous verrou).
-	repondre: async ({ locals, request }) => {
-		const person = await requirePerson(locals);
-		const parsed = answerSchema.safeParse(Object.fromEntries(await request.formData()));
-		if (!parsed.success) return fail(400, { error: 'Réponse invalide.' });
-		const accept = parsed.data.answer === 'accept';
-		let projectId: string;
-		try {
-			({ projectId } = await answerInvitation(person.actorId, parsed.data.participantId, accept));
-		} catch (err) {
-			if (err instanceof ProjectError) return fail(err.status, { error: err.message });
-			throw err;
-		}
-		if (accept) redirect(303, `/projets/${projectId}?rejoint`);
-		return { ok: 'Invitation refusée. Personne d’autre n’en est prévenu.' };
-	}
+	// P4a, U3 : répondre à une invitation (la personne elle-même ; relu sous verrou).
+	repondre: answerInvitationForm
 };

@@ -19,7 +19,18 @@
 	import MetroSheet from '#lib/components/linkmusician/metro/MetroSheet.svelte';
 	import MetroEmpty from '#lib/components/linkmusician/metro/MetroEmpty.svelte';
 	import { ArrowRight, CalendarDays, Clock, Music, Target, UsersRound } from 'lucide-svelte';
-	import { PRESETS } from '#lib/projects/participants';
+	import {
+		askToInvite,
+		bulkInviteSummary,
+		CAPABILITY_LABELS,
+		COORDINATE_ADULTS_ONLY,
+		INVITE_PREVIEW,
+		matchCandidate,
+		PRESETS,
+		removalEffects,
+		type ProjectCapabilityValue
+	} from '#lib/projects/participants';
+	import { plural } from '#lib/jam/log';
 	import {
 		MAX_PROJECT_DESCRIPTION,
 		MAX_PROJECT_NAME,
@@ -59,19 +70,65 @@
 	let confirmDelete = $state(false);
 	let editOpen = $state(false);
 
+	// U3 : équipe. Feuilles « Inviter », « Inviter les membres », retrait et départ.
+	let inviteOpen = $state(false);
+	let membersOpen = $state(false);
+	let sending = $state<'inviter' | 'membres' | 'retrait' | null>(null);
+	let leaving = $state<{
+		id: string;
+		name: string;
+		self: boolean;
+		invited: boolean;
+		coordinate: boolean;
+	} | null>(null);
+	let query = $state('');
+	let pick = $state('');
+	let handle = $state('');
+	let byHandle = $state(false);
+	let preset = $state<'participant' | 'coordinator'>('participant');
+	const candidates = $derived(data.invite.candidates);
+	// La personne choisie reste affichée même si la recherche ne la retient plus.
+	const shown = $derived(candidates.filter((c) => c.id === pick || matchCandidate(c, query)));
+	const chosenPerson = $derived(candidates.find((c) => c.id === pick));
+	const members = $derived(candidates.filter((c) => c.member));
+	function choosePerson(id: string) {
+		pick = id;
+		handle = '';
+		if (!candidates.find((c) => c.id === id)?.canCoordinate) preset = 'participant';
+	}
+	function resetInvite() {
+		query = '';
+		pick = '';
+		handle = '';
+		byHandle = false;
+		preset = 'participant';
+	}
+	/** Après « Transformer en projet » : le bilan des invitations (U3). */
+	function createdMessage(params: { has(k: string): boolean; get(k: string): string | null }) {
+		if (!params.has('invites')) return 'Projet créé.';
+		const invited = Number(params.get('invites')) || 0;
+		const skipped = Number(params.get('sans')) || 0;
+		return `Projet créé. ${bulkInviteSummary({ invited, skipped, quota: null })}`;
+	}
+	/** Une cible de la fiche qui ouvre une feuille ou un repli. */
+	function openTarget(target: string) {
+		if (target === 'modifier') editOpen = true;
+		if (target === 'inviter' && organise) inviteOpen = true;
+	}
+
 	/** Les cibles de la fiche elle-même (`#ranger`, `#modifier`, `#morceaux`). */
 	const local = $derived(data.next.href.startsWith(`/projets/${data.project.id}#`));
 	async function goLocal(event: MouseEvent) {
 		const target = data.next.href.split('#')[1];
 		event.preventDefault();
-		if (target === 'modifier') editOpen = true;
+		openTarget(target);
 		await tick();
 		scrollToId(target);
 	}
 	afterNavigate(({ to }) => {
 		const hash = to?.url.hash.slice(1);
 		if (!hash) return;
-		if (hash === 'modifier') editOpen = true;
+		openTarget(hash);
 		setTimeout(() => scrollToId(decodeURIComponent(hash)), 50);
 	});
 
@@ -114,7 +171,8 @@
 		if (j.kind === 'SHARE_CHANGED' && j.fromShare !== j.toShare)
 			return `${j.fromShare} → ${j.toShare}`;
 		if (j.kind === 'ITEM_ADDED' && j.toShare) return j.toShare;
-		if (j.capability) return j.capability;
+		if (j.capability)
+			return CAPABILITY_LABELS[j.capability as ProjectCapabilityValue] ?? j.capability;
 		return null;
 	}
 	const dates = $derived(
@@ -144,13 +202,17 @@
 		</p>
 
 		{#if page.url.searchParams.has('cree') && !form}
-			<p role="status" class="text-sm">Projet créé.</p>
+			<p role="status" class="text-sm">{createdMessage(page.url.searchParams)}</p>
 		{/if}
 		{#if page.url.searchParams.has('rejoint') && !form}
-			<p role="status" class="text-sm">Tu fais partie du projet.</p>
+			<p role="status" class="text-sm">
+				Bienvenue dans « {p.name} » : voici ce qui est partagé avec toi.
+			</p>
 		{/if}
 		{#if form?.ok}<p role="status" class="text-sm">{form.ok}</p>{/if}
-		{#if form?.error}<p role="alert" class="lm-alert p-3 text-sm">{form.error}</p>{/if}
+		{#if form?.error && !(form.action === 'inviter' && inviteOpen)}
+			<p role="alert" class="lm-alert p-3 text-sm">{form.error}</p>
+		{/if}
 
 		{#if !active}
 			<div
@@ -180,13 +242,13 @@
 						{data.next.label}
 					</h2>
 					<p class="lm-tile__text max-w-prose">{data.next.text}</p>
-					<a
-						href={data.next.href}
-						class="lm-btn"
-						onclick={local ? goLocal : undefined}
-						data-sveltekit-noscroll={local || undefined}
-						>J’y vais<ArrowRight class="size-4" aria-hidden="true" /></a
-					>
+					{#if !(p.role === 'participate' && data.next.kind === 'consult')}<a
+							href={data.next.href}
+							class="lm-btn"
+							onclick={local ? goLocal : undefined}
+							data-sveltekit-noscroll={local || undefined}
+							>J’y vais<ArrowRight class="size-4" aria-hidden="true" /></a
+						>{/if}
 				</section>
 			</Tile>
 		{/if}
@@ -301,7 +363,7 @@
 {#snippet teamBlock()}
 	<section id="equipe" aria-labelledby="equipe-titre" class="space-y-4">
 		<h2 id="equipe-titre" class="lm-kicker text-muted-foreground">
-			Équipe <span class="text-muted-foreground">· {activeTeam.length}</span>
+			Équipe <span class="text-muted-foreground">· {activeTeam.length + 1}</span>
 		</h2>
 		{#if p.me && p.me.proposed.length > 0}
 			<div
@@ -323,115 +385,120 @@
 				</div>
 			</div>
 		{/if}
-		{#if p.team.length === 0}
-			<MetroEmpty
-				icon={UsersRound}
-				text="Personne d’autre pour l’instant. Une personne invitée voit le nom, le type et le porteur du projet avant de répondre."
-			/>
-		{:else}
-			<ul class="space-y-2">
-				{#each p.team as m (m.id)}
-					<li
-						data-tone="paper"
-						class="lm-tile lm-tile--flow space-y-2 p-3"
-						data-testid="team-member"
-					>
-						<div class="flex flex-wrap items-baseline justify-between gap-2">
-							<p class="font-medium">
-								{m.isMe ? 'Toi' : m.name}{#if m.role}<span class="text-sm text-muted-foreground">
-										· {m.role}</span
-									>{/if}
-							</p>
-							<span class="flex flex-wrap gap-1 text-xs">
-								{#if m.status === 'INVITED'}<span class="lm-pill">Invitation en attente</span>{/if}
-								{#if m.coordinate}<span class="lm-pill">Coordination</span>{/if}
-								{#if m.proposed}<span class="lm-pill">Coordination proposée</span>{/if}
-							</span>
-						</div>
-						{#if can.manage}
-							<div class="flex flex-wrap gap-2">
-								{#if active && can.live && m.status === 'ACTIVE' && !m.coordinate && !m.proposed}
-									<form method="POST" action="?/proposer" use:enhance>
-										<input type="hidden" name="participantId" value={m.id} />
-										<button class="lm-btn" data-variant="ghost"
-											>Proposer la coordination<span class="sr-only"> à {m.name}</span></button
-										>
-									</form>
-								{/if}
-								{#if m.coordinate || m.proposed}
-									<form method="POST" action="?/revoquer" use:enhance>
-										<input type="hidden" name="participantId" value={m.id} />
-										<button class="lm-btn" data-variant="ghost"
-											>Retirer la coordination<span class="sr-only"> de {m.name}</span></button
-										>
-									</form>
-								{/if}
-								<form method="POST" action="?/retirer-personne" use:enhance>
+		<ul class="lm-tile lm-tile--flow lm-list" aria-label="Personnes du projet">
+			<!-- La gestion du porteur : jamais retirée d'ici, jamais « invitée ». -->
+			<li class="lm-list__row flex-wrap justify-between" data-testid="team-owner">
+				<span class="min-w-0 font-medium wrap-break-word"
+					>{p.owner.isMe ? 'Toi' : p.owner.name}</span
+				>
+				<span class="lm-pill text-xs">Gère le projet</span>
+			</li>
+			{#each p.team as m (m.id)}
+				<li class="lm-list__row flex-col items-stretch gap-2" data-testid="team-member">
+					<div class="flex flex-wrap items-baseline justify-between gap-2">
+						<p class="min-w-0 font-medium wrap-break-word">
+							{m.isMe ? 'Toi' : m.name}{#if m.role}<span class="text-sm text-muted-foreground">
+									· {m.role}</span
+								>{/if}
+						</p>
+						<span class="flex flex-wrap gap-1 text-xs">
+							{#if m.status === 'INVITED'}<span class="lm-pill">Invitation en attente</span
+								>{:else if m.coordinate}<span class="lm-pill">Coordination</span>{:else}<span
+									class="lm-pill">Participation</span
+								>{/if}
+							{#if m.proposed}<span class="lm-pill">Coordination proposée</span>{/if}
+						</span>
+					</div>
+					{#if can.manage}
+						<div class="flex flex-wrap gap-2">
+							{#if active && can.live && m.status === 'ACTIVE' && !m.coordinate && !m.proposed}
+								<form method="POST" action="?/proposer" use:enhance>
 									<input type="hidden" name="participantId" value={m.id} />
 									<button class="lm-btn" data-variant="ghost"
-										>{m.status === 'INVITED' ? 'Annuler l’invitation' : 'Retirer du projet'}<span
-											class="sr-only"
-										>
-											: {m.name}</span
-										></button
+										>Proposer la coordination<span class="sr-only"> à {m.name}</span></button
 									>
 								</form>
-							</div>
-						{/if}
-					</li>
-				{/each}
-			</ul>
-		{/if}
-		{#if p.me && !can.manage}
-			<form method="POST" action="?/quitter" use:enhance>
-				<button class="lm-btn" data-variant="ghost">Quitter le projet</button>
-			</form>
+							{/if}
+							{#if m.coordinate || m.proposed}
+								<form method="POST" action="?/revoquer" use:enhance>
+									<input type="hidden" name="participantId" value={m.id} />
+									<button class="lm-btn" data-variant="ghost"
+										>Retirer la coordination<span class="sr-only"> de {m.name}</span></button
+									>
+								</form>
+							{/if}
+							<button
+								type="button"
+								class="lm-btn"
+								data-variant="ghost"
+								onclick={() =>
+									(leaving = {
+										id: m.id,
+										name: m.name,
+										self: false,
+										invited: m.status === 'INVITED',
+										coordinate: m.coordinate
+									})}
+								>{m.status === 'INVITED' ? 'Annuler l’invitation' : 'Retirer du projet'}<span
+									class="sr-only"
+								>
+									: {m.name}</span
+								></button
+							>
+						</div>
+					{/if}
+				</li>
+			{/each}
+		</ul>
+		{#if organise && p.team.length === 0}
+			<MetroEmpty
+				icon={UsersRound}
+				text="Tu travailles seul·e sur ce projet pour l’instant. Une personne invitée voit le nom, le type et le porteur du projet avant de répondre."
+			/>
 		{/if}
 		{#if organise}
-			<form
-				id="inviter"
-				method="POST"
-				action="?/inviter"
-				use:enhance
-				data-tone="paper"
-				class="lm-tile lm-tile--flow space-y-4 p-4"
-				aria-labelledby="inviter-titre"
-			>
-				<h3 id="inviter-titre" class="font-medium">Inviter une personne</h3>
-				<MetroField
-					id="invite-handle"
-					label="Identifiant"
-					help="Son @identifiant, visible sur son profil."
+			<div class="flex flex-wrap gap-3">
+				<button
+					id="inviter"
+					type="button"
+					class="lm-btn"
+					onclick={() => (inviteOpen = true)}
+					data-testid="invite-open">Inviter quelqu’un</button
 				>
-					{#snippet children(attrs)}
-						<input {...attrs} name="handle" required maxlength="64" autocomplete="off" />
-					{/snippet}
-				</MetroField>
-				<MetroField
-					id="invite-role"
-					label="Son rôle dans le projet"
-					help="Un libellé, par exemple « ingé son de la tournée ». Il ne donne aucun droit."
-					optional
-				>
-					{#snippet children(attrs)}
-						<input {...attrs} name="role" maxlength="60" />
-					{/snippet}
-				</MetroField>
-				{#if can.manage}
-					<label class="flex min-h-11 items-start gap-2 py-1">
-						<input type="checkbox" name="coordinate" class="mt-1" />
-						<span
-							><span class="font-medium">Lui proposer de coordonner</span>
-							<span class="block text-sm text-muted-foreground">{PRESETS.coordinator.phrase}</span
-							></span
-						>
-					</label>
+				{#if members.length > 0}
+					<button
+						type="button"
+						class="lm-btn"
+						data-variant="ghost"
+						onclick={() => (membersOpen = true)}
+						>Inviter les membres du groupe <span class="text-muted-foreground"
+							>· {members.length}</span
+						></button
+					>
 				{/if}
-				<p class="text-sm text-muted-foreground">
-					{PRESETS.participant.phrase} L’équipe est visible de toutes les personnes du projet.
-				</p>
-				<button class="lm-btn">Inviter</button>
-			</form>
+			</div>
+		{:else if p.me && !can.manage}
+			<p class="text-sm text-muted-foreground">
+				{askToInvite(
+					p.team.filter((m) => m.coordinate && !m.isMe).map((m) => m.name),
+					p.owner.name
+				)}
+			</p>
+		{/if}
+		{#if p.me && !can.manage}
+			<button
+				type="button"
+				class="lm-btn"
+				data-variant="ghost"
+				onclick={() =>
+					(leaving = {
+						id: p.me!.id,
+						name: 'Toi',
+						self: true,
+						invited: false,
+						coordinate: can.coordinate
+					})}>Quitter le projet</button
+			>
 		{/if}
 	</section>
 {/snippet}
@@ -634,4 +701,239 @@
 			<button class="lm-btn">Supprimer le projet</button>
 		</form>
 	</div>
+</MetroSheet>
+
+<!-- U3 (§8.2) : inviter une personne connue ; l'@identifiant reste possible. -->
+<MetroSheet bind:open={inviteOpen} title={`Inviter dans ${p.name}`}>
+	<form
+		method="POST"
+		action="?/inviter"
+		class="space-y-5"
+		data-testid="invite-sheet"
+		use:enhance={() => {
+			sending = 'inviter';
+			return async ({ result, update }) => {
+				await update({ reset: false });
+				sending = null;
+				if (result.type === 'success') {
+					inviteOpen = false;
+					resetInvite();
+				}
+			};
+		}}
+	>
+		{#if form?.action === 'inviter' && form.error}
+			<p role="alert" class="lm-alert p-3 text-sm">{form.error}</p>
+		{/if}
+		<fieldset class="space-y-2">
+			<legend class="text-sm font-medium">Qui ?</legend>
+			{#if data.invite.candidates.length > 0}
+				<MetroField id="invite-search" label="Rechercher dans tes contacts" optional>
+					{#snippet children(attrs)}
+						<input
+							{...attrs}
+							type="search"
+							bind:value={query}
+							autocomplete="off"
+							placeholder="Un nom ou un @identifiant"
+						/>
+					{/snippet}
+				</MetroField>
+				<ul class="max-h-64 space-y-1 overflow-y-auto" aria-label="Personnes que tu connais">
+					{#each shown as c (c.id)}
+						<li>
+							<label class="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 py-1">
+								<input
+									type="radio"
+									name="personId"
+									value={c.id}
+									checked={pick === c.id}
+									onchange={() => choosePerson(c.id)}
+								/>
+								<span class="min-w-0">
+									<span class="block font-medium wrap-break-word">{c.name}</span>
+									<span class="block text-xs text-muted-foreground"
+										>@{c.handle} · {c.member ? `Membre de ${p.owner.name}` : 'Contact'}</span
+									>
+								</span>
+							</label>
+						</li>
+					{:else}
+						<li class="text-sm text-muted-foreground">Personne de ce nom parmi tes contacts.</li>
+					{/each}
+				</ul>
+			{:else}
+				<p class="text-sm text-muted-foreground">
+					Aucun contact à proposer ici : tes contacts sont déjà dans le projet, ou tu n’en as pas
+					encore. <a href="/messages/contacts" class="underline">Mon carnet</a>
+				</p>
+			{/if}
+			<details bind:open={byHandle}>
+				<summary class="min-h-11 cursor-pointer py-2 text-sm"
+					>Pas dans la liste ? Son identifiant</summary
+				>
+				<MetroField
+					id="invite-handle"
+					label="Identifiant"
+					help="Son @identifiant, visible sur son profil. Une ou un mineur·e ne s’invite que depuis son groupe."
+				>
+					{#snippet children(attrs)}
+						<input
+							{...attrs}
+							name="handle"
+							maxlength="65"
+							autocomplete="off"
+							bind:value={handle}
+							oninput={() => (pick = '')}
+						/>
+					{/snippet}
+				</MetroField>
+			</details>
+		</fieldset>
+		<MetroField
+			id="invite-role"
+			label="Son rôle dans le projet"
+			help="Un libellé, par exemple « ingé son de la tournée ». Il ne donne aucun droit."
+			optional
+		>
+			{#snippet children(attrs)}
+				<input {...attrs} name="role" maxlength="60" />
+			{/snippet}
+		</MetroField>
+		{#if data.invite.canPropose}
+			<fieldset class="space-y-1">
+				<legend class="text-sm font-medium">Ce qu’elle ou il pourra faire</legend>
+				<label class="flex min-h-11 items-start gap-2 py-1">
+					<input type="radio" name="preset" value="participant" bind:group={preset} class="mt-1" />
+					<span
+						><span class="font-medium">Participer</span>
+						<span class="block text-sm text-muted-foreground">{PRESETS.participant.phrase}</span
+						></span
+					>
+				</label>
+				{#if !chosenPerson || chosenPerson.canCoordinate}
+					<label class="flex min-h-11 items-start gap-2 py-1">
+						<input
+							type="radio"
+							name="preset"
+							value="coordinator"
+							bind:group={preset}
+							class="mt-1"
+						/>
+						<span
+							><span class="font-medium">Coordonner</span>
+							<span class="block text-sm text-muted-foreground">{PRESETS.coordinator.phrase}</span
+							></span
+						>
+					</label>
+				{:else}
+					<p class="text-sm text-muted-foreground">{COORDINATE_ADULTS_ONLY}</p>
+				{/if}
+				{#if preset === 'coordinator' && (!chosenPerson || chosenPerson.canCoordinate)}
+					<input type="hidden" name="coordinate" value="on" />
+				{/if}
+			</fieldset>
+		{:else}
+			<p class="text-sm">
+				<span class="font-medium">{PRESETS.participant.label}</span> :
+				<span class="text-muted-foreground">{PRESETS.participant.phrase}</span>
+			</p>
+		{/if}
+		<p class="text-sm text-muted-foreground">{INVITE_PREVIEW}</p>
+		<div class="flex flex-wrap justify-end gap-3">
+			<button type="button" class="lm-btn" data-variant="ghost" onclick={() => (inviteOpen = false)}
+				>Annuler</button
+			>
+			<button
+				class="lm-btn"
+				disabled={sending === 'inviter' || (!pick && !handle.trim())}
+				aria-busy={sending === 'inviter'}>{sending === 'inviter' ? 'Envoi…' : 'Inviter'}</button
+			>
+		</div>
+	</form>
+</MetroSheet>
+
+<!-- UX-8 : une invitation par membre, chacune acceptée ; personne n'est ajouté d'office. -->
+<MetroSheet bind:open={membersOpen} title="Inviter les membres du groupe ?">
+	<form
+		method="POST"
+		action="?/inviter-membres"
+		class="space-y-4"
+		use:enhance={() => {
+			sending = 'membres';
+			return async ({ update }) => {
+				await update();
+				sending = null;
+				membersOpen = false;
+			};
+		}}
+	>
+		<p>
+			{plural(members.length, 'membre recevra', 'membres recevront')} chacun·e une invitation dans « {p.name}
+			» :
+			{members.map((m) => m.name).join(', ')}.
+		</p>
+		<p class="text-sm text-muted-foreground">
+			Personne n’est ajouté sans accepter. {PRESETS.participant.phrase} Tu pourras proposer la coordination
+			ensuite.
+		</p>
+		<div class="flex flex-wrap justify-end gap-3">
+			<button
+				type="button"
+				class="lm-btn"
+				data-variant="ghost"
+				onclick={() => (membersOpen = false)}>Annuler</button
+			>
+			<button class="lm-btn" disabled={sending === 'membres'} aria-busy={sending === 'membres'}
+				>{sending === 'membres' ? 'Envoi…' : 'Envoyer les invitations'}</button
+			>
+		</div>
+	</form>
+</MetroSheet>
+
+<!-- §8.2 : retirer (gestion) ou quitter (soi), effets énoncés avant le geste. -->
+<MetroSheet
+	bind:open={() => leaving !== null, (v) => (leaving = v ? leaving : null)}
+	title={leaving?.self
+		? 'Quitter ce projet ?'
+		: leaving?.invited
+			? 'Annuler cette invitation ?'
+			: `Retirer ${leaving?.name ?? ''} du projet ?`}
+>
+	{#if leaving}
+		<form
+			method="POST"
+			action={leaving.self ? '?/quitter' : '?/retirer-personne'}
+			class="space-y-4"
+			use:enhance={() => {
+				sending = 'retrait';
+				return async ({ update }) => {
+					await update();
+					sending = null;
+					leaving = null;
+				};
+			}}
+		>
+			{#if !leaving.self}<input type="hidden" name="participantId" value={leaving.id} />{/if}
+			<p data-testid="leave-effects">{removalEffects(leaving)}</p>
+			<div class="flex flex-wrap justify-end gap-3">
+				<button type="button" class="lm-btn" data-variant="ghost" onclick={() => (leaving = null)}
+					>Annuler</button
+				>
+				<button
+					class="lm-btn"
+					data-variant="danger"
+					disabled={sending === 'retrait'}
+					aria-busy={sending === 'retrait'}
+					>{sending === 'retrait'
+						? 'Envoi…'
+						: leaving.self
+							? 'Quitter le projet'
+							: leaving.invited
+								? 'Annuler l’invitation'
+								: 'Retirer du projet'}</button
+				>
+			</div>
+		</form>
+	{/if}
 </MetroSheet>
