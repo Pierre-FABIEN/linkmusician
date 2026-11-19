@@ -605,7 +605,7 @@ groupe range son propre morceau), elle agit à ce second titre.
 | L'OWNER d'un groupe porteur transmet puis part      | Le projet reste au groupe ; la gestion suit la gouvernance du groupe (existant, testé).                                                                                                                                           |
 | Un ADMIN qui coordonnait le projet quitte le groupe | Il perd la gestion à l'instant (relue) et les capacités reçues comme membre ; s'il était participant, il le reste jusqu'à ce qu'il parte ou soit retiré ; ses étapes `WorkStep` sont libérées (P1).                               |
 | Le producteur coordinateur est retiré du projet     | Ses capacités tombent ; ses propositions en attente sont annulées ; les tâches qui lui sont confiées sont libérées ; ses livrables déposés restent à la gestion de l'élément, qui peut encore les valider.                        |
-| Le groupe porteur est dissous                       | Le projet passe en lecture seule, état figé. Ses réalisations suivent leurs propres règles (archivage, I10). **P2** : sans participant·es, plus personne ne le lit avant P4 ; la gestion de chaque morceau retire son lien (Q77). |
+| Le groupe porteur est dissous                       | Le projet passe en lecture seule, état figé. Ses réalisations suivent leurs propres règles (archivage, I10). **P4a** : ses participant·es actif·ves le lisent encore, sans rien y changer ; chaque morceau retire son lien (Q77). |
 | La personne porteuse supprime son compte            | Ses projets personnels sont supprimés (conteneurs) ; les réalisations liées suivent leurs règles (I10) ; les participations sont effacées avec eux.                                                                               |
 | Un·e participant·e supprime son compte              | Sa participation est anonymisée (« Compte supprimé »), comme les autres actes.                                                                                                                                                    |
 | Le projet personnel doit continuer au nom du groupe | Transfert du projet vers le groupe, accepté par sa gestion. Les morceaux restent à leur porteur tant qu'ils ne sont pas transférés à leur tour (I9).                                                                              |
@@ -1389,6 +1389,20 @@ flowchart LR
   desktop, clavier (Entrée et Espace, T11 corrigé) et axe.
 
 ### P4 — Participant·es et capacités d'un projet · #71, #36
+
+> **P4a livré** (19/11/2026, métier et interface minimale ; détail dans
+> [docs/projets](../projets/README.md)) : `ProjectParticipant`,
+> `projectAccess`, invitations, acceptation, refus, départ, retrait,
+> coordination proposée, consentie et retirée, règles des mineur·es, des
+> blocages et des quotas (Q79), capacités reçues comme membre qui tombent au
+> départ du groupe, groupe dissous lu en lecture seule, notifications
+> minimales, RGPD. **Écarts** : les propositions de besoins et
+> d'intervenants et « Transformer un groupe de contacts en projet » passent
+> à U3 ; la libération des tâches à la révocation attend P13 ; une
+> proposition de coordination après coup n'est pas notifiée (Q80) ; un·e
+> adulte s'invite par son identifiant, la « personne connue » de D37 ne
+> s'applique qu'aux mineur·es, pour qui l'adhésion au groupe porteur en
+> tient lieu (Q81). Les écrans complets restent à U3.
 
 - **Objectif** : inviter, accepter, refuser, quitter, retirer ; libellé de
   rôle ; préréglages « participant·e » et « coordinateur·rice » (§9.1),

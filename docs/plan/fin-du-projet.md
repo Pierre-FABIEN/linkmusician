@@ -1164,7 +1164,7 @@ une matrice documentaire. #47–#49 restent bientôt après décision distincte.
 
 ## Collab — projets (G0-03, #71)
 
-### P4a — Participant·es et capacités d'un projet (métier) 🟡
+### P4a — Participant·es et capacités d'un projet (métier) ✅
 
 Fiche P4 de la [conception 19 §10](../conception/19-architecture-cible-collab.md#p4--participantes-et-capacités-dun-projet--71-36),
 partie métier ; les écrans complets viennent avec U3. Dépend de P2 ✅, D72
@@ -1203,3 +1203,10 @@ D37, D46 et D66 (acceptées).
 besoins et intervenants proposés (`PROPOSE`, inclus dans `COORDINATE`
 au MVP mais sans objet à proposer avant U3), structure participante.
 **Laissé à P13** : tâches confiées et leur libération à la révocation.
+
+**Livré le 19/11/2026** (commits locaux, voir le tableau §5 de
+[docs/plan](./README.md)) : tous les points ci-dessus, détail dans
+[docs/projets](../projets/README.md). Écarts : la proposition d'une
+coordination après coup n'est pas notifiée (Q80) ; une capacité acceptée
+est journalisée par la personne qui l'accepte, pas par celle qui l'a
+proposée ; Q79 à Q82 au défaut.

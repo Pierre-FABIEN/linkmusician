@@ -29,6 +29,7 @@ import { seedDelegations } from './seed-delegations';
 import { seedApplicationGrants, seedDelegatedOpportunity } from './seed-application-grants';
 import { seedAgencies } from './seed-agencies';
 import { seedBandLineups } from './seed-band-lineups';
+import { seedProjects } from './seed-projects';
 import { seedWorkSteps } from './seed-work-steps';
 import { seedJamLife } from './seed-jam-life';
 import {
@@ -801,6 +802,8 @@ try {
 	await seedVenueHosts(prisma, communes, handleMap);
 	await seedBandLineups(prisma);
 	await seedWorkSteps(prisma, demoHandles);
+	// Projets à plusieurs (P4a) : coordination extérieure, participation, invitation.
+	await seedProjects(prisma, demoHandles);
 	await seedRepresentations(prisma, communes, handleMap);
 	await seedRepresentationDecisions(prisma, communes, handleMap);
 	await seedComanagementDecisions(prisma, communes, handleMap);

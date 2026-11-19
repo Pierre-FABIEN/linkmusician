@@ -552,3 +552,17 @@ seule ligne. **La suite du morceau** propose le **mixage**, pas un·e ingé son
 pour l'enregistrement. Dans **Carrière → Campagnes en cours**, la ligne dit
 « Enregistré · déclaré ». Rouvrir l'étape retire la mention et le besoin de
 mixage ; le crédit de prise de son reste. Aucune XP, aucune collaboration.
+
+### Équipe d’un projet (P4a)
+
+Se connecter avec `malik-batterie`, ouvrir **Mes projets → EP des Rats**
+(projet des Rats du Mardi) : bloc **Équipe** avec Nora (« Réalisation »,
+Coordination), Inès, et Samir (« Ingé son », invitation en attente) ; la
+gestion peut proposer ou retirer la coordination, retirer une personne ou
+annuler une invitation. Avec `nora-prod` : « Je coordonne », le morceau
+« Groove du mardi » en résumé, jamais « Ballade sans titre » (partage
+« Rien ») ; **Modifier le projet** ne montre que les dates et la phrase.
+Avec `ines-chant` : « Je participe », lecture seule, **Quitter le projet**.
+Avec `samir-son` : **Mes projets → Invitations** montre seulement le nom, le
+type, le porteur, qui invite et ce qui est proposé. Scénario rejouable
+(`prisma/seed-projects.ts`, identifiants stables) ; aucune progression émise.

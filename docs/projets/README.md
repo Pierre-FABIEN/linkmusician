@@ -206,13 +206,137 @@ autres) : 2 requêtes sans projet, 7 à 8 sinon.
   `ShareLevelChoice` (le partage garde le formulaire P2) ; « Créer un
   morceau » n'en revient pas avec le morceau rangé. Type « Autre » : UX-2
   ouvert, l'enum n'est pas étendu.
-- **P4 / U3** : participant·es, coordination, invitations. Rien ne lit
-  encore une participation ; la fiche n'a donc qu'un lecteur, la gestion.
-  La projection porte déjà un `role` pour s'y brancher.
+- **P4 / U3** : le métier est livré par P4a (ci-dessous) ; restent les
+  écrans complets de l'équipe (U3).
 - **P5 / U4** : partager le morceau d'autrui (initiative côté morceau),
   mention « Partagé dans… » sur la fiche du morceau.
 - **P13** : tâches et livrables d'un élément en `WORK`.
 - Seuls des **morceaux** se rangent ; collaborations et annonces suivront
   (colonnes nullables, migration additive).
-- Groupe porteur dissous : plus personne ne gère son projet, qui devient
-  invisible jusqu'aux participant·es de P4 (Q77).
+- Groupe porteur dissous : plus personne ne gère son projet ; depuis P4a,
+  ses participant·es actif·ves le lisent encore, en lecture seule (Q77).
+
+## Participant·es et capacités (P4a) — livré le 19/11/2026
+
+Métier de la fiche P4 ([conception 19 §10](../conception/19-architecture-cible-collab.md),
+§6.2, §6.3, §6.5, §9.1, §9.3), avec une interface minimale de validation ;
+les écrans complets viennent avec U3. Fiche du lot :
+[fin-du-projet, « P4a »](../plan/fin-du-projet.md).
+
+### Données
+
+| Objet                | Table                  | Contenu                                                                                                                                                                                     |
+| -------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ProjectParticipant` | `project_participants` | Personne, état (invitée, active, refusée, partie, retirée), rôle libre (libellé sans droit), capacités en vigueur et proposées (`COORDINATE`), reçues « comme membre », qui invite, dates   |
+| `ProjectAct`         | `project_acts`         | Actes `INVITED`, `JOINED`, `DECLINED`, `LEFT`, `REMOVED`, `CAPABILITY_GRANTED`, `CAPABILITY_REVOKED`, avec la personne concernée (`subjectId`) et la capacité ; trigger d'ajout seul étendu |
+
+Index partiel `project_participants_open_key` : une participation ouverte
+(invitée ou active) par personne et par projet, protégé par
+`scripts/migration-clean.mjs`. Migrations additives `project_participants`
+et `project_notifications` (types `PROJECT_INVITE`, `PROJECT_JOINED`),
+appliquées en dev et e2e, pas en production.
+
+### Accès
+
+- `projectAccess(projet, personne)` (`server/projects/access.ts`) : gestion,
+  participation, capacités **en vigueur**, relues sous `project:` puis le
+  verrou du porteur à chaque écriture. Une capacité ne vaut que sur une
+  participation active, d'un porteur vivant ; reçue comme membre, seulement
+  tant que la personne reste membre active ; jamais pour un·e mineur·e.
+- `projectReaderWhere(personne)` : les lectures (fiche, « Mes projets »,
+  « Hors projet ») ouvrent un projet à sa gestion et à ses participant·es
+  actif·ves. Une personne invitée, un simple membre du groupe, un·e ancien·ne
+  participant·e et un tiers reçoivent la même 404.
+- `readerAccess` calcule le même accès sans requête de plus pour les
+  lectures, à partir de la ligne du projet ; aucune écriture ne s'en sert.
+
+### Droits (matrice §6.2, partie P4a)
+
+| Geste                                          | Gestion  | Coordination        | Participation | Sinon                                 |
+| ---------------------------------------------- | -------- | ------------------- | ------------- | ------------------------------------- |
+| Lire la fiche, l'équipe, les résumés partagés  | ✔        | ✔                   | ✔             | 404                                   |
+| Voir les invitations en attente de l'équipe    | ✔        | ✔                   | ✗             | —                                     |
+| Modifier dates et phrase d'objectif            | ✔        | ✔                   | 403           | 404                                   |
+| Renommer, changer le type ou l'état, supprimer | ✔        | 403                 | 403           | 404                                   |
+| Ranger sa propre réalisation                   | ✔        | ✔                   | 403           | 404                                   |
+| Retirer un élément                             | ✔        | Ceux qu'il a rangés | 403           | 404 ; la gestion du morceau, toujours |
+| Inviter (participation simple)                 | ✔        | ✔                   | 403           | 404                                   |
+| Proposer la coordination, la retirer           | ✔        | 403                 | 403           | 404                                   |
+| Retirer une personne, annuler une invitation   | ✔        | 403                 | 403           | 404                                   |
+| Accepter, refuser, quitter                     | Pour soi | Pour soi            | Pour soi      | 404                                   |
+
+Le partage d'un élément reste à la gestion **du morceau** (P2). Aucune
+participation ni capacité n'ouvre `/morceaux/[id]`, un crédit, une adhésion
+ou la gestion d'une réalisation (I2, I11) : démontré par
+`participants.integration.test.ts`.
+
+### Règles
+
+- **Consentement** : les capacités proposées figurent dans l'invitation et
+  valent à l'acceptation ; une coordination ajoutée plus tard s'accepte
+  aussi. Un retrait ne demande rien.
+- **Mineur·es** (D37, D46, Q-G0-12, Q81) : seulement dans un projet d'un
+  groupe dont elles ou ils sont membres actifs, jamais pour coordonner ; le
+  refus ne dit pas pourquoi.
+- **Blocages** dans les deux sens : invitation impossible (même réponse
+  qu'un identifiant inconnu) ; une invitation reçue d'une personne bloquée
+  ensuite n'est plus montrée ; une personne bloquée n'apparaît pas dans
+  l'équipe, et devient « Une personne » dans le journal.
+- **Quotas** (Q79) : 20 invitations en attente, 50 participations ouvertes
+  par projet ; pas de réinvitation dans les 30 jours d'un refus.
+- **Projet clos** (`DONE`, `ABANDONED`) ou **porteur dissous** : ni
+  invitation, ni acceptation, ni capacité nouvelle, ni écriture de la
+  coordination. Quitter, retirer et révoquer restent possibles.
+- **Départ du groupe porteur** : les capacités reçues comme membre ne
+  valent plus dès le départ (relu), et un acte `CAPABILITY_REVOKED` est écrit
+  juste après la transaction du départ (`leaveBand`, `removeMember`,
+  `leaveOrRemoveManager`), qui tient `band:`/`org:`, verrou pris après
+  `project:`. La participation reste. Une personne extérieure garde sa
+  capacité.
+- **Révocation (I12)** : retirer une capacité ou une participation prend
+  `project:`, comme toute écriture qui s'appuie dessus ; testé à barrières
+  (retrait avant le verrou : l'écriture échoue ; pendant : le retrait
+  attend et l'écriture se termine strictement avant ; départ du groupe
+  pendant l'écriture : refus).
+- **Notifications** (§9.3, Q80) : l'invitation (nom du projet seulement) et
+  l'acceptation, à la personne qui a invité.
+
+### Interface minimale
+
+- `/projets` : bloc **Invitations** (nom, type, porteur, qui invite, rôle,
+  ce qui est proposé ; rien d'autre), Accepter ou Non merci.
+- `/projets/[id]` : rôle réel (« Je gère », « Je coordonne », « Je
+  participe ») ; bloc **Équipe** (personnes actives, invitations pour la
+  gestion et la coordination, proposer ou retirer la coordination, retirer,
+  quitter, inviter) ; la coordination ne voit que dates et phrase dans
+  « Modifier le projet », ni état ni suppression.
+
+### RGPD
+
+- **Export** : `participations` (projet, porteur, état, rôle, capacités,
+  reçue comme membre, qui a invité, dates) et `actes_me_concernant` ; rien
+  des éléments ni des autres personnes.
+- **Anonymisation** : participations ouvertes closes (« partie »), rôle et
+  capacités effacés (Q82) ; oubliée comme personne concernée et comme
+  autrice d'une invitation ; le journal dit « Compte supprimé ». Les
+  projets personnels supprimés emportent leurs participations.
+
+### Coût
+
+`projectView` : **6 requêtes** (5 avant P4a ; la lecture de l'équipe en
+ajoute une), 7 quand le journal cite des morceaux invisibles ; inchangé avec
+20 participant·es, lu par la gestion ou par une participante (240 à 265 ms
+de médiane sur Neon le 19/11/2026, réseau plus lent que lors de la mesure
+P2). « Mes projets » : inchangé sans participation, une requête de plus
+quand on participe à un projet (majorité, pour les capacités).
+
+### Laissé à U3 et après
+
+- **U3** : écrans complets de l'équipe, « À traiter » étendu (invitations),
+  « Inviter les membres du groupe » (UX-8), « Transformer en projet »,
+  besoins et intervenants proposés (`PROPOSE`, sans objet avant U3).
+- **P13** : tâches confiées ; leur libération à la révocation (§9.1).
+- **Structure participante** (studio, label) : prévue par le modèle, pas
+  livrée.
+- Le résumé quotidien par courriel ne réévalue pas encore une invitation
+  retirée entre-temps : il ne porte que le nom du projet.

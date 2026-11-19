@@ -151,6 +151,29 @@ toujours d’abord, puis ceux de ton ambition, puis les autres :
   acceptées à date future. Une proposition encore en attente n'est pas une
   session confirmée.
 
+### Tes projets, et les personnes qui y travaillent {#projets-equipe}
+
+Un [projet](/projets) (un EP, une tournée) rassemble tes morceaux sans les
+posséder : ils restent à toi, avec leurs crédits. Un projet est privé.
+
+- **Inviter** : depuis la fiche du projet, bloc « Équipe », avec
+  l'@identifiant de la personne. Tu peux lui donner un rôle (« ingé son de
+  la tournée ») : c'est un libellé, il ne donne aucun droit.
+- **Avant de répondre**, la personne invitée voit seulement le nom et le
+  type du projet, qui le porte, qui l'invite et ce qui lui est proposé.
+  Elle répond depuis [Mes projets](/projets).
+- **Une fois dans le projet**, elle lit la fiche, l'équipe et les morceaux
+  que leur gestion a partagés. Un morceau en partage « Rien » reste
+  invisible, et aucun partage n'ouvre la page d'un morceau.
+- **Coordonner** se propose et s'accepte. La coordination change les dates
+  et la phrase d'objectif, invite d'autres personnes et range ses propres
+  morceaux. Elle ne renomme pas le projet, ne le clôt pas et ne touche à
+  aucun morceau d'autrui. La gestion du projet peut la retirer à tout
+  moment.
+- **Quitter** est toujours possible, même quand le projet est terminé.
+  Quand tu quittes un groupe, la coordination reçue comme membre de ce
+  groupe s'arrête ; tu restes dans le projet jusqu'à ce que tu le quittes.
+
 ### Ta fiche de carrière et les cartes souvenirs {#fiche-et-souvenirs}
 
 Dans [Ma fiche de carrière](/espace/fiche), tu retrouves les faits confirmés
