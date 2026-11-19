@@ -13,6 +13,7 @@ import {
 	PROJECT_SHARES,
 	PROJECT_STATUSES
 } from '#lib/projects/rules';
+import { MAX_PARTICIPANT_ROLE } from '#lib/projects/participants';
 
 const blankToNull = (v: string | undefined) => v?.trim() || null;
 
@@ -94,3 +95,40 @@ export const itemShareSchema = z.object({
 export type ItemShareInput = z.infer<typeof itemShareSchema>;
 
 export const itemRefSchema = z.object({ itemId: z.string().trim().min(1).max(64) });
+
+// ─── P4a : équipe du projet ────────────────────────────────────────────────
+
+const ref = z.string().trim().min(1).max(64);
+
+/** Inviter : un @handle, un rôle libre, et la coordination (cochée par la
+ * gestion seulement ; le service refuse toute autre combinaison). */
+export const inviteSchema = z.object({
+	handle: z
+		.string()
+		.trim()
+		.transform((v) => v.replace(/^@/, ''))
+		.pipe(z.string().min(1, { message: 'Indique l’identifiant de la personne.' }).max(64)),
+	role: z
+		.string()
+		.optional()
+		.transform(blankToNull)
+		.refine((v) => v === null || v.length <= MAX_PARTICIPANT_ROLE, {
+			message: `${MAX_PARTICIPANT_ROLE} caractères au plus pour le rôle.`
+		}),
+	coordinate: z
+		.string()
+		.optional()
+		.transform((v) => v === 'on' || v === 'true')
+});
+export type InviteFormInput = z.infer<typeof inviteSchema>;
+
+export const participantRefSchema = z.object({ participantId: ref });
+
+export const answerSchema = z.object({
+	participantId: ref,
+	answer: z.enum(['accept', 'decline'], { message: 'Réponse inconnue.' })
+});
+
+export const capabilityAnswerSchema = z.object({
+	answer: z.enum(['accept', 'decline'], { message: 'Réponse inconnue.' })
+});

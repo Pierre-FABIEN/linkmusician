@@ -378,7 +378,8 @@ describe.skipIf(!enabled)('projets P2 (intégration)', { timeout: 180_000 }, () 
 				shareLabel: null,
 				workingTitle: null,
 				href: null,
-				manage: false
+				manage: false,
+				addedByMe: false
 			}
 		]);
 		expect(JSON.stringify(seen)).not.toContain('Featuring secret');

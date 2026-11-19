@@ -2832,6 +2832,10 @@ enum NotificationType {
   DELEGATION_REQUEST
   /// Droit de candidater pour autrui demandé, accordé ou révoqué (DASH-07a).
   APPLICATION_GRANT
+  /// Invitation à participer à un projet (P4a).
+  PROJECT_INVITE
+  /// Une personne invitée a rejoint le projet (P4a).
+  PROJECT_JOINED
 }
 
 /// Notification dans l'app (cloche). Le texte est composé à l'affichage

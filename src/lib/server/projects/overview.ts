@@ -4,14 +4,14 @@
  * nombre de projets ni du nombre d'éléments (jamais `projectView` par
  * tuile ; la fiche, elle, garde `projectView`).
  *
- * - Seuls les projets dont le lecteur gère le porteur (P2 : la gestion est
- *   le seul lecteur avant les participant·es de P4). Un simple membre d'un
- *   groupe ne voit pas les projets du groupe (I2).
+ * - Les projets dont le lecteur gère le porteur, et depuis P4a ceux où il
+ *   participe (`projectReaderWhere`). Un simple membre d'un groupe ne voit
+ *   pas les projets du groupe (I2).
  * - Compteurs, état d'avancement et dernière activité ne portent que sur
  *   les éléments visibles, avec les mêmes prédicats que `projectView` (I6) :
  *   un élément non partagé d'autrui n'avance aucune date et ne compte pas.
- * - Le rôle est réel : `manage`. Aucun « je participe » ni « je coordonne »
- *   avant P4 ; `role` est un champ pour que P4 s'y branche.
+ * - Le rôle est réel (P4a) : gérer, coordonner ou participer, calculé avec
+ *   les mêmes règles que `projectAccess` dans la même requête.
  * - « Hors projet » : un morceau que je gère et qu'aucun projet que je
  *   peux ouvrir ne range (`outsideStatus`).
  *
@@ -31,15 +31,21 @@ import {
 	type ProjectFamily,
 	type ProjectNextAction
 } from '#lib/projects/overview';
-import { projectManagerWhere } from './access';
+import { PROJECT_ROLE_LABELS, type ProjectRoleValue } from '#lib/projects/participants';
+import {
+	projectManagerWhere,
+	projectReaderWhere,
+	readerAccess,
+	readerAccessSelect
+} from './access';
 import { readableOwnerFor } from './view';
 
 /** Au-delà, `/projets` invite à clore ou supprimer (quota Q76 : 200 par porteur). */
 const MAX_LISTED = 300;
 
-export type ProjectRole = 'manage';
+export type ProjectRole = ProjectRoleValue;
 
-export const ROLE_LABELS: Record<ProjectRole, string> = { manage: 'Je gère' };
+export const ROLE_LABELS: Record<ProjectRole, string> = PROJECT_ROLE_LABELS;
 
 export type ProjectSummary = {
 	id: string;
@@ -71,7 +77,7 @@ export type ProjectSummary = {
 export async function projectsOverview(personId: string, now = new Date()) {
 	const owned = manageableOwnerWhere(personId);
 	const projects = await prisma.project.findMany({
-		where: { owner: projectManagerWhere(personId) },
+		where: projectReaderWhere(personId),
 		orderBy: [{ updatedAt: 'desc' }, { id: 'asc' }],
 		take: MAX_LISTED,
 		select: {
@@ -83,11 +89,17 @@ export async function projectsOverview(personId: string, now = new Date()) {
 			startsOn: true,
 			dueOn: true,
 			createdAt: true,
-			ownerId: true,
-			owner: { select: { displayName: true } }
+			...readerAccessSelect(personId),
+			owner: {
+				select: { displayName: true, ...readerAccessSelect(personId).owner.select }
+			}
 		}
 	});
 	if (projects.length === 0) return [];
+
+	// Mêmes règles que `projectAccess`, sans requête par projet.
+	const roleOf = (p: (typeof projects)[number]): ProjectRole =>
+		readerAccess(p, personId, now).role ?? 'participate';
 	const ids = projects.map((p) => p.id);
 
 	const [managed, shared, acts, mine, myWorks] = await Promise.all([
@@ -182,6 +194,7 @@ export async function projectsOverview(personId: string, now = new Date()) {
 
 	const summaries: ProjectSummary[] = projects.map((p) => {
 		const s = seen.get(p.id)!;
+		const role = roleOf(p);
 		const family = familyOf(p.kind);
 		const items = s.workIds.size;
 		return {
@@ -195,8 +208,8 @@ export async function projectsOverview(personId: string, now = new Date()) {
 			owner: { name: p.owner.displayName, isMe: p.ownerId === personId },
 			startsOn: p.startsOn,
 			dueOn: p.dueOn,
-			role: 'manage',
-			roleLabel: ROLE_LABELS.manage,
+			role,
+			roleLabel: ROLE_LABELS[role],
 			items,
 			progress: progressLine({
 				family,
@@ -210,7 +223,9 @@ export async function projectsOverview(personId: string, now = new Date()) {
 				projectId: p.id,
 				status: p.status,
 				family,
-				manages: true,
+				// La coordination range ses morceaux et pose les dates ; la
+				// participation simple consulte seulement.
+				manages: role !== 'participate',
 				visibleItems: items,
 				resumable: s.resumable && { workId: s.resumable.workId, title: s.resumable.title },
 				rangeable: Math.max(0, myWorks - (managedCount.get(p.id) ?? 0)),
@@ -231,7 +246,7 @@ export async function outsideCount(personId: string) {
 	return prisma.work.count({
 		where: {
 			owner: manageableOwnerWhere(personId),
-			projectItems: { none: { project: { owner: projectManagerWhere(personId) } } }
+			projectItems: { none: { project: projectReaderWhere(personId) } }
 		}
 	});
 }
@@ -247,7 +262,18 @@ export async function outsideProjects(personId: string) {
 	const [{ works, toConfirm }, targets] = await Promise.all([
 		campaigns(personId),
 		prisma.project.findMany({
-			where: { status: 'ACTIVE', owner: projectManagerWhere(personId) },
+			// Où ranger : gestion, ou coordination (P4a) ; le service relit tout.
+			where: {
+				status: 'ACTIVE',
+				OR: [
+					{ owner: projectManagerWhere(personId) },
+					{
+						participants: {
+							some: { personId, status: 'ACTIVE', capabilities: { has: 'COORDINATE' } }
+						}
+					}
+				]
+			},
 			orderBy: [{ updatedAt: 'desc' }, { id: 'asc' }],
 			take: 50,
 			select: {
@@ -266,7 +292,7 @@ export async function outsideProjects(personId: string) {
 					select: {
 						id: true,
 						projectItems: {
-							where: { project: { owner: projectManagerWhere(personId) } },
+							where: { project: projectReaderWhere(personId) },
 							orderBy: { createdAt: 'asc' },
 							select: { project: { select: { id: true, name: true, status: true } } }
 						}

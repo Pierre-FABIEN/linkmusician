@@ -154,7 +154,8 @@ describe.skipIf(!enabled)('projectView : coût', { timeout: 300_000 }, () => {
 		];
 		expect(results.map((r) => r.items)).toEqual([0, 10, 100, 5, 5, 10]);
 		// Aucune requête par élément : le coût ne dépend pas du nombre d'éléments.
-		for (const r of results) expect(r.ops).toBeLessThanOrEqual(6);
+		// P4a : une requête de plus pour l'équipe (participant·es et invitations).
+		for (const r of results) expect(r.ops).toBeLessThanOrEqual(7);
 		// Même coût à 10 et à 100 éléments. Des actes sur des morceaux invisibles
 		// ajoutent une seule requête (ceux que le lecteur gère), jamais une par acte.
 		expect(results[1].ops).toBe(results[2].ops);

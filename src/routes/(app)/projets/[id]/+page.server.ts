@@ -16,11 +16,22 @@ import {
 	updateProjectItemShare
 } from '#server/projects/service';
 import {
+	answerCapability,
+	inviteParticipant,
+	leaveProject,
+	proposeCapability,
+	removeParticipant,
+	revokeCapability
+} from '#server/projects/participants';
+import {
 	addItemSchema,
 	editProjectSchema,
 	itemRefSchema,
 	itemShareSchema,
-	projectStatusSchema
+	projectStatusSchema,
+	capabilityAnswerSchema,
+	inviteSchema,
+	participantRefSchema
 } from '#lib/schema/projects/project';
 import { FAMILY_BLOCKS, familyOf, nextProjectAction, progressLine } from '#lib/projects/overview';
 import type { Actions, PageServerLoad } from './$types';
@@ -30,8 +41,12 @@ export const load: PageServerLoad = async ({ locals, params, setHeaders, url }) 
 	setHeaders({ 'cache-control': 'private, no-store' });
 	const project = await projectView(params.id, person.actorId);
 	if (!project) error(404, PROJECT_NOT_FOUND);
-	const rangeable =
-		project.status === 'ACTIVE' ? await rangeableWorks(person.actorId, project.id) : [];
+	// Ranger : gestion ou coordination seulement (P4a), projet en cours.
+	const organise =
+		project.status === 'ACTIVE' &&
+		project.can.live &&
+		(project.can.manage || project.can.coordinate);
+	const rangeable = organise ? await rangeableWorks(person.actorId, project.id) : [];
 	// U2 : composition par famille et une seule prochaine action, calculées
 	// sur ce que je vois et ce que je peux faire (`#lib/projects/overview`).
 	const family = familyOf(project.kind);
@@ -39,7 +54,7 @@ export const load: PageServerLoad = async ({ locals, params, setHeaders, url }) 
 		projectId: project.id,
 		status: project.status,
 		family,
-		manages: project.role === 'manage',
+		manages: organise,
 		visibleItems: project.counts.items,
 		resumable: project.resumable,
 		rangeable: rangeable.length,
@@ -135,6 +150,73 @@ export const actions: Actions = {
 			() => setProjectStatus(person.actorId, params.id, parsed.data.status),
 			'État du projet mis à jour.'
 		);
+	},
+	// P4a : équipe. Le client n'envoie que des intentions ; capacités et droits
+	// sont relus côté serveur, sous verrou.
+	inviter: async ({ locals, params, request }) => {
+		const person = await requirePerson(locals);
+		const parsed = inviteSchema.safeParse(await formOf(request));
+		if (!parsed.success) return invalid('inviter', parsed.error.issues);
+		try {
+			const invitee = await inviteParticipant(person.actorId, params.id, parsed.data);
+			return { action: 'inviter', ok: `Invitation envoyée à ${invitee.displayName}.` };
+		} catch (err) {
+			if (err instanceof ProjectError)
+				return fail(err.status, { action: 'inviter', error: err.message });
+			throw err;
+		}
+	},
+	'retirer-personne': async ({ locals, params, request }) => {
+		const person = await requirePerson(locals);
+		const parsed = participantRefSchema.safeParse(await formOf(request));
+		if (!parsed.success) return invalid('retirer-personne', parsed.error.issues);
+		return run(
+			'retirer-personne',
+			() => removeParticipant(person.actorId, params.id, parsed.data.participantId),
+			'C’est fait : cette personne ne participe plus au projet.'
+		);
+	},
+	proposer: async ({ locals, params, request }) => {
+		const person = await requirePerson(locals);
+		const parsed = participantRefSchema.safeParse(await formOf(request));
+		if (!parsed.success) return invalid('proposer', parsed.error.issues);
+		return run(
+			'proposer',
+			() => proposeCapability(person.actorId, params.id, parsed.data.participantId, 'COORDINATE'),
+			'Coordination proposée : elle vaudra quand la personne l’aura acceptée.'
+		);
+	},
+	revoquer: async ({ locals, params, request }) => {
+		const person = await requirePerson(locals);
+		const parsed = participantRefSchema.safeParse(await formOf(request));
+		if (!parsed.success) return invalid('revoquer', parsed.error.issues);
+		return run(
+			'revoquer',
+			() => revokeCapability(person.actorId, params.id, parsed.data.participantId, 'COORDINATE'),
+			'Coordination retirée.'
+		);
+	},
+	capacite: async ({ locals, params, request }) => {
+		const person = await requirePerson(locals);
+		const parsed = capabilityAnswerSchema.safeParse(await formOf(request));
+		if (!parsed.success) return invalid('capacite', parsed.error.issues);
+		const accept = parsed.data.answer === 'accept';
+		return run(
+			'capacite',
+			() => answerCapability(person.actorId, params.id, accept),
+			accept ? 'Tu coordonnes ce projet.' : 'Proposition déclinée.'
+		);
+	},
+	quitter: async ({ locals, params }) => {
+		const person = await requirePerson(locals);
+		try {
+			await leaveProject(person.actorId, params.id);
+		} catch (err) {
+			if (err instanceof ProjectError)
+				return fail(err.status, { action: 'quitter', error: err.message });
+			throw err;
+		}
+		redirect(303, '/projets?quitte');
 	},
 	supprimer: async ({ locals, params }) => {
 		const person = await requirePerson(locals);

@@ -27,7 +27,9 @@ export const NOTIFICATION_TYPES = [
 	'VENUE_HOST_INVITE',
 	'REPRESENTATION_REQUEST',
 	'VENUE_CLAIM',
-	'INTRODUCTION'
+	'INTRODUCTION',
+	'PROJECT_INVITE',
+	'PROJECT_JOINED'
 ] as const;
 export type NotificationTypeValue = (typeof NOTIFICATION_TYPES)[number];
 
@@ -57,7 +59,9 @@ export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, st
 	VENUE_HOST_INVITE: 'Invitations à animer les scènes ouvertes d’un lieu',
 	REPRESENTATION_REQUEST: 'Propositions d’accompagnement (manager, booker)',
 	VENUE_CLAIM: 'Réponses à mes revendications de lieu',
-	INTRODUCTION: 'Présentations par quelqu’un de mon réseau'
+	INTRODUCTION: 'Présentations par quelqu’un de mon réseau',
+	PROJECT_INVITE: 'Invitations à participer à un projet',
+	PROJECT_JOINED: 'Personnes qui rejoignent mes projets'
 };
 
 /**
@@ -130,6 +134,10 @@ export function notificationText(
 			return `${who} te présente ${title ?? 'quelqu’un'} : vous devriez jouer ensemble. Jette un œil à son profil.`;
 		case 'GROUP_DISCUSSION_INVITE':
 			return `${who} t’invite à la discussion de groupe${what}. Rejoins-la si tu veux.`;
+		case 'PROJECT_INVITE':
+			return `${who} t’invite à participer au projet${what}. Regarde ce qui est proposé avant de répondre.`;
+		case 'PROJECT_JOINED':
+			return `${who} a rejoint le projet${what}.`;
 	}
 }
 

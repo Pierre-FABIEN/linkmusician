@@ -17,7 +17,8 @@
 		MessagesSquare,
 		Mic,
 		HandHelping,
-		Briefcase
+		Briefcase,
+		FolderOpen
 	} from 'lucide-svelte';
 	import type { NotificationTypeValue } from '#lib/notifications/types';
 
@@ -44,7 +45,9 @@
 		VENUE_HOST_INVITE: Guitar,
 		REPRESENTATION_REQUEST: Briefcase,
 		VENUE_CLAIM: Flag,
-		INTRODUCTION: HandHelping
+		INTRODUCTION: HandHelping,
+		PROJECT_INVITE: FolderOpen,
+		PROJECT_JOINED: FolderOpen
 	};
 
 	const rtf = new Intl.RelativeTimeFormat('fr-FR', { numeric: 'auto' });

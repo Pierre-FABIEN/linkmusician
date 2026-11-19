@@ -9,11 +9,15 @@
  * - Ordre des verrous : `project-owner:` (quota du porteur) → `project:` →
  *   `work:` → `band:` / `studio:` / `org:` (triés). Il prolonge ARCH-MET-02a ;
  *   aucune écriture de projet ne prend `collaboration:` en P2.
+ * - P4a : la coordination (capacité `COORDINATE`, relue par `projectAccess`
+ *   sous ces mêmes verrous) change dates et phrase, range ses morceaux et
+ *   retire ce qu'elle a rangé ; rien d'autre (I11). Une personne qui lit le
+ *   projet sans le gérer reçoit 403 ; les autres, 404.
  * - Rien ici n'émet d'événement de progression, ne crée de crédit, ne
  *   corrobore ni ne change un porteur (I1, I3, I9).
  * - Un projet inaccessible répond comme un projet inexistant (404).
  */
-import type { Prisma, ProjectShare, ProjectStatus } from '@prisma/client';
+import type { Prisma, ProjectCapability, ProjectShare, ProjectStatus } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { lockWork } from '#lib/server/works/service';
 import { manageableOwnerWhere } from '#lib/server/works/access';
@@ -33,7 +37,13 @@ import type {
 	ItemShareInput,
 	NewProjectInput
 } from '#lib/schema/projects/project';
-import { managesOwner, ownerHeadSelect, ownerLockKey, type ProjectOwnerHead } from './access';
+import {
+	managesOwner,
+	ownerHeadSelect,
+	ownerLockKey,
+	projectAccess,
+	type ProjectOwnerHead
+} from './access';
 
 export class ProjectError extends Error {
 	constructor(
@@ -51,7 +61,9 @@ export const PROJECT_NOT_FOUND = 'Ce projet n’existe pas, ou tu n’y as pas a
 const notFound = () => new ProjectError(PROJECT_NOT_FOUND, 404);
 const WORK_NOT_MINE = 'Tu ne peux ranger ici que des morceaux que tu gères.';
 const ITEM_NOT_FOUND = 'Cet élément n’est plus dans le projet.';
-const CLOSED = 'Ce projet est clos : rouvre-le pour le modifier.';
+export const CLOSED = 'Ce projet est clos : rouvre-le pour le modifier.';
+export const MANAGERS_ONLY = 'Seule la gestion du projet peut faire cela.';
+const managersOnly = () => new ProjectError(MANAGERS_ONLY, 403);
 
 async function lockKey(tx: Tx, key: string) {
 	await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${key}))`;
@@ -70,6 +82,7 @@ async function lockOwners(tx: Tx, keys: (string | null)[]) {
 
 const projectHead = {
 	id: true,
+	name: true,
 	ownerId: true,
 	status: true,
 	owner: { select: ownerHeadSelect }
@@ -99,17 +112,27 @@ async function managesWork(tx: Tx, work: WorkHead | null, personId: string) {
 	);
 }
 
-/** Projet géré, relu sous `project:` puis le verrou du porteur ; sinon 404. */
-async function loadManagedProject(tx: Tx, projectId: string, personId: string) {
+/** Projet relu sous `project:` puis le verrou de son porteur (P4a : toute
+ * écriture qui s'appuie sur une participation ou une capacité). */
+export async function lockProjectContext(tx: Tx, projectId: string) {
 	await lockProject(tx, projectId);
 	const project = await loadProject(tx, projectId);
 	if (!project) throw notFound();
 	await lockOwners(tx, [ownerLockKey(project.owner)]);
-	if (!(await managesOwner(tx, project.owner, personId))) throw notFound();
+	return project;
+}
+export type LockedProject = Awaited<ReturnType<typeof lockProjectContext>>;
+
+/** Projet géré, relu sous `project:` puis le verrou du porteur. Une personne
+ * qui le lit sans le gérer : 403 ; sinon 404. */
+async function loadManagedProject(tx: Tx, projectId: string, personId: string) {
+	const project = await lockProjectContext(tx, projectId);
+	const access = await projectAccess(tx, project, personId);
+	if (!access.manage) throw access.reader ? managersOnly() : notFound();
 	return project;
 }
 
-async function act(
+export async function act(
 	tx: Tx,
 	data: {
 		projectId: string;
@@ -120,6 +143,8 @@ async function act(
 		toShare?: ProjectShare;
 		fromStatus?: ProjectStatus;
 		toStatus?: ProjectStatus;
+		subjectId?: string;
+		capability?: ProjectCapability;
 	}
 ) {
 	await tx.projectAct.create({ data });
@@ -165,16 +190,28 @@ export async function createProject(personId: string, input: NewProjectInput) {
 	}, TX);
 }
 
-/** Nom, type, phrase, dates : gestion du porteur, projet en cours. */
+/** Nom, type, phrase, dates : gestion du porteur, projet en cours. La
+ * coordination (P4a) change seulement dates et phrase : un nom ou un type
+ * différent est refusé (403), même forgé. */
 export async function updateProject(personId: string, projectId: string, input: EditProjectInput) {
 	await prisma.$transaction(async (tx) => {
-		const project = await loadManagedProject(tx, projectId, personId);
+		const project = await lockProjectContext(tx, projectId);
+		const access = await projectAccess(tx, project, personId);
+		if (!access.manage && !access.coordinate) throw access.reader ? managersOnly() : notFound();
 		if (project.status !== 'ACTIVE') throw new ProjectError(CLOSED, 409);
+		if (!access.manage) {
+			const current = await tx.project.findUniqueOrThrow({
+				where: { id: projectId },
+				select: { name: true, kind: true }
+			});
+			if (current.name !== input.name || current.kind !== input.kind) {
+				throw new ProjectError('Seule la gestion du projet change son nom ou son type.', 403);
+			}
+		}
 		await tx.project.update({
 			where: { id: projectId },
 			data: {
-				name: input.name,
-				kind: input.kind,
+				...(access.manage ? { name: input.name, kind: input.kind } : {}),
 				description: input.description,
 				startsOn: input.startsOn,
 				dueOn: input.dueOn
@@ -239,7 +276,9 @@ export async function addProjectItem(personId: string, projectId: string, input:
 		await lockWork(tx, input.workId);
 		const work = await tx.work.findUnique({ where: { id: input.workId }, select: workHead });
 		await lockOwners(tx, [ownerLockKey(project.owner), workOwnerKey(work)]);
-		if (!(await managesOwner(tx, project.owner, personId))) throw notFound();
+		// Gestion du projet, ou coordination (P4a) ; jamais une simple participation.
+		const access = await projectAccess(tx, project, personId);
+		if (!access.manage && !access.coordinate) throw access.reader ? managersOnly() : notFound();
 		if (project.status !== 'ACTIVE') throw new ProjectError(CLOSED, 409);
 		// Inexistant, porteur disparu ou morceau d'autrui : même réponse.
 		if (!work || !(await managesWork(tx, work, personId))) {
@@ -286,19 +325,20 @@ async function loadItemContext(tx: Tx, projectId: string, itemId: string, person
 	if (!project) throw notFound();
 	const item = await tx.projectItem.findFirst({
 		where: { id: itemId, projectId },
-		select: { id: true, workId: true, share: true, workingTitle: true }
+		select: { id: true, workId: true, share: true, workingTitle: true, addedById: true }
 	});
 	if (item) await lockWork(tx, item.workId);
 	const work = item
 		? await tx.work.findUnique({ where: { id: item.workId }, select: workHead })
 		: null;
 	await lockOwners(tx, [ownerLockKey(project.owner), workOwnerKey(work)]);
-	const [projectManager, workManager] = await Promise.all([
-		managesOwner(tx, project.owner, personId),
+	const [access, workManager] = await Promise.all([
+		projectAccess(tx, project, personId),
 		managesWork(tx, work, personId)
 	]);
-	if (!item) throw projectManager ? new ProjectError(ITEM_NOT_FOUND, 404) : notFound();
-	return { project, item, projectManager, workManager };
+	const projectManager = access.manage;
+	if (!item) throw access.reader ? new ProjectError(ITEM_NOT_FOUND, 404) : notFound();
+	return { project, item, projectManager, workManager, access };
 }
 
 /** Le partage se décide par la gestion **du morceau**, jamais par le seul
@@ -310,14 +350,14 @@ export async function updateProjectItemShare(
 	input: ItemShareInput
 ) {
 	await prisma.$transaction(async (tx) => {
-		const { project, item, projectManager, workManager } = await loadItemContext(
+		const { project, item, workManager, access } = await loadItemContext(
 			tx,
 			projectId,
 			input.itemId,
 			personId
 		);
 		if (!workManager) {
-			if (!projectManager) throw notFound();
+			if (!access.reader) throw notFound();
 			throw new ProjectError('Seule la gestion du morceau choisit son partage.', 403);
 		}
 		const sameShare = item.share === input.share;
@@ -341,18 +381,20 @@ export async function updateProjectItemShare(
 	}, TX);
 }
 
-/** Retirer le lien : la gestion du projet (projet en cours) ou celle du
- * morceau (toujours). Le morceau n'est pas touché (I1). */
+/** Retirer le lien : la gestion du projet (projet en cours), la
+ * coordination pour ce qu'elle a rangé (P4a, projet en cours) ou la gestion
+ * du morceau (toujours). Le morceau n'est pas touché (I1). */
 export async function removeProjectItem(personId: string, projectId: string, itemId: string) {
 	await prisma.$transaction(async (tx) => {
-		const { project, item, projectManager, workManager } = await loadItemContext(
+		const { project, item, projectManager, workManager, access } = await loadItemContext(
 			tx,
 			projectId,
 			itemId,
 			personId
 		);
 		if (!workManager) {
-			if (!projectManager) throw notFound();
+			const mineToRemove = access.coordinate && item.addedById === personId;
+			if (!projectManager && !mineToRemove) throw access.reader ? managersOnly() : notFound();
 			if (project.status !== 'ACTIVE') throw new ProjectError(CLOSED, 409);
 		}
 		await tx.projectItem.delete({ where: { id: item.id } });

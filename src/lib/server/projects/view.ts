@@ -2,8 +2,13 @@
  * Lecture unique d'un projet (P2, D72 I6, conception 19 §9.3).
  *
  * - Projet inexistant ou inaccessible : `null`, la même réponse (404), par
- *   la même requête. Au lancement, seule la gestion du porteur lit la fiche
- *   (pas de participant·es avant P4, pas de page publique).
+ *   la même requête. Lisent la fiche : la gestion du porteur et, depuis P4a,
+ *   les participant·es actif·ves (`projectReaderWhere`), jamais un simple
+ *   membre du groupe ni une personne invitée ; pas de page publique.
+ * - L'équipe (participant·es actif·ves, rôles libres, coordination) est
+ *   visible de toute personne qui lit la fiche ; les invitations en attente,
+ *   de la gestion et de la coordination seulement. Une personne bloquée
+ *   n'y figure pas.
  * - Chaque élément est filtré **en base** avant tout chargement de contenu :
  *   la gestion du morceau voit le sien ; sinon seul un partage SUMMARY ou
  *   WORK révèle titre (ou titre de travail) et état, si le porteur est
@@ -24,7 +29,12 @@ import {
 	SHARE_LABELS,
 	type ProjectShareValue
 } from '#lib/projects/rules';
-import { projectManagerWhere } from './access';
+import { ownerLive, projectReaderWhere, readerAccess, readerAccessSelect } from './access';
+import {
+	CAPABILITY_LABELS,
+	PROJECT_ROLE_LABELS,
+	type ProjectCapabilityValue
+} from '#lib/projects/participants';
 
 const JOURNAL_SIZE = 20;
 
@@ -51,13 +61,32 @@ export type ProjectViewItem = {
 	/** Lien vers le morceau : sa gestion seulement (le partage n'ouvre jamais la page). */
 	href: string | null;
 	manage: boolean;
+	/** Rangé par le lecteur (la coordination retire ce qu'elle a rangé, P4a). */
+	addedByMe: boolean;
 };
+
+export type ProjectTeamMember = {
+	id: string;
+	name: string;
+	isMe: boolean;
+	status: 'INVITED' | 'ACTIVE';
+	role: string | null;
+	coordinate: boolean;
+	/** Coordination proposée, pas encore acceptée. */
+	proposed: boolean;
+};
+
+/** Actes d'équipe réservés à la gestion et à la coordination. */
+const TEAM_ONLY_ACTS = new Set(['INVITED', 'DECLINED']);
 
 export type ProjectJournalEntry = {
 	id: string;
 	kind: string;
 	author: string;
 	subject: string | null;
+	/** Personne concernée par un acte d'équipe (P4a). */
+	person: string | null;
+	capability: string | null;
 	fromShare: string | null;
 	toShare: string | null;
 	fromStatus: string | null;
@@ -67,7 +96,7 @@ export type ProjectJournalEntry = {
 
 export async function projectView(projectId: string, personId: string) {
 	const project = await prisma.project.findFirst({
-		where: { id: projectId, owner: projectManagerWhere(personId) },
+		where: { id: projectId, ...projectReaderWhere(personId) },
 		select: {
 			id: true,
 			name: true,
@@ -76,21 +105,45 @@ export async function projectView(projectId: string, personId: string) {
 			startsOn: true,
 			dueOn: true,
 			status: true,
-			ownerId: true,
-			owner: { select: { displayName: true, kind: true } }
+			...readerAccessSelect(personId),
+			owner: {
+				select: { displayName: true, ...readerAccessSelect(personId).owner.select }
+			}
 		}
 	});
 	if (!project) return null;
+	// Accès de lecture calculé sur la même ligne (aucune requête de plus).
+	const access = readerAccess(project, personId);
 
 	const itemSelect = {
 		id: true,
 		share: true,
 		workingTitle: true,
+		addedById: true,
 		createdAt: true,
 		workId: true,
 		work: { select: { title: true, state: true, updatedAt: true } }
 	} as const;
-	const [managed, shared, actWorkIds] = await Promise.all([
+	const [team, managed, shared, actWorkIds] = await Promise.all([
+		prisma.projectParticipant.findMany({
+			where: { projectId, status: { in: ['INVITED', 'ACTIVE'] } },
+			orderBy: [{ status: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+			select: {
+				id: true,
+				status: true,
+				role: true,
+				capabilities: true,
+				proposedCapabilities: true,
+				person: {
+					select: {
+						id: true,
+						displayName: true,
+						deletedAt: true,
+						...blockSelect(personId)
+					}
+				}
+			}
+		}),
 		prisma.projectItem.findMany({
 			where: { projectId, work: { owner: manageableOwnerWhere(personId) } },
 			select: itemSelect,
@@ -126,7 +179,8 @@ export async function projectView(projectId: string, personId: string) {
 			shareLabel: SHARE_LABELS[i.share],
 			workingTitle: i.workingTitle,
 			href: `/morceaux/${i.workId}`,
-			manage: true
+			manage: true,
+			addedByMe: i.addedById === personId
 		})),
 		...shared.map((i) => ({
 			id: i.id,
@@ -138,7 +192,8 @@ export async function projectView(projectId: string, personId: string) {
 			shareLabel: null,
 			workingTitle: null,
 			href: null,
-			manage: false
+			manage: false,
+			addedByMe: i.addedById === personId
 		}))
 	].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id.localeCompare(b.id));
 
@@ -166,33 +221,26 @@ export async function projectView(projectId: string, personId: string) {
 			toShare: true,
 			fromStatus: true,
 			toStatus: true,
+			capability: true,
 			occurredAt: true,
 			author: {
-				select: {
-					id: true,
-					displayName: true,
-					deletedAt: true,
-					blocksMade: {
-						where: { blockedActorId: personId },
-						select: { blockerActorId: true },
-						take: 1
-					},
-					blocksReceived: {
-						where: { blockerActorId: personId },
-						select: { blockedActorId: true },
-						take: 1
-					}
-				}
+				select: { id: true, displayName: true, deletedAt: true, ...blockSelect(personId) }
+			},
+			subject: {
+				select: { id: true, displayName: true, deletedAt: true, ...blockSelect(personId) }
 			}
 		}
 	});
+	const teamView = access.manage || access.coordinate;
 	const journal: ProjectJournalEntry[] = acts
-		.filter((a) => actVisible(a, visibleWorkIds))
+		.filter((a) => actVisible(a, visibleWorkIds) && (teamView || !TEAM_ONLY_ACTS.has(a.kind)))
 		.map((a) => ({
 			id: a.id,
 			kind: a.kind,
 			author: authorLabel(a.author, personId),
 			subject: a.workId ? (subjects.get(a.workId) ?? null) : null,
+			person: a.kind in TEAM_ACT_KINDS ? authorLabel(a.subject, personId) : null,
+			capability: a.capability ? CAPABILITY_LABELS[a.capability as ProjectCapabilityValue] : null,
 			fromShare: a.fromShare ? SHARE_LABELS[a.fromShare] : null,
 			toShare: a.toShare ? SHARE_LABELS[a.toShare] : null,
 			fromStatus: a.fromStatus ? PROJECT_STATUS_LABELS[a.fromStatus] : null,
@@ -216,8 +264,38 @@ export async function projectView(projectId: string, personId: string) {
 		startsOn: project.startsOn,
 		dueOn: project.dueOn,
 		owner: { name: project.owner.displayName, isMe: project.ownerId === personId },
-		/** Au lancement, la fiche ne se lit que par la gestion du porteur. */
-		role: 'manage' as const,
+		/** Rôle réel, relu (P4a) : gestion, coordination ou participation. */
+		role: access.role ?? ('participate' as const),
+		roleLabel: PROJECT_ROLE_LABELS[access.role ?? 'participate'],
+		/** Ce que la personne peut faire ici ; le serveur relit tout à l'écriture. */
+		can: {
+			manage: access.manage,
+			coordinate: access.coordinate,
+			/** Le porteur peut encore agir (un groupe dissous : lecture seule). */
+			live: ownerLive(project.owner)
+		},
+		/** Ma participation, si j'en ai une (quitter, répondre à une proposition). */
+		me: access.participation
+			? {
+					id: access.participation.id,
+					role: access.participation.role,
+					proposed: access.participation.proposedCapabilities.map((c) => CAPABILITY_LABELS[c])
+				}
+			: null,
+		team: team
+			.filter(
+				(m) =>
+					(m.status === 'ACTIVE' || teamView) && (m.person.id === personId || !blocked(m.person))
+			)
+			.map((m): ProjectTeamMember => ({
+				id: m.id,
+				name: m.person.deletedAt ? 'Compte supprimé' : m.person.displayName,
+				isMe: m.person.id === personId,
+				status: m.status as 'INVITED' | 'ACTIVE',
+				role: m.role,
+				coordinate: m.capabilities.includes('COORDINATE'),
+				proposed: m.proposedCapabilities.includes('COORDINATE')
+			})),
 		items: items.map(({ createdAt: _c, workId: _w, ...rest }) => rest),
 		counts: { items: items.length, composed: items.filter((i) => i.state === 'Composé').length },
 		resumable: idea ? { workId: idea.workId, title: idea.work.title } : null,
@@ -226,19 +304,46 @@ export async function projectView(projectId: string, personId: string) {
 }
 export type ProjectView = NonNullable<Awaited<ReturnType<typeof projectView>>>;
 
-function authorLabel(
-	author: {
-		id: string;
-		displayName: string;
-		deletedAt: Date | null;
-		blocksMade: unknown[];
-		blocksReceived: unknown[];
-	} | null,
-	personId: string
-) {
+const TEAM_ACT_KINDS = {
+	INVITED: 1,
+	JOINED: 1,
+	DECLINED: 1,
+	LEFT: 1,
+	REMOVED: 1,
+	CAPABILITY_GRANTED: 1,
+	CAPABILITY_REVOKED: 1
+} as const;
+
+/** Blocages entre le lecteur et un acteur, dans les deux sens. */
+function blockSelect(personId: string) {
+	return {
+		blocksMade: {
+			where: { blockedActorId: personId },
+			select: { blockerActorId: true },
+			take: 1
+		},
+		blocksReceived: {
+			where: { blockerActorId: personId },
+			select: { blockedActorId: true },
+			take: 1
+		}
+	} as const;
+}
+
+type Labelled = {
+	id: string;
+	displayName: string;
+	deletedAt: Date | null;
+	blocksMade: unknown[];
+	blocksReceived: unknown[];
+};
+
+const blocked = (a: Labelled) => a.blocksMade.length > 0 || a.blocksReceived.length > 0;
+
+function authorLabel(author: Labelled | null, personId: string) {
 	if (!author || author.deletedAt) return 'Compte supprimé';
 	if (author.id === personId) return 'Toi';
-	if (author.blocksMade.length > 0 || author.blocksReceived.length > 0) return 'Une personne';
+	if (blocked(author)) return 'Une personne';
 	return author.displayName;
 }
 

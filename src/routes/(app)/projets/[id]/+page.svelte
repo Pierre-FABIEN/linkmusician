@@ -2,8 +2,9 @@
 	// LINKMUSICIAN: fiche d'un projet (P2 ; présentation U2), voir
 	// +page.server.ts. Un socle, trois compositions (conception 20 §7.2) : seul
 	// l'ordre des blocs change selon la famille. Une seule prochaine action,
-	// calculée par le serveur ; aucune action d'un lot à venir (équipe P4,
-	// tâches P13, concerts) n'a de bouton.
+	// calculée par le serveur ; aucune action d'un lot à venir (tâches P13,
+	// concerts) n'a de bouton. P4a : bloc « Équipe » minimal (U3 le complétera) ;
+	// chaque bouton n'apparaît qu'à qui peut agir, et le serveur relit tout.
 	import { tick, untrack } from 'svelte';
 	import { afterNavigate } from '$app/navigation';
 	import { anchorLinks, scrollToId } from '#lib/components/linkmusician/aide/anchors';
@@ -17,7 +18,8 @@
 	import MetroField from '#lib/components/linkmusician/metro/MetroField.svelte';
 	import MetroSheet from '#lib/components/linkmusician/metro/MetroSheet.svelte';
 	import MetroEmpty from '#lib/components/linkmusician/metro/MetroEmpty.svelte';
-	import { ArrowRight, CalendarDays, Clock, Music, Target } from 'lucide-svelte';
+	import { ArrowRight, CalendarDays, Clock, Music, Target, UsersRound } from 'lucide-svelte';
+	import { PRESETS } from '#lib/projects/participants';
 	import {
 		MAX_PROJECT_DESCRIPTION,
 		MAX_PROJECT_NAME,
@@ -34,6 +36,10 @@
 	let { data, form } = $props();
 	const p = $derived(data.project);
 	const active = $derived(p.status === 'ACTIVE');
+	const can = $derived(p.can);
+	/** Gestion ou coordination : dates, phrase, ranger ses morceaux, inviter. */
+	const organise = $derived(active && can.live && (can.manage || can.coordinate));
+	const activeTeam = $derived(p.team.filter((m) => m.status === 'ACTIVE'));
 	const shares = PROJECT_SHARES.map((value) => ({ value, label: SHARE_LABELS[value] }));
 	const kinds = PROJECT_KINDS.map((value) => ({ value, label: PROJECT_KIND_LABELS[value] }));
 
@@ -87,12 +93,19 @@
 		STATUS_CHANGED: 'État changé',
 		ITEM_ADDED: 'Morceau rangé',
 		ITEM_REMOVED: 'Morceau retiré',
-		SHARE_CHANGED: 'Partage changé'
+		SHARE_CHANGED: 'Partage changé',
+		INVITED: 'Invitation',
+		JOINED: 'Arrivée dans le projet',
+		DECLINED: 'Invitation refusée',
+		LEFT: 'Départ du projet',
+		REMOVED: 'Retrait du projet',
+		CAPABILITY_GRANTED: 'Capacité acceptée',
+		CAPABILITY_REVOKED: 'Capacité retirée'
 	};
 	/** Une ligne de journal, sans tournure à accorder : « Partage changé : « Aube » (Résumé → Travail) ». */
 	function line(j: (typeof p.journal)[number]) {
 		const what = ACTS[j.kind] ?? j.kind;
-		const subject = j.subject ? ` : « ${j.subject} »` : '';
+		const subject = j.subject ? ` : « ${j.subject} »` : j.person ? ` : ${j.person}` : '';
 		const more = detail(j);
 		return `${what}${subject}${more ? ` (${more})` : ''}`;
 	}
@@ -101,6 +114,7 @@
 		if (j.kind === 'SHARE_CHANGED' && j.fromShare !== j.toShare)
 			return `${j.fromShare} → ${j.toShare}`;
 		if (j.kind === 'ITEM_ADDED' && j.toShare) return j.toShare;
+		if (j.capability) return j.capability;
 		return null;
 	}
 	const dates = $derived(
@@ -123,7 +137,7 @@
 		<ul class="flex flex-wrap gap-2 text-sm" aria-label="Repères du projet">
 			<li class="lm-pill">{p.owner.isMe ? 'À moi' : p.owner.name}</li>
 			<li class="lm-pill">{p.statusLabel}</li>
-			<li class="lm-pill">Je gère</li>
+			<li class="lm-pill" data-testid="project-role">{p.roleLabel}</li>
 		</ul>
 		<p class="text-sm text-muted-foreground">
 			{[data.progress, ...(data.family === 'stage' ? [] : dates)].join(' · ')}
@@ -131,6 +145,9 @@
 
 		{#if page.url.searchParams.has('cree') && !form}
 			<p role="status" class="text-sm">Projet créé.</p>
+		{/if}
+		{#if page.url.searchParams.has('rejoint') && !form}
+			<p role="status" class="text-sm">Tu fais partie du projet.</p>
 		{/if}
 		{#if form?.ok}<p role="status" class="text-sm">{form.ok}</p>{/if}
 		{#if form?.error}<p role="alert" class="lm-alert p-3 text-sm">{form.error}</p>{/if}
@@ -143,10 +160,16 @@
 				<p>
 					Ce projet est {p.status === 'DONE' ? 'terminé' : 'laissé de côté'} : il se lit sans changer.
 				</p>
-				<form method="POST" action="?/etat" use:enhance>
-					<input type="hidden" name="status" value="ACTIVE" />
-					<button class="lm-btn">Rouvrir</button>
-				</form>
+				{#if can.manage}
+					<form method="POST" action="?/etat" use:enhance>
+						<input type="hidden" name="status" value="ACTIVE" />
+						<button class="lm-btn">Rouvrir</button>
+					</form>
+				{/if}
+			</div>
+		{:else if !can.live}
+			<div data-tone="paper" class="lm-tile lm-tile--flow p-4">
+				<p>Le groupe qui portait ce projet n’existe plus : le projet se lit sans changer.</p>
 			</div>
 		{:else}
 			<!-- Prochaine action : une seule, et seulement ce que je peux faire. -->
@@ -178,84 +201,240 @@
 				<Clock class="size-4" aria-hidden="true" /> Bientôt dans un projet
 			</p>
 			<p class="text-muted-foreground">
-				Inviter des personnes à y travailler, confier des tâches, y ranger des concerts et des
-				annonces. Pour l’instant, seule la gestion du projet le voit.
+				Confier des tâches, y ranger des concerts et des annonces.
 			</p>
 		</div>
 
-		<section aria-labelledby="gestion" class="space-y-4">
-			<h2 id="gestion" class="lm-kicker text-muted-foreground">Gérer le projet</h2>
-			{#if active}
-				<details id="modifier" bind:open={editOpen}>
-					<summary class="min-h-11 cursor-pointer py-2 text-sm font-medium"
-						>Modifier le projet</summary
+		{@render teamBlock()}
+
+		{#if can.manage || organise}
+			<section aria-labelledby="gestion" class="space-y-4">
+				<h2 id="gestion" class="lm-kicker text-muted-foreground">
+					{can.manage ? 'Gérer le projet' : 'Coordonner le projet'}
+				</h2>
+				{#if organise}
+					<details id="modifier" bind:open={editOpen}>
+						<summary class="min-h-11 cursor-pointer py-2 text-sm font-medium"
+							>Modifier le projet</summary
+						>
+						<form method="POST" action="?/modifier" use:enhance class="space-y-4 pt-2">
+							{#if !can.manage}
+								<!-- Coordination : nom et type restent ceux de la gestion (le serveur refuse tout changement). -->
+								<input type="hidden" name="name" value={p.name} />
+								<input type="hidden" name="kind" value={p.kind} />
+							{:else}
+								<MetroField id="edit-name" label="Nom du projet">
+									{#snippet children(attrs)}
+										<input
+											{...attrs}
+											name="name"
+											required
+											minlength="2"
+											maxlength={MAX_PROJECT_NAME}
+											value={p.name}
+										/>
+									{/snippet}
+								</MetroField>
+								<fieldset class="space-y-2">
+									<legend class="text-sm font-medium">C’est quoi ?</legend>
+									<MetroChoice
+										options={kinds}
+										bind:value={editKind}
+										label="Type de projet"
+										name="kind"
+									/>
+								</fieldset>
+							{/if}
+							<MetroField id="edit-description" label="Objectif en une phrase" optional>
+								{#snippet children(attrs)}
+									<textarea
+										{...attrs}
+										name="description"
+										rows="2"
+										maxlength={MAX_PROJECT_DESCRIPTION}>{p.description ?? ''}</textarea
+									>
+								{/snippet}
+							</MetroField>
+							<div class="grid gap-4 sm:grid-cols-2">
+								<MetroField id="edit-startsOn" label="Début" optional>
+									{#snippet children(attrs)}
+										<input {...attrs} type="date" name="startsOn" value={iso(p.startsOn)} />
+									{/snippet}
+								</MetroField>
+								<MetroField id="edit-dueOn" label="Échéance" optional>
+									{#snippet children(attrs)}
+										<input {...attrs} type="date" name="dueOn" value={iso(p.dueOn)} />
+									{/snippet}
+								</MetroField>
+							</div>
+							<button class="lm-btn">Enregistrer</button>
+						</form>
+					</details>
+				{/if}
+				{#if can.manage && active}
+					<div class="flex flex-wrap gap-3">
+						<form method="POST" action="?/etat" use:enhance>
+							<input type="hidden" name="status" value="DONE" />
+							<button class="lm-btn" data-variant="ghost">Marquer comme atteint</button>
+						</form>
+						<form method="POST" action="?/etat" use:enhance>
+							<input type="hidden" name="status" value="ABANDONED" />
+							<button class="lm-btn" data-variant="ghost">Laisser de côté</button>
+						</form>
+					</div>
+				{/if}
+				{#if can.manage}
+					<button
+						type="button"
+						class="lm-btn"
+						data-variant="ghost"
+						onclick={() => (confirmDelete = true)}
 					>
-					<form method="POST" action="?/modifier" use:enhance class="space-y-4 pt-2">
-						<MetroField id="edit-name" label="Nom du projet">
-							{#snippet children(attrs)}
-								<input
-									{...attrs}
-									name="name"
-									required
-									minlength="2"
-									maxlength={MAX_PROJECT_NAME}
-									value={p.name}
-								/>
-							{/snippet}
-						</MetroField>
-						<fieldset class="space-y-2">
-							<legend class="text-sm font-medium">C’est quoi ?</legend>
-							<MetroChoice
-								options={kinds}
-								bind:value={editKind}
-								label="Type de projet"
-								name="kind"
-							/>
-						</fieldset>
-						<MetroField id="edit-description" label="Objectif en une phrase" optional>
-							{#snippet children(attrs)}
-								<textarea {...attrs} name="description" rows="2" maxlength={MAX_PROJECT_DESCRIPTION}
-									>{p.description ?? ''}</textarea
-								>
-							{/snippet}
-						</MetroField>
-						<div class="grid gap-4 sm:grid-cols-2">
-							<MetroField id="edit-startsOn" label="Début" optional>
-								{#snippet children(attrs)}
-									<input {...attrs} type="date" name="startsOn" value={iso(p.startsOn)} />
-								{/snippet}
-							</MetroField>
-							<MetroField id="edit-dueOn" label="Échéance" optional>
-								{#snippet children(attrs)}
-									<input {...attrs} type="date" name="dueOn" value={iso(p.dueOn)} />
-								{/snippet}
-							</MetroField>
-						</div>
-						<button class="lm-btn">Enregistrer</button>
-					</form>
-				</details>
-				<div class="flex flex-wrap gap-3">
-					<form method="POST" action="?/etat" use:enhance>
-						<input type="hidden" name="status" value="DONE" />
-						<button class="lm-btn" data-variant="ghost">Marquer comme atteint</button>
-					</form>
-					<form method="POST" action="?/etat" use:enhance>
-						<input type="hidden" name="status" value="ABANDONED" />
-						<button class="lm-btn" data-variant="ghost">Laisser de côté</button>
-					</form>
-				</div>
-			{/if}
-			<button
-				type="button"
-				class="lm-btn"
-				data-variant="ghost"
-				onclick={() => (confirmDelete = true)}
-			>
-				Supprimer le projet
-			</button>
-		</section>
+						Supprimer le projet
+					</button>
+				{/if}
+			</section>
+		{/if}
 	</div>
 </div>
+
+{#snippet teamBlock()}
+	<section id="equipe" aria-labelledby="equipe-titre" class="space-y-4">
+		<h2 id="equipe-titre" class="lm-kicker text-muted-foreground">
+			Équipe <span class="text-muted-foreground">· {activeTeam.length}</span>
+		</h2>
+		{#if p.me && p.me.proposed.length > 0}
+			<div
+				data-tone="paper"
+				class="lm-tile lm-tile--flow space-y-3 p-4"
+				data-testid="capability-offer"
+			>
+				<p class="font-medium">On te propose : {p.me.proposed.join(', ')}</p>
+				<p class="text-sm text-muted-foreground">{PRESETS.coordinator.phrase}</p>
+				<div class="flex flex-wrap gap-3">
+					<form method="POST" action="?/capacite" use:enhance>
+						<input type="hidden" name="answer" value="accept" />
+						<button class="lm-btn">Accepter</button>
+					</form>
+					<form method="POST" action="?/capacite" use:enhance>
+						<input type="hidden" name="answer" value="decline" />
+						<button class="lm-btn" data-variant="ghost">Non merci</button>
+					</form>
+				</div>
+			</div>
+		{/if}
+		{#if p.team.length === 0}
+			<MetroEmpty
+				icon={UsersRound}
+				text="Personne d’autre pour l’instant. Une personne invitée voit le nom, le type et le porteur du projet avant de répondre."
+			/>
+		{:else}
+			<ul class="space-y-2">
+				{#each p.team as m (m.id)}
+					<li
+						data-tone="paper"
+						class="lm-tile lm-tile--flow space-y-2 p-3"
+						data-testid="team-member"
+					>
+						<div class="flex flex-wrap items-baseline justify-between gap-2">
+							<p class="font-medium">
+								{m.isMe ? 'Toi' : m.name}{#if m.role}<span class="text-sm text-muted-foreground">
+										· {m.role}</span
+									>{/if}
+							</p>
+							<span class="flex flex-wrap gap-1 text-xs">
+								{#if m.status === 'INVITED'}<span class="lm-pill">Invitation en attente</span>{/if}
+								{#if m.coordinate}<span class="lm-pill">Coordination</span>{/if}
+								{#if m.proposed}<span class="lm-pill">Coordination proposée</span>{/if}
+							</span>
+						</div>
+						{#if can.manage}
+							<div class="flex flex-wrap gap-2">
+								{#if active && can.live && m.status === 'ACTIVE' && !m.coordinate && !m.proposed}
+									<form method="POST" action="?/proposer" use:enhance>
+										<input type="hidden" name="participantId" value={m.id} />
+										<button class="lm-btn" data-variant="ghost"
+											>Proposer la coordination<span class="sr-only"> à {m.name}</span></button
+										>
+									</form>
+								{/if}
+								{#if m.coordinate || m.proposed}
+									<form method="POST" action="?/revoquer" use:enhance>
+										<input type="hidden" name="participantId" value={m.id} />
+										<button class="lm-btn" data-variant="ghost"
+											>Retirer la coordination<span class="sr-only"> de {m.name}</span></button
+										>
+									</form>
+								{/if}
+								<form method="POST" action="?/retirer-personne" use:enhance>
+									<input type="hidden" name="participantId" value={m.id} />
+									<button class="lm-btn" data-variant="ghost"
+										>{m.status === 'INVITED' ? 'Annuler l’invitation' : 'Retirer du projet'}<span
+											class="sr-only"
+										>
+											: {m.name}</span
+										></button
+									>
+								</form>
+							</div>
+						{/if}
+					</li>
+				{/each}
+			</ul>
+		{/if}
+		{#if p.me && !can.manage}
+			<form method="POST" action="?/quitter" use:enhance>
+				<button class="lm-btn" data-variant="ghost">Quitter le projet</button>
+			</form>
+		{/if}
+		{#if organise}
+			<form
+				id="inviter"
+				method="POST"
+				action="?/inviter"
+				use:enhance
+				data-tone="paper"
+				class="lm-tile lm-tile--flow space-y-4 p-4"
+				aria-labelledby="inviter-titre"
+			>
+				<h3 id="inviter-titre" class="font-medium">Inviter une personne</h3>
+				<MetroField
+					id="invite-handle"
+					label="Identifiant"
+					help="Son @identifiant, visible sur son profil."
+				>
+					{#snippet children(attrs)}
+						<input {...attrs} name="handle" required maxlength="64" autocomplete="off" />
+					{/snippet}
+				</MetroField>
+				<MetroField
+					id="invite-role"
+					label="Son rôle dans le projet"
+					help="Un libellé, par exemple « ingé son de la tournée ». Il ne donne aucun droit."
+					optional
+				>
+					{#snippet children(attrs)}
+						<input {...attrs} name="role" maxlength="60" />
+					{/snippet}
+				</MetroField>
+				{#if can.manage}
+					<label class="flex min-h-11 items-start gap-2 py-1">
+						<input type="checkbox" name="coordinate" class="mt-1" />
+						<span
+							><span class="font-medium">Lui proposer de coordonner</span>
+							<span class="block text-sm text-muted-foreground">{PRESETS.coordinator.phrase}</span
+							></span
+						>
+					</label>
+				{/if}
+				<p class="text-sm text-muted-foreground">
+					{PRESETS.participant.phrase} L’équipe est visible de toutes les personnes du projet.
+				</p>
+				<button class="lm-btn">Inviter</button>
+			</form>
+		{/if}
+	</section>
+{/snippet}
 
 {#snippet itemsBlock()}
 	<section aria-labelledby="morceaux" class="space-y-4">
@@ -326,7 +505,7 @@
 								</form>
 							</details>
 						{/if}
-						{#if item.manage || active}
+						{#if item.manage || (active && (can.manage || (can.coordinate && item.addedByMe)))}
 							<form method="POST" action="?/retirer" use:enhance>
 								<input type="hidden" name="itemId" value={item.id} />
 								<button class="lm-btn" data-variant="ghost"
@@ -339,7 +518,7 @@
 			</ul>
 		{/if}
 
-		{#if active}
+		{#if organise}
 			{#if data.rangeable.length > 0}
 				<form
 					id="ranger"

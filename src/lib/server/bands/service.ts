@@ -25,6 +25,7 @@ import { publicActorWhere } from '#lib/server/actors/visibility';
 import { isBlockedBetween } from '#lib/server/blocking/service';
 import { playedTogether } from '#lib/server/network/service';
 import { notify } from '#lib/server/notifications/service';
+import { dropMemberCapabilities } from '#lib/server/projects/participants';
 import { emitAndProcess, lockProgressActors } from '#lib/server/progression/processor';
 import {
 	bandTierOf,
@@ -443,7 +444,7 @@ export async function withdrawPending(membershipId: string, byId: string, now = 
 
 /** Quitter le groupe. L'OWNER seul·e le dissout ; sinon il ou elle le transmet d'abord. */
 export async function leaveBand(bandId: string, personId: string, now = new Date()) {
-	return prisma.$transaction(async (tx) => {
+	const result = await prisma.$transaction(async (tx) => {
 		await lockBand(tx, bandId);
 		await liveBand(tx, bandId);
 		const mine = await activeMembership(tx, bandId, personId);
@@ -461,6 +462,10 @@ export async function leaveBand(bandId: string, personId: string, now = new Date
 		if (check.dissolves) await dissolve(tx, bandId, personId, now);
 		return { dissolved: check.dissolves };
 	}, TX);
+	// P4a (§6.3) : les capacités de projet reçues comme membre tombent, après
+	// la transaction (`project:` se prend avant `band:`).
+	await dropMemberCapabilities(bandId, personId, personId);
+	return result;
 }
 
 /** Dissolution : invitations et demandes closes, l'historique reste. */
@@ -491,26 +496,29 @@ export async function removeMember(membershipId: string, managerId: string, now 
 		select: { orgId: true }
 	});
 	if (!first) throw new BandError('Membre introuvable.', 404);
-	await prisma.$transaction(async (tx) => {
-		await lockBand(tx, first.orgId);
-		await liveBand(tx, first.orgId);
-		const mine = await requireManager(tx, first.orgId, managerId);
-		const row = await pendingRow(tx, membershipId);
-		if (row.status !== 'ACTIVE')
-			throw new BandError('Cette personne ne fait plus partie du groupe.');
-		if (row.personId === managerId)
-			throw new BandError('Pour partir, utilise « Quitter le groupe ».');
-		if (!canRemove(mine.role, row.role)) {
-			throw new BandError('Tu ne peux pas retirer cette personne du groupe.', 403);
-		}
-		await tx.membership.update({
-			where: { id: row.id },
-			data: { status: 'REMOVED', endedAt: now }
-		});
-		await tx.membershipDecision.create({
-			data: { membershipId: row.id, kind: 'REMOVED', authorId: managerId, occurredAt: now }
-		});
-	}, TX);
+	await prisma
+		.$transaction(async (tx) => {
+			await lockBand(tx, first.orgId);
+			await liveBand(tx, first.orgId);
+			const mine = await requireManager(tx, first.orgId, managerId);
+			const row = await pendingRow(tx, membershipId);
+			if (row.status !== 'ACTIVE')
+				throw new BandError('Cette personne ne fait plus partie du groupe.');
+			if (row.personId === managerId)
+				throw new BandError('Pour partir, utilise « Quitter le groupe ».');
+			if (!canRemove(mine.role, row.role)) {
+				throw new BandError('Tu ne peux pas retirer cette personne du groupe.', 403);
+			}
+			await tx.membership.update({
+				where: { id: row.id },
+				data: { status: 'REMOVED', endedAt: now }
+			});
+			await tx.membershipDecision.create({
+				data: { membershipId: row.id, kind: 'REMOVED', authorId: managerId, occurredAt: now }
+			});
+			return row.personId;
+		}, TX)
+		.then((removedId) => dropMemberCapabilities(first.orgId, removedId, managerId));
 }
 
 /** Changer le rôle d'un membre (OWNER seulement) : co-gestion ou membre. */

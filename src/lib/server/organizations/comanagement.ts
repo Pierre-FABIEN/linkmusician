@@ -14,6 +14,7 @@
 import type { NotificationType, OrgKind, Prisma } from '@prisma/client';
 import { structureAccess } from './access';
 import { prisma } from '#lib/server';
+import { dropMemberCapabilities } from '#lib/server/projects/participants';
 import { isBlockedBetween } from '#lib/server/blocking/service';
 import { notify } from '#lib/server/notifications/service';
 import { isManager, successorOf } from '#lib/bands/rules';
@@ -192,7 +193,7 @@ export async function leaveOrRemoveManager(
 	byId: string,
 	membershipId: string
 ) {
-	await prisma.$transaction(async (tx) => {
+	const left = await prisma.$transaction(async (tx) => {
 		await lockOrg(tx, orgId);
 		const target = await tx.membership.findFirst({
 			where: {
@@ -229,7 +230,7 @@ export async function leaveOrRemoveManager(
 					occurredAt: now
 				}
 			});
-			return;
+			return null;
 		}
 		if (target.role === 'OWNER') {
 			const active = await tx.membership.findMany({
@@ -264,7 +265,11 @@ export async function leaveOrRemoveManager(
 				occurredAt: now
 			}
 		});
+		return target.personId;
 	}, ORG_TX);
+	// LINKMUSICIAN P4a (§6.3) : capacités de projet reçues comme membre, après
+	// la transaction (`project:` se prend avant `org:`).
+	if (left) await dropMemberCapabilities(orgId, left, byId);
 }
 
 /** Invitations en attente pour la personne, sur un type d'organisation. */

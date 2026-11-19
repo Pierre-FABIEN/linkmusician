@@ -178,14 +178,12 @@ describe.skipIf(!enabled)('projectsOverview : coût', { timeout: 300_000 }, () =
 				]
 			});
 			await base.projectAct.createMany({
-				data: hidden
-					.slice(i * 8, i * 8 + 8)
-					.map((workId) => ({
-						projectId: pid,
-						kind: 'ITEM_ADDED' as const,
-						workId,
-						authorId: coadmin
-					}))
+				data: hidden.slice(i * 8, i * 8 + 8).map((workId) => ({
+					projectId: pid,
+					kind: 'ITEM_ADDED' as const,
+					workId,
+					authorId: coadmin
+				}))
 			});
 		}
 
