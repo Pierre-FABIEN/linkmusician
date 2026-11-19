@@ -7,16 +7,21 @@ Conception : [07 §4.1 et §4.2](../conception/07-modes-de-jeu.md#41-choisir-son
 - **`/espace`**, accueil Collab en quatre pivots (U0, D74 ; détail :
   [conception 20 §6.4](../conception/20-parcours-ux-collab.md#64-ce-que-u0-a-livré-et-les-écarts-livré-le-18112026)) :
   identité, niveau, XP et palier en en-tête ; pivot `avancer` ouvert par le
-  **héros** (première prochaine action N3, sinon « Commence ici » pour un
-  compte neuf, sinon « Ta prochaine étape »), « À faire maintenant », les
-  tuiles « À traiter », candidatures, contacts et agenda, « Travaux en
-  cours » ; `ma musique` ; `réseau` ; `repères` (dont « Ta prochaine étape »
-  quand elle n'est pas le héros). Seulement des compteurs.
+  **héros** (première prochaine action N3, sinon le projet principal (U2),
+  sinon « Commence ici » pour un compte neuf, sinon « Ta prochaine étape »),
+  « À faire maintenant », les tuiles « À traiter », candidatures, contacts
+  et agenda, puis « Mes projets » (trois projets au plus, « Créer un
+  projet », « Hors projet » ; [docs/projets](../projets/README.md)) ;
+  `ma musique` ; `réseau` ; `repères` (dont « Ta prochaine étape » quand
+  elle n'est pas le héros). Seulement des compteurs.
 - Écrans (`/espace/…`, fil d'Ariane D52) :
   - `ambition` : choix parmi cinq, « Je ne sais pas encore » pour retirer ;
   - `objectifs` : les trois prochains (`nextObjectives`) et l'avancement ;
-  - `campagnes` : morceaux de l'équipe (`myWorks`), idées d'abord, places
-    libres (rôles à pourvoir), crédits à confirmer ;
+  - `campagnes`, titré « Hors projet » (U2, adresse conservée) : les
+    morceaux de l'équipe (`campaigns`, `myWorks`), classés pour moi :
+    rangés dans aucun de mes projets (que je gère), déjà rangés, gérés par
+    d'autres ; places libres et crédits à confirmer comme avant
+    (`outsideProjects`, `src/lib/server/projects/overview.ts`) ;
   - `equipe` : groupes actifs avec leur rang (P3-08), partenaires réguliers
     (collaborations confirmées, les plus nombreuses d'abord) ;
   - `agenda` : collaborations acceptées à date future, sans personne

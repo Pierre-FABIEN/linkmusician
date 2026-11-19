@@ -30,10 +30,10 @@ posséder, ne prouve rien et reste facultatif.
   avec P13). Proposé au rangement : morceau composé (public) → résumé, idée
   → rien ; `WORK` jamais par défaut.
 
-Code : règles pures `src/lib/projects/rules.ts`, schémas
+Code : règles pures `src/lib/projects/rules.ts` (et `overview.ts`, U2), schémas
 `src/lib/schema/projects/project.ts`, services `src/lib/server/projects/`
-(`service.ts` écritures, `view.ts` lectures, `access.ts` gestion,
-`export.ts` RGPD). Routes : `/projets`, `/projets/nouveau`,
+(`service.ts` écritures, `view.ts` lectures, `overview.ts` « Mes
+projets », `access.ts` gestion, `export.ts` RGPD). Routes : `/projets`, `/projets/nouveau`,
 `/projets/[id]`.
 
 ## Droits (matrice de la conception 19 §6.2, partie P2)
@@ -119,13 +119,96 @@ Mesuré sur le schéma e2e (Neon), `view.perf.integration.test.ts` :
 Le coût ne dépend pas du nombre d'éléments ; des actes sur des morceaux
 invisibles ajoutent une seule requête.
 
+## « Mes projets » (P3, U2) — livré le 19/11/2026
+
+Projection et présentation, **sans migration** ni nouvelle capacité.
+
+### Projection (`server/projects/overview.ts`)
+
+- `projectsOverview(personne)` : les projets dont je **gère le porteur**
+  (le seul lecteur avant P4), triés, avec pour chacun : nom, type,
+  famille, porteur (moi ou la structure), état, dates, **rôle réel**
+  (`manage`, « Je gère » ; P4 ajoutera « je participe », « je coordonne »),
+  nombre d'éléments **visibles**, ligne d'avancement, prochaine action,
+  dernière activité visible, ma dernière action.
+- Les éléments sont filtrés par les **mêmes prédicats** que `projectView`
+  (I6) : un élément `NONE` d'autrui, ou d'une personne bloquée, ne compte
+  pas et n'avance aucune date. Un acte sur un morceau retiré reste compté
+  pour sa gestion, comme dans le journal de la fiche.
+- **Coût** : 1 requête sans projet, sinon 6, plus 1 quand le journal cite
+  un morceau qui n'est plus rangé. Jamais `projectView` par tuile ; la
+  fiche, elle, garde `projectView`. Aucun cache : chaque lecture est celle
+  de la requête.
+- `outsideCount(personne)` (une requête) et `outsideProjects(personne)`
+  (`career/service.ts:campaigns` réutilisé, plus deux lectures).
+
+### Règles (`projects/overview.ts`, pures)
+
+| Règle              | Contenu                                                                                                                                                                                                                                             |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Famille            | **Enregistré** (single, EP, album, production), **scène** (concert, tournée, festival), **autre** (campagne). Seul l'ordre des blocs de la fiche change : scène = dates d'abord                                                                     |
+| Prochaine action   | Clos ou sans gestion → consulter ; une idée que je gère, rangée ici → la reprendre ; un morceau à moi pas encore rangé → ranger ; scène sans date → poser des dates ; vide → créer un morceau ; sans date ni objectif → compléter ; sinon continuer |
+| Jamais proposé     | Inviter (P4), confier une tâche (P13), programmer un concert, publier une annonce liée : dits « bientôt », sans bouton                                                                                                                              |
+| Tri                | En cours, atteints, laissés de côté ; puis **ma** dernière action, la dernière activité visible, la création, l'identifiant. Aucun métier ni XP en entrée                                                                                           |
+| Projet principal   | Le premier projet en cours de ce tri (UX-3, **défaut**, rien n'est enregistré)                                                                                                                                                                      |
+| Accueil            | Trois projets au plus en tout, le principal compris quand il est le héros                                                                                                                                                                           |
+| Ligne d'avancement | Seulement ce qui se calcule : « 3 morceaux rangés, dont 2 composés », la prochaine date posée ; jamais « 2 mixés sur 4 » (P9, P13)                                                                                                                  |
+| **Hors projet**    | Un morceau **que je gère** (`manageableOwnerWhere`) qu'**aucun projet que je peux ouvrir** ne range. Un projet clos range encore ; un projet d'autrui ne compte jamais (sinon il se révélerait)                                                     |
+
+Un morceau crédité ou d'un groupe dont je suis simple membre n'est jamais
+« hors projet » pour moi : il reste listé (« Gérés par d'autres »), sans
+action. Un morceau dans deux de mes projets est « déjà rangé » une seule
+fois, avec les deux noms.
+
+### Écrans
+
+- `/projets` « Mes projets » : projets en cours en tuiles (`ProjectTile`),
+  « Créer un projet », « Hors projet » (compteur), atteints et laissés de
+  côté repliés. État vide : facultatif.
+- `/projets/[id]` : en-tête (type, porteur, état, « Je gère », dates,
+  avancement), **une** prochaine action (`project-next`), blocs morceaux,
+  dates, journal dans l'ordre de la famille, « Bientôt dans un projet »
+  sans bouton. `?ranger=<morceau>` présélectionne un morceau s'il est
+  rangeable ici (rien d'autre n'est lu de l'adresse).
+- `/espace/campagnes` « Hors projet » (adresse conservée) : rangés nulle
+  part (« Ranger dans un projet » ouvre la fiche du projet choisi, où se
+  décide le partage), déjà rangés (dans quels projets), gérés par d'autres.
+- Accueil Collab (`CollabAdvance`, donc aussi `RoleSpace`) : sans demande
+  du moteur N3, le héros est le **projet principal** et sa prochaine action
+  (`ProjectHero`, D74 étape 2) ; « Mes projets » (`ProjectsHome`) : l'entrée,
+  trois projets au plus, « Créer un projet », « Hors projet » dès qu'il y a
+  des morceaux.
+
+Aucune donnée nouvelle : U2 ne stocke rien (ni préférence de projet
+principal, ni ordre). Export et anonymisation RGPD inchangés.
+
+### Mesures (schéma e2e, Neon, `overview.perf.integration.test.ts`)
+
+Lecture de `/projets` (projection et compteur « Hors projet », en parallèle) :
+
+| Cas                                      | Projets | Requêtes | Médiane |  Volume |
+| ---------------------------------------- | ------: | -------: | ------: | ------: |
+| Compte neuf                              |       0 |        2 |   49 ms |   0 Kio |
+| Un projet (3 éléments)                   |       1 |        7 |   97 ms | 0,6 Kio |
+| 8 projets (5 éléments chacun)            |       8 |        7 |   98 ms | 4,8 Kio |
+| Un projet de 200 éléments                |       1 |        7 |  103 ms | 0,6 Kio |
+| Groupe multirôle : 6 projets, invisibles |       6 |        8 |  122 ms | 3,6 Kio |
+
+L'accueil `/espace` ajoute ces lectures à son `Promise.all` (en parallèle des
+autres) : 2 requêtes sans projet, 7 à 8 sinon.
+
 ## Limites de P2 et suites
 
-- **P3 / U2** : « Mes projets » en tuiles, fiche par famille, prochaine
-  action, « Hors projet », tuiles de l'accueil, `ShareLevelChoice` ; la
-  liste `/projets` actuelle est minimale.
+- **U2, écarts** : tuiles en menu plutôt qu'en mosaïque `sm`/`band` ;
+  « Mes projets » sous « À traiter » et l'agenda ; ordre non figé pendant
+  la session (P11) ; projets non groupés par porteur dans `/projets` (le
+  porteur est sur chaque tuile) ; pas de tuile « Pour démarrer » ni de
+  `ShareLevelChoice` (le partage garde le formulaire P2) ; « Créer un
+  morceau » n'en revient pas avec le morceau rangé. Type « Autre » : UX-2
+  ouvert, l'enum n'est pas étendu.
 - **P4 / U3** : participant·es, coordination, invitations. Rien ne lit
   encore une participation ; la fiche n'a donc qu'un lecteur, la gestion.
+  La projection porte déjà un `role` pour s'y brancher.
 - **P5 / U4** : partager le morceau d'autrui (initiative côté morceau),
   mention « Partagé dans… » sur la fiche du morceau.
 - **P13** : tâches et livrables d'un élément en `WORK`.

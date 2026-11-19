@@ -1378,6 +1378,15 @@ flowchart LR
   390 px, clavier et axe.
 - **Acceptation** : un compte sans projet voit tout ce qu'il voyait avant ;
   deux projets ne se contaminent pas.
+- **[Livré le 19/11/2026, avec U2]** Détail : [docs/projets](../projets/README.md#mes-projets-p3-u2--livré-le-19112026).
+  Projection `projects/overview.ts` sans table ni migration : projets dont
+  je gère le porteur (seul lecteur avant P4), éléments filtrés comme
+  `projectView`, requêtes constantes (1 sans projet, 6 à 7 sinon). « Hors
+  projet » (B6) : un morceau que je gère qu'aucun projet que je peux ouvrir
+  ne range ; `campaigns` réutilisé, rien ne disparaît de `/espace/campagnes`.
+  Projet principal déduit de ma dernière action (UX-3 reste ouvert, rien
+  n'est enregistré). E2E S1 à S5 (`mes-projets.spec.ts`) à 390 px et
+  desktop, clavier (Entrée et Espace, T11 corrigé) et axe.
 
 ### P4 — Participant·es et capacités d'un projet · #71, #36
 

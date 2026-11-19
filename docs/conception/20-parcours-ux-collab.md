@@ -456,6 +456,42 @@ UX-1 tranché : [D74](../decisions/D74-heros-accueil-collab.md).
   même source. Un accompagnement confirmé reste lisible pour y mettre fin
   (Q75).
 
+### 6.5 Ce que U2 a livré, et les écarts [Livré le 19/11/2026]
+
+UX-2 et UX-3 restent **ouverts** : leurs défauts ne sont appliqués que
+là où ils ne demandent ni migration ni préférence enregistrée.
+
+- **Héros** : étape 2 de D74 en place. Sans action du moteur N3 (hors
+  candidatures et contacts), le héros est le **projet principal** (« Ton
+  projet en cours », sa ligne d'avancement et sa prochaine action), avant
+  « Commence ici » et `NextStep`. Projet principal **déduit** de ma dernière
+  action dans le projet (UX-3, défaut), sans épinglage ni préférence ; le
+  métier affiché n'entre pas dans le calcul.
+- **Pivot « avancer »** (et `RoleSpace`, par `CollabAdvance`) : sous
+  « À traiter » et l'agenda, « Mes projets » (nombre en cours), trois
+  projets au plus en tout (le héros n'est pas répété), « Créer un
+  projet », « Hors projet » dès qu'il y a des morceaux. « Travaux en
+  cours » devient « Hors projet » ; l'entrée « Projets » de « ma
+  musique » disparaît (même destination, dans « avancer »).
+- **`/projets`** : « Mes projets », tuiles des projets en cours, atteints et
+  laissés de côté repliés ; **`/espace/campagnes`** : « Hors projet », trois
+  sections (rangés nulle part, déjà rangés, gérés par d'autres).
+- **Fiche** : en-tête, une prochaine action, blocs par famille (§7.2), ce
+  qui viendra dit sans bouton. Fil d'Ariane : Collab › Mes projets › projet ;
+  Hors projet sous Mes projets.
+- **Écarts** : mosaïque `sm`/`band` de §6.1 non reprise (tuiles en menu) ;
+  « Mes projets » placé après « À traiter » et l'agenda, pas à côté ; ordre
+  non figé pendant la session (P11) ; pas de pastille ambre « quelque chose
+  t'attend » (aucune demande liée à un projet avant P4/P5) ; pas de tuile
+  « Pour démarrer » ni de `ShareLevelChoice` ; pas de groupement par
+  porteur dans `/projets` ; « Créer un morceau » ne revient pas avec le
+  morceau rangé ; pas d'entrée « Nouveau projet » depuis la fiche d'un
+  groupe (le `?porteur=` de P2 existe). Les « trois portes » de « Commence
+  ici » restent celles de D74 : « Créer un projet » a sa tuile.
+- **Types** : « Autre » (UX-2) n'est **pas** ajouté : l'enum livré par P2
+  garde ses huit valeurs, faute d'arbitrage ; la maquette §7.1 le montre
+  encore avec « ? ».
+
 ---
 
 ## 7. Créer et consulter un projet

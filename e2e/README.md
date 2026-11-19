@@ -85,6 +85,8 @@ domaine (dernière colonne) ; lancer un seul spec :
 | `organiser`              | D51          | « Lancer une jam » après « prêt·e à organiser »                           | `docs/jam/`                          |
 | `lancement`              | —            | Feuille de route réservée à l'administration                              | `docs/lancement/`                    |
 | `projets`                | P2 (D72)     | Créer, ranger, partager, retirer, supprimer ; tiers et membre en 404      | `docs/projets/`                      |
+| `mes-projets`            | P3, U2       | S1 à S5 : compte neuf, solo, groupe, plusieurs projets, « Hors projet »   | `docs/projets/`                      |
+| `clavier-espace`         | T11          | Espace active un bouton et un résumé, la page défile hors contrôle        | `docs/plan/a-trancher.md`            |
 
 Deux pièges constatés le 10/11/2026 :
 
