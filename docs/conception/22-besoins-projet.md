@@ -4,8 +4,8 @@
   qui la porte, [D76](../decisions/README.md), est **Acceptée** par le
   fondateur le 19/11/2026, avec les défauts Q91 à Q99. Q96 et Q99 restent
   des pistes d'évolution produit (§14). **U3b-b** (modèle, services, RGPD,
-  fiche minimale) : code livré le 19/11/2026, tests écrits à exécuter ;
-  U3b-c à faire.
+  fiche minimale) et **U3b-c** (écrans, « À traiter », annonce) : code livré
+  le 19/11/2026, tests écrits à exécuter. Écarts réels : §16.
 - Issues : [#71](https://github.com/Pierre-FABIEN/linkmusician/issues/71)
   (parcours Collab), [#36](https://github.com/Pierre-FABIEN/linkmusician/issues/36)
   (coordination), préparation de [#89](https://github.com/Pierre-FABIEN/linkmusician/issues/89)
@@ -623,3 +623,25 @@ professionnelles.
 | **U3c**   | [Reporté] Intervenants proposés (`ProjectNeedSuggestion`, `PROPOSE` à la carte), si Q96 l'ouvre                                                                                       | Pilote                 |
 
 U3b n'est **pas livré** tant que U3b-b et U3b-c ne le sont pas.
+
+---
+
+## 16. Écarts constatés à l'implémentation (U3b-b, U3b-c)
+
+- **Annonce d'un projet de groupe (Q100)** : au nom d'un groupe,
+  `createOpportunity` ne publie qu'un recrutement de membre (P3-03). Un
+  besoin n'étant pas un recrutement (§7.6), l'annonce liée ne vaut que pour
+  un projet porté **en son nom** ; pour un groupe, la fiche le dit et garde
+  « Trouver un pro » et « Inviter ».
+- **Quota par jour** (§9.3) : sérialisé par une clé `project-need-author:`
+  prise avant `project:` ; l'ordre des verrous devient
+  `project-need-author:` → `project:` → porteur.
+- **« À traiter »** (§8.4) : le moteur N3 garde un sujet une fois ; les
+  propositions d'un même projet forment **une** suggestion (« 2 besoins
+  proposés dans … »). Une proposition d'une personne bloquée n'y figure pas.
+- **Sous-écran** (§8.1) : remplacé par « Voir les N besoins » sur la fiche.
+- **Journal** : le trigger d'ajout seul de `project_acts` compare chaque
+  colonne ; la migration l'étend à `needId`.
+- **Coût** : la fiche passe de 7 à 8 requêtes au plus (une pour les besoins).
+- **Anonymisation** : les propositions annulées à l'effacement n'ont pas
+  d'acte `NEED_CANCELLED` (opérations groupées).

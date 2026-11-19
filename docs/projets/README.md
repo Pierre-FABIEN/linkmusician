@@ -405,7 +405,7 @@ projets » : l'équipe ouverte comptée dans la requête principale (`_count`).
 « À traiter » et l'accueil : deux lectures de plus (invitations,
 coordinations proposées).
 
-## Besoins (U3b-b) — code livré le 19/11/2026, tests à exécuter
+## Besoins (U3b-b, U3b-c) — code livré le 19/11/2026, tests à exécuter
 
 Décision [D76](../decisions/README.md), [conception 22](../conception/22-besoins-projet.md).
 
@@ -425,6 +425,13 @@ Décision [D76](../decisions/README.md), [conception 22](../conception/22-besoin
 | Lire ouverts et pourvus         | Toute personne qui lit la fiche                      | 404                   |
 | Lire propositions, refus        | Gestion, et leur auteur·rice                         | —                     |
 
+| Préparer l'annonce liée | Gestion, projet porté en son nom, métier d'annonce | Phrase (Q99, Q100) |
+
+« À traiter » montre à la gestion les propositions à trancher (règle N3
+`project.need`, une par projet) ; elles se tranchent sur la fiche. L'annonce
+liée naît dans la transaction de `createOpportunity`, sous `project:` ; elle
+ne nomme pas le projet et garde sa vie propre.
+
 Projet clos ou porteur dissous : 409, sauf retirer sa proposition. Perdre la
 coordination, quitter ou être retiré·e annule ses propositions en attente.
 Aucun besoin n'émet d'événement, ne donne d'XP, n'invite ni ne publie.
@@ -433,9 +440,8 @@ personne et par projet, 30 créations par personne sur 24 h.
 
 ### Laissé après U3
 
-- **U3b-c** : écrans Metro des besoins, « À traiter », annonce liée,
-  invitation depuis un besoin, E2E ; **U3c** : intervenants proposés
-  (`PROPOSE`, Q96).
+- **U3c** : intervenants proposés (`PROPOSE`, Q96) ; annonce liée pour un
+  groupe ou une structure (Q99, Q100).
 - **P13 / U5** : tâches confiées ; les effets d'un retrait les citeront.
 - Structure participante (studio, label) ; aperçu « comme un·e
   participant·e » (UX-7, différé).

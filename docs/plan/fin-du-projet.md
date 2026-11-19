@@ -1314,19 +1314,23 @@ les liens existants de la page.
 
 **Écarts** :
 
-- Pas d'écran de **modification** (le service et ses tests existent) :
-  U3b-c.
-- Pas de mesure du coût de `projectView` avec 0, 5, 20 besoins : U3b-c
-  (`view.perf.integration.test.ts`).
+- ~~Pas d'écran de modification~~ : livré par U3b-c.
+- ~~Pas de mesure du coût~~ : test écrit le 19/11/2026 (`b89e6a2`), une
+  requête pour les besoins quel que soit leur nombre ; plafond de la fiche
+  relevé de 7 à 8 requêtes. **Non exécuté.**
 - L'anonymisation annule les propositions sans écrire d'acte
   `NEED_CANCELLED` (opérations groupées ; l'auteur·rice serait de toute
   façon oublié·e).
-- Le quota de 30 besoins par jour n'est pas sérialisé entre deux projets
-  (verrou par projet) : borne souple.
+- ~~Quota de 30 par jour non sérialisé~~ : corrigé dans `38ff3e6`, clé
+  `project-need-author:` prise avant `project:` (aucune autre écriture ne
+  la prend) ; course de deux ajouts dans deux projets écrite, non exécutée.
+- Intégrité du journal : la migration étend le trigger d'ajout seul à
+  `needId` ; un test d'intégration tente de le réécrire (écrit, non
+  exécuté).
 
 **Tests écrits** : `src/lib/projects/needs.test.ts` (unitaires),
-`src/lib/server/projects/needs.integration.test.ts` (14 scénarios, dont deux
-courses à barrières). Non-régression à lancer aussi :
+`src/lib/server/projects/needs.integration.test.ts` (18 scénarios avec ceux de U3b-c, dont deux
+courses à barrières et une course de quota). Non-régression à lancer aussi :
 `participants.integration`, `service.integration`, E2E `projets`,
 `projets-equipe`, `projets-equipe-u3`.
 
@@ -1346,7 +1350,57 @@ Fiche d'origine :
   invitation ni annonce ; un retrait de coordination annule ses
   propositions en attente ; aucun gain.
 
-### U3b-c — Besoins : écrans, « À traiter », annonce et recherche (à faire)
+### U3b-c — Besoins : écrans, « À traiter », annonce et recherche 🟡 (code livré, tests à exécuter)
+
+**Livré le 19/11/2026** (commit local `38ff3e6`, puis doc). **Aucun test
+exécuté** (U3b-b compris), à la demande de l'utilisateur : passe prévue en fin
+de journée. `npm run check` : 0 erreur. Lint : avertissements
+`no-navigation-without-resolve` sur les liens à paramètres (« Trouver un
+pro », « Préparer l'annonce ») : ils passent par `resolve()`, mais la règle
+refuse une chaîne de requête ; même avertissement que les liens existants.
+
+- **Fiche** : bloc « Besoins » Metro ; feuille `MetroSheet` d'ajout (gestion),
+  de proposition (coordination) et de **modification** ; propositions à
+  décider annoncées en tête pour la gestion ; cinq besoins, puis « Voir les
+  N besoins » (pas de sous-écran séparé) ; état en mot et en icône ; « Trouver
+  un pro » ; « Inviter » (feuille de U3, rôle prérempli, Q98) ; « Préparer
+  l'annonce » ou la phrase qui dit pourquoi ce n'est pas possible ; lien vers
+  l'annonce liée et nombre de candidatures pour la gestion ; « Annuler ce
+  besoin » en `danger`.
+- **« À traiter »** : section Projets, « Besoin proposé : … · « projet » ·
+  par … », lien vers `#besoins` ; compteur `answers` ; règle N3
+  `project.need` au rang 2, **une suggestion par projet** (le moteur garde
+  un sujet une fois) ; filtrable (« Besoins proposés dans mes projets »).
+  Autrice ou auteur bloqué·e : la proposition n'y figure pas (elle reste sur
+  la fiche). Q91 : aucune notification.
+- **Prochaine action de la fiche** : « Décider d’un besoin proposé » pour la
+  gestion, avant tout le reste.
+- **Annonce** : `/annonces/nouvelle?…&besoin=<id>` (type session, métier,
+  précision, titre tiré du libellé, jamais du nom du projet) ;
+  `createOpportunity(…, needId)` crée l'annonce et pose le lien dans **une
+  transaction**, sous `project:` puis le verrou du porteur
+  (`linkNeedToOpportunity`) : gestion, besoin ouvert sans annonce, projet
+  porté **en son nom**, même métier. Un refus annule la création.
+- **Démo** : deux besoins dans « EP des Rats » (ouvert par Malik, proposé
+  par Nora). **Aide** : « Besoins » dans « Tes projets ».
+
+**Écarts** :
+
+- **Q100** : pas d'annonce liée pour un projet de groupe (au nom d'un
+  groupe, `createOpportunity` ne publie qu'un recrutement de membre, ce
+  qu'un besoin n'est pas) ; la phrase le dit. Q99 inchangée (organisateur,
+  studio, lieu).
+- Pas de sous-écran `/projets/[id]/besoins` : la liste se déplie sur place.
+- La coordination n'a pas de prochaine action propre aux besoins (« besoin
+  ouvert sans personne invitée ») : sa prochaine action reste celle de U3.
+
+**Tests écrits, non exécutés** : unitaires (`needs.test.ts`, règle N3 dans
+`next.test.ts`, prochaine action dans `overview.test.ts`) ; intégration
+(« À traiter », liaison d'annonce et ses refus) ; E2E
+`e2e/linkmusician/projets-besoins.spec.ts` (9 étapes, 390 px, axe, clavier
+pour l'ouverture de la feuille et « À traiter »).
+
+Fiche d'origine :
 
 - **Objectif** : bloc « Besoins » Metro, feuille d'ajout, sous-écran,
   « À traiter » et règle N3 `project.need`, prochaine action, « Trouver un
