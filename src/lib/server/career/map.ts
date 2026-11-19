@@ -45,6 +45,7 @@ import { careerFactsOf, firstVerifiedGigOf } from '#lib/career/realisations';
 import { isManager } from '#lib/bands/rules';
 import { parisDay } from '#lib/metrics/indicators';
 import { readRealisations } from './realisations';
+import { recognizedGigIds } from '#lib/server/milestones/recognized-gigs';
 import { notBlockedWith } from '#lib/server/actors/visibility';
 import { requestMemo, type RequestScope } from '#lib/server/request-memo';
 
@@ -77,19 +78,23 @@ export async function firstVerifiedGig(actorId: string) {
 	const { bandId } = first.object;
 	// P8 : l'étape peut être celle de la personne, qui a joué en son nom.
 	const solo = bandId === actorId;
-	const [band, gig] = await Promise.all([
+	// Le premier concert **reconnu** (`gig.held`) chez un hôte vérifié : une
+	// collaboration terminée sans concert tenu ne nomme pas l'hôte (Q106).
+	const [band, recognized] = await Promise.all([
 		prisma.actor.findUniqueOrThrow({ where: { id: bandId }, select: { displayName: true } }),
-		prisma.collaboration.findFirst({
-			where: {
-				...(solo ? { performerId: actorId, bandId: null } : { bandId }),
-				kind: 'GIG',
-				status: 'COMPLETED',
-				hostOrg: { verifiedAt: { not: null } }
-			},
-			orderBy: { happenedOn: 'asc' },
-			select: { hostOrg: { select: { actor: { select: { displayName: true } } } } }
-		})
+		recognizedGigIds(prisma, bandId)
 	]);
+	const gig = await prisma.collaboration.findFirst({
+		where: {
+			id: { in: recognized },
+			...(solo ? { performerId: actorId, bandId: null } : { bandId }),
+			kind: 'GIG',
+			status: 'COMPLETED',
+			hostOrg: { verifiedAt: { not: null } }
+		},
+		orderBy: { happenedOn: 'asc' },
+		select: { hostOrg: { select: { actor: { select: { displayName: true } } } } }
+	});
 	return {
 		bandName: band.displayName,
 		hostName: gig?.hostOrg?.actor.displayName ?? null,

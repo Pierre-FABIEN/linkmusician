@@ -35,6 +35,7 @@ import { verifyMusicBrainzRelease, type ReleaseMilestoneKey } from './release-ve
 import { firstTour, TOUR_MIN_GIGS } from '#lib/milestones/tour';
 import { isConfirmedBooker } from '#lib/server/representation/service';
 import { gigWitnesses } from '#lib/collaborations/rules';
+import { recognizedGigIds } from './recognized-gigs';
 import {
 	compositionProof,
 	creditDate,
@@ -512,8 +513,10 @@ async function raiseMilestone(
  *   vérifiée (SIRET, `isVerifiedOrg`, P5-02), sinon **corroboré** (une
  *   personne extérieure au groupe l'a confirmé). Jamais si la même personne
  *   joue et accueille.
- * - « Première tournée » : vérifiée par ≥3 concerts vérifiés dans ≥3
- *   communes en 30 jours (`firstTour`).
+ * - « Première tournée » : vérifiée par ≥3 concerts reconnus (`gig.held`)
+ *   et accueillis par une organisation vérifiée, dans ≥3 communes en
+ *   30 jours (`firstTour`). Une collaboration terminée sans `gig.held` n'y
+ *   entre pas, ni dans les dates antérieures (Q106, D79).
  * - `gig.held` : l'événement tenu crédite qui organise (piste
  *   organisateur·rice, rendement par artiste, confiance de qui confirme) ;
  *   le lieu y gagne son rang, jamais d'XP (Q24).
@@ -583,18 +586,13 @@ export async function verifyGigFromCollaboration(
 			? [collab.bookedById]
 			: [];
 
-	// Toute première date du groupe : ni concert terminé avant, ni étape déclarée.
-	const [earlierGigs, firstGig] = await Promise.all([
-		tx.collaboration.count({
-			where: {
-				bandId: collab.bandId,
-				kind: 'GIG',
-				status: 'COMPLETED',
-				id: { not: collab.id }
-			}
-		}),
+	// Toute première date du groupe : ni concert reconnu avant, ni étape
+	// déclarée. Une collaboration terminée sans `gig.held` ne compte pas (Q106).
+	const [earlier, firstGig] = await Promise.all([
+		recognizedGigIds(tx, collab.bandId),
 		tx.milestone.count({ where: { bandId: collab.bandId, definitionId: 'FIRST_GIG' } })
 	]);
+	const earlierGigs = earlier.filter((id) => id !== collab.id).length;
 	await emitAndProcess(tx, {
 		type: 'gig.held',
 		gigId: collab.id,
@@ -613,9 +611,12 @@ export async function verifyGigFromCollaboration(
 	const formed = { id: collab.bandId, formedAt: band.formedAt };
 	await raiseMilestone(tx, formed, 'FIRST_GIG', verified ? 'VERIFIED' : 'CORROBORATED', day, now);
 	if (!verified) return null;
-	// Tournée : les concerts vérifiés du groupe, avec leur commune.
+	// Tournée : les concerts reconnus du groupe (Q106), accueillis par une
+	// organisation vérifiée, avec leur commune. `gig.held` vient d'être émis :
+	// ce concert en fait partie.
 	const gigs = await tx.collaboration.findMany({
 		where: {
+			id: { in: await recognizedGigIds(tx, collab.bandId) },
 			bandId: collab.bandId,
 			kind: 'GIG',
 			status: 'COMPLETED',
@@ -624,7 +625,6 @@ export async function verifyGigFromCollaboration(
 		},
 		select: { happenedOn: true, communeCode: true }
 	});
-	// La collaboration est déjà marquée terminée : elle fait partie de la liste.
 	const tour = firstTour(
 		gigs.map((g) => ({ day: g.happenedOn.toISOString().slice(0, 10), communeCode: g.communeCode! }))
 	);
@@ -744,21 +744,14 @@ export async function verifySoloGigFromCollaboration(
 		))
 			? [collab.bookedById]
 			: [];
-	// Toute première date de la personne en son nom : ni concert solo terminé
-	// avant, ni « Premier concert » personnel. Ses concerts de groupe ne
-	// comptent pas (DC4).
-	const [earlierGigs, firstGig] = await Promise.all([
-		tx.collaboration.count({
-			where: {
-				performerId: collab.performerId,
-				bandId: null,
-				kind: 'GIG',
-				status: 'COMPLETED',
-				id: { not: collab.id }
-			}
-		}),
+	// Toute première date de la personne en son nom : ni concert reconnu en
+	// son nom avant (Q106), ni « Premier concert » personnel. Ses concerts de
+	// groupe ne comptent pas (DC4) : le groupe y est l'interprète, pas elle.
+	const [earlier, firstGig] = await Promise.all([
+		recognizedGigIds(tx, collab.performerId),
 		tx.milestone.count({ where: { bandId: collab.performerId, definitionId: 'FIRST_GIG' } })
 	]);
+	const earlierGigs = earlier.filter((id) => id !== collab.id).length;
 	await emitAndProcess(tx, {
 		type: 'gig.held',
 		gigId: collab.id,
@@ -774,8 +767,10 @@ export async function verifySoloGigFromCollaboration(
 
 	await raisePersonalMilestone(tx, collab.performerId, 'FIRST_GIG', verified, day);
 	if (!verified) return null;
+	// Concerts reconnus en son nom (Q106), dont celui-ci (`gig.held` émis).
 	const gigs = await tx.collaboration.findMany({
 		where: {
+			id: { in: await recognizedGigIds(tx, collab.performerId) },
 			performerId: collab.performerId,
 			bandId: null,
 			kind: 'GIG',
