@@ -27,6 +27,18 @@ if (SHARD) {
 }
 // LINKMUSICIAN ▲
 
+// LINKMUSICIAN ▼ `E2E_DB=local` : base PostgreSQL de la machine
+// (`sudo bash scripts/e2e-base-locale.sh`), sans aller-retour vers Neon. Mêmes
+// schémas (`e2e`, `e2e_<n>`), migrés par la préparation globale.
+if (process.env.E2E_DB === 'local') {
+	const local =
+		process.env.E2E_LOCAL_DATABASE_URL ??
+		'postgresql://melokiva:melokiva@localhost:5432/melokiva_e2e';
+	process.env.DATABASE_URL = local;
+	process.env.DIRECT_URL = local;
+}
+// LINKMUSICIAN ▲
+
 // LINKMUSICIAN ▼ base e2e déduite de `.env`, pour n'avoir qu'un endroit où
 // coller l'URL fournie par Neon. Si `.env.test` ne définit pas
 // `DATABASE_URL` (ni `DIRECT_URL`, plus utilisée), on reprend celles de `.env` en ajoutant
