@@ -119,7 +119,9 @@ test.describe('LinkMusician — Mes projets (P3, U2)', () => {
 				await expect(next).toContainText('Créer un morceau');
 				await expect(next).not.toContainText(/Inviter|Confier|annonce/);
 				await expect(main(page)).toContainText('Bientôt dans un projet');
-				await expect(main(page).getByRole('button', { name: /Inviter/ })).toHaveCount(0);
+				// P4a : inviter existe dans le bloc « Équipe », jamais comme prochaine action ;
+				// confier une tâche (P13) n'a toujours pas de bouton.
+				await expect(main(page).getByRole('button', { name: /Confier/ })).toHaveCount(0);
 				await checkPage(page);
 
 				// Sans demande N3, le héros de l'accueil est le projet (D74, étape 2).
