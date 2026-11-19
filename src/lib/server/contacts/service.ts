@@ -65,6 +65,11 @@ async function contactIdsOf(ownerId: string, now: Date) {
 	return { ids, carnet, conversationWith };
 }
 
+/** Les identifiants de mes contacts (U3 : personnes connues à inviter dans un projet). */
+export async function contactIds(ownerId: string, now = new Date()) {
+	return (await contactIdsOf(ownerId, now)).ids;
+}
+
 /** Est-ce un contact de la personne ? */
 export async function isContact(ownerId: string, contactId: string, now = new Date()) {
 	return (await contactIdsOf(ownerId, now)).ids.has(contactId);

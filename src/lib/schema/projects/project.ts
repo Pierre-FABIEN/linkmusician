@@ -102,24 +102,34 @@ const ref = z.string().trim().min(1).max(64);
 
 /** Inviter : un @handle, un rôle libre, et la coordination (cochée par la
  * gestion seulement ; le service refuse toute autre combinaison). */
-export const inviteSchema = z.object({
-	handle: z
-		.string()
-		.trim()
-		.transform((v) => v.replace(/^@/, ''))
-		.pipe(z.string().min(1, { message: 'Indique l’identifiant de la personne.' }).max(64)),
-	role: z
-		.string()
-		.optional()
-		.transform(blankToNull)
-		.refine((v) => v === null || v.length <= MAX_PARTICIPANT_ROLE, {
-			message: `${MAX_PARTICIPANT_ROLE} caractères au plus pour le rôle.`
-		}),
-	coordinate: z
-		.string()
-		.optional()
-		.transform((v) => v === 'on' || v === 'true')
-});
+export const inviteSchema = z
+	.object({
+		/** U3 : une personne connue choisie dans la liste (identifiant d'acteur). */
+		personId: z.string().trim().max(64).optional().transform(blankToNull),
+		handle: z
+			.string()
+			.trim()
+			.max(65)
+			.optional()
+			.transform((v) => blankToNull(v?.replace(/^@/, ''))),
+		role: z
+			.string()
+			.optional()
+			.transform(blankToNull)
+			.refine((v) => v === null || v.length <= MAX_PARTICIPANT_ROLE, {
+				message: `${MAX_PARTICIPANT_ROLE} caractères au plus pour le rôle.`
+			}),
+		coordinate: z
+			.string()
+			.optional()
+			.transform((v) => v === 'on' || v === 'true')
+	})
+	.refine((v) => v.personId !== null || v.handle !== null, {
+		message: 'Choisis une personne, ou indique son identifiant.'
+	})
+	.transform(({ personId, handle, ...rest }) =>
+		personId ? { ...rest, personId } : { ...rest, handle: handle! }
+	);
 export type InviteFormInput = z.infer<typeof inviteSchema>;
 
 export const participantRefSchema = z.object({ participantId: ref });

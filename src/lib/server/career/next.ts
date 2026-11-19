@@ -169,6 +169,16 @@ export async function nextFactsFor(
 			name: b.name,
 			since: b.since
 		})),
+		projectInvitations: inbox.projectInvitations.map((p) => ({
+			id: p.id,
+			projectName: p.projectName,
+			invitedBy: p.invitedBy,
+			since: p.invitedAt
+		})),
+		capabilityOffers: inbox.capabilityOffers.map((o) => ({
+			projectId: o.projectId,
+			projectName: o.projectName
+		})),
 		representations: inbox.representations.map((r) => ({ id: r.id })),
 		applications: inbox.applications,
 		contactRequests: inbox.contactRequests,

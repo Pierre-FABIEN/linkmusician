@@ -48,7 +48,9 @@ import {
 export class ProjectError extends Error {
 	constructor(
 		message: string,
-		readonly status = 400
+		readonly status = 400,
+		/** U3 : un quota atteint arrête une série d'invitations. */
+		readonly code?: 'quota'
 	) {
 		super(message);
 	}

@@ -263,7 +263,12 @@ export async function projectView(projectId: string, personId: string) {
 		description: project.description,
 		startsOn: project.startsOn,
 		dueOn: project.dueOn,
-		owner: { name: project.owner.displayName, isMe: project.ownerId === personId },
+		owner: {
+			name: project.owner.displayName,
+			isMe: project.ownerId === personId,
+			/** U3 : un groupe porteur, dont les membres peuvent être invité·es (UX-8). */
+			isBand: project.owner.organization?.kind === 'BAND'
+		},
 		/** Rôle réel, relu (P4a) : gestion, coordination ou participation. */
 		role: access.role ?? ('participate' as const),
 		roleLabel: PROJECT_ROLE_LABELS[access.role ?? 'participate'],

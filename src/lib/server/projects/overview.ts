@@ -92,7 +92,9 @@ export async function projectsOverview(personId: string, now = new Date()) {
 			...readerAccessSelect(personId),
 			owner: {
 				select: { displayName: true, ...readerAccessSelect(personId).owner.select }
-			}
+			},
+			// U3 : l'équipe ouverte, comptée dans la même requête (prochaine action).
+			_count: { select: { participants: { where: { status: { in: ['INVITED', 'ACTIVE'] } } } } }
 		}
 	});
 	if (projects.length === 0) return [];
@@ -226,6 +228,11 @@ export async function projectsOverview(personId: string, now = new Date()) {
 				// La coordination range ses morceaux et pose les dates ; la
 				// participation simple consulte seulement.
 				manages: role !== 'participate',
+				role,
+				// Hors moi : ma propre participation compte dans l'équipe ouverte.
+				others: p._count.participants - (p.participants[0] ? 1 : 0),
+				ownerIsBand: p.owner.organization?.kind === 'BAND',
+				capabilityOffer: (p.participants[0]?.proposedCapabilities.length ?? 0) > 0,
 				visibleItems: items,
 				resumable: s.resumable && { workId: s.resumable.workId, title: s.resumable.title },
 				rangeable: Math.max(0, myWorks - (managedCount.get(p.id) ?? 0)),

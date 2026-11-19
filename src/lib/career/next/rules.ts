@@ -10,7 +10,8 @@
  * - Rang 1 : quelqu'un a déjà confirmé une collaboration passée et attend la
  *   mienne.
  * - Rang 2 : une demande nominative attend ma réponse (collaboration
- *   proposée ou à confirmer, crédit, invitation de groupe, accompagnement,
+ *   proposée ou à confirmer, crédit, invitation de groupe ou de projet,
+ *   coordination proposée (U3), accompagnement,
  *   candidatures reçues, demandes de contact).
  * - Rang 3 : mon travail en cours (étape que j'ai prise en charge, idée de
  *   morceau que je gère, travaillée récemment).
@@ -62,6 +63,10 @@ export type NextFacts = {
 	credits: { workId: string; title: string; since: Date }[];
 	/** Invitations de groupe reçues. */
 	bandInvitations: { bandId: string; name: string; since: Date }[];
+	/** Invitations à un projet (U3) : le nom du projet et qui invite, rien d'autre (§9.3). */
+	projectInvitations: { id: string; projectName: string; invitedBy: string | null; since: Date }[];
+	/** Coordinations proposées dans un projet où je suis déjà (U3). */
+	capabilityOffers: { projectId: string; projectName: string }[];
 	/** Propositions d'accompagnement qui attendent ma réponse (D44). */
 	representations: { id: string }[];
 	/** Candidatures en attente sur mes annonces ouvertes. */
@@ -110,6 +115,8 @@ export const NO_NEXT_FACTS: Omit<NextFacts, 'reader'> = {
 	collaborations: [],
 	credits: [],
 	bandInvitations: [],
+	projectInvitations: [],
+	capabilityOffers: [],
 	representations: [],
 	applications: 0,
 	contactRequests: 0,
@@ -206,6 +213,36 @@ function pending(f: NextFacts): Candidate[] {
 			cta: 'Répondre',
 			deadline: null,
 			waitingSince: b.since,
+			fact: ''
+		});
+	for (const p of f.projectInvitations)
+		out.push({
+			rule: 'project.invitation',
+			rank: 2,
+			branch: 'EQUIPE',
+			subject: { type: 'PROJECT_INVITE', id: p.id },
+			title: p.invitedBy
+				? `${p.invitedBy} t’invite dans « ${p.projectName} »`
+				: `Une invitation dans « ${p.projectName} »`,
+			why: 'Une invitation à rejoindre ce projet attend ta réponse.',
+			href: '/espace/a-confirmer#projets',
+			cta: 'Répondre',
+			deadline: null,
+			waitingSince: p.since,
+			fact: ''
+		});
+	for (const o of f.capabilityOffers)
+		out.push({
+			rule: 'project.coordination',
+			rank: 2,
+			branch: 'EQUIPE',
+			subject: { type: 'PROJECT', id: o.projectId },
+			title: `On te propose de coordonner « ${o.projectName} »`,
+			why: 'La gestion du projet te propose la coordination ; elle attend ta réponse.',
+			href: `/projets/${o.projectId}#equipe`,
+			cta: 'Répondre',
+			deadline: null,
+			waitingSince: null,
 			fact: ''
 		});
 	for (const r of f.representations)

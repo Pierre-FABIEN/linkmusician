@@ -13,7 +13,11 @@
  *   blocage avec l'agent : le filtre est dans la requête même (#85).
  * - Candidatures et demandes de contact : les compteurs des priorités.
  *
- * Les catégories à venir (invitations de projet, tâches, livrables) s'y
+ * - Projets (U3) : invitations en attente (`myInvitations`, le minimum de
+ *   §9.3 : nom, type, porteur, qui invite, rôle, ce qui est proposé) et
+ *   coordinations proposées dans un projet où je suis déjà.
+ *
+ * Les catégories à venir (tâches, livrables, éléments proposés) s'y
  * ajouteront avec leurs services ; rien n'est affiché avant.
  */
 import { prisma } from '#lib/server';
@@ -23,6 +27,7 @@ import { representationsForMe } from '#lib/server/representation/service';
 import { canReceiveRequest } from '#lib/messaging/rules';
 import { requestMemo, type RequestScope } from '#lib/server/request-memo';
 import { spacePriorityFacts } from './priorities';
+import { myCapabilityOffers, myInvitations } from '#lib/server/projects/participants';
 import { priorityActions } from '#lib/linkmusician/priorityActions';
 import { TRACKS, type TrackKindValue } from '#lib/actors/tracks';
 
@@ -46,31 +51,38 @@ export function inboxFor(person: InboxPerson, now = new Date(), scope?: RequestS
 
 async function readInbox(person: InboxPerson, now: Date, scope?: RequestScope) {
 	const me = person.actorId;
-	const [priority, credits, invitations, representations] = await Promise.all([
-		spacePriorityFacts(person, now, scope),
-		prisma.workContributor.findMany({
-			where: {
-				personId: me,
-				confirmedAt: null,
-				work: { AND: [teamWhere(me), { owner: notBlockedWith(me) }] }
-			},
-			orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
-			take: INBOX_TAKE,
-			select: { createdAt: true, workId: true }
-		}),
-		prisma.membership.findMany({
-			where: {
-				personId: me,
-				status: 'INVITED',
-				org: { kind: 'BAND', dissolvedAt: null, actor: { deletedAt: null, ...notBlockedWith(me) } }
-			},
-			orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
-			take: INBOX_TAKE,
-			select: { createdAt: true, orgId: true }
-		}),
-		// Une proposition attend une réponse majeure (Q48), comme `pendingRepresentationCount`.
-		canReceiveRequest(person.birthDate, now) ? representationsForMeOnce(me, scope) : []
-	]);
+	const [priority, credits, invitations, representations, projectInvitations, offers] =
+		await Promise.all([
+			spacePriorityFacts(person, now, scope),
+			prisma.workContributor.findMany({
+				where: {
+					personId: me,
+					confirmedAt: null,
+					work: { AND: [teamWhere(me), { owner: notBlockedWith(me) }] }
+				},
+				orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+				take: INBOX_TAKE,
+				select: { createdAt: true, workId: true }
+			}),
+			prisma.membership.findMany({
+				where: {
+					personId: me,
+					status: 'INVITED',
+					org: {
+						kind: 'BAND',
+						dissolvedAt: null,
+						actor: { deletedAt: null, ...notBlockedWith(me) }
+					}
+				},
+				orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+				take: INBOX_TAKE,
+				select: { createdAt: true, orgId: true }
+			}),
+			// Une proposition attend une réponse majeure (Q48), comme `pendingRepresentationCount`.
+			canReceiveRequest(person.birthDate, now) ? representationsForMeOnce(me, scope) : [],
+			myInvitations(me),
+			myCapabilityOffers(me, now)
+		]);
 	const proposed = representations.filter((r) => r.status === 'PROPOSED');
 	// Titres et noms seulement s'il y a des lignes (Prisma lirait sinon chaque relation, même vide).
 	const workIds = credits.map((c) => c.workId);
@@ -101,6 +113,8 @@ async function readInbox(person: InboxPerson, now: Date, scope?: RequestScope) {
 		// Blocages déjà écartés à la source (#85) : `representationsForMe` applique
 		// `notBlockedWith(me)` aux propositions, comme `pendingRepresentations`.
 		representations: proposed.map((r) => ({ id: r.id })),
+		projectInvitations: projectInvitations.slice(0, INBOX_TAKE),
+		capabilityOffers: offers,
 		applications: priority.applications,
 		contactRequests: priority.canReceiveRequests ? priority.requests : 0
 	};
@@ -111,7 +125,9 @@ async function readInbox(person: InboxPerson, now: Date, scope?: RequestScope) {
 			inbox.collaborations.length +
 			inbox.credits.length +
 			inbox.bandInvitations.length +
-			inbox.representations.length
+			inbox.representations.length +
+			inbox.projectInvitations.length +
+			inbox.capabilityOffers.length
 	};
 }
 export type Inbox = Awaited<ReturnType<typeof inboxFor>>;

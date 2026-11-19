@@ -126,3 +126,117 @@ export function capabilitiesToPropose(
 ): ProjectCapabilityValue[] {
 	return [...new Set(wanted)].filter((c) => !current.includes(c) && !proposed.includes(c));
 }
+
+// ─── U3 : écrans de l'équipe ───────────────────────────────────────────────
+
+/** Une personne connue qu'on peut inviter (contacts, membres du groupe porteur). */
+export type InviteCandidate = {
+	id: string;
+	handle: string;
+	name: string;
+	/** Membre actif·ve du groupe porteur. */
+	member: boolean;
+	/** Peut recevoir la coordination : calculé pour la gestion seulement. */
+	canCoordinate: boolean;
+};
+
+const collator = new Intl.Collator('fr', { sensitivity: 'base' });
+
+/** Membres du groupe d'abord, puis par nom, puis par identifiant (ordre stable). */
+export function sortCandidates<T extends Pick<InviteCandidate, 'member' | 'name' | 'id'>>(
+	list: readonly T[]
+): T[] {
+	return [...list].sort(
+		(a, b) =>
+			Number(b.member) - Number(a.member) ||
+			collator.compare(a.name, b.name) ||
+			(a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
+	);
+}
+
+/** Filtre de la recherche dans les personnes connues : nom ou @identifiant. */
+export function matchCandidate(
+	c: Pick<InviteCandidate, 'name' | 'handle'>,
+	query: string
+): boolean {
+	const q = query.trim().replace(/^@/, '').toLocaleLowerCase('fr');
+	if (!q) return true;
+	const fold = (v: string) =>
+		v
+			.normalize('NFD')
+			.replace(/\p{Diacritic}/gu, '')
+			.toLocaleLowerCase('fr');
+	return fold(c.name).includes(fold(q)) || c.handle.toLocaleLowerCase('fr').includes(q);
+}
+
+/** Ce que voit une personne invitée avant de répondre (§9.3). */
+export const INVITE_PREVIEW =
+	'Elle ou il verra le nom du projet, son porteur, ton nom et ce rôle. Rien d’autre avant d’accepter.';
+
+/** Ce qu'accepter rend visible, dit avant le geste (§8.2). */
+export const JOIN_NOTICE =
+	'En rejoignant, tu verras l’équipe et ce qui est partagé avec toi ; ton nom sera visible de l’équipe.';
+
+/** La coordination n'est jamais proposée à un·e mineur·e (D46). */
+export const COORDINATE_ADULTS_ONLY = 'La coordination est réservée aux adultes.';
+
+/**
+ * Les effets d'un retrait ou d'un départ, énoncés avant le geste (§8.2).
+ * Rien sur les tâches : elles n'existent pas encore (P13).
+ */
+export function removalEffects(input: {
+	name: string;
+	self: boolean;
+	invited: boolean;
+	coordinate: boolean;
+}): string {
+	if (input.invited)
+		return `L’invitation de ${input.name} est annulée. Aucune notification n’est envoyée.`;
+	if (input.self)
+		return [
+			'Tu ne verras plus ce projet ni ce qui y est partagé.',
+			input.coordinate ? 'Ta coordination s’arrête avec.' : null,
+			'Tes morceaux restent à toi, avec leurs crédits. Pour revenir, il faudra une nouvelle invitation.'
+		]
+			.filter(Boolean)
+			.join(' ');
+	return [
+		`${input.name} ne verra plus ce projet ni ce qui y est partagé.`,
+		input.coordinate ? 'Sa coordination s’arrête avec.' : null,
+		`Ses morceaux restent à ${input.name}, avec leurs crédits.`
+	]
+		.filter(Boolean)
+		.join(' ');
+}
+
+/**
+ * Pour une participation simple, qui peut inviter (§8.1) : la gestion et
+ * la coordination, déjà visibles dans l'équipe. Sans nom connu, le porteur.
+ */
+export function askToInvite(names: readonly string[], owner: string): string {
+	const who = names.length > 0 ? names.slice(0, 2) : [owner];
+	return `Pour inviter quelqu’un, demande à ${who.join(' ou à ')}.`;
+}
+
+/** Bilan d'une série d'invitations (membres du groupe, groupe de contacts) ;
+ * `invited` : les noms, ou seulement leur nombre (après une redirection). */
+export function bulkInviteSummary(r: {
+	invited: readonly string[] | number;
+	skipped: number;
+	quota: string | null;
+}) {
+	const count = typeof r.invited === 'number' ? r.invited : r.invited.length;
+	const parts: string[] = [];
+	if (count === 1 && typeof r.invited !== 'number')
+		parts.push(`Invitation envoyée à ${r.invited[0]}.`);
+	else if (count === 1) parts.push('1 invitation envoyée.');
+	else if (count > 1) parts.push(`${count} invitations envoyées.`);
+	else parts.push('Aucune invitation envoyée.');
+	if (r.quota) parts.push(r.quota);
+	else if (r.skipped === 1)
+		parts.push('Une personne ne peut pas recevoir d’invitation pour l’instant.');
+	else if (r.skipped > 1)
+		parts.push(`${r.skipped} personnes ne peuvent pas recevoir d’invitation pour l’instant.`);
+	if (count > 0) parts.push('Chacun·e choisit de rejoindre ou non.');
+	return parts.join(' ');
+}

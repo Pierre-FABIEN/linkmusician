@@ -24,12 +24,22 @@ import { notify } from '#lib/server/notifications/service';
 import {
 	capabilitiesToPropose,
 	declinedRecently,
+	sortCandidates,
+	type InviteCandidate,
 	inviteRefusal,
 	MAX_OPEN_PARTICIPANTS,
 	MAX_PENDING_PROJECT_INVITES,
+	REINVITE_AFTER_DECLINE_DAYS,
 	type ProjectCapabilityValue
 } from '#lib/projects/participants';
-import { managesOwner, ownerLive, projectAccess } from './access';
+import {
+	managesOwner,
+	ownerHeadSelect,
+	ownerLive,
+	projectAccess,
+	projectReaderWhere
+} from './access';
+import { contactIds } from '#lib/server/contacts/service';
 import {
 	act,
 	CLOSED,
@@ -67,7 +77,11 @@ async function memberOfOwner(tx: Tx, project: LockedProject, personId: string) {
 	);
 }
 
-export type InviteInput = { handle: string; role: string | null; coordinate: boolean };
+/** Par son @identifiant (adulte, Q81) ou, depuis une liste de personnes
+ * connues (U3), par son identifiant d'acteur : les mêmes règles s'appliquent. */
+export type InviteInput = (
+	{ handle: string; personId?: undefined } | { personId: string; handle?: undefined }
+) & { role: string | null; coordinate: boolean };
 
 /**
  * Inviter une personne par son @handle (§6.2) : la gestion propose une
@@ -82,7 +96,11 @@ export async function inviteParticipant(
 	now = new Date()
 ) {
 	const invitee = await prisma.actor.findFirst({
-		where: { handle: input.handle, person: { isNot: null }, ...publicActorWhere(now, inviterId) },
+		where: {
+			...(input.personId ? { id: input.personId } : { handle: input.handle }),
+			person: { isNot: null },
+			...publicActorWhere(now, inviterId)
+		},
 		select: { id: true, displayName: true, person: { select: { birthDate: true } } }
 	});
 	if (!invitee) throw new ProjectError('Aucun·e musicien·ne avec cet identifiant.', 404);
@@ -140,13 +158,15 @@ export async function inviteParticipant(
 		if (pending >= MAX_PENDING_PROJECT_INVITES) {
 			throw new ProjectError(
 				`Ce projet a déjà ${MAX_PENDING_PROJECT_INVITES} invitations en attente : attends des réponses.`,
-				409
+				409,
+				'quota'
 			);
 		}
 		if (open >= MAX_OPEN_PARTICIPANTS) {
 			throw new ProjectError(
 				`${MAX_OPEN_PARTICIPANTS} participant·es au plus dans un projet.`,
-				409
+				409,
+				'quota'
 			);
 		}
 		await tx.projectParticipant.create({
@@ -173,7 +193,7 @@ export async function inviteParticipant(
 			recipientId: invitee.id,
 			type: 'PROJECT_INVITE',
 			fromActorId: inviterId,
-			href: '/projets#invitations',
+			href: '/espace/a-confirmer#projets',
 			title: project.name
 		});
 	}, TX);
@@ -534,5 +554,161 @@ export async function myInvitations(personId: string) {
 			role: r.role,
 			capabilities: r.proposedCapabilities,
 			invitedAt: r.invitedAt
+		}));
+}
+
+/**
+ * Personnes connues à inviter (U3, D37, conception 20 §8.2) : mes contacts
+ * et les membres actifs du groupe porteur, sans la gestion du porteur, ni
+ * les personnes déjà invitées ou présentes, ni celles qui ont refusé il y a
+ * moins de 30 jours (Q79). Une ou un mineur·e n'y figure que comme membre
+ * du groupe porteur (Q81). Comptes masqués, suspendus, supprimés ou
+ * bloqués (dans un sens ou dans l'autre) : absents. `null` si je ne peux
+ * pas inviter dans ce projet. Rien ici n'écrit : l'invitation relit tout.
+ *
+ * `canCoordinate` n'est calculé que pour la gestion, seule à pouvoir
+ * proposer la coordination (§6.2) : la coordination ne voit jamais ce
+ * qui distingue un·e mineur·e.
+ */
+export async function inviteCandidates(personId: string, projectId: string, now = new Date()) {
+	const project = await prisma.project.findFirst({
+		where: { id: projectId, status: 'ACTIVE', ...projectReaderWhere(personId) },
+		select: { id: true, ownerId: true, owner: { select: ownerHeadSelect } }
+	});
+	if (!project || !ownerLive(project.owner)) return null;
+	const access = await projectAccess(prisma, project, personId, now);
+	if (!access.manage && !access.coordinate) return null;
+	const band = project.owner.organization?.kind === 'BAND' ? project.ownerId : null;
+	const declinedSince = new Date(now.getTime() - REINVITE_AFTER_DECLINE_DAYS * 86_400_000);
+	const [contacts, members, taken] = await Promise.all([
+		contactIds(personId, now),
+		band
+			? prisma.membership.findMany({
+					where: { orgId: band, status: 'ACTIVE' },
+					select: { personId: true, role: true }
+				})
+			: [],
+		prisma.projectParticipant.findMany({
+			where: {
+				projectId,
+				OR: [
+					{ status: { in: ['INVITED', 'ACTIVE'] } },
+					{ status: 'DECLINED', answeredAt: { gt: declinedSince } }
+				]
+			},
+			select: { personId: true }
+		})
+	]);
+	const memberIds = new Set(members.map((m) => m.personId));
+	// La gestion du porteur gère déjà le projet : rien à lui proposer.
+	const excluded = new Set([
+		personId,
+		project.ownerId,
+		...members.filter((m) => m.role === 'OWNER' || m.role === 'ADMIN').map((m) => m.personId),
+		...taken.map((t) => t.personId)
+	]);
+	const ids = [...new Set([...memberIds, ...contacts])].filter((id) => !excluded.has(id));
+	if (ids.length === 0) return { candidates: [] as InviteCandidate[], canPropose: access.manage };
+	const actors = await prisma.actor.findMany({
+		where: { id: { in: ids }, kind: 'PERSON', ...publicActorWhere(now, personId) },
+		select: { id: true, handle: true, displayName: true, person: { select: { birthDate: true } } }
+	});
+	const candidates = actors.flatMap((a): InviteCandidate[] => {
+		const member = memberIds.has(a.id);
+		const minor = !isIndexable(a.person?.birthDate, now);
+		if (minor && !member) return [];
+		return [
+			{
+				id: a.id,
+				handle: a.handle,
+				name: a.displayName,
+				member,
+				canCoordinate: access.manage ? !minor : false
+			}
+		];
+	});
+	return { candidates: sortCandidates(candidates), canPropose: access.manage };
+}
+export type InviteCandidates = NonNullable<Awaited<ReturnType<typeof inviteCandidates>>>;
+
+/**
+ * Plusieurs invitations d'un coup (U3 : « Inviter les membres du groupe »,
+ * « Transformer un groupe de contacts en projet »). Une invitation par
+ * personne, chacune dans sa transaction et soumise à toutes les règles de
+ * `inviteParticipant` : personne n'est ajouté·e sans accepter (I2, UX-8).
+ * Un quota atteint arrête la série et le dit ; les autres refus restent
+ * muets (« pas pour l'instant »), sans raison.
+ */
+export async function inviteMany(
+	inviterId: string,
+	projectId: string,
+	personIds: readonly string[],
+	now = new Date()
+) {
+	const invited: string[] = [];
+	let skipped = 0;
+	let quota: string | null = null;
+	const queue = [...new Set(personIds)].slice(0, MAX_PENDING_PROJECT_INVITES);
+	for (const [i, id] of queue.entries()) {
+		try {
+			const who = await inviteParticipant(
+				inviterId,
+				projectId,
+				{ personId: id, role: null, coordinate: false },
+				now
+			);
+			invited.push(who.displayName);
+		} catch (err) {
+			if (!(err instanceof ProjectError)) throw err;
+			if (err.code === 'quota') {
+				quota = err.message;
+				skipped += queue.length - i;
+				break;
+			}
+			// Plus de droit, projet clos ou introuvable : toute la série s'arrête.
+			if (err.status === 403 || [CLOSED, FROZEN, PROJECT_NOT_FOUND].includes(err.message))
+				throw err;
+			// Déjà là, injoignable, mineur·e hors du groupe : sans raison dite.
+			skipped += 1;
+		}
+	}
+	return { invited, skipped, quota };
+}
+
+/**
+ * Coordinations qu'on me propose dans un projet où je suis déjà (U3,
+ * « À traiter ») : le nom du projet et son porteur, rien d'autre. Projet en
+ * cours, porteur vivant, et jamais pour un·e mineur·e (le service refuserait).
+ */
+export async function myCapabilityOffers(personId: string, now = new Date()) {
+	const rows = await prisma.projectParticipant.findMany({
+		where: {
+			personId,
+			status: 'ACTIVE',
+			proposedCapabilities: { isEmpty: false },
+			project: { status: 'ACTIVE', owner: { deletedAt: null } }
+		},
+		orderBy: [{ answeredAt: 'desc' }, { id: 'asc' }],
+		take: 20,
+		select: {
+			person: { select: { person: { select: { birthDate: true } } } },
+			project: {
+				select: {
+					id: true,
+					name: true,
+					owner: { select: { displayName: true, organization: { select: { dissolvedAt: true } } } }
+				}
+			}
+		}
+	});
+	return rows
+		.filter(
+			(r) =>
+				!r.project.owner.organization?.dissolvedAt && isIndexable(r.person.person?.birthDate, now)
+		)
+		.map((r) => ({
+			projectId: r.project.id,
+			projectName: r.project.name,
+			owner: r.project.owner.displayName
 		}));
 }

@@ -14,6 +14,7 @@
  *
  * Aucune XP lue ni produite (I3) : ces règles ne font que présenter.
  */
+import type { ProjectRoleValue } from './participants';
 import type { ProjectKindValue, ProjectStatusValue } from './rules';
 
 export type ProjectFamily = 'recorded' | 'stage' | 'other';
@@ -44,7 +45,8 @@ export const FAMILY_BLOCKS: Record<ProjectFamily, readonly ('items' | 'dates' | 
 	other: ['items', 'dates', 'journal']
 };
 
-export type ProjectNextActionKind = 'resume' | 'range' | 'create' | 'complete' | 'consult';
+export type ProjectNextActionKind =
+	'resume' | 'range' | 'create' | 'complete' | 'invite' | 'answer' | 'consult';
 
 export type ProjectNextAction = {
 	kind: ProjectNextActionKind;
@@ -59,8 +61,16 @@ export type NextActionInput = {
 	projectId: string;
 	status: ProjectStatusValue;
 	family: ProjectFamily;
-	/** Le lecteur gère le projet (seul rôle avant P4). */
+	/** Le lecteur organise le projet : gestion ou coordination, porteur vivant. */
 	manages: boolean;
+	/** Rôle réel relu (P4a) ; la gestion par défaut. */
+	role?: ProjectRoleValue;
+	/** Autres personnes invitées ou présentes dans l'équipe, hors moi. */
+	others?: number;
+	/** Le porteur est un groupe : ses membres peuvent être invité·es (UX-8). */
+	ownerIsBand?: boolean;
+	/** Une coordination m'est proposée dans ce projet. */
+	capabilityOffer?: boolean;
 	/** Éléments que le lecteur voit dans ce projet. */
 	visibleItems: number;
 	/** Une idée rangée ici que le lecteur gère : son travail en cours. */
@@ -81,10 +91,54 @@ export type NextActionInput = {
  * 4. projet de scène sans date : poser ses dates ;
  * 5. projet vide sans morceau à ranger : créer un morceau ;
  * 6. projet sans date ni objectif : le compléter ;
- * 7. sinon : continuer, depuis la fiche.
+ * 7. projet de groupe sans personne d'autre : inviter ses membres (UX-8) ;
+ * 8. sinon : continuer, depuis la fiche.
+ *
+ * U3 (§7.3), par rôle : la **coordination** pose les dates, invite, puis
+ * organise ; la **participation** répond à une coordination proposée, sinon
+ * « Tu es à jour ». Aucune action ne modifie une réalisation en un geste.
  */
 export function nextProjectAction(input: NextActionInput): ProjectNextAction {
 	const fiche = `/projets/${input.projectId}`;
+	const role = input.role ?? 'manage';
+	const others = input.others ?? 0;
+	if (input.status === 'ACTIVE' && role === 'participate') {
+		if (input.capabilityOffer)
+			return {
+				kind: 'answer',
+				label: 'Répondre à la proposition',
+				text: 'On te propose de coordonner ce projet ; tu choisis.',
+				href: `${fiche}#equipe`
+			};
+		return {
+			kind: 'consult',
+			label: 'Tu es à jour sur ce projet',
+			text: 'Rien ne t’attend ici. Ce qui est partagé avec toi se lit sur la fiche.',
+			href: `${fiche}#equipe`
+		};
+	}
+	if (input.status === 'ACTIVE' && input.manages && role === 'coordinate') {
+		if (!input.hasDates)
+			return {
+				kind: 'complete',
+				label: 'Poser les dates',
+				text: 'Un début, une échéance : les repères de l’équipe.',
+				href: `${fiche}#modifier`
+			};
+		if (others === 0)
+			return {
+				kind: 'invite',
+				label: 'Inviter quelqu’un',
+				text: 'Tu coordonnes : invite les personnes qui travailleront sur ce projet.',
+				href: `${fiche}#inviter`
+			};
+		return {
+			kind: 'consult',
+			label: 'Organiser le projet',
+			text: 'L’équipe, les dates et ce qui est partagé avec toi.',
+			href: `${fiche}#equipe`
+		};
+	}
 	if (input.status !== 'ACTIVE' || !input.manages)
 		return {
 			kind: 'consult',
@@ -132,6 +186,15 @@ export function nextProjectAction(input: NextActionInput): ProjectNextAction {
 			label: 'Compléter le projet',
 			text: 'Une phrase d’objectif ou une échéance, si tu veux.',
 			href: `${fiche}#modifier`
+		};
+	// UX-8 : un projet de groupe sans personne d'autre ; un projet personnel
+	// n'y pousse pas (l'équipe dit seulement qu'on peut inviter).
+	if (input.ownerIsBand && others === 0)
+		return {
+			kind: 'invite',
+			label: 'Inviter les membres du groupe',
+			text: 'Personne d’autre n’est encore dans ce projet. Chacun·e choisira de rejoindre ou non.',
+			href: `${fiche}#inviter`
 		};
 	return {
 		kind: 'consult',

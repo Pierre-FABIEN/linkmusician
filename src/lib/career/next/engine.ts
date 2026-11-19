@@ -39,6 +39,8 @@ export type SuggestionSubject =
 	| { type: 'WORK'; id: string }
 	| { type: 'BAND'; id: string }
 	| { type: 'REPRESENTATION'; id: string }
+	| { type: 'PROJECT'; id: string }
+	| { type: 'PROJECT_INVITE'; id: string }
 	| { type: 'INBOX'; id: 'applications' | 'contact-requests' }
 	| { type: 'OBJECTIVE'; id: string }
 	| { type: 'TRIAL'; id: string };
@@ -49,6 +51,8 @@ export const SUGGESTION_RULES = [
 	'collab.respond',
 	'credit.confirm',
 	'band.invitation',
+	'project.invitation',
+	'project.coordination',
 	'representation.respond',
 	'applications.review',
 	'contact.respond',
