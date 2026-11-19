@@ -1,4 +1,4 @@
-// LINKMUSICIAN: fiche minimale et privée d'un projet (P2, D72). Une seule
+// LINKMUSICIAN: fiche privée d'un projet (P2, D72 ; présentation U2). Une seule
 // lecture serveur (`projectView`) : projet inexistant ou inaccessible, même
 // 404 ; un élément non partagé n'arrive jamais jusqu'au navigateur. Chaque
 // action relit les droits sous verrou (service), l'identité vient de la session.
@@ -22,16 +22,47 @@ import {
 	itemShareSchema,
 	projectStatusSchema
 } from '#lib/schema/projects/project';
+import { FAMILY_BLOCKS, familyOf, nextProjectAction, progressLine } from '#lib/projects/overview';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals, params, setHeaders }) => {
+export const load: PageServerLoad = async ({ locals, params, setHeaders, url }) => {
 	const person = await requirePerson(locals);
 	setHeaders({ 'cache-control': 'private, no-store' });
 	const project = await projectView(params.id, person.actorId);
 	if (!project) error(404, PROJECT_NOT_FOUND);
+	const rangeable =
+		project.status === 'ACTIVE' ? await rangeableWorks(person.actorId, project.id) : [];
+	// U2 : composition par famille et une seule prochaine action, calculées
+	// sur ce que je vois et ce que je peux faire (`#lib/projects/overview`).
+	const family = familyOf(project.kind);
+	const next = nextProjectAction({
+		projectId: project.id,
+		status: project.status,
+		family,
+		manages: project.role === 'manage',
+		visibleItems: project.counts.items,
+		resumable: project.resumable,
+		rangeable: rangeable.length,
+		hasDates: !!(project.startsOn || project.dueOn),
+		hasDescription: !!project.description?.trim()
+	});
+	// Depuis « Hors projet » : `?ranger=<morceau>` présélectionne un morceau,
+	// seulement s'il est parmi ceux que je peux ranger ici (rien d'autre n'est lu).
+	const wanted = url.searchParams.get('ranger');
 	return {
 		project,
-		rangeable: project.status === 'ACTIVE' ? await rangeableWorks(person.actorId, project.id) : []
+		family,
+		blocks: FAMILY_BLOCKS[family],
+		next,
+		progress: progressLine({
+			family,
+			items: project.counts.items,
+			composed: project.counts.composed,
+			startsOn: project.startsOn,
+			dueOn: project.dueOn
+		}),
+		rangeable,
+		preselect: wanted && rangeable.some((w) => w.id === wanted) ? wanted : null
 	};
 };
 

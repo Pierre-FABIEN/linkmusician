@@ -8,7 +8,8 @@
  *    demande (rang 2), mon travail en cours (rang 3), un besoin (rang 4),
  *    une suggestion (rang 5), dans l'ordre du moteur. Les candidatures et
  *    demandes de contact ne prennent pas le héros : elles ont leur tuile.
- * 2. Le projet principal viendra ici avec P2/P3 (rien n'est simulé avant).
+ * 2. Sinon, le projet principal et sa prochaine action réelle (U2) : déduit
+ *    de ma dernière action (UX-3, défaut ; `mainProject`), jamais épinglé.
  * 3. Sinon, un compte neuf voit « Commence ici » (trois portes réelles) ;
  *    les autres, leur objectif de progression (`NextStep`).
  *
@@ -31,12 +32,13 @@ export const NOT_A_HERO = ['applications.review', 'contact.respond'] as const;
 
 export type HeroChoice<T> =
 	| { kind: 'action'; action: T; rest: T[] }
+	| { kind: 'project'; rest: T[] }
 	| { kind: 'start'; rest: T[] }
 	| { kind: 'objective'; rest: T[] };
 
 export function pickHero<T extends { key: string }>(
 	next: readonly T[],
-	context: { newAccount: boolean; hasObjective: boolean }
+	context: { newAccount: boolean; hasObjective: boolean; hasProject?: boolean }
 ): HeroChoice<T> {
 	const index = next.findIndex(
 		(a) => !(NOT_A_HERO as readonly string[]).includes(ruleOfKey(a.key) ?? '')
@@ -48,6 +50,7 @@ export function pickHero<T extends { key: string }>(
 			// Le héros n'est pas répété dans la liste en dessous.
 			rest: next.filter((_, i) => i !== index)
 		};
+	if (context.hasProject) return { kind: 'project', rest: [...next] };
 	if (context.newAccount || !context.hasObjective) return { kind: 'start', rest: [...next] };
 	return { kind: 'objective', rest: [...next] };
 }

@@ -61,13 +61,14 @@ const ROUTES: Record<string, Node> = {
 	},
 	'/espace/fiche': { label: 'Ma fiche de carrière', parent: '/espace' },
 	'/espace/contributions': { label: 'Mes contributions', parent: '/espace' },
-	// P2 (D72) : projets ; « Mes projets » en tuiles viendra avec P3/U2.
-	'/projets': { label: 'Projets', parent: '/espace' },
+	// P2 (D72) : projets ; « Mes projets » en tuiles (P3, U2).
+	'/projets': { label: 'Mes projets', parent: '/espace' },
 	'/projets/nouveau': { label: 'Nouveau projet', parent: '/projets' },
 	'/projets/[id]': { label: 'Projet', parent: '/projets', name: at('project', 'name') },
 	'/espace/ambition': { label: 'Mon ambition', parent: '/espace' },
 	'/espace/objectifs': { label: 'Mes objectifs', parent: '/espace' },
-	'/espace/campagnes': { label: 'Campagnes', parent: '/espace' },
+	// U2 : « Hors projet », sous « Mes projets » (adresse des campagnes conservée).
+	'/espace/campagnes': { label: 'Hors projet', parent: '/projets' },
 	'/espace/equipe': { label: 'Mon équipe', parent: '/espace' },
 	'/espace/agenda': { label: 'Agenda', parent: '/espace' },
 	'/espace/journal': { label: 'Journal de bord', parent: '/espace' },

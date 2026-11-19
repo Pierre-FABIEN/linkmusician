@@ -1,48 +1,96 @@
 <script lang="ts">
-	// LINKMUSICIAN: liste minimale des projets (P2), voir +page.server.ts.
+	// LINKMUSICIAN: « Mes projets » (P3, U2), voir +page.server.ts. Écran à
+	// l'essentiel (D50) : les projets en cours en tuiles, « Hors projet » et
+	// « Créer un projet » ; atteints et laissés de côté repliés.
+	import { page } from '$app/state';
 	import SEO from '#lib/components/SEO.svelte';
 	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
-	import MetroList from '#lib/components/linkmusician/metro/MetroList.svelte';
+	import MetroMenu from '#lib/components/linkmusician/metro/MetroMenu.svelte';
 	import MetroEmpty from '#lib/components/linkmusician/metro/MetroEmpty.svelte';
-	import { FolderOpen } from 'lucide-svelte';
+	import ProjectTile from '#lib/components/linkmusician/projects/ProjectTile.svelte';
+	import { TONE_OF } from '#lib/components/linkmusician/metro/tones';
+	import { FolderOpen, FolderPlus, Music } from 'lucide-svelte';
+	import { plural } from '#lib/jam/log';
 
 	let { data } = $props();
+	const s = $derived(data.sections);
+	const entries = $derived([
+		{
+			href: '/projets/nouveau',
+			icon: FolderPlus,
+			title: 'Créer un projet',
+			text: 'Un nom et un type suffisent. Aucun groupe n’est nécessaire.'
+		},
+		{
+			href: '/espace/campagnes',
+			icon: Music,
+			tone: data.outside > 0 ? TONE_OF.works : undefined,
+			title: 'Hors projet',
+			text: 'Tes morceaux peuvent exister sans projet. Tu peux les rassembler quand tu le souhaites.',
+			summary: data.outside > 0 ? plural(data.outside, 'morceau', 'morceaux') : 'Tout est rangé'
+		}
+	]);
+	const closed = [
+		{ key: 'done', title: 'Atteints' },
+		{ key: 'abandoned', title: 'Laissés de côté' }
+	] as const;
 </script>
 
-<SEO title="Projets" noindex nofollow />
+<SEO title="Mes projets" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
-	<div class="mx-auto max-w-3xl space-y-6">
+	<div class="mx-auto max-w-5xl space-y-8">
 		<MetroPageHeader
 			kicker="Collab"
-			title="Projets"
-			intro="Un EP, une tournée, une production : rassemble tes morceaux autour d’un objectif. Rien de ce que tu ranges ne change de mains."
+			title="Mes projets"
+			intro="Ce que tu prépares, construis et réalises."
 		>
 			{#snippet actions()}
-				<a href="/projets/nouveau" class="lm-btn">Nouveau projet</a>
+				<a href="/projets/nouveau" class="lm-btn">Créer un projet</a>
 			{/snippet}
 		</MetroPageHeader>
 
-		{#if data.projects.length === 0}
-			<MetroEmpty
-				icon={FolderOpen}
-				text="Aucun projet pour l’instant. C’est facultatif : tes morceaux et tes collaborations fonctionnent sans."
-				action={{ href: '/projets/nouveau', label: 'Créer un projet' }}
-			/>
-		{:else}
-			<MetroList
-				items={data.projects}
-				key={(p) => p.id}
-				label="Mes projets"
-				href={(p) => `/projets/${p.id}`}
-			>
-				{#snippet row(p)}
-					<span class="font-medium">{p.name}</span>
-					<span class="block text-sm text-muted-foreground">
-						{[p.kindLabel, p.statusLabel, p.owner].filter(Boolean).join(' · ')}
-					</span>
-				{/snippet}
-			</MetroList>
+		{#if page.url.searchParams.has('supprime')}
+			<p role="status" class="text-sm">Projet supprimé. Les morceaux rangés n’ont pas changé.</p>
 		{/if}
+
+		<section aria-labelledby="en-cours" class="space-y-3">
+			<h2 id="en-cours" class="lm-kicker text-muted-foreground">
+				En cours <span>· {s.active.length}</span>
+			</h2>
+			{#if s.active.length === 0}
+				<MetroEmpty
+					icon={FolderOpen}
+					text={data.total === 0
+						? 'Aucun projet pour l’instant. C’est facultatif : tes morceaux et tes collaborations fonctionnent sans.'
+						: 'Aucun projet en cours. Les projets clos restent consultables ci-dessous.'}
+					action={{ href: '/projets/nouveau', label: 'Créer un projet' }}
+				/>
+			{:else}
+				<ul class="grid gap-3 md:grid-cols-2" aria-label="Projets en cours">
+					{#each s.active as project, i (project.id)}
+						<li class="grid"><ProjectTile {project} index={i} /></li>
+					{/each}
+				</ul>
+			{/if}
+		</section>
+
+		<MetroMenu items={entries} label="Autour de mes projets" />
+
+		{#each closed as group (group.key)}
+			{@const list = s[group.key]}
+			{#if list.length > 0}
+				<details class="space-y-3">
+					<summary class="min-h-11 cursor-pointer py-2 font-medium">
+						{group.title} · {list.length}
+					</summary>
+					<ul class="grid gap-3 md:grid-cols-2" aria-label="Projets {group.title.toLowerCase()}">
+						{#each list as project, i (project.id)}
+							<li class="grid"><ProjectTile {project} index={i} /></li>
+						{/each}
+					</ul>
+				</details>
+			{/if}
+		{/each}
 	</div>
 </div>

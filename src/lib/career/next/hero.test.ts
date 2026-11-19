@@ -65,8 +65,23 @@ describe('héros de l’accueil Collab (U0, D74)', () => {
 		expect(START_DOORS.map((d) => d.href)).toEqual(['/morceaux/nouveau', '/decouvrir', '/jam']);
 		for (const d of START_DOORS)
 			expect(`${d.title} ${d.text}`).not.toMatch(/pas encore|retard|toujours|XP/i);
-		// Aucun lien vers les projets avant P2/P3.
+		// D74 fixe ces trois portes : « Créer un projet » a sa propre tuile (U2).
 		expect(START_DOORS.some((d) => d.href.startsWith('/projets'))).toBe(false);
+	});
+
+	it('U2 : sans demande, le projet principal passe avant « Commence ici » et l’objectif', () => {
+		const ctx = { newAccount: false, hasObjective: true, hasProject: true };
+		expect(pickHero([], ctx).kind).toBe('project');
+		expect(pickHero([], { ...ctx, newAccount: true }).kind).toBe('project');
+		// Une demande réelle reste prioritaire (D74, étape 1).
+		const h = pickHero([a('band.invitation:BAND:b1', 2)], ctx);
+		expect(h.kind).toBe('action');
+		// Les candidatures gardent leur tuile : le projet prend le héros.
+		const t = pickHero([a('applications.review:ANNOUNCEMENT:x', 2)], ctx);
+		expect(t.kind).toBe('project');
+		expect(t.rest).toHaveLength(1);
+		// Sans projet, U0 inchangé.
+		expect(pickHero([], { ...ctx, hasProject: false }).kind).toBe('objective');
 	});
 
 	it('chaque rang a son mot, sans XP', () => {

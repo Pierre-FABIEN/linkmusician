@@ -14,7 +14,6 @@
 		Compass,
 		EyeOff,
 		FileText,
-		FolderOpen,
 		HandHelping,
 		Handshake,
 		Map as MapIcon,
@@ -58,21 +57,9 @@
 		{
 			id: 'avancer',
 			title: 'avancer',
-			items: [
-				{
-					href: '/espace/campagnes',
-					icon: Music,
-					tone: TONE_OF.works,
-					title: 'Travaux en cours',
-					text: 'Tes idées de morceaux : leur état et leurs places libres.',
-					summary:
-						c.campaigns > 0
-							? c.openRoles > 0
-								? plural(c.openRoles, 'place libre', 'places libres')
-								: plural(c.campaigns, 'morceau', 'morceaux')
-							: null
-				}
-			]
+			// U2 : « Travaux en cours » devient « Hors projet », dans « Mes projets »
+			// (`ProjectsHome`, sous le héros), commun à tous les métiers.
+			items: []
 		},
 		{
 			id: 'ma-musique',
@@ -83,13 +70,6 @@
 					icon: Music,
 					title: 'Mes morceaux',
 					text: 'Ce que tu portes, seul·e ou avec ton groupe, et tes crédits.'
-				},
-				// P2 (D72) : regrouper ses morceaux autour d'un objectif, facultatif.
-				{
-					href: '/projets',
-					icon: FolderOpen,
-					title: 'Projets',
-					text: 'Un EP, une tournée : tes morceaux autour d’un objectif.'
 				},
 				// U1 : ce que j'ai réalisé et qui le confirme (crédits, collaborations).
 				{

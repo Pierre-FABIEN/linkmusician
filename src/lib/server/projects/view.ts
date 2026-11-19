@@ -266,27 +266,3 @@ export async function rangeableWorks(personId: string, projectId: string) {
 		defaultShare: defaultShare(w)
 	}));
 }
-
-/** Liste minimale des projets que je gère (P3 la remplace par « Mes projets »). */
-export async function myProjects(personId: string) {
-	const projects = await prisma.project.findMany({
-		where: { owner: projectManagerWhere(personId) },
-		orderBy: [{ updatedAt: 'desc' }, { id: 'asc' }],
-		take: 100,
-		select: {
-			id: true,
-			name: true,
-			kind: true,
-			status: true,
-			ownerId: true,
-			owner: { select: { displayName: true } }
-		}
-	});
-	return projects.map((p) => ({
-		id: p.id,
-		name: p.name,
-		kindLabel: PROJECT_KIND_LABELS[p.kind],
-		statusLabel: PROJECT_STATUS_LABELS[p.status],
-		owner: p.ownerId === personId ? null : p.owner.displayName
-	}));
-}

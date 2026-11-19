@@ -25,6 +25,9 @@ import { fail, type Cookies } from '@sveltejs/kit';
 import type { TrackKindValue } from '#lib/actors/tracks';
 import { ambitionPriorities } from '#lib/career/ambition';
 import { careerMapFor } from '#lib/server/career/map';
+// U2 : « Mes projets » (projection groupée) et le projet principal du héros.
+import { outsideCount, projectsOverview } from '#lib/server/projects/overview';
+import { homeProjects, mainProject } from '#lib/projects/overview';
 import { nudgesFor } from '#lib/server/career/nudges';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -90,7 +93,9 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 		priorities,
 		next,
 		choices,
-		inbox
+		inbox,
+		projects,
+		outside
 	] = await Promise.all([
 		roleProgress,
 		getDashboard(person.actorId, ambitionPriorities(person.ambition)),
@@ -113,7 +118,10 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 		// N4 : la même lecture que le moteur (mémorisée), pour l'état « tout écarté ».
 		readChoices(person.actorId, scope),
 		// U0 : « À traiter », déjà lu par le moteur (mémorisé).
-		inboxFor(person, undefined, scope)
+		inboxFor(person, undefined, scope),
+		// U2 : mes projets, en une projection groupée (jamais une fiche par tuile).
+		projectsOverview(person.actorId),
+		outsideCount(person.actorId)
 	]);
 	const now = Date.now();
 	// Les propositions à trancher, comme « À traiter » (sans blocage avec l'agent).
@@ -125,7 +133,11 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 		track === 'MUSICIAN' ? objectives[0] : linkable(professional?.objectives ?? [])[0];
 	const step = firstObjective && quest ? objectiveStep(firstObjective, quest) : null;
 	const views = next.map(suggestionView);
+	// D74, étape 2 : sans demande, le projet principal, déduit de ma dernière
+	// action (UX-3, défaut) ; le métier affiché n'entre pas dans ce choix.
+	const main = mainProject(projects);
 	const choice = pickHero(views, {
+		hasProject: main !== null,
 		newAccount: isNewAccount({
 			works: works.works.length,
 			bands: bands.active,
@@ -136,11 +148,12 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 	const hero: CollabHero =
 		choice.kind === 'action'
 			? { kind: 'action', action: choice.action }
-			: choice.kind === 'objective' && step
-				? { kind: 'objective', step }
-				: { kind: 'start' };
+			: choice.kind === 'project' && main
+				? { kind: 'project', project: main }
+				: choice.kind === 'objective' && step
+					? { kind: 'objective', step }
+					: { kind: 'start' };
 	const isAgent = person.tracks.some((t) => t.track === 'MANAGER' || t.track === 'BOOKER');
-	const inProgress = works.works.filter((w) => w.state === 'IDEA');
 	return {
 		priorities,
 		/** U0 (D74) : le héros, puis la suite des prochaines actions et les tuiles. */
@@ -150,7 +163,14 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 			/** N4 : la personne a écarté ou reporté quelque chose (lien vers ses choix). */
 			hasChoices:
 				choices.notForMe.length > 0 ||
-				choices.later.some((c) => c.until !== null && c.until.getTime() > now)
+				choices.later.some((c) => c.until !== null && c.until.getTime() > now),
+			projects: {
+				tiles: homeProjects(projects, hero.kind === 'project' ? hero.project.id : null),
+				active: projects.filter((p) => p.status === 'ACTIVE').length,
+				// « Hors projet » dès qu'il y a des morceaux dans le parcours (ceux
+				// de l'ancienne entrée « Travaux en cours » compris).
+				outside: works.works.length > 0 || outside > 0 ? outside : null
+			}
 		},
 		/** L'objectif, en tête de « repères » quand il n'est pas le héros. */
 		step: hero.kind === 'objective' ? null : step,
@@ -171,8 +191,6 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 		actsPassed: map.passed.length,
 		counts: {
 			bands: bands.active,
-			campaigns: inProgress.length,
-			openRoles: inProgress.reduce((n, w) => n + w.openRoles, 0),
 			gains: dashboard.history.length
 		},
 		nudges: nudges.nudges.length,
