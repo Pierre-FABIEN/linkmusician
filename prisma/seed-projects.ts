@@ -5,12 +5,17 @@
  * n'a pas encore répondu. Un morceau composé est partagé en résumé, une idée
  * reste privée (« Rien »). Identifiants stables et upserts : rejouable sans
  * doublon. Aucun événement de progression, aucune XP (I3).
+ *
+ * U3 : la « Tournée d'automne » des Rats, sans personne d'autre (la gestion
+ * voit « Inviter les membres du groupe ») ; la coordination proposée à Inès
+ * dans l'EP (« À traiter » → Projets). Rejouable aussi.
  */
 import type { PrismaClient } from '@prisma/client';
 
 const PROJECT = 'demo-project-ep-rats';
 const SHARED = 'demo-work-ep-rats-groove';
 const PRIVATE = 'demo-work-ep-rats-idee';
+const TOUR = 'demo-project-tournee-rats';
 
 export async function seedProjects(prisma: PrismaClient, demoHandles: ReadonlyMap<string, string>) {
 	const id = async (handle: string) =>
@@ -28,6 +33,7 @@ export async function seedProjects(prisma: PrismaClient, demoHandles: ReadonlyMa
 		id('samir-son')
 	]);
 	if (!rats || !malik || !nora || !ines || !samir) return;
+	await seedTeamScreens(prisma, rats, malik, ines);
 	if (await prisma.project.findUnique({ where: { id: PROJECT }, select: { id: true } })) {
 		console.log('Projet « EP des Rats » déjà en place : rien à refaire.');
 		return;
@@ -134,4 +140,33 @@ export async function seedProjects(prisma: PrismaClient, demoHandles: ReadonlyMa
 		]
 	});
 	console.log('Projet « EP des Rats » : coordination de Nora, Inès participante, Samir invité.');
+	await seedTeamScreens(prisma, rats, malik, ines);
+}
+
+/** U3 : un projet de groupe sans équipe, et une coordination proposée à Inès. */
+async function seedTeamScreens(prisma: PrismaClient, rats: string, malik: string, ines: string) {
+	if (!(await prisma.project.findUnique({ where: { id: TOUR }, select: { id: true } }))) {
+		await prisma.project.create({
+			data: {
+				id: TOUR,
+				ownerId: rats,
+				name: 'Tournée d’automne',
+				kind: 'TOUR',
+				startsOn: new Date(Date.now() + 40 * 86_400_000),
+				acts: { create: { authorId: malik, kind: 'CREATED' } }
+			}
+		});
+		console.log('Projet « Tournée d’automne » : aucun membre invité pour l’instant.');
+	}
+	// Inès participe à l'EP ; la gestion lui propose la coordination (sans effet si déjà faite).
+	await prisma.projectParticipant.updateMany({
+		where: {
+			projectId: PROJECT,
+			personId: ines,
+			status: 'ACTIVE',
+			capabilities: { isEmpty: true },
+			proposedCapabilities: { isEmpty: true }
+		},
+		data: { proposedCapabilities: ['COORDINATE'] }
+	});
 }

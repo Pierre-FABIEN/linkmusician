@@ -156,12 +156,26 @@ toujours d’abord, puis ceux de ton ambition, puis les autres :
 Un [projet](/projets) (un EP, une tournée) rassemble tes morceaux sans les
 posséder : ils restent à toi, avec leurs crédits. Un projet est privé.
 
-- **Inviter** : depuis la fiche du projet, bloc « Équipe », avec
-  l'@identifiant de la personne. Tu peux lui donner un rôle (« ingé son de
-  la tournée ») : c'est un libellé, il ne donne aucun droit.
+- **Inviter** : sur la fiche du projet, bloc « Équipe », touche **Inviter
+  quelqu'un**. L'app te propose tes contacts et les membres du groupe qui
+  porte le projet ; tu peux aussi taper l'@identifiant d'une personne
+  adulte. Tu peux lui donner un rôle (« ingé son de la tournée ») : c'est
+  un libellé, il ne donne aucun droit.
+- **Inviter les membres du groupe** : pour un projet de groupe, chaque
+  membre reçoit sa propre invitation et choisit de rejoindre ou non.
+  Personne n'est ajouté d'office. Une ou un membre mineur·e peut participer
+  au projet de son groupe, mais pas le coordonner.
+- **Transformer un groupe de contacts en projet** : dans
+  [Mes contacts](/messages/contacts), sous un groupe, touche **Transformer
+  en projet**. Le projet est créé, puis chaque contact coché reçoit une
+  invitation.
 - **Avant de répondre**, la personne invitée voit seulement le nom et le
   type du projet, qui le porte, qui l'invite et ce qui lui est proposé.
-  Elle répond depuis [Mes projets](/projets).
+  Elle répond depuis [À traiter](/espace/a-confirmer) ou
+  [Mes projets](/projets) : **Rejoindre** ou **Refuser**, sans donner de
+  raison. Personne n'est prévenu d'un refus.
+- **Limites** : 20 invitations en attente et 50 personnes par projet. Après
+  un refus, le même projet ne peut pas réinviter la personne avant 30 jours.
 - **Une fois dans le projet**, elle lit la fiche, l'équipe et les morceaux
   que leur gestion a partagés. Un morceau en partage « Rien » reste
   invisible, et aucun partage n'ouvre la page d'un morceau.
@@ -170,6 +184,12 @@ posséder : ils restent à toi, avec leurs crédits. Un projet est privé.
   morceaux. Elle ne renomme pas le projet, ne le clôt pas et ne touche à
   aucun morceau d'autrui. La gestion du projet peut la retirer à tout
   moment.
+- **Si tu participes**, la fiche te dit quand rien ne t'attend (« Tu es à
+  jour sur ce projet »). Pour faire venir quelqu'un, demande à la gestion
+  ou à la coordination du projet.
+- **Retirer quelqu'un** (gestion) ou **quitter** : l'app te dit ce qui
+  change avant que tu confirmes. Les morceaux restent à leurs propriétaires,
+  avec leurs crédits.
 - **Quitter** est toujours possible, même quand le projet est terminé.
   Quand tu quittes un groupe, la coordination reçue comme membre de ce
   groupe s'arrête ; tu restes dans le projet jusqu'à ce que tu le quittes.

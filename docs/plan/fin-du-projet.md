@@ -1210,3 +1210,45 @@ au MVP mais sans objet à proposer avant U3), structure participante.
 coordination après coup n'est pas notifiée (Q80) ; une capacité acceptée
 est journalisée par la personne qui l'accepte, pas par celle qui l'a
 proposée ; Q79 à Q82 au défaut.
+
+### U3 — Écrans de l'équipe d'un projet ✅
+
+Ligne U3 de la [conception 20 §14.1](../conception/20-parcours-ux-collab.md#141-lots-ux-rattachés-aux-lots-de-d72)
+(#71, #36). Dépend de U2 ✅ et P4a ✅ ; D72 et D74 acceptées, UX-8 au
+défaut (pas d'adhésion d'office). **Aucun droit nouveau** : chaque geste
+passe par les services de P4a, relus sous `project:`.
+
+**À livrer**
+
+- **Équipe** sur la fiche, en Metro : liste lisible, rôle libre,
+  préréglages expliqués (`PRESETS`), « Inviter » dans un `MetroSheet` qui
+  propose les **personnes connues** (contacts, membres du groupe porteur),
+  l'@identifiant restant possible pour un·e adulte ; « Retirer » et
+  « Quitter » confirmés, effets énoncés avant le geste ; phrase pour la
+  participation simple (« Pour inviter quelqu'un, demande à … »).
+- **« À traiter »** : invitations de projet (le minimum de §9.3) et
+  coordination proposée, avec Rejoindre / Refuser ; compteur et prochaine
+  action N3 (rang 2) ; notification `PROJECT_INVITE` vers « À traiter ».
+- **« Inviter les membres du groupe »** (UX-8) : une invitation par membre,
+  chacune acceptée ; quotas (Q79) et mineur·es (Q81) dits à l'écran.
+- **« Transformer un groupe de contacts en projet »** : depuis le carnet,
+  le projet est créé puis chaque contact coché reçoit une invitation.
+- **Prochaine action par rôle** (§7.3) : gestion (… → inviter),
+  coordination (dates → inviter → organiser), participation (proposition
+  de coordination → « Tu es à jour »).
+- Aide, démo, tests (unitaires des règles, E2E du scénario C au clavier,
+  390 px et axe, « À traiter », membres du groupe avec mineur·e et quota).
+
+**Laissé** : besoins et intervenants proposés (`PROPOSE`) : il faut un
+objet « besoin » (modèle, migration, droits) ; **lot U3b**. Tâches
+confiées et leur libération (**P13**, U5). Structure participante (studio,
+label). Aperçu « comme un·e participant·e » (UX-7, différé).
+
+**Livré le 19/11/2026** (commits locaux `6653e69` services et règles,
+`988c9bd` écrans, `29cd85d` tests, puis doc) : tous les points « À livrer »,
+détail dans [docs/projets](../projets/README.md) et la
+[conception 20 §8.4](../conception/20-parcours-ux-collab.md). Aucune
+migration. Écarts : pas d'écran d'invitation séparé (la carte en tient lieu) ;
+une coordination proposée se tranche sur la fiche, « À traiter » y mène ;
+« Inviter » en prochaine action de la gestion seulement pour un projet de
+groupe (Q84) ; Q83 et Q84 au défaut. Reste **U3b** (besoins proposés).

@@ -206,8 +206,8 @@ autres) : 2 requêtes sans projet, 7 à 8 sinon.
   `ShareLevelChoice` (le partage garde le formulaire P2) ; « Créer un
   morceau » n'en revient pas avec le morceau rangé. Type « Autre » : UX-2
   ouvert, l'enum n'est pas étendu.
-- **P4 / U3** : le métier est livré par P4a (ci-dessous) ; restent les
-  écrans complets de l'équipe (U3).
+- **P4 / U3** : métier livré par P4a, écrans par U3 (ci-dessous) ; restent
+  les besoins proposés (U3b).
 - **P5 / U4** : partager le morceau d'autrui (initiative côté morceau),
   mention « Partagé dans… » sur la fiche du morceau.
 - **P13** : tâches et livrables d'un élément en `WORK`.
@@ -332,11 +332,83 @@ quand on participe à un projet (majorité, pour les capacités).
 
 ### Laissé à U3 et après
 
-- **U3** : écrans complets de l'équipe, « À traiter » étendu (invitations),
-  « Inviter les membres du groupe » (UX-8), « Transformer en projet »,
-  besoins et intervenants proposés (`PROPOSE`, sans objet avant U3).
+- **U3** ✅ (ci-dessous) : écrans de l'équipe, « À traiter » étendu,
+  « Inviter les membres du groupe », « Transformer en projet ». Besoins et
+  intervenants proposés (`PROPOSE`) : laissés à U3b.
 - **P13** : tâches confiées ; leur libération à la révocation (§9.1).
 - **Structure participante** (studio, label) : prévue par le modèle, pas
   livrée.
 - Le résumé quotidien par courriel ne réévalue pas encore une invitation
   retirée entre-temps : il ne porte que le nom du projet.
+
+## Écrans de l'équipe (U3) — livré le 19/11/2026
+
+Ligne U3 de la [conception 20 §14.1](../conception/20-parcours-ux-collab.md) :
+les écrans du métier de P4a, **sans droit nouveau**. Chaque geste passe par
+les services de P4a, relus sous `project:` ; le client n'envoie que des
+intentions (une personne choisie, « inviter les membres »). Fiche du lot :
+[fin-du-projet, « U3 »](../plan/fin-du-projet.md).
+
+### Ce que voit chaque rôle sur la fiche
+
+- **Équipe** : le porteur (« Gère le projet ») puis chaque personne, avec
+  son rôle libre et un mot (Participation, Coordination, Invitation en
+  attente, Coordination proposée).
+- **Gestion et coordination** : « Inviter quelqu'un » ouvre une feuille qui
+  propose les **personnes connues** (`inviteCandidates` : contacts et
+  membres actifs du groupe porteur), avec une recherche par nom ou
+  @identifiant ; l'@identifiant tapé reste possible pour une ou un adulte
+  (Q81). La gestion choisit « Participer » ou « Coordonner » (phrases de
+  `PRESETS`) ; la coordination invite des participant·es simples.
+- **Groupe porteur** : « Inviter les membres du groupe » (UX-8) envoie une
+  invitation à chaque membre (`inviteMany`), mineur·es compris·es ; aucune
+  adhésion d'office. Le bilan dit combien sont parti·es, le quota s'il est
+  atteint (Q79), et compte sans raison les personnes injoignables.
+- **Retirer** (gestion), **Quitter** (soi) : une feuille énonce les effets
+  avant le geste (`removalEffects`) ; pas encore de tâches (P13).
+- **Participation simple** : « Pour inviter quelqu'un, demande à … »
+  (`askToInvite`), le porteur puis les coordinations.
+
+### Prochaine action par rôle (§7.3)
+
+| Rôle          | Ordre                                                                                                 |
+| ------------- | ----------------------------------------------------------------------------------------------------- |
+| Gestion       | Comme U2, puis « Inviter les membres du groupe » pour un projet de groupe sans personne d'autre (Q84) |
+| Coordination  | Poser les dates → inviter quelqu'un (tant qu'elle est seule) → organiser le projet                    |
+| Participation | Répondre à une coordination proposée → « Tu es à jour sur ce projet » (sans bouton)                   |
+
+### « À traiter » et notifications
+
+- Section **Projets** (`#projets`) : les invitations, avec la même carte que
+  « Mes projets » (`ProjectInvitation` : nom, type, porteur, qui invite,
+  rôle, ce qui est proposé ; « Rejoindre », « Refuser »), puis les
+  coordinations proposées (`myCapabilityOffers`).
+- Le compteur « À traiter » (`answers`) les compte ; le moteur N3 les
+  propose au rang 2 (`project.invitation`, `project.coordination`).
+- `PROJECT_INVITE` mène désormais à « À traiter » ; les notifications déjà
+  envoyées (vers `/projets#invitations`) marchent toujours.
+- Une invitation devenue caduque : « Cette invitation n'est plus valable. »
+
+### Transformer un groupe de contacts en projet
+
+Dans le carnet (`/messages/contacts`), « Transformer en projet » ouvre la
+création avec le nom du groupe et ses contacts cochés ; chacun·e reçoit une
+invitation après la création (`inviteMany`), rien sans acceptation. La
+liste est relue côté serveur : seulement les membres du groupe, seulement
+les cochés.
+
+### Coût
+
+`projectView` inchangé (6 requêtes). La fiche lit en plus les candidat·es
+(3 à 4 requêtes) pour la gestion et la coordination seulement. « Mes
+projets » : l'équipe ouverte comptée dans la requête principale (`_count`).
+« À traiter » et l'accueil : deux lectures de plus (invitations,
+coordinations proposées).
+
+### Laissé après U3
+
+- **U3b** : besoins et intervenants proposés (`PROPOSE`) : il faut un objet
+  « besoin » (modèle, droits, migration).
+- **P13 / U5** : tâches confiées ; les effets d'un retrait les citeront.
+- Structure participante (studio, label) ; aperçu « comme un·e
+  participant·e » (UX-7, différé).

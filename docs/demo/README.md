@@ -566,3 +566,17 @@ Avec `ines-chant` : « Je participe », lecture seule, **Quitter le projet**.
 Avec `samir-son` : **Mes projets → Invitations** montre seulement le nom, le
 type, le porteur, qui invite et ce qui est proposé. Scénario rejouable
 (`prisma/seed-projects.ts`, identifiants stables) ; aucune progression émise.
+
+### Écrans de l'équipe (U3)
+
+Avec `malik-batterie`, ouvrir **Mes projets → Tournée d’automne** (projet des
+Rats, sans personne d'autre) : la prochaine action est **Inviter les membres
+du groupe** ; la feuille nomme chaque membre et rappelle que personne n'est
+ajouté sans accepter. **Inviter quelqu’un** propose les contacts et les
+membres, avec une recherche ; « Coordonner » n'apparaît que pour la gestion.
+Dans **EP des Rats**, l'équipe montre le porteur en tête ; **Retirer du
+projet** dit les effets avant le geste. Avec `samir-son` : **À traiter →
+Projets**, la carte d'invitation (Rejoindre, Refuser). Avec `ines-chant` :
+**À traiter** montre « Coordonner « EP des Rats » », qui se tranche dans
+l'équipe de la fiche. Dans **Messages → Contacts**, un groupe de contacts
+propose **Transformer en projet**.

@@ -785,6 +785,47 @@ livrables déjà déposés restent à valider. » Bouton `danger`.
 | Quota atteint (projets actifs, invitations)                     | Message qui dit la limite et le moyen d'avancer (« Termine ou laisse de côté un projet pour en ouvrir un nouveau »)                                                                      |
 | Mineur·e                                                        | Les options interdites n'apparaissent pas ; une phrase explique pourquoi quand la personne cherche le geste (« Réservé aux adultes »)                                                    |
 
+### 8.4 Ce que U3 a livré, et les écarts [Livré le 19/11/2026]
+
+Écrans de P4 sur le métier de P4a, sans droit nouveau ; détail dans
+[docs/projets](../projets/README.md#écrans-de-léquipe-u3--livré-le-19112026).
+
+- **Équipe** (§8.1) : le porteur en tête (« Gère le projet »), puis chaque
+  personne avec son rôle libre et un mot d'état. Gestion et coordination :
+  « Inviter quelqu'un » ; groupe porteur : « Inviter les membres du
+  groupe » (UX-8). Participation : « Pour inviter quelqu'un, demande à … ».
+- **Inviter** (§8.2) : `MetroSheet` qui propose les personnes connues
+  (contacts **et** membres du groupe porteur), avec recherche ; l'@identifiant
+  reste possible pour une ou un adulte (Q81). « Coordonner » n'apparaît pas
+  pour une ou un mineur·e, avec la phrase de §8.3 ; la coordination ne voit
+  jamais cette distinction (Q83).
+- **Accepter, refuser** : la carte d'invitation (« Rejoindre », « Refuser »)
+  vit dans « À traiter » et dans « Mes projets » ; après « Rejoindre », la
+  fiche dit « Bienvenue dans … : voici ce qui est partagé avec toi ».
+- **Retirer, quitter** : feuille de confirmation, effets énoncés, bouton
+  `danger`.
+- **« À traiter »** (§6.3, rang 4) : section « Projets » ; compteur et
+  prochaine action N3 (rang 2) ; `PROJECT_INVITE` y mène.
+- **Prochaine action par rôle** (§7.3) : gestion, coordination et
+  participation ont chacune la leur.
+- **« Transformer en projet »** (§4.4) : depuis un groupe de contacts.
+
+**Écarts** :
+
+- Pas d'écran d'invitation séparé : la carte en tient lieu, au même
+  contenu (§9.3).
+- La réponse s'annonce par un message `role="status"` de la page, pas par
+  un toast.
+- Une coordination proposée après coup se lit dans « À traiter » comme un
+  lien vers l'équipe de la fiche, où elle se tranche ; pas de boutons dans
+  « À traiter ».
+- La gestion n'a « Inviter » en prochaine action que pour un projet de
+  groupe sans personne d'autre (Q84) ; la coordination l'a tant qu'elle est
+  seule.
+- **Besoins et propositions** (bloc « Besoins », « Proposer à la
+  gestion ») : non livrés, faute d'objet « besoin » ; lot **U3b**. Les
+  effets d'un retrait ne citent pas de tâches (P13).
+
 ---
 
 ## 9. Partage des réalisations
