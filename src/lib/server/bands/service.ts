@@ -26,6 +26,7 @@ import { isBlockedBetween } from '#lib/server/blocking/service';
 import { playedTogether } from '#lib/server/network/service';
 import { notify } from '#lib/server/notifications/service';
 import { dropMemberCapabilities } from '#lib/server/projects/participants';
+import { releaseStepsOnBandExit } from '#lib/server/works/release';
 import { emitAndProcess, lockProgressActors } from '#lib/server/progression/processor';
 import {
 	bandTierOf,
@@ -459,6 +460,8 @@ export async function leaveBand(bandId: string, personId: string, now = new Date
 		await tx.membershipDecision.create({
 			data: { membershipId: mine.id, kind: 'LEFT', authorId: personId, occurredAt: now }
 		});
+		// P1 (E10) : ses étapes non terminées sont libérées, sous ce même band:.
+		await releaseStepsOnBandExit(tx, { bandId, personId, authorId: personId }, now);
 		if (check.dissolves) await dissolve(tx, bandId, personId, now);
 		return { dissolved: check.dissolves };
 	}, TX);
@@ -516,6 +519,11 @@ export async function removeMember(membershipId: string, managerId: string, now 
 			await tx.membershipDecision.create({
 				data: { membershipId: row.id, kind: 'REMOVED', authorId: managerId, occurredAt: now }
 			});
+			await releaseStepsOnBandExit(
+				tx,
+				{ bandId: first.orgId, personId: row.personId, authorId: managerId },
+				now
+			);
 			return row.personId;
 		}, TX)
 		.then((removedId) => dropMemberCapabilities(first.orgId, removedId, managerId));
@@ -556,6 +564,13 @@ export async function setRole(
 				occurredAt: now
 			}
 		});
+		// Simple membre : la gestion des morceaux se perd, ses étapes avec (P1).
+		if (role === 'MEMBER')
+			await releaseStepsOnBandExit(
+				tx,
+				{ bandId: first.orgId, personId: row.personId, authorId: ownerId },
+				now
+			);
 	}, TX);
 }
 

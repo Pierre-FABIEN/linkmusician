@@ -45,7 +45,7 @@ export type WorkStepAction = (typeof WORK_STEP_ACTIONS)[number];
 
 export type WorkStepAct = WorkStepActKindValue;
 export type WorkStepActKindValue =
-	'CLAIMED' | 'STARTED' | 'FINISHED' | 'RESET' | 'REOPENED' | 'RELEASED';
+	'CLAIMED' | 'STARTED' | 'FINISHED' | 'RESET' | 'REOPENED' | 'RELEASED' | 'AUTO_RELEASED';
 
 export const WORK_STEP_ACT_LABELS: Readonly<Record<WorkStepActKindValue, string>> = {
 	CLAIMED: 'Prise en charge',
@@ -53,7 +53,8 @@ export const WORK_STEP_ACT_LABELS: Readonly<Record<WorkStepActKindValue, string>
 	FINISHED: 'Déclarée terminée',
 	RESET: 'Remise à faire',
 	REOPENED: 'Rouverte',
-	RELEASED: 'Libérée'
+	RELEASED: 'Libérée',
+	AUTO_RELEASED: 'Libérée automatiquement'
 };
 
 /** Formulaire : l'intention seulement ; statut et dates sont calculés côté serveur. */
@@ -88,6 +89,17 @@ export type WorkStepPlan =
 
 const err = (message: string, status = 400): WorkStepPlan => ({ kind: 'error', message, status });
 
+/** Étape libérée : plus de responsable, elle repart de « À faire ». L'avancement
+ * passé reste lisible dans l'historique (actes), jamais effacé. */
+const RELEASED_STEP = {
+	status: 'TODO',
+	assigneeId: null,
+	startedAt: null,
+	doneAt: null,
+	mode: null,
+	place: null
+} as const satisfies WorkStepState & { mode: null; place: null };
+
 /**
  * Ce que produit une action sur une étape (pure). `current` est `null` si
  * l'étape n'existe pas encore. `actorId` gère le morceau (vérifié par
@@ -113,6 +125,8 @@ export function planWorkStep(
 	if (action === 'claim') {
 		if (mine) return { kind: 'noop' };
 		if (assignee) return err('Une autre personne a déjà pris cette étape en charge.', 409);
+		// P1 : terminée par un compte supprimé, elle reste terminée (réalisation déclarée).
+		if (current?.status === 'DONE') return err('Cette étape est déjà terminée.', 409);
 		// Une étape libérée repart de zéro : rien de l'ancienne prise en charge.
 		return {
 			kind: 'apply',
@@ -127,14 +141,7 @@ export function planWorkStep(
 		return {
 			kind: 'apply',
 			act: 'RELEASED',
-			next: {
-				status: 'TODO',
-				assigneeId: null,
-				startedAt: null,
-				doneAt: null,
-				mode: null,
-				place: null
-			}
+			next: RELEASED_STEP
 		};
 	}
 	// Les autres actions sont réservées à la personne responsable.
@@ -179,6 +186,21 @@ export function planWorkStep(
 	return err('Action inconnue.');
 }
 
+/**
+ * P1 (E10) : la personne responsable ne gère plus le morceau (départ, retrait,
+ * rétrogradation, suppression de compte). Une étape non terminée est libérée,
+ * avec un acte dédié ; une étape terminée reste à son nom, intacte. Rejouer
+ * ne change rien (`noop`) : l'étape n'est plus à cette personne.
+ */
+export function planAccessLossRelease(
+	current: WorkStepState | null,
+	formerAssigneeId: string
+): WorkStepPlan {
+	if (!current || current.assigneeId !== formerAssigneeId || current.status === 'DONE')
+		return { kind: 'noop' };
+	return { kind: 'apply', act: 'AUTO_RELEASED', next: RELEASED_STEP };
+}
+
 /** Une transition calculée sur une révision dépassée est refusée, sans acte.
  * Un rejeu sans transition (`noop`) reste accepté : rien ne change. */
 export function staleWorkStep(
@@ -197,7 +219,8 @@ export function availableWorkStepActions(
 	canManage: boolean
 ): WorkStepAction[] {
 	if (!canManage) return [];
-	if (!step?.assigneeId) return ['claim'];
+	// Terminée sans responsable (compte supprimé) : rien à reprendre.
+	if (!step?.assigneeId) return step?.status === 'DONE' ? [] : ['claim'];
 	const out: WorkStepAction[] = [];
 	if (step.assigneeId === viewerId) {
 		if (step.status === 'TODO') out.push('start', 'finish');

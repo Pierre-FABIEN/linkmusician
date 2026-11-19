@@ -42,7 +42,9 @@ export async function stepFactsOf(
 				? r.assignee.deletedAt
 					? 'Compte supprimé'
 					: r.assignee.displayName
-				: null
+				: r.status === 'DONE'
+					? 'Compte supprimé' // terminée, responsable effacé (P1)
+					: null
 		});
 	}
 	return out;

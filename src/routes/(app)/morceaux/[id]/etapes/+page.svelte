@@ -227,6 +227,8 @@
 									<span class="font-medium">{WORK_STEP_ACT_LABELS[act.kind]}</span>
 									· {act.author}{act.kind === 'RELEASED' && act.assignee
 										? ` (responsable : ${act.assignee})`
+										: ''}{act.kind === 'AUTO_RELEASED'
+										? ` (${act.assignee ?? 'la personne responsable'} ne gère plus le morceau)`
 										: ''}
 									·
 									<time datetime={new Date(act.occurredAt).toISOString()}

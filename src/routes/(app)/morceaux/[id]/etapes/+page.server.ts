@@ -54,7 +54,9 @@ const MESSAGES: Record<WorkStepAct, string> = {
 	FINISHED: 'Enregistrement déclaré terminé.',
 	RESET: 'L’étape est remise à faire.',
 	REOPENED: 'L’étape est rouverte.',
-	RELEASED: 'L’étape est libérée.'
+	RELEASED: 'L’étape est libérée.',
+	// Jamais produit par une action de cet écran (P1) : départ, retrait, compte supprimé.
+	AUTO_RELEASED: 'L’étape est libérée.'
 };
 
 export const actions: Actions = {

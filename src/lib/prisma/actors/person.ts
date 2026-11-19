@@ -22,6 +22,7 @@ import { getProgress } from '#lib/server/progression/read';
 import { worksExport } from '#lib/server/works/service';
 import { workStepsExport } from '#lib/server/works/steps';
 import { projectAnonymizationOps, projectsExport } from '#lib/server/projects/export';
+import { stepReleaseOnErasureOps } from '#lib/server/works/release';
 import { milestonesExport } from '#lib/server/milestones/service';
 import { introductionsExport } from '#lib/server/career/introductions';
 import { proofsExport } from '#lib/server/milestones/proofs';
@@ -1197,6 +1198,8 @@ export async function personAnonymizationOps(
 ): Promise<Prisma.PrismaPromise<unknown>[]> {
 	const person = await prisma.person.findUnique({ where: { userId }, select: { actorId: true } });
 	if (!person) return [];
+	// P1 (E10) : en tête, verrous `work:` triés puis étapes libérées avec acte.
+	const stepOps = await stepReleaseOnErasureOps(person.actorId);
 	const bandOps = await bandAnonymizationOps(person.actorId);
 	// DASH-07a : droits de candidater encore ouverts où la personne est
 	// l'agent ou l'artiste ; ils se terminent par un acte sans auteur.
@@ -1209,6 +1212,7 @@ export async function personAnonymizationOps(
 	});
 	const grantEnd = new Date();
 	return [
+		...stepOps,
 		...bandOps,
 		prisma.person.update({ where: { userId }, data: { birthDate: null } }),
 		// Les spécialités, intentions et précisions par métier suivent
@@ -1319,12 +1323,8 @@ export async function personAnonymizationOps(
 			where: { authorId: person.actorId },
 			data: { authorId: null }
 		}),
-		// DASH-06a : étapes d'autrui prises en charge et actes, sans auteur ni
-		// responsable ; les étapes des morceaux portés partent avec eux.
-		prisma.workStep.updateMany({
-			where: { assigneeId: person.actorId },
-			data: { assigneeId: null }
-		}),
+		// DASH-06a : actes d'étapes sans auteur ni responsable ; les étapes des
+		// morceaux portés partent avec eux. Étapes d'autrui : `stepOps` (P1).
 		prisma.workStepAct.updateMany({
 			where: { authorId: person.actorId },
 			data: { authorId: null }

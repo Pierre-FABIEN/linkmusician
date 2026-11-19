@@ -1,6 +1,7 @@
 /**
  * Étapes de production prises en charge (DASH-06a, #51, D68). Seul point
- * d'écriture de `work_steps` et `work_step_acts` (hors anonymisation).
+ * d'écriture de `work_steps` et `work_step_acts` avec `release.ts`, qui libère
+ * les étapes d'une personne qui perd la gestion (P1, E10).
  * Règles pures : `#lib/works/steps`.
  *
  * - Chaque mutation passe par `loadManagedWork` : verrou `work:` puis
@@ -139,11 +140,13 @@ export async function workStepsFor(workId: string, viewerId: string) {
 				}
 			: null;
 		const mine = row?.assigneeId === viewerId;
+		// Terminée par un compte supprimé : elle reste terminée, sans nom (P1).
+		const doneByErased = row?.status === 'DONE' && !row.assigneeId;
 		return {
 			kind: kind as WorkStepKindValue,
 			status: (row?.status ?? 'TODO') as WorkStepStatusValue,
-			assigned: Boolean(row?.assigneeId),
-			assignee: who(row?.assignee ?? null),
+			assigned: Boolean(row?.assigneeId) || doneByErased,
+			assignee: doneByErased ? 'Compte supprimé' : who(row?.assignee ?? null),
 			mine,
 			mode: row?.mode ?? null,
 			place: row?.place ?? null,

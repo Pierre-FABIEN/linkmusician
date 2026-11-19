@@ -4144,6 +4144,9 @@ enum WorkStepActKind {
   RESET
   REOPENED
   RELEASED
+  /// P1 (E10) : libérée parce que la personne responsable ne gère plus le
+  /// morceau (départ, retrait, rétrogradation, compte supprimé).
+  AUTO_RELEASED
 }
 
 /// Étape d'un morceau prise en charge (D68). Déclarative : n'alimente ni
