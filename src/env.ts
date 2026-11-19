@@ -18,5 +18,9 @@ export const variables = defineEnvVars({
 	PUBLIC_SENTRY_DSN: { public: true, schema: (value: string | undefined) => value },
 	STRIPE_SECRET_KEY: {},
 	// LINKMUSICIAN: absente = `false`, la boutique est en veille (`src/hooks.ts`).
-	PUBLIC_SHOP_ENABLED: { public: true, schema: parseShopEnabled }
+	PUBLIC_SHOP_ENABLED: { public: true, schema: parseShopEnabled },
+	// LINKMUSICIAN: Melokiva Diagram (D80, src/lib/server/diagram/access.ts),
+	// optionnelles : comptes autorisés en plus des ADMIN, ouverture temporaire (Q110).
+	DIAGRAM_READER_IDS: { schema: (value: string | undefined) => value },
+	DIAGRAM_PUBLIC: { schema: (value: string | undefined) => value }
 });

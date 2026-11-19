@@ -15,11 +15,14 @@
  * la garde ci-dessus s'applique. Les en-têtes privés et `noindex` restent.
  */
 import { error, redirect } from '@sveltejs/kit';
+// Déclarées dans `src/env.ts` (SvelteKit 3 n'expose que les variables
+// déclarées) ; lues à l'exécution, absentes = `undefined`.
+import { DIAGRAM_PUBLIC, DIAGRAM_READER_IDS } from '$app/env/private';
 
 type Locals = Pick<App.Locals, 'user' | 'role'>;
 
 /** Identifiants autorisés en plus des administrateurs. */
-export function readerIds(raw: string | undefined = process.env.DIAGRAM_READER_IDS) {
+export function readerIds(raw: string | undefined = DIAGRAM_READER_IDS) {
 	return new Set(
 		(raw ?? '')
 			.split(',')
@@ -29,7 +32,7 @@ export function readerIds(raw: string | undefined = process.env.DIAGRAM_READER_I
 }
 
 /** `/diagram` ouvert à tous dans cet environnement (Q110, temporaire). */
-export function diagramIsPublic(raw: string | undefined = process.env.DIAGRAM_PUBLIC) {
+export function diagramIsPublic(raw: string | undefined = DIAGRAM_PUBLIC) {
 	return raw?.trim().toLowerCase() === 'true';
 }
 

@@ -33,7 +33,7 @@ describe('qui lit Melokiva Diagram (Q107, Q108)', () => {
 
 	it('la liste autorisée ignore les vides et les espaces', () => {
 		expect([...readerIds(' a, ,b ,')]).toEqual(['a', 'b']);
-		expect(readerIds(undefined).size).toBe(0);
+		expect(readerIds('').size).toBe(0);
 	});
 
 	it('anonyme : redirection vers la connexion', () => {
@@ -49,7 +49,7 @@ describe('qui lit Melokiva Diagram (Q107, Q108)', () => {
 	});
 
 	it('ouverture temporaire (Q110) : seulement si DIAGRAM_PUBLIC vaut « true »', () => {
-		expect(diagramIsPublic(undefined)).toBe(false);
+		expect(diagramIsPublic('')).toBe(false);
 		expect(diagramIsPublic('1')).toBe(false);
 		expect(diagramIsPublic(' TRUE ')).toBe(true);
 		expect(thrown(() => requireDiagramReader(as(null), none, true))).toBeNull();
