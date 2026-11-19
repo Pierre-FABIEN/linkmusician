@@ -1277,7 +1277,60 @@ livré** : il le sera avec U3b-b et U3b-c.
   lancement, reporté en **U3c** (Q96).
 - Défauts **Q91 à Q99** dans a-trancher.
 
-### U3b-b — Besoins : modèle, services et interface minimale (à faire)
+### U3b-b — Besoins : modèle, services et interface minimale 🟡 (code livré, tests à exécuter)
+
+**Livré le 19/11/2026** (commits locaux `1b99704` D76 acceptée, `6f940e9`
+métier et fiche, `cbd7a21` tests, puis doc). **Tests écrits, non exécutés
+dans cette session** (portable, à la demande de l'utilisateur) : à lancer
+avant de passer la fiche à ✅. `npm run check` : 0 erreur ; lint : un
+avertissement `no-navigation-without-resolve` sur « Trouver un pro », comme
+les liens existants de la page.
+
+- **Migration** `20261119132238_project_needs` (additive, appliquée en dev
+  et e2e, **pas en production**) : table `project_needs`, enum
+  `ProjectNeedStatus`, valeurs `NEED_*` de `ProjectActKind`, colonne
+  `project_acts.needId` ajoutée au trigger d'ajout seul (sinon elle aurait
+  été réécrivable). Index du boilerplate retirés par
+  `db:nettoyer-migration` ; aucun index partiel touché.
+- **Règles** `#lib/projects/needs` (transitions, `canNeed`, `needVisible`,
+  libellés, liens de recherche, quotas Q93) ; **brouillon**
+  `projectNeedDraftSchema` (strict : un état ou un auteur envoyé est refusé),
+  réutilisable par #89.
+- **Services** `server/projects/needs.ts` : `addNeed` (gestion → ouvert,
+  coordination → proposé), `decideNeed`, `updateNeed`, `withdrawNeed`,
+  `fillNeed` (participation active facultative), `reopenNeed`, `cancelNeed`,
+  sous `project:` puis le verrou du porteur. `cancelPendingNeeds` dans
+  `leaveProject`, `removeParticipant`, `revokeCapability` (coordination) et
+  `dropMemberCapabilities` (départ du groupe porteur).
+- **Lecture** : besoins filtrés en base dans `projectView` (une requête en
+  parallèle des autres) ; journal : un acte de besoin n'est montré qu'à qui
+  voit le besoin (la gestion voit tout).
+- **RGPD** : export (`besoins_formules`, `besoins_pourvus`) ; anonymisation
+  (propositions en attente annulées, phrase des propositions non retenues
+  effacée, auteur·rice, décision et personne désignée oubliées).
+- **Fiche** : bloc « Besoins » minimal (liste, ajout ou proposition,
+  ouvrir, ne pas retenir, retirer, pourvu, rouvrir, annuler, « Trouver un
+  pro »).
+
+**Écarts** :
+
+- Pas d'écran de **modification** (le service et ses tests existent) :
+  U3b-c.
+- Pas de mesure du coût de `projectView` avec 0, 5, 20 besoins : U3b-c
+  (`view.perf.integration.test.ts`).
+- L'anonymisation annule les propositions sans écrire d'acte
+  `NEED_CANCELLED` (opérations groupées ; l'auteur·rice serait de toute
+  façon oublié·e).
+- Le quota de 30 besoins par jour n'est pas sérialisé entre deux projets
+  (verrou par projet) : borne souple.
+
+**Tests écrits** : `src/lib/projects/needs.test.ts` (unitaires),
+`src/lib/server/projects/needs.integration.test.ts` (14 scénarios, dont deux
+courses à barrières). Non-régression à lancer aussi :
+`participants.integration`, `service.integration`, E2E `projets`,
+`projets-equipe`, `projets-equipe-u3`.
+
+Fiche d'origine :
 
 - **Objectif** : le métier de la conception 22 (§3 à §7, §9, §10), sous
   verrou, avec une interface minimale sur la fiche.

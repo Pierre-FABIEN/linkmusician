@@ -3,7 +3,9 @@
 - **Statut : conception validée** (19/11/2026, lot **U3b-a**). La décision
   qui la porte, [D76](../decisions/README.md), est **Acceptée** par le
   fondateur le 19/11/2026, avec les défauts Q91 à Q99. Q96 et Q99 restent
-  des pistes d'évolution produit (§14). Implémentation : U3b-b, U3b-c.
+  des pistes d'évolution produit (§14). **U3b-b** (modèle, services, RGPD,
+  fiche minimale) : code livré le 19/11/2026, tests écrits à exécuter ;
+  U3b-c à faire.
 - Issues : [#71](https://github.com/Pierre-FABIEN/linkmusician/issues/71)
   (parcours Collab), [#36](https://github.com/Pierre-FABIEN/linkmusician/issues/36)
   (coordination), préparation de [#89](https://github.com/Pierre-FABIEN/linkmusician/issues/89)
