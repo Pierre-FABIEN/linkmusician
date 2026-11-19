@@ -27,6 +27,9 @@ espace te demanderont de te connecter si nécessaire.
 | Comprendre qui voit tes informations                            | [Visibilité du profil](./06-securite.md#visibilite)                                                                    |
 | Trouver une jam, t'inscrire ou savoir quoi apporter             | [Avant la jam](./02-mode-jam.md#avant-la-jam)                                                                          |
 | Retrouver les gens avec qui tu as joué                          | [Après la jam](./02-mode-jam.md#apres-la-jam)                                                                          |
+| Créer un projet ou inviter son équipe                           | [Tes projets](./03-mode-carriere.md#projets-equipe)                                                                    |
+| Trouver une personne pour un projet                             | [Besoins du projet](./03-mode-carriere.md#besoins-projet)                                                              |
+| Faire reconnaître un concert en solo ou avec un groupe          | [Concert confirmé](./03-mode-carriere.md#concert-confirme)                                                             |
 | Monter un groupe et inviter des membres                         | [Ton groupe](./03-mode-carriere.md#groupe)                                                                             |
 | Composer, créditer une personne ou faire avancer un morceau     | [Tes morceaux](./03-mode-carriere.md#morceaux)                                                                         |
 | Comprendre les points, les rangs et les limites de ton compte   | [Points et progression](./04-points-et-progression.md)                                                                 |
@@ -45,9 +48,9 @@ de l'app.
 
 | 🎸 Mode jam                                                  | 🗺️ Mode carrière                                                     |
 | ------------------------------------------------------------ | -------------------------------------------------------------------- |
-| **Jouer pour le plaisir**, ce soir ou ce week-end            | **Monter un projet** : un groupe, des morceaux, des concerts         |
+| **Jouer pour le plaisir**, ce soir ou ce week-end            | **Monter un projet**, en ton nom ou avec un groupe                   |
 | Tu te mets dispo, tu rejoins une jam, tu rencontres du monde | Tu suis ta prochaine étape, tu collabores, tu prouves ce que tu fais |
-| Pas d’objectif, pas de pression                              | Des quêtes, des paliers, un parcours qui avance                      |
+| Pas d’objectif, pas de pression                              | Tes projets, ton équipe et des branches de progression indépendantes |
 | [Comment marche le mode jam →](./02-mode-jam.md)             | [Comment marche le mode carrière →](./03-mode-carriere.md)           |
 
 > 💡 **Astuce** : beaucoup de groupes naissent d’une jam. Commence par le
@@ -62,19 +65,21 @@ payé·e pour un concert, l’association du groupe…), voir
 
 ## Les mots de l'app, simplement {#vocabulaire}
 
-| Mot                 | Ce qu'il veut dire                                                                                     |
-| ------------------- | ------------------------------------------------------------------------------------------------------ |
-| **Jam**             | Une rencontre pour jouer ensemble, souvent en improvisant                                              |
-| **Lead**            | La personne qui anime la jam et accueille la formation                                                 |
-| **Collaboration**   | Une activité musicale déclarée dans une conversation, puis confirmée par les personnes concernées      |
-| **Crédit**          | La mention de ce qu'une personne a fait sur un morceau : paroles, instrument, mixage…                  |
-| **Maquette / démo** | Un premier enregistrement qui permet d'écouter le morceau ; il n'a pas besoin d'être un disque terminé |
-| **Plateau**         | Une date pour laquelle un lieu ou un organisateur cherche des groupes                                  |
-| **Jauge**           | Le nombre de personnes que peut accueillir une salle ou un événement                                   |
-| **XP**              | Les points de progression ; ils restent privés                                                         |
-| **Palier / rang**   | Un repère fondé sur des réalisations, pour une personne, un métier ou un groupe                        |
-| **Corroboré**       | Confirmé par quelqu'un d'autre ou appuyé par une preuve reconnue                                       |
-| **Vérifié**         | Confirmé par une source externe reconnue pour cette action                                             |
+| Mot                  | Ce qu'il veut dire                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Jam**              | Une rencontre pour jouer ensemble, souvent en improvisant                                              |
+| **Lead**             | La personne qui anime la jam et accueille la formation                                                 |
+| **Collaboration**    | Une activité musicale déclarée dans une conversation, puis confirmée par les personnes concernées      |
+| **Projet**           | Un objectif privé (EP, tournée…) qui rassemble une équipe et des morceaux, sans les posséder           |
+| **Besoin de projet** | Ce qu’il manque à un projet ; il ne confie pas une tâche et ne crée pas de crédit                      |
+| **Crédit**           | La mention de ce qu'une personne a fait sur un morceau : paroles, instrument, mixage…                  |
+| **Maquette / démo**  | Un premier enregistrement qui permet d'écouter le morceau ; il n'a pas besoin d'être un disque terminé |
+| **Plateau**          | Une date pour laquelle un lieu ou un organisateur cherche des groupes                                  |
+| **Jauge**            | Le nombre de personnes que peut accueillir une salle ou un événement                                   |
+| **XP**               | Les points de progression ; ils restent privés                                                         |
+| **Palier / rang**    | Un repère fondé sur des réalisations, pour une personne, un métier ou un groupe                        |
+| **Corroboré**        | Confirmé par quelqu'un d'autre ou appuyé par une preuve reconnue                                       |
+| **Vérifié**          | Confirmé par une source externe reconnue pour cette action                                             |
 
 ## Questions fréquentes
 

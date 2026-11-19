@@ -1,121 +1,101 @@
 # Le mode carrière
 
-_Ta carrière musicale, comme dans un jeu : une étape à la fois, et chaque
-étape franchie est réelle._
+_Prépare tes projets, retrouve ton équipe et fais avancer ta musique à ton rythme._
 
 > **En bref**
 >
-> - **Mon espace** en mode carrière te montre ta prochaine étape et tes quêtes.
-> - Tu avances surtout en **jouant avec d’autres** : une collaboration
->   confirmée des deux côtés, un groupe, un morceau composé à plusieurs.
-> - Ton groupe a son propre **parcours** : formation, répétition,
->   composition, enregistrement, démo, concert.
-> - Plus une étape est **prouvée**, plus elle compte. Les points ne
->   s’achètent pas.
+> - **Mon espace** met en avant ce qui attend ta réponse, puis tes projets.
+> - Tu peux **créer un projet sans groupe**, ou travailler sur un morceau sans projet.
+> - Inviter, coordonner ou ajouter un besoin ne donne aucun droit sur les morceaux.
+> - Ta carte présente des **branches indépendantes** : tes réalisations comptent,
+>   sans ordre obligatoire et sans classement par points.
 
 Si ton métier actif est ingé son, producteur·rice, organisateur·rice,
-manager ou booker, **Mon espace** présente d'abord les liens utiles à cette
-activité. Pour retrouver ce parcours musical, choisis **Musicien·ne**
-dans le sélecteur en haut si ce métier fait partie de ton profil.
+manager ou booker, **Mon espace** présente aussi les liens utiles à cette
+activité. Les projets et les réponses à traiter concernent ton compte entier.
 [Comprendre les contextes métier](./01-premiers-pas.md#metier-actif).
 
 ## Tes actions prioritaires {#priorites}
 
-Le premier volet **priorités** de **Mon espace** rassemble quatre entrées :
+Dans **Mon espace**, **À traiter** rassemble les demandes qui attendent
+ta réponse : collaborations, crédits de morceaux, invitations et propositions
+liées à tes projets. Une invitation d'équipe, une coordination et un besoin
+proposé sont des décisions différentes : accepter l'une ne valide pas les autres.
 
-- **Collaborations à valider** : les propositions ou réalisations qui attendent
-  ta réponse. Le lien ouvre **À confirmer**, où tu retrouves aussi tes crédits
-  de morceaux et invitations de groupe.
-- **Candidatures reçues** : les réponses encore à traiter sur tes annonces
-  ouvertes ou celles des structures que tu gères. Ouvre l'annonce pour répondre.
-- **Demandes de contact** : les personnes qui souhaitent échanger avec toi.
-  Le lien ouvre **Messages**. Les demandes sont réservées aux adultes ; les
-  échanges existants restent accessibles aux mineur·es.
-- **Prochaines dates** : la prochaine jam ou collaboration acceptée dans ton
-  agenda. Ce sont des dates prévues, pas des délais de réponse.
+Les **candidatures reçues**, **demandes de contact** et **prochaines dates**
+gardent leurs entrées. Une date prévue n'est pas la preuve d'une activité réalisée.
+Les aperçus sont limités ; ouvre l'écran correspondant pour retrouver le détail.
+Changer de métier ne crée pas de demande et ne donne aucun droit supplémentaire.
 
-Ces aperçus sont limités aux éléments examinés par l'app : le nombre affiché
-n'est pas un total exhaustif. Une phrase explique chaque absence et le lien
-permet d'ouvrir l'écran correspondant. Les réponses en attente passent avant
-les dates et les entrées vides. À égalité, l'ordre dépend du métier actif.
-Tes points et ton niveau n'interviennent pas dans cet ordre.
-
-Ces actions sont communes à ton compte : changer de métier ne crée pas de
-nouvelles demandes et ne t'accorde pas de droits sur une structure. Les
-échanges bloqués et les profils indisponibles sont exclus des nouveaux
-aperçus. Les parcours label, édition et communication restent « bientôt ».
+Une réponse réelle attendue passe avant une suggestion pour avancer. Quand
+aucune réponse n'est prioritaire, l'accueil peut mettre en avant un de tes
+projets et son prochain geste. Les points ne déterminent pas cet ordre.
 
 ## La carrière, en un coup d’œil
 
-Une carrière dans la musique passe par des grandes étapes. LinkMusician
-les suit dans l’ordre où elles arrivent souvent, sans les imposer :
+[Ma carte de carrière](/espace/carte) présente six branches que tu peux
+explorer dans l'ordre qui te convient :
 
-| Acte                      | Ce qui s’y passe                                  | Dans l’app aujourd’hui                                                          |
-| ------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------- |
-| **I. La rencontre**       | Trouver avec qui jouer                            | ✅ Annonces, messages, jams, collaborations                                     |
-| **II. La création**       | Monter un groupe, composer, répéter, une maquette | ✅ Groupes, morceaux, étapes du groupe                                          |
-| **III. Le studio**        | Enregistrer, mixer                                | Étape « Premier enregistrement » ; fiches des studios                           |
-| **IV. La production**     | Arranger, produire                                | ✅ Producteur·rices, récap de campagne                                          |
-| **V. La scène**           | Premiers concerts, puis une tournée               | ✅ Concerts vérifiés par les lieux et organisateurs, tournée                    |
-| **VI. La sortie**         | Sortir un titre, un EP                            | ✅ Étapes EP/album vérifiées par UPC ou ISRC                                    |
-| **VII. Le développement** | Manager, booker, éditeur, label                   | Manager et booker disponibles ; acte de carte et parcours label/édition à venir |
-| **VIII. La carrière**     | Album, tournées, en vivre                         | 🔜                                                                              |
+| Branche            | Ce que tu y retrouves                                                    |
+| ------------------ | ------------------------------------------------------------------------ |
+| **Équipe**         | Les rencontres et collaborations                                         |
+| **Création**       | Les morceaux composés à plusieurs                                        |
+| **Production**     | L'enregistrement et la production des morceaux                           |
+| **Scène**          | Les concerts, en ton nom ou avec ton groupe, et les tournées             |
+| **Diffusion**      | Les étapes de sortie ; leur épreuve de carte reste à venir               |
+| **Accompagnement** | Les activités de manager et booker ; leur épreuve de carte reste à venir |
 
-Ta **carte de carrière** (dans l’écran de carrière, **Ma carte de
-carrière**) montre ces actes : ceux que tu as franchis, celui en cours, et
-la suite dans le brouillard. Chaque acte finit par une **épreuve** prouvée
-par quelqu’un d’autre, jamais par tes points :
+Une épreuve peut être **Franchie**, **À portée**, **Ouverte** ou **Bientôt**.
+« À portée » signifie qu'un fait existe et qu'un geste est possible : par
+exemple, une confirmation à donner. « Ouverte » ne signifie pas qu'une autre
+branche doit être terminée d'abord. Les points ne franchissent aucune épreuve.
 
-- **I · La rencontre** : quelqu’un t’apprécie après une jam, ou une
-  collaboration est confirmée des deux côtés ;
-- **II · La création** : un morceau composé **à plusieurs**, chaque rôle
-  confirmé, avec une maquette (seul·e, ça ne suffit pas) ;
-- **III · Le studio** : le premier enregistrement de ton groupe, confirmé
-  par une personne extérieure qui y était, ou vérifié par l’ingé son ou le
-  studio ;
-- **IV · La production** : un morceau **produit**, la production confirmée
-  par le ou la producteur·rice. Sur la fiche du morceau, le **récap de
-  campagne** retrace son chemin, de l’idée au son final ;
-- **V · La scène** : un concert, **en ton nom** ou avec ton groupe,
-  **vérifié** par le lieu ou l’organisation qui l’accueille (vérifiée elle
-  aussi). Pas besoin de groupe pour jouer seul·e. Pour aller plus loin, une
-  **tournée** : trois concerts vérifiés dans trois villes en un mois. Ta
-  carte souvenir nomme le groupe (ou dit « en son nom »), l’hôte et le mois
-  du concert.
+Ouvre une branche pour voir ce qui est **Possible maintenant**, **En cours**,
+**Réalisé**, les **Premières fois et épreuves**, et les limites actuelles.
+Une simple déclaration reste distinguée d'un fait confirmé ou vérifié.
 
-Les actes VI à VIII n’ont pas encore leur épreuve jouable sur la carte.
-Les fonctions déjà disponibles restent utilisables depuis les autres écrans.
+- **La rencontre** : une appréciation reçue après une jam ou une collaboration confirmée.
+- **La création** : un morceau composé à plusieurs, avec les rôles confirmés et une maquette.
+- **Le studio** : un premier enregistrement de groupe confirmé ou vérifié.
+  Tu peux déjà enregistrer un morceau seul·e ; l'épreuve personnelle de la carte reste à venir.
+- **La production** : un morceau produit, avec la production confirmée.
+- **La scène** : un concert vérifié en ton nom ou avec ton groupe.
+  [Déclarer un concert avec son hôte](#concert-confirme) explique la différence.
 
-Pas d’ordre imposé : tu peux franchir l’acte II avant l’acte I. Quand tu
-franchis une épreuve, on la fête, et la carte te montre ce qui s’ouvre.
+Les fonctions de sortie et d'accompagnement déjà disponibles restent accessibles,
+même lorsque leur épreuve de carte est indiquée **Bientôt**.
 
 ## 1. Ton écran de carrière {#mon-parcours}
 
-C’est ton accueil en mode carrière : ton niveau, tes points et ton palier
-en haut, puis un **menu de tuiles** rangé en cinq volets que tu fais
-glisser du doigt (ou que tu choisis par leur nom) ; chaque tuile mène à
-son écran :
+L'accueil musicien propose quatre volets, accessibles par leur nom ou en
+faisant glisser le menu :
 
-- **priorités** : tes [actions prioritaires](#priorites), communes au compte ;
-- **avancer** : ta **prochaine étape**, **Mes objectifs** (les trois prochaines étapes
-  atteignables), **Mon ambition** (ce que tu vises, voir ci-dessous) et,
-  si tu n’avances plus, **Un coup de pouce** ;
-- **parcours** : **Ma carte de carrière**, **Campagnes en cours** (tes
-  morceaux, leur état et leurs places libres), **Agenda** (tes jams et
-  collaborations à venir) et **Ma fiche de carrière** ;
-- **réseau** : **Mon équipe** (tes groupes et tes partenaires réguliers)
-  et, au palier Pilier local, **Parrainer** ;
-- **repères** : **Points, succès et confiance**, **Journal de bord**
-  (chaque gain et sa raison) et **Les démarches**.
+- **avancer** : la demande prioritaire ou le projet mis en avant, les
+  prochaines actions, **À traiter**, les dates et **Mes projets** ;
+- **ma musique** : **Mes morceaux**, **Mes contributions**, **Ma carte de carrière**
+  et **Ma fiche de carrière** ;
+- **réseau** : **Mes groupes et structures**, **Mes contacts**, recherche,
+  annonces et accompagnement ;
+- **repères** : objectifs, ambition, coups de pouce, points, journal,
+  **Ce que Melokiva me propose** et démarches.
 
 ### Ton ambition {#ambition}
 
-Choisis ce que tu vises : **jouer en groupe pour le plaisir**, **monter sur
-scène**, **enregistrer et sortir ta musique**, **devenir pro** ou
-**accompagner les autres**. Tes objectifs mis en avant suivent ce choix
-(pour la scène : un groupe et un morceau d’abord). Tu en changes quand tu
-veux : il n’y a jamais d’échec, et aucun objectif n’est retiré, seul
-l’ordre change.
+Choisis ce que tu vises : jouer en groupe, monter sur scène, enregistrer
+et sortir ta musique, devenir pro ou accompagner les autres. Ce choix
+oriente les suggestions ; il ne t'oblige pas à créer un groupe ni à suivre
+un ordre de réalisations. Tu peux en changer sans perdre tes acquis.
+
+### Reporter ou écarter une suggestion {#choisir-suggestions}
+
+Quand ils sont proposés, **Plus tard** reporte la suggestion pendant
+30 jours, ou jusqu'à ce que la situation change. **Pas pour moi** écarte
+le type de suggestion ou la branche concernée jusqu'à réactivation.
+Retrouve tes choix dans [Ce que Melokiva me propose](/espace/propositions).
+
+Ces choix n'annulent ni projet ni réalisation et ne changent aucun droit.
+Une véritable demande de réponse, comme une invitation ou un crédit à
+confirmer, ne se masque pas ainsi : ouvre-la pour répondre.
 
 ### Les quêtes
 
@@ -137,15 +117,16 @@ toujours d’abord, puis ceux de ton ambition, puis les autres :
 > 💡 **Astuce** : pas besoin de tout faire d’un coup. Une étape par
 > semaine, c’est déjà une belle progression.
 
-### Objectifs, campagnes, équipe et agenda {#organiser-son-parcours}
+### Objectifs, projets, équipe et agenda {#organiser-son-parcours}
 
 - [Mes objectifs](/espace/objectifs) présente les prochaines actions
   atteignables et leur avancement. Les objectifs des métiers du son, de
   l'organisation et de l'accompagnement dépendent de tes activités.
   Choisir une ambition change les priorités, sans supprimer les autres objectifs.
-- [Campagnes en cours](/espace/campagnes) rassemble tes morceaux et ceux
-  de ton équipe : idées, état d'avancement, rôles encore libres et crédits
-  à confirmer. Ouvre un morceau pour agir dessus.
+- [Mes projets](/projets) rassemble les projets que tu gères, coordonnes ou
+  auxquels tu participes. [Hors projet](/espace/campagnes) retrouve les morceaux
+  que tu gères et qui ne sont rangés dans aucun projet auquel tu as accès.
+  Les morceaux gérés par d'autres restent distincts, sans action de rangement.
 - [Mon équipe](/espace/equipe) retrouve tes groupes actifs et les
   partenaires avec qui tu collabores régulièrement. Un groupe de musique
   et un groupe privé de contacts sont deux choses différentes.
@@ -153,10 +134,28 @@ toujours d’abord, puis ceux de ton ambition, puis les autres :
   acceptées à date future. Une proposition encore en attente n'est pas une
   session confirmée.
 
-### Tes projets, et les personnes qui y travaillent {#projets-equipe}
+## Tes projets, et les personnes qui y travaillent {#projets-equipe}
 
-Un [projet](/projets) (un EP, une tournée) rassemble tes morceaux sans les
-posséder : ils restent à toi, avec leurs crédits. Un projet est privé.
+Un [projet](/projets) rassemble un objectif, des morceaux et une équipe :
+un EP et une tournée peuvent être deux projets du même groupe. Tu peux
+aussi le porter en ton nom, sans créer de groupe. Un projet reste privé ;
+un simple membre du groupe porteur ne le voit pas sans participation au projet.
+
+1. Dans **Mes projets**, touche **Créer un projet**.
+2. Choisis son nom, son type et son porteur : toi ou une structure que tu gères.
+3. Sur la fiche, ajoute si tu le souhaites un objectif, des dates et des morceaux
+   que tu gères. Le projet reste facultatif pour créer ou poursuivre un morceau.
+
+Ranger un morceau ne transfère ni sa gestion ni ses crédits. Un même morceau
+peut être rangé dans plusieurs projets. Quand tu le ranges, choisis ce que
+l'équipe peut voir : **Rien** masque même son existence ; **Résumé** montre
+le titre affiché et l'état, sans maquette, notes ni crédits. **Travail**
+prépare aussi les étapes du projet, dont les tâches restent à venir.
+Tu peux afficher un titre de travail à la place du vrai titre pour l'équipe.
+Aucun de ces choix n'ouvre les outils de gestion du morceau.
+Seule la gestion du morceau décide de son partage.
+
+### Inviter et coordonner
 
 - **Inviter** : sur la fiche du projet, bloc « Équipe », touche **Inviter
   quelqu'un**. L'app te propose tes contacts et les membres du groupe qui
@@ -192,18 +191,48 @@ posséder : ils restent à toi, avec leurs crédits. Un projet est privé.
 - **Retirer quelqu'un** (gestion) ou **quitter** : l'app te dit ce qui
   change avant que tu confirmes. Les morceaux restent à leurs propriétaires,
   avec leurs crédits.
-- **Besoins** : sur la fiche, le bloc « Besoins » dit qui manque au projet
-  (un métier, une précision, une phrase). La gestion **ajoute** un besoin,
-  ouvert tout de suite ; la coordination le **propose**, et la gestion le
-  retrouve dans [À traiter](/espace/a-confirmer) pour l'ouvrir ou non. Un
-  besoin ouvert propose **Trouver un pro** (la recherche, préremplie, sans
-  rien envoyer), **Inviter** une personne que tu connais, et, pour un projet
-  à ton nom, **Préparer l'annonce** : elle sera publique, sans le nom du
-  projet. Quand quelqu'un s'en charge, **Marquer pourvu**. Les besoins se
-  lisent seulement dans l'équipe ; ils ne donnent ni droit ni point.
 - **Quitter** est toujours possible, même quand le projet est terminé.
   Quand tu quittes un groupe, la coordination reçue comme membre de ce
   groupe s'arrête ; tu restes dans le projet jusqu'à ce que tu le quittes.
+
+## Qui manque à ton projet ? {#besoins-projet}
+
+Sur la fiche, le bloc **Besoins** décrit ce qu'il te manque : un métier,
+une précision ou un instrument, et une courte phrase.
+
+1. Si tu gères le projet, **Ajouter un besoin** l'ouvre tout de suite.
+   Si tu le coordonnes, **Proposer un besoin** l'envoie à la gestion.
+2. La gestion retrouve les propositions dans [À traiter](/espace/a-confirmer),
+   puis choisit **Ouvrir ce besoin** ou **Ne pas retenir** sur la fiche.
+   La personne qui l'a proposé voit la décision ; les autres participants
+   ne voient que les besoins ouverts ou pourvus.
+3. **Trouver un pro** ouvre une recherche préremplie, sans contacter personne.
+   La gestion ou la coordination peut aussi **Inviter** quelqu'un.
+4. **Marquer pourvu** indique que le besoin est couvert ; tu peux préciser
+   une personne qui participe déjà au projet. **Rouvrir** le remet en recherche.
+
+Lorsque le projet est porté en ton nom et que le métier est pris en charge
+par les annonces, **Préparer l'annonce** ouvre un formulaire. Renseigne d'abord
+ta ville si nécessaire, relis puis publie : rien n'est envoyé automatiquement.
+L'annonce est publique, sans le nom du projet. Pour un projet de groupe ou un
+métier non pris en charge, une phrase explique pourquoi cette action est absente.
+
+Un besoin n'est ni une tâche confiée ni un crédit : l'ouvrir ou le marquer
+pourvu ne donne aucun droit ni point, et ne prouve pas que le travail a eu lieu.
+Les tâches et livrables de projet restent à venir.
+
+Si la coordination est retirée, ou si la personne quitte le projet ou en est
+retirée, ses propositions encore en attente sont annulées. Les besoins d'un
+projet terminé restent lisibles sans nouvelle modification, sauf le retrait
+de sa propre proposition. Les limites sont de 20 besoins ouverts ou proposés
+par projet et de 5 propositions en attente par personne et par projet.
+
+## Retrouver tes contributions {#contributions}
+
+[Mes contributions](/espace/contributions) rassemble tes réalisations connues
+de l'app, avec ton rôle et leur niveau de preuve : morceau, prestation,
+collaboration ou scène. Une contribution ne t'ajoute pas automatiquement
+à un projet ou à la gestion d'un groupe. Elle ne donne pas accès aux morceaux privés.
 
 ### Ta fiche de carrière et les cartes souvenirs {#fiche-et-souvenirs}
 
@@ -213,7 +242,7 @@ déclarées en jam, tes morceaux solo, tes points et ton niveau : ces
 informations restent privées.
 
 Quand une épreuve de la carte est franchie, la section **Cartes souvenirs
-à partager** propose **Télécharger** pour cet acte. Tu récupères une
+à partager** propose **Télécharger** pour cette épreuve. Tu récupères une
 image PNG que tu peux partager toi-même. Il faut un profil public visible
 pour partager une carte ; elle ne contient pas tes points ni tes données
 privées. Si aucune épreuve n'est encore franchie, il n'y a pas encore de
@@ -427,14 +456,20 @@ La personne extérieure doit avoir atteint la confiance **Membre** : au
 moins une semaine d’ancienneté, un profil complet et un échange réciproque. Un membre ou ancien membre du groupe ne compte
 jamais comme extérieur.
 
-### Un concert confirmé avec le lieu {#concert-confirme}
+## Un concert confirmé avec le lieu {#concert-confirme}
 
 Après une date, propose une collaboration **Concert** dans ta
 conversation avec la personne qui gère le lieu ou l’association qui t’a
 accueilli (venue d’un plateau, elle est déjà préremplie). Dans **Qui a
 joué**, choisis ton groupe, ou **toi, en ton nom** si tu as joué seul·e
 (il faut le métier musicien·ne sur ton profil, aucun groupe à créer).
-Choisis le lieu, puis elle confirme :
+Choisis le lieu, le titre et la date, puis envoie la proposition.
+L'autre personne confirme ce qui a réellement eu lieu. Tu ne peux pas
+confirmer ton propre accueil en solo, même si tu gères aussi un lieu.
+Pour un groupe, un simple membre actif peut proposer le concert ; cela
+ne lui donne pas la gestion du groupe ni le droit de déclarer ses étapes à la main.
+
+Lorsque les conditions sont toujours réunies à la confirmation :
 
 - **Premier concert** passe **Vérifiée** si le lieu ou l’association est
   vérifié, **Corroborée** sinon ;
@@ -445,6 +480,15 @@ Joué en ton nom, le concert compte pour **ton** parcours : ton « Premier
 concert » à toi, sans rien changer à ceux de tes groupes. Joué avec ton
 groupe, il compte pour le groupe, pas pour ton « Premier concert » en
 solo. Une même date ne compte jamais deux fois.
+
+Seules les dates reconnues comme concerts comptent dans l'antériorité et la
+tournée : une collaboration terminée ne suffit pas à elle seule. Si la
+personne ne joue plus dans le groupe, ou si l'autre personne ne gère plus
+l'hôte à la confirmation, la collaboration peut se terminer sans créer
+de concert reconnu ni d'étape de scène.
+
+Tu peux déclarer un concert joué en solo, mais les candidatures aux
+**plateaux** restent aujourd'hui réservées aux groupes gérés.
 
 Un·e **booker** vous a trouvé la date ? Si ton groupe (ou toi, en solo) a
 confirmé son accompagnement (**Mon espace › Accompagnement**), choisis son

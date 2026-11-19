@@ -1,8 +1,9 @@
 # Centre d'aide — contenu des pages de l'app
 
-> Le centre d'aide de LinkMusician (`/aide`), mis à jour le 12/11/2026.
+> Le centre d'aide de LinkMusician (`/aide`), mis à jour le 19/11/2026.
 > Relecture des parcours disponibles : inscription adaptative, fiches métier,
-> recherche et visibilité, jams, carrière, scène, progression et confidentialité.
+> recherche et visibilité, jams, projets et besoins, progression non linéaire,
+> concerts solo ou en groupe et confidentialité.
 > Les pages s'adressent aux **utilisateur·rices** (tutoiement, comme dans l'app).
 
 ## Navigation et croissance du centre d’aide
@@ -57,7 +58,7 @@ action est ajouté.
 | `/aide`               | [00-accueil.md](../../src/lib/aide/pages/00-accueil.md)                             | La porte d'entrée : LinkMusician en 30 secondes, les deux modes, les questions fréquentes |
 | `/aide/premiers-pas`  | [01-premiers-pas.md](../../src/lib/aide/pages/01-premiers-pas.md)                   | Créer son compte, remplir son profil, choisir son mode                                    |
 | `/aide/mode-jam`      | [02-mode-jam.md](../../src/lib/aide/pages/02-mode-jam.md)                           | Jouer pour le plaisir : se mettre dispo, trouver une jam, l'après-jam, le carnet          |
-| `/aide/mode-carriere` | [03-mode-carriere.md](../../src/lib/aide/pages/03-mode-carriere.md)                 | Monter un projet : accueil, quêtes, collaborations, groupes, morceaux, étapes             |
+| `/aide/mode-carriere` | [03-mode-carriere.md](../../src/lib/aide/pages/03-mode-carriere.md)                 | Projets, équipe, besoins, contributions, carte par branches et concerts solo/groupe       |
 | `/aide/points`        | [04-points-et-progression.md](../../src/lib/aide/pages/04-points-et-progression.md) | Ce qui rapporte (et ce qui ne rapporte rien), niveaux, paliers, succès, confiance         |
 | `/aide/rencontrer`    | [05-rencontrer.md](../../src/lib/aide/pages/05-rencontrer.md)                       | Découvrir, annonces, candidatures, messages, réseau musical                               |
 | `/aide/securite`      | [06-securite.md](../../src/lib/aide/pages/06-securite.md)                           | Lieux sûrs, mineur·es, bloquer, signaler, tes données                                     |
@@ -136,3 +137,21 @@ d'écran (elles vieillissent vite). Sur ordinateur, la liste des pages est
 Pour les prochaines mises à jour : vérifier les libellés dans les écrans,
 les règles dans le code métier, puis lancer au minimum le test de rendu
 `src/lib/server/aide/render.test.ts` (fichiers, structure, liens et ancres).
+
+## Mise à jour du 19 novembre 2026
+
+Après la [recette des derniers lots](../plan/recette-2026-11-19.md), l'aide
+reprend les parcours réellement disponibles : accueil à quatre volets, carte
+à six branches indépendantes, choix des suggestions, création de projet sans
+groupe, partage explicite des morceaux, invitations et coordination, besoins,
+contributions et concerts joués en son nom ou avec un groupe.
+
+Les sujets projets, besoins, contributions et concerts sont des sections `##`
+et deviennent des réponses recherchables séparément. Les ancres existantes
+sont conservées. Les limites sont explicites : tâches/livrables, candidature
+solo aux plateaux et épreuve personnelle Studio restent à venir.
+
+Validation : **12 tests de rendu et de répertoire réussis**, puis **3 E2E
+réussis** sur PostgreSQL local avec `--retries=0` (`aide.spec.ts`) : lecture
+publique, sommaire, recherche et réponse sur mobile, navigation connectée et
+accessibilité. Prettier sur les fichiers modifiés et ESLint du catalogue conformes.

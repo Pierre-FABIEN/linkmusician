@@ -54,6 +54,8 @@ LinkMusician est ouvert aux mineur·es, avec des règles en plus :
   vaut aussi pour les ateliers de ton école. Ta dispo n’est montrée à personne.
 - **Les groupes** : on ne peut t’inviter ou te créditer sur un morceau que
   si on te connaît déjà (une conversation acceptée, ou une jam ensemble).
+- **Les projets** : tu peux participer au projet d'un groupe dont tu es membre,
+  après invitation et acceptation. Tu ne peux pas en recevoir la coordination.
 - **Ta page** : ton nom n’apparaît sur les pages publiques des groupes et
   des morceaux que pour les personnes connectées.
 
@@ -94,7 +96,9 @@ Pour retrouver les personnes bloquées ou revenir sur ton choix :
   masques (**Réglages** → **Masquer mon profil public**). Jamais tes
   points, ta date de naissance, ton adresse.
 - **Ce qui reste privé** : tes messages, ton carnet, tes contacts et leurs groupes, tes
-  points, ta confiance.
+  points, ta confiance. Tes projets, leur équipe et leurs besoins ne sont pas
+  publics : une invitation seule n'ouvre pas la fiche du projet. Les morceaux
+  restent soumis à leurs propres droits et au partage choisi par leur gestion.
 - **Télécharger tes données** : [Mes données](/auth/settings/donnees) → **Télécharger mes
   données** : tout ce que l’app sait de toi, dans un fichier.
 - **Supprimer ton compte** : [Mes données](/auth/settings/donnees) → **Supprimer mon compte**.

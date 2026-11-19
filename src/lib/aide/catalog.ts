@@ -42,7 +42,7 @@ export const HELP_PAGES: readonly HelpPage[] = [
 		slug: 'mode-carriere',
 		file: '03-mode-carriere.md',
 		nav: 'Le mode carrière',
-		summary: 'Ton parcours, les collaborations, ton groupe, tes morceaux et les étapes.',
+		summary: 'Tes projets, leur équipe et leurs besoins, tes morceaux et ton parcours scénique.',
 		icon: 'career'
 	},
 	{

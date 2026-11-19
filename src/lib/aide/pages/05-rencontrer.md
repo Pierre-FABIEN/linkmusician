@@ -210,7 +210,12 @@ Rassemble des contacts autour d’un projet : « Projet funk »,
 3. **Gérer** permet de renommer le groupe, d’en retirer quelqu’un ou de
    le supprimer.
 
-Tes groupes sont privés : personne ne sait dans quel groupe tu l’as mis.
+Pour en faire un projet musical, **Transformer en projet** prépare un projet
+et des invitations pour les contacts que tu choisis. Chaque personne doit
+accepter : un groupe de contacts ne devient pas une équipe d'office.
+[Créer un projet et inviter son équipe](./03-mode-carriere.md#projets-equipe).
+
+Tes groupes de contacts sont privés : personne ne sait dans quel groupe tu l’as mis.
 Tu peux créer jusqu’à vingt groupes, avec trente contacts au maximum dans chacun.
 
 ### Les discussions de groupe

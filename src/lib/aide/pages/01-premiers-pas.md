@@ -313,7 +313,8 @@ profil.
 
 - **Manager** : un accompagnement confirmé te rapporte des points.
 - **Booker** : tes points viennent des **dates** que tu bookes. Quand le
-  groupe propose un concert, il choisit **Booké par** et ton nom ; une fois
+  groupe, ou l'artiste en son nom, propose un concert, la personne choisit
+  **Booké par** et ton nom ; une fois
   le concert confirmé, il compte pour toi. Trois dates bookées dans trois
   villes en 30 jours font une **tournée bookée**.
 
