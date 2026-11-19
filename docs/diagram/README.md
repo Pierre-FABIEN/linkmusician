@@ -142,6 +142,9 @@ n'est pas vide ; l'**inventaire**, lui, couvre tout le code du périmètre
 - Autorisés : le rôle `ADMIN`, et les identifiants de compte listés dans la
   variable d'environnement serveur `DIAGRAM_READER_IDS` (séparés par des
   virgules), pour un collaborateur technique sans droits d'administration.
+- **Ouverture temporaire** (Q110) : `DIAGRAM_PUBLIC=true` rend `/diagram`
+  lisible sans compte **dans l'environnement qui la pose** (`.env` local).
+  Ne jamais la poser en production : la garde ci-dessus y reste la règle.
 - Aucune donnée personnelle réelle : le catalogue ne lit **jamais** la base.
   Les exemples (Inès, Malik, Sam, « Lumière ») sont fictifs.
 - Le catalogue vit sous `src/lib/server/` : rien n'est servi par `static/`.

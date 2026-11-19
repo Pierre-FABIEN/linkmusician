@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { isHttpError, isRedirect } from '@sveltejs/kit';
 import { describe, expect, it } from 'vitest';
-import { canReadDiagram, readerIds, requireDiagramReader } from './access';
+import { canReadDiagram, diagramIsPublic, readerIds, requireDiagramReader } from './access';
 
 type Locals = Parameters<typeof canReadDiagram>[0];
 const as = (role: string | null, id = 'u1'): Locals =>
@@ -21,12 +21,14 @@ describe('qui lit Melokiva Diagram (Q107, Q108)', () => {
 	const none = new Set<string>();
 
 	it('administration seulement, ou un identifiant explicitement autorisé', () => {
-		expect(canReadDiagram(as(null), none)).toBe(false);
-		expect(canReadDiagram(as('CLIENT'), none)).toBe(false);
-		expect(canReadDiagram(as('MODERATOR'), none)).toBe(false);
-		expect(canReadDiagram(as('ADMIN'), none)).toBe(true);
-		expect(canReadDiagram(as('CLIENT', 'collab-1'), readerIds('collab-1, collab-2'))).toBe(true);
-		expect(canReadDiagram(as('CLIENT', 'autre'), readerIds('collab-1'))).toBe(false);
+		expect(canReadDiagram(as(null), none, false)).toBe(false);
+		expect(canReadDiagram(as('CLIENT'), none, false)).toBe(false);
+		expect(canReadDiagram(as('MODERATOR'), none, false)).toBe(false);
+		expect(canReadDiagram(as('ADMIN'), none, false)).toBe(true);
+		expect(canReadDiagram(as('CLIENT', 'collab-1'), readerIds('collab-1, collab-2'), false)).toBe(
+			true
+		);
+		expect(canReadDiagram(as('CLIENT', 'autre'), readerIds('collab-1'), false)).toBe(false);
 	});
 
 	it('la liste autorisée ignore les vides et les espaces', () => {
@@ -35,19 +37,28 @@ describe('qui lit Melokiva Diagram (Q107, Q108)', () => {
 	});
 
 	it('anonyme : redirection vers la connexion', () => {
-		const err = thrown(() => requireDiagramReader(as(null), none));
+		const err = thrown(() => requireDiagramReader(as(null), none, false));
 		expect(isRedirect(err)).toBe(true);
 		expect((err as { location: string }).location).toBe('/auth/login');
 	});
 
 	it('compte non autorisé : 404, comme une page qui n’existe pas', () => {
-		const err = thrown(() => requireDiagramReader(as('CLIENT'), none));
+		const err = thrown(() => requireDiagramReader(as('CLIENT'), none, false));
 		expect(isHttpError(err)).toBe(true);
 		expect((err as { status: number }).status).toBe(404);
 	});
 
+	it('ouverture temporaire (Q110) : seulement si DIAGRAM_PUBLIC vaut « true »', () => {
+		expect(diagramIsPublic(undefined)).toBe(false);
+		expect(diagramIsPublic('1')).toBe(false);
+		expect(diagramIsPublic(' TRUE ')).toBe(true);
+		expect(thrown(() => requireDiagramReader(as(null), none, true))).toBeNull();
+		expect(thrown(() => requireDiagramReader(as('CLIENT'), none, true))).toBeNull();
+		expect(canReadDiagram(as(null), none, true)).toBe(true);
+	});
+
 	it('administrateur : passe', () => {
-		expect(thrown(() => requireDiagramReader(as('ADMIN'), none))).toBeNull();
+		expect(thrown(() => requireDiagramReader(as('ADMIN'), none, false))).toBeNull();
 	});
 });
 

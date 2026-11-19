@@ -178,6 +178,7 @@ Défauts appliqués le 19/11/2026, à valider par le fondateur.
 | Q107 | Qui lit `/diagram` ? Faut-il un rôle dédié en base ?                                 | **Rôle `ADMIN`**, plus une liste d'identifiants de compte en variable d'environnement serveur (`DIAGRAM_READER_IDS`) ; pas de migration. Un rôle en base si l'équipe grandit | DIAGRAM-02 |
 | Q108 | Un compte connecté non autorisé reçoit-il une 403 ou une 404 ?                       | **404**, comme une page inexistante : l'existence de l'outil n'est pas révélée. Anonyme : redirection vers la connexion                                                      | DIAGRAM-02 |
 | Q109 | Les boutiques, blog et administration du boilerplate entrent-ils dans l'inventaire ? | **Non** : écartés avec leur raison (`OUT_OF_SCOPE`, D6) ; l'authentification, le compte et le RGPD y sont                                                                    | DIAGRAM-01 |
+| Q110 | `/diagram` peut-il être ouvert sans compte, le temps de le consulter ?               | **Oui, par environnement** : `DIAGRAM_PUBLIC=true` (`.env` local seulement) ; absent ailleurs, la garde Q107 reste                                                           | DIAGRAM    |
 
 ### Domaine Collab : progression non linéaire (G0-04, #72)
 
