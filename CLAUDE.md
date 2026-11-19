@@ -55,8 +55,8 @@ supprimée (décision D6).
   propose de supprimer ou recréer des index du boilerplate créés en SQL
   brut et absents de `schema.prisma` (`transactions_*`,
   `blog_posts_published_createdAt_idx`, et les index partiels LinkMusician
-  `memberships_open_key`, `delegation_open_key` et
-  `membership_decisions_once_key`). Les retirer avant d'appliquer la
+  `memberships_open_key`, `delegation_open_key`,
+  `membership_decisions_once_key` et `project_participants_open_key`). Les retirer avant d'appliquer la
   migration : `npm run db:migrate -- --create-only --name <nom>`, puis
   `npm run db:nettoyer-migration`, relire, et `npm run db:deploy` (puis
   `db:deploy:e2e`).

@@ -1161,3 +1161,45 @@ ONB-13b/#27 et, pour duo/reprises, ONB-12c/#26 ; ces critères ne sont pas requi
 pour SELF. #50 et ONB-14/#28 restent une recette continue, jamais remplacée par
 une matrice documentaire. #47–#49 restent bientôt après décision distincte.
 #35 et #30 restent ouverts ; aucun WorkPitch/option créé pour les clôturer.
+
+## Collab — projets (G0-03, #71)
+
+### P4a — Participant·es et capacités d'un projet (métier) 🟡
+
+Fiche P4 de la [conception 19 §10](../conception/19-architecture-cible-collab.md#p4--participantes-et-capacités-dun-projet--71-36),
+partie métier ; les écrans complets viennent avec U3. Dépend de P2 ✅, D72
+(acceptée, rév. 2), Q-G0-11, Q-G0-12 et Q-G0-15 (tranchées le 18/11/2026),
+D37, D46 et D66 (acceptées).
+
+**Livré dans P4a**
+
+- `ProjectParticipant` : personne, rôle libre (libellé), capacités en
+  ensemble d'une enum fermée (`COORDINATE` seule), capacités proposées en
+  attente d'acceptation, capacité reçue « comme membre » du porteur, état
+  (invitée, active, refusée, partie, retirée), qui invite, dates. Index
+  partiel `project_participants_open_key` (une ligne ouverte par personne
+  et par projet), protégé comme `memberships_open_key`.
+- Actes `INVITED`, `JOINED`, `DECLINED`, `LEFT`, `REMOVED`,
+  `CAPABILITY_GRANTED`, `CAPABILITY_REVOKED` (avec la personne concernée).
+- `projectAccess` : gestion, participation, capacités, relu sous
+  `project:` puis le verrou du porteur ; `projectReaderWhere` pour les
+  lectures (fiche, « Mes projets », « Hors projet »).
+- Services de la matrice §6.2 : inviter (gestion ; coordination pour une
+  participation simple), accepter, refuser, quitter, retirer, proposer ou
+  retirer `COORDINATE`, accepter une capacité proposée. Coordination :
+  dates et description, ranger ses morceaux, retirer ce qu'elle a rangé.
+- Règles : mineur·e seulement dans un projet d'un groupe dont elle ou il
+  est membre, jamais `COORDINATE` ; blocages dans les deux sens ; quotas
+  (Q79) ; projet clos = participation gelée ; capacité reçue comme membre
+  qui tombe au départ du groupe (acte automatique) ; groupe dissous lu
+  par ses participant·es, en lecture seule.
+- Notifications minimales : invitation, acceptation (Q80).
+- RGPD : export, anonymisation « Compte supprimé ».
+- Interface minimale de validation sur `/projets` (invitations) et
+  `/projets/[id]` (équipe), comme P2.
+
+**Laissé à U3** : écrans complets de l'équipe, « À traiter » étendu,
+« Inviter les membres du groupe » (UX-8), « Transformer en projet »,
+besoins et intervenants proposés (`PROPOSE`, inclus dans `COORDINATE`
+au MVP mais sans objet à proposer avant U3), structure participante.
+**Laissé à P13** : tâches confiées et leur libération à la révocation.

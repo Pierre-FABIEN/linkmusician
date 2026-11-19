@@ -10,7 +10,9 @@ export const BOILERPLATE_INDEXES = [
 	'memberships_open_key',
 	'delegation_open_key',
 	// DASH-05h : unicité des actes non répétables (les BAND_* répétés sont exclus).
-	'membership_decisions_once_key'
+	'membership_decisions_once_key',
+	// P4a : une participation ouverte par personne et par projet.
+	'project_participants_open_key'
 ];
 
 /**

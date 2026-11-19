@@ -1519,6 +1519,9 @@ model Actor {
   projectsOwned              Project[]                @relation("ProjectOwner")
   projectItemsAdded          ProjectItem[]            @relation("ProjectItemAdder")
   projectActsAuthored        ProjectAct[]             @relation("ProjectActAuthor")
+  projectActsAbout           ProjectAct[]             @relation("ProjectActSubject")
+  projectParticipations      ProjectParticipant[]     @relation("ProjectParticipant")
+  projectInvitationsSent     ProjectParticipant[]     @relation("ProjectParticipantInviter")
 
   @@map("actors")
 }
@@ -4360,6 +4363,30 @@ enum ProjectActKind {
   ITEM_ADDED
   ITEM_REMOVED
   SHARE_CHANGED
+  /// P4a : participation (la personne concernée est `subjectId`).
+  INVITED
+  JOINED
+  DECLINED
+  LEFT
+  REMOVED
+  CAPABILITY_GRANTED
+  CAPABILITY_REVOKED
+}
+
+/// Capacités d'un·e participant·e (P4a, §9.1) : ensemble fermé, extensible
+/// sans migration de modèle. `COORDINATE` seule au MVP.
+enum ProjectCapability {
+  COORDINATE
+}
+
+/// `INVITED` et `ACTIVE` sont ouvertes : une seule par personne et par
+/// projet (index partiel `project_participants_open_key`).
+enum ProjectParticipantStatus {
+  INVITED
+  ACTIVE
+  DECLINED
+  LEFT
+  REMOVED
 }
 
 /// Un objectif situé, porté par un seul acteur (personne, ou BAND, PROMOTER,
@@ -4379,8 +4406,9 @@ model Project {
   status      ProjectStatus @default(ACTIVE)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
-  items       ProjectItem[]
-  acts        ProjectAct[]
+  items        ProjectItem[]
+  acts         ProjectAct[]
+  participants ProjectParticipant[]
 
   @@index([ownerId, status])
   @@map("projects")
@@ -4414,11 +4442,11 @@ model ProjectItem {
 /// l'auteur à l'anonymisation ; il disparaît avec son projet. Aucun texte
 /// libre ni titre : le titre est relu, filtré, à l'affichage (I6).
 model ProjectAct {
-  id         String         @id @default(cuid())
+  id         String             @id @default(cuid())
   projectId  String
-  project    Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project    Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
   authorId   String?
-  author     Actor?         @relation("ProjectActAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  author     Actor?             @relation("ProjectActAuthor", fields: [authorId], references: [id], onDelete: SetNull)
   kind       ProjectActKind
   /// Morceau concerné, sans clé étrangère : l'acte survit au lien et au morceau,
   /// et n'est montré qu'à qui voit encore l'élément.
@@ -4427,9 +4455,49 @@ model ProjectAct {
   toShare    ProjectShare?
   fromStatus ProjectStatus?
   toStatus   ProjectStatus?
-  occurredAt DateTime       @default(now())
+  /// P4a : personne concernée par un acte de participation ou de capacité.
+  subjectId  String?
+  subject    Actor?             @relation("ProjectActSubject", fields: [subjectId], references: [id], onDelete: SetNull)
+  capability ProjectCapability?
+  occurredAt DateTime           @default(now())
 
   @@index([projectId, occurredAt])
   @@index([authorId])
+  @@index([subjectId])
   @@map("project_acts")
+}
+
+/// Une personne dans un projet (P4a, D72 §6.2, §9.1). La participation ne
+/// donne aucun droit sur une réalisation (I2) ; les capacités, proposées
+/// puis consenties, ne valent que dans ce projet et se relisent sous
+/// `project:` à chaque écriture (I7, I11, I12). Une ligne close (refusée,
+/// partie, retirée) reste comme historique.
+model ProjectParticipant {
+  id                   String                   @id @default(cuid())
+  projectId            String
+  project              Project                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  personId             String
+  person               Actor                    @relation("ProjectParticipant", fields: [personId], references: [id], onDelete: Cascade)
+  status               ProjectParticipantStatus @default(INVITED)
+  /// Libellé libre (« ingé son de la tournée »), sans aucune permission.
+  role                 String?
+  /// Capacités en vigueur, consenties.
+  capabilities         ProjectCapability[]      @default([])
+  /// Capacités proposées, en attente d'acceptation (invitation ou ajout).
+  proposedCapabilities ProjectCapability[]      @default([])
+  /// Capacités reçues comme membre de l'organisation porteuse : elles
+  /// tombent à son départ (§6.3).
+  asMember             Boolean                  @default(false)
+  invitedById          String?
+  invitedBy            Actor?                   @relation("ProjectParticipantInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+  invitedAt            DateTime                 @default(now())
+  answeredAt           DateTime?
+  endedAt              DateTime?
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+
+  @@index([projectId, status])
+  @@index([personId, status])
+  @@index([invitedById])
+  @@map("project_participants")
 }

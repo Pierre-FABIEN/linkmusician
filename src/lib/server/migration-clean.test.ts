@@ -6,9 +6,10 @@ it('préserve les index partiels lors des prochaines migrations générées', ()
 	const sql = `DROP INDEX "membership_decisions_once_key";
 DROP INDEX "memberships_open_key";
 DROP INDEX "delegation_open_key";
+DROP INDEX "project_participants_open_key";
 ALTER TYPE "MembershipDecisionKind" ADD VALUE 'EXAMPLE';`;
 	const cleaned = cleanMigrationSql(sql);
-	expect(cleaned.removed).toHaveLength(3);
+	expect(cleaned.removed).toHaveLength(4);
 	expect(cleaned.sql).not.toContain('DROP INDEX');
 	expect(cleaned.sql).toContain("ADD VALUE 'EXAMPLE'");
 });
