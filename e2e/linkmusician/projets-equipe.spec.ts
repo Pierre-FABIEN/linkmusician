@@ -85,11 +85,14 @@ test.describe('LinkMusician — équipe d’un projet (P4a)', () => {
 				await page.goto(`/projets/${project.id}`);
 				await waitForAppReady(page);
 				await dismissCookies(page);
-				const form = page.locator('#inviter');
+				// U3 : l'invitation vit dans une feuille ; l'@identifiant reste possible.
+				await page.getByRole('button', { name: 'Inviter quelqu’un' }).click();
+				const form = page.getByTestId('invite-sheet');
+				await form.getByText('Pas dans la liste ? Son identifiant').click();
 				await form.getByLabel('Identifiant').fill(`@${producer.handle}`);
 				await form.getByLabel('Son rôle dans le projet').fill('Réalisation');
-				await form.getByLabel(/Lui proposer de coordonner/).check();
-				await form.getByRole('button', { name: 'Inviter' }).click();
+				await form.getByRole('radio', { name: /^Coordonner/ }).check();
+				await form.getByRole('button', { name: 'Inviter', exact: true }).click();
 				await expect(page.locator('#main-content').getByRole('status')).toContainText(
 					'Invitation envoyée'
 				);
@@ -116,7 +119,7 @@ test.describe('LinkMusician — équipe d’un projet (P4a)', () => {
 			await test.step('3. Il accepte : morceau partagé visible, idée privée invisible', async () => {
 				await guest
 					.getByTestId('project-invitation')
-					.getByRole('button', { name: /^Accepter/ })
+					.getByRole('button', { name: /^Rejoindre/ })
 					.click();
 				await waitForPath(guest, `/projets/${project.id}`);
 				await waitForAppReady(guest);
@@ -157,6 +160,10 @@ test.describe('LinkMusician — équipe d’un projet (P4a)', () => {
 
 			await test.step('5. Il quitte le projet : la fiche lui répond 404', async () => {
 				await guest.getByRole('button', { name: 'Quitter le projet' }).click();
+				// §8.2 : les effets sont dits avant le geste.
+				const sheet = guest.getByRole('dialog', { name: 'Quitter ce projet ?' });
+				await expect(sheet.getByTestId('leave-effects')).toContainText('Ta coordination s’arrête');
+				await sheet.getByRole('button', { name: 'Quitter le projet' }).click();
 				await waitForPath(guest, '/projets');
 				const after = await guest.goto(`/projets/${project.id}`);
 				expect(after?.status()).toBe(404);

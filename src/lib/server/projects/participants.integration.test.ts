@@ -875,5 +875,86 @@ describe.skipIf(!enabled)(
 			await transaction(projectAnonymizationOps(host, now));
 			expect(await db.projectParticipant.count({ where: { projectId: own.id } })).toBe(0);
 		});
+
+		it('U3 : personnes connues à inviter, jamais d’adhésion d’office, quota et mineur·e', async () => {
+			const b = await band('u3');
+			const minor = await person('u3-ado', new Date('2012-05-01'));
+			await db.membership.create({
+				data: { orgId: b.id, personId: minor, role: 'MEMBER', status: 'ACTIVE', startedAt: now }
+			});
+			const contact = await person('u3-contact');
+			const minorContact = await person('u3-ado-contact', new Date('2012-05-01'));
+			const blocked = await person('u3-bloque');
+			const stranger = await person('u3-inconnu');
+			for (const id of [contact, minorContact, blocked])
+				await db.musicalTie.create({ data: { ownerId: b.owner, contactId: id } });
+			await blockActor(blocked, b.owner);
+			const p = await projects.createProject(b.owner, { ...ep('Projet U3'), owner: b.id });
+
+			// La gestion : membres d'abord, sans la co-gestion ni l'inconnu·e, ni le
+			// contact mineur hors du groupe, ni la personne qui bloque.
+			const seen = (await team.inviteCandidates(b.owner, p.id, now))!;
+			expect(seen.canPropose).toBe(true);
+			const ids = seen.candidates.map((c) => c.id);
+			expect(ids.slice(0, 2).sort()).toEqual([b.member, minor].sort());
+			expect(ids).toContain(contact);
+			for (const absent of [b.owner, b.admin, minorContact, blocked, stranger])
+				expect(ids).not.toContain(absent);
+			expect(seen.candidates.find((c) => c.id === minor)?.canCoordinate).toBe(false);
+			expect(seen.candidates.find((c) => c.id === contact)?.canCoordinate).toBe(true);
+
+			// Un simple membre ne peut pas inviter : aucune liste.
+			expect(await team.inviteCandidates(b.member, p.id, now)).toBeNull();
+
+			// « Inviter les membres » : une invitation chacun·e, mineur·e compris·e, jamais active.
+			const members = seen.candidates.filter((c) => c.member).map((c) => c.id);
+			const result = await team.inviteMany(b.owner, p.id, members, now);
+			expect(result).toMatchObject({ skipped: 0, quota: null });
+			expect(result.invited).toHaveLength(2);
+			const rows = await db.projectParticipant.findMany({ where: { projectId: p.id } });
+			expect(rows.map((r) => r.status)).toEqual(['INVITED', 'INVITED']);
+			expect(rows.every((r) => r.capabilities.length === 0)).toBe(true);
+			// Déjà invité·es : la liste ne les propose plus.
+			const after = (await team.inviteCandidates(b.owner, p.id, now))!;
+			expect(after.candidates.some((c) => c.member)).toBe(false);
+
+			// La coordination voit la liste, sans ce qui distingue un·e mineur·e.
+			const coord = await person('u3-coord');
+			await join(b.owner, p.id, coord, true);
+			const coordView = (await team.inviteCandidates(coord, p.id, now))!;
+			expect(coordView.canPropose).toBe(false);
+			expect(coordView.candidates.every((c) => c.canCoordinate === false)).toBe(true);
+
+			// Un contact mineur hors du groupe, forcé dans la série : refus muet.
+			const muted = await team.inviteMany(b.owner, p.id, [minorContact, stranger], now);
+			expect(muted).toMatchObject({ skipped: 1, quota: null });
+			expect(muted.invited).toEqual(['u3-inconnu']);
+
+			// Quota (Q79) : la série s'arrête et le dit.
+			const crowd = await projects.createProject(b.owner, ep('Foule'));
+			const many = await Promise.all(
+				Array.from({ length: MAX_PENDING_PROJECT_INVITES + 2 }, (_, i) => person(`u3-f${i}`))
+			);
+			const first = await team.inviteMany(b.owner, crowd.id, many, now);
+			expect(first.invited).toHaveLength(MAX_PENDING_PROJECT_INVITES);
+			const more = await team.inviteMany(b.owner, crowd.id, many.slice(-2), now);
+			expect(more.invited).toHaveLength(0);
+			expect(more.quota).toMatch(/invitations en attente/);
+			expect(more.skipped).toBe(2);
+		});
+
+		it('U3 : coordination proposée visible dans « À traiter », jamais pour un·e mineur·e', async () => {
+			const b = await band('u3-offre');
+			const p = await projects.createProject(b.owner, { ...ep('Offre'), owner: b.id });
+			const guest = await person('u3-offre-invite');
+			const pid = await join(b.owner, p.id, guest);
+			expect(await team.myCapabilityOffers(guest, now)).toEqual([]);
+			await team.proposeCapability(b.owner, p.id, pid, 'COORDINATE', now);
+			expect(await team.myCapabilityOffers(guest, now)).toEqual([
+				{ projectId: p.id, projectName: 'Offre', owner: `${prefix}u3-offre` }
+			]);
+			await projects.setProjectStatus(b.owner, p.id, 'DONE');
+			expect(await team.myCapabilityOffers(guest, now)).toEqual([]);
+		});
 	}
 );

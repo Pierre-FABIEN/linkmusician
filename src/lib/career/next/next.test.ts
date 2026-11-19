@@ -223,6 +223,23 @@ describe('règles des cinq rangs (conception 21 §8.4, §9.1)', () => {
 		]);
 		expect(out.find((s) => s.rule === 'applications.review')?.title).toBe('2 candidatures reçues');
 	});
+	it('rang 2 (U3) : invitation à un projet et coordination proposée, sans titre de morceau', () => {
+		const out = ranked(
+			facts({
+				projectInvitations: [
+					{ id: 'pp1', projectName: 'EP Lumière', invitedBy: 'Lumière', since: d('2026-11-03') }
+				],
+				capabilityOffers: [{ projectId: 'p2', projectName: 'Tournée' }]
+			})
+		);
+		const invite = out.find((s) => s.rule === 'project.invitation');
+		expect(invite?.rank).toBe(2);
+		expect(invite?.title).toBe('Lumière t’invite dans « EP Lumière »');
+		expect(invite?.href).toBe('/espace/a-confirmer#projets');
+		const offer = out.find((s) => s.rule === 'project.coordination');
+		expect(offer?.href).toBe('/projets/p2#equipe');
+		expect(offer?.key).toBe('project.coordination:PROJECT:p2');
+	});
 
 	it('demandes de contact : jamais pour un·e mineur·e', () => {
 		const out = ranked(facts({ reader: { adult: false, ambition: null }, contactRequests: 3 }));

@@ -119,6 +119,59 @@ describe('nextProjectAction', () => {
 	});
 });
 
+describe('nextProjectAction par rôle (U3, §7.3)', () => {
+	const base: NextActionInput = {
+		projectId: 'p1',
+		status: 'ACTIVE',
+		family: 'recorded',
+		manages: true,
+		visibleItems: 2,
+		resumable: null,
+		rangeable: 0,
+		hasDates: true,
+		hasDescription: true
+	};
+
+	it('participation : une coordination proposée, sinon « à jour », jamais une écriture', () => {
+		const offer = nextProjectAction({
+			...base,
+			manages: false,
+			role: 'participate',
+			capabilityOffer: true,
+			rangeable: 3
+		});
+		expect(offer.kind).toBe('answer');
+		expect(offer.href).toBe('/projets/p1#equipe');
+		const done = nextProjectAction({ ...base, manages: false, role: 'participate', rangeable: 3 });
+		expect(done.kind).toBe('consult');
+		expect(done.label).toBe('Tu es à jour sur ce projet');
+	});
+
+	it('coordination : dates, puis inviter, puis organiser', () => {
+		const coord = { ...base, role: 'coordinate' as const };
+		expect(nextProjectAction({ ...coord, hasDates: false }).label).toBe('Poser les dates');
+		expect(nextProjectAction({ ...coord, others: 0 }).kind).toBe('invite');
+		expect(nextProjectAction({ ...coord, others: 0 }).href).toBe('/projets/p1#inviter');
+		expect(nextProjectAction({ ...coord, others: 2 }).label).toBe('Organiser le projet');
+	});
+
+	it('gestion : inviter les membres d’un groupe porteur en dernier ; jamais pour un projet personnel', () => {
+		expect(nextProjectAction({ ...base, ownerIsBand: true, others: 0 }).label).toBe(
+			'Inviter les membres du groupe'
+		);
+		expect(nextProjectAction({ ...base, ownerIsBand: true, rangeable: 1 }).kind).toBe('range');
+		expect(nextProjectAction({ ...base, ownerIsBand: true, others: 1 }).kind).toBe('consult');
+		expect(nextProjectAction({ ...base, ownerIsBand: false, others: 0 }).kind).toBe('consult');
+	});
+
+	it('projet clos : consulter, quel que soit le rôle', () => {
+		for (const role of ['manage', 'coordinate', 'participate'] as const)
+			expect(nextProjectAction({ ...base, status: 'DONE', role, capabilityOffer: true }).kind).toBe(
+				'consult'
+			);
+	});
+});
+
 describe('tri et projet principal (UX-3, défaut)', () => {
 	it('en cours d’abord, puis atteints, puis laissés de côté', () => {
 		const list = [
