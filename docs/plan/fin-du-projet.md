@@ -1277,14 +1277,11 @@ livré** : il le sera avec U3b-b et U3b-c.
   lancement, reporté en **U3c** (Q96).
 - Défauts **Q91 à Q99** dans a-trancher.
 
-### U3b-b — Besoins : modèle, services et interface minimale 🟡 (code livré, tests à exécuter)
+### U3b-b — Besoins : modèle, services et interface minimale ✅
 
-**Livré le 19/11/2026** (commits locaux `1b99704` D76 acceptée, `6f940e9`
-métier et fiche, `cbd7a21` tests, puis doc). **Tests écrits, non exécutés
-dans cette session** (portable, à la demande de l'utilisateur) : à lancer
-avant de passer la fiche à ✅. `npm run check` : 0 erreur ; lint : un
-avertissement `no-navigation-without-resolve` sur « Trouver un pro », comme
-les liens existants de la page.
+> **Recette PC gamer du 19/11/2026 validée** : [résultats, limites et corrections](recette-2026-11-19.md). Corrections de tests locales ; code initial publié à `4e7b9d5`.
+
+**Livré et testé le 19/11/2026** (code initial publié `6f940e9`, `cbd7a21`, `38ff3e6`). Les 16 intégrations des besoins et les 2 tests de performance passent ; TypeScript/Svelte sans erreur ni avertissement. Lint global hors lot détaillé dans le rapport.
 
 - **Migration** `20261119132238_project_needs` (additive, appliquée en dev
   et e2e, **pas en production**) : table `project_needs`, enum
@@ -1317,20 +1314,19 @@ les liens existants de la page.
 - ~~Pas d'écran de modification~~ : livré par U3b-c.
 - ~~Pas de mesure du coût~~ : test écrit le 19/11/2026 (`b89e6a2`), une
   requête pour les besoins quel que soit leur nombre ; plafond de la fiche
-  relevé de 7 à 8 requêtes. **Non exécuté.**
+  relevé de 7 à 8 requêtes. **Exécuté : 7 requêtes pour 0/5/20 besoins, médianes 230/229/229 ms sur Neon.**
 - L'anonymisation annule les propositions sans écrire d'acte
   `NEED_CANCELLED` (opérations groupées ; l'auteur·rice serait de toute
   façon oublié·e).
 - ~~Quota de 30 par jour non sérialisé~~ : corrigé dans `38ff3e6`, clé
   `project-need-author:` prise avant `project:` (aucune autre écriture ne
-  la prend) ; course de deux ajouts dans deux projets écrite, non exécutée.
+  la prend) ; course de deux ajouts dans deux projets exécutée et réussie.
 - Intégrité du journal : la migration étend le trigger d'ajout seul à
-  `needId` ; un test d'intégration tente de le réécrire (écrit, non
-  exécuté).
+  `needId` ; un test d'intégration tente de le réécrire (exécuté et réussi).
 
-**Tests écrits** : `src/lib/projects/needs.test.ts` (unitaires),
-`src/lib/server/projects/needs.integration.test.ts` (18 scénarios avec ceux de U3b-c, dont deux
-courses à barrières et une course de quota). Non-régression à lancer aussi :
+**Tests exécutés et réussis** : `src/lib/projects/needs.test.ts` (unitaires),
+`src/lib/server/projects/needs.integration.test.ts` (**16 scénarios exécutés**, dont deux
+courses à barrières et une course de quota). Non-régressions exécutées :
 `participants.integration`, `service.integration`, E2E `projets`,
 `projets-equipe`, `projets-equipe-u3`.
 
@@ -1350,14 +1346,11 @@ Fiche d'origine :
   invitation ni annonce ; un retrait de coordination annule ses
   propositions en attente ; aucun gain.
 
-### U3b-c — Besoins : écrans, « À traiter », annonce et recherche 🟡 (code livré, tests à exécuter)
+### U3b-c — Besoins : écrans, « À traiter », annonce et recherche ✅
 
-**Livré le 19/11/2026** (commit local `38ff3e6`, puis doc). **Aucun test
-exécuté** (U3b-b compris), à la demande de l'utilisateur : passe prévue en fin
-de journée. `npm run check` : 0 erreur. Lint : avertissements
-`no-navigation-without-resolve` sur les liens à paramètres (« Trouver un
-pro », « Préparer l'annonce ») : ils passent par `resolve()`, mais la règle
-refuse une chaîne de requête ; même avertissement que les liens existants.
+> **Recette PC gamer du 19/11/2026 validée** : [résultats, limites et corrections](recette-2026-11-19.md). Corrections de tests locales ; code initial publié à `4e7b9d5`.
+
+**Livré et testé le 19/11/2026** (code initial publié `38ff3e6`). Le parcours E2E de 9 étapes passe après correction de la commune de la fixture. Unitaires et intégrations réussis ; TypeScript/Svelte sans erreur ni avertissement.
 
 - **Fiche** : bloc « Besoins » Metro ; feuille `MetroSheet` d'ajout (gestion),
   de proposition (coordination) et de **modification** ; propositions à
@@ -1394,7 +1387,7 @@ refuse une chaîne de requête ; même avertissement que les liens existants.
 - La coordination n'a pas de prochaine action propre aux besoins (« besoin
   ouvert sans personne invitée ») : sa prochaine action reste celle de U3.
 
-**Tests écrits, non exécutés** : unitaires (`needs.test.ts`, règle N3 dans
+**Tests exécutés et réussis** : unitaires (`needs.test.ts`, règle N3 dans
 `next.test.ts`, prochaine action dans `overview.test.ts`) ; intégration
 (« À traiter », liaison d'annonce et ses refus) ; E2E
 `e2e/linkmusician/projets-besoins.spec.ts` (9 étapes, 390 px, axe, clavier
@@ -1475,18 +1468,19 @@ une personne étrangère au groupe ou un ancien membre ne peut pas proposer.
 
 **Écarts** : le chemin `MEMBER` n'est couvert par aucun test (les
 fixtures de `gigs.integration` font jouer une personne `OWNER`) → lot
-**P1c** (tests écrits le 19/11/2026, non exécutés). Gestion du groupe non prévenue (Q88), ancien membre (Q89),
+**P1c** (tests exécutés et réussis sur PC gamer le 19/11/2026). Gestion du groupe non prévenue (Q88), ancien membre (Q89),
 collaboration terminée non signalable (Q90) : au défaut.
 
-### P1c — Test du concert déclaré par un simple membre 🟡 (tests écrits, non exécutés)
+### P1c — Test du concert déclaré par un simple membre ✅
+
+> **Recette PC gamer du 19/11/2026 validée** : [résultats, limites et corrections](recette-2026-11-19.md). Corrections de tests locales ; code initial publié à `4e7b9d5`.
 
 - **Objectif** : prouver par un test d'intégration le comportement décrit
   par D75, sans le changer.
 - **Livré le 19/11/2026** (commit « (P1c) » `cb8ec9d`, publié) : un
   `describe` « P1c » dans `gigs.integration.test.ts`, groupe neuf (Chef
   `OWNER`, Zoé et Nina `MEMBER`, Ancien parti), hôtes réutilisés (bar non
-  vérifié, asso1 vérifiée). **Aucun test exécuté** (consigne de la
-  session) ; `npm run check` : 0 erreur ; ESLint et Prettier : conformes.
+  vérifié, asso1 vérifiée). **Tests exécutés et réussis** sur PC gamer ; `npm run check` : 0 erreur, 0 avertissement ; fichiers corrigés conformes à ESLint et Prettier.
   - **A** : Zoé (`MEMBER`) propose, le bar confirme : collaboration
     `COMPLETED`, `gig.held` (interprète le groupe, Zoé confirme, Patron
     organise, première date), « Premier concert » `CORROBORATED`,
@@ -1509,19 +1503,19 @@ collaboration terminée non signalable (Q90) : au défaut.
   (scénario D) comptait quand même comme date antérieure (`firstDateIds`)
   et dans la tournée du groupe (`firstTour`) → tranchée par D79, corrigée
   en **P1d**.
-- **Reste** : exécuter
-  `PROGRESSION_INTEGRATION=1 npm run test:unit -- --run src/lib/server/collaborations/gigs.integration.test.ts`
-  pendant la passe de tests (prompt de reprise).
+- **Recette** : `gigs.integration.test.ts`, **17 réussites**, cas historiques, P1c et P1d compris.
 - **Migration** : aucune. **Dépendances** : aucune.
 
-### P1d — Concert reconnu seul compte (Q106) 🟡 (code livré, tests non exécutés)
+### P1d — Concert reconnu seul compte (Q106) ✅
+
+> **Recette PC gamer du 19/11/2026 validée** : [résultats, limites et corrections](recette-2026-11-19.md). Corrections de tests locales ; code initial publié à `4e7b9d5`.
 
 - **Objectif** : ne plus confondre une collaboration `GIG` terminée avec un
   concert reconnu dans le bonus de première date de l'hôte et la tournée.
 - **Décision** : [D79](../decisions/D79-concert-reconnu-seul-compte.md),
   **Acceptée** le 19/11/2026 (validée par le fondateur ; critère de
   tournée « hôte vérifié aujourd'hui » inchangé).
-- **Livré le 19/11/2026** (commits locaux « (P1d) », non publiés) :
+- **Livré le 19/11/2026** (commits `c616beb`, `43a0844`, `3e1f74c`, publiés) :
   - `recognizedGigIds` (`src/lib/server/milestones/recognized-gigs.ts`) :
     concerts reconnus d'un interprète, lus dans les `gig.held` (interprète
     pris dans `performerIds`, jamais dans `actorIds` seul).
@@ -1532,7 +1526,7 @@ collaboration terminée non signalable (Q90) : au défaut.
   - Chemins déjà conformes, inchangés : `creditBookedTour`, rangs
     d'organisation et de lieu, quêtes de métier, contexte de progression
     (tous lus dans `gig.held`) ; `collaboration.completed`.
-- **Tests écrits, non exécutés** (consigne de la session) :
+- **Tests exécutés et réussis** :
   - `gigs.integration.test.ts`, `describe` « P1d » (groupe Les Cigales) :
     départ d'un membre avant la confirmation (collaboration terminée, ni
     `gig.held` ni étape, gain de collaboration gardé, rien pour l'hôte) ;
@@ -1552,12 +1546,13 @@ collaboration terminée non signalable (Q90) : au défaut.
   avec un tas de 3,3 Go, la machine n'ayant pas la mémoire pour
   `npm run check` à 6 Go) ; ESLint et Prettier conformes sur les fichiers
   touchés.
-- **Reste** : exécuter les deux fichiers pendant la passe de tests (prompt
-  de reprise, étape 3 bis).
+- **Recette** : `gigs.integration` et `solo-gigs.integration`, **17 + 17 réussites**, cas P1d inclus ; voir les corrections de préparation du test solo dans le rapport.
 - **Migration** : aucune. **Historique** : non réécrit (D79 §5).
   **Dépendances** : P1c, P8.
 
-### P8 — Artiste solo sur scène 🟡 (code livré, tests à exécuter)
+### P8 — Artiste solo sur scène ✅
+
+> **Recette PC gamer du 19/11/2026 validée** : [résultats, limites et corrections](recette-2026-11-19.md). Corrections de tests locales ; code initial publié à `4e7b9d5`.
 
 Fiche « P8 » de la [conception 19 §10](../conception/19-architecture-cible-collab.md)
 (#36 règles de concert, #72 carte). Décision
@@ -1566,17 +1561,11 @@ périmètre de D72 (Q-G0-3) ; elle respecte D64, dont la révision partielle
 est renvoyée à P8b ([D78](../decisions/D78-plateaux-par-format-revision-D64.md),
 **Proposée**).
 
-**Livré le 19/11/2026** (commits locaux `6027d05` métier et migration,
-`8759727` tests, puis doc). **Aucun test exécuté** (consigne de la
-session) ; `npm run check` : 0 erreur ; ESLint : 0 erreur (3 avertissements
-préexistants `no-navigation-without-resolve` dans la messagerie) ;
-Prettier : conforme.
+**Livré et testé le 19/11/2026** (code initial publié `6027d05`, `8759727`). Les 17 intégrations solo, unitaires et E2E concernés passent après correction des fixtures ; TypeScript/Svelte et lint des corrections conformes.
 
 - **Interprète** : `Collaboration.performerId` (`Actor`), le groupe **ou**
   la personne ; migration additive `20261119180000_collaboration_performer`
-  recopiée depuis `bandId`, **écrite à la main, non appliquée** (ni dev, ni
-  e2e, ni production) : `npm run db:status`, puis `db:deploy` et
-  `db:deploy:e2e`.
+  recopiée depuis `bandId`, **appliquée en dev et e2e le 19/11/2026**, puis sur PostgreSQL local par Playwright ; aucune opération de production.
 - **Proposer** : « Qui a joué » (`performer`, `band` en repli) ; la personne
   doit être de la conversation et avoir le métier musicien·ne (Q104) ;
   l'autre gère l'hôte ; on ne s'accueille pas soi-même (`gigSplitOk`) ;
@@ -1595,27 +1584,29 @@ Prettier : conforme.
 - **RGPD** : export `etapes_de_scene_personnelles` et
   `collaborations[].interprete` ; effacement à l'anonymisation.
 
-**Tests écrits, non exécutés** :
+**Tests exécutés et réussis** :
 
 - unitaires : `src/lib/collaborations/solo.test.ts`,
   `src/lib/milestones/personal.test.ts`, `src/lib/career/solo.test.ts`,
   `branch.test.ts` (avertissement de groupe retiré pour « La scène ») ;
 - intégration : `src/lib/server/collaborations/solo-gigs.integration.test.ts`
-  (13 cas : refus, gain unilatéral, refus et annulation, corroboré puis
+  (**17 cas exécutés**, dont P1d : refus, gain unilatéral, refus et annulation, corroboré puis
   vérifié, DC4 dans les deux sens, tournée, confirmation concurrente,
   mineure, concert d'avant P8, contestation, RGPD) ;
   `realisations.integration` (champ `solo` de la carte souvenir) ;
-- non-régression à relancer : `gigs.integration`, `realisations.integration`
+- non-régressions exécutées : `gigs.integration`, `realisations.integration`
   (budget de requêtes : une requête de plus seulement pour qui n'a aucun
   groupe crédité), `representation.integration`, `map.integration`.
 
 **Écarts** : pas de recherche ni de candidature solo (P8b) ; « Le studio »
 solo (N6) ; Q101 à Q105 au défaut.
 
-### U6a — Parcours scénique solo, adaptations minimales 🟡 (code livré, tests à exécuter)
+### U6a — Parcours scénique solo, adaptations minimales ✅
+
+> **Recette PC gamer du 19/11/2026 validée** : [résultats, limites et corrections](recette-2026-11-19.md). Corrections de tests locales ; code initial publié à `4e7b9d5`.
 
 Première tranche de U6 ([conception 20 §14](../conception/20-parcours-ux-collab.md)),
-sur le socle P8. **Livré le 19/11/2026** (commit local `30b0ab1`).
+sur le socle P8. **Livré le 19/11/2026** (commit publié `30b0ab1`).
 
 - Messagerie : « Qui a joué » (« Moi » en son nom, puis les groupes),
   phrase d'effet adaptée, état vide qui demande le métier musicien·ne et
@@ -1626,7 +1617,7 @@ sur le socle P8. **Livré le 19/11/2026** (commit local `30b0ab1`).
 - Aide « Mode Carrière ».
 - E2E : `e2e/linkmusician/solo-scene.spec.ts` (scénario B jusqu'à « La
   scène » franchie et la carte souvenir) ; `concerts`, `booker` et
-  `carriere` mis à jour. **Non exécutés.**
+  `carriere` mis à jour. **Exécutés et réussis**, sans reprise automatique.
 
 ### U6b — Parcours solo : plateaux et profil (à faire, après P8b)
 

@@ -14,7 +14,8 @@ import { skipOnboarding } from '../support/linkmusician';
  * sur sa carte, sa fiche compte le concert, et rien ne l'invite à monter un
  * groupe pour y arriver.
  *
- * Écrit le 19/11/2026, **non exécuté** dans la session (recette globale).
+ * Recette PC gamer du 19/11/2026 : exécutée et réussie après correction
+ * du métier de Sam (docs/plan/recette-2026-11-19.md).
  * Hors périmètre (P8b) : candidater en son nom à un plateau « solo ».
  */
 test.describe('LinkMusician — artiste solo sur scène (P8)', () => {
@@ -47,6 +48,12 @@ test.describe('LinkMusician — artiste solo sur scène (P8)', () => {
 				where: { userId: (await requireUser(samAccount.email)).id },
 				data: { birthDate: adult },
 				include: { actor: true }
+			});
+			// Le raccourci d'onboarding choisit musicien : Sam est ici seulement
+			// organisateur, pour que Camille soit l'unique interprète possible.
+			await db.personTrack.deleteMany({ where: { personId: sam.actorId } });
+			await db.personTrack.create({
+				data: { personId: sam.actorId, track: 'PROMOTER', isPrimary: true }
 			});
 			// Camille est musicienne ; aucun groupe, aucun groupe « Solo ».
 			await db.personTrack.upsert({
@@ -108,6 +115,7 @@ test.describe('LinkMusician — artiste solo sur scène (P8)', () => {
 				await page.getByRole('combobox', { name: 'Type' }).selectOption('GIG');
 				const who = page.getByRole('combobox', { name: 'Qui a joué' });
 				await expect(who).toContainText(`Moi (${camille.actor.displayName})`);
+				await expect(who).toHaveValue(camille.actor.handle!);
 				await expect(
 					page.getByText(/compte pour ton parcours, en ton nom, sans groupe/)
 				).toBeVisible();

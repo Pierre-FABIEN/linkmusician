@@ -167,7 +167,7 @@ Le lieu a sa propre doc ([docs/jam](../jam/README.md#revendication-dun-lieu-nive
 
 ## Artiste solo sur scène (P8, D77)
 
-Code livré le 19/11/2026, **tests écrits et non exécutés**.
+Code livré et **recette validée le 19/11/2026** sur PC gamer : 17 intégrations solo (P8 et P1d), 17 intégrations concerts de groupe (P1c et P1d), unitaires et E2E concernés réussis. Migration P8 appliquée en dev/e2e. [Preuves et corrections des tests](../plan/recette-2026-11-19.md).
 
 - **Interprète** : `Collaboration.performerId` (un `Actor`) dit qui a joué :
   le groupe (`bandId` aussi rempli, recopié pour les concerts d'avant P8)

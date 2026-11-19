@@ -405,7 +405,9 @@ projets » : l'équipe ouverte comptée dans la requête principale (`_count`).
 « À traiter » et l'accueil : deux lectures de plus (invitations,
 coordinations proposées).
 
-## Besoins (U3b-b, U3b-c) — code livré le 19/11/2026, tests à exécuter
+## Besoins (U3b-b, U3b-c) — recette validée le 19/11/2026
+
+[Recette sur PC gamer](../plan/recette-2026-11-19.md) : 16 intégrations des besoins, 2 tests de performance et le parcours E2E en 9 étapes réussis. Fiche avec 0/5/20 besoins : 7 requêtes, médianes 230/229/229 ms sur Neon. Corrections limitées aux tests ; les limites fonctionnelles ci-dessous restent applicables.
 
 Décision [D76](../decisions/README.md), [conception 22](../conception/22-besoins-projet.md).
 

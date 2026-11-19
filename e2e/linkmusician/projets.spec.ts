@@ -278,7 +278,11 @@ test.describe('LinkMusician — projets (P2)', () => {
 				await page.waitForURL(/\/projets\/[^/]+\?cree$/);
 				await waitForAppReady(page);
 				const bandProject = new URL(page.url()).pathname.split('/').pop()!;
-				await expect(page.getByText('Groupe Lumière', { exact: true })).toBeVisible();
+				await expect(
+					page
+						.getByRole('list', { name: 'Repères du projet' })
+						.getByText('Groupe Lumière', { exact: true })
+				).toBeVisible();
 				// Idée privée du groupe : « Rien » proposé.
 				await page
 					.getByLabel('Morceau à ranger')

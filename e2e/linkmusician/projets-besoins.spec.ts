@@ -5,7 +5,7 @@ import { signUpAndVerify } from '../support/admin';
 import { db, deleteUser, requireUser } from '../support/db';
 import { waitForAppReady } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
-import { horizontalOverflow, skipOnboarding } from '../support/linkmusician';
+import { horizontalOverflow, setCity, skipOnboarding } from '../support/linkmusician';
 
 /**
  * U3b-c — besoins d'un projet (#71, #36 ; D76, conception 22 §6, §7, §8).
@@ -91,6 +91,8 @@ test.describe('LinkMusician — besoins d’un projet (U3b-c)', () => {
 			await skipOnboarding(page, account.email);
 			const lea = await personOf(account.email, 'Léa Roux');
 			leaId = lea.actorId;
+			// La publication d'une annonce exige une commune, même depuis un besoin.
+			await setCity(page);
 			await signUpAndVerify(sam, samAccount);
 			await skipOnboarding(sam, samAccount.email);
 			const coord = await personOf(samAccount.email, 'Sam Morel');

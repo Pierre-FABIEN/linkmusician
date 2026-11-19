@@ -1,4 +1,8 @@
 /**
+ * Recette PC gamer du 19/11/2026 : exécutée et réussie après correction
+ * des fixtures (docs/plan/recette-2026-11-19.md). Les mentions « non exécuté »
+ * ci-dessous décrivent la session initiale de rédaction.
+ *
  * Artiste solo sur scène (P8, D77) sur la base de `.env`, schéma `e2e` : une
  * personne joue **en son nom**, sans groupe, et l'hôte confirme. Le concert
  * franchit ses étapes de scène personnelles, jamais celles d'un groupe ; un
@@ -254,13 +258,14 @@ describe.skipIf(!enabled)('artiste solo sur scène (schéma e2e)', { timeout: 18
 			proposeSolo('camille', conv.camilleMalik, 'chez-camille', daysAgo(5))
 		).rejects.toThrow(/On ne s’accueille pas soi-même/);
 		// Un groupe et une personne à la fois : refusé avant toute lecture.
+		// Le vrai groupe ne naît qu'au scénario DC4 ; utiliser un nom non vide.
 		await expect(
 			service.proposeCollaboration(ids.camille, conv.camillePatron, {
 				kind: 'GIG',
 				title: 'Les deux',
 				happenedOn: daysAgo(5),
 				performer: PREFIX + 'camille',
-				band: band.handle,
+				band: `${PREFIX}groupe`,
 				host: orgs.bar.handle
 			})
 		).rejects.toThrow(/une seule/);
@@ -499,9 +504,17 @@ describe.skipIf(!enabled)('artiste solo sur scène (schéma e2e)', { timeout: 18
 		);
 		const collabs = data?.collaborations ?? [];
 		expect(collabs.some((c) => c.type === 'GIG' && c.interprete === 'moi')).toBe(true);
+		// Le concert du groupe a été confirmé par Malik et l'organisation :
+		// il figure dans l'export de Malik, pas dans celui de Camille.
 		expect(collabs.some((c) => c.type === 'GIG' && c.interprete === `${PREFIX}Les Rats`)).toBe(
-			true
+			false
 		);
+		const malikData = await exportPersonData(users.malik);
+		expect(
+			malikData?.collaborations.some(
+				(c) => c.type === 'GIG' && c.interprete === `${PREFIX}Les Rats`
+			)
+		).toBe(true);
 		await db.$transaction(await personAnonymizationOps(users.lou));
 		expect(await db.milestone.count({ where: { bandId: ids.lou } })).toBe(0);
 		// Le registre d'XP reste (ajout seul).
@@ -530,7 +543,7 @@ describe.skipIf(!enabled)('artiste solo sur scène (schéma e2e)', { timeout: 18
 		beforeAll(async () => {
 			ids.eva = await person('eva', { musician: true });
 			ids.relais = await person('relais');
-			await org('relais', 'PROMOTER', ids.relais, true, 'Toulouse');
+			await org('relais-hote', 'PROMOTER', ids.relais, true, 'Toulouse');
 			conv.evaRelais = await conversation(ids.eva, ids.relais);
 			conv.evaPatron = await conversation(ids.eva, ids.patron);
 			conv.evaOrga = await conversation(ids.eva, ids.orga);
@@ -538,10 +551,10 @@ describe.skipIf(!enabled)('artiste solo sur scène (schéma e2e)', { timeout: 18
 		}, 120_000);
 
 		it('gestion de l’hôte partie avant la confirmation : terminée, rien de reconnu, gain de collaboration gardé', async () => {
-			const { id } = await proposeSolo('eva', conv.evaRelais, 'relais', daysAgo(28));
+			const { id } = await proposeSolo('eva', conv.evaRelais, 'relais-hote', daysAgo(28));
 			// Relais n'administre plus l'organisation au moment de confirmer.
 			await db.membership.updateMany({
-				where: { orgId: orgs.relais.id, personId: ids.relais },
+				where: { orgId: orgs['relais-hote'].id, personId: ids.relais },
 				data: { status: 'LEFT' }
 			});
 			await service.respondToCollaboration(ids.relais, id, true);
