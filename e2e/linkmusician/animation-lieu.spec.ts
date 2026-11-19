@@ -1,7 +1,7 @@
 import { test, expect } from '../support/fixtures';
 import { signUpAndVerify } from '../support/admin';
 import { makeAccount } from '../support/account';
-import { db, deleteUser, requireUser } from '../support/db';
+import { db, deleteUser, e2eTable, requireUser } from '../support/db';
 import { waitForAppReady, waitForPath } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
 import { createMusician, deleteMusicians, setCity, skipOnboarding } from '../support/linkmusician';
@@ -89,7 +89,7 @@ test.describe('LinkMusician — animatrice d’un lieu', () => {
 			await db.venue.update({ where: { id: venueId }, data: { claimedByActorId: orgId } });
 			// La commune du lieu, comme à l'enregistrement de sa fiche.
 			await db.$executeRawUnsafe(
-				`INSERT INTO "e2e"."actor_locations" ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
+				`INSERT INTO ${e2eTable('actor_locations')} ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
 				 VALUES ($1, $2, $3, $4, public.ST_SetSRID(public.ST_MakePoint($5, $6), 4326)::public.geography, now())`,
 				orgId,
 				toulouse.code,

@@ -31,6 +31,27 @@ worker) :
 
 <!-- LINKMUSICIAN ▼ -->
 
+## LinkMusician — base PostgreSQL locale (`E2E_DB=local`)
+
+Sur Neon, une bonne part du temps est l'aller-retour réseau de chaque
+requête. Avec une base de la machine, la suite va plusieurs fois plus vite.
+
+```bash
+sudo bash scripts/e2e-base-locale.sh             # une fois par machine
+npm run test:e2e:local                           # suite séquentielle, base locale
+npm run test:e2e:local:parallele -- --parts=6    # en parts, base locale
+```
+
+Le script installe PostgreSQL 18 et PostGIS 3 (les versions de Neon), crée
+le rôle `melokiva` et la base `melokiva_e2e` (PostGIS dans `public`, comme
+sur Neon) et règle le cluster pour la vitesse (`fsync=off`, réservé aux
+tests). Les schémas (`e2e`, `e2e_<n>`) sont créés et migrés par la
+préparation globale. Autre adresse : `E2E_LOCAL_DATABASE_URL`.
+
+**Garder une passe Neon** (`npm run test:e2e` ou `test:e2e:parallele`) avant
+une mise en production : le pooler, la latence et la version exacte de Neon
+ne sont vus que là.
+
 ## LinkMusician — suite en parallèle (`npm run test:e2e:parallele`)
 
 La suite reste mono-worker (serveur de dev, limiteurs en mémoire, boîte mail
@@ -42,7 +63,7 @@ dossiers générés (`.svelte-kit-e2e-<n>`, `node_modules/.vite-e2e-<n>`,
 `e2e-parallele/`). Le schéma `e2e` de `npm run test:e2e` n'est pas touché.
 
 ```bash
-npm run test:e2e:parallele                       # parts selon la RAM libre (~3 Gio chacune)
+npm run test:e2e:parallele                       # parts selon la RAM libre (~3,7 Gio chacune)
 npm run test:e2e:parallele -- --parts=4
 npm run test:e2e:parallele -- --parts=3 e2e/linkmusician
 npx playwright show-report                       # rapport fusionné
@@ -62,7 +83,7 @@ schéma, sinon leurs parts se mélangent (ex. sur le portable,
 
 | Machine (RAM Windows) | `memory=` dans `.wslconfig` | Parts conseillées |
 | --------------------- | --------------------------- | ----------------- |
-| 32 Go (PC fixe)       | `24GB`                      | 5 à 6             |
+| 32 Go (PC fixe)       | `24GB`                      | 5                 |
 | 16 Go (portable)      | `10GB`                      | 2 à 3             |
 
 Journaux par part : `e2e-parallele/part-<n>.log`. Plus de RAM pour WSL

@@ -2,7 +2,7 @@ import type { Browser, Page } from '@playwright/test';
 import { test, expect } from '../support/fixtures';
 import { pageOrigin, signUpAndVerify, sveltekitActionHeaders } from '../support/admin';
 import { makeAccount, makeClientIp, type Account } from '../support/account';
-import { db, deleteUser, requireUser } from '../support/db';
+import { db, deleteUser, e2eTable, requireUser } from '../support/db';
 import { waitForAppReady, waitForPath } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
 import {
@@ -158,7 +158,7 @@ test.describe('LinkMusician — recette transverse (DASH-20a à DASH-20c)', () =
 		try {
 			const viewer = await person(page, account, ADULT);
 			await db.$executeRawUnsafe(
-				`INSERT INTO "e2e"."actor_locations" ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
+				`INSERT INTO ${e2eTable('actor_locations')} ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
 				 VALUES ($1, $2, $3, $4, public.ST_SetSRID(public.ST_MakePoint($5, $6), 4326)::public.geography, now())`,
 				viewer.actorId,
 				MONTAUBAN.code,
@@ -408,7 +408,7 @@ test.describe('LinkMusician — recette transverse (DASH-20a à DASH-20c)', () =
 		let malikErased = '';
 		const locate = (actorId: string) =>
 			db.$executeRawUnsafe(
-				`INSERT INTO "e2e"."actor_locations" ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
+				`INSERT INTO ${e2eTable('actor_locations')} ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
 				 VALUES ($1, $2, $3, $4, public.ST_SetSRID(public.ST_MakePoint($5, $6), 4326)::public.geography, now())`,
 				actorId,
 				MONTAUBAN.code,

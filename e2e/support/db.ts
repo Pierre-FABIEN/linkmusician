@@ -91,6 +91,16 @@ if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(rawSchemaName)) {
 const schemaName = Prisma.raw(`"${rawSchemaName}"`);
 
 /**
+ * LINKMUSICIAN: table qualifiée par le schéma réel des e2e (`e2e`, `e2e_<n>`
+ * d'une part de `test:e2e:parallele`), pour le SQL brut écrit en chaîne
+ * (`$executeRawUnsafe`). Jamais `"e2e"` en dur : une part écrirait ailleurs.
+ */
+export function e2eTable(table: string): string {
+	if (!/^[a-z_][a-z0-9_]*$/.test(table)) throw new Error(`Table invalide : ${table}`);
+	return `"${rawSchemaName}"."${table}"`;
+}
+
+/**
  * Rejoue une lecture sur coupure réseau passagère.
  *
  * La base est distante (Neon) et se met en veille : une requête peut échouer le

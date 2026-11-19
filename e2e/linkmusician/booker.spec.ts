@@ -1,7 +1,7 @@
 import { test, expect } from '../support/fixtures';
 import { signUpAndVerify } from '../support/admin';
 import { makeAccount } from '../support/account';
-import { db, deleteUser, requireUser } from '../support/db';
+import { db, deleteUser, e2eTable, requireUser } from '../support/db';
 import { waitForAppReady } from '../support/flows';
 import { expectNoA11yViolations } from '../support/a11y';
 import { createMusician, deleteMusicians, skipOnboarding } from '../support/linkmusician';
@@ -113,8 +113,11 @@ test.describe('LinkMusician — booker et manager', () => {
 			).id;
 
 			const host = await db.actor.findUniqueOrThrow({ where: { handle: assoHandle } });
-			// Localisation de commune uniquement, sur le schéma e2e explicite.
-			await db.$executeRaw`INSERT INTO "e2e"."actor_locations" ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt") VALUES (${host.id}, '31555', 'Toulouse', '31', ST_SetSRID(ST_MakePoint(1.43, 43.60), 4326)::geography, NOW())`;
+			// Localisation de commune uniquement, sur le schéma réel des e2e.
+			await db.$executeRawUnsafe(
+				`INSERT INTO ${e2eTable('actor_locations')} ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt") VALUES ($1, '31555', 'Toulouse', '31', public.ST_SetSRID(public.ST_MakePoint(1.43, 43.60), 4326)::public.geography, NOW())`,
+				host.id
+			);
 
 			await test.step('1. Nina propose d’accompagner Les Rats depuis leur page', async () => {
 				await page.goto(`/@${bandHandle}`);

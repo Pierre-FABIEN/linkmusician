@@ -20,8 +20,8 @@ import os from 'node:os';
 import path from 'node:path';
 
 const GIB = 1024 ** 3;
-/** Mesuré : un serveur Vite de dev, Chromium et Playwright, environ 3 Gio par part. */
-const PER_PART = 3 * GIB;
+/** Mesuré le 19/11/2026 (6 parts sur 24 Go : swap entamé) : serveur Vite de dev, Chromium et Playwright, environ 3,7 Gio par part. */
+const PER_PART = 3.7 * GIB;
 const ROOT = 'e2e-parallele';
 
 const args = process.argv.slice(2);
@@ -101,7 +101,7 @@ if (!Number.isInteger(parts)) {
 fs.rmSync(ROOT, { recursive: true, force: true });
 fs.mkdirSync(ROOT, { recursive: true });
 console.log(
-	`[e2e] ${parts} part(s) en parallèle (${(os.freemem() / GIB).toFixed(1)} Gio libres, ~3 Gio par part). Journaux : ${ROOT}/part-<n>.log`
+	`[e2e] ${parts} part(s) en parallèle (${(os.freemem() / GIB).toFixed(1)} Gio libres, ~3,7 Gio par part). Journaux : ${ROOT}/part-<n>.log`
 );
 
 const started = Date.now();

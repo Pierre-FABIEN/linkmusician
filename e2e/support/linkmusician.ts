@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { db, requireUser } from './db';
+import { db, requireUser, e2eTable } from './db';
 import { waitForAppReady, waitForPath } from './flows';
 
 /**
@@ -81,7 +81,7 @@ export async function createMusician(spec: {
 	});
 	const { code, nom, dep, lat, lng } = spec.commune;
 	await db.$executeRawUnsafe(
-		`INSERT INTO "e2e"."actor_locations" ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
+		`INSERT INTO ${e2eTable('actor_locations')} ("actorId", "communeCode", "communeName", "departmentCode", "point", "updatedAt")
 		 VALUES ($1, $2, $3, $4, public.ST_SetSRID(public.ST_MakePoint($5, $6), 4326)::public.geography, now())`,
 		actor.id,
 		code,
