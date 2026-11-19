@@ -32,6 +32,7 @@ import { summaryEventsOf, tierOf } from '#lib/server/progression/read';
 import type { DomainEvent } from '#lib/server/progression/core/events';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { SOUND_ROLE_KINDS } from '#lib/works/rules';
+import { isPersonalMilestoneKey, PERSONAL_MILESTONE_KEYS } from '#lib/milestones/rules';
 import {
 	countable,
 	dedupeRealisations,
@@ -225,10 +226,23 @@ export function creditedMilestones(actorId: string, events: readonly DomainEvent
 	return out;
 }
 
-async function sceneMilestoneRows(bandIds: string[]) {
-	if (bandIds.length === 0) return [];
+/**
+ * Lignes des étapes de scène : celles des groupes crédités, et (P8) les
+ * étapes personnelles de l'acteur s'il est une personne, en une requête.
+ */
+async function sceneMilestoneRows(bandIds: string[], actorId: string) {
 	return prisma.milestone.findMany({
-		where: { bandId: { in: bandIds }, definitionId: { in: [...SCENE_MILESTONES] } },
+		where: {
+			definitionId: { in: [...SCENE_MILESTONES] },
+			OR: [
+				...(bandIds.length ? [{ bandId: { in: bandIds } }] : []),
+				{
+					bandId: actorId,
+					definitionId: { in: [...PERSONAL_MILESTONE_KEYS] },
+					band: { kind: 'PERSON' as const }
+				}
+			]
+		},
 		select: {
 			id: true,
 			bandId: true,
@@ -273,6 +287,35 @@ export function milestoneRealisations(
 	});
 }
 
+/**
+ * Étapes de scène **personnelles** (P8, D77) : la personne a joué en son nom,
+ * l'hôte a confirmé. Pas d'attestation (aucune XP propre) : la ligne fait
+ * foi. Clé `milestone:<personne>:<étape>`, distincte de celle d'un groupe
+ * (DC4) : un concert du groupe ne franchit pas l'étape personnelle, ni
+ * l'inverse.
+ */
+export function personalMilestoneRealisations(
+	actorId: string,
+	rows: Awaited<ReturnType<typeof sceneMilestoneRows>>
+): Realisation[] {
+	return rows
+		.filter((m) => m.bandId === actorId && isPersonalMilestoneKey(m.definitionId))
+		.map((m) =>
+			make({
+				kind: 'MILESTONE',
+				branch: 'SCENE',
+				bearerId: m.bandId,
+				object: { type: 'MILESTONE', id: m.id, bandId: m.bandId, definitionId: m.definitionId },
+				roles: ['PERFORMER'],
+				occurredAt: m.occurredAt,
+				proof: m.proof,
+				status: m.frozenAt ? 'FROZEN' : 'ACTIVE',
+				visibility: 'PUBLIC',
+				firstTime: true
+			})
+		);
+}
+
 /** Collaborations terminées et confirmées où l'acteur figure (événements du résumé). */
 export function collaborationRealisations(actorId: string, events: readonly DomainEvent[]) {
 	const out: Realisation[] = [];
@@ -313,12 +356,13 @@ export async function readRealisations(actorId: string) {
 	const scene = summaryEventsOf(actorId, prisma).then(async (events) => {
 		const credited = creditedMilestones(actorId, events);
 		const bandIds = [...new Set([...credited.values()].map((c) => c.bandId))];
-		return { events, credited, rows: await sceneMilestoneRows(bandIds) };
+		return { events, credited, rows: await sceneMilestoneRows(bandIds, actorId) };
 	});
 	const [{ events, credited, rows }, works] = await Promise.all([scene, worksOf(actorId)]);
 	const realisations = dedupeRealisations([
 		...works.flatMap(workRealisations),
 		...milestoneRealisations(credited, rows),
+		...personalMilestoneRealisations(actorId, rows),
 		...collaborationRealisations(actorId, events)
 	]);
 	return {

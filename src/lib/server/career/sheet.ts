@@ -8,7 +8,7 @@ import { careerMap } from '#lib/career/map';
 import type { CareerSheet, PrivateExtras } from '#lib/career/sheet';
 import { bandsOfPerson } from '#lib/server/bands/public';
 import { careerEvidenceForSheet } from './map';
-import { creditsOf } from '#lib/career/realisations';
+import { creditsOf, personalGigsOf } from '#lib/career/realisations';
 
 async function publicSheetData(actorId: string, viewerId?: string | null) {
 	const [evidence, appreciations, collabEndorsers, collaborators, bands] = await Promise.all([
@@ -60,7 +60,8 @@ async function publicSheetData(actorId: string, viewerId?: string | null) {
 			// (P4-07), confirmé des deux côtés, dès sa confirmation (N1 : lu
 			// dans les réalisations, plus de requête à part).
 			credits: creditsOf(realisations),
-			gigs: tier.summary.corroboratedGigs,
+			// Concerts de groupe (moteur), plus le sien en son nom (P8).
+			gigs: tier.summary.corroboratedGigs + personalGigsOf(realisations),
 			cities,
 			appreciatedBy: tier.summary.distinctEndorsers,
 			bands: bands.length,

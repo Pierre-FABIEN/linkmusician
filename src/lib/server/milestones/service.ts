@@ -34,6 +34,7 @@ import { checkReleaseReference, type ReleaseReferenceKind } from '#lib/milestone
 import { verifyMusicBrainzRelease, type ReleaseMilestoneKey } from './release-verification';
 import { firstTour, TOUR_MIN_GIGS } from '#lib/milestones/tour';
 import { isConfirmedBooker } from '#lib/server/representation/service';
+import { gigWitnesses } from '#lib/collaborations/rules';
 import {
 	compositionProof,
 	creditDate,
@@ -43,6 +44,9 @@ import {
 	membersAt,
 	MILESTONE_CATALOG,
 	milestoneDef,
+	PERSONAL_MILESTONE_KEYS,
+	personalGigProof,
+	type PersonalMilestoneKey,
 	type DeclareInput,
 	type MilestoneDetails,
 	type MilestoneKey,
@@ -629,12 +633,198 @@ export async function verifyGigFromCollaboration(
 }
 
 /**
+ * Étape de scène **personnelle** (P8, D77) : création ou montée de preuve,
+ * sous la clé du porteur (`band:<personId>`, la même famille de verrou que
+ * les étapes de groupe). **Aucune attestation** : pas de `milestone.attested`,
+ * donc ni XP de groupe ni part de membre ; la collaboration terminée a déjà
+ * rapporté (conception 19 §9.4, aucun barème nouveau). Rien si l'étape est
+ * déjà à ce niveau ou au-dessus, ou gelée.
+ */
+async function raisePersonalMilestone(
+	tx: Tx,
+	personId: string,
+	key: PersonalMilestoneKey,
+	hostVerified: boolean,
+	day: string
+) {
+	await lockBand(tx, personId);
+	const existing = await tx.milestone.findUnique({
+		where: { bandId_definitionId: { bandId: personId, definitionId: key } },
+		select: { id: true, proof: true, frozenAt: true }
+	});
+	if (existing?.frozenAt) return null;
+	const to = personalGigProof(existing?.proof ?? null, hostVerified);
+	if (!to) return null;
+	if (existing) {
+		await tx.milestone.update({ where: { id: existing.id }, data: { proof: to } });
+		return existing.id;
+	}
+	const created = await tx.milestone.create({
+		data: {
+			definitionId: key,
+			bandId: personId,
+			proof: to,
+			occurredAt: dayToDate(day),
+			definitionVersion: await definitionVersion(tx, key)
+		},
+		select: { id: true }
+	});
+	return created.id;
+}
+
+/**
+ * Concert **en son nom** terminé (P8, D77, conception 19 §9.4 et DC4) : une
+ * personne a joué, accueillie par un lieu ou une organisation que gère
+ * l'autre personne. Appelé dans la transaction qui termine la collaboration,
+ * à la place de `verifyGigFromCollaboration` (réservée aux groupes).
+ *
+ * - Relu au moment de la confirmation : la personne interprète est partie de
+ *   la collaboration, son compte existe, elle ne gère pas l'hôte ; une
+ *   gestion distincte de l'hôte a confirmé. Sinon rien (un concert qu'on
+ *   joue et accueille soi-même ne prouve rien).
+ * - `gig.held` : comme pour un groupe, l'interprète est la personne ; qui
+ *   organise et le booker confirmé de la personne sont crédités, jamais
+ *   l'interprète.
+ * - « Premier concert » **personnel** : vérifié par une organisation
+ *   vérifiée, corroboré sinon. « Première tournée » personnelle : ≥3
+ *   concerts vérifiés en son nom dans ≥3 communes en 30 jours. Aucune étape
+ *   de groupe n'est touchée, et un concert de groupe n'écrit jamais ici.
+ */
+export async function verifySoloGigFromCollaboration(
+	tx: Tx,
+	collab: {
+		id: string;
+		performerId: string;
+		hostOrgId: string;
+		happenedOn: Date;
+		communeCode: string | null;
+		bookedById?: string | null;
+		participantIds: string[];
+	},
+	now: Date
+) {
+	await lockBand(tx, collab.performerId);
+	const [performer, host, managers] = await Promise.all([
+		tx.actor.findUnique({
+			where: { id: collab.performerId },
+			select: { kind: true, deletedAt: true }
+		}),
+		tx.organization.findUnique({
+			where: { actorId: collab.hostOrgId },
+			select: { kind: true, verifiedAt: true }
+		}),
+		tx.membership.findMany({
+			where: {
+				orgId: collab.hostOrgId,
+				status: 'ACTIVE',
+				role: { in: ['OWNER', 'ADMIN'] },
+				personId: { in: collab.participantIds }
+			},
+			select: { personId: true }
+		})
+	]);
+	if (!performer || performer.kind !== 'PERSON' || performer.deletedAt || !host) return null;
+	const players = collab.participantIds.filter((id) => id === collab.performerId);
+	const { hosts, confirmers } = gigWitnesses(
+		players,
+		managers.map((m) => m.personId)
+	);
+	if (hosts.length === 0 || confirmers.length === 0) return null;
+	const verified = host.verifiedAt !== null;
+	const day = collab.happenedOn.toISOString().slice(0, 10);
+	const bookerIds =
+		collab.bookedById &&
+		collab.bookedById !== collab.performerId &&
+		(await isConfirmedBooker(
+			tx,
+			collab.bookedById,
+			collab.performerId,
+			{ on: collab.happenedOn, departmentCode: departmentOfCommune(collab.communeCode) },
+			now
+		))
+			? [collab.bookedById]
+			: [];
+	// Toute première date de la personne en son nom : ni concert solo terminé
+	// avant, ni « Premier concert » personnel. Ses concerts de groupe ne
+	// comptent pas (DC4).
+	const [earlierGigs, firstGig] = await Promise.all([
+		tx.collaboration.count({
+			where: {
+				performerId: collab.performerId,
+				bandId: null,
+				kind: 'GIG',
+				status: 'COMPLETED',
+				id: { not: collab.id }
+			}
+		}),
+		tx.milestone.count({ where: { bandId: collab.performerId, definitionId: 'FIRST_GIG' } })
+	]);
+	await emitAndProcess(tx, {
+		type: 'gig.held',
+		gigId: collab.id,
+		organizerIds: hosts,
+		bookerIds,
+		performerIds: [collab.performerId],
+		confirmerIds: confirmers,
+		...(host.kind === 'VENUE' ? { venueOrgId: collab.hostOrgId } : {}),
+		firstDateIds: earlierGigs === 0 && firstGig === 0 ? [collab.performerId] : [],
+		verified
+	});
+	for (const bookerId of bookerIds) await creditBookedTour(tx, bookerId, collab.performerId, now);
+
+	await raisePersonalMilestone(tx, collab.performerId, 'FIRST_GIG', verified, day);
+	if (!verified) return null;
+	const gigs = await tx.collaboration.findMany({
+		where: {
+			performerId: collab.performerId,
+			bandId: null,
+			kind: 'GIG',
+			status: 'COMPLETED',
+			communeCode: { not: null },
+			hostOrg: { verifiedAt: { not: null } }
+		},
+		select: { happenedOn: true, communeCode: true }
+	});
+	const tour = firstTour(
+		gigs.map((g) => ({ day: g.happenedOn.toISOString().slice(0, 10), communeCode: g.communeCode! }))
+	);
+	if (tour) await raisePersonalMilestone(tx, collab.performerId, 'FIRST_TOUR', true, tour.from);
+	return null;
+}
+
+/**
+ * Étapes de scène personnelles d'une personne (P8) : publiques comme les
+ * étapes de groupe (un fait confirmé par l'hôte), sans XP ni déclarant.
+ */
+export async function personalMilestones(personId: string, db: Db = prisma) {
+	const rows = await db.milestone.findMany({
+		where: {
+			bandId: personId,
+			definitionId: { in: [...PERSONAL_MILESTONE_KEYS] },
+			band: { kind: 'PERSON' }
+		},
+		select: { id: true, definitionId: true, proof: true, occurredAt: true, frozenAt: true }
+	});
+	return rows
+		.map((r) => ({
+			id: r.id,
+			key: r.definitionId as PersonalMilestoneKey,
+			label: milestoneDef(r.definitionId as MilestoneKey).label,
+			proof: r.proof,
+			frozen: r.frozenAt !== null,
+			occurredAt: r.occurredAt
+		}))
+		.sort((a, b) => ORDER.get(a.key)! - ORDER.get(b.key)!);
+}
+
+/**
  * Tournée bookée (P5-07, 08 §9) : les dates que le booker a bookées pour le
  * groupe et qui l'ont crédité (`gig.held`), après sa dernière tournée
  * bookée avec ce groupe, font-elles une tournée (`firstTour`) ? Si oui,
  * `tour.booked` est émis une fois : 400 × confiance de qui a confirmé.
  */
 async function creditBookedTour(tx: Tx, bookerId: string, bandId: string, now: Date) {
+	// `bandId` : l'interprète, groupe ou personne en son nom (P8).
 	const events = await tx.domainEvent.findMany({
 		where: { actorIds: { has: bookerId }, type: { in: ['gig.held', 'tour.booked'] } },
 		select: { type: true, payload: true }
@@ -759,6 +949,16 @@ export async function bandTierOf(bandId: string, db: Db = prisma) {
 }
 
 /** Export RGPD : étapes que la personne a déclarées pour un groupe. */
+/** Export RGPD (P8) : étapes de scène franchies en son nom. */
+export async function personalMilestonesExport(personId: string) {
+	return (await personalMilestones(personId)).map((m) => ({
+		etape: m.label,
+		preuve: m.proof,
+		en_verification: m.frozen,
+		date: m.occurredAt
+	}));
+}
+
 export async function milestonesExport(personId: string) {
 	const rows = await prisma.milestone.findMany({
 		where: { declaredById: personId },

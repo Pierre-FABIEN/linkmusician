@@ -23,7 +23,7 @@ import { worksExport } from '#lib/server/works/service';
 import { workStepsExport } from '#lib/server/works/steps';
 import { projectAnonymizationOps, projectsExport } from '#lib/server/projects/export';
 import { stepReleaseOnErasureOps } from '#lib/server/works/release';
-import { milestonesExport } from '#lib/server/milestones/service';
+import { milestonesExport, personalMilestonesExport } from '#lib/server/milestones/service';
 import { introductionsExport } from '#lib/server/career/introductions';
 import { proofsExport } from '#lib/server/milestones/proofs';
 import { contactGroupsExport } from '#lib/server/contacts/service';
@@ -316,6 +316,7 @@ export async function exportPersonData(userId: string) {
 		works,
 		projects,
 		milestonesDeclared,
+		personalSceneMilestones,
 		milestoneProofs,
 		contactGroups,
 		groupDiscussions,
@@ -440,7 +441,10 @@ export async function exportPersonData(userId: string) {
 					}
 				},
 				// Morceau concerné (P4-06).
-				work: { select: { title: true } }
+				work: { select: { title: true } },
+				// Interprète d'un concert (P8) : groupe ou personne.
+				performerId: true,
+				performer: { select: { displayName: true } }
 			}
 		}),
 		// Mode jam (P2-13).
@@ -617,6 +621,8 @@ export async function exportPersonData(userId: string) {
 		projectsExport(person.actorId),
 		// Étapes de groupe déclarées (P3-04).
 		milestonesExport(person.actorId),
+		// Étapes de scène personnelles (P8, D77) : jouées en son nom.
+		personalMilestonesExport(person.actorId),
 		// Preuves d'étapes (P3-05) : confirmations demandées, liens joints.
 		proofsExport(person.actorId),
 		// Groupes de contacts (P3-16b).
@@ -994,7 +1000,9 @@ export async function exportPersonData(userId: string) {
 				.map((p) => p.actor.displayName),
 			// Prestation du son assurée (P4-06) et morceau concerné.
 			ma_prestation: c.participants.find((p) => p.actorId === person.actorId)?.service ?? null,
-			morceau: c.work?.title ?? null
+			morceau: c.work?.title ?? null,
+			// Concert (P8) : « moi » quand j'ai joué en mon nom, sinon le groupe.
+			interprete: c.performerId === person.actorId ? 'moi' : (c.performer?.displayName ?? null)
 		})),
 		retraits_de_candidatures: withdrawals.map((a) => ({
 			candidature: a.id,
@@ -1156,6 +1164,7 @@ export async function exportPersonData(userId: string) {
 			}))
 		},
 		etapes_de_groupe_declarees: milestonesDeclared,
+		etapes_de_scene_personnelles: personalSceneMilestones,
 		etapes_de_groupe_confirmations: milestoneProofs.confirmations,
 		etapes_de_groupe_liens: milestoneProofs.liens,
 		groupes_de_contacts: contactGroups,
@@ -1340,6 +1349,9 @@ export async function personAnonymizationOps(
 			data: { invitedById: null }
 		}),
 		prisma.work.updateMany({ where: { createdById: person.actorId }, data: { createdById: null } }),
+		// Étapes de scène personnelles (P8, D77) : elles sont à la personne et
+		// partent avec elle (sans attestation ni preuve jointe).
+		prisma.milestone.deleteMany({ where: { bandId: person.actorId } }),
 		// Étapes de groupe (P3-04) : elles restent au groupe ; on oublie qui
 		// les a déclarées.
 		prisma.milestone.updateMany({

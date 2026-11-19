@@ -48,10 +48,18 @@ async function head(db: Tx | typeof prisma, milestoneId: string) {
 			definitionId: true,
 			frozenAt: true,
 			declaredById: true,
-			band: { select: { organization: { select: { dissolvedAt: true } } } }
+			band: { select: { kind: true, organization: { select: { dissolvedAt: true } } } }
 		}
 	});
 	if (!row) throw new MilestoneError('Cette étape n’existe plus.', 404);
+	// Étape personnelle (P8, D77) : elle ne vient que d'un concert confirmé par
+	// l'hôte et ne rapporte aucune XP propre ; elle ne passe pas par la
+	// contestation des étapes de groupe (Q102 : un signalement à la modération).
+	if (row.band.kind === 'PERSON') {
+		throw new MilestoneError(
+			'Cette étape vient d’un concert confirmé par le lieu : signale le profil à la modération.'
+		);
+	}
 	return { ...row, key: row.definitionId as MilestoneKey };
 }
 

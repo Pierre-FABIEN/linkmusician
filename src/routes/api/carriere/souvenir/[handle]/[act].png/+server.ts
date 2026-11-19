@@ -34,7 +34,7 @@ export const GET: RequestHandler = async ({ params }) => {
 		// N2 : le nom de l'épreuve, sans numéro d'acte.
 		actTitle: act.name,
 		trial: gig
-			? `Premier concert vérifié avec ${gig.bandName}${gig.hostName ? `, accueilli par ${gig.hostName}` : ''}.`
+			? `Premier concert vérifié ${gig.solo ? 'en son nom' : `avec ${gig.bandName}`}${gig.hostName ? `, accueilli par ${gig.hostName}` : ''}.`
 			: act.trial,
 		date: gig ? `concert de ${month(gig.occurredAt)}` : `créée en ${month(new Date())}`
 	});

@@ -147,7 +147,17 @@ export function collaborationSchema(today: string) {
 			.regex(/^[a-z0-9][a-z0-9_-]{1,59}$/)
 			.optional()
 			.or(z.literal('').transform(() => undefined)),
-		/** Concert (P5-06) : le groupe qui joue et l'hôte, par leurs noms d'utilisateur. */
+		/**
+		 * Concert (P5-06) : le groupe qui joue et l'hôte, par leurs noms
+		 * d'utilisateur. Depuis P8 (D77), `performer` désigne l'interprète :
+		 * un groupe **ou** l'une des deux personnes, en son nom ; `band` reste
+		 * accepté (formulaires et clients d'avant P8).
+		 */
+		performer: z
+			.string()
+			.regex(/^[a-z0-9][a-z0-9_-]{1,59}$/)
+			.optional()
+			.or(z.literal('').transform(() => undefined)),
 		band: z
 			.string()
 			.regex(/^[a-z0-9][a-z0-9_-]{1,59}$/)
@@ -180,21 +190,81 @@ export function collaborationSchema(today: string) {
 }
 
 /**
- * Un concert (P5-06) dit quel groupe a joué et quel lieu ou quelle
- * organisation l'a accueilli ; les autres types n'ont ni l'un ni l'autre.
+ * Un concert (P5-06) dit qui a joué et quel lieu ou quelle organisation l'a
+ * accueilli ; les autres types n'ont ni l'un ni l'autre. Qui a joué (P8,
+ * D77) : un groupe ou une personne en son nom (`performer`, ou `band` pour
+ * les formulaires d'avant P8 ; les deux ensemble doivent concorder).
  */
 export function checkGigParties(
 	kind: CollabKindValue,
-	parties: { band?: string; host?: string; booker?: string }
+	parties: { band?: string; performer?: string; host?: string; booker?: string }
 ): string | null {
 	if (kind !== 'GIG') {
-		return parties.band || parties.host || parties.booker
+		return parties.band || parties.performer || parties.host || parties.booker
 			? 'Seul un concert dit son groupe et son lieu.'
 			: null;
 	}
-	if (!parties.band) return 'Choisis le groupe qui a joué.';
+	if (parties.band && parties.performer && parties.band !== parties.performer) {
+		return 'Choisis une seule interprète : le groupe ou la personne qui a joué.';
+	}
+	if (!gigPerformerHandle(parties)) return 'Choisis qui a joué : un groupe, ou toi en ton nom.';
 	if (!parties.host) return 'Choisis le lieu ou l’organisation qui accueille le concert.';
 	return null;
+}
+
+/** Nom d'utilisateur de l'interprète saisi (P8) : `performer`, sinon `band`. */
+export function gigPerformerHandle(parties: { band?: string; performer?: string }) {
+	return parties.performer ?? parties.band ?? null;
+}
+
+/**
+ * Interprète d'un concert (P8, D77, conception 19 §9.4) : le groupe **ou** la
+ * personne, jamais les deux (DC4). `players` : les personnes de la
+ * conversation qui jouent (membres actifs du groupe, ou la personne elle-même).
+ */
+export type GigPerformer =
+	{ kind: 'BAND'; id: string; players: readonly string[] } | { kind: 'PERSON'; id: string };
+
+/** Personnes de la paire qui jouent pour cet interprète. */
+export function gigPlayers(performer: GigPerformer, pair: readonly string[]): string[] {
+	return performer.kind === 'PERSON'
+		? pair.filter((id) => id === performer.id)
+		: pair.filter((id) => performer.players.includes(id));
+}
+
+/**
+ * Un concert se confirme à deux (P5-06, D75) : l'une joue, l'autre gère
+ * l'hôte, et ce ne sont pas les mêmes personnes. Une personne en son nom
+ * (P8) ne peut pas gérer elle-même l'hôte : jouer et s'accueillir ne prouve
+ * rien.
+ */
+export function gigSplitOk(
+	performer: GigPerformer,
+	pair: readonly string[],
+	hostManagers: readonly string[]
+): boolean {
+	const players = gigPlayers(performer, pair);
+	if (performer.kind === 'PERSON') {
+		return (
+			players.length === 1 &&
+			!hostManagers.includes(performer.id) &&
+			hostManagers.some((m) => m !== performer.id && pair.includes(m))
+		);
+	}
+	return players.some((player) => hostManagers.some((manager) => manager !== player));
+}
+
+/**
+ * Côtés d'un concert terminé (P5-06, relu au moment de la confirmation) :
+ * qui l'accueille sans jouer, qui joue sans accueillir. Sans l'un ou
+ * l'autre, le concert ne prouve rien (`verifyGigFromCollaboration`).
+ */
+export function gigWitnesses(players: readonly string[], managers: readonly string[]) {
+	const playing = new Set(players);
+	return {
+		hosts: [...new Set(managers)].filter((id) => !playing.has(id)),
+		confirmers: [...playing].filter((id) => !managers.includes(id))
+	};
 }
 
 /** Jour civil décalé (`AAAA-MM-JJ`). */

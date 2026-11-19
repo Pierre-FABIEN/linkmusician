@@ -75,11 +75,13 @@ export async function firstVerifiedGig(actorId: string) {
 	const first = firstVerifiedGigOf(realisations);
 	if (!first || first.object.type !== 'MILESTONE' || !first.occurredAt) return null;
 	const { bandId } = first.object;
+	// P8 : l'étape peut être celle de la personne, qui a joué en son nom.
+	const solo = bandId === actorId;
 	const [band, gig] = await Promise.all([
 		prisma.actor.findUniqueOrThrow({ where: { id: bandId }, select: { displayName: true } }),
 		prisma.collaboration.findFirst({
 			where: {
-				bandId,
+				...(solo ? { performerId: actorId, bandId: null } : { bandId }),
 				kind: 'GIG',
 				status: 'COMPLETED',
 				hostOrg: { verifiedAt: { not: null } }
@@ -91,7 +93,9 @@ export async function firstVerifiedGig(actorId: string) {
 	return {
 		bandName: band.displayName,
 		hostName: gig?.hostOrg?.actor.displayName ?? null,
-		occurredAt: first.occurredAt
+		occurredAt: first.occurredAt,
+		/** Joué en son nom (P8) : pas de groupe à nommer. */
+		solo
 	};
 }
 
@@ -136,7 +140,8 @@ async function collaborationsToConfirm(actorId: string, now: Date) {
 			happenedOn: true,
 			workId: true,
 			hostOrgId: true,
-			bandId: true
+			bandId: true,
+			performerId: true
 		}
 	});
 	if (rows.length === 0) return [];
@@ -169,7 +174,10 @@ async function collaborationsToConfirm(actorId: string, now: Date) {
 		title: c.title,
 		happenedOn: c.happenedOn.toISOString().slice(0, 10),
 		asProvider: provider.has(c.id),
-		bandSide: c.bandId !== null && memberOf.has(c.bandId),
+		// Je joue : dans le groupe interprète, ou en mon nom (P8).
+		bandSide:
+			(c.bandId !== null && memberOf.has(c.bandId)) ||
+			(c.kind === 'GIG' && c.bandId === null && c.performerId === actorId),
 		verifiedHostName: (c.hostOrgId && verifiedHost.get(c.hostOrgId)) || null,
 		hasWork: c.workId !== null
 	}));

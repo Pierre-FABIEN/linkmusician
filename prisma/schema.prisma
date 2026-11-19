@@ -1484,6 +1484,8 @@ model Actor {
   representationsEnded       Representation[]         @relation("RepresentationEnder")
   /// Concerts bookés (P5-07).
   gigsBooked                 Collaboration[]          @relation("CollaborationBooker")
+  /// Concerts joués comme interprète (P8, D77) : groupe ou personne.
+  gigsPerformed              Collaboration[]          @relation("CollaborationPerformer")
   /// Liens d'invitation d'école créés (P5-11).
   schoolInvitesCreated       SchoolInvite[]           @relation("SchoolInviteCreator")
   /// Candidatures envoyées au nom d'un groupe (P5-05a).
@@ -2452,6 +2454,11 @@ model Collaboration {
   /// Booker du groupe qui a booké la date (P5-07) : accompagnement confirmé.
   bookedById     String?
   bookedBy       Actor?                     @relation("CollaborationBooker", fields: [bookedById], references: [id], onDelete: SetNull)
+  /// Interprète du concert (P8, D77) : le groupe (recopié de `bandId`) **ou**
+  /// la personne qui joue en son nom, jamais les deux. Une personne interprète
+  /// est elle-même partie de la collaboration ; `bandId` reste vide.
+  performerId    String?
+  performer      Actor?                     @relation("CollaborationPerformer", fields: [performerId], references: [id], onDelete: SetNull)
   completedAt    DateTime?
   createdAt      DateTime                   @default(now())
   updatedAt      DateTime                   @updatedAt
@@ -2465,6 +2472,7 @@ model Collaboration {
   @@index([bandId, kind, status])
   @@index([hostOrgId])
   @@index([bookedById])
+  @@index([performerId, kind, status])
   @@map("collaborations")
 }
 

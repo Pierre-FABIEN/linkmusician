@@ -125,6 +125,34 @@ export const DECLARABLE_KEYS = MILESTONE_CATALOG.filter((d) => d.mode === 'decla
 	(d) => d.key
 ) as readonly MilestoneKey[];
 
+/**
+ * Étapes de scène **personnelles** (P8, D77) : une personne qui joue en son
+ * nom les franchit par un concert confirmé par l'hôte, jamais par
+ * déclaration. La ligne `Milestone` a alors pour porteur la personne
+ * (`bandId` référence un `Actor`). Aucun barème nouveau : ni
+ * `milestone.attested`, ni XP de groupe ; la collaboration terminée
+ * rapporte déjà (conception 19 §9.4).
+ */
+export const PERSONAL_MILESTONE_KEYS = ['FIRST_GIG', 'FIRST_TOUR'] as const;
+export type PersonalMilestoneKey = (typeof PERSONAL_MILESTONE_KEYS)[number];
+
+export function isPersonalMilestoneKey(key: string): key is PersonalMilestoneKey {
+	return (PERSONAL_MILESTONE_KEYS as readonly string[]).includes(key);
+}
+
+/**
+ * Preuve d'une étape de scène personnelle après un concert confirmé (P8) :
+ * vérifiée par une organisation vérifiée, corroborée sinon ; jamais de recul
+ * (`isUpgrade`). `null` : rien à écrire.
+ */
+export function personalGigProof(
+	current: MilestoneProof | null,
+	hostVerified: boolean
+): MilestoneProof | null {
+	const to: MilestoneProof = hostVerified ? 'VERIFIED' : 'CORROBORATED';
+	return isUpgrade(current, to) ? to : null;
+}
+
 export function milestoneDef(key: MilestoneKey): MilestoneDef {
 	return MILESTONE_CATALOG.find((d) => d.key === key)!;
 }

@@ -26,6 +26,11 @@ import { departmentOfCommune } from '#lib/representation/rules';
  * par un lieu ou une organisation que gère l'autre. Terminé, il corrobore
  * ou vérifie « Premier concert », peut vérifier la tournée, et émet
  * `gig.held` (`verifyGigFromCollaboration`).
+ *
+ * Artiste solo (P8, D77) : l'interprète (`performerId`) est le groupe **ou**
+ * l'une des deux personnes, en son nom. Un concert solo franchit les étapes
+ * de scène de la personne (`verifySoloGigFromCollaboration`), jamais celles
+ * d'un groupe ; un concert du groupe ne franchit jamais les siennes.
  */
 import { prisma } from '#lib/server';
 import { isBlockedBetween } from '#lib/server/blocking/service';
@@ -35,6 +40,8 @@ import { parisDay } from '#lib/metrics/indicators';
 import {
 	checkGigParties,
 	checkProvider,
+	gigPerformerHandle,
+	gigSplitOk,
 	collabStatus,
 	hasHappened,
 	KIND_SERVICE,
@@ -49,6 +56,7 @@ import { manageableOwnerWhere } from '#lib/server/works/access';
 import { isStudioSessionKind } from '#lib/studios/rules';
 import {
 	verifyGigFromCollaboration,
+	verifySoloGigFromCollaboration,
 	lockBand,
 	bandProgressActorIds,
 	verifyRecordingFromCollaboration
@@ -109,7 +117,7 @@ async function studiosOfPair(meId: string, otherId: string, handle?: string) {
  */
 export async function gigPartiesOfPair(meId: string, otherId: string) {
 	const pair = [meId, otherId];
-	const [bands, hosts] = await Promise.all([
+	const [bands, hosts, soloists] = await Promise.all([
 		prisma.actor.findMany({
 			where: {
 				kind: 'ORGANIZATION',
@@ -176,9 +184,22 @@ export async function gigPartiesOfPair(meId: string, otherId: string) {
 					}
 				}
 			}
+		}),
+		// Artiste solo (P8, D77) : l'une des deux personnes, musicien·ne sur son
+		// profil, peut avoir joué en son nom. Aucun groupe à créer.
+		prisma.actor.findMany({
+			where: {
+				id: { in: pair },
+				kind: 'PERSON',
+				deletedAt: null,
+				person: { tracks: { some: { track: 'MUSICIAN' } } }
+			},
+			orderBy: { displayName: 'asc' },
+			select: { id: true, handle: true, displayName: true }
 		})
 	]);
 	return {
+		soloists: soloists.map((p) => ({ id: p.id, handle: p.handle, name: p.displayName })),
 		bands: bands.map((b) => ({
 			id: b.id,
 			handle: b.handle,
@@ -229,6 +250,8 @@ export async function proposeCollaboration(
 		studio?: string;
 		/** Concert (P5-06) : groupe et hôte, par leurs noms d'utilisateur. */
 		band?: string;
+		/** Interprète (P8, D77) : un groupe ou l'une des deux personnes ; `band` en repli. */
+		performer?: string;
 		host?: string;
 		/** Booker confirmé du groupe qui a booké la date (P5-07). */
 		booker?: string;
@@ -301,39 +324,51 @@ export async function proposeCollaboration(
 			throw new CollaborationError('Ce studio n’est pas géré par l’un de vous deux.', 403);
 		studioId = studio.id;
 	}
-	// Concert (P5-06) : l'une joue dans le groupe, l'autre gère l'hôte.
+	// Concert (P5-06) : l'une joue (dans le groupe, ou en son nom depuis P8),
+	// l'autre gère l'hôte.
 	const gigError = checkGigParties(input.kind, input);
 	if (gigError) throw new CollaborationError(gigError);
 	let gig: {
-		bandId: string;
+		bandId: string | null;
+		performerId: string;
 		hostOrgId: string;
 		communeCode: string | null;
 		bookedById: string | null;
 	} | null = null;
 	if (input.kind === 'GIG') {
+		const performerHandle = gigPerformerHandle(input);
 		const parties = await gigPartiesOfPair(proposerId, other.actorId);
-		const band = parties.bands.find((b) => b.handle === input.band);
+		const band = parties.bands.find((b) => b.handle === performerHandle);
+		const soloist = band ? null : parties.soloists.find((p) => p.handle === performerHandle);
 		const host = parties.hosts.find((h) => h.handle === input.host);
-		if (!band) throw new CollaborationError('L’un de vous deux doit jouer dans ce groupe.', 403);
+		if (!band && !soloist) {
+			throw new CollaborationError(
+				'L’un de vous deux doit jouer dans ce groupe, ou avoir joué en son nom.',
+				403
+			);
+		}
 		if (!host)
 			throw new CollaborationError(
 				'L’un de vous deux doit gérer ce lieu ou cette organisation.',
 				403
 			);
-		const split = [proposerId, other.actorId].some(
-			(player) =>
-				band.players.includes(player) && host.managers.some((manager) => manager !== player)
-		);
-		if (!split) {
+		const performer = band
+			? { kind: 'BAND' as const, id: band.id, players: band.players }
+			: { kind: 'PERSON' as const, id: soloist!.id };
+		if (!gigSplitOk(performer, [proposerId, other.actorId], host.managers)) {
 			throw new CollaborationError(
-				'Un concert se confirme à deux : l’une joue dans le groupe, l’autre gère le lieu ou l’organisation.'
+				band
+					? 'Un concert se confirme à deux : l’une joue dans le groupe, l’autre gère le lieu ou l’organisation.'
+					: 'Un concert en son nom se confirme à deux : l’une joue, l’autre gère le lieu ou l’organisation. On ne s’accueille pas soi-même.'
 			);
 		}
-		// Booké par (P5-07) : seul un·e booker dont l'accompagnement est confirmé.
+		// Booké par (P5-07) : seul un·e booker dont l'accompagnement est confirmé,
+		// pour le groupe ou pour la personne interprète (accompagnement d'un·e
+		// artiste majeur·e, D71).
 		const bookedById = input.booker
 			? await confirmedBookerOf(
 					prisma,
-					band.id,
+					performer.id,
 					input.booker,
 					{ on: day, departmentCode: departmentOfCommune(host.communeCode) },
 					now
@@ -341,11 +376,19 @@ export async function proposeCollaboration(
 			: null;
 		if (input.booker && !bookedById) {
 			throw new CollaborationError(
-				'Cette personne n’est pas booker du groupe : l’accompagnement doit être confirmé et couvrir la date et le territoire.',
+				band
+					? 'Cette personne n’est pas booker du groupe : l’accompagnement doit être confirmé et couvrir la date et le territoire.'
+					: 'Cette personne n’est pas booker de l’artiste : l’accompagnement doit être confirmé et couvrir la date et le territoire.',
 				403
 			);
 		}
-		gig = { bandId: band.id, hostOrgId: host.id, communeCode: host.communeCode, bookedById };
+		gig = {
+			bandId: band?.id ?? null,
+			performerId: performer.id,
+			hostOrgId: host.id,
+			communeCode: host.communeCode,
+			bookedById
+		};
 	}
 	const happened = hasHappened(input.happenedOn, now);
 	return prisma.$transaction(async (tx) => {
@@ -366,6 +409,7 @@ export async function proposeCollaboration(
 				workId: input.work ?? null,
 				studioId,
 				bandId: gig?.bandId ?? null,
+				performerId: gig?.performerId ?? null,
 				hostOrgId: gig?.hostOrgId ?? null,
 				communeCode: gig?.communeCode ?? null,
 				bookedById: gig?.bookedById ?? null,
@@ -471,9 +515,15 @@ async function settle(tx: Prisma.TransactionClient, collaborationId: string, now
 				select: { ownerId: true, owner: { select: { kind: true } } }
 			})
 		: null;
+	// Porteurs d'étapes (clé band:) : le groupe du concert, ou la personne qui
+	// joue en son nom (P8, ses étapes de scène personnelles), et le groupe
+	// porteur d'un enregistrement.
+	const soloPerformerId =
+		collab.kind === 'GIG' && !collab.bandId && collab.performerId ? collab.performerId : null;
 	const bandIds = [
 		...new Set([
 			...(collab.kind === 'GIG' && collab.bandId ? [collab.bandId] : []),
+			...(soloPerformerId ? [soloPerformerId] : []),
 			...(collab.kind === 'RECORDING' && work?.owner.kind === 'ORGANIZATION' ? [work.ownerId] : [])
 		])
 	].sort();
@@ -561,6 +611,23 @@ async function settle(tx: Prisma.TransactionClient, collaborationId: string, now
 				{
 					id: collab.id,
 					bandId: collab.bandId,
+					hostOrgId: collab.hostOrgId,
+					happenedOn: collab.happenedOn,
+					communeCode: collab.communeCode,
+					bookedById: collab.bookedById,
+					participantIds: collab.participants.map((p) => p.actorId)
+				},
+				now
+			);
+		}
+		// Un concert en son nom (P8, D77) : les étapes de scène de la personne,
+		// jamais celles d'un groupe.
+		if (soloPerformerId && collab.hostOrgId) {
+			await verifySoloGigFromCollaboration(
+				tx,
+				{
+					id: collab.id,
+					performerId: soloPerformerId,
 					hostOrgId: collab.hostOrgId,
 					happenedOn: collab.happenedOn,
 					communeCode: collab.communeCode,
@@ -782,12 +849,25 @@ export async function collabFormContext(actorId: string, conversationId: string)
 			gigPartiesOfPair(actorId, otherId)
 		]
 	);
-	const bookers = await confirmedBookersOf(gigParties.bands.map((b) => b.id));
+	const bookers = await confirmedBookersOf([
+		...gigParties.bands.map((b) => b.id),
+		...gigParties.soloists.map((p) => p.id)
+	]);
 	// Venu d'un plateau (P5-05a) : le groupe retenu et l'hôte sont préremplis.
 	const fromPlateau = opportunity?.kind === 'GIG_SLOT' ? opportunity : null;
+	// Interprète par défaut : le candidat retenu du plateau, sinon le seul
+	// groupe possible ; une personne seule (P8) n'est jamais choisie d'office
+	// à la place d'un groupe.
 	const defaultBand =
 		gigParties.bands.find((b) => fromPlateau?.applications.some((a) => a.applicantActorId === b.id))
-			?.handle ?? (gigParties.bands.length === 1 ? gigParties.bands[0].handle : null);
+			?.handle ??
+		gigParties.soloists.find((p) =>
+			fromPlateau?.applications.some((a) => a.applicantActorId === p.id)
+		)?.handle ??
+		(gigParties.bands.length === 1 ? gigParties.bands[0].handle : null) ??
+		(gigParties.bands.length === 0 && gigParties.soloists.length === 1
+			? gigParties.soloists[0].handle
+			: null);
 	const defaultHost =
 		gigParties.hosts.find((h) => h.id === fromPlateau?.issuerActorId)?.handle ??
 		(gigParties.hosts.length === 1 ? gigParties.hosts[0].handle : null);
@@ -818,6 +898,14 @@ export async function collabFormContext(actorId: string, conversationId: string)
 			bands: gigParties.bands.map(({ id, handle, name }) => ({
 				handle,
 				name,
+				bookers: bookers.get(id) ?? []
+			})),
+			// Artiste solo (P8) : les personnes de la conversation qui peuvent avoir
+			// joué en leur nom. `me` : c'est moi.
+			soloists: gigParties.soloists.map(({ id, handle, name }) => ({
+				handle,
+				name,
+				me: id === actorId,
 				bookers: bookers.get(id) ?? []
 			})),
 			hosts: gigParties.hosts.map(({ handle, name, isVenue, verified }) => ({

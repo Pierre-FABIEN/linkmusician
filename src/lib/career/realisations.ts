@@ -36,7 +36,11 @@ export type RealisationKind =
 	| 'PRODUCTION_STAGE'
 	/** Collaboration terminée, confirmée des deux côtés. */
 	| 'COLLABORATION'
-	/** Étape « première fois » d'un groupe dont on était membre à la date. */
+	/**
+	 * Étape « première fois » d'un groupe dont on était membre à la date, ou,
+	 * depuis P8, de la personne elle-même quand elle joue en son nom (DC4 :
+	 * deux faits distincts, deux clés distinctes).
+	 */
 	| 'MILESTONE';
 
 /**
@@ -44,7 +48,14 @@ export type RealisationKind =
  * fait » (`BAND_MEMBER`, membre à la date ou du groupe porteur) n'est pas
  * « je l'ai fait » (`CREDITED`, `PARTICIPANT`, `PROVIDER`, `HOST`).
  */
-export type RealisationRole = 'CREDITED' | 'BAND_MEMBER' | 'PARTICIPANT' | 'PROVIDER' | 'HOST';
+export type RealisationRole =
+	| 'CREDITED'
+	| 'BAND_MEMBER'
+	| 'PARTICIPANT'
+	| 'PROVIDER'
+	| 'HOST'
+	/** Interprète en son nom d'une étape de scène personnelle (P8, D77). */
+	| 'PERFORMER';
 
 export type RealisationProof = 'DECLARED' | 'CORROBORATED' | 'VERIFIED';
 
@@ -103,6 +114,7 @@ const PROOF_RANK: Record<RealisationProof, number> = { DECLARED: 0, CORROBORATED
 const STATUS_RANK: Record<RealisationStatus, number> = { ACTIVE: 0, FROZEN: 1, RETIRED: 2 };
 const ROLE_ORDER: readonly RealisationRole[] = [
 	'CREDITED',
+	'PERFORMER',
 	'PARTICIPANT',
 	'PROVIDER',
 	'HOST',
@@ -196,6 +208,22 @@ export function careerFactsOf(
 		verifiedGigs: milestoneCount(unique, 'FIRST_GIG', ['VERIFIED']),
 		tours: milestoneCount(unique, 'FIRST_TOUR', ['VERIFIED'])
 	};
+}
+
+/**
+ * « Premier concert » personnel (P8, D77), au moins corroboré et actif : 0 ou
+ * 1. S'ajoute aux concerts de groupe de la fiche (DC4 : deux faits
+ * distincts) ; le palier musicien, lui, reste calculé par le moteur.
+ */
+export function personalGigsOf(list: readonly Realisation[]) {
+	return dedupeRealisations(list).filter(
+		(r) =>
+			r.object.type === 'MILESTONE' &&
+			r.object.definitionId === 'FIRST_GIG' &&
+			r.roles.includes('PERFORMER') &&
+			countable(r) &&
+			r.proof !== 'DECLARED'
+	).length;
 }
 
 /** Rôles crédités qui comptent sur la fiche : au moins corroborés, actifs. */
