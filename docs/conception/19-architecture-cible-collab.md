@@ -669,7 +669,7 @@ reste dans le ticket indiqué.
 | E8  | Œuvre, enregistrement et sortie confondus             | Principe `Work` → `Recording` → `Release` (§2.5) ; aucune perte de données                                                                         | Principe ici | #40 (P10)          |
 | E9  | Étapes uniques (pas de 2ᵉ EP)                         | Par conception : les répétitions sont des projets terminés, pas des étapes                                                                         | Décidé ici   | Aucun code         |
 | E10 | Étape d'un membre parti non libérée                   | Libération automatique au départ, avec acte                                                                                                        | Correction   | #36 (P1)           |
-| E11 | Concert engagé par un simple membre                   | Permis (fait confirmé par un tiers), à consigner en décision                                                                                       | Q-G0-7       | #36 (P1)           |
+| E11 | Concert engagé par un simple membre                   | Permis (fait confirmé par un tiers) ; code conforme, consigné en [D75](../decisions/D75-concert-engage-par-un-membre.md)                           | Q-G0-7       | #36 (P1b ✅)       |
 | E12 | Mandat sans portée de projet                          | Non au lancement ; périmètre « projet » d'un mandat plus tard                                                                                      | Q-G0-8       | #44, #45 (P12)     |
 | E13 | Plateau et concert non reliés                         | Relation plateau ↔ concerts dans le modèle d'événement                                                                                             | Reporté      | #77 (P11)          |
 | E14 | Pas d'organisation label ni éditeur                   | Hors G0 ; le projet les accueillera comme participants                                                                                             | Reporté      | #47, #48           |
@@ -1331,6 +1331,11 @@ flowchart LR
   L'anonymisation verrouille d'abord les `work:` triés. Une étape terminée
   reste intacte. Détail : [fin du projet, P1](../plan/fin-du-projet.md).
   Q-G0-7 (E11) passe en P1b.
+- **Livré** (19/11/2026, P1b) : Q-G0-7 consignée en
+  [D75](../decisions/D75-concert-engage-par-un-membre.md). Le code applique
+  déjà la règle de D72 (membre actif de tout rôle, gestion distincte de
+  l'hôte, adhésions relues à la confirmation) : aucune correction. Le
+  chemin `MEMBER` n'est pas testé (lot **P1c**) ; Q88 à Q90 au défaut.
 
 ### P2 — Socle du projet · #71
 

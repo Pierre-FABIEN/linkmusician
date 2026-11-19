@@ -1294,5 +1294,42 @@ une libération manuelle (D68) ; il reste lisible dans l'historique (Q85).
 Aucune notification à la gestion restante (Q86). Une étape terminée par
 une personne partie ne se rouvre plus (Q87).
 
-**Laissé** : P1b (Q-G0-7) ; libération des tâches confiées dans un projet
-(P13).
+**Laissé** : libération des tâches confiées dans un projet (P13).
+
+### P1b — Concert déclaré par un simple membre (E11, Q-G0-7) ✅
+
+Fin de la fiche « P1 » de la [conception 19 §10](../conception/19-architecture-cible-collab.md)
+(#36). Lot documentaire : aucune ligne de code, aucune migration.
+
+**Livré le 19/11/2026** : décision
+[D75](../decisions/D75-concert-engage-par-un-membre.md), dans le périmètre
+de D72. Un membre actif, quel que soit son rôle, fait reconnaître un
+concert de son groupe si la gestion distincte d'un lieu revendiqué ou d'une
+organisation le confirme ; sans tiers, l'étape reste une déclaration de la
+gestion. Déclarer, confirmer, administrer et engager le groupe sont
+distingués : reconnaître un fait passé ne donne aucun pouvoir de
+représentation ni de contrat.
+
+**Comportement vérifié dans le code** (`gigPartiesOfPair`,
+`proposeCollaboration`, `settle`, `verifyGigFromCollaboration`,
+`declareMilestone`, `disputes.ts`, `gigHeld.ts`) : conforme à la règle,
+aucune correction. Adhésions relues à la proposition et à la confirmation ;
+une personne étrangère au groupe ou un ancien membre ne peut pas proposer.
+
+**Écarts** : le chemin `MEMBER` n'est couvert par aucun test (les
+fixtures de `gigs.integration` font jouer une personne `OWNER`) → lot
+**P1c**. Gestion du groupe non prévenue (Q88), ancien membre (Q89),
+collaboration terminée non signalable (Q90) : au défaut.
+
+### P1c — Test du concert déclaré par un simple membre (à faire)
+
+- **Objectif** : prouver par un test d'intégration le comportement décrit
+  par D75, sans le changer.
+- **Tests** : dans `gigs.integration.test.ts`, un membre `MEMBER` propose
+  un concert à la gestion d'un hôte, l'hôte confirme : collaboration
+  terminée, « Premier concert » `CORROBORATED` (ou `VERIFIED`) ; le même
+  membre ne peut pas déclarer l'étape à la main (`declareMilestone`, 403) ;
+  un ancien membre ne peut pas proposer ; un membre parti avant la
+  confirmation ne donne ni `gig.held` ni étape.
+- **Migration** : aucune. **Dépendances** : aucune. Lot court, à glisser
+  avant ou après U3b.
