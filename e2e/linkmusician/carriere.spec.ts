@@ -242,7 +242,8 @@ test.describe('LinkMusician — écran de carrière', () => {
 				await page.goto('/espace/carte/scene');
 				await waitForAppReady(page);
 				await expect(page.getByText(/Pour aller plus loin :.*tournée/)).toBeVisible();
-				await expect(page.getByText(/se franchit avec un groupe/)).toBeVisible();
+				// P8 (D77) : « La scène » se franchit aussi en son nom, plus d'avertissement.
+				await expect(page.getByText(/se franchit avec un groupe/)).toHaveCount(0);
 			});
 
 			await test.step('2. Concert confirmé, pas vérifié : à portée, un seul geste', async () => {

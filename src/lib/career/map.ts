@@ -46,8 +46,9 @@ export type CareerFacts = {
 	 */
 	productions: number;
 	/**
-	 * Groupes dont on était membre à la date de leur « Premier concert »
-	 * **vérifié** par un hôte vérifié (P5-06, P5-08).
+	 * « Premier concert » **vérifié** par un hôte vérifié (P5-06, P5-08) : de
+	 * chaque groupe dont on était membre à la date, et (P8) le sien, joué en
+	 * son nom. Deux faits distincts, dédupliqués par clé (DC4).
 	 */
 	verifiedGigs: number;
 	/** Groupes dont on était membre à la date de leur « Première tournée » vérifiée. */
@@ -73,7 +74,10 @@ export type ReachFacts = {
 		happenedOn: string;
 		/** Je fournis la prestation (son, production) : ce n'est pas « mon » morceau produit. */
 		asProvider: boolean;
-		/** Concert : je suis membre actif du groupe qui a joué. */
+		/**
+		 * Concert : je joue, membre actif du groupe interprète ou en mon nom
+		 * (P8, D77). Le nom reste celui d'avant P8.
+		 */
 		bandSide: boolean;
 		/** Concert : nom de l'hôte s'il est vérifié (sinon le concert ne sera pas vérifié). */
 		verifiedHostName: string | null;
@@ -87,7 +91,7 @@ export type ReachFacts = {
 	pendingCoauthors: { workId: string; title: string }[];
 	/** « Premier enregistrement » déclaré, non gelé, d'un groupe dont je suis membre actif. */
 	declaredRecordings: { bandHandle: string; bandName: string; manager: boolean }[];
-	/** Un « Premier concert » d'un de mes groupes est corroboré, actif, mais pas vérifié. */
+	/** Un « Premier concert » (d'un de mes groupes, ou le mien en mon nom) est corroboré, actif, mais pas vérifié. */
 	corroboratedGig: boolean;
 };
 
@@ -315,7 +319,8 @@ const ACTS: ActDef[] = [
 		name: 'La scène',
 		branch: 'SCENE',
 		content: 'Tremplins, premières parties, dates locales, puis une tournée.',
-		trial: 'Un concert de ton groupe vérifié par le lieu ou l’organisation qui l’accueille.',
+		trial:
+			'Un concert, en ton nom ou avec ton groupe, vérifié par le lieu ou l’organisation qui l’accueille.',
 		unlocks: [
 			{ label: 'Ta carte souvenir du concert, à partager', href: '/espace/fiche' },
 			{ label: 'Entrer dans le radar des pros', href: null }
@@ -338,7 +343,7 @@ const ACTS: ActDef[] = [
 			return r.corroboratedGig
 				? {
 						reason:
-							'Ton groupe a déjà un concert confirmé. Un concert accueilli par un lieu ou une organisation vérifiée franchit l’épreuve.',
+							'Tu as déjà un concert confirmé. Un concert accueilli par un lieu ou une organisation vérifiée franchit l’épreuve.',
 						action: { label: 'Voir les plateaux ouverts', href: '/annonces?type=GIG_SLOT' },
 						subject: null
 					}

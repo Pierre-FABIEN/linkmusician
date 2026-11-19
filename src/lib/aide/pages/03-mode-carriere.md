@@ -76,10 +76,12 @@ par quelqu’un d’autre, jamais par tes points :
 - **IV · La production** : un morceau **produit**, la production confirmée
   par le ou la producteur·rice. Sur la fiche du morceau, le **récap de
   campagne** retrace son chemin, de l’idée au son final ;
-- **V · La scène** : un concert de ton groupe **vérifié** par le lieu ou
-  l’organisation qui l’accueille (vérifiée elle aussi). Pour aller plus
-  loin, une **tournée** : trois concerts vérifiés dans trois villes en un
-  mois. Ta carte souvenir nomme le groupe, l’hôte et le mois du concert.
+- **V · La scène** : un concert, **en ton nom** ou avec ton groupe,
+  **vérifié** par le lieu ou l’organisation qui l’accueille (vérifiée elle
+  aussi). Pas besoin de groupe pour jouer seul·e. Pour aller plus loin, une
+  **tournée** : trois concerts vérifiés dans trois villes en un mois. Ta
+  carte souvenir nomme le groupe (ou dit « en son nom »), l’hôte et le mois
+  du concert.
 
 Les actes VI à VIII n’ont pas encore leur épreuve jouable sur la carte.
 Les fonctions déjà disponibles restent utilisables depuis les autres écrans.
@@ -429,17 +431,24 @@ jamais comme extérieur.
 
 Après une date, propose une collaboration **Concert** dans ta
 conversation avec la personne qui gère le lieu ou l’association qui t’a
-accueilli (venue d’un plateau, elle est déjà préremplie). Choisis ton
-groupe et le lieu, puis elle confirme :
+accueilli (venue d’un plateau, elle est déjà préremplie). Dans **Qui a
+joué**, choisis ton groupe, ou **toi, en ton nom** si tu as joué seul·e
+(il faut le métier musicien·ne sur ton profil, aucun groupe à créer).
+Choisis le lieu, puis elle confirme :
 
 - **Premier concert** passe **Vérifiée** si le lieu ou l’association est
   vérifié, **Corroborée** sinon ;
 - trois concerts vérifiés dans trois villes en 30 jours vérifient la
   **Première tournée**.
 
-Un·e **booker** vous a trouvé la date ? Si ton groupe a confirmé son
-accompagnement (**Mon espace › Accompagnement**), choisis son nom dans
-**Booké par** : le concert compte aussi pour son parcours.
+Joué en ton nom, le concert compte pour **ton** parcours : ton « Premier
+concert » à toi, sans rien changer à ceux de tes groupes. Joué avec ton
+groupe, il compte pour le groupe, pas pour ton « Premier concert » en
+solo. Une même date ne compte jamais deux fois.
+
+Un·e **booker** vous a trouvé la date ? Si ton groupe (ou toi, en solo) a
+confirmé son accompagnement (**Mon espace › Accompagnement**), choisis son
+nom dans **Booké par** : le concert compte aussi pour son parcours.
 
 > 💡 **Astuce** : on te demande de confirmer l’étape d’un groupe ? Réponds
 > seulement si tu y étais. C’est ce qui donne de la valeur aux parcours de

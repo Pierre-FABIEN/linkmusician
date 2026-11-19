@@ -146,7 +146,7 @@ test.describe('LinkMusician — booker et manager', () => {
 				await waitForAppReady(leaPage);
 				await leaPage.getByText('Proposer une collaboration').click();
 				await leaPage.getByRole('combobox', { name: 'Type' }).selectOption('GIG');
-				await expect(leaPage.getByRole('combobox', { name: 'Groupe' })).toBeVisible();
+				await expect(leaPage.getByRole('combobox', { name: 'Qui a joué' })).toBeVisible();
 				await expect(leaPage.getByRole('combobox', { name: 'Booké par (facultatif)' })).toHaveCount(
 					0
 				);

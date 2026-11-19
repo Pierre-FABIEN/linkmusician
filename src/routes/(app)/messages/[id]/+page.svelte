@@ -29,14 +29,21 @@
 	let collabKind = $state<(typeof COLLAB_KINDS)[number]>(
 		data.collabForm?.gig.fromPlateau ? 'GIG' : 'REHEARSAL'
 	);
-	// Concert (P5-07) : « Booké par » propose les bookers confirmé·es du groupe choisi.
+	// Concert (P5-07) : « Booké par » propose les bookers confirmé·es de
+	// l'interprète choisi : un groupe, ou une personne en son nom (P8).
 	// svelte-ignore state_referenced_locally
 	let gigBand = $state(
-		data.collabForm?.gig.defaultBand ?? data.collabForm?.gig.bands[0]?.handle ?? ''
+		data.collabForm?.gig.defaultBand ??
+			data.collabForm?.gig.bands[0]?.handle ??
+			data.collabForm?.gig.soloists[0]?.handle ??
+			''
 	);
 	const gigBookers = $derived(
-		data.collabForm?.gig.bands.find((b) => b.handle === gigBand)?.bookers ?? []
+		[...(data.collabForm?.gig.bands ?? []), ...(data.collabForm?.gig.soloists ?? [])].find(
+			(b) => b.handle === gigBand
+		)?.bookers ?? []
 	);
+	const gigSolo = $derived(data.collabForm?.gig.soloists.find((p) => p.handle === gigBand) ?? null);
 	const service = $derived(KIND_SERVICE[collabKind] ?? null);
 	const can = (who: 'me' | 'other') =>
 		Boolean(service && data.collabForm?.tracks[who].includes(service.track));
@@ -339,20 +346,33 @@
 					{#if data.collabForm && collabKind === 'GIG'}
 						<!-- Concert (P5-06) : le groupe qui joue, l'hôte qui l'accueille. -->
 						{@const gig = data.collabForm.gig}
-						{#if gig.bands.length === 0 || gig.hosts.length === 0}
+						{#if (gig.bands.length === 0 && gig.soloists.length === 0) || gig.hosts.length === 0}
 							<p class="rounded-md border bg-muted/40 p-3 text-sm sm:col-span-2">
-								Un concert se confirme entre une personne qui joue dans le groupe et une personne
-								qui gère le lieu ou l’organisation qui l’accueille. {gig.bands.length === 0
-									? 'Aucun de vous deux ne joue dans un groupe.'
-									: 'Aucun de vous deux ne gère un lieu ou une organisation.'}
+								Un concert se confirme entre la personne qui a joué, en son nom ou avec son groupe,
+								et la personne qui gère le lieu ou l’organisation qui l’accueille. {gig.hosts
+									.length === 0
+									? 'Aucun de vous deux ne gère un lieu ou une organisation.'
+									: 'Pour jouer en ton nom, ajoute le métier musicien·ne à ton profil : aucun groupe n’est nécessaire.'}
 							</p>
 						{:else}
+							<!-- Qui a joué (P8, D77) : une personne en son nom, ou un groupe. -->
 							<label class="block space-y-1 font-medium">
-								Groupe
-								<select name="band" required class="lm-field w-full" bind:value={gigBand}>
-									{#each gig.bands as b (b.handle)}
-										<option value={b.handle}>{b.name}</option>
-									{/each}
+								Qui a joué
+								<select name="performer" required class="lm-field w-full" bind:value={gigBand}>
+									{#if gig.soloists.length > 0}
+										<optgroup label="En son nom">
+											{#each gig.soloists as p (p.handle)}
+												<option value={p.handle}>{p.me ? `Moi (${p.name})` : p.name}</option>
+											{/each}
+										</optgroup>
+									{/if}
+									{#if gig.bands.length > 0}
+										<optgroup label="Un groupe">
+											{#each gig.bands as b (b.handle)}
+												<option value={b.handle}>{b.name}</option>
+											{/each}
+										</optgroup>
+									{/if}
 								</select>
 							</label>
 							<label class="block space-y-1 font-medium">
@@ -378,8 +398,15 @@
 								</label>
 							{/if}
 							<p class="text-sm text-muted-foreground sm:col-span-2">
-								Confirmé des deux côtés, le concert compte pour le groupe : vérifié si le lieu ou
-								l’organisation l’est, corroboré sinon.
+								{#if gigSolo}
+									Confirmé des deux côtés, le concert compte pour {gigSolo.me
+										? 'ton parcours, en ton nom'
+										: `le parcours de ${gigSolo.name}, en son nom`}, sans groupe : vérifié si le
+									lieu ou l’organisation l’est, corroboré sinon. Il ne compte pas pour les groupes.
+								{:else}
+									Confirmé des deux côtés, le concert compte pour le groupe : vérifié si le lieu ou
+									l’organisation l’est, corroboré sinon.
+								{/if}
 							</p>
 						{/if}
 					{/if}

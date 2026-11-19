@@ -111,7 +111,7 @@ test.describe('LinkMusician — concerts vérifiés', () => {
 				await waitForAppReady(page);
 				await page.getByText('Proposer une collaboration').click();
 				await page.getByRole('combobox', { name: 'Type' }).selectOption('GIG');
-				await expect(page.getByRole('combobox', { name: 'Groupe' })).toContainText(bandName);
+				await expect(page.getByRole('combobox', { name: 'Qui a joué' })).toContainText(bandName);
 				await expect(page.getByRole('combobox', { name: 'Lieu ou organisation' })).toContainText(
 					`${assoName} (vérifié)`
 				);

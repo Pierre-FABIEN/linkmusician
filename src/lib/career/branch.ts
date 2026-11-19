@@ -77,8 +77,10 @@ export function realisationLabel(r: Realisation, titles: Titles): string {
 					? 'Prestation confirmée'
 					: 'Collaboration confirmée';
 		case 'MILESTONE': {
-			const band = titles.bands[r.object.bandId];
 			const label = milestoneDef(r.object.definitionId as MilestoneKey)?.label ?? 'Étape';
+			// Étape personnelle (P8) : jouée en son nom, aucun groupe à nommer.
+			if (r.roles.includes('PERFORMER')) return `${label} · en ton nom`;
+			const band = titles.bands[r.object.bandId];
 			return band ? `${label} · ${band}` : label;
 		}
 	}
@@ -188,8 +190,9 @@ export function branchDetail(
 				notYet.push(
 					`Bientôt sur Melokiva : ${u.label.charAt(0).toLowerCase()}${u.label.slice(1)}.`
 				);
-		// D73 Q-NL-2 : la version solo de ces deux épreuves vient avec N6, après P8.
-		if ((a.number === 3 || a.number === 5) && a.state !== 'passed')
+		// D73 Q-NL-2 : « La scène » se franchit seul·e depuis P8 (D77) ; la
+		// version solo du studio vient avec N6.
+		if (a.number === 3 && a.state !== 'passed')
 			notYet.push(
 				`Aujourd’hui, « ${a.name} » se franchit avec un groupe ; la même épreuve pour une personne seule est prévue.`
 			);

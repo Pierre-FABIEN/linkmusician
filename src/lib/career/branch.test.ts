@@ -177,9 +177,8 @@ describe('page d’une branche (N2, conception 21 §10.3)', () => {
 		expect(diffusion.possible).toEqual([]);
 		expect(diffusion.notYet.every((l) => l.startsWith('Bientôt sur Melokiva'))).toBe(true);
 		const scene = detail('SCENE');
-		expect(scene.notYet).toContain(
-			'Aujourd’hui, « La scène » se franchit avec un groupe ; la même épreuve pour une personne seule est prévue.'
-		);
+		// P8 (D77) : « La scène » se franchit aussi en son nom ; plus d'avertissement.
+		expect(scene.notYet.join(' ')).not.toMatch(/se franchit avec un groupe/);
 		for (const b of ['EQUIPE', 'CREATION', 'PRODUCTION', 'SCENE', 'DIFFUSION'] as const)
 			expect(detail(b).notYet.join(' ')).not.toMatch(/d’abord|d'abord/i);
 	});
