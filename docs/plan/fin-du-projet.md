@@ -1505,13 +1505,57 @@ collaboration terminée non signalable (Q90) : au défaut.
   - **E** : le cas « concert de groupe → pas d'étape personnelle » est
     vérifié dans A ; le symétrique reste dans `solo-gigs.integration`
     (pas de doublon).
-- **Écart relevé, non corrigé** : **Q106**. Une collaboration terminée sans
-  `gig.held` (scénario D) compte quand même comme date antérieure
-  (`firstDateIds`) et dans la tournée du groupe (`firstTour`).
+- **Écart relevé** : **Q106**. Une collaboration terminée sans `gig.held`
+  (scénario D) comptait quand même comme date antérieure (`firstDateIds`)
+  et dans la tournée du groupe (`firstTour`) → tranchée par D79, corrigée
+  en **P1d**.
 - **Reste** : exécuter
   `PROGRESSION_INTEGRATION=1 npm run test:unit -- --run src/lib/server/collaborations/gigs.integration.test.ts`
   pendant la passe de tests (prompt de reprise).
 - **Migration** : aucune. **Dépendances** : aucune.
+
+### P1d — Concert reconnu seul compte (Q106) 🟡 (code livré, tests non exécutés)
+
+- **Objectif** : ne plus confondre une collaboration `GIG` terminée avec un
+  concert reconnu dans le bonus de première date de l'hôte et la tournée.
+- **Décision** : [D79](../decisions/D79-concert-reconnu-seul-compte.md),
+  **Acceptée** le 19/11/2026 (validée par le fondateur ; critère de
+  tournée « hôte vérifié aujourd'hui » inchangé).
+- **Livré le 19/11/2026** (commits locaux « (P1d) », non publiés) :
+  - `recognizedGigIds` (`src/lib/server/milestones/recognized-gigs.ts`) :
+    concerts reconnus d'un interprète, lus dans les `gig.held` (interprète
+    pris dans `performerIds`, jamais dans `actorIds` seul).
+  - `verifyGigFromCollaboration` et `verifySoloGigFromCollaboration` :
+    date antérieure et tournée filtrées sur les concerts reconnus.
+  - `firstVerifiedGig` : l'hôte du souvenir de l'acte V est celui du
+    premier concert reconnu chez un hôte vérifié.
+  - Chemins déjà conformes, inchangés : `creditBookedTour`, rangs
+    d'organisation et de lieu, quêtes de métier, contexte de progression
+    (tous lus dans `gig.held`) ; `collaboration.completed`.
+- **Tests écrits, non exécutés** (consigne de la session) :
+  - `gigs.integration.test.ts`, `describe` « P1d » (groupe Les Cigales) :
+    départ d'un membre avant la confirmation (collaboration terminée, ni
+    `gig.held` ni étape, gain de collaboration gardé, rien pour l'hôte) ;
+    vraie première date dans un lieu non vérifié (`firstDateIds`, bonus
+    `gig.first_dates` de l'hôte, corroboré) ; organisation vérifiée
+    (vérifié, pas de seconde première date, hôte du souvenir) ; tournée
+    qui exclut la date non reconnue puis se complète avec une vraie date
+    (date de début vérifiée) ; aucune double récompense (une première
+    date, une tournée attestée) ; séparation (aucune étape personnelle,
+    aucune part pour le membre parti).
+  - `solo-gigs.integration.test.ts`, `describe` « P1d » (Éva, Malik) :
+    gestion de l'hôte partie avant la confirmation ; vraie première date
+    en son nom et bonus de l'hôte ; tournée personnelle qui exclut la date
+    non reconnue, une seule première date, hôte du souvenir ; séparation :
+    un concert de groupe que l'on confirme n'est pas une date en son nom.
+- **Contrôles légers** : `svelte-check` 0 erreur, 0 avertissement (lancé
+  avec un tas de 3,3 Go, la machine n'ayant pas la mémoire pour
+  `npm run check` à 6 Go) ; ESLint et Prettier conformes sur les fichiers
+  touchés.
+- **Reste** : exécuter les deux fichiers pendant la passe de tests (prompt
+  de reprise, étape 3 bis).
+- **Migration** : aucune. **Historique** : non réécrit (D79 §5).
+  **Dépendances** : P1c, P8.
 
 ### P8 — Artiste solo sur scène 🟡 (code livré, tests à exécuter)
 

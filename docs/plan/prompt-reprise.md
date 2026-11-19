@@ -1,8 +1,8 @@
-# Prompt de reprise — passe de tests U3b-b, U3b-c, P8, U6a et P1c
+# Prompt de reprise — passe de tests U3b-b, U3b-c, P8, U6a, P1c et P1d
 
 ```markdown
 Reprends LinkMusician dans le dossier de travail courant. Une session = un lot :
-**valider U3b-b, U3b-c, P8, U6a et P1c**, livrés le 19/11/2026 sans
+**valider U3b-b, U3b-c, P8, U6a, P1c et P1d**, livrés le 19/11/2026 sans
 qu'**aucun test** n'ait été exécuté (consigne de l'utilisateur). Aucun nouveau code hors
 corrections. Machine conseillée : le PC de recette (mémoire WSL : jamais
 `npm run check` pendant les E2E).
@@ -12,7 +12,8 @@ corrections. Machine conseillée : le PC de recette (mémoire WSL : jamais
    `b89e6a2`, `38ff3e6`, doc `243d0d9`, publiés à `243d0d9`), puis P8
    (`6027d05` métier et migration, `8759727` tests), U6a (`30b0ab1`) et la doc
    P8 (`a55eae2`, publiés depuis), puis P1c (tests et doc, commit local
-   « (P1c) », non publié). Note ce que l'utilisateur a publié ; préserve
+   « (P1c) »), puis P1d (correctif Q106, tests et doc, commits locaux
+   « (P1d) », non publiés). Note ce que l'utilisateur a publié ; préserve
    tout.
 
 1. Migrations (jamais `npx prisma migrate`, jamais en production) :
@@ -51,31 +52,39 @@ verif` : aucune différence attendue ; supprime ce brouillon). Puis
      mineure ; le texte « en ton nom ou avec ton groupe » affiché dans la
      branche Scène (E2E étape 1).
 
-3 bis. **Tests différés de P1c** (après les migrations P8 : le `describe`
-P1c utilise `performer`) :
+3 bis. **Tests différés de P1c et P1d** (après les migrations P8 : les
+`describe` P1c et P1d utilisent `performer`) :
 
 - `PROGRESSION_INTEGRATION=1 npm run test:unit -- --run src/lib/server/collaborations/gigs.integration.test.ts`
-  (les cas historiques puis le `describe` « P1c », scénarios A à D).
-- À regarder de près : l'ordre des cas (D après A, car `firstDateIds`
-  compterait la collaboration de D, voir Q106) ; `memberIds` de
-  l'attestation (créditée à l'effectif de la formation, Chef et Zoé) ;
-  le 403 de `declareMilestone` avant le blocage « déjà dans votre
-  parcours ».
+  (les cas historiques, le `describe` « P1c », scénarios A à D, puis
+  « P1d », groupe Les Cigales).
+- `PROGRESSION_INTEGRATION=1 npm run test:unit -- --run src/lib/server/collaborations/solo-gigs.integration.test.ts`
+  (déjà au point 3 : son `describe` « P1d », Éva et Malik, vient en
+  dernier).
+- À regarder de près : `memberIds` de l'attestation (créditée à
+  l'effectif de la formation, Chef et Zoé) ; le 403 de `declareMilestone`
+  avant le blocage « déjà dans votre parcours ». P1d ([D79](../decisions/D79-concert-reconnu-seul-compte.md)) :
+  `firstDateIds` après une collaboration non reconnue, la date de début de
+  tournée (Blagnac, −20 jours, pas Toulouse −28), `gig.first_dates` de
+  l'hôte (confiance de Tom, Éva ou Malik > 0), le retrait de gestion de
+  « relais » posé directement en base (fixture) et la non-régression des
+  cas historiques de `gigs` et `solo-gigs` (`recognizedGigIds` remplace
+  le comptage des collaborations terminées).
 
 4. Puis `npm run test:unit -- --run` en entier si la machine le permet.
    `locking.integration` : 2 échecs `55P03` préexistants, à ne pas confondre.
    Pour chaque échec : cause, lien avec le lot, correction du code ou du
    test selon la conception 22 et D76 (U3b), D77 et la conception 19 §9.4
    (P8) — jamais un test assoupli pour couvrir un défaut. Commits
-   « (U3b-b) », « (U3b-c) », « (P8) », « (U6) » ou « (P1c) ».
+   « (U3b-b) », « (U3b-c) », « (P8) », « (U6) », « (P1c) » ou « (P1d) ».
 
-5. Fin : fiches U3b-b, U3b-c, P8, U6a et P1c de docs/plan/fin-du-projet.md,
-   lignes G0-03, P8, U6a et P1c du tableau §5, docs/projets/README.md et
+5. Fin : fiches U3b-b, U3b-c, P8, U6a, P1c et P1d de docs/plan/fin-du-projet.md,
+   lignes G0-03, P8, U6a, P1c et P1d du tableau §5, docs/projets/README.md et
    docs/scene/README.md à « tests passés » avec les chiffres réels ; issues
    #71, #36 et #72 (ne ferme ni #36 ni #72 : P13, P8b, N6 y restent) ;
    prompt de reprise. Commits en français, sans push.
 
-Hors périmètre : U3c, P13, P7, #89, paiements ; Q106 (consigner, ne pas corriger).
+Hors périmètre : U3c, P13, P7, #89, paiements.
 ```
 
 ## Ce qui reste à développer après la passe de tests

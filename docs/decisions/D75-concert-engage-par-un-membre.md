@@ -92,7 +92,9 @@ l'hôte non vérifié, l'organisation vérifiée et la tournée, mais toujours
 avec une personne `OWNER` du groupe. **Le chemin d'un `MEMBER` n'est pas
 testé** (voir §8, P1c). _Mise à jour du 19/11/2026 : les tests P1c sont
 écrits (même fichier, `describe` « P1c », scénarios A à D), non exécutés ;
-ils ont relevé Q106._
+ils ont relevé Q106, tranchée par [D79](./D79-concert-reconnu-seul-compte.md)
+et corrigée en P1d : une collaboration terminée sans `gig.held` ne compte
+plus comme date antérieure ni dans la tournée._
 
 ## 3. Règle retenue (D72, Q-G0-7)
 

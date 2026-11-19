@@ -109,6 +109,15 @@ Le lieu gagne un rang, pas d'XP (Q24) ; il n'y a pas de piste
 `VENUE_HOST` (Q18) : la personne qui gère un lieu et le programme gagne
 sur la piste organisateur·rice.
 
+**Collaboration terminée ≠ concert reconnu** (D79, Q106). Une
+collaboration `GIG` peut se terminer sans `gig.held` : la personne qui l'a
+proposée a quitté le groupe, ou la gestion de l'hôte n'est plus en place
+à la confirmation. Elle garde son gain de collaboration, mais elle ne
+prouve aucun concert. Elle ne compte ni comme date antérieure (la vraie
+première date garde son bonus pour l'hôte), ni dans « Première tournée »
+(groupe et personne en son nom). L'interprète est lu dans `performerIds`
+de `gig.held`.
+
 | Événement                                                         | XP                          | Piste             | Multiplicateurs (§6)                                               |
 | ----------------------------------------------------------------- | --------------------------- | ----------------- | ------------------------------------------------------------------ |
 | Événement tenu, confirmé par l'affiche, par personne qui organise | 200 × multiplicateurs       | Organisateur·rice | rendement par artiste sur 12 mois × confiance de qui confirme      |

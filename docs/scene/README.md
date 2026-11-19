@@ -184,6 +184,11 @@ Code livré le 19/11/2026, **tests écrits et non exécutés**.
   d'étape. La collaboration terminée rapporte comme avant.
 - **DC4** : un concert de groupe ne franchit pas l'étape personnelle de ses
   membres ; un concert solo ne touche aucune étape ni tournée de groupe.
+- **Concert reconnu** ([D79](../decisions/D79-concert-reconnu-seul-compte.md),
+  P1d) : date antérieure (`firstDateIds`), tournée et hôte du souvenir ne
+  retiennent que les collaborations qui ont un `gig.held` pour cet
+  interprète (`recognizedGigIds`). Une collaboration terminée sans
+  `gig.held` garde ses gains de collaboration, sans plus.
 - **Lecture** : réalisation `MILESTONE` au rôle `PERFORMER`
   (`#lib/server/career/realisations`) ; « La scène » de la carte ; fiche
   (concerts de groupe + le sien) ; carte souvenir « en son nom ».
