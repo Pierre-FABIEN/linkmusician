@@ -6,7 +6,10 @@
  * nouveau : la collaboration terminée rapporte, l'étape personnelle non.
  *
  * Écrit le 19/11/2026, **non exécuté** dans la session (recette globale
- * ultérieure). Désactivé par défaut :
+ * ultérieure). P1d (Q106, D79) : un concert en son nom terminé sans
+ * `gig.held` ne compte ni comme date antérieure ni dans la tournée
+ * personnelle ; un concert de groupe que l'on confirme n'est pas une date en
+ * son nom. Écrit le 19/11/2026, non exécuté. Désactivé par défaut :
  *
  *   PROGRESSION_INTEGRATION=1 npm run test:unit -- --run src/lib/server/collaborations/solo-gigs
  */
@@ -503,5 +506,122 @@ describe.skipIf(!enabled)('artiste solo sur scène (schéma e2e)', { timeout: 18
 		expect(await db.milestone.count({ where: { bandId: ids.lou } })).toBe(0);
 		// Le registre d'XP reste (ajout seul).
 		expect(await db.xpTransaction.count({ where: { actorId: ids.lou } })).toBeGreaterThan(0);
+	});
+
+	/**
+	 * P1d (Q106, D79), en son nom : Éva joue seule. Relais gère « relais »
+	 * (vérifiée, Toulouse) et la quitte avant de confirmer la première date
+	 * d'Éva : la collaboration se termine sans gestion de l'hôte, donc sans
+	 * `gig.held`. Les autres hôtes sont ceux du dessus.
+	 */
+	describe('P1d — concert en son nom terminé sans concert reconnu (Q106, D79)', () => {
+		const held = async (performerId: string) =>
+			(
+				await db.domainEvent.findMany({
+					where: { type: 'gig.held', actorIds: { has: performerId } },
+					select: { payload: true }
+				})
+			)
+				.map((e) => e.payload as { gigId: string; performerIds: string[]; firstDateIds: string[] })
+				.filter((p) => p.performerIds.includes(performerId));
+		const firstDates = (actorId: string) =>
+			db.xpTransaction.count({ where: { actorId, ruleId: 'gig.first_dates' } });
+
+		beforeAll(async () => {
+			ids.eva = await person('eva', { musician: true });
+			ids.relais = await person('relais');
+			await org('relais', 'PROMOTER', ids.relais, true, 'Toulouse');
+			conv.evaRelais = await conversation(ids.eva, ids.relais);
+			conv.evaPatron = await conversation(ids.eva, ids.patron);
+			conv.evaOrga = await conversation(ids.eva, ids.orga);
+			conv.malikPatron = await conversation(ids.malik, ids.patron);
+		}, 120_000);
+
+		it('gestion de l’hôte partie avant la confirmation : terminée, rien de reconnu, gain de collaboration gardé', async () => {
+			const { id } = await proposeSolo('eva', conv.evaRelais, 'relais', daysAgo(28));
+			// Relais n'administre plus l'organisation au moment de confirmer.
+			await db.membership.updateMany({
+				where: { orgId: orgs.relais.id, personId: ids.relais },
+				data: { status: 'LEFT' }
+			});
+			await service.respondToCollaboration(ids.relais, id, true);
+			expect(
+				await db.collaboration.findUniqueOrThrow({ where: { id }, select: { status: true } })
+			).toEqual({ status: 'COMPLETED' });
+			expect(await held(ids.eva)).toEqual([]);
+			expect(await personal(ids.eva, 'FIRST_GIG')).toBeNull();
+			// Non-régression : la collaboration terminée rapporte à Éva.
+			expect(await xpRules(ids.eva)).toContain('collaboration.completed:MUSICIAN');
+		});
+
+		it('lieu non vérifié : la vraie première date en son nom est reconnue, l’hôte a son bonus', async () => {
+			const before = await firstDates(ids.patron);
+			const { id } = await proposeSolo('eva', conv.evaPatron, 'bar', daysAgo(26));
+			await service.respondToCollaboration(ids.patron, id, true);
+			const [first] = await held(ids.eva);
+			expect(first).toMatchObject({ gigId: id, firstDateIds: [ids.eva], verified: false });
+			expect(await personal(ids.eva, 'FIRST_GIG')).toMatchObject({ proof: 'CORROBORATED' });
+			expect(await firstDates(ids.patron)).toBe(before + 1);
+		});
+
+		it('tournée personnelle : la date non reconnue n’entre pas, aucune double première date', async () => {
+			const orgaFirsts = await firstDates(ids.orga);
+			// Toulouse (non reconnue, −28), Blagnac (−20), Muret (−15) : pas de tournée.
+			for (const [key, day] of [
+				['asso2', daysAgo(20)],
+				['asso3', daysAgo(15)]
+			] as const) {
+				const { id } = await proposeSolo('eva', conv.evaOrga, key, day);
+				await service.respondToCollaboration(ids.orga, id, true);
+			}
+			expect(await personal(ids.eva, 'FIRST_GIG')).toMatchObject({ proof: 'VERIFIED' });
+			expect(await personal(ids.eva, 'FIRST_TOUR')).toBeNull();
+			// Une vraie date à Toulouse complète la tournée, à partir de Blagnac.
+			const { id } = await proposeSolo('eva', conv.evaOrga, 'asso1', daysAgo(10));
+			await service.respondToCollaboration(ids.orga, id, true);
+			const tour = await personal(ids.eva, 'FIRST_TOUR');
+			expect(tour?.proof).toBe('VERIFIED');
+			expect(tour?.occurredAt.toISOString().slice(0, 10)).toBe(daysAgo(20));
+			const all = await held(ids.eva);
+			expect(all).toHaveLength(4);
+			expect(all.filter((p) => p.firstDateIds.length > 0)).toHaveLength(1);
+			expect(await firstDates(ids.orga)).toBe(orgaFirsts);
+			// Le souvenir de l'acte V nomme l'hôte du premier concert reconnu
+			// chez une organisation vérifiée, pas « relais ».
+			expect(await firstVerifiedGig(ids.eva)).toMatchObject({
+				solo: true,
+				hostName: expect.stringContaining('asso2')
+			});
+			// Deux étapes personnelles, aucune autre ligne à son nom.
+			expect(await db.milestone.count({ where: { bandId: ids.eva } })).toBe(2);
+		});
+
+		it('séparation : un concert de groupe que l’on confirme n’est pas une date en son nom', async () => {
+			// Malik a confirmé le concert des Rats (interprète : le groupe), il est
+			// donc nommé dans ce `gig.held`, sans y être interprète.
+			expect(
+				await db.domainEvent.count({ where: { type: 'gig.held', actorIds: { has: ids.malik } } })
+			).toBeGreaterThan(0);
+			expect(await held(ids.malik)).toEqual([]);
+			const bandBefore = await db.milestone.findMany({
+				where: { bandId: band.id },
+				select: { definitionId: true, proof: true },
+				orderBy: { definitionId: 'asc' }
+			});
+			const { id } = await proposeSolo('malik', conv.malikPatron, 'bar', daysAgo(6));
+			await service.respondToCollaboration(ids.patron, id, true);
+			// Sa première date en son nom, malgré le concert de groupe déjà reconnu.
+			const [first] = await held(ids.malik);
+			expect(first).toMatchObject({ gigId: id, firstDateIds: [ids.malik] });
+			expect(await personal(ids.malik, 'FIRST_GIG')).toMatchObject({ proof: 'CORROBORATED' });
+			// Les étapes du groupe n'ont pas bougé.
+			expect(
+				await db.milestone.findMany({
+					where: { bandId: band.id },
+					select: { definitionId: true, proof: true },
+					orderBy: { definitionId: 'asc' }
+				})
+			).toEqual(bandBefore);
+		});
 	});
 });

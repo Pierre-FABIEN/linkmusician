@@ -16,6 +16,11 @@
  * ni `gig.held` ni étape. Écrit le 19/11/2026, **non exécuté** dans la
  * session (recette globale ultérieure).
  *
+ * Collaboration terminée sans concert reconnu (P1d, Q106, D79) : une
+ * collaboration `GIG` terminée sans `gig.held` ne compte ni comme date
+ * antérieure (bonus de première date de l'hôte) ni dans la tournée ; ses
+ * gains de collaboration restent. Écrit le 19/11/2026, **non exécuté**.
+ *
  * Désactivé par défaut :
  *
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/collaborations/gigs
@@ -527,6 +532,196 @@ describe.skipIf(!enabled)('concerts vérifiés (schéma e2e)', { timeout: 120_00
 					where: { actorId: ids.nina, ruleId: { startsWith: 'milestone.' } }
 				})
 			).toBe(ninaMilestoneXpBefore);
+		});
+	});
+
+	/**
+	 * P1d (Q106, D79) : seule une date **reconnue** (`gig.held`) compte comme
+	 * date antérieure et dans la tournée. Groupe neuf, Les Cigales : Cap le
+	 * gère (`OWNER`), Tom et Max y sont `MEMBER`. Max propose une date à asso1
+	 * (vérifiée, Toulouse) puis quitte le groupe avant la confirmation : la
+	 * collaboration se termine, sans concert reconnu. Avant D79, elle privait
+	 * la vraie première date de son bonus et complétait la tournée.
+	 */
+	describe('P1d — collaboration terminée sans concert reconnu (Q106, D79)', () => {
+		let cigales = { id: '', handle: '' };
+		const c: Record<string, string> = {};
+		const gigIds: Record<string, string> = {};
+
+		async function join(personName: string) {
+			await bands.inviteToBand(cigales.id, ids.cap, { handle: PREFIX + personName, title: null });
+			const invite = await db.membership.findFirstOrThrow({
+				where: { orgId: cigales.id, personId: ids[personName], status: 'INVITED' }
+			});
+			await bands.answerInvite(invite.id, ids[personName], true);
+		}
+
+		/** `who` propose un concert passé des Cigales ; `hostPerson` le confirme. */
+		async function cigalesGig(
+			who: string,
+			conv: string,
+			hostKey: string,
+			hostPerson: string,
+			day: string
+		) {
+			const { id } = await service.proposeCollaboration(ids[who], conv, {
+				kind: 'GIG',
+				title: `Les Cigales ${hostKey} ${day}`,
+				happenedOn: day,
+				performer: cigales.handle,
+				host: orgs[hostKey].handle
+			});
+			await service.respondToCollaboration(ids[hostPerson], id, true);
+			return id;
+		}
+
+		const cigalesMilestone = (key: string) =>
+			db.milestone.findUnique({
+				where: { bandId_definitionId: { bandId: cigales.id, definitionId: key } },
+				select: { proof: true, occurredAt: true }
+			});
+		const heldOf = (gigId: string) =>
+			db.domainEvent.findFirst({
+				where: { type: 'gig.held', payload: { path: ['gigId'], equals: gigId } },
+				select: { payload: true }
+			});
+		const xpCount = (actorId: string, ruleId: string) =>
+			db.xpTransaction.count({ where: { actorId, ruleId } });
+		const cigalesHeld = async () =>
+			(
+				await db.domainEvent.findMany({
+					where: { type: 'gig.held', actorIds: { has: cigales.id } },
+					select: { payload: true }
+				})
+			).map((e) => e.payload as { performerIds: string[]; firstDateIds: string[] });
+
+		beforeAll(async () => {
+			for (const name of ['cap', 'tom', 'max']) ids[name] = await person(name);
+			cigales = await bands.createBand(ids.cap, { name: `${PREFIX}Les Cigales`, title: 'chant' });
+			for (const name of ['tom', 'max']) await join(name);
+			c.tomPatron = await conversation(ids.tom, ids.patron);
+			c.tomOrga = await conversation(ids.tom, ids.orga);
+			c.maxOrga = await conversation(ids.max, ids.orga);
+		}, 180_000);
+
+		it('départ avant la confirmation : collaboration terminée, aucun concert reconnu, gain de collaboration gardé', async () => {
+			const orgaGigXp = await db.xpTransaction.count({
+				where: { actorId: ids.orga, ruleId: { startsWith: 'gig.' } }
+			});
+			const { id } = await service.proposeCollaboration(ids.max, c.maxOrga, {
+				kind: 'GIG',
+				title: 'Les Cigales asso1 sans Max',
+				happenedOn: daysAgo(28),
+				performer: cigales.handle,
+				host: orgs.asso1.handle
+			});
+			await bands.leaveBand(cigales.id, ids.max);
+			await service.respondToCollaboration(ids.orga, id, true);
+			gigIds.unrecognized = id;
+
+			expect(
+				await db.collaboration.findUniqueOrThrow({ where: { id }, select: { status: true } })
+			).toEqual({ status: 'COMPLETED' });
+			expect(await heldOf(id)).toBeNull();
+			expect(await cigalesMilestone('FIRST_GIG')).toBeNull();
+			// Non-régression : la collaboration terminée rapporte à Max (D75 §8).
+			expect(await xpCount(ids.max, 'collaboration.completed')).toBe(1);
+			expect(
+				await db.xpTransaction.count({
+					where: { actorId: ids.max, ruleId: { startsWith: 'milestone.' } }
+				})
+			).toBe(0);
+			// L'hôte ne gagne rien d'un concert non reconnu.
+			expect(
+				await db.xpTransaction.count({
+					where: { actorId: ids.orga, ruleId: { startsWith: 'gig.' } }
+				})
+			).toBe(orgaGigXp);
+		});
+
+		it('lieu non vérifié : la vraie première date est reconnue comme telle, l’hôte a son bonus', async () => {
+			const patronFirsts = await xpCount(ids.patron, 'gig.first_dates');
+			const id = await cigalesGig('tom', c.tomPatron, 'bar', 'patron', daysAgo(26));
+			gigIds.first = id;
+			expect((await heldOf(id))?.payload).toMatchObject({
+				performerIds: [cigales.id],
+				confirmerIds: [ids.tom],
+				organizerIds: [ids.patron],
+				// Q106 : la collaboration de Max, non reconnue, n'est pas une date antérieure.
+				firstDateIds: [cigales.id],
+				verified: false
+			});
+			expect(await cigalesMilestone('FIRST_GIG')).toMatchObject({ proof: 'CORROBORATED' });
+			expect(await xpCount(ids.patron, 'gig.first_dates')).toBe(patronFirsts + 1);
+			expect(await xpCount(ids.tom, 'collaboration.completed')).toBe(1);
+		});
+
+		it('organisation vérifiée : « Premier concert » vérifié, pas de seconde première date', async () => {
+			const before = await cigalesMilestone('FIRST_GIG');
+			const orgaFirsts = await xpCount(ids.orga, 'gig.first_dates');
+			const id = await cigalesGig('tom', c.tomOrga, 'asso2', 'orga', daysAgo(20));
+			expect((await heldOf(id))?.payload).toMatchObject({ firstDateIds: [], verified: true });
+			const after = await cigalesMilestone('FIRST_GIG');
+			expect(after?.proof).toBe('VERIFIED');
+			expect(after?.occurredAt).toEqual(before?.occurredAt);
+			expect(await xpCount(ids.orga, 'gig.first_dates')).toBe(orgaFirsts);
+			// Le souvenir de l'acte V nomme l'hôte du premier concert reconnu,
+			// pas asso1, hôte de la collaboration non reconnue (plus ancienne).
+			expect(await firstVerifiedGig(ids.tom)).toMatchObject({
+				bandName: `${PREFIX}Les Cigales`,
+				hostName: expect.stringContaining('asso2')
+			});
+		});
+
+		it('tournée : la date non reconnue n’entre pas dans les trois communes', async () => {
+			// Toulouse (non reconnue, −28), Blagnac (−20), Muret (−15) : trois
+			// communes en 30 jours, mais deux dates reconnues seulement.
+			await cigalesGig('tom', c.tomOrga, 'asso3', 'orga', daysAgo(15));
+			expect(await cigalesMilestone('FIRST_TOUR')).toBeNull();
+			// Une vraie date à Toulouse complète la tournée, à partir de Blagnac.
+			await cigalesGig('tom', c.tomOrga, 'asso1', 'orga', daysAgo(10));
+			const tour = await cigalesMilestone('FIRST_TOUR');
+			expect(tour?.proof).toBe('VERIFIED');
+			expect(tour?.occurredAt.toISOString().slice(0, 10)).toBe(daysAgo(20));
+		});
+
+		it('aucune double récompense : une seule première date, une seule tournée attestée', async () => {
+			await cigalesGig('tom', c.tomOrga, 'asso2', 'orga', daysAgo(5));
+			const held = (await cigalesHeld()).filter((p) => p.performerIds.includes(cigales.id));
+			// bar, asso2, asso3, asso1, asso2 : cinq dates reconnues, pas celle de Max.
+			expect(held).toHaveLength(5);
+			expect(held.filter((p) => p.firstDateIds.length > 0)).toHaveLength(1);
+			const attested = await db.domainEvent.findMany({
+				where: { type: 'milestone.attested', actorIds: { has: cigales.id } },
+				select: { payload: true }
+			});
+			const by = (key: string) =>
+				attested.filter((e) => (e.payload as { milestone: string }).milestone === key);
+			expect(by('FIRST_TOUR')).toHaveLength(1);
+			expect(
+				await db.milestone.count({
+					where: { bandId: cigales.id, definitionId: { in: ['FIRST_GIG', 'FIRST_TOUR'] } }
+				})
+			).toBe(2);
+		});
+
+		it('séparation : aucune étape personnelle pour les membres, la collaboration de Max reste terminée', async () => {
+			expect(
+				await db.milestone.count({ where: { bandId: { in: [ids.cap, ids.tom, ids.max] } } })
+			).toBe(0);
+			expect(
+				await db.collaboration.findUniqueOrThrow({
+					where: { id: gigIds.unrecognized },
+					select: { status: true }
+				})
+			).toEqual({ status: 'COMPLETED' });
+			expect(await heldOf(gigIds.unrecognized)).toBeNull();
+			// Max, parti, ne reçoit aucune part des étapes franchies après lui.
+			expect(
+				await db.xpTransaction.count({
+					where: { actorId: ids.max, ruleId: { startsWith: 'milestone.' } }
+				})
+			).toBe(0);
 		});
 	});
 });
