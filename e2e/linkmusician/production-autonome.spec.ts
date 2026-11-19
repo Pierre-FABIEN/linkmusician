@@ -50,7 +50,10 @@ test.describe('LinkMusician — enregistrement autonome de bout en bout', () => 
 				await expect(mine).toHaveCount(1);
 				expect((await mine.innerText()).match(/Prise de son/g)).toHaveLength(1);
 			};
-			const campaign = () => page.getByRole('list', { name: 'Mes campagnes' }).getByRole('link');
+			// U2 : « Hors projet » (adresse des campagnes) ; un morceau personnel
+			// qu'aucun projet ne range y figure, avec ses repères.
+			const campaign = () =>
+				page.getByRole('list', { name: 'Morceaux hors projet' }).getByRole('listitem');
 
 			let workId = '';
 			await test.step('1. Depuis Carrière : une idée, une maquette, composé', async () => {

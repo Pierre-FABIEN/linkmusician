@@ -52,7 +52,9 @@ test.describe('LinkMusician — accueil Collab (U0)', () => {
 					'repères'
 				]);
 				for (const [name, href] of [
-					[/^Travaux en cours/, '/espace/campagnes'],
+					// U2 : « Mes projets » et « Créer un projet » dans « avancer ».
+					[/^Mes projets/, '/projets'],
+					[/^Créer un projet/, '/projets/nouveau'],
 					[/^Mes morceaux/, '/morceaux'],
 					[/^Ma carte de carrière/, '/espace/carte'],
 					[/^Mes groupes et structures/, '/structure'],
@@ -63,14 +65,13 @@ test.describe('LinkMusician — accueil Collab (U0)', () => {
 				] as const)
 					await expect(home.getByRole('link', { name })).toHaveAttribute('href', href);
 				// Doublons résorbés : plus de « Mon équipe » ni de « Mes structures » séparés.
-				// P2 : une seule entrée vers les projets, dans « ma musique » (P3/U2 la refondra).
+				// U2 : les projets vivent dans « avancer » (plus d'entrée dans « ma
+				// musique ») ; compte neuf sans morceau : pas de « Hors projet ».
 				await expect(home.getByRole('link', { name: /^Mon équipe/ })).toHaveCount(0);
 				await expect(home.getByRole('link', { name: /^Mes structures/ })).toHaveCount(0);
-				await expect(page.locator('a[href^="/projets"]')).toHaveCount(1);
-				await expect(home.getByRole('link', { name: /^Projets/ })).toHaveAttribute(
-					'href',
-					'/projets'
-				);
+				await expect(page.locator('a[href^="/projets"]')).toHaveCount(2);
+				await expect(home.getByRole('link', { name: /^Projets/ })).toHaveCount(0);
+				await expect(home.getByRole('link', { name: /^Hors projet/ })).toHaveCount(0);
 				// Compte neuf : « Commence ici », sans reproche.
 				await expect(page.getByTestId('start-hero')).toBeVisible();
 				await expect(page.getByTestId('start-hero')).not.toContainText(/retard|pas encore|XP/i);

@@ -92,26 +92,23 @@ test.describe('LinkMusician — projets (P2)', () => {
 			await page.setViewportSize({ width: 390, height: 844 });
 			let projectId = '';
 
-			await test.step('1. Depuis « ma musique », la liste vide dit que c’est facultatif', async () => {
+			await test.step('1. Depuis « avancer », la liste vide dit que c’est facultatif', async () => {
 				await page.goto('/espace');
 				await waitForAppReady(page);
 				await dismissCookies(page);
 				const home = page.getByRole('navigation', { name: 'Mode carrière' });
-				await home
-					.getByRole('navigation', { name: /^Sections de/ })
-					.getByRole('button', { name: 'ma musique' })
-					.click();
-				await home.getByRole('link', { name: /^Projets/ }).click();
+				// U2 : « Mes projets » est dans « avancer », le pivot ouvert.
+				await home.getByRole('link', { name: /^Mes projets/ }).click();
 				await waitForPath(page, '/projets');
 				await waitForAppReady(page);
-				await expect(page.getByRole('heading', { level: 1 })).toHaveText('Projets');
+				await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mes projets');
 				await expect(page.getByText(/C’est facultatif/)).toBeVisible();
 				expect(await horizontalOverflow(page)).toEqual([]);
 				await expectNoA11yViolations(page, ['.cartButton']);
 			});
 
 			await test.step('2. Créer « EP Lumière » au clavier', async () => {
-				await page.getByRole('link', { name: 'Nouveau projet' }).first().click();
+				await page.getByRole('link', { name: 'Créer un projet' }).first().click();
 				await waitForPath(page, '/projets/nouveau');
 				await waitForAppReady(page);
 				// Aucune structure gérée : pas de choix de porteur.
@@ -221,7 +218,7 @@ test.describe('LinkMusician — projets (P2)', () => {
 				await expect(page.locator('#main-content').getByRole('status')).toContainText(
 					'Le morceau lui-même n’a pas changé'
 				);
-				await expect(page.getByText(/Aucun morceau rangé/)).toBeVisible();
+				await expect(page.getByText(/Aucun morceau rangé\. Le projet/)).toBeVisible();
 				await page.getByRole('button', { name: 'Supprimer le projet' }).click();
 				const sheet = page.getByRole('dialog', { name: 'Supprimer ce projet ?' });
 				await expect(sheet).toContainText('Les morceaux rangés restent intacts');
