@@ -30,8 +30,9 @@ const JOURNAL_SIZE = 20;
 
 const WORK_STATE_LABELS: Record<string, string> = { IDEA: 'Idée', COMPOSED: 'Composé' };
 
-/** Porteur d'un morceau encore lisible par un tiers du morceau. */
-function readableOwnerFor(personId: string): Prisma.ActorWhereInput {
+/** Porteur d'un morceau encore lisible par un tiers du morceau (fiche et
+ * projection « Mes projets », `overview.ts`). */
+export function readableOwnerFor(personId: string): Prisma.ActorWhereInput {
 	return {
 		deletedAt: null,
 		OR: [{ kind: 'PERSON' }, { kind: 'ORGANIZATION', organization: { dissolvedAt: null } }],
@@ -87,7 +88,7 @@ export async function projectView(projectId: string, personId: string) {
 		workingTitle: true,
 		createdAt: true,
 		workId: true,
-		work: { select: { title: true, state: true } }
+		work: { select: { title: true, state: true, updatedAt: true } }
 	} as const;
 	const [managed, shared, actWorkIds] = await Promise.all([
 		prisma.projectItem.findMany({
@@ -199,6 +200,11 @@ export async function projectView(projectId: string, personId: string) {
 			occurredAt: a.occurredAt
 		}));
 
+	// U2 : l'idée que je gère, rangée ici et touchée en dernier (prochaine action).
+	const idea = managed
+		.filter((i) => i.work.state === 'IDEA')
+		.sort((a, b) => b.work.updatedAt.getTime() - a.work.updatedAt.getTime())[0];
+
 	return {
 		id: project.id,
 		name: project.name,
@@ -214,6 +220,7 @@ export async function projectView(projectId: string, personId: string) {
 		role: 'manage' as const,
 		items: items.map(({ createdAt: _c, workId: _w, ...rest }) => rest),
 		counts: { items: items.length, composed: items.filter((i) => i.state === 'Composé').length },
+		resumable: idea ? { workId: idea.workId, title: idea.work.title } : null,
 		journal
 	};
 }
