@@ -4,10 +4,12 @@
 // pas un endpoint, et masquer une entrée de menu ne protège rien.
 import { requireDiagramReader, PRIVATE_HEADERS } from '#server/diagram/access';
 import { menu } from '#server/diagram/catalog';
+import { SIDEBAR_COOKIE_NAME } from '#shadcn/sidebar/constants.js';
 import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ locals, setHeaders }) => {
+export const load: LayoutServerLoad = async ({ locals, setHeaders, cookies }) => {
 	requireDiagramReader(locals);
 	setHeaders(PRIVATE_HEADERS);
-	return { menu: menu() };
+	// Menu replié ou non : le cookie que pose le Sidebar de shadcn.
+	return { menu: menu(), sidebarOpen: cookies.get(SIDEBAR_COOKIE_NAME) !== 'false' };
 };

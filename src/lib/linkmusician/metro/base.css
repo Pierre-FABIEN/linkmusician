@@ -63,6 +63,16 @@
 	--muted: oklch(0.92 0.01 85);
 	--muted-foreground: oklch(0.45 0.02 290);
 	--border: oklch(0.88 0.01 85);
+	/* Sidebar shadcn : papier légèrement encré, survol et sélection à l'encre.
+	   Relatifs à l'encre et au papier, ils suivent le mode sombre. */
+	--sidebar: color-mix(in oklch, var(--lm-paper) 94%, var(--lm-ink));
+	--sidebar-foreground: var(--lm-ink);
+	--sidebar-primary: var(--lm-solid);
+	--sidebar-primary-foreground: var(--lm-solid-fg);
+	--sidebar-accent: color-mix(in oklch, var(--lm-ink) 9%, var(--lm-paper));
+	--sidebar-accent-foreground: var(--lm-ink);
+	--sidebar-border: color-mix(in oklch, var(--lm-ink) 12%, transparent);
+	--sidebar-ring: var(--lm-line);
 
 	font-family: var(--lm-font-body);
 	color: var(--lm-ink);

@@ -154,11 +154,14 @@ n'est pas vide ; l'**inventaire**, lui, couvre tout le code du périmètre
 
 ## 5. Interface
 
-- **Menu latéral** : Vue globale, Métiers, Structures, Rôles et droits,
-  Domaines, Vues (parcours, dataflows, permissions, données, états,
-  événements, évolutions), Inventaire et contrôle. Repliable, filtrable,
-  compteurs, élément courant conservé, tiroir sur mobile. Un groupe fermé
-  ne rend pas ses entrées.
+- **Menu latéral** (`DiagramSidebar`, sur le Sidebar de shadcn-svelte) :
+  Vue globale, Métiers, Structures, Rôles et droits, Domaines, Vues
+  (parcours, dataflows, permissions, données, états, événements,
+  évolutions), Inventaire et contrôle. Repliable (bouton, rail ou Ctrl+B,
+  état retenu dans le cookie `sidebar:state`), filtrable, compteurs, groupe
+  de la page courante ouvert, tiroir sur mobile refermé à chaque
+  navigation. Un groupe fermé ne rend pas ses entrées. Couleurs : jetons
+  `--sidebar-*` réécrits par Metro (`metro/base.css`).
 - **Recherche globale** : métier, action, entité, service, permission,
   événement, issue (`#71`), décision (`D76`), mot libre ; dans les titres
   et dans le corps des étapes. Filtres combinables par domaine, acteur,

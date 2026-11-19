@@ -59,7 +59,7 @@ test.describe('Melokiva Diagram', () => {
 		).toBeVisible();
 
 		// Menu : filtrer, puis ouvrir une machine à états.
-		const menu = page.getByRole('navigation', { name: 'Diagrammes' });
+		const menu = page.getByRole('navigation', { name: 'Diagrammes', exact: true });
 		await menu.getByRole('searchbox', { name: 'Filtrer le menu' }).fill('cycle de vie');
 		await menu
 			.getByRole('link', { name: /Cycle de vie d’un besoin/ })
@@ -112,7 +112,7 @@ test.describe('Melokiva Diagram', () => {
 		await expect(
 			page.getByRole('heading', { level: 1, name: 'Couverture et contrôle' })
 		).toBeVisible();
-		await page.getByRole('button', { name: 'Ouvrir le menu' }).click();
+		await page.getByRole('button', { name: 'Afficher ou masquer le menu' }).click();
 		const drawer = page.getByRole('dialog', { name: 'Menu des diagrammes' });
 		await expect(drawer).toBeVisible();
 		await drawer.getByRole('link', { name: 'Inventaire des processus' }).click();
