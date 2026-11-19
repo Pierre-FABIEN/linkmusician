@@ -53,6 +53,7 @@ export const SUGGESTION_RULES = [
 	'band.invitation',
 	'project.invitation',
 	'project.coordination',
+	'project.need',
 	'representation.respond',
 	'applications.review',
 	'contact.respond',

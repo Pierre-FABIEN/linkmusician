@@ -241,6 +241,32 @@ describe('règles des cinq rangs (conception 21 §8.4, §9.1)', () => {
 		expect(offer?.key).toBe('project.coordination:PROJECT:p2');
 	});
 
+	it('rang 2 (U3b-c) : besoins proposés, une suggestion par projet', () => {
+		const need = (needId: string, projectId: string, since: string) => ({
+			needId,
+			projectId,
+			projectName: projectId === 'p3' ? 'EP Lumière' : 'Tournée',
+			label: 'Ingé son · Mixage',
+			since: d(since)
+		});
+		const out = ranked(
+			facts({
+				needProposals: [
+					need('n1', 'p3', '2026-11-05'),
+					need('n2', 'p3', '2026-11-04'),
+					need('n3', 'p4', '2026-11-06')
+				]
+			})
+		);
+		const needs = out.filter((s) => s.rule === 'project.need');
+		expect(needs.map((s) => [s.key, s.rank, s.href])).toEqual([
+			['project.need:PROJECT:p3', 2, '/projets/p3#besoins'],
+			['project.need:PROJECT:p4', 2, '/projets/p4#besoins']
+		]);
+		expect(needs[0].title).toBe('2 besoins proposés dans « EP Lumière »');
+		expect(needs[1].title).toBe('Besoin proposé dans « Tournée » : Ingé son · Mixage');
+	});
+
 	it('demandes de contact : jamais pour un·e mineur·e', () => {
 		const out = ranked(facts({ reader: { adult: false, ambition: null }, contactRequests: 3 }));
 		expect(out).toEqual([]);

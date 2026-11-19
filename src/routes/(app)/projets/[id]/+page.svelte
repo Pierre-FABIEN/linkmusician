@@ -18,7 +18,22 @@
 	import MetroField from '#lib/components/linkmusician/metro/MetroField.svelte';
 	import MetroSheet from '#lib/components/linkmusician/metro/MetroSheet.svelte';
 	import MetroEmpty from '#lib/components/linkmusician/metro/MetroEmpty.svelte';
-	import { ArrowRight, CalendarDays, Clock, Music, Target, UsersRound } from 'lucide-svelte';
+	import {
+		ArrowRight,
+		CalendarDays,
+		Check,
+		Clock,
+		Megaphone,
+		Music,
+		Pencil,
+		Plus,
+		Search,
+		Target,
+		UserPlus,
+		UsersRound,
+		X
+	} from 'lucide-svelte';
+	import { resolve } from '$app/paths';
 	import {
 		askToInvite,
 		bulkInviteSummary,
@@ -80,6 +95,7 @@
 
 	// U3 : équipe. Feuilles « Inviter », « Inviter les membres », retrait et départ.
 	let inviteOpen = $state(false);
+	let inviteRole = $state('');
 	let membersOpen = $state(false);
 	let sending = $state<'inviter' | 'membres' | 'retrait' | null>(null);
 	let leaving = $state<{
@@ -110,6 +126,7 @@
 		handle = '';
 		byHandle = false;
 		preset = 'participant';
+		inviteRole = '';
 	}
 	/** Après « Transformer en projet » : le bilan des invitations (U3). */
 	function createdMessage(params: { has(k: string): boolean; get(k: string): string | null }) {
@@ -201,11 +218,38 @@
 	);
 	const itemsTitle = $derived(data.family === 'other' ? 'Éléments' : 'Morceaux');
 
-	// U3b : ajouter un besoin. La précision suit le métier choisi.
+	// U3b-c : besoins. Une feuille pour ajouter (ou proposer) et modifier ; la
+	// précision suit le métier choisi. Les droits viennent du serveur (`actions`).
+	type Need = (typeof p.needs)[number];
+	const NEEDS_SHOWN = 5;
+	let allNeeds = $state(false);
+	let needSheetOpen = $state(false);
+	let needSending = $state(false);
+	let editing = $state<Need | null>(null);
 	let needTrack = $state<NeedTrackValue>('SOUND_ENGINEER');
+	let needSpecialty = $state('');
+	let needInstrument = $state('');
+	let needDescription = $state('');
 	const needSpecialties = $derived(NEED_SPECIALTIES[needTrack]);
 	/** Gestion ou coordination d'un projet en cours : ajouter ou proposer. */
 	const canAddNeed = $derived(organise);
+	const pendingNeeds = $derived(p.needs.filter((n) => n.status === 'PROPOSED'));
+	const openNeeds = $derived(p.needs.filter((n) => n.status === 'OPEN').length);
+	const shownNeeds = $derived(allNeeds ? p.needs : p.needs.slice(0, NEEDS_SHOWN));
+	function openNeedSheet(need: Need | null) {
+		editing = need;
+		needTrack = need?.track ?? 'SOUND_ENGINEER';
+		needSpecialty = need?.specialty ?? '';
+		needInstrument = need?.instrumentSlug ?? '';
+		needDescription = need?.description ?? '';
+		needSheetOpen = true;
+	}
+	/** « Inviter » depuis un besoin : la feuille de U3, rôle prérempli (Q98). */
+	function inviteFor(label: string) {
+		resetInvite();
+		inviteRole = label;
+		inviteOpen = true;
+	}
 </script>
 
 <SEO title={p.name} noindex nofollow />
@@ -235,7 +279,7 @@
 			</p>
 		{/if}
 		{#if form?.ok}<p role="status" class="text-sm">{form.ok}</p>{/if}
-		{#if form?.error && !(form.action === 'inviter' && inviteOpen) && form.action !== 'besoin-ajouter'}
+		{#if form?.error && !(form.action === 'inviter' && inviteOpen) && !(needSheetOpen && (form.action === 'besoin-ajouter' || form.action === 'besoin-modifier'))}
 			<p role="alert" class="lm-alert p-3 text-sm">{form.error}</p>
 		{/if}
 
@@ -533,176 +577,211 @@
 {#snippet needsBlock()}
 	{#if p.needs.length > 0 || canAddNeed}
 		<section id="besoins" aria-labelledby="besoins-titre" class="space-y-4">
-			<h2 id="besoins-titre" class="lm-kicker text-muted-foreground">
-				Besoins <span class="text-muted-foreground">· {p.needs.length}</span>
-			</h2>
+			<div class="flex flex-wrap items-baseline justify-between gap-3">
+				<h2 id="besoins-titre" class="lm-kicker text-muted-foreground">
+					Besoins <span class="text-muted-foreground"
+						>· {openNeeds} ouvert{openNeeds > 1 ? 's' : ''}</span
+					>
+				</h2>
+				{#if canAddNeed}
+					<button type="button" class="lm-btn" onclick={() => openNeedSheet(null)}>
+						<Plus class="size-4" aria-hidden="true" />
+						{can.manage ? 'Ajouter un besoin' : 'Proposer un besoin'}
+					</button>
+				{/if}
+			</div>
 			{#if p.needs.length === 0}
 				<MetroEmpty
 					icon={Target}
-					text="Il te manque quelqu’un ? Dis-le ici : tu pourras ensuite chercher, inviter ou publier une annonce."
+					text={can.manage
+						? 'Il te manque quelqu’un ? Dis-le ici : tu pourras ensuite chercher, inviter ou publier une annonce.'
+						: 'Il manque quelqu’un au projet ? Propose-le : la gestion décidera de l’ouvrir.'}
 				/>
 			{:else}
+				{#if pendingNeeds.length > 0 && can.manage}
+					<p class="text-sm font-medium" data-testid="needs-pending">
+						{pendingNeeds.length === 1
+							? 'Une proposition attend ta décision.'
+							: `${pendingNeeds.length} propositions attendent ta décision.`}
+					</p>
+				{/if}
 				<ul class="space-y-3" aria-label="Besoins du projet">
-					{#each p.needs as need (need.id)}
-						<li data-tone="paper" class="lm-tile lm-tile--flow space-y-3 p-4" data-testid="need">
-							<div class="flex flex-wrap items-baseline justify-between gap-2">
-								<p class="min-w-0 font-medium wrap-break-word">{need.label}</p>
-								<span class="lm-pill text-xs">{need.statusLabel}</span>
-							</div>
-							{#if need.description}<p class="text-sm wrap-break-word">
-									« {need.description} »
-								</p>{/if}
-							<p class="text-sm text-muted-foreground">
-								{need.status === 'PROPOSED' ? 'Proposé par' : 'Formulé par'}
-								{need.author}{#if need.filledBy}
-									· pourvu par {need.filledBy}{/if}
-							</p>
-							{#if need.searchHref || need.actions.length > 0}
-								<div class="flex flex-wrap gap-3">
-									{#if need.searchHref}
-										<a href={need.searchHref} class="lm-btn" data-variant="ghost"
-											>Trouver un pro<span class="sr-only"> : {need.label}</span></a
-										>
-									{/if}
-									{#if need.actions.includes('open')}
-										<form method="POST" action="?/besoin-decider" use:enhance>
-											<input type="hidden" name="needId" value={need.id} />
-											<input type="hidden" name="decision" value="open" />
-											<button class="lm-btn"
-												>Ouvrir ce besoin<span class="sr-only"> : {need.label}</span></button
-											>
-										</form>
-									{/if}
-									{#if need.actions.includes('decline')}
-										<form method="POST" action="?/besoin-decider" use:enhance>
-											<input type="hidden" name="needId" value={need.id} />
-											<input type="hidden" name="decision" value="decline" />
-											<button class="lm-btn" data-variant="ghost"
-												>Ne pas retenir<span class="sr-only"> : {need.label}</span></button
-											>
-										</form>
-									{/if}
-									{#if need.actions.includes('withdraw')}
-										<form method="POST" action="?/besoin-retirer" use:enhance>
-											<input type="hidden" name="needId" value={need.id} />
-											<button class="lm-btn" data-variant="ghost"
-												>Retirer ma proposition<span class="sr-only"> : {need.label}</span></button
-											>
-										</form>
-									{/if}
-									{#if need.actions.includes('fill')}
-										<form
-											method="POST"
-											action="?/besoin-pourvu"
-											use:enhance
-											class="flex flex-wrap items-end gap-2"
-										>
-											<input type="hidden" name="needId" value={need.id} />
-											{#if activeTeam.length > 0}
-												<label class="text-sm">
-													<span class="block">Par qui ? (facultatif)</span>
-													<select name="participantId" class="lm-field">
-														<option value="">Personne en particulier</option>
-														{#each activeTeam as m (m.id)}
-															<option value={m.id}>{m.isMe ? 'Toi' : m.name}</option>
-														{/each}
-													</select>
-												</label>
-											{/if}
-											<button class="lm-btn" data-variant="ghost"
-												>Marquer pourvu<span class="sr-only"> : {need.label}</span></button
-											>
-										</form>
-									{/if}
-									{#if need.actions.includes('reopen')}
-										<form method="POST" action="?/besoin-rouvrir" use:enhance>
-											<input type="hidden" name="needId" value={need.id} />
-											<button class="lm-btn" data-variant="ghost"
-												>Rouvrir<span class="sr-only"> : {need.label}</span></button
-											>
-										</form>
-									{/if}
-									{#if need.actions.includes('cancel')}
-										<form method="POST" action="?/besoin-annuler" use:enhance>
-											<input type="hidden" name="needId" value={need.id} />
-											<button class="lm-btn" data-variant="ghost"
-												>Annuler ce besoin<span class="sr-only"> : {need.label}</span></button
-											>
-										</form>
-									{/if}
-								</div>
-							{/if}
-						</li>
+					{#each shownNeeds as need (need.id)}
+						{@render needTile(need)}
 					{/each}
 				</ul>
-			{/if}
-
-			{#if canAddNeed}
-				<form
-					method="POST"
-					action="?/besoin-ajouter"
-					use:enhance
-					data-tone="paper"
-					class="lm-tile lm-tile--flow space-y-4 p-4"
-					aria-labelledby="besoin-ajout-titre"
-				>
-					<h3 id="besoin-ajout-titre" class="font-medium">Ce qui manque à {p.name}</h3>
-					<MetroField id="needTrack" label="Métier recherché">
-						{#snippet children(attrs)}
-							<select {...attrs} name="track" bind:value={needTrack}>
-								{#each NEED_TRACKS as t (t)}
-									<option value={t}>{NEED_TRACK_LABELS[t]}</option>
-								{/each}
-							</select>
-						{/snippet}
-					</MetroField>
-					{#if needSpecialties.length > 0}
-						<MetroField id="needSpecialty" label="Précision" optional>
-							{#snippet children(attrs)}
-								<select {...attrs} name="specialty">
-									<option value="">Sans précision</option>
-									{#each needSpecialties as sp (sp.id)}
-										<option value={sp.id}>{sp.label}</option>
-									{/each}
-								</select>
-							{/snippet}
-						</MetroField>
-					{:else if needTrack === 'MUSICIAN' && data.instruments.length > 0}
-						<MetroField id="needInstrument" label="Instrument" optional>
-							{#snippet children(attrs)}
-								<select {...attrs} name="instrument">
-									<option value="">Sans précision</option>
-									{#each data.instruments as i (i.slug)}
-										<option value={i.slug}>{i.name}</option>
-									{/each}
-								</select>
-							{/snippet}
-						</MetroField>
-					{/if}
-					<MetroField
-						id="needDescription"
-						label="En une phrase"
-						optional
-						help="Visible des personnes du projet seulement."
+				{#if p.needs.length > NEEDS_SHOWN && !allNeeds}
+					<button
+						type="button"
+						class="lm-btn"
+						data-variant="ghost"
+						onclick={() => (allNeeds = true)}
 					>
-						{#snippet children(attrs)}
-							<textarea {...attrs} name="description" rows="2" maxlength={MAX_NEED_DESCRIPTION}
-							></textarea>
-						{/snippet}
-					</MetroField>
-					{#if !can.manage}
-						<p class="text-sm text-muted-foreground">
-							La gestion de {p.owner.isMe ? 'ce projet' : p.owner.name} décidera de l’ouvrir.
-						</p>
-					{/if}
-					{#if form?.action === 'besoin-ajouter' && form.error}
-						<p role="alert" class="text-sm">{form.error}</p>
-					{/if}
-					<button class="lm-btn">{addLabel(can.manage ? 'manage' : 'coordinate')}</button>
-				</form>
+						Voir les {p.needs.length} besoins
+					</button>
+				{/if}
 			{/if}
 		</section>
 	{/if}
+{/snippet}
+
+{#snippet needTile(need: (typeof p.needs)[number])}
+	<li
+		data-tone="paper"
+		class="lm-tile lm-tile--flow space-y-3 p-4"
+		data-testid="need"
+		data-status={need.status}
+	>
+		<div class="flex flex-wrap items-baseline justify-between gap-2">
+			<p class="min-w-0 font-medium wrap-break-word">{need.label}</p>
+			<span class="lm-pill inline-flex items-center gap-1 text-xs">
+				{#if need.status === 'FILLED'}<Check
+						class="size-3"
+						aria-hidden="true"
+					/>{:else if need.status === 'PROPOSED'}<Clock
+						class="size-3"
+						aria-hidden="true"
+					/>{:else if need.status === 'DECLINED'}<X
+						class="size-3"
+						aria-hidden="true"
+					/>{:else}<Target class="size-3" aria-hidden="true" />{/if}
+				{need.statusLabel}
+			</span>
+		</div>
+		{#if need.description}<p class="text-sm wrap-break-word">« {need.description} »</p>{/if}
+		<p class="text-sm text-muted-foreground">
+			{need.status === 'PROPOSED' ? 'Proposé par' : 'Formulé par'}
+			{need.author}{#if need.filledBy}
+				· pourvu par {need.filledBy}{/if}
+		</p>
+		{#if need.opportunity}
+			<p class="text-sm">
+				<a href={resolve('/(app)/annonces/[id]', { id: need.opportunity.id })} class="underline"
+					>{need.opportunity.open ? 'Annonce ouverte' : 'Annonce close'}</a
+				>{#if need.opportunity.applications !== null}
+					· {plural(need.opportunity.applications, 'candidature', 'candidatures')}{/if}
+			</p>
+		{/if}
+		{#if need.opportunityRefusal}
+			<p class="text-sm text-muted-foreground">{need.opportunityRefusal}</p>
+		{/if}
+		{#if need.searchQuery || need.actions.length > 0 || need.opportunityQuery}
+			<div class="flex flex-wrap items-end gap-3">
+				{#if need.actions.includes('open')}
+					<form method="POST" action="?/besoin-decider" use:enhance>
+						<input type="hidden" name="needId" value={need.id} />
+						<input type="hidden" name="decision" value="open" />
+						<button class="lm-btn"
+							>Ouvrir ce besoin<span class="sr-only"> : {need.label}</span></button
+						>
+					</form>
+				{/if}
+				{#if need.actions.includes('decline')}
+					<form method="POST" action="?/besoin-decider" use:enhance>
+						<input type="hidden" name="needId" value={need.id} />
+						<input type="hidden" name="decision" value="decline" />
+						<button class="lm-btn" data-variant="ghost"
+							>Ne pas retenir<span class="sr-only"> : {need.label}</span></button
+						>
+					</form>
+				{/if}
+				{#if need.searchQuery}
+					<a
+						href={`${resolve('/(app)/decouvrir')}?${need.searchQuery}`}
+						class="lm-btn"
+						data-variant="ghost"
+						data-testid="need-search"
+						><Search class="size-4" aria-hidden="true" /> Trouver un pro<span class="sr-only">
+							: {need.label}</span
+						></a
+					>
+				{/if}
+				{#if need.status === 'OPEN' && organise}
+					<button
+						type="button"
+						class="lm-btn"
+						data-variant="ghost"
+						onclick={() => inviteFor(need.label)}
+						><UserPlus class="size-4" aria-hidden="true" /> Inviter<span class="sr-only">
+							pour : {need.label}</span
+						></button
+					>
+				{/if}
+				{#if need.opportunityQuery}
+					<a
+						href={`${resolve('/(app)/annonces/nouvelle')}?${need.opportunityQuery}`}
+						class="lm-btn"
+						data-variant="ghost"
+						data-testid="need-opportunity"
+						><Megaphone class="size-4" aria-hidden="true" /> Préparer l’annonce<span
+							class="sr-only"
+						>
+							: {need.label}</span
+						></a
+					>
+				{/if}
+				{#if need.actions.includes('update')}
+					<button
+						type="button"
+						class="lm-btn"
+						data-variant="ghost"
+						onclick={() => openNeedSheet(need)}
+						><Pencil class="size-4" aria-hidden="true" /> Modifier<span class="sr-only">
+							: {need.label}</span
+						></button
+					>
+				{/if}
+				{#if need.actions.includes('withdraw')}
+					<form method="POST" action="?/besoin-retirer" use:enhance>
+						<input type="hidden" name="needId" value={need.id} />
+						<button class="lm-btn" data-variant="ghost"
+							>Retirer ma proposition<span class="sr-only"> : {need.label}</span></button
+						>
+					</form>
+				{/if}
+				{#if need.actions.includes('fill')}
+					<form
+						method="POST"
+						action="?/besoin-pourvu"
+						use:enhance
+						class="flex flex-wrap items-end gap-2"
+					>
+						<input type="hidden" name="needId" value={need.id} />
+						{#if activeTeam.length > 0}
+							<label class="text-sm">
+								<span class="block">Par qui ? (facultatif)</span>
+								<select name="participantId" class="lm-field">
+									<option value="">Personne en particulier</option>
+									{#each activeTeam as m (m.id)}
+										<option value={m.id}>{m.isMe ? 'Toi' : m.name}</option>
+									{/each}
+								</select>
+							</label>
+						{/if}
+						<button class="lm-btn" data-variant="ghost"
+							>Marquer pourvu<span class="sr-only"> : {need.label}</span></button
+						>
+					</form>
+				{/if}
+				{#if need.actions.includes('reopen')}
+					<form method="POST" action="?/besoin-rouvrir" use:enhance>
+						<input type="hidden" name="needId" value={need.id} />
+						<button class="lm-btn" data-variant="ghost"
+							>Rouvrir<span class="sr-only"> : {need.label}</span></button
+						>
+					</form>
+				{/if}
+				{#if need.actions.includes('cancel')}
+					<form method="POST" action="?/besoin-annuler" use:enhance>
+						<input type="hidden" name="needId" value={need.id} />
+						<button class="lm-btn" data-variant="danger"
+							>Annuler ce besoin<span class="sr-only"> : {need.label}</span></button
+						>
+					</form>
+				{/if}
+			</div>
+		{/if}
+	</li>
 {/snippet}
 
 {#snippet itemsBlock()}
@@ -906,6 +985,108 @@
 </MetroSheet>
 
 <!-- U3 (§8.2) : inviter une personne connue ; l'@identifiant reste possible. -->
+<MetroSheet
+	bind:open={needSheetOpen}
+	title={editing ? `Modifier : ${editing.label}` : `Ce qui manque à ${p.name}`}
+>
+	<form
+		method="POST"
+		action={editing ? '?/besoin-modifier' : '?/besoin-ajouter'}
+		class="space-y-5"
+		data-testid="need-sheet"
+		use:enhance={() => {
+			needSending = true;
+			return async ({ result, update }) => {
+				await update({ reset: false });
+				needSending = false;
+				if (result.type === 'success') needSheetOpen = false;
+			};
+		}}
+	>
+		{#if editing}<input type="hidden" name="needId" value={editing.id} />{/if}
+		{#if (form?.action === 'besoin-ajouter' || form?.action === 'besoin-modifier') && form.error}
+			<p role="alert" class="lm-alert p-3 text-sm">{form.error}</p>
+		{/if}
+		<MetroField id="needTrack" label="Métier recherché">
+			{#snippet children(attrs)}
+				<select
+					{...attrs}
+					name="track"
+					bind:value={needTrack}
+					onchange={() => {
+						needSpecialty = '';
+						needInstrument = '';
+					}}
+				>
+					{#each NEED_TRACKS as t (t)}
+						<option value={t}>{NEED_TRACK_LABELS[t]}</option>
+					{/each}
+				</select>
+			{/snippet}
+		</MetroField>
+		{#if needSpecialties.length > 0}
+			<MetroField id="needSpecialty" label="Précision" optional>
+				{#snippet children(attrs)}
+					<select {...attrs} name="specialty" bind:value={needSpecialty}>
+						<option value="">Sans précision</option>
+						{#each needSpecialties as sp (sp.id)}
+							<option value={sp.id}>{sp.label}</option>
+						{/each}
+					</select>
+				{/snippet}
+			</MetroField>
+		{:else if needTrack === 'MUSICIAN' && data.instruments.length > 0}
+			<MetroField id="needInstrument" label="Instrument" optional>
+				{#snippet children(attrs)}
+					<select {...attrs} name="instrument" bind:value={needInstrument}>
+						<option value="">Sans précision</option>
+						{#each data.instruments as i (i.slug)}
+							<option value={i.slug}>{i.name}</option>
+						{/each}
+					</select>
+				{/snippet}
+			</MetroField>
+		{/if}
+		<MetroField
+			id="needDescription"
+			label="En une phrase"
+			optional
+			help={`Visible des personnes du projet seulement. ${MAX_NEED_DESCRIPTION} caractères au plus.`}
+		>
+			{#snippet children(attrs)}
+				<textarea
+					{...attrs}
+					name="description"
+					rows="3"
+					maxlength={MAX_NEED_DESCRIPTION}
+					bind:value={needDescription}
+				></textarea>
+			{/snippet}
+		</MetroField>
+		{#if !can.manage && !editing}
+			<p class="text-sm text-muted-foreground">
+				La gestion de {p.owner.isMe ? 'ce projet' : p.owner.name} décidera de l’ouvrir. Rien n’est envoyé
+				à personne.
+			</p>
+		{/if}
+		<div class="flex flex-wrap gap-3">
+			<button class="lm-btn" disabled={needSending} aria-busy={needSending}>
+				{needSending
+					? 'Envoi…'
+					: editing
+						? 'Enregistrer'
+						: addLabel(can.manage ? 'manage' : 'coordinate')}
+			</button>
+			<button
+				type="button"
+				class="lm-btn"
+				data-variant="ghost"
+				onclick={() => (needSheetOpen = false)}>Annuler</button
+			>
+		</div>
+	</form>
+</MetroSheet>
+
 <MetroSheet bind:open={inviteOpen} title={`Inviter dans ${p.name}`}>
 	<form
 		method="POST"
@@ -999,7 +1180,7 @@
 			optional
 		>
 			{#snippet children(attrs)}
-				<input {...attrs} name="role" maxlength="60" />
+				<input {...attrs} name="role" maxlength="60" bind:value={inviteRole} />
 			{/snippet}
 		</MetroField>
 		{#if data.invite.canPropose}

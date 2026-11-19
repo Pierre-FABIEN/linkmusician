@@ -43,6 +43,9 @@ import {
 	needActions,
 	needLabel,
 	needSearchHref,
+	needSearchQuery,
+	needOpportunityQuery,
+	opportunityRefusal,
 	needVisible,
 	NEED_STATUS_LABELS,
 	type NeedIntent,
@@ -64,6 +67,10 @@ const NEED_ORDER: Readonly<Record<NeedStatusValue, number>> = {
 export type ProjectViewNeed = {
 	id: string;
 	label: string;
+	/** Contenu brut, pour préremplir la modification. */
+	track: NeedTrackValue;
+	specialty: string | null;
+	instrumentSlug: string | null;
 	description: string | null;
 	status: NeedStatusValue;
 	statusLabel: string;
@@ -76,6 +83,14 @@ export type ProjectViewNeed = {
 	actions: NeedIntent[];
 	/** « Trouver un pro » : un lien vers la recherche, rien d'envoyé. */
 	searchHref: string | null;
+	/** Les mêmes critères, pour un lien construit par `resolve` côté page. */
+	searchQuery: string | null;
+	/** Annonce préparée depuis ce besoin (publique, elle garde sa vie propre). */
+	opportunity: { id: string; open: boolean; applications: number | null } | null;
+	/** Gestion, besoin ouvert sans annonce : préremplissage de `/annonces/nouvelle`… */
+	opportunityQuery: string | null;
+	/** … ou la raison pour laquelle ce n'est pas possible (jamais un bouton muet). */
+	opportunityRefusal: string | null;
 };
 
 const WORK_STATE_LABELS: Record<string, string> = { IDEA: 'Idée', COMPOSED: 'Composé' };
@@ -230,6 +245,9 @@ export async function projectView(projectId: string, personId: string) {
 				description: true,
 				createdById: true,
 				instrument: { select: { name: true, slug: true } },
+				opportunity: {
+					select: { id: true, status: true, _count: { select: { applications: true } } }
+				},
 				createdBy: {
 					select: { id: true, displayName: true, deletedAt: true, ...blockSelect(personId) }
 				},
@@ -255,6 +273,9 @@ export async function projectView(projectId: string, personId: string) {
 			return {
 				id: n.id,
 				label: needLabels.get(n.id)!,
+				track,
+				specialty: n.specialty,
+				instrumentSlug: n.instrument?.slug ?? null,
 				description: n.description,
 				status: n.status,
 				statusLabel: NEED_STATUS_LABELS[n.status],
@@ -265,9 +286,48 @@ export async function projectView(projectId: string, personId: string) {
 				searchHref:
 					n.status === 'OPEN'
 						? needSearchHref(track, n.specialty, n.instrument?.slug ?? null)
-						: null
+						: null,
+				searchQuery:
+					n.status === 'OPEN'
+						? needSearchQuery(track, n.specialty, n.instrument?.slug ?? null)
+						: null,
+				opportunity: n.opportunity
+					? {
+							id: n.opportunity.id,
+							open: n.opportunity.status === 'OPEN',
+							// Les candidatures se lisent sur l'annonce, par son émettrice.
+							applications: access.manage ? n.opportunity._count.applications : null
+						}
+					: null,
+				...opportunityOf(n, track)
 			};
 		});
+	function opportunityOf(
+		n: (typeof needRows)[number],
+		track: NeedTrackValue
+	): { opportunityQuery: string | null; opportunityRefusal: string | null } {
+		if (!access.manage || !needsOpen || n.status !== 'OPEN' || n.opportunity) {
+			return { opportunityQuery: null, opportunityRefusal: null };
+		}
+		const refusal = opportunityRefusal({
+			ownerIsPerson: project!.owner.kind === 'PERSON',
+			ownerIsMe: project!.ownerId === personId,
+			ownerIsBand: project!.owner.organization?.kind === 'BAND',
+			track
+		});
+		return refusal
+			? { opportunityQuery: null, opportunityRefusal: refusal }
+			: {
+					opportunityQuery: needOpportunityQuery({
+						needId: n.id,
+						track,
+						specialty: n.specialty,
+						instrumentSlug: n.instrument?.slug ?? null,
+						label: needLabels.get(n.id)!
+					}),
+					opportunityRefusal: null
+				};
+	}
 	const visibleNeedIds = access.manage ? [...needLabels.keys()] : needs.map((n) => n.id);
 
 	const items: (ProjectViewItem & { createdAt: Date; workId: string })[] = [

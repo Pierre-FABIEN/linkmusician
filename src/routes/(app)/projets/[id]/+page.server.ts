@@ -41,12 +41,14 @@ import {
 	decideNeed,
 	fillNeed,
 	reopenNeed,
+	updateNeed,
 	withdrawNeed
 } from '#server/projects/needs';
 import {
 	needDecisionSchema,
 	needFillSchema,
 	needRefSchema,
+	needUpdateSchema,
 	projectNeedDraftSchema
 } from '#lib/schema/projects/need';
 import { listInstrumentsByFamily } from '#lib/prisma/skills/referentials';
@@ -89,7 +91,10 @@ export const load: PageServerLoad = async ({ locals, params, setHeaders, url }) 
 		resumable: project.resumable,
 		rangeable: rangeable.length,
 		hasDates: !!(project.startsOn || project.dueOn),
-		hasDescription: !!project.description?.trim()
+		hasDescription: !!project.description?.trim(),
+		pendingNeeds: project.can.manage
+			? project.needs.filter((n) => n.status === 'PROPOSED').length
+			: 0
 	});
 	// Depuis « Hors projet » : `?ranger=<morceau>` présélectionne un morceau,
 	// seulement s'il est parmi ceux que je peux ranger ici (rien d'autre n'est lu).
@@ -205,6 +210,17 @@ export const actions: Actions = {
 				return fail(err.status, { action: 'besoin-ajouter', error: err.message });
 			throw err;
 		}
+	},
+	'besoin-modifier': async ({ locals, params, request }) => {
+		const person = await requirePerson(locals);
+		const parsed = needUpdateSchema.safeParse(await formOf(request));
+		if (!parsed.success) return invalid('besoin-modifier', parsed.error.issues);
+		const { needId, ...draft } = parsed.data;
+		return run(
+			'besoin-modifier',
+			() => updateNeed(person.actorId, params.id, needId, draft),
+			'Besoin modifié.'
+		);
 	},
 	'besoin-decider': async ({ locals, params, request }) => {
 		const person = await requirePerson(locals);

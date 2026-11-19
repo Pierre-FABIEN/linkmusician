@@ -580,3 +580,17 @@ Projets**, la carte d'invitation (Rejoindre, Refuser). Avec `ines-chant` :
 **À traiter** montre « Coordonner « EP des Rats » », qui se tranche dans
 l'équipe de la fiche. Dans **Messages → Contacts**, un groupe de contacts
 propose **Transformer en projet**.
+
+### Besoins d'un projet (U3b-c)
+
+Avec `malik-batterie` : **À traiter → Projets** montre « Besoin proposé :
+Producteur·rice · Arrangement · « EP des Rats » · par Nora ». Le lien mène
+au bloc **Besoins** de la fiche, où la prochaine action est **Décider d’un
+besoin proposé** : **Ouvrir ce besoin** ou **Ne pas retenir**. Le besoin
+ouvert « Ingé son · Prise de son » propose **Trouver un pro** (Découvrir,
+métier et spécialité préremplis), **Inviter** (rôle prérempli) et **Marquer
+pourvu** ; l'annonce n'y est pas proposée : au nom d'un groupe, une annonce
+est un recrutement (une phrase le dit, Q100). Avec `nora-prod`, qui
+coordonne : **Proposer un besoin** ; sa proposition reste « Proposé »
+jusqu'à la décision de Malik. Avec `ines-chant`, participante : seulement les
+besoins ouverts et pourvus, aucun bouton d'ajout.

@@ -16,6 +16,9 @@
  * - Projets (U3) : invitations en attente (`myInvitations`, le minimum de
  *   §9.3 : nom, type, porteur, qui invite, rôle, ce qui est proposé) et
  *   coordinations proposées dans un projet où je suis déjà.
+ * - Besoins proposés (U3b-c, D76) : les propositions de la coordination dans
+ *   un projet en cours que je gère, autrice ou auteur ni bloqué·e ni
+ *   bloquant·e. Elles se tranchent sur la fiche (Q91 : aucune notification).
  *
  * Les catégories à venir (tâches, livrables, éléments proposés) s'y
  * ajouteront avec leurs services ; rien n'est affiché avant.
@@ -28,6 +31,8 @@ import { canReceiveRequest } from '#lib/messaging/rules';
 import { requestMemo, type RequestScope } from '#lib/server/request-memo';
 import { spacePriorityFacts } from './priorities';
 import { myCapabilityOffers, myInvitations } from '#lib/server/projects/participants';
+import { projectManagerWhere } from '#lib/server/projects/access';
+import { needLabel, type NeedTrackValue } from '#lib/projects/needs';
 import { priorityActions } from '#lib/linkmusician/priorityActions';
 import { TRACKS, type TrackKindValue } from '#lib/actors/tracks';
 
@@ -51,7 +56,7 @@ export function inboxFor(person: InboxPerson, now = new Date(), scope?: RequestS
 
 async function readInbox(person: InboxPerson, now: Date, scope?: RequestScope) {
 	const me = person.actorId;
-	const [priority, credits, invitations, representations, projectInvitations, offers] =
+	const [priority, credits, invitations, representations, projectInvitations, offers, needs] =
 		await Promise.all([
 			spacePriorityFacts(person, now, scope),
 			prisma.workContributor.findMany({
@@ -81,7 +86,26 @@ async function readInbox(person: InboxPerson, now: Date, scope?: RequestScope) {
 			// Une proposition attend une réponse majeure (Q48), comme `pendingRepresentationCount`.
 			canReceiveRequest(person.birthDate, now) ? representationsForMeOnce(me, scope) : [],
 			myInvitations(me),
-			myCapabilityOffers(me, now)
+			myCapabilityOffers(me, now),
+			prisma.projectNeed.findMany({
+				where: {
+					status: 'PROPOSED',
+					createdById: { not: me },
+					createdBy: notBlockedWith(me),
+					project: { status: 'ACTIVE', owner: projectManagerWhere(me) }
+				},
+				orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+				take: INBOX_TAKE,
+				select: {
+					id: true,
+					track: true,
+					specialty: true,
+					createdAt: true,
+					instrument: { select: { name: true } },
+					createdBy: { select: { displayName: true } },
+					project: { select: { id: true, name: true } }
+				}
+			})
 		]);
 	const proposed = representations.filter((r) => r.status === 'PROPOSED');
 	// Titres et noms seulement s'il y a des lignes (Prisma lirait sinon chaque relation, même vide).
@@ -115,6 +139,14 @@ async function readInbox(person: InboxPerson, now: Date, scope?: RequestScope) {
 		representations: proposed.map((r) => ({ id: r.id })),
 		projectInvitations: projectInvitations.slice(0, INBOX_TAKE),
 		capabilityOffers: offers,
+		needProposals: needs.map((n) => ({
+			needId: n.id,
+			projectId: n.project.id,
+			projectName: n.project.name,
+			label: needLabel(n.track as NeedTrackValue, n.specialty, n.instrument?.name ?? null),
+			author: n.createdBy?.displayName ?? null,
+			since: n.createdAt
+		})),
 		applications: priority.applications,
 		contactRequests: priority.canReceiveRequests ? priority.requests : 0
 	};
@@ -127,7 +159,8 @@ async function readInbox(person: InboxPerson, now: Date, scope?: RequestScope) {
 			inbox.bandInvitations.length +
 			inbox.representations.length +
 			inbox.projectInvitations.length +
-			inbox.capabilityOffers.length
+			inbox.capabilityOffers.length +
+			inbox.needProposals.length
 	};
 }
 export type Inbox = Awaited<ReturnType<typeof inboxFor>>;

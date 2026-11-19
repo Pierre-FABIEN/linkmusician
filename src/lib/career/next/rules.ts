@@ -67,6 +67,14 @@ export type NextFacts = {
 	projectInvitations: { id: string; projectName: string; invitedBy: string | null; since: Date }[];
 	/** Coordinations proposées dans un projet où je suis déjà (U3). */
 	capabilityOffers: { projectId: string; projectName: string }[];
+	/** Besoins proposés par la coordination, à trancher par la gestion (U3b-c). */
+	needProposals: {
+		needId: string;
+		projectId: string;
+		projectName: string;
+		label: string;
+		since: Date;
+	}[];
 	/** Propositions d'accompagnement qui attendent ma réponse (D44). */
 	representations: { id: string }[];
 	/** Candidatures en attente sur mes annonces ouvertes. */
@@ -117,6 +125,7 @@ export const NO_NEXT_FACTS: Omit<NextFacts, 'reader'> = {
 	bandInvitations: [],
 	projectInvitations: [],
 	capabilityOffers: [],
+	needProposals: [],
 	representations: [],
 	applications: 0,
 	contactRequests: 0,
@@ -245,6 +254,29 @@ function pending(f: NextFacts): Candidate[] {
 			waitingSince: null,
 			fact: ''
 		});
+	// Une suggestion par projet (le moteur garde un sujet une fois), la plus ancienne en tête.
+	const byProject = new Map<string, (typeof f.needProposals)[number][]>();
+	for (const n of f.needProposals)
+		byProject.set(n.projectId, [...(byProject.get(n.projectId) ?? []), n]);
+	for (const [projectId, list] of byProject) {
+		const first = list.reduce((a, b) => (a.since <= b.since ? a : b));
+		out.push({
+			rule: 'project.need',
+			rank: 2,
+			branch: 'EQUIPE',
+			subject: { type: 'PROJECT', id: projectId },
+			title:
+				list.length === 1
+					? `Besoin proposé dans « ${first.projectName} » : ${first.label}`
+					: `${list.length} besoins proposés dans « ${first.projectName} »`,
+			why: 'La coordination propose ; la gestion décide d’ouvrir ou non.',
+			href: `/projets/${projectId}#besoins`,
+			cta: 'Décider',
+			deadline: null,
+			waitingSince: first.since,
+			fact: ''
+		});
+	}
 	for (const r of f.representations)
 		out.push({
 			rule: 'representation.respond',

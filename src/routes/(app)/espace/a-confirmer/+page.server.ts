@@ -23,6 +23,13 @@ export const load: PageServerLoad = async ({ locals, setHeaders }) => {
 		bandInvitations: inbox.bandInvitations.map((b) => ({ bandId: b.bandId, name: b.name })),
 		projectInvitations: inbox.projectInvitations,
 		capabilityOffers: inbox.capabilityOffers,
+		needProposals: inbox.needProposals.map(({ needId, projectId, projectName, label, author }) => ({
+			needId,
+			projectId,
+			projectName,
+			label,
+			author
+		})),
 		representations: inbox.representations.length,
 		applications: inbox.applications,
 		contactRequests: inbox.contactRequests

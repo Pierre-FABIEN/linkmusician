@@ -38,6 +38,8 @@ import {
 	type OpportunityTarget
 } from '#lib/opportunities/rules';
 import { manageableWorks } from '#lib/server/works/service';
+import { linkNeedToOpportunity } from '#lib/server/projects/needs';
+import { ProjectError } from '#lib/server/projects/service';
 import { GIG_TIER_LABELS } from '#lib/opportunities/gigSlot';
 import type { MilestoneKey } from '#lib/milestones/rules';
 
@@ -88,7 +90,9 @@ export async function createOpportunity(
 	form: Omit<OpportunityInput, 'target'> & { target?: OpportunityTarget },
 	now = new Date(),
 	/** Publier au nom d'un groupe que l'on gère (recrutement seulement, P3-03). */
-	bandId: string | null = null
+	bandId: string | null = null,
+	/** U3b-c : besoin de projet dont l'annonce est préparée, relu sous verrou. */
+	needId: string | null = null
 ) {
 	const issuerId = bandId ?? actorId;
 	// Un plateau a son propre chemin (P5-05a, `gigSlots.ts`) : lieu, date, rang de groupe.
@@ -153,28 +157,48 @@ export async function createOpportunity(
 	const qualification = normalizeQualification(pro ? 'craft' : 'musicians', form);
 	if (!qualification.ok) throw new OpportunityError(qualification.message);
 	// Aucune XP ici : la quête rapporte quand elle est remplie (02 §8).
-	return prisma.opportunity.create({
-		data: {
-			issuerActorId: issuerId,
-			postedById: bandId ? actorId : null,
-			kind: form.kind,
-			title: form.title,
-			description: form.description,
-			instrumentId: pro ? null : (instrument?.id ?? null),
-			minLevel: pro ? null : (form.minLevel ?? null),
-			genreSlug: genre?.slug ?? null,
-			minTier: pro ? null : (form.minTier ?? null),
-			targetTrack: target.target.track,
-			targetSpecialty: target.target.specialty,
-			workId: form.work ?? null,
-			radiusKm: form.radiusKm,
-			slots: form.slots,
-			startsAt: startsAt ?? null,
-			expiresAt: expiresAtFor(form.durationDays, now, startsAt),
-			...qualification.value
-		},
-		select: { id: true }
-	});
+	const data = {
+		issuerActorId: issuerId,
+		postedById: bandId ? actorId : null,
+		kind: form.kind,
+		title: form.title,
+		description: form.description,
+		instrumentId: pro ? null : (instrument?.id ?? null),
+		minLevel: pro ? null : (form.minLevel ?? null),
+		genreSlug: genre?.slug ?? null,
+		minTier: pro ? null : (form.minTier ?? null),
+		targetTrack: target.target.track,
+		targetSpecialty: target.target.specialty,
+		workId: form.work ?? null,
+		radiusKm: form.radiusKm,
+		slots: form.slots,
+		startsAt: startsAt ?? null,
+		expiresAt: expiresAtFor(form.durationDays, now, startsAt),
+		...qualification.value
+	} satisfies Prisma.OpportunityUncheckedCreateInput;
+	if (!needId) return prisma.opportunity.create({ data, select: { id: true } });
+	// U3b-c : l'annonce et son lien au besoin naissent ensemble, ou pas du tout ;
+	// le besoin, la gestion et le porteur sont relus sous `project:`.
+	try {
+		return await prisma.$transaction(async (tx) => {
+			const created = await tx.opportunity.create({ data, select: { id: true } });
+			await linkNeedToOpportunity(
+				tx,
+				{
+					personId: actorId,
+					needId,
+					opportunityId: created.id,
+					issuerId: issuerId,
+					targetTrack: target.target.track
+				},
+				now
+			);
+			return created;
+		});
+	} catch (err) {
+		if (err instanceof ProjectError) throw new OpportunityError(err.message, err.status);
+		throw err;
+	}
 }
 
 export async function closeOpportunity(actorId: string, id: string) {

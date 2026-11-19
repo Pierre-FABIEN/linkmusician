@@ -42,6 +42,7 @@ export const RULE_LABELS: Readonly<Record<SuggestionRule, string>> = {
 	'band.invitation': 'Invitations de groupe',
 	'project.invitation': 'Invitations à un projet',
 	'project.coordination': 'Coordinations proposées',
+	'project.need': 'Besoins proposés dans mes projets',
 	'representation.respond': 'Propositions d’accompagnement',
 	'applications.review': 'Candidatures reçues',
 	'contact.respond': 'Demandes de contact',

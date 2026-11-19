@@ -73,8 +73,8 @@ export function needLabel(
 	return precise ? `${NEED_TRACK_LABELS[track]} · ${precise}` : NEED_TRACK_LABELS[track];
 }
 
-/** « Trouver un pro » : la recherche préremplie, rien d'envoyé (P12). */
-export function needSearchHref(
+/** Critères de « Trouver un pro » (`?metier=…`), compatibles avec `parseFilters`. */
+export function needSearchQuery(
 	track: NeedTrackValue,
 	specialty: string | null,
 	instrumentSlug: string | null
@@ -83,7 +83,68 @@ export function needSearchHref(
 	const slug = specialty ? SPECIALTY_SLUGS[specialty as SearchSpecialty] : undefined;
 	if (slug) params.set('specialite', slug);
 	if (track === 'MUSICIAN' && instrumentSlug) params.set('instrument', instrumentSlug);
-	return `/decouvrir?${params.toString()}`;
+	return params.toString();
+}
+
+/** « Trouver un pro » : la recherche préremplie, rien d'envoyé (P12). */
+export function needSearchHref(
+	track: NeedTrackValue,
+	specialty: string | null,
+	instrumentSlug: string | null
+) {
+	return `/decouvrir?${needSearchQuery(track, specialty, instrumentSlug)}`;
+}
+
+/** Métiers qu'une annonce sait viser (`OPPORTUNITY_TARGETS`). */
+export const OPPORTUNITY_TRACKS = ['MUSICIAN', 'SOUND_ENGINEER', 'PRODUCER'] as const;
+export const isOpportunityTrack = (track: string) =>
+	(OPPORTUNITY_TRACKS as readonly string[]).includes(track);
+
+/**
+ * Pourquoi une annonce ne peut pas être préparée depuis ce besoin, ou `null`
+ * (conception 22 §7.3, Q99, Q100). Le serveur applique la même règle.
+ */
+export function opportunityRefusal(input: {
+	ownerIsPerson: boolean;
+	ownerIsMe: boolean;
+	ownerIsBand: boolean;
+	track: NeedTrackValue;
+}): string | null {
+	if (!isOpportunityTrack(input.track)) {
+		return `Les annonces ne cherchent pas encore de ${NEED_TRACK_LABELS[input.track].toLowerCase()} : cherche plutôt dans Découvrir.`;
+	}
+	if (input.ownerIsBand) {
+		return 'Au nom d’un groupe, une annonce sert à recruter un membre : pour ce besoin, cherche dans Découvrir ou invite une personne que tu connais.';
+	}
+	if (!input.ownerIsPerson) {
+		return 'Les annonces au nom d’une structure ne sont pas encore possibles : cherche dans Découvrir.';
+	}
+	if (!input.ownerIsMe) return 'Seule la personne qui porte le projet publie une annonce pour lui.';
+	return null;
+}
+
+/**
+ * Préremplissage de `/annonces/nouvelle` depuis un besoin (U3b-c) : métier,
+ * précision, instrument, un titre tiré du libellé (jamais du nom du projet,
+ * Q97) et le besoin, relu côté serveur à la publication.
+ */
+export function needOpportunityQuery(input: {
+	needId: string;
+	track: NeedTrackValue;
+	specialty: string | null;
+	instrumentSlug: string | null;
+	label: string;
+}) {
+	const params = new URLSearchParams({
+		type: 'SESSION_WORK',
+		cible: input.track,
+		titre: input.label,
+		besoin: input.needId
+	});
+	if (input.specialty) params.set('specialite', input.specialty);
+	if (input.track === 'MUSICIAN' && input.instrumentSlug)
+		params.set('instrument', input.instrumentSlug);
+	return params.toString();
 }
 
 export const NEED_STATUSES = ['PROPOSED', 'OPEN', 'FILLED', 'DECLINED', 'CANCELLED'] as const;

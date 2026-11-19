@@ -9,6 +9,10 @@
  * U3 : la « Tournée d'automne » des Rats, sans personne d'autre (la gestion
  * voit « Inviter les membres du groupe ») ; la coordination proposée à Inès
  * dans l'EP (« À traiter » → Projets). Rejouable aussi.
+ *
+ * U3b-c (D76) : deux besoins dans l'EP. Malik a ouvert « Ingé son · Prise de
+ * son » ; Nora, qui coordonne, propose « Producteur·rice · Arrangement », que
+ * Malik voit dans « À traiter ». Aucune annonce, aucune invitation créée.
  */
 import type { PrismaClient } from '@prisma/client';
 
@@ -34,6 +38,9 @@ export async function seedProjects(prisma: PrismaClient, demoHandles: ReadonlyMa
 	]);
 	if (!rats || !malik || !nora || !ines || !samir) return;
 	await seedTeamScreens(prisma, rats, malik, ines);
+	if (await prisma.project.findUnique({ where: { id: PROJECT }, select: { id: true } })) {
+		await seedNeeds(prisma, malik, nora);
+	}
 	if (await prisma.project.findUnique({ where: { id: PROJECT }, select: { id: true } })) {
 		console.log('Projet « EP des Rats » déjà en place : rien à refaire.');
 		return;
@@ -141,6 +148,56 @@ export async function seedProjects(prisma: PrismaClient, demoHandles: ReadonlyMa
 	});
 	console.log('Projet « EP des Rats » : coordination de Nora, Inès participante, Samir invité.');
 	await seedTeamScreens(prisma, rats, malik, ines);
+	await seedNeeds(prisma, malik, nora);
+}
+
+const NEED_OPEN = 'demo-need-ep-rats-prise';
+const NEED_PROPOSED = 'demo-need-ep-rats-arrangement';
+
+/** U3b-c : un besoin ouvert par la gestion, un besoin proposé par la coordination. */
+async function seedNeeds(prisma: PrismaClient, malik: string, nora: string) {
+	const day = (n: number) => new Date(Date.now() - n * 86_400_000);
+	const needs = [
+		{
+			id: NEED_OPEN,
+			status: 'OPEN' as const,
+			track: 'SOUND_ENGINEER' as const,
+			specialty: 'RECORDING',
+			description: 'Enregistrer les quatre titres avant l’été.',
+			createdById: malik,
+			decidedById: malik,
+			decidedAt: day(8),
+			createdAt: day(8),
+			kind: 'NEED_OPENED' as const
+		},
+		{
+			id: NEED_PROPOSED,
+			status: 'PROPOSED' as const,
+			track: 'PRODUCER' as const,
+			specialty: 'ARRANGEMENT',
+			description: 'Des cordes sur « Groove du mardi ».',
+			createdById: nora,
+			decidedById: null,
+			decidedAt: null,
+			createdAt: day(2),
+			kind: 'NEED_PROPOSED' as const
+		}
+	];
+	for (const { kind, ...need } of needs) {
+		if (await prisma.projectNeed.findUnique({ where: { id: need.id }, select: { id: true } }))
+			continue;
+		await prisma.projectNeed.create({ data: { ...need, projectId: PROJECT } });
+		await prisma.projectAct.create({
+			data: {
+				projectId: PROJECT,
+				authorId: need.createdById,
+				kind,
+				needId: need.id,
+				occurredAt: need.createdAt
+			}
+		});
+	}
+	console.log('Besoins de l’EP des Rats : un ouvert (Malik), un proposé (Nora).');
 }
 
 /** U3 : un projet de groupe sans équipe, et une coordination proposée à Inès. */

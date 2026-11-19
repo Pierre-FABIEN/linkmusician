@@ -25,7 +25,11 @@ const needs = await import('./needs');
 const { projectView } = await import('./view');
 const { projectsExport, projectAnonymizationOps } = await import('./export');
 const bands = await import('../bands/service');
-const { MAX_LIVE_NEEDS_PER_PROJECT } = await import('#lib/projects/needs');
+const { createOpportunity, OpportunityError } = await import('../opportunities/service');
+const { setActorLocation } = await import('../geo/queries');
+const { inboxFor } = await import('../space/inbox');
+const { E2E_COMMUNES } = await import('#lib/geo/communes-e2e');
+const { MAX_LIVE_NEEDS_PER_PROJECT, MAX_NEEDS_PER_DAY } = await import('#lib/projects/needs');
 
 const prefix = `need-${Date.now()}-`;
 const actors: string[] = [];
@@ -455,6 +459,28 @@ describe.skipIf(!enabled)('projets U3b-b : besoins (intégration)', { timeout: 2
 		expect((await needs.addNeed(me, p.id, booker, now)).status).toBe('OPEN');
 	});
 
+	it('quota sur 24 h : deux ajouts simultanés dans deux projets, un seul passe', async () => {
+		const me = await person('quota-jour');
+		const a = await projects.createProject(me, ep());
+		const b = await projects.createProject(me, ep());
+		await db.projectNeed.createMany({
+			data: Array.from({ length: MAX_NEEDS_PER_DAY - 1 }, () => ({
+				projectId: a.id,
+				status: 'CANCELLED' as const,
+				track: 'BOOKER' as const,
+				createdById: me,
+				createdAt: now
+			}))
+		});
+		const results = await Promise.allSettled([
+			needs.addNeed(me, a.id, booker, now),
+			needs.addNeed(me, b.id, booker, now)
+		]);
+		expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+		const refused = results.find((r) => r.status === 'rejected') as PromiseRejectedResult;
+		expect((refused.reason as InstanceType<typeof projects.ProjectError>).code).toBe('quota');
+	});
+
 	it('lecture : ce que voit chaque rôle, et le journal filtré', async () => {
 		const { b, p, coord, guest } = await scene('lecture');
 		const mine = await needs.addNeed(coord, p.id, engineer('Ma proposition'), now);
@@ -517,6 +543,95 @@ describe.skipIf(!enabled)('projets U3b-b : besoins (intégration)', { timeout: 2
 		expect((await db.projectNeed.findUniqueOrThrow({ where: { id: kept.id } })).filledById).toBe(
 			null
 		);
+	});
+
+	it('À traiter : la gestion voit les propositions à trancher, plus après la décision', async () => {
+		const { b, p, coord, guest } = await scene('a-traiter');
+		const proposed = await needs.addNeed(coord, p.id, engineer(), now);
+		const inbox = await inboxFor({ actorId: b.admin, birthDate: new Date('1990-01-01') }, now);
+		expect(inbox.needProposals.map((x) => [x.needId, x.label, x.author])).toEqual([
+			[proposed.id, 'Ingé son · Prise de son', `${'a-traiter'}-coord`]
+		]);
+		expect(inbox.answers).toBeGreaterThanOrEqual(1);
+		// Ni la coordination (autrice), ni la participation, ni le simple membre ne la voient.
+		for (const id of [coord, guest, b.member]) {
+			const other = await inboxFor({ actorId: id, birthDate: new Date('1990-01-01') }, now);
+			expect(other.needProposals).toEqual([]);
+		}
+		await needs.decideNeed(b.owner, p.id, proposed.id, 'open', now);
+		const after = await inboxFor({ actorId: b.owner, birthDate: new Date('1990-01-01') }, now);
+		expect(after.needProposals).toEqual([]);
+	});
+
+	it('annonce : préparée depuis un besoin, liée sous verrou ; refusée hors du périmètre', async () => {
+		const toulouse = E2E_COMMUNES.find((c) => c.nom === 'Toulouse')!;
+		const me = await person('annonce');
+		await setActorLocation(me, toulouse, { db, schema: 'e2e' });
+		const p = await projects.createProject(me, ep());
+		const need = await needs.addNeed(me, p.id, engineer('Cinq titres'), now);
+		const form = {
+			kind: 'SESSION_WORK' as const,
+			title: 'Ingé son · Prise de son',
+			description: 'Une prise de son pour cinq titres, à Toulouse.',
+			radiusKm: 25,
+			durationDays: 14,
+			slots: 1,
+			target: 'SOUND_ENGINEER' as const,
+			specialty: 'RECORDING'
+		};
+		// Un autre métier que celui du besoin : rien n'est créé (transaction annulée).
+		const before = await db.opportunity.count({ where: { issuerActorId: me } });
+		await expect(
+			createOpportunity(
+				me,
+				{ ...form, target: 'PRODUCER', specialty: undefined },
+				now,
+				null,
+				need.id
+			)
+		).rejects.toBeInstanceOf(OpportunityError);
+		expect(await db.opportunity.count({ where: { issuerActorId: me } })).toBe(before);
+
+		const { id } = await createOpportunity(me, form, now, null, need.id);
+		const linked = await db.projectNeed.findUniqueOrThrow({ where: { id: need.id } });
+		expect(linked.opportunityId).toBe(id);
+		expect(await db.projectAct.count({ where: { needId: need.id, kind: 'NEED_LINKED' } })).toBe(1);
+		// L'annonce ne reprend ni le nom du projet ni la phrase du besoin.
+		const opportunity = await db.opportunity.findUniqueOrThrow({ where: { id } });
+		expect(JSON.stringify(opportunity)).not.toContain('EP Lumière');
+		// Une seconde annonce pour le même besoin : refusée, et rien n'est créé.
+		await expect(createOpportunity(me, form, now, null, need.id)).rejects.toBeInstanceOf(
+			OpportunityError
+		);
+		expect(await db.opportunity.count({ where: { issuerActorId: me } })).toBe(before + 1);
+		const view = (await projectView(p.id, me))!;
+		expect(view.needs[0].opportunity).toEqual({ id, open: true, applications: 0 });
+		expect(view.needs[0].opportunityQuery).toBeNull();
+
+		// Projet de groupe (Q100), métier booker (Q99), personne extérieure : refusés.
+		const b = await band('annonce-groupe');
+		await setActorLocation(b.owner, toulouse, { db, schema: 'e2e' });
+		const bandProject = await projects.createProject(b.owner, ep(b.id));
+		const bandNeed = await needs.addNeed(b.owner, bandProject.id, engineer(), now);
+		await expect(createOpportunity(b.owner, form, now, null, bandNeed.id)).rejects.toBeInstanceOf(
+			OpportunityError
+		);
+		expect((await projectView(bandProject.id, b.owner))!.needs[0].opportunityRefusal).toMatch(
+			/Au nom d’un groupe/
+		);
+		const bookerNeed = await needs.addNeed(me, p.id, booker, now);
+		expect(
+			(await projectView(p.id, me))!.needs.find((x) => x.id === bookerNeed.id)?.opportunityRefusal
+		).toMatch(/booker/);
+		const stranger = await person('annonce-etranger');
+		await setActorLocation(stranger, toulouse, { db, schema: 'e2e' });
+		const other = await needs.addNeed(me, p.id, engineer(), now);
+		await expect(createOpportunity(stranger, form, now, null, other.id)).rejects.toBeInstanceOf(
+			OpportunityError
+		);
+		expect(
+			(await db.projectNeed.findUniqueOrThrow({ where: { id: other.id } })).opportunityId
+		).toBe(null);
 	});
 
 	it('journal en ajout seul : la colonne du besoin ne se réécrit pas', async () => {

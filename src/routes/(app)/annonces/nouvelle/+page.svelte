@@ -109,7 +109,14 @@
 					};
 				}}
 			>
-				{#if data.bands.length > 0}
+				{#if data.need}
+					<!-- U3b-c : l'annonce reste indépendante et ne nomme pas le projet. -->
+					<input type="hidden" name="besoin" value={data.need} />
+					<p class="lm-tile lm-tile--flow p-3 text-sm" data-testid="need-origin">
+						Préparée depuis un besoin de ton projet. L’annonce sera publique, sans le nom du projet
+						; le besoin reste privé.
+					</p>
+				{:else if data.bands.length > 0}
 					<label class="block space-y-1 font-medium">
 						Publier au nom de
 						<select name="asBand" bind:value={asBand} class={field} disabled={pro}>

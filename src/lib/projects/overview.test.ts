@@ -164,6 +164,22 @@ describe('nextProjectAction par rôle (U3, §7.3)', () => {
 		expect(nextProjectAction({ ...base, ownerIsBand: false, others: 0 }).kind).toBe('consult');
 	});
 
+	it('U3b-c : la gestion décide d’abord des besoins proposés ; jamais la coordination', () => {
+		const a = nextProjectAction({ ...base, pendingNeeds: 2, rangeable: 3 });
+		expect([a.kind, a.label, a.href]).toEqual([
+			'answer',
+			'Décider des besoins proposés',
+			'/projets/p1#besoins'
+		]);
+		expect(nextProjectAction({ ...base, pendingNeeds: 1 }).label).toBe(
+			'Décider d’un besoin proposé'
+		);
+		expect(nextProjectAction({ ...base, role: 'coordinate', pendingNeeds: 2 }).kind).not.toBe(
+			'answer'
+		);
+		expect(nextProjectAction({ ...base, status: 'DONE', pendingNeeds: 2 }).kind).toBe('consult');
+	});
+
 	it('projet clos : consulter, quel que soit le rôle', () => {
 		for (const role of ['manage', 'coordinate', 'participate'] as const)
 			expect(nextProjectAction({ ...base, status: 'DONE', role, capabilityOffer: true }).kind).toBe(

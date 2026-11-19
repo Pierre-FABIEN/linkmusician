@@ -79,6 +79,8 @@ export type NextActionInput = {
 	rangeable: number;
 	hasDates: boolean;
 	hasDescription: boolean;
+	/** U3b-c : besoins proposés par la coordination, que la gestion tranche. */
+	pendingNeeds?: number;
 };
 
 /**
@@ -148,6 +150,15 @@ export function nextProjectAction(input: NextActionInput): ProjectNextAction {
 					? 'Le travail rangé dans ce projet.'
 					: 'Ce projet est clos : il se lit sans changer.',
 			href: fiche
+		};
+	// U3b-c (conception 22 §8.4) : une proposition attend la gestion, avant le reste.
+	if (role === 'manage' && (input.pendingNeeds ?? 0) > 0)
+		return {
+			kind: 'answer',
+			label:
+				input.pendingNeeds === 1 ? 'Décider d’un besoin proposé' : 'Décider des besoins proposés',
+			text: 'La coordination propose ; c’est à toi d’ouvrir ou non.',
+			href: `${fiche}#besoins`
 		};
 	if (input.resumable)
 		return {

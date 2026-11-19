@@ -20,6 +20,9 @@ import { managedBands } from '#lib/server/bands/service';
 import { manageableWorks } from '#lib/server/works/service';
 import type { Actions, PageServerLoad } from './$types';
 
+/** Identifiant d'un besoin (cuid) ; le serveur relit tout le reste. */
+const NEED_ID = /^[a-z0-9]{10,40}$/;
+
 export const load: PageServerLoad = async ({ locals, url }) => {
 	// Une jam se publie dans un lieu de l'annuaire (P2-14b).
 	if (url.searchParams.get('type') === 'JAM') redirect(303, '/jams/nouvelle');
@@ -43,7 +46,10 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const specialite = url.searchParams.get('specialite') ?? '';
 	const morceau = url.searchParams.get('morceau') ?? '';
 	const groupe = url.searchParams.get('groupe');
+	// U3b-c : préparée depuis un besoin de projet ; relu sous verrou à la publication.
+	const besoin = url.searchParams.get('besoin');
 	return {
+		need: besoin && NEED_ID.test(besoin) ? besoin : null,
 		commune: location?.communeName ?? null,
 		instruments: instruments.map((f) => ({
 			family: f.family,
@@ -92,6 +98,7 @@ export const actions: Actions = {
 		if (parsed.data.kind === 'GIG_SLOT') redirect(303, '/plateaux/nouveau');
 		// Au nom d'un groupe que je gère (P3-03) : relu côté serveur.
 		const asBand = typeof raw.asBand === 'string' ? raw.asBand : '';
+		const needId = typeof raw.besoin === 'string' && NEED_ID.test(raw.besoin) ? raw.besoin : null;
 		const band = asBand
 			? (await managedBands(person.actorId)).find((b) => b.handle === asBand)
 			: null;
@@ -103,7 +110,13 @@ export const actions: Actions = {
 		}
 		let id: string;
 		try {
-			({ id } = await createOpportunity(person.actorId, parsed.data, new Date(), band?.id ?? null));
+			({ id } = await createOpportunity(
+				person.actorId,
+				parsed.data,
+				new Date(),
+				band?.id ?? null,
+				needId
+			));
 		} catch (err) {
 			if (err instanceof OpportunityError) {
 				return fail(err.status, { values: raw as Record<string, string>, error: err.message });

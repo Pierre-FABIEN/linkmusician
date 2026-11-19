@@ -190,6 +190,15 @@ posséder : ils restent à toi, avec leurs crédits. Un projet est privé.
 - **Retirer quelqu'un** (gestion) ou **quitter** : l'app te dit ce qui
   change avant que tu confirmes. Les morceaux restent à leurs propriétaires,
   avec leurs crédits.
+- **Besoins** : sur la fiche, le bloc « Besoins » dit qui manque au projet
+  (un métier, une précision, une phrase). La gestion **ajoute** un besoin,
+  ouvert tout de suite ; la coordination le **propose**, et la gestion le
+  retrouve dans [À traiter](/espace/a-confirmer) pour l'ouvrir ou non. Un
+  besoin ouvert propose **Trouver un pro** (la recherche, préremplie, sans
+  rien envoyer), **Inviter** une personne que tu connais, et, pour un projet
+  à ton nom, **Préparer l'annonce** : elle sera publique, sans le nom du
+  projet. Quand quelqu'un s'en charge, **Marquer pourvu**. Les besoins se
+  lisent seulement dans l'équipe ; ils ne donnent ni droit ni point.
 - **Quitter** est toujours possible, même quand le projet est terminé.
   Quand tu quittes un groupe, la coordination reçue comme membre de ce
   groupe s'arrête ; tu restes dans le projet jusqu'à ce que tu le quittes.

@@ -7,7 +7,9 @@
 	import ProjectInvitation from '#lib/components/linkmusician/projects/ProjectInvitation.svelte';
 
 	let { data, form } = $props();
-	const projects = $derived(data.projectInvitations.length + data.capabilityOffers.length);
+	const projects = $derived(
+		data.projectInvitations.length + data.capabilityOffers.length + data.needProposals.length
+	);
 	const empty = $derived(
 		projects === 0 &&
 			data.collaborations.length === 0 &&
@@ -61,6 +63,26 @@
 										>Coordonner « {o.projectName} » · porté par {o.owner}</span
 									>
 									<span class="shrink-0 font-semibold text-primary">Répondre →</span>
+								</a>
+							</li>
+						{/each}
+					</ul>
+				{/if}
+				{#if data.needProposals.length > 0}
+					<!-- U3b-c : besoins proposés par la coordination ; on tranche sur la fiche. -->
+					<ul class="space-y-2" aria-label="Besoins proposés">
+						{#each data.needProposals as n (n.needId)}
+							<li>
+								<a
+									href="/projets/{n.projectId}#besoins"
+									class="lm-tile lm-tile--flow flex min-h-11 items-center justify-between gap-3 p-3 text-sm"
+									data-testid="need-proposal"
+								>
+									<span class="min-w-0 truncate"
+										>Besoin proposé : {n.label} · « {n.projectName} »{#if n.author}
+											· par {n.author}{/if}</span
+									>
+									<span class="shrink-0 font-semibold text-primary">Décider →</span>
 								</a>
 							</li>
 						{/each}

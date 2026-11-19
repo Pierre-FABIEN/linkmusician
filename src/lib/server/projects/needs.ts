@@ -6,7 +6,8 @@
  *   besoin et une intention. Droits, état et auteur sont relus sous
  *   `project:` puis le verrou du porteur (`lockProjectContext`), par
  *   `projectAccess` (I7, I12, N5). Aucune clé `need:` : le besoin vit sous
- *   `project:`.
+ *   `project:`. Ajouter prend d'abord `project-need-author:` (quota par
+ *   personne, tous projets), puis `project:`.
  * - La gestion ajoute un besoin ouvert ; la coordination le propose, et
  *   seule la gestion l'ouvre ou le refuse (N1). Ouvrir une proposition ne
  *   crée ni invitation, ni annonce, ni participation (N2).
@@ -24,6 +25,8 @@ import {
 	NEED_QUOTA_MESSAGES,
 	needTransition,
 	statusOnAdd,
+	isNeedTrack,
+	opportunityRefusal,
 	type NeedIntent,
 	type NeedStatusValue
 } from '#lib/projects/needs';
@@ -103,6 +106,9 @@ export async function addNeed(
 	now = new Date()
 ) {
 	return prisma.$transaction(async (tx) => {
+		// Quota par personne sur 24 h, tous projets : sérialisé par une clé propre,
+		// prise **avant** `project:` (aucune écriture ne la prend après).
+		await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`project-need-author:${personId}`}))`;
 		const { project, access } = await lockedAccess(tx, projectId, personId, now);
 		const status = statusOnAdd(roleOf(access));
 		if (!status) throw access.reader ? new ProjectError(READERS_ONLY, 403) : notFound();
@@ -324,4 +330,80 @@ export async function cancelPendingNeeds(
 		await act(tx, { projectId, authorId, kind: 'NEED_CANCELLED', needId: id, subjectId: personId });
 	}
 	return pending.length;
+}
+
+/**
+ * Lier une annonce qui vient d'être créée au besoin dont elle est préparée
+ * (U3b-c, conception 22 §7.3). Dans la transaction de `createOpportunity`,
+ * sous `project:` puis le verrou du porteur : la gestion, l'état `OPEN`, aucun
+ * lien existant, un porteur **personne** qui est l'émettrice (Q100 : au nom
+ * d'un groupe, on ne publie qu'un recrutement), un métier d'annonce qui
+ * correspond. L'annonce garde sa vie propre ; elle ne nomme pas le projet (Q97).
+ */
+export async function linkNeedToOpportunity(
+	tx: Tx,
+	input: {
+		personId: string;
+		needId: string;
+		opportunityId: string;
+		issuerId: string;
+		/** Métier visé par l'annonce ; `null` pour un·e musicien·ne. */
+		targetTrack: string | null;
+	},
+	now = new Date()
+) {
+	const head = await tx.projectNeed.findUnique({
+		where: { id: input.needId },
+		select: { projectId: true }
+	});
+	if (!head) throw new ProjectError(NEED_GONE, 404);
+	const { project, access } = await lockedAccess(tx, head.projectId, input.personId, now);
+	if (!access.reader) throw notFound();
+	if (!access.manage) throw new ProjectError(NOT_ALLOWED, 403);
+	if (!isOpen(project)) throw new ProjectError(CLOSED_NEEDS, 409);
+	const need = await tx.projectNeed.findUniqueOrThrow({
+		where: { id: input.needId },
+		select: { status: true, track: true, opportunityId: true }
+	});
+	if (need.status !== 'OPEN' || need.opportunityId) {
+		throw new ProjectError(NEED_ALREADY_DECIDED, 409);
+	}
+	if (!opportunityPossible(project.owner, input.personId, need.track)) {
+		throw new ProjectError(NO_OPPORTUNITY, 409);
+	}
+	if (project.owner.id !== input.issuerId) throw new ProjectError(NO_OPPORTUNITY, 409);
+	const expected = need.track === 'MUSICIAN' ? null : need.track;
+	if (input.targetTrack !== expected) {
+		throw new ProjectError('L’annonce doit chercher le même métier que le besoin.', 400);
+	}
+	await tx.projectNeed.update({
+		where: { id: input.needId },
+		data: { opportunityId: input.opportunityId }
+	});
+	await act(tx, {
+		projectId: head.projectId,
+		authorId: input.personId,
+		kind: 'NEED_LINKED',
+		needId: input.needId
+	});
+}
+
+export const NO_OPPORTUNITY =
+	'Une annonce ne se prépare depuis un besoin que dans un projet porté en ton nom, pour un·e musicien·ne, un·e ingé son ou un·e producteur·rice.';
+
+/** Une annonce peut-elle être préparée depuis ce besoin (Q99, Q100) ? */
+export function opportunityPossible(
+	owner: { id: string; kind: string; organization?: { kind: string } | null },
+	personId: string,
+	track: string
+) {
+	return (
+		isNeedTrack(track) &&
+		opportunityRefusal({
+			ownerIsPerson: owner.kind === 'PERSON',
+			ownerIsMe: owner.id === personId,
+			ownerIsBand: owner.organization?.kind === 'BAND',
+			track
+		}) === null
+	);
 }
