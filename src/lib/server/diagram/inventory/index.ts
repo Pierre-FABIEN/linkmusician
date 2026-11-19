@@ -6,7 +6,7 @@
  * cartographie, avec la raison : le test de couverture du code n'accepte
  * aucune action qui ne soit ni inventoriée ni explicitement écartée.
  */
-import type { ProcessEntry } from '../types';
+import type { ProcessEntry } from '#lib/diagram/types';
 import { expandEndpoint, expandGroup } from './define';
 import { ENDPOINTS } from './endpoints';
 import { PLANNED_PROCESSES } from './planned';

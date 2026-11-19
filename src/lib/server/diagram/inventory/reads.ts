@@ -6,7 +6,7 @@
  * sont inventoriés quand un parcours s'appuie dessus ; les autres lectures
  * restent hors inventaire (aucune écriture, aucune décision de droit propre).
  */
-import type { ProcessEntry } from '../types';
+import type { ProcessEntry } from '#lib/diagram/types';
 import { e2e, it, routeFile, routeSlug } from './define';
 
 interface ReadDef {

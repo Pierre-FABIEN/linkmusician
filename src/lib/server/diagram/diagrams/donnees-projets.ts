@@ -4,7 +4,7 @@
  * les clés étrangères **physiques** sortantes et `alternatives` les
  * relations **calculées ou sans clé** (trait pointillé).
  */
-import type { DiagramDefinition } from '../types';
+import type { DiagramDefinition } from '#lib/diagram/types';
 import { refs, step } from './define';
 
 const SCHEMA = refs({

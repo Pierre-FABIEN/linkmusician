@@ -21,7 +21,7 @@ import {
 	type DrawioModel,
 	type ProcessEntry,
 	type References
-} from './types';
+} from '#lib/diagram/types';
 
 export interface DecisionRef {
 	id: string;
@@ -248,7 +248,11 @@ export interface SearchEntry {
 }
 
 export const normalize = (s: string) =>
-	s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[·’']/g, ' ').toLowerCase();
+	s
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '')
+		.replace(/[·’']/g, ' ')
+		.toLowerCase();
 
 /** Équivalences métier : « retrait » doit trouver « retirer », « révoquer »… */
 const SYNONYMS: Record<string, string[]> = {

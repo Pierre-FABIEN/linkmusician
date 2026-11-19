@@ -6,7 +6,7 @@
  * `Role`). Ajouter un domaine ou un acteur = une ligne ici ; la navigation,
  * les compteurs et la recherche suivent sans autre changement.
  */
-import type { ActorDefinition, DomainDefinition } from './types';
+import type { ActorDefinition, DomainDefinition } from '#lib/diagram/types';
 
 export const DOMAINS: readonly DomainDefinition[] = [
 	{

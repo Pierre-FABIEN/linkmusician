@@ -21,7 +21,12 @@ const under = (pathname: string, prefix: string) =>
 
 /** Le fond d'une page : papier Metro, et l'Aurora sur les accueils (Q38). */
 export function backdropFor(pathname: string): Backdrop {
-	if (pathname === '/' || BOILERPLATE.some((p) => under(pathname, p))) {
+	// Melokiva Diagram (D80) : sa coquille pose elle-même le papier Metro.
+	if (
+		pathname === '/' ||
+		under(pathname, '/diagram') ||
+		BOILERPLATE.some((p) => under(pathname, p))
+	) {
 		return { metro: false, aurora: null };
 	}
 	// Accueils de mode et profil public : seulement l'accueil lui-même, jamais

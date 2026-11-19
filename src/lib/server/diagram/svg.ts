@@ -8,7 +8,7 @@
  * Tout texte passe par `escapeXml`. Même entrée, même sortie, octet pour octet.
  */
 import { edgePoints, midpoint, pathOf, wrapLabel, type Box } from '#lib/diagram/geometry';
-import type { DrawioCell, DrawioModel } from './types';
+import type { DrawioCell, DrawioModel } from '#lib/diagram/types';
 
 /** Tons Metro en clair, pour un fichier lu hors de l'application. */
 export const EXPORT_TONES: Readonly<Record<string, { fill: string; ink: string }>> = {

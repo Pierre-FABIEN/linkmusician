@@ -5,7 +5,7 @@
 > `sync.test.ts` échoue s’il n’est plus à jour.
 
 - **312 processus** inventoriés, dont 295 relevés dans le code.
-- **Code relu** : 377 déclencheurs (actions de formulaire et méthodes d’endpoints), 292 inventoriés, 85 hors périmètre (boutique en veille D6, laboratoire, Diagram), **0 manquant(s)**.
+- **Code relu** : 379 déclencheurs (actions de formulaire et méthodes d’endpoints), 292 inventoriés, 87 hors périmètre (boutique en veille D6, laboratoire, Diagram), **0 manquant(s)**.
 - **14 processus documentés** par au moins une étape de diagramme.
 
 Statut : `TESTED` = une spec ou une intégration exerce la route ou son service

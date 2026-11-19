@@ -3,7 +3,7 @@
  * relevé dans `projets/[id]/+page.server.ts` et `server/projects/needs.ts`.
  * Aucun événement de progression ni notification : le code n'en produit pas.
  */
-import type { DiagramDefinition } from '../types';
+import type { DiagramDefinition } from '#lib/diagram/types';
 import { refs, step } from './define';
 
 const ROUTE = 'src/routes/(app)/projets/[id]/+page.server.ts';

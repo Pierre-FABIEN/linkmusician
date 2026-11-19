@@ -20,6 +20,7 @@ supprimée (décision D6).
 | Feuille de route de la startup (hors code)            | `docs/lancement/README.md` (`/admin/lancement`) |
 | Données de démo : qui se connecte, quoi voir          | `docs/demo/README.md` (`npm run seed:demo`)     |
 | Style Metro : règles, migration de chaque page        | `docs/design/README.md` (D55)                   |
+| Cartographie des flux, inventaire des processus       | `docs/diagram/README.md` (`/diagram`, D80)      |
 
 ## Méthode de travail
 
@@ -39,6 +40,9 @@ supprimée (décision D6).
 - Un lot qui déborde est découpé (`P1-05a`, `P1-05b`), pas prolongé.
 - Une règle métier qui change met à jour `docs/conception/` dans le même
   commit. Une décision prise est consignée dans `docs/decisions/`.
+- Une action, un endpoint ou un processus qui change met à jour son entrée
+  dans `src/lib/server/diagram/inventory/` et les diagrammes qui le citent,
+  puis `npm run diagram:sync` (les tests unitaires échouent sinon).
 - Documentation et messages de commit en **français**.
 
 ## Cohabitation avec le boilerplate

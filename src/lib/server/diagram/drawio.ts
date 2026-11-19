@@ -11,7 +11,7 @@
  * contenu compressé de diagrams.net (base64 + deflate brut + URI).
  */
 import { inflateRawSync } from 'node:zlib';
-import type { DrawioCell, DrawioModel } from './types';
+import type { DrawioCell, DrawioModel } from '#lib/diagram/types';
 
 const ENTITIES: Record<string, string> = {
 	amp: '&',

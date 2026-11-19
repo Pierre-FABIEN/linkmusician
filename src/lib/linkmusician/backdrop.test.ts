@@ -8,6 +8,12 @@ describe('backdropFor', () => {
 		}
 	});
 
+	it('Melokiva Diagram pose lui-même son papier (D80)', () => {
+		expect(backdropFor('/diagram').metro).toBe(false);
+		expect(backdropFor('/diagram/d/etats-besoin').metro).toBe(false);
+		expect(backdropFor('/diagrammes-fictifs').metro).toBe(true);
+	});
+
 	it('pose l’Aurora sur les accueils seulement', () => {
 		expect(backdropFor('/jam')).toEqual({ metro: true, aurora: 'jam' });
 		expect(backdropFor('/espace')).toEqual({ metro: true, aurora: 'career' });

@@ -6,7 +6,7 @@
  * référencés (et existants, vérifiés par la synchronisation) donnent
  * `TESTED`, sinon `IMPLEMENTED`. On ne déclare jamais `TESTED` à la main.
  */
-import type { DeliveryStatus, ProcessEntry, References, Trigger } from '../types';
+import type { DeliveryStatus, ProcessEntry, References, Trigger } from '#lib/diagram/types';
 
 export interface ActionOverride {
 	title: string;

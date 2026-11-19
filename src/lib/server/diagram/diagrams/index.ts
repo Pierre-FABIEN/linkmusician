@@ -2,7 +2,7 @@
  * LINKMUSICIAN: liste des diagrammes détaillés (DIAGRAM-01). Ajouter un
  * diagramme : son fichier ici, sa source `.drawio`, puis `npm run diagram:sync`.
  */
-import type { DiagramDefinition } from '../types';
+import type { DiagramDefinition } from '#lib/diagram/types';
 import { COULOIRS_BESOIN } from './couloirs-besoin';
 import { DATAFLOW_BESOIN } from './dataflow-besoin';
 import { DONNEES_PROJETS } from './donnees-projets';

@@ -4,7 +4,7 @@
  * (guitare) monte « Lumière » avec Malik (batterie), prépare l'EP « Aube »
  * et cherche Sam, ingé son. Chaque nœud cite le vrai service.
  */
-import type { DiagramDefinition } from '../types';
+import type { DiagramDefinition } from '#lib/diagram/types';
 import { step } from './define';
 
 export const PARCOURS_GROUPE_EP: DiagramDefinition = {

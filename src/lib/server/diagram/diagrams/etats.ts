@@ -3,7 +3,7 @@
  * dans `#lib/projects/needs` (`needTransition`, `canNeed`) et
  * `server/projects/participants.ts`. Chaque transition dit qui la déclenche.
  */
-import type { DiagramDefinition } from '../types';
+import type { DiagramDefinition } from '#lib/diagram/types';
 import { refs, step } from './define';
 
 const NEED_REFS = refs({

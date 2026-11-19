@@ -6,7 +6,7 @@
  * seulement que leurs documents existent. Un processus livré quitte cette
  * liste pour `routes.ts` ou `endpoints.ts`, dans le commit qui le livre.
  */
-import type { DeliveryStatus, ProcessEntry } from '../types';
+import type { DeliveryStatus, ProcessEntry } from '#lib/diagram/types';
 
 interface PlannedDef {
 	id: string;

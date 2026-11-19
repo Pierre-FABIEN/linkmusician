@@ -16,7 +16,7 @@ import {
 } from './catalog';
 import { parseDrawio } from './drawio';
 import { actorById, domainById } from './taxonomy';
-import { DELIVERY_STATUSES, DIAGRAM_KINDS } from './types';
+import { DELIVERY_STATUSES, DIAGRAM_KINDS } from '#lib/diagram/types';
 
 const unique = (values: string[]) => new Set(values).size === values.length;
 

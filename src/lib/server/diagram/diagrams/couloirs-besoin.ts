@@ -3,7 +3,7 @@
  * scénario S5 de la conception 22 : la coordination propose, la gestion
  * tranche, la coordination invite, l'ingé son consent.
  */
-import type { DiagramDefinition } from '../types';
+import type { DiagramDefinition } from '#lib/diagram/types';
 import { step } from './define';
 
 const LANE_TESTS = ['src/lib/server/projects/needs.integration.test.ts'];

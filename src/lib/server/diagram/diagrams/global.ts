@@ -3,7 +3,7 @@
  * Melokiva et leurs liens métier, sans détail technique. Chaque nœud ouvre
  * son domaine ; les flèches sont des relations, pas des clés étrangères.
  */
-import type { DiagramDefinition } from '../types';
+import type { DiagramDefinition } from '#lib/diagram/types';
 import { refs, step } from './define';
 
 const C = (docs: string[], decisions: string[] = []) =>

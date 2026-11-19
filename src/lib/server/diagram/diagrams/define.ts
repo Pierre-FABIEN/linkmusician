@@ -7,7 +7,7 @@
  * recopier l'inventaire dans le catalogue.
  */
 import { processById } from '../inventory';
-import { emptyRefs, type DiagramStep, type References } from '../types';
+import { emptyRefs, type DiagramStep, type References } from '#lib/diagram/types';
 
 export type StepInput = Partial<Omit<DiagramStep, 'id' | 'title' | 'actor' | 'references'>> & {
 	id: string;

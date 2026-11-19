@@ -220,7 +220,8 @@
 		<ModeWatcher />
 		<!-- LINKMUSICIAN: l'espace `(app)`, et les pages publiques vues par un
 		     membre, ont leur propre navigation (P0-07, P2-12b). -->
-		{#if !page.route.id?.startsWith('/(app)') && !page.data.memberShell && !page.url.pathname.startsWith('/_lab/metro')}
+		<!-- LINKMUSICIAN: Melokiva Diagram (D80) a sa propre coquille plein écran. -->
+		{#if !page.route.id?.startsWith('/(app)') && !page.data.memberShell && !page.url.pathname.startsWith('/_lab/metro') && !page.url.pathname.startsWith('/diagram')}
 			<Navigation {data} />
 		{/if}
 		<div class="ccc relative m-0 h-screen w-screen max-w-none overflow-hidden p-0">
@@ -239,7 +240,7 @@
 						{:else}
 							<div class="ccc absolute z-[1] w-full pb-15" bind:this={contentRef}>
 								{@render children()}
-								{#if !page.url.pathname.startsWith('/_lab/metro')}
+								{#if !page.url.pathname.startsWith('/_lab/metro') && !page.url.pathname.startsWith('/diagram')}
 									<Footer companyName={data.companyName} />
 								{/if}
 							</div>

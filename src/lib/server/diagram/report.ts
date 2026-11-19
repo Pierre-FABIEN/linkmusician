@@ -29,7 +29,7 @@ import {
 } from './catalog';
 import { outOfScope } from './inventory';
 import { decisions, fileExists, prismaModels, scanRoutes, serviceExists } from './scan';
-import type { ProcessEntry } from './types';
+import type { ProcessEntry } from '#lib/diagram/types';
 
 export const GENERATED = {
 	references: 'src/lib/server/diagram/generated/references.json',
