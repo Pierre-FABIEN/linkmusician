@@ -1522,6 +1522,10 @@ model Actor {
   projectActsAbout           ProjectAct[]             @relation("ProjectActSubject")
   projectParticipations      ProjectParticipant[]     @relation("ProjectParticipant")
   projectInvitationsSent     ProjectParticipant[]     @relation("ProjectParticipantInviter")
+  /// U3b (D76) : besoins formulés, tranchés, pourvus.
+  projectNeedsAuthored       ProjectNeed[]            @relation("ProjectNeedAuthor")
+  projectNeedsDecided        ProjectNeed[]            @relation("ProjectNeedDecider")
+  projectNeedsFilled         ProjectNeed[]            @relation("ProjectNeedFiller")
 
   @@map("actors")
 }
@@ -1749,6 +1753,7 @@ model Instrument {
   workRoles      WorkRole[]
   jamEndorsements JamEndorsement[]
   collabEndorsements CollabEndorsement[]
+  projectNeeds       ProjectNeed[]
 
   @@index([family, sortOrder])
   @@map("instruments")
@@ -2324,6 +2329,8 @@ model Opportunity {
   attendances  JamAttendance[]
   jamInvites   JamInvite[]
   endorsements JamEndorsement[]
+  /// U3b-c : besoin de projet depuis lequel l'annonce a été préparée.
+  projectNeed  ProjectNeed?
 
   @@index([status, expiresAt])
   @@index([issuerActorId, status])
@@ -4378,6 +4385,15 @@ enum ProjectActKind {
   REMOVED
   CAPABILITY_GRANTED
   CAPABILITY_REVOKED
+  /// U3b (D76) : besoins (le besoin concerné est `needId`).
+  NEED_PROPOSED
+  NEED_OPENED
+  NEED_DECLINED
+  NEED_UPDATED
+  NEED_FILLED
+  NEED_REOPENED
+  NEED_CANCELLED
+  NEED_LINKED
 }
 
 /// Capacités d'un·e participant·e (P4a, §9.1) : ensemble fermé, extensible
@@ -4416,6 +4432,7 @@ model Project {
   items        ProjectItem[]
   acts         ProjectAct[]
   participants ProjectParticipant[]
+  needs        ProjectNeed[]
 
   @@index([ownerId, status])
   @@map("projects")
@@ -4466,6 +4483,9 @@ model ProjectAct {
   subjectId  String?
   subject    Actor?             @relation("ProjectActSubject", fields: [subjectId], references: [id], onDelete: SetNull)
   capability ProjectCapability?
+  /// U3b : besoin concerné, sans clé étrangère (comme `workId`) : l'acte
+  /// survit au besoin et n'est montré qu'à qui voit le besoin.
+  needId     String?
   occurredAt DateTime           @default(now())
 
   @@index([projectId, occurredAt])
@@ -4507,4 +4527,55 @@ model ProjectParticipant {
   @@index([personId, status])
   @@index([invitedById])
   @@map("project_participants")
+}
+
+/// Un métier ou une intervention que le projet recherche (U3b, D76,
+/// conception 22). Privé au projet ; il ne donne aucun droit, ne contacte
+/// personne, ne prouve rien (I1, I3). Une proposition est un besoin
+/// `PROPOSED`. Aucune localisation : la commune est celle du porteur.
+model ProjectNeed {
+  id            String            @id @default(cuid())
+  projectId     String
+  project       Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status        ProjectNeedStatus
+  /// Métier recherché : les six de la recherche (`#lib/projects/needs`).
+  track         TrackKind
+  /// Spécialité d'un·e ingé son ou d'un·e producteur·rice.
+  specialty     String?
+  /// Instrument d'un·e musicien·ne.
+  instrumentId  String?
+  instrument    Instrument?       @relation(fields: [instrumentId], references: [id], onDelete: SetNull)
+  /// Une phrase (280 caractères au plus). Vidée à l'effacement de l'auteur·rice
+  /// d'une proposition non retenue (conception 22 §9.2).
+  description   String?
+  createdById   String?
+  createdBy     Actor?            @relation("ProjectNeedAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+  /// Qui l'a ouvert, refusé, pourvu ou annulé en dernier.
+  decidedById   String?
+  decidedBy     Actor?            @relation("ProjectNeedDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+  /// Facultatif : la personne participante qui le pourvoit (jamais déduite).
+  filledById    String?
+  filledBy      Actor?            @relation("ProjectNeedFiller", fields: [filledById], references: [id], onDelete: SetNull)
+  /// Annonce préparée depuis ce besoin (U3b-c), une au plus ; elle garde sa vie propre.
+  opportunityId String?           @unique
+  opportunity   Opportunity?      @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  decidedAt     DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([projectId, status])
+  @@index([createdById, createdAt])
+  @@index([filledById])
+  @@index([decidedById])
+  @@map("project_needs")
+}
+
+/// `PROPOSED` (coordination) → `OPEN` → `FILLED` ; ou `DECLINED`,
+/// `CANCELLED`, terminaux. `FILLED` se rouvre.
+enum ProjectNeedStatus {
+  PROPOSED
+  OPEN
+  FILLED
+  DECLINED
+  CANCELLED
 }

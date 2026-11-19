@@ -49,6 +49,7 @@ import {
 	ProjectError,
 	type LockedProject
 } from './service';
+import { cancelPendingNeeds } from './needs';
 
 type Tx = Prisma.TransactionClient;
 const TX = { timeout: 15_000 } as const;
@@ -304,6 +305,8 @@ export async function leaveProject(personId: string, projectId: string, now = ne
 			data: { status: 'LEFT', endedAt: now, capabilities: [], proposedCapabilities: [] }
 		});
 		await act(tx, { projectId, authorId: personId, kind: 'LEFT', subjectId: personId });
+		// U3b : ses propositions de besoin en attente tombent avec elle (§6.2).
+		await cancelPendingNeeds(tx, projectId, personId, personId);
 	}, TX);
 }
 
@@ -343,6 +346,7 @@ export async function removeParticipant(
 			data: { status: 'REMOVED', endedAt: now, capabilities: [], proposedCapabilities: [] }
 		});
 		await act(tx, { projectId, authorId: managerId, kind: 'REMOVED', subjectId: row.personId });
+		await cancelPendingNeeds(tx, projectId, row.personId, managerId);
 	}, TX);
 }
 
@@ -444,6 +448,10 @@ export async function revokeCapability(
 			subjectId: row.personId,
 			capability
 		});
+		// U3b : proposer un besoin découle de la coordination (§9.1).
+		if (held && capability === 'COORDINATE') {
+			await cancelPendingNeeds(tx, projectId, row.personId, managerId);
+		}
 	}, TX);
 }
 
@@ -485,6 +493,9 @@ export async function dropMemberCapabilities(orgId: string, personId: string, au
 					subjectId: personId,
 					capability
 				});
+			}
+			if (row.capabilities.includes('COORDINATE')) {
+				await cancelPendingNeeds(tx, projectId, personId, authorId);
 			}
 		}, TX);
 	}

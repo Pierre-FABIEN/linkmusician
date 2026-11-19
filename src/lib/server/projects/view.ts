@@ -15,6 +15,9 @@
  *   vivant et qu'aucun blocage ne le sépare du lecteur. Jamais de maquette,
  *   de crédit ni de lien vers `/morceaux/[id]` pour un élément d'autrui.
  * - Compteurs et journal sont calculés sur les seuls éléments visibles.
+ * - U3b (D76) : besoins ouverts et pourvus pour toute personne qui lit la
+ *   fiche ; propositions et refus pour la gestion et pour leur auteur·rice
+ *   (`needVisible`). Un acte de besoin ne se montre qu'à qui voit le besoin.
  */
 import type { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
@@ -36,7 +39,44 @@ import {
 	type ProjectCapabilityValue
 } from '#lib/projects/participants';
 
+import {
+	needActions,
+	needLabel,
+	needSearchHref,
+	needVisible,
+	NEED_STATUS_LABELS,
+	type NeedIntent,
+	type NeedStatusValue,
+	type NeedTrackValue
+} from '#lib/projects/needs';
+
 const JOURNAL_SIZE = 20;
+
+/** Ordre d'affichage : à trancher, ouverts, pourvus, non retenus. */
+const NEED_ORDER: Readonly<Record<NeedStatusValue, number>> = {
+	PROPOSED: 0,
+	OPEN: 1,
+	FILLED: 2,
+	DECLINED: 3,
+	CANCELLED: 4
+};
+
+export type ProjectViewNeed = {
+	id: string;
+	label: string;
+	description: string | null;
+	status: NeedStatusValue;
+	statusLabel: string;
+	/** Qui l'a formulé (« Toi », « Une personne », « Compte supprimé »). */
+	author: string;
+	mine: boolean;
+	/** Qui le pourvoit, si on l'a désigné. */
+	filledBy: string | null;
+	/** Ce que la personne peut faire ici ; le serveur relit tout à l'écriture. */
+	actions: NeedIntent[];
+	/** « Trouver un pro » : un lien vers la recherche, rien d'envoyé. */
+	searchHref: string | null;
+};
 
 const WORK_STATE_LABELS: Record<string, string> = { IDEA: 'Idée', COMPOSED: 'Composé' };
 
@@ -124,7 +164,8 @@ export async function projectView(projectId: string, personId: string) {
 		workId: true,
 		work: { select: { title: true, state: true, updatedAt: true } }
 	} as const;
-	const [team, managed, shared, actWorkIds] = await Promise.all([
+	const role = access.reader ? access.role : null;
+	const [team, managed, shared, actWorkIds, needRows] = await Promise.all([
 		prisma.projectParticipant.findMany({
 			where: { projectId, status: { in: ['INVITED', 'ACTIVE'] } },
 			orderBy: [{ status: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
@@ -165,8 +206,69 @@ export async function projectView(projectId: string, personId: string) {
 			where: { projectId, workId: { not: null } },
 			distinct: ['workId'],
 			select: { workId: true }
+		}),
+		// U3b : filtrés en base ; la gestion lit tout (le journal en a besoin).
+		prisma.projectNeed.findMany({
+			where: {
+				projectId,
+				...(access.manage
+					? {}
+					: {
+							OR: [
+								{ status: { in: ['OPEN', 'FILLED'] } },
+								{ createdById: personId, status: { in: ['PROPOSED', 'DECLINED'] } }
+							]
+						})
+			},
+			orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+			take: 200,
+			select: {
+				id: true,
+				status: true,
+				track: true,
+				specialty: true,
+				description: true,
+				createdById: true,
+				instrument: { select: { name: true, slug: true } },
+				createdBy: {
+					select: { id: true, displayName: true, deletedAt: true, ...blockSelect(personId) }
+				},
+				filledBy: {
+					select: { id: true, displayName: true, deletedAt: true, ...blockSelect(personId) }
+				}
+			}
 		})
 	]);
+	const needsOpen = project.status === 'ACTIVE' && ownerLive(project.owner);
+	const needLabels = new Map(
+		needRows.map((n) => [
+			n.id,
+			needLabel(n.track as NeedTrackValue, n.specialty, n.instrument?.name ?? null)
+		])
+	);
+	const needs: ProjectViewNeed[] = needRows
+		.filter((n) => needVisible({ role, author: n.createdById === personId, status: n.status }))
+		.sort((a, b) => NEED_ORDER[a.status] - NEED_ORDER[b.status])
+		.map((n) => {
+			const author = n.createdById === personId;
+			const track = n.track as NeedTrackValue;
+			return {
+				id: n.id,
+				label: needLabels.get(n.id)!,
+				description: n.description,
+				status: n.status,
+				statusLabel: NEED_STATUS_LABELS[n.status],
+				author: authorLabel(n.createdBy, personId),
+				mine: author,
+				filledBy: n.filledBy ? authorLabel(n.filledBy, personId) : null,
+				actions: needActions({ role, author, status: n.status, open: needsOpen }),
+				searchHref:
+					n.status === 'OPEN'
+						? needSearchHref(track, n.specialty, n.instrument?.slug ?? null)
+						: null
+			};
+		});
+	const visibleNeedIds = access.manage ? [...needLabels.keys()] : needs.map((n) => n.id);
 
 	const items: (ProjectViewItem & { createdAt: Date; workId: string })[] = [
 		...managed.map((i) => ({
@@ -210,13 +312,20 @@ export async function projectView(projectId: string, personId: string) {
 	}
 	const visibleWorkIds = new Set(subjects.keys());
 	const acts = await prisma.projectAct.findMany({
-		where: { projectId, OR: [{ workId: null }, { workId: { in: [...visibleWorkIds] } }] },
+		where: {
+			projectId,
+			AND: [
+				{ OR: [{ workId: null }, { workId: { in: [...visibleWorkIds] } }] },
+				{ OR: [{ needId: null }, { needId: { in: visibleNeedIds } }] }
+			]
+		},
 		orderBy: [{ occurredAt: 'desc' }, { id: 'desc' }],
 		take: JOURNAL_SIZE,
 		select: {
 			id: true,
 			kind: true,
 			workId: true,
+			needId: true,
 			fromShare: true,
 			toShare: true,
 			fromStatus: true,
@@ -238,7 +347,11 @@ export async function projectView(projectId: string, personId: string) {
 			id: a.id,
 			kind: a.kind,
 			author: authorLabel(a.author, personId),
-			subject: a.workId ? (subjects.get(a.workId) ?? null) : null,
+			subject: a.workId
+				? (subjects.get(a.workId) ?? null)
+				: a.needId
+					? (needLabels.get(a.needId) ?? null)
+					: null,
 			person: a.kind in TEAM_ACT_KINDS ? authorLabel(a.subject, personId) : null,
 			capability: a.capability ? CAPABILITY_LABELS[a.capability as ProjectCapabilityValue] : null,
 			fromShare: a.fromShare ? SHARE_LABELS[a.fromShare] : null,
@@ -303,6 +416,8 @@ export async function projectView(projectId: string, personId: string) {
 			})),
 		items: items.map(({ createdAt: _c, workId: _w, ...rest }) => rest),
 		counts: { items: items.length, composed: items.filter((i) => i.state === 'Composé').length },
+		/** U3b : besoins visibles du lecteur, filtrés en base. */
+		needs,
 		resumable: idea ? { workId: idea.workId, title: idea.work.title } : null,
 		journal
 	};

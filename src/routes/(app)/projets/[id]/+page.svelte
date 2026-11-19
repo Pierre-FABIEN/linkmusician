@@ -32,6 +32,14 @@
 	} from '#lib/projects/participants';
 	import { plural } from '#lib/jam/log';
 	import {
+		addLabel,
+		MAX_NEED_DESCRIPTION,
+		NEED_SPECIALTIES,
+		NEED_TRACK_LABELS,
+		NEED_TRACKS,
+		type NeedTrackValue
+	} from '#lib/projects/needs';
+	import {
 		MAX_PROJECT_DESCRIPTION,
 		MAX_PROJECT_NAME,
 		MAX_WORKING_TITLE,
@@ -144,6 +152,16 @@
 			timeZone: 'Europe/Paris'
 		}).format(new Date(d));
 
+	const NEED_ACTS: Record<string, string> = {
+		NEED_PROPOSED: 'Besoin proposé',
+		NEED_OPENED: 'Besoin ouvert',
+		NEED_DECLINED: 'Besoin non retenu',
+		NEED_UPDATED: 'Besoin modifié',
+		NEED_FILLED: 'Besoin pourvu',
+		NEED_REOPENED: 'Besoin rouvert',
+		NEED_CANCELLED: 'Besoin annulé',
+		NEED_LINKED: 'Annonce préparée'
+	};
 	const ACTS: Record<string, string> = {
 		CREATED: 'Projet créé',
 		UPDATED: 'Projet modifié',
@@ -157,7 +175,8 @@
 		LEFT: 'Départ du projet',
 		REMOVED: 'Retrait du projet',
 		CAPABILITY_GRANTED: 'Capacité acceptée',
-		CAPABILITY_REVOKED: 'Capacité retirée'
+		CAPABILITY_REVOKED: 'Capacité retirée',
+		...NEED_ACTS
 	};
 	/** Une ligne de journal, sans tournure à accorder : « Partage changé : « Aube » (Résumé → Travail) ». */
 	function line(j: (typeof p.journal)[number]) {
@@ -181,6 +200,12 @@
 		)
 	);
 	const itemsTitle = $derived(data.family === 'other' ? 'Éléments' : 'Morceaux');
+
+	// U3b : ajouter un besoin. La précision suit le métier choisi.
+	let needTrack = $state<NeedTrackValue>('SOUND_ENGINEER');
+	const needSpecialties = $derived(NEED_SPECIALTIES[needTrack]);
+	/** Gestion ou coordination d'un projet en cours : ajouter ou proposer. */
+	const canAddNeed = $derived(organise);
 </script>
 
 <SEO title={p.name} noindex nofollow />
@@ -210,7 +235,7 @@
 			</p>
 		{/if}
 		{#if form?.ok}<p role="status" class="text-sm">{form.ok}</p>{/if}
-		{#if form?.error && !(form.action === 'inviter' && inviteOpen)}
+		{#if form?.error && !(form.action === 'inviter' && inviteOpen) && form.action !== 'besoin-ajouter'}
 			<p role="alert" class="lm-alert p-3 text-sm">{form.error}</p>
 		{/if}
 
@@ -266,6 +291,8 @@
 				Confier des tâches, y ranger des concerts et des annonces.
 			</p>
 		</div>
+
+		{@render needsBlock()}
 
 		{@render teamBlock()}
 
@@ -501,6 +528,181 @@
 			>
 		{/if}
 	</section>
+{/snippet}
+
+{#snippet needsBlock()}
+	{#if p.needs.length > 0 || canAddNeed}
+		<section id="besoins" aria-labelledby="besoins-titre" class="space-y-4">
+			<h2 id="besoins-titre" class="lm-kicker text-muted-foreground">
+				Besoins <span class="text-muted-foreground">· {p.needs.length}</span>
+			</h2>
+			{#if p.needs.length === 0}
+				<MetroEmpty
+					icon={Target}
+					text="Il te manque quelqu’un ? Dis-le ici : tu pourras ensuite chercher, inviter ou publier une annonce."
+				/>
+			{:else}
+				<ul class="space-y-3" aria-label="Besoins du projet">
+					{#each p.needs as need (need.id)}
+						<li data-tone="paper" class="lm-tile lm-tile--flow space-y-3 p-4" data-testid="need">
+							<div class="flex flex-wrap items-baseline justify-between gap-2">
+								<p class="min-w-0 font-medium wrap-break-word">{need.label}</p>
+								<span class="lm-pill text-xs">{need.statusLabel}</span>
+							</div>
+							{#if need.description}<p class="text-sm wrap-break-word">
+									« {need.description} »
+								</p>{/if}
+							<p class="text-sm text-muted-foreground">
+								{need.status === 'PROPOSED' ? 'Proposé par' : 'Formulé par'}
+								{need.author}{#if need.filledBy}
+									· pourvu par {need.filledBy}{/if}
+							</p>
+							{#if need.searchHref || need.actions.length > 0}
+								<div class="flex flex-wrap gap-3">
+									{#if need.searchHref}
+										<a href={need.searchHref} class="lm-btn" data-variant="ghost"
+											>Trouver un pro<span class="sr-only"> : {need.label}</span></a
+										>
+									{/if}
+									{#if need.actions.includes('open')}
+										<form method="POST" action="?/besoin-decider" use:enhance>
+											<input type="hidden" name="needId" value={need.id} />
+											<input type="hidden" name="decision" value="open" />
+											<button class="lm-btn"
+												>Ouvrir ce besoin<span class="sr-only"> : {need.label}</span></button
+											>
+										</form>
+									{/if}
+									{#if need.actions.includes('decline')}
+										<form method="POST" action="?/besoin-decider" use:enhance>
+											<input type="hidden" name="needId" value={need.id} />
+											<input type="hidden" name="decision" value="decline" />
+											<button class="lm-btn" data-variant="ghost"
+												>Ne pas retenir<span class="sr-only"> : {need.label}</span></button
+											>
+										</form>
+									{/if}
+									{#if need.actions.includes('withdraw')}
+										<form method="POST" action="?/besoin-retirer" use:enhance>
+											<input type="hidden" name="needId" value={need.id} />
+											<button class="lm-btn" data-variant="ghost"
+												>Retirer ma proposition<span class="sr-only"> : {need.label}</span></button
+											>
+										</form>
+									{/if}
+									{#if need.actions.includes('fill')}
+										<form
+											method="POST"
+											action="?/besoin-pourvu"
+											use:enhance
+											class="flex flex-wrap items-end gap-2"
+										>
+											<input type="hidden" name="needId" value={need.id} />
+											{#if activeTeam.length > 0}
+												<label class="text-sm">
+													<span class="block">Par qui ? (facultatif)</span>
+													<select name="participantId" class="lm-field">
+														<option value="">Personne en particulier</option>
+														{#each activeTeam as m (m.id)}
+															<option value={m.id}>{m.isMe ? 'Toi' : m.name}</option>
+														{/each}
+													</select>
+												</label>
+											{/if}
+											<button class="lm-btn" data-variant="ghost"
+												>Marquer pourvu<span class="sr-only"> : {need.label}</span></button
+											>
+										</form>
+									{/if}
+									{#if need.actions.includes('reopen')}
+										<form method="POST" action="?/besoin-rouvrir" use:enhance>
+											<input type="hidden" name="needId" value={need.id} />
+											<button class="lm-btn" data-variant="ghost"
+												>Rouvrir<span class="sr-only"> : {need.label}</span></button
+											>
+										</form>
+									{/if}
+									{#if need.actions.includes('cancel')}
+										<form method="POST" action="?/besoin-annuler" use:enhance>
+											<input type="hidden" name="needId" value={need.id} />
+											<button class="lm-btn" data-variant="ghost"
+												>Annuler ce besoin<span class="sr-only"> : {need.label}</span></button
+											>
+										</form>
+									{/if}
+								</div>
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			{/if}
+
+			{#if canAddNeed}
+				<form
+					method="POST"
+					action="?/besoin-ajouter"
+					use:enhance
+					data-tone="paper"
+					class="lm-tile lm-tile--flow space-y-4 p-4"
+					aria-labelledby="besoin-ajout-titre"
+				>
+					<h3 id="besoin-ajout-titre" class="font-medium">Ce qui manque à {p.name}</h3>
+					<MetroField id="needTrack" label="Métier recherché">
+						{#snippet children(attrs)}
+							<select {...attrs} name="track" bind:value={needTrack}>
+								{#each NEED_TRACKS as t (t)}
+									<option value={t}>{NEED_TRACK_LABELS[t]}</option>
+								{/each}
+							</select>
+						{/snippet}
+					</MetroField>
+					{#if needSpecialties.length > 0}
+						<MetroField id="needSpecialty" label="Précision" optional>
+							{#snippet children(attrs)}
+								<select {...attrs} name="specialty">
+									<option value="">Sans précision</option>
+									{#each needSpecialties as sp (sp.id)}
+										<option value={sp.id}>{sp.label}</option>
+									{/each}
+								</select>
+							{/snippet}
+						</MetroField>
+					{:else if needTrack === 'MUSICIAN' && data.instruments.length > 0}
+						<MetroField id="needInstrument" label="Instrument" optional>
+							{#snippet children(attrs)}
+								<select {...attrs} name="instrument">
+									<option value="">Sans précision</option>
+									{#each data.instruments as i (i.slug)}
+										<option value={i.slug}>{i.name}</option>
+									{/each}
+								</select>
+							{/snippet}
+						</MetroField>
+					{/if}
+					<MetroField
+						id="needDescription"
+						label="En une phrase"
+						optional
+						help="Visible des personnes du projet seulement."
+					>
+						{#snippet children(attrs)}
+							<textarea {...attrs} name="description" rows="2" maxlength={MAX_NEED_DESCRIPTION}
+							></textarea>
+						{/snippet}
+					</MetroField>
+					{#if !can.manage}
+						<p class="text-sm text-muted-foreground">
+							La gestion de {p.owner.isMe ? 'ce projet' : p.owner.name} décidera de l’ouvrir.
+						</p>
+					{/if}
+					{#if form?.action === 'besoin-ajouter' && form.error}
+						<p role="alert" class="text-sm">{form.error}</p>
+					{/if}
+					<button class="lm-btn">{addLabel(can.manage ? 'manage' : 'coordinate')}</button>
+				</form>
+			{/if}
+		</section>
+	{/if}
 {/snippet}
 
 {#snippet itemsBlock()}

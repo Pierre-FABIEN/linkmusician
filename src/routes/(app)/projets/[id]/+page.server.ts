@@ -35,6 +35,21 @@ import {
 	inviteSchema,
 	participantRefSchema
 } from '#lib/schema/projects/project';
+import {
+	addNeed,
+	cancelNeed,
+	decideNeed,
+	fillNeed,
+	reopenNeed,
+	withdrawNeed
+} from '#server/projects/needs';
+import {
+	needDecisionSchema,
+	needFillSchema,
+	needRefSchema,
+	projectNeedDraftSchema
+} from '#lib/schema/projects/need';
+import { listInstrumentsByFamily } from '#lib/prisma/skills/referentials';
 import { FAMILY_BLOCKS, familyOf, nextProjectAction, progressLine } from '#lib/projects/overview';
 import { bulkInviteSummary } from '#lib/projects/participants';
 import type { Actions, PageServerLoad } from './$types';
@@ -50,12 +65,14 @@ export const load: PageServerLoad = async ({ locals, params, setHeaders, url }) 
 		project.can.live &&
 		(project.can.manage || project.can.coordinate);
 	// U3 : personnes connues à inviter, lues pour qui peut inviter seulement.
-	const [rangeable, invite] = organise
+	const [rangeable, invite, instruments] = organise
 		? await Promise.all([
 				rangeableWorks(person.actorId, project.id),
-				inviteCandidates(person.actorId, project.id)
+				inviteCandidates(person.actorId, project.id),
+				// U3b : l'instrument précise un besoin de musicien·ne.
+				listInstrumentsByFamily()
 			])
-		: [[], null];
+		: [[], null, []];
 	// U2 : composition par famille et une seule prochaine action, calculées
 	// sur ce que je vois et ce que je peux faire (`#lib/projects/overview`).
 	const family = familyOf(project.kind);
@@ -91,6 +108,9 @@ export const load: PageServerLoad = async ({ locals, params, setHeaders, url }) 
 		}),
 		rangeable,
 		invite: invite ?? { candidates: [], canPropose: false },
+		instruments: instruments.flatMap((f) =>
+			f.instruments.map((i) => ({ slug: i.slug, name: i.name }))
+		),
 		preselect: wanted && rangeable.some((w) => w.id === wanted) ? wanted : null
 	};
 };
@@ -163,6 +183,79 @@ export const actions: Actions = {
 			'etat',
 			() => setProjectStatus(person.actorId, params.id, parsed.data.status),
 			'État du projet mis à jour.'
+		);
+	},
+	// U3b (D76) : besoins. Le client envoie le contenu et une intention ;
+	// l'état (ouvert ou proposé) et les droits sont relus côté serveur.
+	'besoin-ajouter': async ({ locals, params, request }) => {
+		const person = await requirePerson(locals);
+		const parsed = projectNeedDraftSchema.safeParse(await formOf(request));
+		if (!parsed.success) return invalid('besoin-ajouter', parsed.error.issues);
+		try {
+			const need = await addNeed(person.actorId, params.id, parsed.data);
+			return {
+				action: 'besoin-ajouter',
+				ok:
+					need.status === 'OPEN'
+						? 'Besoin ajouté. Tu peux maintenant chercher quelqu’un ou inviter.'
+						: 'Besoin proposé : la gestion du projet décidera de l’ouvrir.'
+			};
+		} catch (err) {
+			if (err instanceof ProjectError)
+				return fail(err.status, { action: 'besoin-ajouter', error: err.message });
+			throw err;
+		}
+	},
+	'besoin-decider': async ({ locals, params, request }) => {
+		const person = await requirePerson(locals);
+		const parsed = needDecisionSchema.safeParse(await formOf(request));
+		if (!parsed.success) return invalid('besoin-decider', parsed.error.issues);
+		const { needId, decision } = parsed.data;
+		return run(
+			'besoin-decider',
+			() => decideNeed(person.actorId, params.id, needId, decision),
+			decision === 'open' ? 'Besoin ouvert.' : 'Proposition non retenue.'
+		);
+	},
+	'besoin-retirer': async ({ locals, params, request }) => {
+		const person = await requirePerson(locals);
+		const parsed = needRefSchema.safeParse(await formOf(request));
+		if (!parsed.success) return invalid('besoin-retirer', parsed.error.issues);
+		return run(
+			'besoin-retirer',
+			() => withdrawNeed(person.actorId, params.id, parsed.data.needId),
+			'Proposition retirée.'
+		);
+	},
+	'besoin-pourvu': async ({ locals, params, request }) => {
+		const person = await requirePerson(locals);
+		const parsed = needFillSchema.safeParse(await formOf(request));
+		if (!parsed.success) return invalid('besoin-pourvu', parsed.error.issues);
+		const { needId, participantId } = parsed.data;
+		return run(
+			'besoin-pourvu',
+			() => fillNeed(person.actorId, params.id, needId, participantId),
+			'Besoin marqué pourvu. Rien n’a été envoyé à personne.'
+		);
+	},
+	'besoin-rouvrir': async ({ locals, params, request }) => {
+		const person = await requirePerson(locals);
+		const parsed = needRefSchema.safeParse(await formOf(request));
+		if (!parsed.success) return invalid('besoin-rouvrir', parsed.error.issues);
+		return run(
+			'besoin-rouvrir',
+			() => reopenNeed(person.actorId, params.id, parsed.data.needId),
+			'Besoin rouvert.'
+		);
+	},
+	'besoin-annuler': async ({ locals, params, request }) => {
+		const person = await requirePerson(locals);
+		const parsed = needRefSchema.safeParse(await formOf(request));
+		if (!parsed.success) return invalid('besoin-annuler', parsed.error.issues);
+		return run(
+			'besoin-annuler',
+			() => cancelNeed(person.actorId, params.id, parsed.data.needId),
+			'Besoin annulé.'
 		);
 	},
 	// P4a : équipe. Le client n'envoie que des intentions ; capacités et droits

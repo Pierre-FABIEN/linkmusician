@@ -9,18 +9,35 @@
  * P4a : ses participations (projet, porteur, rôle, capacités, état, dates,
  * qui l'a invitée) et les actes qui la concernent, sans rien des éléments.
  *
+ * U3b (D76) : les besoins qu'elle a formulés (projet, métier, phrase, état,
+ * dates) et ceux qu'on lui a attribués comme pourvus (projet, métier, date).
+ *
  * Anonymisation : ses projets personnels sont supprimés (conteneurs, I1),
  * avec leurs participations ; dans les projets d'autrui, elle est oubliée
  * comme autrice d'un acte, d'un rangement, d'une invitation et comme
  * personne concernée ; ses participations ouvertes se closent, et l'équipe
  * ne garde que « Compte supprimé ». Le journal reste en ajout seul (I8).
+ * Ses propositions de besoin en attente sont annulées ; la phrase d'une
+ * proposition non retenue (en attente, refusée, retirée) est effacée ; celle
+ * d'un besoin ouvert ou pourvu reste, validée par la gestion (§9.2).
  */
 import { prisma } from '#lib/server';
 import { PROJECT_KIND_LABELS, PROJECT_STATUS_LABELS, SHARE_LABELS } from '#lib/projects/rules';
 import { CAPABILITY_LABELS, PARTICIPANT_STATUS_LABELS } from '#lib/projects/participants';
+import { needLabel, NEED_STATUS_LABELS, type NeedTrackValue } from '#lib/projects/needs';
 
 export async function projectsExport(personId: string) {
-	const [owned, acts, participations, about] = await Promise.all([
+	const needSelect = {
+		track: true,
+		specialty: true,
+		status: true,
+		description: true,
+		createdAt: true,
+		decidedAt: true,
+		instrument: { select: { name: true } },
+		project: { select: { name: true, owner: { select: { displayName: true } } } }
+	} as const;
+	const [owned, acts, participations, about, needs, filled] = await Promise.all([
 		prisma.project.findMany({
 			where: { ownerId: personId },
 			orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
@@ -77,8 +94,20 @@ export async function projectsExport(personId: string) {
 				occurredAt: true,
 				project: { select: { name: true } }
 			}
+		}),
+		prisma.projectNeed.findMany({
+			where: { createdById: personId },
+			orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+			select: needSelect
+		}),
+		prisma.projectNeed.findMany({
+			where: { filledById: personId },
+			orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+			select: needSelect
 		})
 	]);
+	const label = (n: (typeof needs)[number]) =>
+		needLabel(n.track as NeedTrackValue, n.specialty, n.instrument?.name ?? null);
 	return {
 		portes: owned.map((p) => ({
 			nom: p.name,
@@ -109,6 +138,21 @@ export async function projectsExport(personId: string) {
 			invitee_le: p.invitedAt,
 			reponse_le: p.answeredAt,
 			fin_le: p.endedAt
+		})),
+		besoins_formules: needs.map((n) => ({
+			projet: n.project.name,
+			porteur: n.project.owner.displayName,
+			besoin: label(n),
+			phrase: n.description,
+			etat: NEED_STATUS_LABELS[n.status],
+			formule_le: n.createdAt,
+			tranche_le: n.decidedAt
+		})),
+		besoins_pourvus: filled.map((n) => ({
+			projet: n.project.name,
+			porteur: n.project.owner.displayName,
+			besoin: label(n),
+			le: n.decidedAt
 		})),
 		actes_me_concernant: about.map((a) => ({
 			acte: a.kind,
@@ -144,6 +188,25 @@ export function projectAnonymizationOps(personId: string, now = new Date()) {
 			where: { invitedById: personId },
 			data: { invitedById: null }
 		}),
+		// Besoins (U3b) : propositions en attente annulées, phrase des
+		// propositions non retenues effacée, puis l'autrice ou l'auteur oublié·e.
+		prisma.projectNeed.updateMany({
+			where: { createdById: personId, status: 'PROPOSED' },
+			data: { status: 'CANCELLED' }
+		}),
+		prisma.projectNeed.updateMany({
+			where: { createdById: personId, status: { in: ['DECLINED', 'CANCELLED'] } },
+			data: { description: null }
+		}),
+		prisma.projectNeed.updateMany({
+			where: { createdById: personId },
+			data: { createdById: null }
+		}),
+		prisma.projectNeed.updateMany({
+			where: { decidedById: personId },
+			data: { decidedById: null }
+		}),
+		prisma.projectNeed.updateMany({ where: { filledById: personId }, data: { filledById: null } }),
 		prisma.project.deleteMany({ where: { ownerId: personId } })
 	];
 }
