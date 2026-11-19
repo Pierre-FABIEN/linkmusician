@@ -144,15 +144,40 @@ describe.skipIf(!enabled)('projectView : coût', { timeout: 300_000 }, () => {
 			data: shownIds.map((workId) => ({ projectId: mixed, workId, share: 'SUMMARY' as const }))
 		});
 
+		// P4a : 20 participant·es actif·ves et 5 invitations ; le lecteur participe.
+		const crowded = await project(me, await works(me, 10));
+		const reader = await person('participante');
+		const guests = [];
+		for (let i = 0; i < 25; i++) guests.push(await person(`p${i}`));
+		await base.projectParticipant.createMany({
+			data: [
+				{ projectId: crowded, personId: reader, status: 'ACTIVE' as const },
+				...guests.map((personId, i) => ({
+					projectId: crowded,
+					personId,
+					status: i < 20 ? ('ACTIVE' as const) : ('INVITED' as const),
+					capabilities: i < 2 ? ['COORDINATE' as const] : []
+				}))
+			]
+		});
+		await base.projectAct.createMany({
+			data: guests.map((subjectId) => ({ projectId: crowded, kind: 'JOINED' as const, subjectId }))
+		});
+
 		const results = [
 			await measure('projet vide', empty, me),
 			await measure('10 éléments', ten, me),
 			await measure('100 éléments', hundred, me),
 			await measure('projet A (morceaux partagés avec B)', sharedA, me),
 			await measure('projet B (mêmes morceaux que A)', sharedB, me),
-			await measure('groupe : 50 invisibles + 10 résumés', mixed, me)
+			await measure('groupe : 50 invisibles + 10 résumés', mixed, me),
+			await measure('20 participant·es, lu par la gestion', crowded, me),
+			await measure('20 participant·es, lu par une participante', crowded, reader)
 		];
-		expect(results.map((r) => r.items)).toEqual([0, 10, 100, 5, 5, 10]);
+		expect(results.map((r) => r.items)).toEqual([0, 10, 100, 5, 5, 10, 10, 10]);
+		// L'équipe ne coûte qu'une requête, quel que soit le nombre de personnes.
+		expect(results[6].ops).toBe(results[1].ops);
+		expect(results[7].ops).toBe(results[1].ops);
 		// Aucune requête par élément : le coût ne dépend pas du nombre d'éléments.
 		// P4a : une requête de plus pour l'équipe (participant·es et invitations).
 		for (const r of results) expect(r.ops).toBeLessThanOrEqual(7);
