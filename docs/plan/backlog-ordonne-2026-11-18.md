@@ -2,6 +2,12 @@
 
 > **Référence de pilotage des issues GitHub ouvertes.** Le préfixe `Gx-yy` définit l'ordre métier recommandé dans une phase, **pas une dépendance absolue** : vérifier les prérequis et livrer un incrément testé. Le numéro GitHub #n reste stable. Conserver les closes comme historique et ne pas les rouvrir sans problème prouvé.
 
+## ⭐ Jam V1 — expérience d'organisation complète (#103)
+
+> **[Issue #103 — Organisation idéale d'une jam V1](https://github.com/Pierre-FABIEN/linkmusician/issues/103)** : P1 d'intégration dans la passe Rencontre [#101](https://github.com/Pierre-FABIEN/linkmusician/issues/101). **Périmètre propre :** publication express, enrichissement progressif, intentions « jouer / écouter / décider sur place », infos pratiques, partage et continuité d'un événement. Les règles et services spécialisés restent dans #91–#100 ; les parcours UX transversaux #60–#66 restent propriétaires de leurs écrans. Présence personnelle facultative, sans validation par autrui ; lead majeur et consentant ; contact indépendant des jams. Prévoir mesure UX, sécurité serveur et recette multicomptes avant de conclure le périmètre V1. **Statut : à réaliser.**
+
+---
+
 ## ⭐ Lieux événementiels — entrée et revendication (#102)
 
 > **[Issue #102 — Parcours « Je représente un lieu événementiel »](https://github.com/Pierre-FABIEN/linkmusician/issues/102)** : **G1 / P1 prioritaire pour l'acquisition de partenaires toulousains.** Elle couvre uniquement l'orientation à l'inscription, le raccordement à l'annuaire, le flux de revendication existant et l'accès contextualisé aux espaces de lieux. **Pas de nouveau métier `VENUE`**, pas de réécriture des permissions/structures #32, de `VenueClaim` #79, de l'administration avancée #80, ni de la programmation #46. Métier personnel (BOOKER/PROMOTER) et gestion d'établissement (VENUE) sont indépendants. Recette multirôle et reprise post-inscription obligatoires. **Statut : à réaliser**.
