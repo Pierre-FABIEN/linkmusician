@@ -71,10 +71,12 @@ permissions et les relations sont partagées.
 retirer la présence d'autrui ou de gagner indûment des récompenses à partir
 d'une jam fictive.
 
-**Avancement (20/11/2026) :** audit #100 livré, avec sa matrice, la machine
-d'états et les notifications attendues : [rv-01-audit-jam.md](./rv-01-audit-jam.md).
-Deux failles hors #91–#97 y sont corrigées. Prochaine étape : #92 (contrat de
-présence), dont dépendent #93 et la fin de #100.
+**Avancement (20/11/2026) :** audit #100 livré ([rv-01-audit-jam.md](./rv-01-audit-jam.md)),
+#92 livré (présence personnelle). La mission anti-pistage a fait des
+activités des données **privées par défaut** (D81, [conception 23](../conception/23-confidentialite-activites.md)).
+Restent #91 (annulation, signalement), #93 (XP, à revoir : l'appréciation de
+jam est suspendue) et les phases 4 (partage volontaire, exclusions) et 5
+(découverte sur place), à valider avant développement.
 
 ### RV-02 — Découvrir, Contacts et Discussions
 
