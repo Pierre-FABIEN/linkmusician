@@ -53,6 +53,9 @@ const betterAuthHandle: Handle = ({ event, resolve }) =>
 import { adminHandle } from '#lib/admin/hooks';
 // ADMIN-PLUGIN ▲
 
+// LINKMUSICIAN: garde des écritures de l'espace (app) (RV-01, #100).
+import { appWriteHandle } from '#lib/server/actors/appWriteGuard';
+
 /**
  * Suivi d'erreurs/traces (plan gratuit Sentry). Sans `SENTRY_DSN` ou avec
  * une valeur qui n'a pas la forme d'une DSN (`isValidSentryDsn`), le SDK
@@ -289,6 +292,8 @@ export const handle: Handle = sequence(
 	// Doit rester après `authHandle` : il lit `locals.user` / `locals.role`.
 	adminHandle,
 	// ADMIN-PLUGIN ▲
+	// LINKMUSICIAN: écritures de (app) refusées aux comptes suspendus (RV-01, #100).
+	appWriteHandle,
 	// COMMERCE-PLUGIN ▼ retirer cette ligne pour désactiver le panier serveur.
 	pendingOrderHandle
 	// COMMERCE-PLUGIN ▲

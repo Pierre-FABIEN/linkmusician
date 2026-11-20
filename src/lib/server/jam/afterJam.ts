@@ -66,11 +66,27 @@ async function findRecentJam(id: string, viewerId: string, now: Date) {
 			postedById: true,
 			heldAt: true,
 			leadActorId: true,
-			venue: { select: { id: true, name: true, communeName: true, claimedByActorId: true } }
+			venue: {
+				select: {
+					id: true,
+					name: true,
+					communeName: true,
+					claimedByActorId: true,
+					// Accueil des mineur·es fixé par la fiche du lieu (P5-03b).
+					claimedBy: {
+						select: { organization: { select: { venueProfile: { select: { ageRule: true } } } } }
+					}
+				}
+			}
 		}
 	});
 	if (!jam || !jam.startsAt || !jam.endsAt || !jam.venue) return null;
-	if (!(await isAdult(viewerId)) && !endsBeforeCurfew(jam.startsAt, jam.endsAt)) return null;
+	// Mineur·es (D5) : mêmes règles qu'avant la jam (`forViewer`), avant 22 h
+	// et jamais dans un lieu réservé aux adultes (RV-01, #100).
+	const adultsOnly = jam.venue.claimedBy?.organization?.venueProfile?.ageRule === 'ADULTS';
+	if (!(await isAdult(viewerId)) && (adultsOnly || !endsBeforeCurfew(jam.startsAt, jam.endsAt))) {
+		return null;
+	}
 	return { ...jam, startsAt: jam.startsAt, endsAt: jam.endsAt, venue: jam.venue };
 }
 

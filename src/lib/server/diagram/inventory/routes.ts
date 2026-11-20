@@ -253,7 +253,7 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 		actors: ['musicien'],
 		services: ['server/jam/availability'],
 		entities: ['Availability'],
-		tests: e2e('dispo'),
+		tests: e2e('dispo', 'suspension-ecritures'),
 		actions: { dispo: 'Se mettre dispo pour jouer', pasDispo: 'Ne plus être dispo' }
 	},
 	{
@@ -329,7 +329,10 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 		actors: ['musicien'],
 		services: ['server/jam/afterJam', 'server/endorsements/service'],
 		entities: ['JamAttendance', 'JamEndorsement', 'MusicalTie', 'DomainEvent'],
-		tests: [...e2e('jams'), ...it('jam/crossed.integration.test.ts')],
+		tests: [
+			...e2e('jams'),
+			...it('jam/crossed.integration.test.ts', 'jam/afterJamMinors.integration.test.ts')
+		],
 		decisions: ['D27'],
 		actions: {
 			there: 'Déclarer « J’y étais »',
