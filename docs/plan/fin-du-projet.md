@@ -12,6 +12,8 @@
 
 ## 1. Où on en est
 
+> **Prochain chantier (20/11/2026) :** [clôture de Rencontre V1](./rencontre-v1.md), lots RV-01 à RV-07, périmètre figé.
+
 **24 issues GitHub fermées sur 56 (42,9 %), 32 ouvertes au 17/11/2026.**
 Le [bilan consolidé](bilan-issues-2026-11-16.md) distingue les livraisons partielles,
 les épopées et la publication des commits. Le décompte ne mesure pas la charge

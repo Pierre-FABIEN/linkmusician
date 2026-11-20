@@ -45,6 +45,8 @@
 
 ---
 
+> **20/11/2026 :** les tickets Rencontre de ce backlog sont regroupés et ordonnés dans [rencontre-v1.md](./rencontre-v1.md) (lots RV-01 à RV-07). Les numéros et préfixes ci-dessous restent valables.
+
 ## Légende
 
 - **G0** Décisions métier ; **G1** UX ; **G2** Collab et métiers ; **G3** Agenda culturel ; **G4** Structures/données ; **G5** Recette et lancement ; **G6** Exploration après validation.

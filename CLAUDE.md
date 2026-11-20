@@ -13,6 +13,7 @@ supprimée (décision D6).
 | Vision, règles métier, architecture                   | `docs/conception/` (commencer par `README.md`)  |
 | **État d'avancement**, méthode, définition de terminé | `docs/plan/README.md` (§4, tableau §5)          |
 | Route jusqu'à la fin, **fiche de chaque lot restant** | `docs/plan/fin-du-projet.md`                    |
+| **Prochain chantier** : clôture de Rencontre V1       | `docs/plan/rencontre-v1.md` (lots RV-01 à 07)   |
 | Décisions tranchées ou en attente                     | `docs/decisions/README.md`                      |
 | Questions laissées pour plus tard (défauts appliqués) | `docs/plan/a-trancher.md`                       |
 | Conventions de code et vérifications avant PR         | `CONTRIBUTING.md`                               |

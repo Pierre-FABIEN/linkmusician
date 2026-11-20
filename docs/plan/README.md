@@ -1,5 +1,7 @@
 # Plan d'exécution — pilotage du projet
 
+> **Prochain chantier (consigné le 20/11/2026) :** [clôture de Rencontre V1](./rencontre-v1.md), sept lots RV-01 à RV-07 regroupant les tickets Rencontre du backlog. Pas encore commencé.
+
 > **⭐ Favoris — priorité pilote Toulouse (20/11/2026) :** [sécurisation des jams et liberté de contact (#91–#100)](./backlog-ordonne-2026-11-18.md#-favoris--sécurisation-jam-et-liberté-de-contact-20-novembre-2026). Les tickets sont **ouverts, à implémenter et à tester** ; voir la matrice de dépendances et le séquencement dans le backlog actif. La section historique ci-dessous ne vaut pas preuve de livraison.
 
 > **Plan actif réorganisé (18/11/2026)** : [backlog exécutable G0–G6](https://github.com/Pierre-FABIEN/linkmusician/blob/main/docs/plan/backlog-ordonne-2026-11-18.md). Les descriptifs des 44 tickets ouverts ont été réécrits et les textes antérieurs archivés dans `archive-issues-avant-refonte-2026-11-18.md`. Le tableau de lots et le compteur plus bas concernent le plan historique et ne doivent pas être utilisés pour choisir l'ordre des nouvelles évolutions.
@@ -29,6 +31,7 @@ lot si celui dont il dépend n'est pas terminé.
 | ------------------------------------------------------ | ----------------------------------------------------------------- |
 | Ce fichier                                             | Méthode, définition de terminé, **tableau d'avancement (§5)**     |
 | [fin-du-projet.md](./fin-du-projet.md)                 | **La route jusqu'au bout** : étapes A à F, fiche de chaque lot    |
+| [rencontre-v1.md](./rencontre-v1.md)                   | Prochain chantier : clôture de Rencontre V1 (lots RV-01 à RV-07)  |
 | [preparation-phase-5.md](./preparation-phase-5.md)     | Repérage technique des lots de la scène (modèles, schéma, pièges) |
 | [a-trancher.md](./a-trancher.md)                       | Questions laissées pour plus tard, avec le défaut appliqué        |
 | [remontees-boilerplate.md](./remontees-boilerplate.md) | Problèmes du boilerplate signalés en amont                        |

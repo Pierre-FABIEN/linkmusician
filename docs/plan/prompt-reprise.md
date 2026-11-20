@@ -41,6 +41,12 @@ git status, docs/diagram/README.md et docs/diagram/coverage.md.
    garder une passe E2E sur Neon.
 ```
 
+## Prochain chantier
+
+**Clôture de Rencontre V1** ([rencontre-v1.md](rencontre-v1.md)), consignée le
+20/11/2026, pas encore commencée. Démarrage : ordonner les sept lots dans
+GitHub (#73), puis RV-01 par l'audit de #100.
+
 ## Décisions et suites
 
 - **D80** (Melokiva Diagram) acceptée par défaut, à confirmer ; **Q107 à
