@@ -2,6 +2,27 @@
 
 > **Référence de pilotage des issues GitHub ouvertes.** Le préfixe `Gx-yy` définit l'ordre métier recommandé dans une phase, **pas une dépendance absolue** : vérifier les prérequis et livrer un incrément testé. Le numéro GitHub #n reste stable. Conserver les closes comme historique et ne pas les rouvrir sans problème prouvé.
 
+## ⭐ Favoris — Sécurisation Jam et liberté de contact (20 novembre 2026)
+
+> **File prioritaire de lancement Toulouse — tickets ouverts, non livrés.** « Favoris » signifie *à suivre en premier dans le plan*, pas statut GitHub ni preuve de livraison. Ces tickets renforcent G1 et le contrôle G5 ; ils ne remplacent pas l'epic [#60](https://github.com/Pierre-FABIEN/linkmusician/issues/60), la recette transversale #50 ou la revue UX #63–#66. **Règle produit :** Découvrir = chercher et contacter librement les profils éligibles, sans preuve de jam commune ; Jam = organiser et participer librement, sous garde-fous.
+
+| Priorité | Issue favorite | Livrable / dépendance |
+| --- | --- | --- |
+| **🔴 P0 — démarrer** | [#100](https://github.com/Pierre-FABIEN/linkmusician/issues/100) | Matrice des permissions et états multirôles, correctifs des écarts prouvés ; coordonner chaque lot avec #91–#97 |
+| **🔴 P0 — démarrer** | [#91](https://github.com/Pierre-FABIEN/linkmusician/issues/91) | Annuler, signaler une jam absente, informer les inscrits, instruire et suspendre uniquement l'organisation après vérification |
+| **🔴 P0 — fondation** | [#92](https://github.com/Pierre-FABIEN/linkmusician/issues/92) | Distinguer inscription, présence déclarée, corroboration ; protéger historique/carnet et les lecteurs dérivés |
+| **🔴 P0 — après #92** | [#93](https://github.com/Pierre-FABIEN/linkmusician/issues/93) | Risques XP ciblés et révocation idempotente des récompenses invalidées, y compris `jam.held` |
+| **🔴 P0 — parcours** | [#99](https://github.com/Pierre-FABIEN/linkmusician/issues/99) | Découvrir → Profil → Messages et Jam → Profil → Messages, sans obligation de rencontre ou participation commune |
+| **🟠 P1 — parallèle** | [#94](https://github.com/Pierre-FABIEN/linkmusician/issues/94) | Consentement du lead avant attribution des droits ; affinité avec les VenueHost existants |
+| **🟠 P1 — modèle** | [#95](https://github.com/Pierre-FABIEN/linkmusician/issues/95) | Scène ouverte flexible vs formation limitée ; compatibilité historique et séries |
+| **🟠 P1 — après #95** | [#96](https://github.com/Pierre-FABIEN/linkmusician/issues/96) | Places atomiques, résistance aux doubles invitations et concurrence |
+| **🟠 P1 — parallèle** | [#97](https://github.com/Pierre-FABIEN/linkmusician/issues/97) | Provenance et degré de certitude du matériel annoncé, notifications |
+| **🟠 G5 — après les correctifs** | [#98](https://github.com/Pierre-FABIEN/linkmusician/issues/98) | Recette métier multi-profils et abus, avec preuves de tests ; à coordonner avec #66 et #50 |
+
+**Ordre opérationnel conseillé :** #100 et #91 (audit des droits et protection immédiate) ; #92 → #93 (confiance et progression) ; #99 (contact indépendant, parallélisable) ; #94 et #97 (parallélisables) ; #95 → #96 (modes et capacité) ; #98 avec #66/#50 (validation finale). Aucun ticket ne sera fermé sur la seule présence de code ou sur un contrôle statique.
+
+---
+
 ## Légende
 
 - **G0** Décisions métier ; **G1** UX ; **G2** Collab et métiers ; **G3** Agenda culturel ; **G4** Structures/données ; **G5** Recette et lancement ; **G6** Exploration après validation.
