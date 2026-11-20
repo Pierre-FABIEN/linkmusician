@@ -55,6 +55,8 @@
 	$effect(() => {
 		if (form?.reported) toast.success(form.reported);
 		if (form?.joined) toast.success(form.joined);
+		// LINKMUSICIAN: confidentialité de mes jams (D81).
+		if (form && 'message' in form && form.message) toast.success(form.message);
 		if (form?.error) toast.error(form.error);
 	});
 
@@ -535,6 +537,42 @@
 								>
 							</form>
 						</details>
+						{#if data.jamSharing}
+							<!-- LINKMUSICIAN: confidentialité de mes jams (D81). -->
+							<details class="lm-tile lm-tile--flow p-3 text-sm">
+								<summary class="cursor-pointer text-muted-foreground"
+									>Mes jams et {p.displayName}</summary
+								>
+								<p class="mt-2 text-muted-foreground">
+									{data.jamSharing.excluded
+										? 'Tes jams lui sont masquées, quel que soit ton partage.'
+										: data.jamSharing.granted
+											? 'Autorisé·e à voir tes jams, selon ton partage.'
+											: 'Tes jams lui sont visibles seulement si tu les partages avec tous les membres.'}
+									<a href="/reglages/confidentialite" class="underline">Mon partage</a>
+								</p>
+								<div class="mt-2 flex flex-wrap gap-2">
+									{#if data.jamSharing.granted}
+										<form method="POST" action="?/unshareJams" use:enhance>
+											<button class="lm-btn" data-variant="ghost">Retirer l’autorisation</button>
+										</form>
+									{:else if !data.jamSharing.excluded}
+										<form method="POST" action="?/shareJams" use:enhance>
+											<button class="lm-btn" data-variant="ghost">Autoriser à voir mes jams</button>
+										</form>
+									{/if}
+									{#if data.jamSharing.excluded}
+										<form method="POST" action="?/unhideJams" use:enhance>
+											<button class="lm-btn" data-variant="ghost">Ne plus masquer</button>
+										</form>
+									{:else}
+										<form method="POST" action="?/hideJams" use:enhance>
+											<button class="lm-btn" data-variant="ghost">Masquer mes jams</button>
+										</form>
+									{/if}
+								</div>
+							</details>
+						{/if}
 						<details class="lm-tile lm-tile--flow p-3 text-sm">
 							<summary class="cursor-pointer text-muted-foreground">Bloquer {p.displayName}</summary
 							>

@@ -37,7 +37,11 @@ import {
 } from '#lib/jam/lineup';
 import { seriesLabel } from '#lib/jam/series';
 import { isHostOf, issuerManagersSelect } from './hosts';
-import { PARTICIPANT_BAND_LABELS, participantBand } from '#lib/server/privacy/activities';
+import {
+	PARTICIPANT_BAND_LABELS,
+	participantBand,
+	visibleOwnerIds
+} from '#lib/server/privacy/activities';
 
 export class JamError extends Error {
 	constructor(
@@ -337,9 +341,17 @@ export async function getJam(id: string, viewerId: string, now = new Date()) {
 	const canManage = card.isHost || card.isLead;
 	const accepted = row.jamInvites.filter((i) => i.status === 'ACCEPTED');
 	// Noms de la formation (D81) : l'hôte et le lead, publics, sont affichés à
-	// part. Les musicien·nes ne sont nommé·es qu'à la gestion (besoin
-	// opérationnel) et chacun·e à soi-même ; les autres voient les places prises.
-	const named = accepted.filter((i) => canManage || i.actorId === viewerId);
+	// part. Les musicien·nes sont nommé·es à la gestion (besoin opérationnel),
+	// à soi-même, et à qui elles et ils partagent leurs jams à venir ; les
+	// autres voient les places prises.
+	const sharing = canManage
+		? null
+		: await visibleOwnerIds(
+				viewerId,
+				accepted.map((i) => i.actorId),
+				{ scope: 'future', jamId: id, now }
+			);
+	const named = accepted.filter((i) => !sharing || sharing.has(i.actorId));
 	const invite = (i: (typeof row.jamInvites)[number]) => ({
 		handle: i.actor.handle,
 		displayName: i.actor.displayName,
@@ -361,7 +373,7 @@ export async function getJam(id: string, viewerId: string, now = new Date()) {
 			open: l.open,
 			reservable: canReserve(board, l.instrumentId)
 		})),
-		/** La formation nommée : pour la gestion, et soi-même (D81). */
+		/** La formation nommée : gestion, soi-même et partages consentis (D81). */
 		lineup: named.map(invite),
 		/** Membres de la formation non nommé·es pour cette personne. */
 		lineupHidden: accepted.length - named.length,

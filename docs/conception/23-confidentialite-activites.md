@@ -1,8 +1,9 @@
 # 23 — Confidentialité des activités et protection contre le pistage
 
 > Rédigé le 20/11/2026 (RV-01, décision [D81](../decisions/D81-activites-privees-par-defaut.md)).
-> Phases 1 à 3 livrées. Les phases 4 et 5 sont **proposées** et attendent la
-> validation du fondateur avant tout développement.
+> Les cinq phases sont livrées : audit, architecture, protection immédiate,
+> partage volontaire et exclusions (phase 4), découverte sur place sans QR
+> code (phase 5, validée par le fondateur le 20/11/2026).
 
 **But.** Melokiva doit permettre de rencontrer des musicien·nes sans créer
 d'historique public de ses déplacements. Une personne qui s'inscrit partout
@@ -39,19 +40,22 @@ soi seul : c'est un agrégat sans identité, conservé.
 
 ### 2.1 Politique unique
 
-`src/lib/server/privacy/activities.ts` est le **seul** endroit qui décide si
-quelqu'un voit l'activité d'une autre personne :
+La règle est **pure** (`src/lib/privacy/activities.ts`,
+`decideActivityVisibility`) et testée seule. Le service
+`src/lib/server/privacy/activities.ts` est le **seul** endroit qui la nourrit :
 
-- `canViewActivity({ viewerId, ownerId, context })` pour une décision unitaire ;
-- `othersAttendanceVisibleTo(viewerId, context)`, un filtre Prisma, pour les
-  listes (pas de N+1) ;
+- `visibleOwnerIds(viewerId, ownerIds, { scope, jamId })` pour une liste :
+  six requêtes en parallèle (blocages, exclusions, préférences, autorisations,
+  âges, sessions sur place), quelle que soit la taille de la liste, donc pas
+  de N+1 ;
+- `canViewActivity(viewerId, ownerId, options)` pour une décision unitaire ;
 - `participantBand(count)` pour les compteurs.
 
-Tous les points F1 à F7 passent par ce module. Ajouter le partage, c'est
-modifier ce module et rien d'autre. Un composant Svelte ne masque jamais une
-donnée que le serveur aurait envoyée.
+`scope` vaut `past` (« J'y étais », carnet, contacts) ou `future` (« Je
+viens », formation). Tous les points F1 à F8 passent par ce module. Un
+composant Svelte ne masque jamais une donnée que le serveur aurait envoyée.
 
-### 2.2 Ordre des contrôles (cible des phases 4 et 5)
+### 2.2 Ordre des contrôles
 
 1. Identité de la session, compte non suspendu (`appWriteHandle`, layout).
 2. Blocage dans un sens ou dans l'autre (`Block`, mécanisme existant).
@@ -64,7 +68,7 @@ donnée que le serveur aurait envoyée.
 
 Une exclusion ou un blocage l'emporte toujours sur un partage.
 
-### 2.3 Modèle de données proposé (phase 4, non migré)
+### 2.3 Modèle de données (migration `confidentialite_activites`)
 
 | Entité                         | Rôle                                                                                                                                        | Contraintes                                                                           |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
@@ -86,15 +90,44 @@ l'anonymisation.
 | Gestion d'un lieu | Comme l'hôte, pour les jams publiées au nom du lieu                           | Activités des personnes ailleurs     |
 | Administration    | Rien par défaut ; un dossier de modération donnera un accès tracé (#91)       | Accès libre aux participations       |
 
-## 3. Livré : protection immédiate (phase 3)
+## 3. Livré
 
-Tous les points F1 à F11 sont traités (§1). Preuves :
-`privacy/activities.test.ts` (politique), `jam/presence.integration.test.ts`
-(scénario adversarial du pisteur), `jam/crossed.integration.test.ts`,
-`jam/afterJamMinors.integration.test.ts` et l'E2E `jams.spec.ts`
-(« deux présents ne se voient pas »).
+### 3.1 Protection immédiate (phase 3)
 
-## 4. Découverte sur place : modèle de menace (phase 5, à valider)
+Tous les points F1 à F11 sont traités (§1).
+
+### 3.2 Partage volontaire et exclusions (phase 4)
+
+- **Réglages** `/reglages/confidentialite` : qui voit mes jams passées, qui
+  voit mes jams à venir (« Personne », « Les personnes que j'autorise »,
+  « Tous les membres ») ; personnes autorisées ; personnes à qui je masque mes
+  jams ; lien vers le blocage. « Tous les membres » exige une case cochée,
+  contrôlée côté serveur, et n'est pas proposé aux mineur·es.
+- **Depuis un profil** : « Autoriser à voir mes jams » et « Masquer mes
+  jams », sans passer par les réglages. Rien n'est notifié.
+- Autoriser quelqu'un retire son masquage, et inversement. Révoquer a un
+  effet immédiat.
+- L'**appréciation** revient entre personnes qui se voient, et avec elle
+  « Brise-glace » ; « Garder le contact » aussi, pour une présence visible.
+
+### 3.3 Découverte sur place (phase 5)
+
+Sur « Qui était là ? », pendant la jam, après « J'y étais » : **Me rendre
+visible ici**. On voit les personnes qui l'ont fait elles aussi, et elles
+seules ; **Me masquer** a un effet immédiat. La session expire à la fin de
+la jam et le job quotidien l'efface. Trois activations par 12 h au plus. Les
+mineur·es n'y ont pas accès. Aucune XP. Pas de QR code (§4).
+
+### 3.4 Preuves
+
+`src/lib/privacy/activities.test.ts` (règle), `privacy/activities.integration.test.ts`
+(pisteur, carnet, autorisation, exclusion, blocage, révocation, passé et
+avenir, mineur·es, sur place, expiration, limite, RGPD),
+`jam/presence.integration.test.ts`, `jam/crossed.integration.test.ts`,
+`jam/afterJamMinors.integration.test.ts`, E2E `confidentialite.spec.ts` et
+`jams.spec.ts`.
+
+## 4. Découverte sur place : modèle de menace
 
 Parcours visé : « Me rendre visible pour rencontrer des musicien·nes ici ».
 La personne l'active elle-même, se masque d'un geste, et la visibilité
@@ -114,10 +147,10 @@ jamais présenté comme une preuve, et il ne rapporte aucune XP.
 | Mineur·es                                | Pas de découverte sur place pour les mineur·es en V1                                                       | —                                                                             |
 | Personne exclue ou bloquée               | La politique §2.2 s'applique aussi à la session                                                            | —                                                                             |
 
-**Recommandation pour la V1** : livrer la découverte **réciproque, volontaire
-et expirante, sans QR code**, puis ajouter le jeton tournant si les essais à
-Toulouse montrent qu'il apporte quelque chose. C'est plus restrictif, et
-cela ne promet aucune fausse garantie.
+**Retenu pour la V1** : la découverte **réciproque, volontaire et expirante,
+sans QR code**, limitée à trois activations par 12 h. Le jeton tournant ne
+s'ajoutera que si les essais à Toulouse montrent qu'il apporte quelque chose.
+C'est plus restrictif, et cela ne promet aucune fausse garantie.
 
 ## 5. Risques résiduels acceptés
 
@@ -129,10 +162,10 @@ cela ne promet aucune fausse garantie.
 - **Hôte malveillant** : il voit les inscrit·es de sa propre jam. Le
   signalement et la restriction ciblée de #91 y répondent.
 
-## 6. Ce que la phase 3 suspend, en attendant les phases 4 et 5
+## 6. Effet sur l'appréciation et l'XP
 
-L'appréciation après une jam, et avec elle le succès « Brise-glace », est
-suspendue : elle exige de voir la présence de l'autre. « Garder le contact »
-depuis une jam l'est aussi : il exige une collaboration confirmée, en
-attendant #99. Le partage volontaire les rétablira entre personnes qui y
-consentent.
+L'appréciation après une jam n'est possible qu'entre personnes qui se
+voient (partage consenti ou découverte sur place). Elle est donc plus rare
+qu'avant D81 : c'est le prix de la protection, assumé. Le barème et les
+garde-fous (TL1, rendements décroissants) ne changent pas. À suivre dans
+#93.

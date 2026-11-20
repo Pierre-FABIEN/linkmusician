@@ -43,18 +43,13 @@ import {
 import { audienceWhere, JamError, isAdult } from './publicJams';
 import { networkIdsOf } from '#lib/server/network/service';
 import { hostedBy, hostIdsOf, issuerManagersSelect } from './hosts';
-import { canViewActivity, othersAttendanceVisibleTo } from '#lib/server/privacy/activities';
+import { canViewActivity, myDiscovery, visibleOwnerIds } from '#lib/server/privacy/activities';
 import { BAREME } from '#lib/server/progression/core/bareme';
 
 const DAY_MS = 86_400_000;
 
 /** Présent·e : a dit « J'y étais » (déclaration personnelle, #92). */
 const presentWhere = { attendedAt: { not: null } } as const;
-
-/** Présent·es montré·es à `viewerId` : soi-même, et ce que la politique autorise (D81). */
-const shownTo = (viewerId: string, context: 'jam.presents' | 'log') => ({
-	OR: [{ actorId: viewerId }, othersAttendanceVisibleTo(viewerId, context)]
-});
 
 /** Jam commencée, dans sa période d'après-jam, visible par la personne. */
 async function findRecentJam(id: string, viewerId: string, now: Date) {
@@ -124,13 +119,12 @@ export async function whoWasThere(id: string, viewerId: string, now = new Date()
 	// Participant·e (D81) : hôte, lead, « Je viens », formation ou « J'y étais ».
 	const participant =
 		isHost || leadOf(jam) === viewerId || Boolean(me) || myInvite?.status === 'ACCEPTED';
-	const [attendances, invites, given, trust] = await Promise.all([
+	const [rows, invites, given, trust, discoverableUntil] = await Promise.all([
 		prisma.jamAttendance.findMany({
 			where: {
 				opportunityId: id,
 				...presentWhere,
 				actor: publicActorWhere(now, viewerId),
-				...shownTo(viewerId, 'jam.presents'),
 				// Hors participant·es, la liste reste fermée.
 				...(participant ? {} : { actorId: '' })
 			},
@@ -149,8 +143,17 @@ export async function whoWasThere(id: string, viewerId: string, now = new Date()
 			where: { opportunityId: id, fromActorId: viewerId, revokedAt: null },
 			select: { toActorId: true, quality: true, instrument: { select: { name: true } } }
 		}),
-		getTrustLevel(viewerId)
+		getTrustLevel(viewerId),
+		myDiscovery(id, viewerId, now)
 	]);
+	// Confidentialité (D81) : soi-même, les partages consentis, et la
+	// découverte réciproque sur place pendant la jam.
+	const visible = await visibleOwnerIds(
+		viewerId,
+		rows.map((a) => a.actorId),
+		{ scope: 'past', jamId: id, now }
+	);
+	const attendances = rows.filter((a) => visible.has(a.actorId));
 	const network = await networkIdsOf(viewerId);
 	const inviteOf = new Map(invites.map((i) => [i.actorId, i.instrument]));
 	const givenTo = new Map(
@@ -173,6 +176,9 @@ export async function whoWasThere(id: string, viewerId: string, now = new Date()
 		iWasThere: Boolean(me?.attendedAt),
 		/** La liste des présent·es est réservée aux participant·es (D81). */
 		participant,
+		/** Découverte sur place : jam en cours, et ma visibilité (échéance) si active. */
+		live: now >= jam.startsAt && now < jam.endsAt,
+		discoverableUntil,
 		canEndorse: TRUST_PERMISSIONS[trust].canEndorse,
 		present: attendances.map((a) => {
 			const instrument = a.instrument ?? inviteOf.get(a.actorId) ?? null;
@@ -315,7 +321,7 @@ export async function endorse(id: string, fromId: string, form: EndorseForm, now
 	});
 	// On n'apprécie que quelqu'un dont on peut voir la présence (D81). Même
 	// réponse sinon : l'appréciation ne doit pas servir à tester une présence.
-	if (!to || !canViewActivity({ viewerId: fromId, ownerId: to.id, context: 'jam.endorse' })) {
+	if (!to || !(await canViewActivity(fromId, to.id, { scope: 'past', jamId: id, now }))) {
 		throw new JamError('Personne inconnue.', 404);
 	}
 	const [fromAttendance, toAttendance, already, trust, instrument] = await Promise.all([
@@ -455,11 +461,7 @@ export async function crossedJams(viewerId: string, now = new Date()) {
 			endsAt: true,
 			venue: { select: { name: true } },
 			attendances: {
-				where: {
-					...presentWhere,
-					actor: publicActorWhere(now, viewerId),
-					...shownTo(viewerId, 'jam.presents')
-				},
+				where: { ...presentWhere, actor: publicActorWhere(now, viewerId) },
 				select: { actorId: true }
 			},
 			endorsements: {
@@ -468,8 +470,19 @@ export async function crossedJams(viewerId: string, now = new Date()) {
 			}
 		}
 	});
-	return rows.map((j) => {
-		const present = j.attendances.map((a) => a.actorId);
+	// Confidentialité (D81) : seules les présences visibles comptent, jam par jam
+	// (la découverte sur place dépend de la jam ; dix jams au plus).
+	const visibleByJam = await Promise.all(
+		rows.map((j) =>
+			visibleOwnerIds(
+				viewerId,
+				j.attendances.map((a) => a.actorId),
+				{ scope: 'past', jamId: j.id, now }
+			)
+		)
+	);
+	return rows.map((j, i) => {
+		const present = j.attendances.map((a) => a.actorId).filter((id) => visibleByJam[i].has(id));
 		const others = new Set(present.filter((id) => id !== viewerId));
 		return {
 			id: j.id,

@@ -695,6 +695,27 @@ export async function exportPersonData(userId: string) {
 		select: { id: true, withdrawnAt: true, opportunity: { select: { title: true } } }
 	});
 
+	// Confidentialité des activités (D81) : modes, autorisations données,
+	// exclusions et visibilité sur place en cours.
+	const [activityPreference, activityGrants, activityExclusions, discoverySessions] =
+		await Promise.all([
+			prisma.activityVisibilityPreference.findUnique({
+				where: { actorId: person.actorId },
+				select: { past: true, future: true, updatedAt: true }
+			}),
+			prisma.activityVisibilityGrant.findMany({
+				where: { ownerId: person.actorId },
+				select: { createdAt: true, viewer: { select: { displayName: true } } }
+			}),
+			prisma.activityVisibilityExclusion.findMany({
+				where: { ownerId: person.actorId },
+				select: { createdAt: true, excluded: { select: { displayName: true } } }
+			}),
+			prisma.jamDiscoverySession.findMany({
+				where: { actorId: person.actorId },
+				select: { expiresAt: true, opportunity: { select: { title: true } } }
+			})
+		]);
 	return {
 		actes_de_participation: membershipDecisions.map((d) => ({
 			role:
@@ -930,6 +951,22 @@ export async function exportPersonData(userId: string) {
 			le: a.createdAt,
 			j_y_etais: a.attendedAt
 		})),
+		confidentialite_activites: {
+			jams_passees: activityPreference?.past ?? 'PRIVATE',
+			jams_a_venir: activityPreference?.future ?? 'PRIVATE',
+			personnes_autorisees: activityGrants.map((g) => ({
+				nom: g.viewer.displayName,
+				le: g.createdAt
+			})),
+			personnes_masquees: activityExclusions.map((e) => ({
+				nom: e.excluded.displayName,
+				le: e.createdAt
+			})),
+			visible_sur_place: discoverySessions.map((d) => ({
+				jam: d.opportunity.title,
+				jusqu_a: d.expiresAt
+			}))
+		},
 		reseau_musical: networkTies.map((t) => ({ nom: t.contact.displayName, le: t.createdAt })),
 		appreciations_donnees: endorsementsGiven.map((e) => ({
 			jam: e.opportunity.title,
@@ -1380,6 +1417,15 @@ export async function personAnonymizationOps(
 		// anonymisé, qui ne dit plus rien de la personne.
 		// Jams publiques (P2-14b) : « Je viens » supprimés avec le compte.
 		prisma.jamAttendance.deleteMany({ where: { actorId: person.actorId } }),
+		// Confidentialité des activités (D81) : tout est supprimé, dans les deux sens.
+		prisma.activityVisibilityPreference.deleteMany({ where: { actorId: person.actorId } }),
+		prisma.activityVisibilityGrant.deleteMany({
+			where: { OR: [{ ownerId: person.actorId }, { viewerId: person.actorId }] }
+		}),
+		prisma.activityVisibilityExclusion.deleteMany({
+			where: { OR: [{ ownerId: person.actorId }, { excludedId: person.actorId }] }
+		}),
+		prisma.jamDiscoverySession.deleteMany({ where: { actorId: person.actorId } }),
 		// Formation (P2-14c) : invitations reçues supprimées, lead retiré (l'hôte
 		// reprend la main). Les lieux confirmés restent, comme les lieux ajoutés.
 		prisma.jamInvite.deleteMany({ where: { actorId: person.actorId } }),

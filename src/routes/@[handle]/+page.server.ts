@@ -9,6 +9,14 @@ import { getPublicProfile } from '#lib/server/actors/publicProfile';
 import { publicCareerSheet } from '#lib/server/career/sheet';
 import { fileReport, ModerationError } from '#lib/server/moderation/service';
 import { blockActor, BlockingError } from '#lib/server/blocking/service';
+import {
+	PrivacyError,
+	excludeFromActivities,
+	grantActivityAccess,
+	includeAgain,
+	jamSharingWith,
+	revokeActivityAccess
+} from '#lib/server/privacy/activities';
 import { suggestMusicians } from '#lib/server/discovery/suggestions';
 import { prisma } from '#lib/server';
 import { getPublicBand } from '#lib/server/bands/public';
@@ -114,7 +122,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const audience = isOwner ? 'owner' : viewer?.onboardedAt ? 'members' : 'public';
 	// Suggestions (P2-18), pour un membre seulement : les siennes sur son
 	// profil, « Dans le même style » sur celui d'un autre.
-	const [suggestions, careerSheet, studios, trackSheets] = await Promise.all([
+	const [suggestions, careerSheet, studios, trackSheets, jamSharing] = await Promise.all([
 		viewer?.onboardedAt && profile.kind === 'PERSON'
 			? suggestMusicians(
 					viewer.actorId,
@@ -128,7 +136,11 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		profile.kind === 'PERSON' ? publicCareerSheet(actorId, viewer?.actorId) : null,
 		// Studios publiés que la personne gère (P4-03a).
 		profile.kind === 'PERSON' ? studiosOfPerson(actorId, new Date(), viewer?.actorId) : [],
-		profile.kind === 'PERSON' ? publicTrackSheets(actorId, audience) : []
+		profile.kind === 'PERSON' ? publicTrackSheets(actorId, audience) : [],
+		// Confidentialité de mes jams (D81) : ce que j'ai décidé pour cette personne.
+		viewer?.onboardedAt && profile.kind === 'PERSON' && !isOwner
+			? jamSharingWith(viewer.actorId, actorId)
+			: null
 	]);
 	// « Cherche » (`lookingFor`) copie le « Je recherche » musicien·ne (D58) :
 	// il suit la visibilité de ce bloc.
@@ -146,11 +158,64 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		suggestions,
 		isOwner,
 		canReport: Boolean(viewer) && !isOwner,
-		representHref: isOwner ? null : representHref(handle)
+		representHref: isOwner ? null : representHref(handle),
+		jamSharing
 	};
 };
 
+/** Personne connectée et visible, et le profil visé (pour les actions de confidentialité). */
+async function privacyPair(locals: App.Locals, handle: string) {
+	if (!locals.user) return null;
+	const me = await getPersonByUserId(locals.user.id);
+	if (!me) return null;
+	const profile = await getPublicProfile(handle.toLowerCase(), new Date(), me.actorId);
+	if (!profile || profile.kind !== 'PERSON' || profile.id === me.actorId)
+		error(404, 'Profil introuvable');
+	return { me, profile };
+}
+
+async function privacyAttempt(fn: () => Promise<unknown>, message: string) {
+	try {
+		await fn();
+		return { message };
+	} catch (err) {
+		if (err instanceof PrivacyError) return fail(err.status, { error: err.message });
+		throw err;
+	}
+}
+
 export const actions: Actions = {
+	/** Autoriser la personne à voir mes jams, selon mon partage (D81). */
+	shareJams: async ({ params, locals }) => {
+		const pair = await privacyPair(locals, params.handle);
+		if (!pair) return fail(401, { error: 'Connecte-toi d’abord.' });
+		return privacyAttempt(
+			() => grantActivityAccess(pair.me.actorId, params.handle),
+			'Autorisé·e à voir tes jams, selon ton partage.'
+		);
+	},
+	unshareJams: async ({ params, locals }) => {
+		const pair = await privacyPair(locals, params.handle);
+		if (!pair) return fail(401, { error: 'Connecte-toi d’abord.' });
+		return privacyAttempt(
+			() => revokeActivityAccess(pair.me.actorId, pair.profile.id),
+			'Autorisation retirée.'
+		);
+	},
+	/** Masquer mes jams à la personne : privé, sans notification (D81). */
+	hideJams: async ({ params, locals }) => {
+		const pair = await privacyPair(locals, params.handle);
+		if (!pair) return fail(401, { error: 'Connecte-toi d’abord.' });
+		return privacyAttempt(
+			() => excludeFromActivities(pair.me.actorId, params.handle),
+			'Tes jams lui sont masquées. Elle ou il n’est pas prévenu·e.'
+		);
+	},
+	unhideJams: async ({ params, locals }) => {
+		const pair = await privacyPair(locals, params.handle);
+		if (!pair) return fail(401, { error: 'Connecte-toi d’abord.' });
+		return privacyAttempt(() => includeAgain(pair.me.actorId, pair.profile.id), 'Masquage retiré.');
+	},
 	/** Signaler le profil (personne connectée, P1-12). */
 	report: async ({ params, request, locals }) => {
 		if (!locals.user) return fail(401, { error: 'Connecte-toi pour signaler.' });

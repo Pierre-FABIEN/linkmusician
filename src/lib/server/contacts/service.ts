@@ -13,7 +13,7 @@
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
-import { othersAttendanceVisibleTo } from '#lib/server/privacy/activities';
+import { visibleOwnerIds } from '#lib/server/privacy/activities';
 import {
 	compareContacts,
 	groupNameSchema,
@@ -103,9 +103,7 @@ export async function myContacts(ownerId: string, now = new Date()) {
 			where: {
 				actorId: { in: list },
 				...present,
-				opportunity: { attendances: { some: { actorId: ownerId, ...present } } },
-				// Une présence commune n'est montrée que si la politique l'autorise (D81).
-				...othersAttendanceVisibleTo(ownerId, 'contacts')
+				opportunity: { attendances: { some: { actorId: ownerId, ...present } } }
 			},
 			select: { actorId: true, opportunity: { select: { startsAt: true } } }
 		}),
@@ -152,7 +150,10 @@ export async function myContacts(ownerId: string, now = new Date()) {
 
 	const byId = <T>() => new Map<string, T[]>();
 	const jamDates = byId<Date>();
-	for (const j of jams) {
+	// Une jam commune n'est montrée que si le contact partage ses jams passées
+	// avec moi (D81) : le carnet seul n'ouvre rien.
+	const sharing = await visibleOwnerIds(ownerId, list, { scope: 'past', now });
+	for (const j of jams.filter((j) => sharing.has(j.actorId))) {
 		const at = j.opportunity.startsAt;
 		if (at) jamDates.set(j.actorId, [...(jamDates.get(j.actorId) ?? []), at]);
 	}

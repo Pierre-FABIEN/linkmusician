@@ -1438,6 +1438,13 @@ model Actor {
   messagesSent         Message[]
   blocksMade           Block[]   @relation("BlocksMade")
   blocksReceived       Block[]   @relation("BlocksReceived")
+  // Confidentialité des activités (D81, conception 23).
+  activityPreference   ActivityVisibilityPreference?
+  activityGrantsGiven  ActivityVisibilityGrant[]     @relation("ActivityGrantOwner")
+  activityGrantsHeld   ActivityVisibilityGrant[]     @relation("ActivityGrantViewer")
+  activityExclusions   ActivityVisibilityExclusion[] @relation("ActivityExclusionOwner")
+  activityExcludedBy   ActivityVisibilityExclusion[] @relation("ActivityExclusionTarget")
+  jamDiscoverySessions JamDiscoverySession[]
   opportunities        Opportunity[]
   applications         Application[]
   collaborationsProposed Collaboration[] @relation("CollaborationProposer")
@@ -2337,6 +2344,9 @@ model Opportunity {
   @@index([status, expiresAt])
   @@index([issuerActorId, status])
   @@index([venueId, startsAt])
+  /// Découverte volontaire sur place (D81) : sessions expirantes.
+  discoverySessions JamDiscoverySession[]
+
   @@unique([seriesId, startsAt])
   @@map("opportunities")
 }
@@ -4585,4 +4595,75 @@ enum ProjectNeedStatus {
   FILLED
   DECLINED
   CANCELLED
+}
+
+// ─── CONFIDENTIALITÉ DES ACTIVITÉS (D81, conception 23) ─────────────────────
+// Les activités (« Je viens », formation, « J'y étais », historique) sont
+// privées par défaut. Une ligne absente vaut `PRIVATE`. Le carnet
+// (`MusicalTie`) n'ouvre aucun accès. Décision : `#lib/privacy/activities`.
+
+/// Mode de partage d'une catégorie d'activités.
+enum ActivityShare {
+  /// Personne d'autre (défaut).
+  PRIVATE
+  /// Les seules personnes autorisées (`ActivityVisibilityGrant`).
+  SELECTED
+  /// Tout membre majeur·e connecté·e, après consentement explicite ; jamais
+  /// pour un·e mineur·e (lu comme `SELECTED`).
+  PUBLIC
+}
+
+/// Préférences d'une personne : jams passées et jams à venir, séparément.
+model ActivityVisibilityPreference {
+  actorId   String        @id
+  actor     Actor         @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  past      ActivityShare @default(PRIVATE)
+  future    ActivityShare @default(PRIVATE)
+  updatedAt DateTime      @updatedAt
+
+  @@map("activity_visibility_preferences")
+}
+
+/// « J'autorise cette personne à voir mes jams » ; révoquer = supprimer.
+model ActivityVisibilityGrant {
+  ownerId   String
+  owner     Actor    @relation("ActivityGrantOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  viewerId  String
+  viewer    Actor    @relation("ActivityGrantViewer", fields: [viewerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([ownerId, viewerId])
+  @@index([viewerId])
+  @@map("activity_visibility_grants")
+}
+
+/// « Masquer mes jams à cette personne » : privé, sans notification,
+/// prévaut sur tout partage, ne bloque pas les conversations.
+model ActivityVisibilityExclusion {
+  ownerId    String
+  owner      Actor    @relation("ActivityExclusionOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  excludedId String
+  excluded   Actor    @relation("ActivityExclusionTarget", fields: [excludedId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@id([ownerId, excludedId])
+  @@index([excludedId])
+  @@map("activity_visibility_exclusions")
+}
+
+/// « Me rendre visible pour rencontrer des musicien·nes ici » : une jam en
+/// cours, jusqu'à sa fin au plus. Réciproque : on n'est vu que des personnes
+/// visibles elles aussi. Effacée à l'expiration : aucun historique.
+model JamDiscoverySession {
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  actorId       String
+  actor         Actor       @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  expiresAt     DateTime
+  createdAt     DateTime    @default(now())
+
+  @@id([opportunityId, actorId])
+  @@index([opportunityId, expiresAt])
+  @@index([expiresAt])
+  @@map("jam_discovery_sessions")
 }

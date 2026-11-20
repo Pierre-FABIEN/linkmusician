@@ -26,6 +26,11 @@
 		timeZone: 'Europe/Paris'
 	});
 	const others = $derived(data.present.filter((p) => !p.isMe));
+	const time = new Intl.DateTimeFormat('fr-FR', {
+		hour: '2-digit',
+		minute: '2-digit',
+		timeZone: 'Europe/Paris'
+	});
 	const button = 'min-h-11 rounded-xl px-4 font-semibold';
 	const chip = 'min-h-11 rounded-full border px-3 text-sm font-semibold hover:border-primary';
 </script>
@@ -55,8 +60,8 @@
 			<section class="space-y-3 rounded-2xl border-2 border-primary bg-card p-4">
 				<h2 class="text-lg font-semibold">Tu y étais ?</h2>
 				<p class="text-sm text-muted-foreground">
-					C’est une déclaration personnelle, que tu peux retirer quand tu veux. Elle reste privée :
-					personne d’autre ne la voit. Elle ne rapporte rien en soi.
+					C’est une déclaration personnelle, que tu peux retirer quand tu veux. Elle reste privée,
+					sauf si tu choisis de partager tes jams. Elle ne rapporte rien en soi.
 				</p>
 				<form method="POST" action="?/there" use:enhance>
 					<button class="{button} bg-primary text-primary-foreground">J’y étais</button>
@@ -64,18 +69,53 @@
 			</section>
 		{:else}
 			<section class="lm-tile lm-tile--flow space-y-2 p-4 text-sm">
-				<p>Tu y étais. C’est noté dans ton carnet, pour toi seul·e.</p>
+				<p>Tu y étais. C’est noté dans ton carnet.</p>
+				{#if others.length > 0}
+					<p>
+						Touche une personne pour lui laisser une appréciation, jusqu’au
+						{day.format(new Date(data.jam.deadline))}.
+					</p>
+				{/if}
 			</section>
+			{#if data.live}
+				<!-- D81 : découverte volontaire, réciproque et expirante ; ne prouve rien, ne rapporte rien. -->
+				<section
+					class="space-y-3 rounded-2xl border-2 border-primary bg-card p-4"
+					aria-labelledby="discover-title"
+				>
+					<h2 id="discover-title" class="text-lg font-semibold">Rencontrer des musicien·nes ici</h2>
+					{#if data.discoverableUntil}
+						<p class="text-sm">
+							Tu es visible des personnes qui le sont aussi, jusqu’à
+							{time.format(new Date(data.discoverableUntil))}. Tu disparais dès que tu te masques.
+						</p>
+						<form method="POST" action="?/hide" use:enhance>
+							<button class="{button} border">Me masquer</button>
+						</form>
+					{:else}
+						<p class="text-sm text-muted-foreground">
+							Seules les personnes qui se rendent visibles ici te verront, et tu ne verras qu’elles.
+							Ça s’arrête à la fin de la jam, et rien n’est gardé.
+						</p>
+						<form method="POST" action="?/discover" use:enhance>
+							<button class="{button} bg-primary text-primary-foreground"
+								>Me rendre visible ici</button
+							>
+						</form>
+					{/if}
+				</section>
+			{/if}
 		{/if}
 
 		<section class="space-y-3" aria-labelledby="present-title">
 			<h2 id="present-title" class="text-lg font-semibold">Les présent·es</h2>
 			<!-- D81 : les présences sont privées par défaut ; la politique décide de ce qui s'affiche. -->
 			<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
-				Pour protéger chacun·e, les présences sont privées : personne ne voit qui était là, et ta
-				présence n’est montrée à personne. Tu as croisé quelqu’un ? Retrouve son profil dans
-				<a href="/decouvrir" class="font-semibold underline">Découvrir</a> et envoie-lui une demande de
-				conversation.
+				Pour protéger chacun·e, les présences sont privées. Tu ne vois que les personnes qui
+				partagent leurs jams avec toi, ou qui se sont rendues visibles ici en même temps que toi. Tu
+				as croisé quelqu’un d’autre ? Retrouve son profil dans
+				<a href="/decouvrir" class="font-semibold underline">Découvrir</a>.
+				<a href="/reglages/confidentialite" class="underline">Qui voit mes jams</a>
 			</p>
 			{#if data.participant && others.length > 0}
 				<ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4" aria-label="Présent·es">

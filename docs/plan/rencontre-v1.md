@@ -74,9 +74,9 @@ d'une jam fictive.
 **Avancement (20/11/2026) :** audit #100 livré ([rv-01-audit-jam.md](./rv-01-audit-jam.md)),
 #92 livré (présence personnelle). La mission anti-pistage a fait des
 activités des données **privées par défaut** (D81, [conception 23](../conception/23-confidentialite-activites.md)).
-Restent #91 (annulation, signalement), #93 (XP, à revoir : l'appréciation de
-jam est suspendue) et les phases 4 (partage volontaire, exclusions) et 5
-(découverte sur place), à valider avant développement.
+Le partage choisi, le masquage individuel et la découverte réciproque sur
+place sont livrés. Restent #91 (annulation, signalement) et #93 (XP :
+l'appréciation n'a lieu qu'entre personnes qui se voient).
 
 ### RV-02 — Découvrir, Contacts et Discussions
 

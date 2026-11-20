@@ -161,6 +161,7 @@ const ROUTES: Record<string, Node> = {
 	},
 	'/reglages': { label: 'Réglages' },
 	'/reglages/metiers': { label: 'Métiers', parent: '/reglages' },
+	'/reglages/confidentialite': { label: 'Confidentialité de mes jams', parent: '/reglages' },
 	'/aide': { label: 'Aide' },
 	'/aide/[page]': { label: 'Page d’aide', parent: '/aide', name: at('page', 'nav') },
 	'/demarches': { label: 'Démarches' },

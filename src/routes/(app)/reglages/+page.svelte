@@ -192,6 +192,9 @@
 				<h2 class="text-lg font-semibold">Mon compte</h2>
 				<ul class="space-y-1 text-sm">
 					<li><a href="/reglages/metiers" class="underline">Mes métiers</a></li>
+					<li>
+						<a href="/reglages/confidentialite" class="underline">Confidentialité de mes jams</a>
+					</li>
 					<li><a href="/auth/settings" class="underline">Email, mot de passe, sécurité</a></li>
 				</ul>
 			</section>

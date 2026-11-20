@@ -10,8 +10,9 @@
   [#101](https://github.com/Pierre-FABIEN/linkmusician/issues/101) et
   [#103](https://github.com/Pierre-FABIEN/linkmusician/issues/103).
 - Conception : [23 — Confidentialité des activités](../conception/23-confidentialite-activites.md).
-- **Portée** : une migration (suppression de `JamAttendance.removedAt`), une
-  politique serveur unique (`src/lib/server/privacy/activities.ts`).
+- **Portée** : deux migrations (suppression de `JamAttendance.removedAt` ;
+  `confidentialite_activites`), une règle pure et une politique serveur
+  unique (`src/lib/privacy/activities.ts`, `src/lib/server/privacy/activities.ts`).
 
 ## 1. Problème
 
@@ -47,16 +48,27 @@ personnes ne se connaissent pas.
 
 ## 3. Conséquences
 
-- « Qui était là ? » n'affiche plus personne. On se retrouve par Découvrir,
-  puis par une demande de conversation.
-- **L'appréciation après une jam n'est plus possible** pour l'instant, ni
-  le succès « Brise-glace ». Il faudrait voir la présence de l'autre, ou
-  sinon la réponse servirait de test de présence. Elle reviendra avec le
-  partage volontaire (phase 4) ou la découverte sur place (phase 5). C'était
-  la seule source d'XP d'une jam : à arbitrer dans #93.
-- « Garder le contact » depuis une jam n'est plus possible : il exige une
-  collaboration confirmée, en attendant la refonte du carnet (#99).
+- « Qui était là ? », le carnet et la formation ne montrent que ce que chacun·e
+  a choisi de partager (phase 4) ou la découverte réciproque sur place
+  (phase 5). On se retrouve aussi par Découvrir.
+- L'appréciation après une jam n'est possible qu'entre personnes qui se
+  voient : plus rare qu'avant, à suivre dans #93.
+- « Garder le contact » depuis une jam exige une présence visible, ou une
+  collaboration confirmée.
 - Le profil public ne liste plus les communes des jams appréciées.
+
+## 3 bis. Partage volontaire et découverte (validés le 20/11/2026)
+
+- Deux réglages distincts : jams **passées**, jams **à venir**. Partager le
+  passé ne partage jamais l'avenir.
+- « Tous les membres » exige un consentement explicite, et n'est jamais
+  appliqué à un·e mineur·e. Une autorisation individuelle ne vaut que si le
+  mode « Les personnes que j'autorise » est choisi.
+- « Masquer mes jams à cette personne » l'emporte sur tout, y compris sur
+  place ; il ne coupe pas les conversations et n'est pas notifié.
+- Découverte sur place **sans QR code** : volontaire, réciproque, expirante
+  à la fin de la jam, effacée ensuite, trois activations par 12 h, interdite
+  aux mineur·es, sans XP.
 
 ## 4. Risques résiduels
 

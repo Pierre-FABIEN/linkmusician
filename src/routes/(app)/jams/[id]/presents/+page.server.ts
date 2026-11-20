@@ -6,6 +6,7 @@ import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { JamError, isJamOrganizer } from '#lib/server/jam/publicJams';
 import { endorse, iWasThere, notThere, whoWasThere } from '#lib/server/jam/afterJam';
 import { NetworkError, keepInTouch } from '#lib/server/network/service';
+import { PrivacyError, startDiscovery, stopDiscovery } from '#lib/server/privacy/activities';
 import { JAM_QUALITIES, JAM_QUALITY_LABELS, endorseSchema } from '#lib/jam/afterJam';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -64,6 +65,24 @@ export const actions: Actions = {
 			if (err instanceof JamError) return fail(err.status, { error: err.message });
 			throw err;
 		}
+	},
+	/** « Me rendre visible pour rencontrer des musicien·nes ici » (D81) : réciproque, jusqu'à la fin de la jam. */
+	discover: async ({ locals, params }) => {
+		const { actorId } = await me(locals);
+		const data = await whoWasThere(params.id, actorId);
+		if (!data) return fail(404, { error: 'Jam introuvable.' });
+		try {
+			await startDiscovery(data.jam, actorId);
+			return { message: 'Tu es visible ici, jusqu’à la fin de la jam.' };
+		} catch (err) {
+			if (err instanceof PrivacyError) return fail(err.status, { error: err.message });
+			throw err;
+		}
+	},
+	hide: async ({ locals, params }) => {
+		const { actorId } = await me(locals);
+		await stopDiscovery(params.id, actorId);
+		return { message: 'Tu n’es plus visible ici.' };
 	},
 	/** « Garder le contact » : réseau musical (P2-16). */
 	keep: async ({ locals, request }) => {

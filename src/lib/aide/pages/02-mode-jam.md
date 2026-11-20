@@ -10,8 +10,8 @@ _Jouer pour le plaisir, rencontrer du monde, sans projet ni pression._
 >   répétition**, jamais chez quelqu’un.
 > - Venir ne rapporte pas de points.
 > - **Tes jams restent privées** : personne ne voit que tu viens, que tu y
->   étais, ni où tu vas. Tu as croisé quelqu’un ? Retrouve son profil dans
->   **Découvrir** et écris-lui par l’app, sans échanger ton numéro.
+>   étais, ni où tu vas, sauf si tu le choisis. Sur place, tu peux te rendre
+>   visible le temps de la jam pour rencontrer du monde.
 > - Ton **carnet** garde le souvenir de tes jams, pour toi seul·e.
 
 ## Comment ça se passe, en 4 temps
@@ -198,19 +198,31 @@ Dès le début de la jam et pendant **7 jours** après (le plus simple :
 
 1. Touche **J’y étais** sur la fiche de la jam. C’est une déclaration
    personnelle : toi seul·e la poses ou la retires, personne d’autre.
-2. **Tes jams sont privées.** Personne ne voit qui était là, pas même
-   l’hôte, et ta présence n’est montrée à personne. Ainsi, nul ne peut
+2. **Tes jams sont privées.** Par défaut, personne ne voit qui était là, pas
+   même l’hôte, et ta présence n’est montrée à personne. Ainsi, nul ne peut
    savoir où tu vas en s’inscrivant partout.
-3. Tu as croisé quelqu’un avec qui le courant est passé ? Retrouve son
-   profil dans **Découvrir** et envoie-lui une **demande de conversation**.
-   Tu lui écris par l’app, **sans échanger ton numéro**.
+3. **Pendant la jam**, touche **Me rendre visible ici** pour rencontrer du
+   monde : tu vois les personnes qui l’ont fait aussi, et elles seules. Tu
+   disparais d’un geste avec **Me masquer**, et tout s’arrête à la fin de la
+   jam. Ce n’est pas proposé avant 18 ans.
+4. Laisse une **appréciation** à quelqu’un que tu vois dans la liste : une
+   qualité (**bon groove**, **à l’écoute**, **belle impro**, **fiable**) ou
+   son instrument. Puis **Garder le contact**, pour lui écrire par l’app,
+   **sans échanger ton numéro**.
 
-Et pour la suite : **Rejouer ensemble** prépare une nouvelle jam déjà
-remplie (lieu, style, horaires, places).
+Tu as croisé quelqu’un que tu ne vois pas dans la liste ? Retrouve son profil
+dans **Découvrir** et envoie-lui une demande de conversation. Et pour la
+suite : **Rejouer ensemble** prépare une nouvelle jam déjà remplie.
 
-> ℹ️ Les **appréciations après une jam** sont en pause : pour en laisser une,
-> il faudrait voir qui était là. Elles reviendront avec le partage choisi
-> de ses jams, entre personnes qui l’acceptent.
+### Qui voit mes jams {#confidentialite}
+
+Dans **Réglages → Confidentialité de mes jams**, tu choisis séparément qui
+voit tes jams **passées** et tes jams **à venir** : personne, les personnes
+que tu autorises, ou tous les membres (il faut cocher une case, et ce n’est
+pas proposé avant 18 ans). Depuis le profil de quelqu’un, tu peux aussi
+**Autoriser à voir mes jams** ou **Masquer mes jams** : la personne n’est pas
+prévenue, et vous pouvez toujours vous écrire. Ajouter quelqu’un à tes
+contacts ne lui montre jamais tes jams.
 
 ### Ce que ça rapporte
 
@@ -302,10 +314,11 @@ pas ta présence si tu n'as pas participé.
 
 <details><summary>Je ne peux pas laisser d'appréciation</summary>
 
-C'est normal pour l'instant : les jams sont privées, on ne voit donc pas
-qui était là, et l'appréciation après une jam est en pause. Elle reviendra
-avec le partage choisi de ses jams. Les appréciations après une
-**collaboration** fonctionnent toujours.
+Tu ne peux apprécier que quelqu'un que tu vois dans « Qui était là ? » :
+une personne qui partage ses jams avec toi, ou qui s'est rendue visible sur
+place en même temps que toi. Il faut aussi que vous ayez dit « J'y étais »
+tous les deux, dans les sept jours, et que ton compte ait la confiance
+**Membre**.
 
 </details>
 

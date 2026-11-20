@@ -1,16 +1,16 @@
 /**
  * Réseau musical (P2-16) : les gens avec qui l'on a vraiment joué et que
- * l'on garde (« Garder le contact »). On ne peut garder que quelqu'un avec
- * qui l'on a une collaboration confirmée. Une présence commune à une jam ne
- * compte plus (D81) : déclarée librement, elle ne prouve rien, et s'en servir
- * permettait de tester où était quelqu'un.
+ * l'on garde (« Garder le contact »). On garde quelqu'un avec qui l'on a une
+ * collaboration confirmée, ou croisé à une jam **dont on voit la présence**
+ * (partage consenti, découverte sur place, D81). `playedTogether` ne compte
+ * jamais les jams : déclarée librement, une présence ne prouve rien.
  *
  * Le réseau remonte en tête des recherches et des suggestions
  * d'invitation. Il n'a rien à voir avec l'XP, et reste privé.
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
-import { othersAttendanceVisibleTo } from '#lib/server/privacy/activities';
+import { visibleOwnerIds } from '#lib/server/privacy/activities';
 
 export class NetworkError extends Error {
 	constructor(
@@ -34,6 +34,33 @@ export async function playedTogether(a: string, b: string): Promise<boolean> {
 	return Boolean(collaboration);
 }
 
+/**
+ * Une jam où les deux ont dit « J'y étais », et où la présence du contact est
+ * visible pour moi (partage consenti ou découverte sur place, D81). Sans
+ * cela, réussir à garder le contact révélerait une présence.
+ */
+async function sharedVisibleJam(ownerId: string, contactId: string, now: Date) {
+	const jams = await prisma.jamAttendance.findMany({
+		where: {
+			actorId: contactId,
+			attendedAt: { not: null },
+			opportunity: { attendances: { some: { actorId: ownerId, attendedAt: { not: null } } } }
+		},
+		orderBy: { createdAt: 'desc' },
+		take: 5,
+		select: { opportunityId: true }
+	});
+	for (const j of jams) {
+		const visible = await visibleOwnerIds(ownerId, [contactId], {
+			scope: 'past',
+			jamId: j.opportunityId,
+			now
+		});
+		if (visible.has(contactId)) return true;
+	}
+	return false;
+}
+
 /** « Garder le contact » : ajoute la personne à son réseau musical. */
 export async function keepInTouch(ownerId: string, handle: string, now = new Date()) {
 	const contact = await prisma.actor.findFirst({
@@ -41,7 +68,10 @@ export async function keepInTouch(ownerId: string, handle: string, now = new Dat
 		select: { id: true, displayName: true }
 	});
 	if (!contact) throw new NetworkError('Personne inconnue.', 404);
-	if (!(await playedTogether(ownerId, contact.id))) {
+	if (
+		!(await playedTogether(ownerId, contact.id)) &&
+		!(await sharedVisibleJam(ownerId, contact.id, now))
+	) {
 		throw new NetworkError('Ton réseau musical, ce sont les gens avec qui tu as vraiment joué.');
 	}
 	await prisma.musicalTie.upsert({
@@ -95,13 +125,19 @@ export async function myNetwork(ownerId: string, now = new Date()) {
 		where: {
 			actorId: { in: ties.map((t) => t.contact.id) },
 			attendedAt: { not: null },
-			opportunity: { attendances: { some: { actorId: ownerId, attendedAt: { not: null } } } },
-			// Un contact gardé d'un seul côté ne révèle pas ses jams (D81).
-			...othersAttendanceVisibleTo(ownerId, 'contacts')
+			opportunity: { attendances: { some: { actorId: ownerId, attendedAt: { not: null } } } }
 		},
 		_count: { _all: true }
 	});
-	const jamsWith = new Map(shared.map((s) => [s.actorId, s._count._all]));
+	// Un contact gardé d'un seul côté ne révèle pas ses jams (D81).
+	const sharing = await visibleOwnerIds(
+		ownerId,
+		shared.map((s) => s.actorId),
+		{ scope: 'past', now }
+	);
+	const jamsWith = new Map(
+		shared.filter((s) => sharing.has(s.actorId)).map((s) => [s.actorId, s._count._all])
+	);
 	return ties.map((t) => ({
 		handle: t.contact.handle,
 		displayName: t.contact.displayName,

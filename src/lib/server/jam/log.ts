@@ -2,12 +2,12 @@
  * Carnet de jams (P2-16) : les jams où l'on était (« J'y étais »), façon
  * souvenirs : lieu, style, ce que l'on a joué, les personnes rencontrées et
  * leurs instruments, les appréciations reçues. Privé : seule la personne
- * voit son carnet. Les personnes croisées ne sont montrées que si la
- * politique de confidentialité l'autorise (D81) : aujourd'hui personne.
+ * voit son carnet. Les personnes croisées ne sont montrées que si elles
+ * partagent leurs jams passées avec moi (D81).
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
-import { othersAttendanceVisibleTo } from '#lib/server/privacy/activities';
+import { visibleOwnerIds } from '#lib/server/privacy/activities';
 import { JAM_QUALITY_LABELS } from '#lib/jam/afterJam';
 import { logStats } from '#lib/jam/log';
 import { networkIdsOf } from '#lib/server/network/service';
@@ -32,8 +32,7 @@ export async function jamLog(actorId: string, now = new Date()) {
 						where: {
 							actorId: { not: actorId },
 							...present,
-							actor: publicActorWhere(now, actorId),
-							...othersAttendanceVisibleTo(actorId, 'log')
+							actor: publicActorWhere(now, actorId)
 						},
 						select: {
 							actorId: true,
@@ -49,6 +48,13 @@ export async function jamLog(actorId: string, now = new Date()) {
 			}
 		}
 	});
+	// Confidentialité (D81) : seules les personnes qui partagent leurs jams
+	// passées avec moi apparaissent (la découverte sur place a expiré).
+	const visible = await visibleOwnerIds(
+		actorId,
+		mine.flatMap((m) => m.opportunity.attendances.map((a) => a.actorId)),
+		{ scope: 'past', now }
+	);
 	const [genres, network] = await Promise.all([
 		prisma.genre.findMany({
 			where: { slug: { in: mine.flatMap((m) => m.opportunity.genreSlug ?? []) } },
@@ -65,12 +71,14 @@ export async function jamLog(actorId: string, now = new Date()) {
 		communeName: j.venue?.communeName ?? '',
 		genre: j.genreSlug ? (genreName.get(j.genreSlug) ?? null) : null,
 		played: instrument?.name ?? null,
-		others: j.attendances.map((a) => ({
-			handle: a.actor.handle,
-			displayName: a.actor.displayName,
-			instrument: a.instrument?.name ?? null,
-			inNetwork: network.has(a.actorId)
-		})),
+		others: j.attendances
+			.filter((a) => visible.has(a.actorId))
+			.map((a) => ({
+				handle: a.actor.handle,
+				displayName: a.actor.displayName,
+				instrument: a.instrument?.name ?? null,
+				inNetwork: network.has(a.actorId)
+			})),
 		appreciations: j.endorsements.map((e) =>
 			e.quality ? JAM_QUALITY_LABELS[e.quality] : (e.instrument?.name.toLowerCase() ?? '')
 		)

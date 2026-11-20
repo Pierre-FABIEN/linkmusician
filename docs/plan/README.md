@@ -1,6 +1,6 @@
 # Plan d'exécution — pilotage du projet
 
-> **Prochain chantier (consigné le 20/11/2026) :** [clôture de Rencontre V1](./rencontre-v1.md), sept lots RV-01 à RV-07 regroupant les tickets Rencontre du backlog. **RV-01 en cours** : audit #100 ([rv-01-audit-jam.md](./rv-01-audit-jam.md)), #92 livré, activités privées par défaut (D81, [conception 23](../conception/23-confidentialite-activites.md)) ; restent #91, #93, puis les phases 4 et 5 de la confidentialité (à valider).
+> **Prochain chantier (consigné le 20/11/2026) :** [clôture de Rencontre V1](./rencontre-v1.md), sept lots RV-01 à RV-07 regroupant les tickets Rencontre du backlog. **RV-01 en cours** : audit #100 ([rv-01-audit-jam.md](./rv-01-audit-jam.md)), #92 livré, confidentialité des activités livrée en entier (D81, [conception 23](../conception/23-confidentialite-activites.md) : privé par défaut, partage choisi, masquage, découverte sur place) ; restent #91 et #93.
 
 > **⭐ Favoris — priorité pilote Toulouse (20/11/2026) :** [sécurisation des jams et liberté de contact (#91–#100)](./backlog-ordonne-2026-11-18.md#-favoris--sécurisation-jam-et-liberté-de-contact-20-novembre-2026). Les tickets sont **ouverts, à implémenter et à tester** ; voir la matrice de dépendances et le séquencement dans le backlog actif. La section historique ci-dessous ne vaut pas preuve de livraison.
 

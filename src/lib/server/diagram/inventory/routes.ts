@@ -215,6 +215,27 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 		}
 	},
 	{
+		route: '/(app)/reglages/confidentialite',
+		domain: 'securite',
+		actors: ['membre'],
+		services: ['server/privacy/activities'],
+		entities: [
+			'ActivityVisibilityPreference',
+			'ActivityVisibilityGrant',
+			'ActivityVisibilityExclusion'
+		],
+		tests: [...e2e('confidentialite'), ...it('privacy/activities.integration.test.ts')],
+		decisions: ['D81'],
+		docs: ['docs/conception/23-confidentialite-activites.md'],
+		actions: {
+			modes: 'Choisir qui voit mes jams passées et à venir',
+			grant: 'Autoriser une personne à voir mes jams',
+			revoke: 'Retirer une autorisation',
+			exclude: 'Masquer mes jams à une personne (sans la prévenir)',
+			include: 'Ne plus masquer mes jams à une personne'
+		}
+	},
+	{
 		route: '/(app)/reglages/metiers',
 		domain: 'identites',
 		actors: ['membre'],
@@ -345,7 +366,9 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 				title: 'Apprécier une personne croisée (seule source d’XP de la jam)',
 				domain: 'carriere'
 			},
-			keep: 'Garder une personne dans son carnet (collaboration confirmée)'
+			keep: 'Garder une personne dans son carnet (collaboration, ou présence visible)',
+			discover: 'Me rendre visible pour rencontrer des musicien·nes ici (réciproque, expirant)',
+			hide: 'Ne plus être visible sur place'
 		}
 	},
 	{
@@ -1184,7 +1207,11 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 			report: { title: 'Signaler un profil', domain: 'securite' },
 			join: { title: 'Demander à rejoindre un groupe depuis sa page', domain: 'groupes' },
 			contestMilestone: { title: 'Contester une étape publique', domain: 'carriere' },
-			block: { title: 'Bloquer depuis un profil', domain: 'securite' }
+			block: { title: 'Bloquer depuis un profil', domain: 'securite' },
+			shareJams: { title: 'Autoriser la personne à voir mes jams (D81)', domain: 'securite' },
+			unshareJams: { title: 'Retirer l’autorisation de voir mes jams', domain: 'securite' },
+			hideJams: { title: 'Masquer mes jams à la personne (D81)', domain: 'securite' },
+			unhideJams: { title: 'Ne plus masquer mes jams à la personne', domain: 'securite' }
 		}
 	},
 	{

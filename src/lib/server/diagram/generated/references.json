@@ -8,6 +8,7 @@
 		"docs/conception/19-architecture-cible-collab.md": true,
 		"docs/conception/21-progression-non-lineaire.md": true,
 		"docs/conception/22-besoins-projet.md": true,
+		"docs/conception/23-confidentialite-activites.md": true,
 		"docs/conception/audit-structurel-collab.md": true,
 		"docs/conception/README.md": true,
 		"docs/decisions/D78-plateaux-par-format-revision-D64.md": true,
@@ -53,6 +54,7 @@
 		"e2e/linkmusician/celebrations.spec.ts": true,
 		"e2e/linkmusician/collaborations-morceau.spec.ts": true,
 		"e2e/linkmusician/concerts.spec.ts": true,
+		"e2e/linkmusician/confidentialite.spec.ts": true,
 		"e2e/linkmusician/conseils.spec.ts": true,
 		"e2e/linkmusician/contacts.spec.ts": true,
 		"e2e/linkmusician/coups-de-pouce.spec.ts": true,
@@ -153,6 +155,7 @@
 		"src/lib/server/opportunities/targeted.integration.test.ts": true,
 		"src/lib/server/organizations/promoters.integration.test.ts": true,
 		"src/lib/server/organizations/verification.integration.test.ts": true,
+		"src/lib/server/privacy/activities.integration.test.ts": true,
 		"src/lib/server/progression/reputation.integration.test.ts": true,
 		"src/lib/server/progression/trust.integration.test.ts": true,
 		"src/lib/server/projects/access.ts": true,
@@ -242,6 +245,7 @@
 		"src/routes/(app)/projets/+page.server.ts": true,
 		"src/routes/(app)/projets/nouveau/+page.server.ts": true,
 		"src/routes/(app)/reglages/+page.server.ts": true,
+		"src/routes/(app)/reglages/confidentialite/+page.server.ts": true,
 		"src/routes/(app)/reglages/metiers/+page.server.ts": true,
 		"src/routes/(app)/studios/[handle]/+page.server.ts": true,
 		"src/routes/(app)/studios/+page.server.ts": true,
@@ -370,6 +374,7 @@
 		"server/organizations/promoters": true,
 		"server/organizations/verification": true,
 		"server/passwordChangedAlert": true,
+		"server/privacy/activities": true,
 		"server/progression/celebrations": true,
 		"server/progression/profile": true,
 		"server/progression/reputation": true,
@@ -420,6 +425,9 @@
 	},
 	"models": [
 		"AccountingExportLog",
+		"ActivityVisibilityExclusion",
+		"ActivityVisibilityGrant",
+		"ActivityVisibilityPreference",
 		"Actor",
 		"ActorAchievement",
 		"ActorActivityDay",
@@ -476,6 +484,7 @@
 		"Introduction",
 		"InvoiceCounter",
 		"JamAttendance",
+		"JamDiscoverySession",
 		"JamEndorsement",
 		"JamInvite",
 		"JamSeries",
@@ -790,5 +799,5 @@
 			"label": "Acceptée (20/11/2026), demandée par le fondateur"
 		}
 	},
-	"code": { "triggers": 378, "inventoried": 291, "outOfScope": 87, "missing": [] }
+	"code": { "triggers": 389, "inventoried": 302, "outOfScope": 87, "missing": [] }
 }
