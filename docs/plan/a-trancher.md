@@ -180,6 +180,14 @@ Défauts appliqués le 19/11/2026, à valider par le fondateur.
 | Q109 | Les boutiques, blog et administration du boilerplate entrent-ils dans l'inventaire ? | **Non** : écartés avec leur raison (`OUT_OF_SCOPE`, D6) ; l'authentification, le compte et le RGPD y sont                                                                    | DIAGRAM-01 |
 | Q110 | `/diagram` peut-il être ouvert sans compte, le temps de le consulter ?               | **Oui, par environnement** : `DIAGRAM_PUBLIC=true` (`.env` local seulement) ; absent ailleurs, la garde Q107 reste                                                           | DIAGRAM    |
 
+### Rencontre V1 (RV-01 à RV-07)
+
+Défauts appliqués le 20/11/2026, à valider par le fondateur.
+
+| #    | Question                                                                                                                                   | Défaut appliqué                                                                                                                             | Lot   |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| Q111 | « Qui était là ? » doit-il rester visible de toute personne qui voit la jam, ou des seul·es participant·es ? Il liste aussi des mineur·es. | **Inchangé** : visible de qui voit la jam (filtres mineur·es, blocages et atelier appliqués). À trancher avec le contrat de présence de #92 | RV-01 |
+
 ### Domaine Collab : progression non linéaire (G0-04, #72)
 
 **Arbitrages validés par le fondateur le 18/11/2026** : [D73 — Progression non linéaire](../decisions/D73-progression-non-lineaire.md), issus de la [conception 21](../conception/21-progression-non-lineaire.md#16-questions-à-arbitrer). **Toutes les réponses Q-NL-1 à Q-NL-8 sont rendues** ; elles ne modifient pas le barème XP. Q-NL-2 révise D53 pour les épreuves solo après P8. Les lots restent non implémentés.

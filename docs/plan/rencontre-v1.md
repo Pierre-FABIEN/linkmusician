@@ -1,8 +1,7 @@
 # Chantier Rencontre V1 — plan de clôture
 
 > Consigné le 20/11/2026 d'après le bilan de conception « Melokiva Rencontre
-> V1 ». **C'est le prochain chantier**, pas encore commencé : aucun ticket n'a
-> été modifié et rien n'a été développé. Les états des issues ci-dessous ont été
+> V1 ». **Chantier en cours** depuis le 20/11/2026 (RV-01). Les états des issues ci-dessous ont été
 > relus sur GitHub le 20/11/2026 (toutes ouvertes, sauf #31 à #34 fermées).
 >
 > Ce plan **regroupe** les tickets du [backlog G0–G6](./backlog-ordonne-2026-11-18.md)
@@ -71,6 +70,11 @@ permissions et les relations sont partagées.
 **Critère de sortie :** impossible d'usurper les droits d'un organisateur, de
 retirer la présence d'autrui ou de gagner indûment des récompenses à partir
 d'une jam fictive.
+
+**Avancement (20/11/2026) :** audit #100 livré, avec sa matrice, la machine
+d'états et les notifications attendues : [rv-01-audit-jam.md](./rv-01-audit-jam.md).
+Deux failles hors #91–#97 y sont corrigées. Prochaine étape : #92 (contrat de
+présence), dont dépendent #93 et la fin de #100.
 
 ### RV-02 — Découvrir, Contacts et Discussions
 
