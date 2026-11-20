@@ -2,6 +2,16 @@
 
 > **Référence de pilotage des issues GitHub ouvertes.** Le préfixe `Gx-yy` définit l'ordre métier recommandé dans une phase, **pas une dépendance absolue** : vérifier les prérequis et livrer un incrément testé. Le numéro GitHub #n reste stable. Conserver les closes comme historique et ne pas les rouvrir sans problème prouvé.
 
+## ⭐ Pilotage transversal Rencontre — passe complète (#101)
+
+> **[Issue de pilotage #101 — Passe complète Rencontre](https://github.com/Pierre-FABIEN/linkmusician/issues/101)** : priorité avant pilote Toulouse. Elle relie les tickets UX #60–#66/#70/#74/#76, les correctifs #91–#100, les dépendances Agenda #38/#46/#77 et la recette finale. **L'ordre de travail et les décisions métier de #101 prévalent en cas de contradiction avec les anciens textes des tickets.**
+
+**Décisions validées (20/11/2026) :** présence « J'y étais » autodéclarée, facultative et modifiable uniquement par son auteur ; **aucune validation/corroboration ou suppression de présence d'autrui par un organisateur** ; les signalements #91 portent sur l'existence de **l'événement**, pas sur les personnes. Le lead doit être **majeur, éligible, non suspendu et avoir accepté**. Découvrir/Messages permettent des contacts sans jam commune. Vérifier également adresses des lieux publics (distinctes de la localisation privée), chevauchements horaires, séries récurrentes, et XP `jam.held` seulement une fois l'événement terminé.
+
+**Statut :** suivi à faire, tickets ouverts, aucune livraison de correctifs prouvée par cette mise à jour documentaire.
+
+---
+
 ## ⭐ Favoris — Sécurisation Jam et liberté de contact (20 novembre 2026)
 
 > **File prioritaire de lancement Toulouse — tickets ouverts, non livrés.** « Favoris » signifie *à suivre en premier dans le plan*, pas statut GitHub ni preuve de livraison. Ces tickets renforcent G1 et le contrôle G5 ; ils ne remplacent pas l'epic [#60](https://github.com/Pierre-FABIEN/linkmusician/issues/60), la recette transversale #50 ou la revue UX #63–#66. **Règle produit :** Découvrir = chercher et contacter librement les profils éligibles, sans preuve de jam commune ; Jam = organiser et participer librement, sous garde-fous.
