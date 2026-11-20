@@ -430,8 +430,9 @@ anime la scène ouverte d'un bar (D27). Les situations courantes :
   remarque, n'avance pas ; celle qui fait groover la salle avance.
 - **Garde-fous** : une appréciation par personne et par jam ; entre
   deux mêmes personnes, rendements décroissants (la 2ᵉ compte moitié,
-  la 4ᵉ plus rien) ; confiance TL1 requise pour en donner ; l'hôte peut
-  retirer un faux présent ; la détection de collusion (P2-10) surveille
+  la 4ᵉ plus rien) ; confiance TL1 requise pour en donner ; on n'apprécie
+  que quelqu'un dont on voit la présence (D81) ; personne ne retire la
+  présence d'autrui (#92) ; la détection de collusion (P2-10) surveille
   les échanges en circuit fermé. Les appréciations sont **positives
   seulement** : pas de note, pas d'avis négatif (01 §4) ; le négatif
   passe par le signalement privé.
@@ -459,6 +460,17 @@ anime la scène ouverte d'un bar (D27). Les situations courantes :
   messagerie restreinte.
 - Les quotas de confiance (02 §7) limitent le nombre de salons et de
   demandes ; blocage et signalement sont disponibles partout.
+- **Confidentialité des activités (D81, conception 23)** : « Je viens »,
+  formation, « J'y étais » et carnet sont privés par défaut ; chacun·e
+  choisit qui les voit, peut les masquer à une personne, et peut se rendre
+  visible sur place le temps de la jam.
+- **Annulation (#91a)** : l'hôte annule sa jam jusqu'à sa fin, avec un
+  motif facultatif. Statut `CLOSED` et `cancelledAt` (le statut partagé des
+  annonces ne change pas), rien n'est supprimé, et les inscrit·es et
+  invité·es sont prévenu·es sans expéditeur (`JAM_CANCELLED`), y compris une
+  personne que l'hôte a bloquée. Arrêter une scène ouverte annule ses dates
+  à venir par la même voie ; clôturer une jam depuis la page d'annonce est
+  refusé. Une annulation n'est jamais une preuve de jam fictive.
 
 ## 7. L'esprit : l'encouragement, jamais la pression
 

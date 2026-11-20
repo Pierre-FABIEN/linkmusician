@@ -21,6 +21,7 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
 import { isAdult, JamError } from './publicJams';
+import { cancelJamsTx } from './cancel';
 import {
 	checkSeriesWindow,
 	MAX_SERIES_PER_VENUE,
@@ -125,7 +126,10 @@ export async function createJamSeries(
 	return series;
 }
 
-/** Arrêter une série : plus de nouvelle jam, celles à venir sont clôturées. */
+/**
+ * Arrêter une série : plus de nouvelle jam ; celles à venir sont annulées
+ * et leurs inscrit·es prévenu·es (#91a), la trace reste.
+ */
 export async function stopJamSeries(personId: string, seriesId: string, now = new Date()) {
 	const series = await prisma.jamSeries.findUnique({
 		where: { id: seriesId },
@@ -134,13 +138,18 @@ export async function stopJamSeries(personId: string, seriesId: string, now = ne
 	if (!series) throw new JamError('Scène ouverte introuvable.', 404);
 	await managedVenue(series.venueId, personId);
 	if (series.stoppedAt) return;
-	await prisma.$transaction([
-		prisma.jamSeries.update({ where: { id: seriesId }, data: { stoppedAt: now } }),
-		prisma.opportunity.updateMany({
+	await prisma.$transaction(async (tx) => {
+		await tx.jamSeries.update({ where: { id: seriesId }, data: { stoppedAt: now } });
+		const upcoming = await tx.opportunity.findMany({
 			where: { seriesId, status: 'OPEN', startsAt: { gt: now } },
-			data: { status: 'CLOSED', closedAt: now }
-		})
-	]);
+			select: { id: true }
+		});
+		await cancelJamsTx(
+			tx,
+			upcoming.map((j) => j.id),
+			{ byId: personId, reason: 'La scène ouverte s’arrête.', now }
+		);
+	});
 }
 
 /** Les jams manquantes d'une série active, dans les 4 semaines à venir. */

@@ -260,11 +260,30 @@ describe.skipIf(!enabled)('scènes ouvertes récurrentes (schéma e2e)', { timeo
 		expect(data?.scenes_ouvertes_publiees).toEqual([
 			expect.objectContaining({ titre: 'Scène ouverte du jeudi', jour_de_la_semaine: 4 })
 		]);
+		// Une inscrite à une date à venir : l'arrêt la prévient (#91a).
+		const next = await db.opportunity.findFirstOrThrow({
+			where: { seriesId, status: 'OPEN', startsAt: { gt: NOW } },
+			orderBy: { startsAt: 'asc' }
+		});
+		await db.jamAttendance.upsert({
+			where: { opportunityId_actorId: { opportunityId: next.id, actorId: ids.lea } },
+			create: { opportunityId: next.id, actorId: ids.lea },
+			update: {}
+		});
 		await series.stopJamSeries(ids.patron, seriesId, NOW);
 		const open = await db.opportunity.count({
 			where: { seriesId, status: 'OPEN', startsAt: { gt: NOW } }
 		});
 		expect(open).toBe(0);
+		expect(await db.opportunity.findUniqueOrThrow({ where: { id: next.id } })).toMatchObject({
+			cancelReason: 'La scène ouverte s’arrête.',
+			cancelledById: ids.patron
+		});
+		expect(
+			await db.notification.count({
+				where: { recipientActorId: ids.lea, type: 'JAM_CANCELLED', href: `/jams/${next.id}` }
+			})
+		).toBe(1);
 		expect((await series.generateSeriesJams(NOW)).jamsCreated).toBe(0);
 	});
 });

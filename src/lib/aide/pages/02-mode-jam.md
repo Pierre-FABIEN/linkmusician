@@ -312,6 +312,16 @@ pas ta présence si tu n'as pas participé.
 
 </details>
 
+<details><summary>J'organise une jam, mais elle ne peut pas avoir lieu</summary>
+
+Sur la fiche de ta jam, touche **Annuler la jam**, avec un motif si tu veux.
+Les personnes qui viennent ou sont invitées sont prévenues tout de suite, et
+la fiche leur explique l'annulation. Tu peux annuler jusqu'à la fin de la
+jam. Une annulation n'est jamais reprochée. Arrêter une scène ouverte annule
+ses dates à venir de la même façon.
+
+</details>
+
 <details><summary>Je ne peux pas laisser d'appréciation</summary>
 
 Tu ne peux apprécier que quelqu'un que tu vois dans « Qui était là ? » :

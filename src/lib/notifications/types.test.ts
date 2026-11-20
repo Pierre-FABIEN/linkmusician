@@ -7,8 +7,10 @@ describe('notifications : textes', () => {
 			const text = notificationText(type, 'Ana', 'Jam funk');
 			expect(text.length).toBeGreaterThan(10);
 			if (type !== 'CONTACT_REQUEST') expect(text).toMatch(/Jam funk/);
-			// Sans expéditeur : une acceptation, une décision de la modération (P5-03b).
-			if (type !== 'APPLICATION_ACCEPTED' && type !== 'VENUE_CLAIM') expect(text).toMatch(/^Ana /);
+			// Sans expéditeur : une acceptation, une décision de la modération (P5-03b),
+			// une jam annulée (#91a : on prévient sans dire qui annule).
+			const anonymous = ['APPLICATION_ACCEPTED', 'VENUE_CLAIM', 'JAM_CANCELLED'];
+			if (!anonymous.includes(type)) expect(text).toMatch(/^Ana /);
 		}
 	});
 
@@ -17,6 +19,9 @@ describe('notifications : textes', () => {
 			'Quelqu’un aimerait échanger avec toi.'
 		);
 		expect(notificationText('APPLICATION_ACCEPTED', null, null)).not.toMatch(/«|undefined|null/);
+		expect(notificationText('JAM_CANCELLED', 'Ana', 'Jam funk')).toBe(
+			'La jam « Jam funk » est annulée. Ne te déplace pas.'
+		);
 	});
 
 	it('jamais culpabilisant (conception 07 §7)', () => {

@@ -204,10 +204,15 @@ export async function createOpportunity(
 export async function closeOpportunity(actorId: string, id: string) {
 	const row = await prisma.opportunity.findUnique({
 		where: { id },
-		select: { issuerActorId: true }
+		select: { issuerActorId: true, kind: true }
 	});
 	if (!row || !(await managesIssuer(actorId, row.issuerActorId))) {
 		throw new OpportunityError('Cette annonce n’est plus ouverte.');
+	}
+	// LINKMUSICIAN (#91a) : une jam s'annule depuis sa fiche, qui prévient les
+	// inscrit·es ; la clôturer ici le ferait en silence.
+	if (row.kind === 'JAM') {
+		throw new OpportunityError('Annule la jam depuis sa fiche : les inscrit·es seront prévenu·es.');
 	}
 	const { count } = await prisma.opportunity.updateMany({
 		where: { id, status: 'OPEN' },

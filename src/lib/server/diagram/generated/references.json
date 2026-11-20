@@ -45,6 +45,7 @@
 		"e2e/linkmusician/annonces-metier.spec.ts": true,
 		"e2e/linkmusician/annonces-qualifiees.spec.ts": true,
 		"e2e/linkmusician/annonces.spec.ts": true,
+		"e2e/linkmusician/annulation.spec.ts": true,
 		"e2e/linkmusician/assistant-inscription.spec.ts": true,
 		"e2e/linkmusician/blocage.spec.ts": true,
 		"e2e/linkmusician/booker.spec.ts": true,
@@ -138,6 +139,7 @@
 		"src/lib/server/discussions/service.integration.test.ts": true,
 		"src/lib/server/geo/queries.integration.test.ts": true,
 		"src/lib/server/jam/afterJamMinors.integration.test.ts": true,
+		"src/lib/server/jam/cancel.integration.test.ts": true,
 		"src/lib/server/jam/crossed.integration.test.ts": true,
 		"src/lib/server/jam/presence.integration.test.ts": true,
 		"src/lib/server/jam/series.integration.test.ts": true,
@@ -341,6 +343,7 @@
 		"server/guide/service": true,
 		"server/jam/afterJam": true,
 		"server/jam/availability": true,
+		"server/jam/cancel": true,
 		"server/jam/log": true,
 		"server/jam/publicJams": true,
 		"server/jam/series": true,
@@ -799,5 +802,5 @@
 			"label": "Acceptée (20/11/2026), demandée par le fondateur"
 		}
 	},
-	"code": { "triggers": 389, "inventoried": 302, "outOfScope": 87, "missing": [] }
+	"code": { "triggers": 390, "inventoried": 303, "outOfScope": 87, "missing": [] }
 }

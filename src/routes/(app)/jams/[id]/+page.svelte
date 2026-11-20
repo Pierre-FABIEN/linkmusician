@@ -333,5 +333,23 @@
 				{/if}
 			</section>
 		{/if}
+
+		{#if jam.isHost}
+			<!-- #91a : annuler prévient les inscrit·es et garde la trace. -->
+			<details class="lm-tile lm-tile--flow p-4 text-sm">
+				<summary class="cursor-pointer font-semibold">Annuler la jam</summary>
+				<form method="POST" action="?/cancel" use:enhance class="mt-3 space-y-3">
+					<p class="text-muted-foreground">
+						Les personnes qui viennent ou sont invitées sont prévenues tout de suite. Une annulation
+						n’est jamais reprochée.
+					</p>
+					<label class="block space-y-1 font-medium">
+						Motif (facultatif, visible des participant·es)
+						<textarea name="reason" maxlength="300" rows="2" class={field}></textarea>
+					</label>
+					<button class="lm-btn" data-variant="danger">Annuler la jam et prévenir</button>
+				</form>
+			</details>
+		{/if}
 	</article>
 </div>

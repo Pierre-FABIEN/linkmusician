@@ -18,7 +18,8 @@
 		Mic,
 		HandHelping,
 		Briefcase,
-		FolderOpen
+		FolderOpen,
+		CalendarX
 	} from 'lucide-svelte';
 	import type { NotificationTypeValue } from '#lib/notifications/types';
 
@@ -47,7 +48,8 @@
 		VENUE_CLAIM: Flag,
 		INTRODUCTION: HandHelping,
 		PROJECT_INVITE: FolderOpen,
-		PROJECT_JOINED: FolderOpen
+		PROJECT_JOINED: FolderOpen,
+		JAM_CANCELLED: CalendarX
 	};
 
 	const rtf = new Intl.RelativeTimeFormat('fr-FR', { numeric: 'auto' });

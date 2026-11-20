@@ -16,6 +16,7 @@ import {
 	setJamLead
 } from '#lib/server/jam/publicJams';
 import { whoWasThere } from '#lib/server/jam/afterJam';
+import { cancelJam, cancelledJamFor } from '#lib/server/jam/cancel';
 import { inviteSuggestions } from '#lib/server/network/service';
 import { BACKLINE_ITEMS, BACKLINE_LABELS, backlineSchema, inviteSchema } from '#lib/jam/lineup';
 import type { Actions, PageServerLoad } from './$types';
@@ -28,6 +29,8 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const { actorId } = await me(locals);
 	const jam = await getJam(params.id, actorId);
 	if (!jam) {
+		// Jam annulée (#91a) : ses participant·es voient l'annulation et le motif.
+		if (await cancelledJamFor(params.id, actorId)) redirect(303, `/jams/${params.id}/annulee`);
 		// Jam finie : place à « Qui était là ? » pendant 7 jours (P2-15).
 		if (await whoWasThere(params.id, actorId)) redirect(303, `/jams/${params.id}/presents`);
 		error(404, 'Jam introuvable');
@@ -122,6 +125,18 @@ export const actions: Actions = {
 			() => setJamLead(params.id, actorId, handle),
 			handle ? 'Lead désigné.' : 'Tu reprends le lead.'
 		);
+	},
+	/** L'hôte annule la jam (#91a) : participant·es prévenu·es, trace gardée. */
+	cancel: async ({ locals, params, request }) => {
+		const reason = text(await request.formData(), 'reason');
+		const { actorId } = await me(locals);
+		try {
+			await cancelJam(params.id, actorId, reason);
+		} catch (err) {
+			if (err instanceof JamError) return fail(err.status, { error: err.message });
+			throw err;
+		}
+		redirect(303, `/jams/${params.id}/annulee`);
 	},
 	backline: async ({ locals, params, request }) => {
 		const parsed = backlineSchema.safeParse((await request.formData()).getAll('backline'));

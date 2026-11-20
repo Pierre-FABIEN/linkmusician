@@ -45,6 +45,7 @@ const ROUTES: Record<string, Node> = {
 	'/jams/nouvelle': { label: 'Lancer une jam', parent: '/jam' },
 	'/jams/[id]': { label: 'Jam', parent: '/jam/agenda', name: at('jam', 'title') },
 	'/jams/[id]/presents': { label: 'Qui était là ?', parent: '/jams/[id]' },
+	'/jams/[id]/annulee': { label: 'Jam annulée', parent: '/jam/agenda' },
 	'/lieux': { label: 'Lieux', parent: '/jam/agenda' },
 	'/lieux/nouveau': { label: 'Ajouter un lieu', parent: '/lieux' },
 	'/lieux/[id]': { label: 'Lieu', parent: '/lieux', name: at('venue', 'name') },

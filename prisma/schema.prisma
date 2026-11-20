@@ -1445,6 +1445,7 @@ model Actor {
   activityExclusions   ActivityVisibilityExclusion[] @relation("ActivityExclusionOwner")
   activityExcludedBy   ActivityVisibilityExclusion[] @relation("ActivityExclusionTarget")
   jamDiscoverySessions JamDiscoverySession[]
+  jamsCancelled        Opportunity[]                 @relation("JamCanceller")
   opportunities        Opportunity[]
   applications         Application[]
   collaborationsProposed Collaboration[] @relation("CollaborationProposer")
@@ -2313,6 +2314,13 @@ model Opportunity {
   /// Jam publique tenue (P5-04a, 02 §2.2) : au moins 3 présent·es hors
   /// organisation ont dit « J'y étais ». Posé une seule fois (`jam.held`).
   heldAt          DateTime?
+  /// Jam annulée par son hôte (#91, RV-01) : `status` passe à `CLOSED`, la
+  /// trace reste (motif, auteur, date) et les inscrit·es sont prévenu·es.
+  /// Distingue une annulation d'une simple clôture d'annonce.
+  cancelledAt     DateTime?
+  cancelReason    String?
+  cancelledById   String?
+  cancelledBy     Actor?            @relation("JamCanceller", fields: [cancelledById], references: [id], onDelete: SetNull)
   /// Atelier d'école (P5-11) : `SCHOOL` le réserve aux membres de l'école émettrice.
   audience        OpportunityAudience @default(PUBLIC)
   /// ONB-13b (D63) : conditions de l'annonce, toutes facultatives (null =
@@ -2860,6 +2868,8 @@ enum NotificationType {
   PROJECT_INVITE
   /// Une personne invitée a rejoint le projet (P4a).
   PROJECT_JOINED
+  /// Jam annulée, scène ouverte arrêtée (#91).
+  JAM_CANCELLED
 }
 
 /// Notification dans l'app (cloche). Le texte est composé à l'affichage

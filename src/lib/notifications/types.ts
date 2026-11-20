@@ -29,7 +29,8 @@ export const NOTIFICATION_TYPES = [
 	'VENUE_CLAIM',
 	'INTRODUCTION',
 	'PROJECT_INVITE',
-	'PROJECT_JOINED'
+	'PROJECT_JOINED',
+	'JAM_CANCELLED'
 ] as const;
 export type NotificationTypeValue = (typeof NOTIFICATION_TYPES)[number];
 
@@ -61,7 +62,8 @@ export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, st
 	VENUE_CLAIM: 'Réponses à mes revendications de lieu',
 	INTRODUCTION: 'Présentations par quelqu’un de mon réseau',
 	PROJECT_INVITE: 'Invitations à participer à un projet',
-	PROJECT_JOINED: 'Personnes qui rejoignent mes projets'
+	PROJECT_JOINED: 'Personnes qui rejoignent mes projets',
+	JAM_CANCELLED: 'Jams annulées où je devais aller'
 };
 
 /**
@@ -105,6 +107,9 @@ export function notificationText(
 			return `${who} t’a laissé une appréciation${what}.`;
 		case 'JAM_INVITE':
 			return `${who} t’invite à la jam${what}.`;
+		// Sans expéditeur (#91) : prévenir compte plus que dire qui annule.
+		case 'JAM_CANCELLED':
+			return `La jam${what} est annulée. Ne te déplace pas.`;
 		case 'BAND_INVITE':
 			return `${who} t’invite à rejoindre le groupe${what}.`;
 		case 'BAND_REQUEST':

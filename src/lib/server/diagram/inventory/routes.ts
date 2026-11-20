@@ -341,6 +341,12 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 			accept: 'Accepter une invitation du lead',
 			decline: 'Refuser une invitation du lead',
 			lead: 'Prendre ou laisser le rôle de lead',
+			cancel: {
+				title: 'Annuler la jam et prévenir les participant·es (hôte, #91a)',
+				services: ['server/jam/cancel', 'server/notifications/service'],
+				tests: [...e2e('annulation'), ...it('jam/cancel.integration.test.ts')],
+				issues: [91]
+			},
 			backline: 'Déclarer le matériel sur place'
 		}
 	},

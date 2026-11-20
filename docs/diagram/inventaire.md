@@ -4,8 +4,8 @@
 > `src/lib/server/diagram/inventory/`. Ne pas l’éditer à la main : le test
 > `sync.test.ts` échoue s’il n’est plus à jour.
 
-- **322 processus** inventoriés, dont 305 relevés dans le code.
-- **Code relu** : 389 déclencheurs (actions de formulaire et méthodes d’endpoints), 302 inventoriés, 87 hors périmètre (boutique en veille D6, laboratoire, Diagram), **0 manquant(s)**.
+- **323 processus** inventoriés, dont 306 relevés dans le code.
+- **Code relu** : 390 déclencheurs (actions de formulaire et méthodes d’endpoints), 303 inventoriés, 87 hors périmètre (boutique en veille D6, laboratoire, Diagram), **0 manquant(s)**.
 - **14 processus documentés** par au moins une étape de diagramme.
 
 Statut : `TESTED` = une spec ou une intégration exerce la route ou son service
@@ -68,7 +68,7 @@ Disponibilités, recherche, suggestions, carnet, contacts, appréciations : se t
 | « Pas intéressé·e » sur une suggestion de personne <br>`api-suggestions-dismiss.post`  | `POST /api/suggestions/dismiss`                  | Personne connectée | SuggestionDismissal                                  | Implémenté et testé | à construire       |
 | Chercher une personne par métier, spécialité, instrument et rayon <br>`decouvrir.load` | `load /(app)/decouvrir`                          | Personne connectée | Actor, PersonTrack, PersonTrackIntent, ActorLocation | Implémenté et testé | parcours-groupe-ep |
 
-## Jams (16)
+## Jams (17)
 
 Jams publiques dans un lieu de l’annuaire, invitations du lead, présence, appréciations.
 
@@ -82,6 +82,7 @@ Jams publiques dans un lieu de l’annuaire, invitations du lead, présence, app
 | Accepter une invitation du lead <br>`jams-id.accept`                                                          | `/(app)/jams/[id]` · `?/accept`            | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
 | Refuser une invitation du lead <br>`jams-id.decline`                                                          | `/(app)/jams/[id]` · `?/decline`           | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
 | Prendre ou laisser le rôle de lead <br>`jams-id.lead`                                                         | `/(app)/jams/[id]` · `?/lead`              | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
+| Annuler la jam et prévenir les participant·es (hôte, #91a) <br>`jams-id.cancel`                               | `/(app)/jams/[id]` · `?/cancel`            | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
 | Déclarer le matériel sur place <br>`jams-id.backline`                                                         | `/(app)/jams/[id]` · `?/backline`          | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
 | Déclarer « J’y étais » (déclaration personnelle et privée) <br>`jams-id-presents.there`                       | `/(app)/jams/[id]/presents` · `?/there`    | Musicien·ne       | JamAttendance, JamEndorsement, MusicalTie, DomainEvent | Implémenté et testé | à construire |
 | Retirer sa présence <br>`jams-id-presents.notThere`                                                           | `/(app)/jams/[id]/presents` · `?/notThere` | Musicien·ne       | JamAttendance, JamEndorsement, MusicalTie, DomainEvent | Implémenté et testé | à construire |

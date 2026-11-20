@@ -3,13 +3,13 @@
 > **Fichier généré** par `npm run diagram:sync`. Les chiffres viennent de
 > l’inventaire réel ; ils mesurent la documentation, pas la qualité du code.
 
-**Total** : 322 processus, 305 implémentés, 14 documentés par un diagramme, 14 aux références toutes vérifiées. **7 diagrammes**.
+**Total** : 323 processus, 306 implémentés, 14 documentés par un diagramme, 14 aux références toutes vérifiées. **7 diagrammes**.
 
 | Domaine                  | Inventoriés | Implémentés | Testés | Conçus ou prévus | Documentés | Références vérifiées | Diagrammes |
 | ------------------------ | ----------: | ----------: | -----: | ---------------: | ---------: | -------------------: | ---------: |
 | Identités et inscription |          30 |          27 |     27 |                3 |     0 / 27 |                0 / 0 |          0 |
 | Rencontre                |          11 |          11 |     11 |                0 |     1 / 11 |                1 / 1 |          0 |
-| Jams                     |          16 |          16 |     16 |                0 |     0 / 16 |                0 / 0 |          0 |
+| Jams                     |          17 |          17 |     17 |                0 |     0 / 17 |                0 / 0 |          0 |
 | Groupes                  |          21 |          21 |     20 |                0 |     3 / 21 |                3 / 3 |          0 |
 | Projets                  |          20 |          18 |     18 |                2 |     5 / 18 |                5 / 5 |          3 |
 | Besoins                  |           9 |           7 |      7 |                2 |      3 / 7 |                3 / 3 |          3 |
@@ -38,12 +38,12 @@
 
 ## Contrôles
 
-- **Processus implémentés sans diagramme détaillé** : 291
+- **Processus implémentés sans diagramme détaillé** : 292
 - **Diagrammes sans source .drawio lisible** : 0
 - **Références inexistantes (fichier, service, entité, décision)** : 0
 - **Acteurs sans parcours ni couloir** : 18
 - **Relations entre diagrammes manquantes ou asymétriques** : 0
-- **Processus implémentés sans cas d’erreur documenté** : 276
+- **Processus implémentés sans cas d’erreur documenté** : 277
 - **Transitions sans permission documentée** : 0
 - **Déclarés testés sans référence de test** : 0
 - **Liés à une décision encore proposée** : 2
