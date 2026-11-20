@@ -24,7 +24,7 @@
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
 import { getTrustLevel } from '#lib/server/trust/quotas';
-import { emitAndProcess } from '#lib/server/progression/processor';
+import { emitAndProcess, reverseGain } from '#lib/server/progression/processor';
 import { revokeEndorsementEvent } from '#lib/server/endorsements/service';
 import { notify } from '#lib/server/notifications/service';
 import { TRUST_PERMISSIONS } from '#lib/server/progression/core/trust';
@@ -242,7 +242,16 @@ export async function iWasThere(id: string, actorId: string, now = new Date()) {
 	});
 }
 
-type RecentJam = NonNullable<Awaited<ReturnType<typeof findRecentJam>>>;
+type HeldCandidate = {
+	id: string;
+	audience: 'PUBLIC' | 'SCHOOL';
+	endsAt: Date;
+	heldAt: Date | null;
+	issuerActorId: string;
+	issuer: { organization: { memberships: { personId: string }[] } | null };
+	postedById: string | null;
+	venue: { claimedByActorId: string | null };
+};
 
 /**
  * Jam publique tenue (P5-04a, 02 §2.2) : publiée au nom d'un lieu ou d'une
@@ -250,10 +259,22 @@ type RecentJam = NonNullable<Awaited<ReturnType<typeof findRecentJam>>>;
  * seule fois (`heldAt`), elle émet `jam.held` : 50 XP pour la personne qui
  * l'a publiée, une date de plus pour le rang du lieu. Une jam lancée par
  * un·e musicien·ne en son nom n'est jamais « tenue » (Q42).
+ *
+ * #93 : jamais **avant la fin** de la jam, jamais pour une jam annulée, et
+ * pas tant qu'un signalement « la jam n'a pas lieu » est ouvert ou confirmé.
+ * Les jams finies sont rattrapées par le job quotidien (`markEndedJamsHeld`).
  */
-async function markHeldIfReady(tx: Tx, jam: RecentJam, now: Date) {
+async function markHeldIfReady(tx: Tx, jam: HeldCandidate, now: Date) {
 	// Un atelier d'école n'est pas une jam publique : il n'est jamais « tenu » (Q53).
 	if (jam.heldAt || !jam.issuer.organization || jam.audience === 'SCHOOL') return;
+	if (now < jam.endsAt) return;
+	const blocked = await tx.opportunity.count({
+		where: {
+			id: jam.id,
+			OR: [{ cancelledAt: { not: null } }, { incident: { status: { in: ['OPEN', 'CONFIRMED'] } } }]
+		}
+	});
+	if (blocked > 0) return;
 	const hosts = new Set(hostIdsOf(jam));
 	const present = await tx.jamAttendance.findMany({
 		where: { opportunityId: jam.id, ...presentWhere },
@@ -273,6 +294,92 @@ async function markHeldIfReady(tx: Tx, jam: RecentJam, now: Date) {
 		confirmerIds,
 		...(jam.venue.claimedByActorId ? { venueOrgId: jam.venue.claimedByActorId } : {}),
 		occurredAt: now
+	});
+}
+
+/**
+ * Job quotidien (#93) : les jams d'organisation finies dans la période
+ * d'après-jam, pas encore tenues, sont examinées une fois finies.
+ */
+export async function markEndedJamsHeld(now = new Date()) {
+	const rows = await prisma.opportunity.findMany({
+		where: {
+			kind: 'JAM',
+			heldAt: null,
+			cancelledAt: null,
+			audience: 'PUBLIC',
+			issuer: { organization: { isNot: null } },
+			endsAt: { lte: now, gte: new Date(now.getTime() - AFTER_JAM_DAYS * DAY_MS) }
+		},
+		take: 500,
+		select: {
+			id: true,
+			audience: true,
+			endsAt: true,
+			heldAt: true,
+			issuerActorId: true,
+			issuer: { select: issuerManagersSelect },
+			postedById: true,
+			venue: { select: { claimedByActorId: true } }
+		}
+	});
+	let held = 0;
+	for (const row of rows) {
+		if (!row.endsAt || !row.venue) continue;
+		const jam = { ...row, endsAt: row.endsAt, venue: row.venue };
+		await prisma.$transaction(async (tx) => {
+			await markHeldIfReady(tx, jam, now);
+			held +=
+				(await tx.opportunity.count({ where: { id: jam.id, heldAt: { not: null } } })) > 0 ? 1 : 0;
+		});
+	}
+	return held;
+}
+
+/**
+ * Jam invalidée (#93) : la modération a confirmé qu'elle n'a pas eu lieu
+ * (#91b). Ses gains sont repris **exactement une fois**, par transactions
+ * négatives liées (jamais d'`UPDATE` du registre) : `jam.held` de
+ * l'organisation, et chaque appréciation donnée à cette jam (avec
+ * `endorsement.revoked` pour le palier). `jam.invalidated` retire la jam du
+ * rang du lieu. Rejouer l'invalidation ne reprend rien de plus.
+ */
+export async function invalidateJam(jamId: string, reason: string, now = new Date()) {
+	await prisma.$transaction(async (tx) => {
+		const held = await tx.domainEvent.findMany({
+			where: { type: 'jam.held', payload: { path: ['jamId'], equals: jamId } },
+			select: { id: true, payload: true }
+		});
+		const gains = await tx.xpTransaction.findMany({
+			where: { sourceEventId: { in: held.map((e) => e.id) }, reversesId: null, reversedBy: null },
+			select: { id: true }
+		});
+		for (const g of gains) await reverseGain(tx, g.id, reason);
+		const endorsements = await tx.jamEndorsement.findMany({
+			where: { opportunityId: jamId, revokedAt: null },
+			select: { id: true, eventId: true, fromActorId: true, toActorId: true }
+		});
+		for (const e of endorsements) {
+			await tx.jamEndorsement.update({ where: { id: e.id }, data: { revokedAt: now } });
+			await revokeEndorsementEvent(tx, {
+				eventId: e.eventId,
+				actorId: e.toActorId,
+				endorserId: e.fromActorId,
+				reason
+			});
+		}
+		const already = await tx.domainEvent.count({
+			where: { type: 'jam.invalidated', payload: { path: ['jamId'], equals: jamId } }
+		});
+		if (already > 0 || held.length === 0) return;
+		const payload = held[0].payload as { organizerIds?: string[]; venueOrgId?: string };
+		await emitAndProcess(tx, {
+			type: 'jam.invalidated',
+			jamId,
+			organizerIds: payload.organizerIds ?? [],
+			...(payload.venueOrgId ? { venueOrgId: payload.venueOrgId } : {}),
+			occurredAt: now
+		});
 	});
 }
 

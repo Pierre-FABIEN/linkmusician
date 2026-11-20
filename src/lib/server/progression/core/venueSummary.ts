@@ -27,8 +27,13 @@ export function venueSummary(
 	const artists = new Set<string>();
 	const firsts = new Set<string>();
 	const jams = new Set<string>();
+	// Jams invalidées par la modération (#93) : elles ne comptent plus.
+	const invalidated = new Set(
+		events.flatMap((e) => (e.type === 'jam.invalidated' ? [e.jamId] : []))
+	);
 	for (const event of events) {
 		if (event.type === 'jam.held' && event.venueOrgId === venueOrgId) {
+			if (invalidated.has(event.jamId)) continue;
 			const present = event.confirmerIds.filter((id) => !event.organizerIds.includes(id));
 			if (new Set(present).size >= BAREME.jamHeldMinPresent) jams.add(event.jamId);
 			continue;

@@ -189,6 +189,20 @@ export const domainEventSchema = z.discriminatedUnion('type', [
 		venueOrgId: id.optional()
 	}),
 	/**
+	 * Jam invalidée (#93, RV-01) : la modération a confirmé qu'elle n'a pas eu
+	 * lieu (#91b). Ne rapporte rien et ne retire rien par lui-même : les gains
+	 * sont repris par transactions négatives liées ; l'événement retire la jam
+	 * du rang du lieu (`venueSummary`), car on ne réécrit jamais `jam.held`.
+	 */
+	z.object({
+		...base,
+		type: z.literal('jam.invalidated'),
+		jamId: id,
+		venueOrgId: id.optional(),
+		/** Personnes concernées (organisation), pour retrouver l'événement. */
+		organizerIds: z.array(id)
+	}),
+	/**
 	 * Accompagnement confirmé par l'artiste (P5-01, 08 §9 et §10) : manager
 	 * ou booker. Suivre un profil ne rapporte rien.
 	 */

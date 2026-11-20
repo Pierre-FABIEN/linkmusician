@@ -64,4 +64,26 @@ describe('lieu : résumé et rang (P5-03b)', () => {
 		expect(s.distinctArtists).toBe(1);
 		expect(venueTier(s).tier?.id).toBe('OPEN_STAGE');
 	});
+
+	it('une jam invalidée par la modération ne compte plus (#93)', () => {
+		const held = {
+			id: 'j1',
+			type: 'jam.held',
+			occurredAt: new Date('2026-11-05T22:00:00Z'),
+			jamId: 'jam1',
+			organizerIds: ['patron'],
+			confirmerIds: ['a', 'b', 'c'],
+			venueOrgId: 'bar'
+		} as DomainEvent;
+		const invalidated = {
+			id: 'i1',
+			type: 'jam.invalidated',
+			occurredAt: new Date('2026-11-07T10:00:00Z'),
+			jamId: 'jam1',
+			organizerIds: ['patron'],
+			venueOrgId: 'bar'
+		} as DomainEvent;
+		expect(venueSummary('bar', true, [held]).dates).toBe(1);
+		expect(venueSummary('bar', true, [held, invalidated]).dates).toBe(0);
+	});
 });

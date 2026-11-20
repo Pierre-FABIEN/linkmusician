@@ -136,8 +136,15 @@ booker compte pour son rang mais ne rapporte pas d'XP : ses points
 viennent des dates. La jam publique tenue rapporte à la personne de la
 gestion du lieu (ou de l'organisation) qui l'a publiée, dès que 3
 personnes hors organisation ont dit « J'y étais » ; les présent·es n'y
-gagnent rien (D27), leurs appréciations seules rapportent. Une jam
-lancée par un·e musicien·ne en son nom ne rapporte rien (Q42). Reportés :
+gagnent rien (D27), leurs appréciations seules rapportent. Elle n'est
+tenue **qu'une fois finie** (#93) : jamais pendant, jamais annulée, ni tant
+qu'un signalement « la jam n'a pas lieu » est ouvert ; le job quotidien
+rattrape les jams finies. Si la modération confirme une jam fictive (#91b),
+`jam.held` et les appréciations de la jam sont repris par transactions
+négatives liées, exactement une fois, et `jam.invalidated` la retire du rang
+du lieu. Une reprise est définitive : un dossier rouvert puis classé ne
+recrédite rien. Une jam lancée par un·e musicien·ne en son nom ne rapporte
+rien (Q42). Reportés :
 la tournée bookée (400, P5-07) et la part de 10 % sur un rang franchi
 par un artiste accompagné (Q21).
 

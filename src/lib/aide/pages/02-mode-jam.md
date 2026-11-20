@@ -226,13 +226,13 @@ contacts ne lui montre jamais tes jams.
 
 ### Ce que ça rapporte
 
-| Ce que tu fais                                       | Points                                                                                      |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Te mettre dispo, venir, dire « J’y étais »           | Rien : la présence seule ne rapporte pas                                                    |
-| **Recevoir** une appréciation                        | Environ **40 points**                                                                       |
-| Recevoir plusieurs appréciations de la même personne | De moins en moins sur 12 mois (la 2ᵉ compte moitié…)                                        |
-| Organiser, animer, ajouter un lieu                   | Rien en points, mais des **succès** (ci-dessous)                                            |
-| Tenir la scène ouverte d’un lieu que tu gères        | Jusqu’à **50 points**, avec au moins 3 présent·es hors organisation et selon leur confiance |
+| Ce que tu fais                                       | Points                                                                                                                                                                           |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Te mettre dispo, venir, dire « J’y étais »           | Rien : la présence seule ne rapporte pas                                                                                                                                         |
+| **Recevoir** une appréciation                        | Environ **40 points**                                                                                                                                                            |
+| Recevoir plusieurs appréciations de la même personne | De moins en moins sur 12 mois (la 2ᵉ compte moitié…)                                                                                                                             |
+| Organiser, animer, ajouter un lieu                   | Rien en points, mais des **succès** (ci-dessous)                                                                                                                                 |
+| Tenir la scène ouverte d’un lieu que tu gères        | Jusqu’à **50 points**, une fois la jam finie, avec au moins 3 présent·es hors organisation et selon leur confiance ; repris si la modération confirme que la jam n’a pas eu lieu |
 
 Les points reconnaissent un retour positif d’une autre personne. Tu peux
 aussi venir simplement pour le plaisir, sans chercher à en gagner. Les appréciations sont toujours

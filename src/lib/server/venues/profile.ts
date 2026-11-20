@@ -89,7 +89,7 @@ async function venueOrg(venueId: string) {
 /** Dates et jams publiques tenues au lieu, et rang (Lieu ouvert, Scène ouverte…). */
 async function rankOf(orgId: string, published: boolean) {
 	const rows = await prisma.domainEvent.findMany({
-		where: { actorIds: { has: orgId }, type: { in: ['gig.held', 'jam.held'] } },
+		where: { actorIds: { has: orgId }, type: { in: ['gig.held', 'jam.held', 'jam.invalidated'] } },
 		select: { id: true, type: true, payload: true, occurredAt: true }
 	});
 	const summary = venueSummary(orgId, published, rows.map(toDomainEvent));

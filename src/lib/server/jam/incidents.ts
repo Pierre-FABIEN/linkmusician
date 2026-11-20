@@ -36,6 +36,7 @@ import {
 } from '#lib/jam/incidents';
 import { JamError } from './publicJams';
 import { hostIdsOf, issuerManagersSelect } from './hosts';
+import { invalidateJam } from './afterJam';
 
 const DAY_MS = 86_400_000;
 const RETENTION_DAYS = 365;
@@ -424,6 +425,9 @@ export async function decideIncident(
 		targetId: incidentId,
 		metadata: { note: form.note, sanction: form.sanction, jamId: jam.id }
 	});
+	// #93 : une jam fictive confirmée perd ses gains (jam.held, appréciations), une seule fois.
+	if (form.decision === 'confirm')
+		await invalidateJam(jam.id, `Jam fictive confirmée : ${form.note}`, now);
 	if (form.decision === 'confirm' && responsible) {
 		if (form.sanction === 'warning') {
 			await sanction(responsible, { kind: 'WARNING', reason: form.note, days: null }, by);

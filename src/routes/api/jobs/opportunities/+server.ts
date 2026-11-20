@@ -3,6 +3,7 @@ import { expireOpportunities } from '#lib/server/opportunities/service';
 import { generateSeriesJams } from '#lib/server/jam/series';
 import { purgeExpiredDiscovery } from '#lib/server/privacy/activities';
 import { purgeOldIncidents } from '#lib/server/jam/incidents';
+import { markEndedJamsHeld } from '#lib/server/jam/afterJam';
 import { getQStashReceiver } from '#lib/server/qstash';
 import { matchesCronSecret } from '#lib/server/cronAuth';
 
@@ -43,7 +44,9 @@ async function runDaily() {
 	const discoveryPurged = await purgeExpiredDiscovery();
 	// Jams signalées (#91b) : dossiers décidés depuis plus de 12 mois.
 	const incidentsPurged = await purgeOldIncidents();
-	return { ...expired, ...series, discoveryPurged, incidentsPurged };
+	// Jams tenues (#93) : examinées une fois finies, jamais pendant.
+	const jamsHeld = await markEndedJamsHeld();
+	return { ...expired, ...series, discoveryPurged, incidentsPurged, jamsHeld };
 }
 
 export async function POST({ request }) {
