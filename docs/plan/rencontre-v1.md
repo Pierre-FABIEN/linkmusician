@@ -71,12 +71,13 @@ permissions et les relations sont partagées.
 retirer la présence d'autrui ou de gagner indûment des récompenses à partir
 d'une jam fictive.
 
-**Avancement (20/11/2026) :** audit #100 livré ([rv-01-audit-jam.md](./rv-01-audit-jam.md)),
-#92 livré (présence personnelle). La mission anti-pistage a fait des
-activités des données **privées par défaut** (D81, [conception 23](../conception/23-confidentialite-activites.md)).
-Le partage choisi, le masquage individuel et la découverte réciproque sur
-place sont livrés. Restent #91 (annulation, signalement) et #93 (XP :
-l'appréciation n'a lieu qu'entre personnes qui se voient).
+**État (20/11/2026) : ✅ livré, commits locaux.** Audit #100
+([rv-01-audit-jam.md](./rv-01-audit-jam.md)), #92 (présence personnelle),
+confidentialité des activités (D81, [conception 23](../conception/23-confidentialite-activites.md)),
+#91 (annulation, jams signalées, interdiction d'organiser), #93 (gains de
+jam). Critère de sortie atteint : aucun droit d'organisateur ne s'obtient sans
+son hôte, personne ne retire la présence d'autrui, et une jam fictive
+confirmée perd ses récompenses. Le consentement du lead (#94) suit dans RV-03.
 
 ### RV-02 — Découvrir, Contacts et Discussions
 

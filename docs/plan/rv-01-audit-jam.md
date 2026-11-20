@@ -137,16 +137,16 @@ Correctif : même règle dans `afterJam.ts#findRecentJam`. Preuve :
 
 ## 7. Critères d'acceptation de #100 : état
 
-| Critère                                                   | État                                                                                                                                                                                                           |
-| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Matrice complète, chemins de code et responsables         | ✅ §2                                                                                                                                                                                                          |
-| Chaque action réservée aux acteurs habilités, hors UI     | ✅ suspension (§5.1) ; consentement du lead → #94                                                                                                                                                              |
-| Révocation immédiate du lead, de l'hôte, de la gestion    | ✅ suspension ; perte d'éligibilité → #94                                                                                                                                                                      |
-| Arrêt, annulation et incidents n'effacent rien en silence | ❌ → #91 (arrêt de série, clôture) et #92 (« Je ne viens plus »)                                                                                                                                               |
-| Atelier, mineur·es, lieu non inscrit, scène ouverte…      | ✅ mineur·es (§5.2), atelier (contrôlé) ; formation → #95                                                                                                                                                      |
-| Tests négatifs, concurrence, idempotence                  | Partiel : suspension et mineur·es ; concurrence → #96                                                                                                                                                          |
-| Documentation et `/diagram` synchronisés                  | ✅                                                                                                                                                                                                             |
-| Découvrir indépendant des preuves Jam                     | Partiel : recherche et messagerie libres ; mais « Garder le contact » (`network/service#keepInTouch`) exige `playedTogether`, et l'invitation dans un groupe une conversation ou une jam commune → #99 (RV-02) |
+| Critère                                                   | État                                                                                                  |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Matrice complète, chemins de code et responsables         | ✅ §2                                                                                                 |
+| Chaque action réservée aux acteurs habilités, hors UI     | ✅ suspension (§5.1), interdiction d'organiser (#91b) ; consentement du lead → #94 (RV-03)            |
+| Révocation immédiate du lead, de l'hôte, de la gestion    | ✅ suspension et interdiction ; perte d'éligibilité du lead → #94                                     |
+| Arrêt, annulation et incidents n'effacent rien en silence | ✅ #91a (annulation notifiée, arrêt de série, clôture d'annonce refusée), #92 (« Je ne viens plus »)  |
+| Atelier, mineur·es, lieu non inscrit, scène ouverte…      | ✅ mineur·es (§5.2, D81), atelier ; formation limitée → #95                                           |
+| Tests négatifs, concurrence, idempotence                  | ✅ suspension, mineur·es, confidentialité, annulation, signalement, invalidation ; réservations → #96 |
+| Documentation et `/diagram` synchronisés                  | ✅                                                                                                    |
+| Découvrir indépendant des preuves Jam                     | ✅ `playedTogether` ne compte plus les jams (D81) ; refonte du carnet → #99 (RV-02)                   |
 
-#100 reste ouverte jusqu'à la livraison de #91, #92 et #94, dont ses derniers
-critères dépendent.
+Les critères qui restent ouverts dépendent de tickets d'autres lots (#94, #95,
+#96, #99) : #100 peut se fermer une fois `main` poussé, en y renvoyant.

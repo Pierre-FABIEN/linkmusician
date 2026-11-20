@@ -32,6 +32,7 @@ import { seedBandLineups } from './seed-band-lineups';
 import { seedProjects } from './seed-projects';
 import { seedWorkSteps } from './seed-work-steps';
 import { seedJamLife } from './seed-jam-life';
+import { seedPrivacy } from './seed-privacy';
 import {
 	seedOpenStage,
 	seedRepresentations,
@@ -796,6 +797,8 @@ try {
 		[...demoHandles].map(([handle, actualHandle]) => [actualHandle, handle])
 	);
 	await seedJamLife(prisma, communes[0], handleMap);
+	// Confidentialité des jams et jams signalées (D81, #91).
+	await seedPrivacy(prisma, communes[0], handleMap);
 	// Vie pro et scène (P4-P5) : studio, métiers, organisations, lieux, plateaux, concerts.
 	await seedScene(prisma, communes, handleMap);
 	await seedOpenStage(prisma, communes, handleMap);

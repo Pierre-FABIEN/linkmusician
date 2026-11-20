@@ -96,6 +96,17 @@ voir.
 Repères : « Les Rats du Mardi » (scénarios), « Jeudi jazz au Comptoir »
 en jam passée (vie de jam).
 
+### Confidentialité et jams signalées (RV-01, `seed-privacy`)
+
+| Situation                                                             | Se connecter avec                | Où                                                       |
+| --------------------------------------------------------------------- | -------------------------------- | -------------------------------------------------------- |
+| Jams passées partagées avec « les personnes que j'autorise »          | `malik-batterie`                 | `/reglages/confidentialite`                              |
+| Ses contacts de jam le voient dans « Qui était là ? », pas les autres | un contact de Malik, puis Paul   | `/jams/…/presents` d'une jam de Malik                    |
+| Jams passées de Zoé partagées avec tous les membres                   | n'importe qui                    | `/jams/…/presents` d'une jam de Zoé                      |
+| Jams de Malik masquées à Paul, sans le prévenir                       | `malik-batterie`                 | réglages ; profil de Paul (« Mes jams et… »)             |
+| Jam à venir annulée par Hugo, motif, Théo prévenu                     | `theo-basse`                     | notifications, puis `/jams/…/annulee`                    |
+| « Jam du quai » signalée par Inès, à instruire                        | `hugo-dj` ; un·e modérateur·rice | notifications et `/jams/…/signaler` ; `/moderation/jams` |
+
 ### Groupes, étapes, morceaux (phase 3)
 
 | Situation                                                                                                              | Se connecter avec                            | Où                                                  |
