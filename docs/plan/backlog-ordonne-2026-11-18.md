@@ -2,6 +2,12 @@
 
 > **Référence de pilotage des issues GitHub ouvertes.** Le préfixe `Gx-yy` définit l'ordre métier recommandé dans une phase, **pas une dépendance absolue** : vérifier les prérequis et livrer un incrément testé. Le numéro GitHub #n reste stable. Conserver les closes comme historique et ne pas les rouvrir sans problème prouvé.
 
+## ⭐ Lieux événementiels — entrée et revendication (#102)
+
+> **[Issue #102 — Parcours « Je représente un lieu événementiel »](https://github.com/Pierre-FABIEN/linkmusician/issues/102)** : **G1 / P1 prioritaire pour l'acquisition de partenaires toulousains.** Elle couvre uniquement l'orientation à l'inscription, le raccordement à l'annuaire, le flux de revendication existant et l'accès contextualisé aux espaces de lieux. **Pas de nouveau métier `VENUE`**, pas de réécriture des permissions/structures #32, de `VenueClaim` #79, de l'administration avancée #80, ni de la programmation #46. Métier personnel (BOOKER/PROMOTER) et gestion d'établissement (VENUE) sont indépendants. Recette multirôle et reprise post-inscription obligatoires. **Statut : à réaliser**.
+
+---
+
 ## ⭐ Pilotage transversal Rencontre — passe complète (#101)
 
 > **[Issue de pilotage #101 — Passe complète Rencontre](https://github.com/Pierre-FABIEN/linkmusician/issues/101)** : priorité avant pilote Toulouse. Elle relie les tickets UX #60–#66/#70/#74/#76, les correctifs #91–#100, les dépendances Agenda #38/#46/#77 et la recette finale. **L'ordre de travail et les décisions métier de #101 prévalent en cas de contradiction avec les anciens textes des tickets.**
