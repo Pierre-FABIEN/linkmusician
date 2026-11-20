@@ -137,6 +137,7 @@
 		"src/lib/server/geo/queries.integration.test.ts": true,
 		"src/lib/server/jam/afterJamMinors.integration.test.ts": true,
 		"src/lib/server/jam/crossed.integration.test.ts": true,
+		"src/lib/server/jam/presence.integration.test.ts": true,
 		"src/lib/server/jam/series.integration.test.ts": true,
 		"src/lib/server/jam/venueHosts.integration.test.ts": true,
 		"src/lib/server/jobs/collusion.integration.test.ts": true,
@@ -781,7 +782,13 @@
 			"title": "Seul un concert reconnu compte comme date",
 			"status": "ACCEPTED",
 			"label": "Acceptée (19/11/2026), validée par le fondateur"
+		},
+		"D81": {
+			"id": "D81",
+			"title": "Activités privées par défaut, présence personnelle",
+			"status": "ACCEPTED",
+			"label": "Acceptée (20/11/2026), demandée par le fondateur"
 		}
 	},
-	"code": { "triggers": 379, "inventoried": 292, "outOfScope": 87, "missing": [] }
+	"code": { "triggers": 378, "inventoried": 291, "outOfScope": 87, "missing": [] }
 }

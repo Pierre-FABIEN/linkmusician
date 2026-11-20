@@ -1,7 +1,8 @@
 /**
- * « Apprécier les musicos croisés » (P2-15, D50) sur la base de `.env`,
+ * « Mes jams récentes » (P2-15, D50) sur la base de `.env`,
  * schéma `e2e` : la jam en cours et celles de la semaine, autres présent·es
- * et appréciations déjà laissées ; un faux présent retiré ne compte pas.
+ * et appréciations déjà laissées. Les activités d'autrui étant privées par
+ * défaut (D81), les compteurs d'autres présent·es restent à zéro.
  * Désactivé par défaut :
  *
  *   PROGRESSION_INTEGRATION=1 npx vitest --run src/lib/server/jam
@@ -101,7 +102,7 @@ describe.skipIf(!enabled)('musicos croisés (schéma e2e)', { timeout: 60_000 },
 				{ opportunityId: past.id, actorId: ids.lea, attendedAt: at },
 				{ opportunityId: past.id, actorId: ids.malik, attendedAt: at },
 				{ opportunityId: past.id, actorId: ids.zoe, attendedAt: at },
-				{ opportunityId: past.id, actorId: ids.faux, attendedAt: at, removedAt: at },
+				{ opportunityId: past.id, actorId: ids.faux },
 				{ opportunityId: live.id, actorId: ids.lea },
 				{ opportunityId: live.id, actorId: ids.malik, attendedAt: at }
 			]
@@ -124,8 +125,8 @@ describe.skipIf(!enabled)('musicos croisés (schéma e2e)', { timeout: 60_000 },
 	it('la jam en cours puis celle de la semaine, avec ce qu’il reste à apprécier', async () => {
 		const jams = await crossedJams(ids.lea);
 		expect(jams.map((j) => j.title)).toEqual(['Crossed en cours', 'Crossed passée']);
-		expect(jams[0]).toMatchObject({ attended: false, others: 1, given: 0 });
-		// Le faux présent retiré ne compte pas ; Malik est déjà apprécié.
-		expect(jams[1]).toMatchObject({ attended: true, others: 2, given: 1 });
+		// Privé par défaut (D81) : ni Malik ni Zoé ne sont comptés, ni l'appréciation à Malik.
+		expect(jams[0]).toMatchObject({ attended: false, others: 0, given: 0 });
+		expect(jams[1]).toMatchObject({ attended: true, others: 0, given: 0 });
 	});
 });

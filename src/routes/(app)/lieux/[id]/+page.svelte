@@ -268,9 +268,7 @@
 									{#if j.recurring}<span class="block text-sm text-primary">{j.recurring}</span
 										>{/if}
 									<span class="text-sm text-muted-foreground"
-										>{day.format(new Date(j.startsAt))} · {j.coming} vien{j.coming > 1
-											? 'nent'
-											: 't'}</span
+										>{day.format(new Date(j.startsAt))} · {j.coming}</span
 									>
 								</a>
 							</li>

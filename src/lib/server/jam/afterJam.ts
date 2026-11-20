@@ -1,16 +1,25 @@
 /**
- * Après la jam (P2-15, D27) : « J'y étais », qui était là, appréciations,
- * retrait d'un faux présent par l'hôte.
+ * Après la jam (P2-15, D27) : « J'y étais », qui était là, appréciations.
+ *
+ * La présence est une **déclaration personnelle**, libre et facultative
+ * (#92, D81) : seule la personne la déclare, la corrige ou la retire ;
+ * personne d'autre (hôte, lead, présent·es) ne la valide ni ne la retire.
+ * Une fausse jam se signale comme événement (#91), pas présent par présent.
+ * Les activités sont **privées par défaut** (D81, `#lib/server/privacy/activities`) :
+ * « Qui était là ? » n'est ouvert qu'aux participant·es et ne montre d'autrui
+ * que ce que la politique de confidentialité autorise, aujourd'hui rien.
+ * S'inscrire partout ne permet donc pas de savoir où se trouve quelqu'un, ni
+ * l'appréciation de servir de test de présence. On se retrouve par Découvrir.
  *
  * « J'y étais » ne rapporte rien à qui le dit. Une jam publiée au nom d'un
  * lieu ou d'une organisation est **tenue** (`jam.held`, P5-04a) dès 3
  * présent·es hors organisation : 50 XP pour qui l'a publiée.
  * Une appréciation émet
  * `endorsement.received` (≈ 40 XP pour la personne appréciée, rendements
- * décroissants par paire). Un faux présent retiré par l'hôte voit ses
- * appréciations, données et reçues pour cette jam, reprises par
- * transaction négative liée (`reverseGain`), jamais effacées du registre,
- * et retirées du palier (`endorsement.revoked`).
+ * décroissants par paire). Retirer sa présence reprend ses appréciations,
+ * données et reçues pour cette jam, par transaction négative liée
+ * (`reverseGain`), jamais effacées du registre, et retirées du palier
+ * (`endorsement.revoked`).
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
@@ -33,13 +42,19 @@ import {
 } from '#lib/jam/afterJam';
 import { audienceWhere, JamError, isAdult } from './publicJams';
 import { networkIdsOf } from '#lib/server/network/service';
-import { hostedBy, hostIdsOf, isHostOf, issuerManagersSelect } from './hosts';
+import { hostedBy, hostIdsOf, issuerManagersSelect } from './hosts';
+import { canViewActivity, othersAttendanceVisibleTo } from '#lib/server/privacy/activities';
 import { BAREME } from '#lib/server/progression/core/bareme';
 
 const DAY_MS = 86_400_000;
 
-/** Présent·e : a dit « J'y étais », sans avoir été retiré·e par l'hôte. */
-const presentWhere = { attendedAt: { not: null }, removedAt: null } as const;
+/** Présent·e : a dit « J'y étais » (déclaration personnelle, #92). */
+const presentWhere = { attendedAt: { not: null } } as const;
+
+/** Présent·es montré·es à `viewerId` : soi-même, et ce que la politique autorise (D81). */
+const shownTo = (viewerId: string, context: 'jam.presents' | 'log') => ({
+	OR: [{ actorId: viewerId }, othersAttendanceVisibleTo(viewerId, context)]
+});
 
 /** Jam commencée, dans sa période d'après-jam, visible par la personne. */
 async function findRecentJam(id: string, viewerId: string, now: Date) {
@@ -94,9 +109,31 @@ async function findRecentJam(id: string, viewerId: string, now: Date) {
 export async function whoWasThere(id: string, viewerId: string, now = new Date()) {
 	const jam = await findRecentJam(id, viewerId, now);
 	if (!jam) return null;
-	const [attendances, invites, given, me, trust] = await Promise.all([
+	const hosts = hostIdsOf(jam);
+	const isHost = hosts.includes(viewerId);
+	const [me, myInvite] = await Promise.all([
+		prisma.jamAttendance.findUnique({
+			where: { opportunityId_actorId: { opportunityId: id, actorId: viewerId } },
+			select: { attendedAt: true }
+		}),
+		prisma.jamInvite.findUnique({
+			where: { opportunityId_actorId: { opportunityId: id, actorId: viewerId } },
+			select: { status: true }
+		})
+	]);
+	// Participant·e (D81) : hôte, lead, « Je viens », formation ou « J'y étais ».
+	const participant =
+		isHost || leadOf(jam) === viewerId || Boolean(me) || myInvite?.status === 'ACCEPTED';
+	const [attendances, invites, given, trust] = await Promise.all([
 		prisma.jamAttendance.findMany({
-			where: { opportunityId: id, ...presentWhere, actor: publicActorWhere(now, viewerId) },
+			where: {
+				opportunityId: id,
+				...presentWhere,
+				actor: publicActorWhere(now, viewerId),
+				...shownTo(viewerId, 'jam.presents'),
+				// Hors participant·es, la liste reste fermée.
+				...(participant ? {} : { actorId: '' })
+			},
 			orderBy: { attendedAt: 'asc' },
 			select: {
 				actorId: true,
@@ -112,10 +149,6 @@ export async function whoWasThere(id: string, viewerId: string, now = new Date()
 			where: { opportunityId: id, fromActorId: viewerId, revokedAt: null },
 			select: { toActorId: true, quality: true, instrument: { select: { name: true } } }
 		}),
-		prisma.jamAttendance.findUnique({
-			where: { opportunityId_actorId: { opportunityId: id, actorId: viewerId } },
-			select: { attendedAt: true, removedAt: true }
-		}),
 		getTrustLevel(viewerId)
 	]);
 	const network = await networkIdsOf(viewerId);
@@ -126,8 +159,6 @@ export async function whoWasThere(id: string, viewerId: string, now = new Date()
 			g.quality ? JAM_QUALITY_LABELS[g.quality] : (g.instrument?.name.toLowerCase() ?? '')
 		])
 	);
-	const hosts = hostIdsOf(jam);
-	const isHost = hosts.includes(viewerId);
 	return {
 		jam: {
 			id: jam.id,
@@ -139,8 +170,9 @@ export async function whoWasThere(id: string, viewerId: string, now = new Date()
 			deadline: afterJamDeadline(jam),
 			open: isAfterJamOpen(jam, now)
 		},
-		iWasThere: Boolean(me?.attendedAt && !me.removedAt),
-		removed: Boolean(me?.removedAt),
+		iWasThere: Boolean(me?.attendedAt),
+		/** La liste des présent·es est réservée aux participant·es (D81). */
+		participant,
 		canEndorse: TRUST_PERMISSIONS[trust].canEndorse,
 		present: attendances.map((a) => {
 			const instrument = a.instrument ?? inviteOf.get(a.actorId) ?? null;
@@ -164,10 +196,8 @@ export async function iWasThere(id: string, actorId: string, now = new Date()) {
 	if (!jam) throw new JamError('Jam introuvable.', 404);
 	const existing = await prisma.jamAttendance.findUnique({
 		where: { opportunityId_actorId: { opportunityId: id, actorId } },
-		select: { removedAt: true, attendedAt: true }
+		select: { attendedAt: true }
 	});
-	if (existing?.removedAt)
-		throw new JamError('L’hôte t’a retiré·e des présent·es de cette jam.', 403);
 	// L'instrument de la formation, s'il y en a un.
 	const invite = await prisma.jamInvite.findUnique({
 		where: { opportunityId_actorId: { opportunityId: id, actorId } },
@@ -184,7 +214,7 @@ export async function iWasThere(id: string, actorId: string, now = new Date()) {
 		// Faits des succès fun (P2-15b), sans XP (D27).
 		const [instruments, invites] = await Promise.all([
 			tx.jamAttendance.findMany({
-				where: { actorId, attendedAt: { not: null }, removedAt: null, instrumentId: { not: null } },
+				where: { actorId, attendedAt: { not: null }, instrumentId: { not: null } },
 				distinct: ['instrumentId'],
 				select: { instrumentId: true }
 			}),
@@ -246,7 +276,7 @@ export async function notThere(id: string, actorId: string, now = new Date()) {
 	if (!jam) throw new JamError('Jam introuvable.', 404);
 	await prisma.$transaction(async (tx) => {
 		await tx.jamAttendance.updateMany({
-			where: { opportunityId: id, actorId, removedAt: null },
+			where: { opportunityId: id, actorId },
 			data: { attendedAt: null }
 		});
 		await revokeEndorsementsOf(tx, id, actorId, 'Présence retirée');
@@ -275,35 +305,6 @@ async function revokeEndorsementsOf(tx: Tx, jamId: string, actorId: string, reas
 	}
 }
 
-/**
- * L'hôte retire un faux présent : il n'apparaît plus, ne peut plus redire
- * « J'y étais », et les appréciations liées sont reprises.
- */
-export async function removeFromJam(id: string, hostId: string, handle: string, now = new Date()) {
-	const jam = await findRecentJam(id, hostId, now);
-	if (!jam) throw new JamError('Jam introuvable.', 404);
-	if (!isHostOf(jam, hostId)) throw new JamError('Seul·e l’hôte retire un présent.', 403);
-	const attendance = await prisma.jamAttendance.findFirst({
-		where: { opportunityId: id, actor: { handle }, ...presentWhere },
-		select: { actorId: true }
-	});
-	if (!attendance) throw new JamError('Cette personne n’est pas dans les présent·es.', 404);
-	if (isHostOf(jam, attendance.actorId)) {
-		throw new JamError(
-			attendance.actorId === hostId
-				? 'Tu ne peux pas te retirer toi-même.'
-				: 'Les personnes qui tiennent la jam ne se retirent pas entre elles.'
-		);
-	}
-	await prisma.$transaction(async (tx) => {
-		await tx.jamAttendance.update({
-			where: { opportunityId_actorId: { opportunityId: id, actorId: attendance.actorId } },
-			data: { removedAt: now }
-		});
-		await revokeEndorsementsOf(tx, id, attendance.actorId, 'Présence retirée par l’hôte');
-	});
-}
-
 /** Apprécier un·e autre présent·e : une par paire et par jam, TL1 requise. */
 export async function endorse(id: string, fromId: string, form: EndorseForm, now = new Date()) {
 	const jam = await findRecentJam(id, fromId, now);
@@ -312,7 +313,11 @@ export async function endorse(id: string, fromId: string, form: EndorseForm, now
 		where: { handle: form.to, ...publicActorWhere(now, fromId) },
 		select: { id: true, displayName: true }
 	});
-	if (!to) throw new JamError('Personne inconnue.', 404);
+	// On n'apprécie que quelqu'un dont on peut voir la présence (D81). Même
+	// réponse sinon : l'appréciation ne doit pas servir à tester une présence.
+	if (!to || !canViewActivity({ viewerId: fromId, ownerId: to.id, context: 'jam.endorse' })) {
+		throw new JamError('Personne inconnue.', 404);
+	}
 	const [fromAttendance, toAttendance, already, trust, instrument] = await Promise.all([
 		prisma.jamAttendance.findFirst({
 			where: { opportunityId: id, actorId: fromId, ...presentWhere },
@@ -398,7 +403,7 @@ export async function myRecentJams(viewerId: string, now = new Date()) {
 			endsAt: { gte: new Date(now.getTime() - AFTER_JAM_DAYS * DAY_MS) },
 			OR: [
 				hostedBy(viewerId),
-				{ attendances: { some: { actorId: viewerId, removedAt: null } } },
+				{ attendances: { some: { actorId: viewerId } } },
 				{ jamInvites: { some: { actorId: viewerId, status: 'ACCEPTED' } } }
 			]
 		},
@@ -422,7 +427,7 @@ export async function myRecentJams(viewerId: string, now = new Date()) {
 }
 
 /**
- * « Apprécier les musicos croisés » (D50) : la jam en cours et celles de la
+ * « Mes jams récentes » (D50) : la jam en cours et celles de la
  * période d'après-jam où la personne était, avec le nombre d'autres
  * présent·es et d'appréciations déjà laissées. Seulement des compteurs : les
  * visages sont sur « Qui était là ? ».
@@ -437,7 +442,7 @@ export async function crossedJams(viewerId: string, now = new Date()) {
 			endsAt: { gte: new Date(now.getTime() - AFTER_JAM_DAYS * DAY_MS) },
 			OR: [
 				hostedBy(viewerId),
-				{ attendances: { some: { actorId: viewerId, removedAt: null } } },
+				{ attendances: { some: { actorId: viewerId } } },
 				{ jamInvites: { some: { actorId: viewerId, status: 'ACCEPTED' } } }
 			]
 		},
@@ -450,7 +455,11 @@ export async function crossedJams(viewerId: string, now = new Date()) {
 			endsAt: true,
 			venue: { select: { name: true } },
 			attendances: {
-				where: { ...presentWhere, actor: publicActorWhere(now, viewerId) },
+				where: {
+					...presentWhere,
+					actor: publicActorWhere(now, viewerId),
+					...shownTo(viewerId, 'jam.presents')
+				},
 				select: { actorId: true }
 			},
 			endorsements: {

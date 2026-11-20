@@ -1,5 +1,5 @@
 <script lang="ts">
-	// LINKMUSICIAN: « Apprécier les musicos croisés » (D50), voir +page.server.ts.
+	// LINKMUSICIAN: « Mes jams récentes » (D50, D81), voir +page.server.ts.
 	import SEO from '#lib/components/SEO.svelte';
 	import MetroPageHeader from '#lib/components/linkmusician/metro/MetroPageHeader.svelte';
 	import { Badge } from '#shadcn/badge';
@@ -14,14 +14,14 @@
 	});
 </script>
 
-<SEO title="Apprécier les musicos croisés" noindex nofollow />
+<SEO title="Mes jams récentes" noindex nofollow />
 
 <div class="min-h-screen w-full px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-10">
 	<div class="mx-auto max-w-3xl space-y-6">
 		<MetroPageHeader
 			kicker="Rencontre"
-			title="Apprécier les musicos croisés"
-			intro="Tu joues en ce moment, ou tu as joué cette semaine ? Dis ce que tu as aimé chez les autres : bon groove, à l’écoute, belle impro… C’est ce qui fait monter leurs points."
+			title="Mes jams récentes"
+			intro="Tu joues en ce moment, ou tu as joué cette semaine ? Dis « J’y étais » pour le garder dans ton carnet. Tes jams restent privées : personne ne voit où tu vas."
 		/>
 
 		{#if data.jams.length === 0}
@@ -29,15 +29,14 @@
 				<Heart class="mx-auto size-6 text-primary" aria-hidden="true" />
 				<p class="font-semibold">Pas de jam cette semaine.</p>
 				<p class="text-sm text-muted-foreground">
-					Pendant une jam et les 7 jours qui suivent, tu pourras apprécier ici les musicien·nes avec
-					qui tu as joué.
+					Pendant une jam et les 7 jours qui suivent, tu pourras dire ici que tu y étais.
 				</p>
 				<a href="/jam/agenda" class="inline-block pt-1 font-semibold underline"
 					>Voir les jams à venir</a
 				>
 			</div>
 		{:else}
-			<ul class="space-y-3" aria-label="Jams où tu as croisé des musicien·nes">
+			<ul class="space-y-3" aria-label="Tes jams récentes">
 				{#each data.jams as j (j.id)}
 					<li>
 						<a

@@ -13,6 +13,7 @@
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
+import { othersAttendanceVisibleTo } from '#lib/server/privacy/activities';
 import {
 	compareContacts,
 	groupNameSchema,
@@ -30,7 +31,7 @@ export class ContactError extends Error {
 	}
 }
 
-const present = { attendedAt: { not: null }, removedAt: null } as const;
+const present = { attendedAt: { not: null } } as const;
 
 /** Identifiants des contacts (carnet et conversations ouvertes). */
 async function contactIdsOf(ownerId: string, now: Date) {
@@ -102,7 +103,9 @@ export async function myContacts(ownerId: string, now = new Date()) {
 			where: {
 				actorId: { in: list },
 				...present,
-				opportunity: { attendances: { some: { actorId: ownerId, ...present } } }
+				opportunity: { attendances: { some: { actorId: ownerId, ...present } } },
+				// Une présence commune n'est montrée que si la politique l'autorise (D81).
+				...othersAttendanceVisibleTo(ownerId, 'contacts')
 			},
 			select: { actorId: true, opportunity: { select: { startsAt: true } } }
 		}),

@@ -442,12 +442,11 @@ export async function workshopQuestFacts(personId: string) {
 			where: { personId, status: 'ACTIVE', role: 'MEMBER', org: liveSchool }
 		}),
 		prisma.jamAttendance.count({
-			where: { actorId: personId, removedAt: null, opportunity: { audience: 'SCHOOL' } }
+			where: { actorId: personId, opportunity: { audience: 'SCHOOL' } }
 		}),
 		prisma.jamAttendance.count({
 			where: {
 				actorId: personId,
-				removedAt: null,
 				opportunity: { audience: 'PUBLIC', kind: 'JAM' }
 			}
 		})

@@ -1,10 +1,10 @@
 // LINKMUSICIAN: après la jam (P2-15, D27) : « J'y étais », qui était là,
-// appréciations (les seules à rapporter des points), retrait d'un faux
-// présent par l'hôte.
+// appréciations (les seules à rapporter des points). La présence est une
+// déclaration personnelle : personne ne retire celle d'autrui (#92, D81).
 import { error, fail } from '@sveltejs/kit';
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { JamError, isJamOrganizer } from '#lib/server/jam/publicJams';
-import { endorse, iWasThere, notThere, removeFromJam, whoWasThere } from '#lib/server/jam/afterJam';
+import { endorse, iWasThere, notThere, whoWasThere } from '#lib/server/jam/afterJam';
 import { NetworkError, keepInTouch } from '#lib/server/network/service';
 import { JAM_QUALITIES, JAM_QUALITY_LABELS, endorseSchema } from '#lib/jam/afterJam';
 import type { Actions, PageServerLoad } from './$types';
@@ -77,13 +77,5 @@ export const actions: Actions = {
 			if (err instanceof NetworkError) return fail(err.status, { error: err.message });
 			throw err;
 		}
-	},
-	remove: async ({ locals, params, request }) => {
-		const handle = text(await request.formData(), 'handle');
-		const { actorId } = await me(locals);
-		return attempt(
-			() => removeFromJam(params.id, actorId, handle),
-			'Présent retiré : ses appréciations sont reprises.'
-		);
 	}
 };

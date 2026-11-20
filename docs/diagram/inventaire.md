@@ -4,8 +4,8 @@
 > `src/lib/server/diagram/inventory/`. Ne pas l’éditer à la main : le test
 > `sync.test.ts` échoue s’il n’est plus à jour.
 
-- **312 processus** inventoriés, dont 295 relevés dans le code.
-- **Code relu** : 379 déclencheurs (actions de formulaire et méthodes d’endpoints), 292 inventoriés, 87 hors périmètre (boutique en veille D6, laboratoire, Diagram), **0 manquant(s)**.
+- **311 processus** inventoriés, dont 294 relevés dans le code.
+- **Code relu** : 378 déclencheurs (actions de formulaire et méthodes d’endpoints), 291 inventoriés, 87 hors périmètre (boutique en veille D6, laboratoire, Diagram), **0 manquant(s)**.
 - **14 processus documentés** par au moins une étape de diagramme.
 
 Statut : `TESTED` = une spec ou une intégration exerce la route ou son service
@@ -68,27 +68,26 @@ Disponibilités, recherche, suggestions, carnet, contacts, appréciations : se t
 | « Pas intéressé·e » sur une suggestion de personne <br>`api-suggestions-dismiss.post`  | `POST /api/suggestions/dismiss`                  | Personne connectée | SuggestionDismissal                                  | Implémenté et testé | à construire       |
 | Chercher une personne par métier, spécialité, instrument et rayon <br>`decouvrir.load` | `load /(app)/decouvrir`                          | Personne connectée | Actor, PersonTrack, PersonTrackIntent, ActorLocation | Implémenté et testé | parcours-groupe-ep |
 
-## Jams (15)
+## Jams (14)
 
 Jams publiques dans un lieu de l’annuaire, invitations du lead, présence, appréciations.
 
-| Processus                                                                          | Déclencheur                                | Acteurs           | Entités                                                | Statut              | Diagramme    |
-| ---------------------------------------------------------------------------------- | ------------------------------------------ | ----------------- | ------------------------------------------------------ | ------------------- | ------------ |
-| Publier une jam dans un lieu de l’annuaire (aucune XP) <br>`jams-nouvelle.default` | `/(app)/jams/nouvelle` · `?/default`       | Musicien·ne       | Opportunity, Venue                                     | Implémenté et testé | à construire |
-| Dire « Je viens » <br>`jams-id.come`                                               | `/(app)/jams/[id]` · `?/come`              | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
-| Ne plus venir <br>`jams-id.notComing`                                              | `/(app)/jams/[id]` · `?/notComing`         | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
-| Inviter à la jam (lead) <br>`jams-id.invite`                                       | `/(app)/jams/[id]` · `?/invite`            | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
-| Annuler une invitation à la jam <br>`jams-id.cancelInvite`                         | `/(app)/jams/[id]` · `?/cancelInvite`      | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
-| Accepter une invitation du lead <br>`jams-id.accept`                               | `/(app)/jams/[id]` · `?/accept`            | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
-| Refuser une invitation du lead <br>`jams-id.decline`                               | `/(app)/jams/[id]` · `?/decline`           | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
-| Prendre ou laisser le rôle de lead <br>`jams-id.lead`                              | `/(app)/jams/[id]` · `?/lead`              | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
-| Déclarer le matériel sur place <br>`jams-id.backline`                              | `/(app)/jams/[id]` · `?/backline`          | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
-| Déclarer « J’y étais » <br>`jams-id-presents.there`                                | `/(app)/jams/[id]/presents` · `?/there`    | Musicien·ne       | JamAttendance, JamEndorsement, MusicalTie, DomainEvent | Implémenté et testé | à construire |
-| Retirer sa présence <br>`jams-id-presents.notThere`                                | `/(app)/jams/[id]/presents` · `?/notThere` | Musicien·ne       | JamAttendance, JamEndorsement, MusicalTie, DomainEvent | Implémenté et testé | à construire |
-| Garder une personne dans son carnet <br>`jams-id-presents.keep`                    | `/(app)/jams/[id]/presents` · `?/keep`     | Musicien·ne       | JamAttendance, JamEndorsement, MusicalTie, DomainEvent | Implémenté et testé | à construire |
-| Retirer un faux présent (hôte) <br>`jams-id-presents.remove`                       | `/(app)/jams/[id]/presents` · `?/remove`   | Musicien·ne       | JamAttendance, JamEndorsement, MusicalTie, DomainEvent | Implémenté et testé | à construire |
-| Répondre à une invitation à animer un lieu <br>`jam-mes-jams.answerHost`           | `/(app)/jam/mes-jams` · `?/answerHost`     | Musicien·ne, Lieu | VenueHost                                              | Implémenté et testé | à construire |
-| Ne plus animer les scènes ouvertes d’un lieu <br>`jam-mes-jams.leaveHost`          | `/(app)/jam/mes-jams` · `?/leaveHost`      | Musicien·ne, Lieu | VenueHost                                              | Implémenté et testé | à construire |
+| Processus                                                                                 | Déclencheur                                | Acteurs           | Entités                                                | Statut              | Diagramme    |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------ | ----------------- | ------------------------------------------------------ | ------------------- | ------------ |
+| Publier une jam dans un lieu de l’annuaire (aucune XP) <br>`jams-nouvelle.default`        | `/(app)/jams/nouvelle` · `?/default`       | Musicien·ne       | Opportunity, Venue                                     | Implémenté et testé | à construire |
+| Dire « Je viens » <br>`jams-id.come`                                                      | `/(app)/jams/[id]` · `?/come`              | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
+| Ne plus venir <br>`jams-id.notComing`                                                     | `/(app)/jams/[id]` · `?/notComing`         | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
+| Inviter à la jam (lead) <br>`jams-id.invite`                                              | `/(app)/jams/[id]` · `?/invite`            | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
+| Annuler une invitation à la jam <br>`jams-id.cancelInvite`                                | `/(app)/jams/[id]` · `?/cancelInvite`      | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
+| Accepter une invitation du lead <br>`jams-id.accept`                                      | `/(app)/jams/[id]` · `?/accept`            | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
+| Refuser une invitation du lead <br>`jams-id.decline`                                      | `/(app)/jams/[id]` · `?/decline`           | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
+| Prendre ou laisser le rôle de lead <br>`jams-id.lead`                                     | `/(app)/jams/[id]` · `?/lead`              | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
+| Déclarer le matériel sur place <br>`jams-id.backline`                                     | `/(app)/jams/[id]` · `?/backline`          | Musicien·ne       | JamAttendance, JamInvite, Opportunity                  | Implémenté et testé | à construire |
+| Déclarer « J’y étais » (déclaration personnelle et privée) <br>`jams-id-presents.there`   | `/(app)/jams/[id]/presents` · `?/there`    | Musicien·ne       | JamAttendance, JamEndorsement, MusicalTie, DomainEvent | Implémenté et testé | à construire |
+| Retirer sa présence <br>`jams-id-presents.notThere`                                       | `/(app)/jams/[id]/presents` · `?/notThere` | Musicien·ne       | JamAttendance, JamEndorsement, MusicalTie, DomainEvent | Implémenté et testé | à construire |
+| Garder une personne dans son carnet (collaboration confirmée) <br>`jams-id-presents.keep` | `/(app)/jams/[id]/presents` · `?/keep`     | Musicien·ne       | JamAttendance, JamEndorsement, MusicalTie, DomainEvent | Implémenté et testé | à construire |
+| Répondre à une invitation à animer un lieu <br>`jam-mes-jams.answerHost`                  | `/(app)/jam/mes-jams` · `?/answerHost`     | Musicien·ne, Lieu | VenueHost                                              | Implémenté et testé | à construire |
+| Ne plus animer les scènes ouvertes d’un lieu <br>`jam-mes-jams.leaveHost`                 | `/(app)/jam/mes-jams` · `?/leaveHost`      | Musicien·ne, Lieu | VenueHost                                              | Implémenté et testé | à construire |
 
 ## Groupes (21)
 

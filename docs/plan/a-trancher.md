@@ -184,9 +184,9 @@ Défauts appliqués le 19/11/2026, à valider par le fondateur.
 
 Défauts appliqués le 20/11/2026, à valider par le fondateur.
 
-| #    | Question                                                                                                                                   | Défaut appliqué                                                                                                                             | Lot   |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| Q111 | « Qui était là ? » doit-il rester visible de toute personne qui voit la jam, ou des seul·es participant·es ? Il liste aussi des mineur·es. | **Inchangé** : visible de qui voit la jam (filtres mineur·es, blocages et atelier appliqués). À trancher avec le contrat de présence de #92 | RV-01 |
+| #    | Question                                                                                                                                   | Défaut appliqué                                                                                                                                                                  | Lot   |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| Q111 | « Qui était là ? » doit-il rester visible de toute personne qui voit la jam, ou des seul·es participant·es ? Il liste aussi des mineur·es. | **Tranchée le 20/11/2026** par le fondateur, puis étendue : activités privées par défaut, plus de liste des présent·es → [D81](../decisions/D81-activites-privees-par-defaut.md) | RV-01 |
 
 ### Domaine Collab : progression non linéaire (G0-04, #72)
 

@@ -112,10 +112,12 @@ export function crossedStatus(
 ): { live: boolean; left: number; label: string } {
 	const live = now >= jam.startsAt && now <= jam.endsAt;
 	const left = Math.max(0, jam.others - jam.given);
+	// Les présences d'autrui sont privées (D81) : `others` vaut 0 tant que rien
+	// n'est partagé, et le libellé ne laisse rien deviner des autres.
 	const label = !jam.attended
-		? 'Dis « J’y étais » pour apprécier'
+		? 'Tu y étais ? Dis-le, pour toi seul·e'
 		: jam.others === 0
-			? 'Personne d’autre n’a encore dit « J’y étais »'
+			? 'Tu y étais · présence privée'
 			: left === 0
 				? 'Tu as apprécié tout le monde'
 				: `${left} musicien·ne${left > 1 ? 's' : ''} à apprécier`;

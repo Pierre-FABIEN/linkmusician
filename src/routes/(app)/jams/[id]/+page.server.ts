@@ -70,8 +70,8 @@ export const actions: Actions = {
 		);
 	},
 	notComing: async ({ locals, params }) => {
-		await notComingToJam(params.id, (await me(locals)).actorId);
-		return { message: 'Tu ne viens plus.' };
+		const { actorId } = await me(locals);
+		return attempt(() => notComingToJam(params.id, actorId), 'Tu ne viens plus.');
 	},
 	invite: async ({ locals, params, request }) => {
 		const data = await request.formData();

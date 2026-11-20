@@ -310,8 +310,8 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 		actors: ['musicien'],
 		services: ['server/jam/publicJams'],
 		entities: ['JamAttendance', 'JamInvite', 'Opportunity'],
-		tests: e2e('jams'),
-		decisions: ['D27'],
+		tests: [...e2e('jams'), ...it('jam/presence.integration.test.ts')],
+		decisions: ['D27', 'D81'],
 		actions: {
 			come: 'Dire « Je viens »',
 			notComing: 'Ne plus venir',
@@ -331,18 +331,21 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 		entities: ['JamAttendance', 'JamEndorsement', 'MusicalTie', 'DomainEvent'],
 		tests: [
 			...e2e('jams'),
-			...it('jam/crossed.integration.test.ts', 'jam/afterJamMinors.integration.test.ts')
+			...it(
+				'jam/crossed.integration.test.ts',
+				'jam/afterJamMinors.integration.test.ts',
+				'jam/presence.integration.test.ts'
+			)
 		],
-		decisions: ['D27'],
+		decisions: ['D27', 'D81'],
 		actions: {
-			there: 'Déclarer « J’y étais »',
+			there: 'Déclarer « J’y étais » (déclaration personnelle et privée)',
 			notThere: 'Retirer sa présence',
 			endorse: {
 				title: 'Apprécier une personne croisée (seule source d’XP de la jam)',
 				domain: 'carriere'
 			},
-			keep: 'Garder une personne dans son carnet',
-			remove: 'Retirer un faux présent (hôte)'
+			keep: 'Garder une personne dans son carnet (collaboration confirmée)'
 		}
 	},
 	{

@@ -10,8 +10,10 @@ import { createMusician, deleteMusicians, setCity, skipOnboarding } from '../sup
  * P2-14b — Jams publiques : voir une jam dans un lieu autour de soi, dire
  * « Je viens » (sans XP), publier sa propre jam dans un lieu de l'annuaire.
  * P2-14c — Formation du lead (places réservées) et matériel sur place.
- * P2-15 — Après la jam : « J'y étais » (sans XP), appréciations (XP),
- * retrait d'un faux présent par l'hôte (XP reprise).
+ * P2-15 — Après la jam : « J'y étais » (sans XP), appréciations (XP).
+ * RV-01 (#92, D81) — La présence est personnelle : personne ne retire celle
+ * d'autrui. Les activités sont privées par défaut : « Qui était là ? », le
+ * carnet et l'appréciation ne révèlent la présence de personne.
  */
 test.describe('LinkMusician — jams publiques', () => {
 	test.setTimeout(5 * 60_000);
@@ -89,7 +91,8 @@ test.describe('LinkMusician — jams publiques', () => {
 			await test.step('2. Je viens, sans XP, puis je me ravise', async () => {
 				await page.getByRole('button', { name: 'Je viens' }).click();
 				await expect(page.getByText('Tu viens. On compte sur toi !')).toBeVisible();
-				await expect(page.getByText('1 musicien·ne vient')).toBeVisible();
+				// Tranche, jamais un nombre exact (D81).
+				await expect(page.getByText('Quelques musicien·nes viennent')).toBeVisible();
 				expect(
 					await db.jamAttendance.count({ where: { opportunityId: jam.id, actorId: myActorId! } })
 				).toBe(1);
@@ -268,7 +271,7 @@ test.describe('LinkMusician — jams publiques', () => {
 			await deleteMusicians([host]);
 		}
 	});
-	test('deux présents, l’une apprécie l’autre, ses points montent', async ({
+	test('deux présents ne se voient pas : les présences sont privées (D81)', async ({
 		page,
 		account,
 		browser
@@ -327,6 +330,19 @@ test.describe('LinkMusician — jams publiques', () => {
 			await db.jamAttendance.create({
 				data: { opportunityId: jam.id, actorId: fake.actorId, attendedAt: new Date() }
 			});
+			// L'hôte et Malik se parlent déjà : une conversation n'ouvre pas les activités (D81).
+			await db.conversation.create({
+				data: {
+					pairKey: [me.actorId, malik.actorId].sort().join(':'),
+					initiatorId: me.actorId,
+					participants: {
+						create: [
+							{ actorId: me.actorId, state: 'ACCEPTED' },
+							{ actorId: malik.actorId, state: 'ACCEPTED' }
+						]
+					}
+				}
+			});
 			const xpOf = async (actorId: string) =>
 				(await db.xpTransaction.aggregate({ where: { actorId }, _sum: { amount: true } }))._sum
 					.amount ?? 0;
@@ -342,111 +358,64 @@ test.describe('LinkMusician — jams publiques', () => {
 				expect(await xpOf(me.actorId)).toBe(0);
 			});
 
-			await test.step('2. Malik y était aussi', async () => {
+			await test.step('2. Malik y était aussi, sans voir personne', async () => {
 				await malikPage.goto(`/jams/${jam.id}`);
 				await waitForAppReady(malikPage);
 				await malikPage.getByRole('link', { name: /La jam a commencé/ }).click();
 				await malikPage.getByRole('button', { name: 'J’y étais' }).click();
 				await expect(malikPage.getByText('C’est noté : tu y étais !')).toBeVisible();
-				// TL0 : il voit les présent·es mais ne peut pas encore apprécier.
-				await expect(malikPage.getByText('palier de confiance 1')).toBeVisible();
+				await expect(malikPage.getByText(/les présences sont privées/)).toBeVisible();
+				await expect(malikPage.getByText(me.actor.displayName, { exact: true })).toHaveCount(0);
 				await expectNoA11yViolations(malikPage, A11Y_EXCLUDE);
 				expect(await xpOf(malik.actorId)).toBe(0);
 			});
 
-			await test.step('3. L’hôte apprécie Malik : ses points montent', async () => {
-				// « J'y étais » émet un événement : la confiance est recalculée et un
-				// compte d'un jour redescend en TL0. On lui rend son ancienneté de test.
-				await db.actor.update({ where: { id: me.actorId }, data: { trustLevel: 1 } });
+			await test.step('3. L’hôte ne voit ni Malik ni « Faux », et ne retire personne', async () => {
 				await page.reload();
 				await waitForAppReady(page);
-				const present = page.getByRole('list', { name: 'Présent·es' });
-				await present.getByText(malik.actor.displayName, { exact: true }).click();
+				await expect(page.getByText(malik.actor.displayName, { exact: true })).toHaveCount(0);
+				await expect(page.getByText(fake.displayName, { exact: true })).toHaveCount(0);
+				await expect(page.getByRole('button', { name: /Pas là : retirer/ })).toHaveCount(0);
+				await expect(page.getByRole('link', { name: 'Découvrir' }).last()).toBeVisible();
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
-				await page
-					.getByRole('form', { name: `Apprécier ${malik.actor.displayName}` })
-					.getByRole('button', { name: 'bon groove' })
-					.click();
-				await expect(page.getByText(/reçoit ton « bon groove »/)).toBeVisible();
-				await expect.poll(() => xpOf(malik.actorId)).toBe(40);
-				expect(await xpOf(me.actorId)).toBe(0);
-				await malikPage.goto(`/@${malik.actor.handle}`);
-				await waitForAppReady(malikPage);
-				await expect(
-					malikPage.getByRole('list', { name: 'Appréciations reçues' }).getByText('bon groove')
-				).toBeVisible();
 			});
 
-			await test.step('4. Un faux présent, retiré par l’hôte, perd ses points', async () => {
-				// La confiance est recalculée après chaque gain : un compte d'un jour
-				// redescend en TL0. On lui rend son ancienneté de test.
+			await test.step('4. Une appréciation forcée ne révèle aucune présence', async () => {
 				await db.actor.update({ where: { id: me.actorId }, data: { trustLevel: 1 } });
-				await page.reload();
-				await waitForAppReady(page);
-				const present = page.getByRole('list', { name: 'Présent·es' });
-				await present.getByText(fake.displayName, { exact: true }).click();
-				await page
-					.getByRole('form', { name: `Apprécier ${fake.displayName}` })
-					.getByRole('button', { name: 'à l’écoute' })
-					.click();
-				await expect(page.getByText(/reçoit ton « à l’écoute »/)).toBeVisible();
-				await expect.poll(() => xpOf(fake.actorId)).toBe(40);
-				// La carte reste ouverte après l'appréciation ; sinon on la rouvre.
-				const remove = page.getByRole('button', { name: `Pas là : retirer ${fake.displayName}` });
-				if (!(await remove.isVisible()))
-					await present.getByText(fake.displayName, { exact: true }).click();
-				await remove.click();
-				await expect(page.getByText(/Présent retiré/)).toBeVisible();
-				await expect.poll(() => xpOf(fake.actorId)).toBe(0);
-				// Registre en ajout seul : le gain et sa reprise.
-				expect(await db.xpTransaction.count({ where: { actorId: fake.actorId } })).toBe(2);
-				await expect(present.getByText(fake.displayName, { exact: true })).toHaveCount(0);
+				const origin = new URL(page.url()).origin;
+				for (const to of [malik.actor.handle, fake.handle, 'personne-inexistante']) {
+					const forced = await page.request.post(`/jams/${jam.id}/presents?/endorse`, {
+						form: { to, quality: 'GROOVE' },
+						headers: { origin, 'x-sveltekit-action': 'true' }
+					});
+					expect(await forced.text()).toContain('Personne inconnue.');
+				}
+				expect(await xpOf(malik.actorId)).toBe(0);
+				expect(await xpOf(fake.actorId)).toBe(0);
+				// Les présences déclarées restent intactes : elles appartiennent à chacun·e.
+				expect(
+					await db.jamAttendance.count({
+						where: { opportunityId: jam.id, attendedAt: { not: null } }
+					})
+				).toBe(3);
 			});
 
-			await test.step('5. Succès Brise-glace (sans XP) et « Rejouer ensemble »', async () => {
+			await test.step('5. « Rejouer ensemble » reprend la jam', async () => {
 				await page.getByRole('link', { name: 'Rejouer ensemble' }).click();
 				await expect(page.getByRole('heading', { name: 'Rejouer ensemble' })).toBeVisible();
 				await expect(page.getByLabel('Titre')).toHaveValue('E2E Bœuf du mardi');
-				await expect(page.getByLabel('Lieu')).toHaveValue(venue.id);
 				await expectNoA11yViolations(page, A11Y_EXCLUDE);
-				expect(
-					await db.actorAchievement.count({
-						where: { actorId: me.actorId, achievementId: 'jam-icebreaker' }
-					})
-				).toBe(1);
-				await page.goto(`/@${me.actor.handle}`);
-				await waitForAppReady(page);
-				await expect(page.getByText('Brise-glace')).toBeVisible();
 				expect(await xpOf(me.actorId)).toBe(0);
 			});
 
-			await test.step('6. Malik garde le contact ; son carnet reflète la jam (P2-16)', async () => {
-				await malikPage.goto(`/jams/${jam.id}/presents`);
-				await waitForAppReady(malikPage);
-				await malikPage
-					.getByRole('list', { name: 'Présent·es' })
-					.getByText(me.actor.displayName, { exact: true })
-					.click();
-				await malikPage.getByRole('button', { name: 'Garder le contact' }).click();
-				await expect(malikPage.getByText(/rejoint tes contacts/)).toBeVisible();
-				expect(
-					await db.musicalTie.count({ where: { ownerId: malik.actorId, contactId: me.actorId } })
-				).toBe(1);
+			await test.step('6. Le carnet de Malik garde la jam, sans les autres présent·es', async () => {
 				await malikPage.goto('/jam/carnet');
 				await waitForAppReady(malikPage);
 				const log = malikPage.getByRole('list', { name: 'Jams du carnet' });
 				await expect(log.getByRole('heading', { name: 'E2E Bœuf du mardi' })).toBeVisible();
 				await expect(
-					malikPage
-						.getByRole('list', { name: 'Croisé·es à E2E Bœuf du mardi' })
-						.getByRole('link', { name: me.actor.displayName })
-				).toBeVisible();
-				await expect(log.getByText('On t’a apprécié·e : bon groove')).toBeVisible();
-				await expect(
-					malikPage
-						.getByRole('region', { name: 'Mes contacts de jam' })
-						.getByRole('link', { name: me.actor.displayName })
-				).toBeVisible();
+					malikPage.getByRole('list', { name: 'Croisé·es à E2E Bœuf du mardi' })
+				).toHaveCount(0);
 				await expectNoA11yViolations(malikPage, A11Y_EXCLUDE);
 			});
 		} finally {

@@ -156,7 +156,9 @@
 								<p class="lm-tile__kicker">ton réseau</p>
 								<div class="space-y-1">
 									<h3 class="lm-tile__title">les musicos croisés</h3>
-									<p class="lm-tile__text">Après une jam, garde le contact pour jouer à nouveau.</p>
+									<p class="lm-tile__text">
+										Tu as croisé quelqu’un en jam ? Retrouve-le dans Découvrir.
+									</p>
 								</div>
 							</Tile>
 						{/each}

@@ -1,4 +1,4 @@
-// LINKMUSICIAN: « Apprécier les musicos croisés » (P2-15, D50) : la jam en
+// LINKMUSICIAN: « Mes jams récentes » (P2-15, D50, D81) : la jam en
 // cours et celles des 7 derniers jours, chacune menant à « Qui était là ? ».
 import { getPersonByUserId } from '#lib/prisma/actors/person';
 import { crossedJams } from '#lib/server/jam/afterJam';

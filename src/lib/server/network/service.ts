@@ -1,14 +1,16 @@
 /**
  * Réseau musical (P2-16) : les gens avec qui l'on a vraiment joué et que
  * l'on garde (« Garder le contact »). On ne peut garder que quelqu'un avec
- * qui l'on a joué : présence commune à une jam (« J'y étais » des deux
- * côtés, sans retrait par l'hôte) ou collaboration confirmée.
+ * qui l'on a une collaboration confirmée. Une présence commune à une jam ne
+ * compte plus (D81) : déclarée librement, elle ne prouve rien, et s'en servir
+ * permettait de tester où était quelqu'un.
  *
  * Le réseau remonte en tête des recherches et des suggestions
  * d'invitation. Il n'a rien à voir avec l'XP, et reste privé.
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
+import { othersAttendanceVisibleTo } from '#lib/server/privacy/activities';
 
 export class NetworkError extends Error {
 	constructor(
@@ -19,32 +21,17 @@ export class NetworkError extends Error {
 	}
 }
 
-const present = { attendedAt: { not: null }, removedAt: null } as const;
-
-/** Les deux personnes ont joué ensemble (jam ou collaboration confirmée). */
+/** Les deux personnes ont joué ensemble : collaboration confirmée (D81, jamais une jam). */
 export async function playedTogether(a: string, b: string): Promise<boolean> {
 	if (a === b) return false;
-	const [jam, collaboration] = await Promise.all([
-		prisma.jamAttendance.findFirst({
-			where: {
-				actorId: a,
-				...present,
-				opportunity: { attendances: { some: { actorId: b, ...present } } }
-			},
-			select: { opportunityId: true }
-		}),
-		prisma.collaboration.findFirst({
-			where: {
-				status: 'COMPLETED',
-				AND: [
-					{ participants: { some: { actorId: a } } },
-					{ participants: { some: { actorId: b } } }
-				]
-			},
-			select: { id: true }
-		})
-	]);
-	return Boolean(jam || collaboration);
+	const collaboration = await prisma.collaboration.findFirst({
+		where: {
+			status: 'COMPLETED',
+			AND: [{ participants: { some: { actorId: a } } }, { participants: { some: { actorId: b } } }]
+		},
+		select: { id: true }
+	});
+	return Boolean(collaboration);
 }
 
 /** « Garder le contact » : ajoute la personne à son réseau musical. */
@@ -107,8 +94,10 @@ export async function myNetwork(ownerId: string, now = new Date()) {
 		by: ['actorId'],
 		where: {
 			actorId: { in: ties.map((t) => t.contact.id) },
-			...present,
-			opportunity: { attendances: { some: { actorId: ownerId, ...present } } }
+			attendedAt: { not: null },
+			opportunity: { attendances: { some: { actorId: ownerId, attendedAt: { not: null } } } },
+			// Un contact gardé d'un seul côté ne révèle pas ses jams (D81).
+			...othersAttendanceVisibleTo(ownerId, 'contacts')
 		},
 		_count: { _all: true }
 	});

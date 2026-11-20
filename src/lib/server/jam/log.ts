@@ -1,16 +1,18 @@
 /**
- * Carnet de jams (P2-16) : les jams où l'on était (« J'y étais », sans
- * retrait par l'hôte), façon souvenirs : lieu, style, ce que l'on a joué,
- * les personnes rencontrées et leurs instruments, les appréciations reçues.
- * Privé : seule la personne voit son carnet.
+ * Carnet de jams (P2-16) : les jams où l'on était (« J'y étais »), façon
+ * souvenirs : lieu, style, ce que l'on a joué, les personnes rencontrées et
+ * leurs instruments, les appréciations reçues. Privé : seule la personne
+ * voit son carnet. Les personnes croisées ne sont montrées que si la
+ * politique de confidentialité l'autorise (D81) : aujourd'hui personne.
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
+import { othersAttendanceVisibleTo } from '#lib/server/privacy/activities';
 import { JAM_QUALITY_LABELS } from '#lib/jam/afterJam';
 import { logStats } from '#lib/jam/log';
 import { networkIdsOf } from '#lib/server/network/service';
 
-const present = { attendedAt: { not: null }, removedAt: null } as const;
+const present = { attendedAt: { not: null } } as const;
 
 export async function jamLog(actorId: string, now = new Date()) {
 	const mine = await prisma.jamAttendance.findMany({
@@ -27,7 +29,12 @@ export async function jamLog(actorId: string, now = new Date()) {
 					genreSlug: true,
 					venue: { select: { name: true, communeName: true } },
 					attendances: {
-						where: { actorId: { not: actorId }, ...present, actor: publicActorWhere(now, actorId) },
+						where: {
+							actorId: { not: actorId },
+							...present,
+							actor: publicActorWhere(now, actorId),
+							...othersAttendanceVisibleTo(actorId, 'log')
+						},
 						select: {
 							actorId: true,
 							instrument: { select: { name: true } },

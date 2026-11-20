@@ -27,7 +27,7 @@ vi.mock('#lib/server', () => ({ prisma: db }));
 
 const series = await import('./series');
 const jams = await import('./publicJams');
-const { iWasThere, removeFromJam } = await import('./afterJam');
+const { iWasThere, notThere } = await import('./afterJam');
 const { venueForManager } = await import('#lib/server/venues/profile');
 const { exportPersonData } = await import('#lib/prisma/actors/person');
 
@@ -230,9 +230,9 @@ describe.skipIf(!enabled)('scènes ouvertes récurrentes (schéma e2e)', { timeo
 		expect(gains.filter((g) => g.actorId === ids.serveuse)).toEqual([
 			expect.objectContaining({ amount: 5, track: 'PROMOTER', reason: 'Jam publique tenue ×0,1' })
 		]);
-		// Une seule fois, même si quelqu'un repasse ou si un faux présent est retiré.
+		// Une seule fois, même si quelqu'un repasse ou retire sa présence.
 		await iWasThere(first.id, ids.zoe, after);
-		await removeFromJam(first.id, ids.patron, `${PREFIX}zoe`, after);
+		await notThere(first.id, ids.zoe, after);
 		expect(await db.xpTransaction.count({ where: { ruleId: 'jam.held' } })).toBe(gains.length);
 		const managed = await venueForManager(venueId, ids.patron);
 		expect(managed?.rank.dates).toBe(1);

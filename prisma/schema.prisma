@@ -2612,9 +2612,8 @@ model JamAttendance {
   instrumentId  String?
   instrument    Instrument? @relation(fields: [instrumentId], references: [id], onDelete: SetNull)
   /// « J'y étais » (P2-15, D27) : sans XP, ouvre les appréciations 7 jours.
+  /// Déclaration personnelle : seule la personne la pose ou la retire (#92, D81).
   attendedAt    DateTime?
-  /// Faux présent retiré par l'hôte : ses appréciations sont reprises.
-  removedAt     DateTime?
   createdAt     DateTime    @default(now())
 
   @@id([opportunityId, actorId])

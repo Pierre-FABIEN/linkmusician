@@ -8,17 +8,17 @@ _Jouer pour le plaisir, rencontrer du monde, sans projet ni pression._
 >   **jam** près de chez toi. Tu peux venir seul·e.
 > - Une jam a toujours lieu dans un **lieu public ou un local de
 >   répétition**, jamais chez quelqu’un.
-> - Venir ne rapporte pas de points : ce sont les **appréciations** des
->   autres musicien·nes, après la jam, qui t’en rapportent.
-> - Après la jam, **Garder le contact** : tu retrouves les gens dans tes
->   contacts et tu leur écris par l’app, sans échanger ton numéro.
-> - Ton **carnet** garde le souvenir de tes jams et des gens rencontrés.
+> - Venir ne rapporte pas de points.
+> - **Tes jams restent privées** : personne ne voit que tu viens, que tu y
+>   étais, ni où tu vas. Tu as croisé quelqu’un ? Retrouve son profil dans
+>   **Découvrir** et écris-lui par l’app, sans échanger ton numéro.
+> - Ton **carnet** garde le souvenir de tes jams, pour toi seul·e.
 
 ## Comment ça se passe, en 4 temps
 
-| 1. Avant                            | 2. Pendant       | 3. Après                             | 4. Et ensuite                               |
-| ----------------------------------- | ---------------- | ------------------------------------ | ------------------------------------------- |
-| Je me mets dispo, je trouve une jam | On joue, en vrai | « J’y étais », j’apprécie les autres | Rejouer ensemble, garder le contact, carnet |
+| 1. Avant                            | 2. Pendant       | 3. Après                       | 4. Et ensuite                       |
+| ----------------------------------- | ---------------- | ------------------------------ | ----------------------------------- |
+| Je me mets dispo, je trouve une jam | On joue, en vrai | « J’y étais », pour moi seul·e | Rejouer ensemble, Découvrir, carnet |
 
 Ton accueil de Rencontre te montre toujours **ta prochaine étape** :
 indique ta ville, mets-toi dispo (ou repère une jam), écris à un·e
@@ -29,9 +29,9 @@ Tout l’accueil est un **menu de tuiles**, rangé en trois volets que tu
 fais glisser du doigt (ou que tu choisis par leur nom, en haut) ; chaque
 tuile mène à son écran :
 
-- **jouer** : ta prochaine étape, puis **Apprécier les musicos croisés**
-  (ta jam en cours et celles de la semaine, avec combien de musicien·nes
-  il te reste à apprécier) et **Les musicos dispo autour de moi** (te
+- **jouer** : ta prochaine étape, puis **Mes jams récentes** (ta jam en
+  cours et celles de la semaine, pour dire « J’y étais ») et **Les musicos
+  dispo autour de moi** (te
   mettre dispo, et voir qui l’est) ;
 - **mes jams** : **Jams à venir** (le calendrier et les lieux du coin),
   **Mes jams** (celles où l’on t’invite, celles où tu es allé·e) et
@@ -194,26 +194,23 @@ On joue ! L’app s’efface : rien à faire sur ton téléphone.
 ## 3. Après la jam {#apres-la-jam}
 
 Dès le début de la jam et pendant **7 jours** après (le plus simple :
-**Apprécier les musicos croisés**, en tête de Rencontre) :
+**Mes jams récentes**, en tête de Rencontre) :
 
-1. Touche **J’y étais** sur la fiche de la jam.
-2. **Qui était là ?** te montre les présent·es en grille (photo ou
-   initiales, instrument), pour les reconnaître.
-3. Laisse une **appréciation** à quelqu’un qui t’a marqué : une qualité
-   (**bon groove**, **à l’écoute**, **belle impro**, **fiable**) ou son
-   instrument.
+1. Touche **J’y étais** sur la fiche de la jam. C’est une déclaration
+   personnelle : toi seul·e la poses ou la retires, personne d’autre.
+2. **Tes jams sont privées.** Personne ne voit qui était là, pas même
+   l’hôte, et ta présence n’est montrée à personne. Ainsi, nul ne peut
+   savoir où tu vas en s’inscrivant partout.
+3. Tu as croisé quelqu’un avec qui le courant est passé ? Retrouve son
+   profil dans **Découvrir** et envoie-lui une **demande de conversation**.
+   Tu lui écris par l’app, **sans échanger ton numéro**.
 
-Puis, avec les gens avec qui le courant est passé :
+Et pour la suite : **Rejouer ensemble** prépare une nouvelle jam déjà
+remplie (lieu, style, horaires, places).
 
-- **Rejouer ensemble** : une nouvelle jam déjà préremplie (lieu, style,
-  horaires, places) ;
-- **Garder le contact** : la personne rejoint tes **contacts** (Messages,
-  onglet Contacts). Tu pourras lui écrire quand tu veux, **sans échanger
-  ton numéro**, la mettre dans un groupe pour un projet, et l’app te la
-  proposera en premier le jour où tu chercheras quelqu’un.
-
-> 💡 **Astuce** : laisse des appréciations ! C’est ce qui fait vivre
-> Rencontre, et ça ne te coûte rien.
+> ℹ️ Les **appréciations après une jam** sont en pause : pour en laisser une,
+> il faudrait voir qui était là. Elles reviendront avec le partage choisi
+> de ses jams, entre personnes qui l’acceptent.
 
 ### Ce que ça rapporte
 
@@ -232,14 +229,14 @@ privé.
 
 > ⚠️ **Important** : pour donner une appréciation, ton compte doit avoir
 > un peu d’ancienneté (une semaine, un profil complet, un premier
-> échange). L’hôte peut retirer quelqu’un qui dit être venu sans y être :
-> ses points sont alors repris.
+> échange). Personne ne peut retirer ta présence : une jam qui n’a pas
+> eu lieu se signale comme événement.
 
 ## 4. Ton carnet de jams {#carnet}
 
-Dans **Mon carnet de jams**, tes jams façon souvenirs : les jams où tu étais, les
-personnes et les instruments croisés, les styles joués, les communes, les
-appréciations reçues. Ton carnet est privé.
+Dans **Mon carnet de jams**, tes jams façon souvenirs : les jams où tu étais,
+ce que tu as joué, les styles, les communes, les appréciations reçues. Ton
+carnet est privé, et il ne montre pas qui d’autre était là.
 
 ### Les succès de Rencontre
 
@@ -305,10 +302,10 @@ pas ta présence si tu n'as pas participé.
 
 <details><summary>Je ne peux pas laisser d'appréciation</summary>
 
-Vérifie que vous avez déclaré votre présence à la même jam, que tu es dans
-la période autorisée (du début de la jam jusqu'à sept jours après) et que
-ton compte a atteint la confiance **Membre**. Tes droits actuels sont dans
-**Réglages**. Un blocage ou une présence retirée peut aussi empêcher l'action.
+C'est normal pour l'instant : les jams sont privées, on ne voit donc pas
+qui était là, et l'appréciation après une jam est en pause. Elle reviendra
+avec le partage choisi de ses jams. Les appréciations après une
+**collaboration** fonctionnent toujours.
 
 </details>
 

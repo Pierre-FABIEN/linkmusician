@@ -140,16 +140,29 @@
 			</section>
 		{/if}
 
-		{#if jam.lineup.length > 0}
+		{#if jam.lineup.length > 0 || jam.lineupHidden > 0}
 			<section class="space-y-2" aria-labelledby="lineup-title">
 				<h2 id="lineup-title" class="font-semibold">La formation</h2>
-				<ul class="flex flex-wrap gap-2">
-					{#each jam.lineup as m (m.handle)}
-						<li class="rounded-full border px-3 py-1 text-sm">
-							<a href="/@{m.handle}" class="underline">{m.displayName}</a> · {m.instrument}
-						</li>
-					{/each}
-				</ul>
+				{#if jam.lineup.length > 0}
+					<ul class="flex flex-wrap gap-2">
+						{#each jam.lineup as m (m.handle)}
+							<li class="rounded-full border px-3 py-1 text-sm">
+								<a href="/@{m.handle}" class="underline">{m.displayName}</a> · {m.instrument}
+							</li>
+						{/each}
+					</ul>
+				{/if}
+				{#if jam.lineupHidden > 0}
+					<!-- D81 : les noms ne sont montrés qu'aux personnes connectées. -->
+					<p class="text-sm text-muted-foreground">
+						{jam.lineupHidden}
+						{jam.lineup.length > 0 ? 'autre' : ''}{jam.lineupHidden > 1 && jam.lineup.length > 0
+							? 's'
+							: ''}
+						musicien·ne{jam.lineupHidden > 1 ? 's' : ''} dans la formation. Pour protéger chacun·e, leurs
+						noms ne sont visibles que de l’hôte et du lead.
+					</p>
+				{/if}
 			</section>
 		{/if}
 
@@ -195,7 +208,9 @@
 		<section class="lm-tile lm-tile--flow space-y-3 p-4">
 			<p class="flex items-center gap-2 font-semibold">
 				<Users class="size-4" aria-hidden="true" />
-				{jam.coming} musicien·ne{jam.coming > 1 ? 's' : ''} vien{jam.coming > 1 ? 'nent' : 't'}
+				{jam.comingCount !== null
+					? `${jam.comingCount} musicien·ne${jam.comingCount > 1 ? 's' : ''} vien${jam.comingCount > 1 ? 'nent' : 't'}`
+					: jam.coming}
 			</p>
 			{#if jam.isHost}
 				<p class="text-sm text-muted-foreground">C’est ta jam.</p>

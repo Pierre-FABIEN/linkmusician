@@ -31,11 +31,11 @@
 					href: '/jam/apprecier',
 					icon: Heart,
 					tone: TONE_OF.appreciations,
-					title: 'Apprécier les musicos croisés',
+					title: 'Mes jams récentes',
 					text:
 						data.crossedCount > 0
-							? 'Dans ta jam en cours ou celles de la semaine : dis ce que tu as aimé.'
-							: 'Pendant une jam et la semaine d’après, dis ce que tu as aimé chez les autres.',
+							? 'Ta jam en cours ou celles de la semaine : dis si tu y étais, pour toi seul·e.'
+							: 'Pendant une jam et la semaine d’après, dis si tu y étais. Ça reste privé.',
 					summary: data.appreciate,
 					highlight: data.appreciate !== null
 				},

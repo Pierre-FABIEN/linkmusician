@@ -11,7 +11,6 @@
 		MAX_INVITE_USES,
 		SCHOOL_KIND_LABELS
 	} from '#lib/schools/rules';
-	import { plural } from '#lib/jam/log';
 
 	let { data, form } = $props();
 	const s = $derived(data.school);
@@ -91,11 +90,7 @@
 								<span class="block text-sm text-muted-foreground"
 									>{day.format(new Date(w.startsAt))} · {w.venue.name}, {w.venue.communeName}</span
 								>
-								<span class="block text-sm"
-									>{w.imComing
-										? 'Tu viens ✓'
-										: plural(w.coming, 'personne vient', 'personnes viennent')}</span
-								>
+								<span class="block text-sm">{w.imComing ? 'Tu viens ✓' : w.coming}</span>
 							</a>
 						</li>
 					{/each}

@@ -34,13 +34,18 @@ async function publicSheetData(actorId: string, viewerId?: string | null) {
 		}),
 		bandsOfPerson(actorId, new Date(), viewerId)
 	]);
-	const cities = [
-		...new Set(
-			appreciations
-				.map((a) => a.opportunity.venue?.communeName)
-				.filter((city): city is string => Boolean(city))
-		)
-	].sort((a, b) => a.localeCompare(b, 'fr'));
+	// Communes des jams appréciées : un historique de lieux, donc pour la
+	// personne seulement, jamais sur son profil public (D81).
+	const cities =
+		viewerId === actorId
+			? [
+					...new Set(
+						appreciations
+							.map((a) => a.opportunity.venue?.communeName)
+							.filter((city): city is string => Boolean(city))
+					)
+				].sort((a, b) => a.localeCompare(b, 'fr'))
+			: [];
 	const peopleMet = new Set([
 		...appreciations.map((a) => a.fromActorId),
 		...collabEndorsers.map((a) => a.fromActorId),
@@ -83,7 +88,7 @@ export async function careerSheet(actorId: string): Promise<CareerSheet & Privat
 	const [data, attended, progress] = await Promise.all([
 		publicSheetData(actorId, actorId),
 		prisma.jamAttendance.count({
-			where: { actorId, attendedAt: { not: null }, removedAt: null }
+			where: { actorId, attendedAt: { not: null } }
 		}),
 		getProgress(actorId, prisma)
 	]);

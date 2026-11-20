@@ -58,7 +58,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		inviteCount: invites.length,
 		/** Jams passées où dire « J'y étais » ou apprécier. */
 		recentCount: recent.length,
-		/** « Apprécier les musicos croisés » : jam en cours ou personnes à apprécier. */
+		/** « Mes jams récentes » : jam en cours (D81 : personne d'autre à apprécier). */
 		appreciate: appreciateBadge(crossed),
 		crossedCount: crossed.length,
 		schools: schools.length,

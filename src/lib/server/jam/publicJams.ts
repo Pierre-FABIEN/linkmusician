@@ -37,6 +37,7 @@ import {
 } from '#lib/jam/lineup';
 import { seriesLabel } from '#lib/jam/series';
 import { isHostOf, issuerManagersSelect } from './hosts';
+import { PARTICIPANT_BAND_LABELS, participantBand } from '#lib/server/privacy/activities';
 
 export class JamError extends Error {
 	constructor(
@@ -235,7 +236,13 @@ function toCard(j: JamRow, viewerId: string) {
 		isHost: isHostOf(j, viewerId),
 		isLead: leadOf(j) === viewerId,
 		spots: board.map((l) => ({ instrument: l.name, count: l.wanted, open: l.open })),
-		coming: j.attendances.length + accepted.length,
+		/** Tranche de participant·es, jamais un nombre exact (D81). */
+		coming: PARTICIPANT_BAND_LABELS[participantBand(j.attendances.length + accepted.length)],
+		/** Nombre exact : pour la gestion seulement (hôte, lead), besoin opérationnel. */
+		comingCount:
+			isHostOf(j, viewerId) || leadOf(j) === viewerId
+				? j.attendances.length + accepted.length
+				: null,
 		imComing:
 			j.attendances.some((a) => a.actorId === viewerId) ||
 			accepted.some((i) => i.actorId === viewerId)
@@ -328,6 +335,11 @@ export async function getJam(id: string, viewerId: string, now = new Date()) {
 	const myInvite = row.jamInvites.find((i) => i.actorId === viewerId) ?? null;
 	const myAttendance = row.attendances.find((a) => a.actorId === viewerId) ?? null;
 	const canManage = card.isHost || card.isLead;
+	const accepted = row.jamInvites.filter((i) => i.status === 'ACCEPTED');
+	// Noms de la formation (D81) : l'hôte et le lead, publics, sont affichés à
+	// part. Les musicien·nes ne sont nommé·es qu'à la gestion (besoin
+	// opérationnel) et chacun·e à soi-même ; les autres voient les places prises.
+	const named = accepted.filter((i) => canManage || i.actorId === viewerId);
 	const invite = (i: (typeof row.jamInvites)[number]) => ({
 		handle: i.actor.handle,
 		displayName: i.actor.displayName,
@@ -349,8 +361,10 @@ export async function getJam(id: string, viewerId: string, now = new Date()) {
 			open: l.open,
 			reservable: canReserve(board, l.instrumentId)
 		})),
-		/** La formation : invitations acceptées, visibles de tous. */
-		lineup: row.jamInvites.filter((i) => i.status === 'ACCEPTED').map(invite),
+		/** La formation nommée : pour la gestion, et soi-même (D81). */
+		lineup: named.map(invite),
+		/** Membres de la formation non nommé·es pour cette personne. */
+		lineupHidden: accepted.length - named.length,
 		/** Invitations en attente ou refusées : pour l'hôte et le lead seulement. */
 		pendingInvites: canManage
 			? row.jamInvites.filter((i) => i.status !== 'ACCEPTED').map(invite)
@@ -404,9 +418,24 @@ export async function comeToJam(
 	});
 }
 
+/**
+ * « Je ne viens plus » : retire l'intention de venir et libère la place.
+ * N'efface jamais un « J'y étais » déjà déclaré (#92) : la présence se
+ * retire depuis « Qui était là ? ».
+ */
 export async function notComingToJam(id: string, actorId: string) {
+	const attendance = await prisma.jamAttendance.findUnique({
+		where: { opportunityId_actorId: { opportunityId: id, actorId } },
+		select: { attendedAt: true }
+	});
+	if (attendance?.attendedAt) {
+		throw new JamError(
+			'Tu as dit y être : retire d’abord ta présence depuis « Qui était là ? ».',
+			409
+		);
+	}
 	await prisma.$transaction([
-		prisma.jamAttendance.deleteMany({ where: { opportunityId: id, actorId } }),
+		prisma.jamAttendance.deleteMany({ where: { opportunityId: id, actorId, attendedAt: null } }),
 		// Un·e membre de la formation qui ne vient plus libère sa place.
 		prisma.jamInvite.updateMany({
 			where: { opportunityId: id, actorId, status: 'ACCEPTED' },

@@ -466,7 +466,6 @@ export async function exportPersonData(userId: string) {
 				createdAt: true,
 				instrument: { select: { name: true } },
 				attendedAt: true,
-				removedAt: true,
 				opportunity: { select: { title: true, startsAt: true } }
 			}
 		}),
@@ -929,8 +928,7 @@ export async function exportPersonData(userId: string) {
 			debut: a.opportunity.startsAt,
 			instrument: a.instrument?.name ?? null,
 			le: a.createdAt,
-			j_y_etais: a.attendedAt,
-			retire_par_l_hote: a.removedAt
+			j_y_etais: a.attendedAt
 		})),
 		reseau_musical: networkTies.map((t) => ({ nom: t.contact.displayName, le: t.createdAt })),
 		appreciations_donnees: endorsementsGiven.map((e) => ({

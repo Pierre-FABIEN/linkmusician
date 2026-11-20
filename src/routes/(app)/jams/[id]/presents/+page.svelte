@@ -51,16 +51,12 @@
 			</p>
 		</div>
 
-		{#if data.removed}
-			<p class="lm-tile lm-tile--flow p-4 text-sm">
-				L’hôte t’a retiré·e des présent·es de cette jam.
-			</p>
-		{:else if !data.iWasThere}
+		{#if !data.iWasThere}
 			<section class="space-y-3 rounded-2xl border-2 border-primary bg-card p-4">
 				<h2 class="text-lg font-semibold">Tu y étais ?</h2>
 				<p class="text-sm text-muted-foreground">
-					Dis-le pour retrouver les autres présent·es et leur laisser une appréciation. Ça ne
-					rapporte rien en soi : ce sont les appréciations reçues qui comptent.
+					C’est une déclaration personnelle, que tu peux retirer quand tu veux. Elle reste privée :
+					personne d’autre ne la voit. Elle ne rapporte rien en soi.
 				</p>
 				<form method="POST" action="?/there" use:enhance>
 					<button class="{button} bg-primary text-primary-foreground">J’y étais</button>
@@ -68,28 +64,20 @@
 			</section>
 		{:else}
 			<section class="lm-tile lm-tile--flow space-y-2 p-4 text-sm">
-				<p>
-					Tu y étais. Touche une personne pour lui laisser une appréciation, jusqu’au
-					{day.format(new Date(data.jam.deadline))}.
-				</p>
-				{#if !data.canEndorse}
-					<p class="text-muted-foreground">
-						Les appréciations s’ouvrent quand ton compte a un peu d’ancienneté (palier de confiance
-						1). Les autres peuvent déjà t’apprécier.
-					</p>
-				{/if}
+				<p>Tu y étais. C’est noté dans ton carnet, pour toi seul·e.</p>
 			</section>
 		{/if}
 
 		<section class="space-y-3" aria-labelledby="present-title">
-			<h2 id="present-title" class="text-lg font-semibold">
-				{data.present.length} présent·e{data.present.length > 1 ? 's' : ''}
-			</h2>
-			{#if others.length === 0}
-				<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
-					Personne d’autre n’a encore dit qu’il ou elle y était. Reviens dans quelques jours !
-				</p>
-			{:else}
+			<h2 id="present-title" class="text-lg font-semibold">Les présent·es</h2>
+			<!-- D81 : les présences sont privées par défaut ; la politique décide de ce qui s'affiche. -->
+			<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
+				Pour protéger chacun·e, les présences sont privées : personne ne voit qui était là, et ta
+				présence n’est montrée à personne. Tu as croisé quelqu’un ? Retrouve son profil dans
+				<a href="/decouvrir" class="font-semibold underline">Découvrir</a> et envoie-lui une demande de
+				conversation.
+			</p>
+			{#if data.participant && others.length > 0}
 				<ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4" aria-label="Présent·es">
 					{#each others as p (p.handle)}
 						<li class="lm-tile lm-tile--flow">
@@ -151,14 +139,6 @@
 										class="flex min-h-11 items-center gap-2 text-sm font-semibold underline"
 										><MessageCircle class="size-4" aria-hidden="true" />Écrire</a
 									>
-									{#if data.jam.isHost}
-										<form method="POST" action="?/remove" use:enhance>
-											<input type="hidden" name="handle" value={p.handle} />
-											<button class="min-h-11 text-sm text-destructive underline"
-												>Pas là : retirer {p.displayName}</button
-											>
-										</form>
-									{/if}
 								</div>
 							</details>
 						</li>

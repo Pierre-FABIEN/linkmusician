@@ -187,8 +187,8 @@ Dans une conversation ouverte, après avoir joué ensemble, touche
 
 Dans **Messages**, l’onglet **Contacts** rassemble :
 
-- les gens avec qui tu as **vraiment joué** et que tu as gardés : après
-  une jam, touche **Garder le contact** ;
+- les gens avec qui tu as **vraiment joué** (une collaboration
+  confirmée) et que tu as gardés : touche **Garder le contact** ;
 - les personnes avec qui tu as une **conversation ouverte**.
 
 Pour chacun, tu vois comment vous vous êtes rencontrés (« 3 jams
