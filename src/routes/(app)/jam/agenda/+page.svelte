@@ -108,21 +108,13 @@
 						>
 							{#snippet children({ months, weekdays })}
 								<Calendar.Header class="pb-2">
-									<!-- bits-ui impose « Previous » / « Next » : le libellé français passe par `child`. -->
-									<Calendar.PrevButton class="size-11 opacity-100">
-										{#snippet child({ props })}
-											<button {...props} aria-label="Mois précédent">
-												<ChevronLeft class="size-4" aria-hidden="true" />
-											</button>
-										{/snippet}
+									<!-- Le libellé français passe par `aria-label`, reposé par le composant (T3). -->
+									<Calendar.PrevButton aria-label="Mois précédent" class="size-11 opacity-100">
+										<ChevronLeft class="size-4" aria-hidden="true" />
 									</Calendar.PrevButton>
 									<Calendar.Heading class="text-base font-bold capitalize" />
-									<Calendar.NextButton class="size-11 opacity-100">
-										{#snippet child({ props })}
-											<button {...props} aria-label="Mois suivant">
-												<ChevronRight class="size-4" aria-hidden="true" />
-											</button>
-										{/snippet}
+									<Calendar.NextButton aria-label="Mois suivant" class="size-11 opacity-100">
+										<ChevronRight class="size-4" aria-hidden="true" />
 									</Calendar.NextButton>
 								</Calendar.Header>
 								<Calendar.Months>
@@ -232,7 +224,7 @@
 												</span>
 												<span class="inline-flex items-center gap-1.5">
 													<Users class="size-4" aria-hidden="true" />
-													{j.coming} vien{j.coming > 1 ? 'nent' : 't'}
+													{j.coming}
 												</span>
 											</span>
 											<span class="flex flex-wrap items-center justify-between gap-2">
