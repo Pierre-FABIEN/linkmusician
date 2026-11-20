@@ -19,7 +19,8 @@
 		HandHelping,
 		Briefcase,
 		FolderOpen,
-		CalendarX
+		CalendarX,
+		TriangleAlert
 	} from 'lucide-svelte';
 	import type { NotificationTypeValue } from '#lib/notifications/types';
 
@@ -49,7 +50,10 @@
 		INTRODUCTION: HandHelping,
 		PROJECT_INVITE: FolderOpen,
 		PROJECT_JOINED: FolderOpen,
-		JAM_CANCELLED: CalendarX
+		JAM_CANCELLED: CalendarX,
+		JAM_REPORTED: TriangleAlert,
+		JAM_ALERT: TriangleAlert,
+		JAM_INCIDENT_CLOSED: Flag
 	};
 
 	const rtf = new Intl.RelativeTimeFormat('fr-FR', { numeric: 'auto' });

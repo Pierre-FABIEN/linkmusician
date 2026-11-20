@@ -2,6 +2,7 @@ import { json, error } from '@sveltejs/kit';
 import { expireOpportunities } from '#lib/server/opportunities/service';
 import { generateSeriesJams } from '#lib/server/jam/series';
 import { purgeExpiredDiscovery } from '#lib/server/privacy/activities';
+import { purgeOldIncidents } from '#lib/server/jam/incidents';
 import { getQStashReceiver } from '#lib/server/qstash';
 import { matchesCronSecret } from '#lib/server/cronAuth';
 
@@ -9,7 +10,8 @@ import { matchesCronSecret } from '#lib/server/cronAuth';
  * LINKMUSICIAN (P2-02) : expiration quotidienne des annonces
  * (`#lib/server/opportunities/service.ts`), puis les jams des 4 semaines à
  * venir des scènes ouvertes récurrentes (P5-04a, `#lib/server/jam/series.ts`),
- * et l'effacement des visibilités sur place échues (D81 : aucun historique). Mêmes déclencheurs que `/api/jobs/cleanup` :
+ * l'effacement des visibilités sur place échues (D81 : aucun historique) et
+ * des dossiers de jams signalées décidés depuis plus de 12 mois (#91b). Mêmes déclencheurs que `/api/jobs/cleanup` :
  * QStash (POST signé) ou Vercel Cron (GET avec `Authorization: Bearer
  * $CRON_SECRET`), jamais un client direct.
  */
@@ -39,7 +41,9 @@ async function runDaily() {
 	const expired = await expireOpportunities();
 	const series = await generateSeriesJams();
 	const discoveryPurged = await purgeExpiredDiscovery();
-	return { ...expired, ...series, discoveryPurged };
+	// Jams signalées (#91b) : dossiers décidés depuis plus de 12 mois.
+	const incidentsPurged = await purgeOldIncidents();
+	return { ...expired, ...series, discoveryPurged, incidentsPurged };
 }
 
 export async function POST({ request }) {

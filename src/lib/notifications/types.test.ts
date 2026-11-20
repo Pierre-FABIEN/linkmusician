@@ -9,7 +9,14 @@ describe('notifications : textes', () => {
 			if (type !== 'CONTACT_REQUEST') expect(text).toMatch(/Jam funk/);
 			// Sans expéditeur : une acceptation, une décision de la modération (P5-03b),
 			// une jam annulée (#91a : on prévient sans dire qui annule).
-			const anonymous = ['APPLICATION_ACCEPTED', 'VENUE_CLAIM', 'JAM_CANCELLED'];
+			const anonymous = [
+				'APPLICATION_ACCEPTED',
+				'VENUE_CLAIM',
+				'JAM_CANCELLED',
+				'JAM_REPORTED',
+				'JAM_ALERT',
+				'JAM_INCIDENT_CLOSED'
+			];
 			if (!anonymous.includes(type)) expect(text).toMatch(/^Ana /);
 		}
 	});

@@ -6,6 +6,7 @@ import { listGenreTree, listInstrumentsByFamily } from '#lib/prisma/skills/refer
 import { getActorLocation } from '#lib/server/geo/queries';
 import { getVenue, venuesNear } from '#lib/server/venues/service';
 import { JamError, createJam, isJamOrganizer } from '#lib/server/jam/publicJams';
+import { activeOrganizingRestriction } from '#lib/server/jam/incidents';
 import { replayDraft } from '#lib/server/jam/afterJam';
 import { jamSchema } from '#lib/jam/publicJam';
 import { parisDay } from '#lib/metrics/indicators';
@@ -13,6 +14,19 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const person = (await getPersonByUserId(locals.user!.id))!;
+	// Interdiction d'organiser (#91b) : on le dit, plutôt que de renvoyer au profil.
+	const restriction = await activeOrganizingRestriction(person.actorId);
+	if (restriction) {
+		return {
+			restricted: { until: restriction.until },
+			venues: [],
+			venueId: '',
+			again: null,
+			today: parisDay(new Date()),
+			instruments: [],
+			genres: []
+		};
+	}
 	// Réservé aux personnes « prêtes à organiser des jams » (D51).
 	if (!(await isJamOrganizer(person.actorId))) redirect(303, '/profil?organiser=1#organiser');
 	const location = await getActorLocation(person.actorId);
@@ -31,6 +45,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	]);
 	const options = chosen && !venues.some((v) => v.id === chosen.id) ? [chosen, ...venues] : venues;
 	return {
+		restricted: null,
 		venues: options.map((v) => ({
 			id: v.id,
 			label: `${v.name} · ${v.kindLabel} · ${v.communeName}`

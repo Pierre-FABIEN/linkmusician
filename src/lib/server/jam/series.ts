@@ -20,7 +20,7 @@
  */
 import { Prisma } from '@prisma/client';
 import { prisma } from '#lib/server';
-import { isAdult, JamError } from './publicJams';
+import { isAdult, isRestrictedFromOrganizing, JamError, RESTRICTED_ERROR } from './publicJams';
 import { cancelJamsTx } from './cancel';
 import {
 	checkSeriesWindow,
@@ -74,6 +74,8 @@ export async function createJamSeries(
 	now = new Date()
 ) {
 	const venue = await managedVenue(venueId, personId);
+	// Interdiction d'organiser (#91b) : elle vaut aussi pour une scène ouverte.
+	if (await isRestrictedFromOrganizing(personId, now)) throw new JamError(RESTRICTED_ERROR, 403);
 	if (!(await isAdult(personId))) {
 		throw new JamError('Il faut être majeur·e pour publier une scène ouverte.', 403);
 	}

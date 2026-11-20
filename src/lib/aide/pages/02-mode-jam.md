@@ -312,6 +312,18 @@ pas ta présence si tu n'as pas participé.
 
 </details>
 
+<details><summary>Je suis arrivé·e sur place, et il n'y avait pas de jam</summary>
+
+Si tu étais inscrit·e avant le début, ouvre la fiche de la jam et touche
+**Signale-le** (jusqu'à 24 h après la fin). L'organisation est prévenue sans
+savoir qui a signalé, les autres inscrit·es reçoivent un avertissement
+prudent, et la modération examine. Personne n'est sanctionné
+automatiquement : une jam sans public ou annulée de bonne foi n'est pas une
+faute. Si la modération confirme une fausse jam, la personne qui l'a publiée
+peut perdre, pour un temps, la possibilité d'organiser des jams.
+
+</details>
+
 <details><summary>J'organise une jam, mais elle ne peut pas avoir lieu</summary>
 
 Sur la fiche de ta jam, touche **Annuler la jam**, avec un motif si tu veux.

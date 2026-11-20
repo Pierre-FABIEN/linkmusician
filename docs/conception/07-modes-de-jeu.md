@@ -471,6 +471,21 @@ anime la scène ouverte d'un bar (D27). Les situations courantes :
   personne que l'hôte a bloquée. Arrêter une scène ouverte annule ses dates
   à venir par la même voie ; clôturer une jam depuis la page d'annonce est
   refusé. Une annulation n'est jamais une preuve de jam fictive.
+- **Jam signalée (#91b)** : une personne inscrite **avant le début** signale,
+  du début à 24 h après la fin, que la jam n'a pas lieu (aucune jam, lieu
+  non informé, lieu fermé, autre), en déclarant s'être rendue sur place. Un
+  dossier par jam, un signalement par personne ; ni présence ni XP créées.
+  Au premier signalement, l'organisation est prévenue sans savoir qui a
+  signalé (ni combien) et peut répondre ou annuler ; les autres inscrit·es
+  reçoivent un avertissement neutre. Rien n'est affiché publiquement. Deux
+  signalements rendent le dossier prioritaire, jamais une sanction. La
+  modération voit les signalant·es, l'ancienneté de leurs comptes, la réponse
+  et les précédents, puis classe ou confirme. Une confirmation peut avertir
+  (première erreur de bonne foi) ou **interdire d'organiser** 7 jours, 30
+  jours ou sans limite : seule l'organisation de jams est touchée
+  (`isJamOrganizer`, scènes ouvertes), `organizesJams` n'est pas modifié, et
+  tout est levable avec un motif (recours). Journal de modération, export
+  RGPD ; un dossier décidé est effacé après 12 mois.
 
 ## 7. L'esprit : l'encouragement, jamais la pression
 

@@ -187,6 +187,12 @@
 			{/if}
 		</section>
 
+		{#if data.canReport}
+			<a href="/jams/{data.jam.id}/signaler" class="inline-block text-sm underline"
+				>La jam n’a pas eu lieu ? Signale-le</a
+			>
+		{/if}
+
 		{#if data.organizer}
 			<a
 				href="/jams/nouvelle?rejouer={data.jam.id}&lieu={data.jam.venue.id}"

@@ -7,6 +7,7 @@ import { JamError, isJamOrganizer } from '#lib/server/jam/publicJams';
 import { endorse, iWasThere, notThere, whoWasThere } from '#lib/server/jam/afterJam';
 import { NetworkError, keepInTouch } from '#lib/server/network/service';
 import { PrivacyError, startDiscovery, stopDiscovery } from '#lib/server/privacy/activities';
+import { reportState } from '#lib/server/jam/incidents';
 import { JAM_QUALITIES, JAM_QUALITY_LABELS, endorseSchema } from '#lib/jam/afterJam';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -22,6 +23,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		...data,
 		/** « Rejouer ensemble » relance une jam : organisateurs seulement (D51). */
 		organizer: await isJamOrganizer(actorId),
+		/** « La jam n'a pas eu lieu ? » (#91b), jusqu'à 24 h après la fin. */
+		canReport: (await reportState(params.id, actorId))?.canReport ?? false,
 		qualities: JAM_QUALITIES.map((value) => ({ value, label: JAM_QUALITY_LABELS[value] }))
 	};
 };

@@ -17,6 +17,7 @@ import {
 } from '#lib/server/jam/publicJams';
 import { whoWasThere } from '#lib/server/jam/afterJam';
 import { cancelJam, cancelledJamFor } from '#lib/server/jam/cancel';
+import { hasOpenIncident, reportState } from '#lib/server/jam/incidents';
 import { inviteSuggestions } from '#lib/server/network/service';
 import { BACKLINE_ITEMS, BACKLINE_LABELS, backlineSchema, inviteSchema } from '#lib/jam/lineup';
 import type { Actions, PageServerLoad } from './$types';
@@ -35,9 +36,13 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		if (await whoWasThere(params.id, actorId)) redirect(303, `/jams/${params.id}/presents`);
 		error(404, 'Jam introuvable');
 	}
-	const [instruments, network] = await Promise.all([
+	const started = jam.startsAt.getTime() <= Date.now();
+	const [instruments, network, report, incidentOpen] = await Promise.all([
 		listInstrumentsByFamily(),
-		jam.canManage ? inviteSuggestions(actorId) : Promise.resolve([])
+		jam.canManage ? inviteSuggestions(actorId) : Promise.resolve([]),
+		// Signalement (#91b) : pendant la jam, pour qui était inscrit·e avant le début.
+		started ? reportState(params.id, actorId) : Promise.resolve(null),
+		hasOpenIncident(params.id)
 	]);
 	return {
 		jam,
@@ -47,7 +52,11 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		network,
 		backlineOptions: BACKLINE_ITEMS.map((value) => ({ value, label: BACKLINE_LABELS[value] })),
 		published: url.searchParams.has('publiee'),
-		started: jam.startsAt.getTime() <= Date.now()
+		started,
+		canReport: report?.canReport ?? false,
+		/** Avertissement neutre (#91b) : pour les inscrit·es ; l'organisation voit le lien de réponse. */
+		alert: incidentOpen && (jam.imComing || jam.myInvite !== null) && !jam.isHost,
+		incidentForHost: incidentOpen && jam.isHost
 	};
 };
 

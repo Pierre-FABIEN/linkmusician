@@ -35,6 +35,13 @@ export const AUDIT_ACTIONS = {
 	'moderation.organization.revoke': {
 		label: 'Vérification d’organisation retirée',
 		family: 'organizations'
+	},
+	'moderation.jam_incident.dismiss': { label: 'Jam signalée : classée', family: 'jams' },
+	'moderation.jam_incident.confirm': { label: 'Jam signalée : manquement confirmé', family: 'jams' },
+	'moderation.jam_restriction.create': { label: 'Interdiction d’organiser des jams', family: 'jams' },
+	'moderation.jam_restriction.lift': {
+		label: 'Interdiction d’organiser levée (recours)',
+		family: 'jams'
 	}
 } as const satisfies Record<string, { label: string; family: string }>;
 
@@ -47,7 +54,8 @@ export const AUDIT_FAMILIES = {
 	venues: 'Lieux',
 	collusion: 'Cercles fermés',
 	milestones: 'Étapes de groupe',
-	organizations: 'Organisations'
+	organizations: 'Organisations',
+	jams: 'Jams signalées'
 } as const;
 export type AuditFamily = keyof typeof AUDIT_FAMILIES;
 

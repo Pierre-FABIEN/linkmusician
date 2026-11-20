@@ -30,7 +30,10 @@ export const NOTIFICATION_TYPES = [
 	'INTRODUCTION',
 	'PROJECT_INVITE',
 	'PROJECT_JOINED',
-	'JAM_CANCELLED'
+	'JAM_CANCELLED',
+	'JAM_REPORTED',
+	'JAM_ALERT',
+	'JAM_INCIDENT_CLOSED'
 ] as const;
 export type NotificationTypeValue = (typeof NOTIFICATION_TYPES)[number];
 
@@ -63,7 +66,10 @@ export const NOTIFICATION_TYPE_LABELS: Readonly<Record<NotificationTypeValue, st
 	INTRODUCTION: 'Présentations par quelqu’un de mon réseau',
 	PROJECT_INVITE: 'Invitations à participer à un projet',
 	PROJECT_JOINED: 'Personnes qui rejoignent mes projets',
-	JAM_CANCELLED: 'Jams annulées où je devais aller'
+	JAM_CANCELLED: 'Jams annulées où je devais aller',
+	JAM_REPORTED: 'Problèmes signalés sur mes jams',
+	JAM_ALERT: 'Problèmes signalés sur une jam où je vais',
+	JAM_INCIDENT_CLOSED: 'Suites d’un problème signalé sur une jam'
 };
 
 /**
@@ -110,6 +116,13 @@ export function notificationText(
 		// Sans expéditeur (#91) : prévenir compte plus que dire qui annule.
 		case 'JAM_CANCELLED':
 			return `La jam${what} est annulée. Ne te déplace pas.`;
+		// Sans expéditeur (#91b) : le signalant n'est jamais nommé, et rien n'est affirmé.
+		case 'JAM_REPORTED':
+			return `Un problème a été signalé sur ta jam${what}. Réponds pour rassurer les inscrit·es, ou annule-la.`;
+		case 'JAM_ALERT':
+			return `Un problème a été signalé sur la jam${what}. Vérifie auprès de l’organisateur avant de te déplacer.`;
+		case 'JAM_INCIDENT_CLOSED':
+			return `Le problème signalé sur la jam${what} a été examiné.`;
 		case 'BAND_INVITE':
 			return `${who} t’invite à rejoindre le groupe${what}.`;
 		case 'BAND_REQUEST':

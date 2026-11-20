@@ -60,16 +60,36 @@ export async function isAdult(actorId: string) {
 	return isIndexable(person?.birthDate);
 }
 
-/** A coché « Prêt·e à organiser des jams » (D51), et est adulte. */
+/**
+ * A coché « Prêt·e à organiser des jams » (D51), est adulte, et n'est pas
+ * sous le coup d'une interdiction d'organiser décidée par la modération
+ * (#91b). La préférence `organizesJams` n'est jamais modifiée par une sanction.
+ */
 export async function isJamOrganizer(actorId: string, now = new Date()) {
-	const person = await prisma.person.findUnique({
-		where: { actorId },
-		select: { organizesJams: true, birthDate: true }
-	});
-	return !!person && canOrganizeJams(person, now);
+	const [person, restricted] = await Promise.all([
+		prisma.person.findUnique({
+			where: { actorId },
+			select: { organizesJams: true, birthDate: true }
+		}),
+		isRestrictedFromOrganizing(actorId, now)
+	]);
+	return !!person && !restricted && canOrganizeJams(person, now);
 }
 
+/** Interdiction d'organiser en vigueur (#91b) ; lue ici pour éviter un cycle d'imports. */
+export async function isRestrictedFromOrganizing(actorId: string, now = new Date()) {
+	return (
+		(await prisma.jamOrganizingRestriction.count({
+			where: { actorId, liftedAt: null, OR: [{ until: null }, { until: { gt: now } }] }
+		})) > 0
+	);
+}
+
+export const RESTRICTED_ERROR =
+	'La modération t’a retiré la possibilité d’organiser des jams pour le moment. Tu peux contester cette décision depuis la page Contact.';
+
 export async function createJam(actorId: string, form: JamForm, now = new Date()) {
+	if (await isRestrictedFromOrganizing(actorId, now)) throw new JamError(RESTRICTED_ERROR, 403);
 	if (!(await isJamOrganizer(actorId, now))) throw new JamError(NOT_ORGANIZER_ERROR, 403);
 	const window = checkJamWindow(form, now);
 	if (!window.ok) throw new JamError(window.error);

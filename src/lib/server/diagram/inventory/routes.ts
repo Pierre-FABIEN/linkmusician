@@ -351,6 +351,19 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 		}
 	},
 	{
+		route: '/(app)/jams/[id]/signaler',
+		domain: 'jams',
+		actors: ['musicien'],
+		services: ['server/jam/incidents', 'server/notifications/service'],
+		entities: ['JamIncident', 'JamIncidentReport', 'Notification'],
+		tests: [...e2e('jam-signalee'), ...it('jam/incidents.integration.test.ts')],
+		issues: [91],
+		actions: {
+			report: 'Signaler que la jam n’a pas lieu (inscrit·e avant le début, depuis le terrain)',
+			respond: 'Répondre à un signalement (organisation de la jam)'
+		}
+	},
+	{
 		route: '/(app)/jams/[id]/presents',
 		domain: 'jams',
 		actors: ['musicien'],
@@ -1228,6 +1241,20 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 		entities: ['Report'],
 		tests: e2e('moderation'),
 		actions: { report: 'Signaler un média' }
+	},
+	{
+		route: '/moderation/jams',
+		domain: 'securite',
+		actors: ['moderation'],
+		services: ['server/jam/incidents', 'server/moderation/service', 'server/audit-log'],
+		entities: ['JamIncident', 'JamIncidentReport', 'JamOrganizingRestriction', 'Sanction'],
+		tests: [...e2e('jam-signalee'), ...it('jam/incidents.integration.test.ts')],
+		issues: [91],
+		actions: {
+			decide:
+				'Classer une jam signalée, ou confirmer le manquement (avertir, interdire d’organiser)',
+			lift: 'Lever une interdiction d’organiser (fin anticipée, recours)'
+		}
 	},
 	{
 		route: '/moderation',

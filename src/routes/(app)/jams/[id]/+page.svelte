@@ -55,6 +55,24 @@
 
 <div class="min-h-screen w-full px-4 pt-6 pb-24 lg:px-8 lg:pt-10">
 	<article class="mx-auto max-w-6xl space-y-6 lg:space-y-8">
+		{#if data.alert}
+			<!-- #91b : avertissement neutre, rien n'est affirmé. -->
+			<p class="lm-alert p-4 text-sm" role="status">
+				Un problème a été signalé sur cette jam. Vérifie auprès de l’organisateur avant de te
+				déplacer.
+			</p>
+		{/if}
+		{#if data.incidentForHost}
+			<p class="lm-alert p-4 text-sm" role="status">
+				Un problème a été signalé sur ta jam.
+				<a href="/jams/{jam.id}/signaler" class="font-semibold underline">Réponds ou annule</a>.
+			</p>
+		{/if}
+		{#if data.canReport}
+			<a href="/jams/{jam.id}/signaler" class="inline-block text-sm underline"
+				>Tu es sur place et la jam n’a pas lieu ? Signale-le</a
+			>
+		{/if}
 		<div class="space-y-2">
 			<a href="/jam" class="text-sm text-muted-foreground underline">← Rencontre</a>
 			<h1 class="lm-title">{jam.title}</h1>

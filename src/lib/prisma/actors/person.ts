@@ -697,25 +697,45 @@ export async function exportPersonData(userId: string) {
 
 	// Confidentialité des activités (D81) : modes, autorisations données,
 	// exclusions et visibilité sur place en cours.
-	const [activityPreference, activityGrants, activityExclusions, discoverySessions] =
-		await Promise.all([
-			prisma.activityVisibilityPreference.findUnique({
-				where: { actorId: person.actorId },
-				select: { past: true, future: true, updatedAt: true }
-			}),
-			prisma.activityVisibilityGrant.findMany({
-				where: { ownerId: person.actorId },
-				select: { createdAt: true, viewer: { select: { displayName: true } } }
-			}),
-			prisma.activityVisibilityExclusion.findMany({
-				where: { ownerId: person.actorId },
-				select: { createdAt: true, excluded: { select: { displayName: true } } }
-			}),
-			prisma.jamDiscoverySession.findMany({
-				where: { actorId: person.actorId },
-				select: { expiresAt: true, opportunity: { select: { title: true } } }
-			})
-		]);
+	const [
+		activityPreference,
+		activityGrants,
+		activityExclusions,
+		discoverySessions,
+		jamReports,
+		jamRestrictions
+	] = await Promise.all([
+		prisma.activityVisibilityPreference.findUnique({
+			where: { actorId: person.actorId },
+			select: { past: true, future: true, updatedAt: true }
+		}),
+		prisma.activityVisibilityGrant.findMany({
+			where: { ownerId: person.actorId },
+			select: { createdAt: true, viewer: { select: { displayName: true } } }
+		}),
+		prisma.activityVisibilityExclusion.findMany({
+			where: { ownerId: person.actorId },
+			select: { createdAt: true, excluded: { select: { displayName: true } } }
+		}),
+		prisma.jamDiscoverySession.findMany({
+			where: { actorId: person.actorId },
+			select: { expiresAt: true, opportunity: { select: { title: true } } }
+		}),
+		// Jams signalées (#91b) : mes signalements, et les interdictions me visant.
+		prisma.jamIncidentReport.findMany({
+			where: { reporterId: person.actorId },
+			select: {
+				reason: true,
+				details: true,
+				createdAt: true,
+				incident: { select: { opportunity: { select: { title: true } } } }
+			}
+		}),
+		prisma.jamOrganizingRestriction.findMany({
+			where: { actorId: person.actorId },
+			select: { reason: true, until: true, createdAt: true, liftedAt: true, liftNote: true }
+		})
+	]);
 	return {
 		actes_de_participation: membershipDecisions.map((d) => ({
 			role:
@@ -950,6 +970,19 @@ export async function exportPersonData(userId: string) {
 			instrument: a.instrument?.name ?? null,
 			le: a.createdAt,
 			j_y_etais: a.attendedAt
+		})),
+		jams_signalees: jamReports.map((r) => ({
+			jam: r.incident.opportunity.title,
+			motif: r.reason,
+			precisions: r.details,
+			le: r.createdAt
+		})),
+		interdictions_d_organiser: jamRestrictions.map((r) => ({
+			motif: r.reason,
+			depuis: r.createdAt,
+			jusqu_a: r.until,
+			levee_le: r.liftedAt,
+			motif_de_levee: r.liftNote
 		})),
 		confidentialite_activites: {
 			jams_passees: activityPreference?.past ?? 'PRIVATE',
@@ -1426,6 +1459,9 @@ export async function personAnonymizationOps(
 			where: { OR: [{ ownerId: person.actorId }, { excludedId: person.actorId }] }
 		}),
 		prisma.jamDiscoverySession.deleteMany({ where: { actorId: person.actorId } }),
+		// Jams signalées (#91b) : signalements et interdictions supprimés avec le compte.
+		prisma.jamIncidentReport.deleteMany({ where: { reporterId: person.actorId } }),
+		prisma.jamOrganizingRestriction.deleteMany({ where: { actorId: person.actorId } }),
 		// Formation (P2-14c) : invitations reçues supprimées, lead retiré (l'hôte
 		// reprend la main). Les lieux confirmés restent, comme les lieux ajoutés.
 		prisma.jamInvite.deleteMany({ where: { actorId: person.actorId } }),

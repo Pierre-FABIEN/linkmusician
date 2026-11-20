@@ -1446,6 +1446,8 @@ model Actor {
   activityExcludedBy   ActivityVisibilityExclusion[] @relation("ActivityExclusionTarget")
   jamDiscoverySessions JamDiscoverySession[]
   jamsCancelled        Opportunity[]                 @relation("JamCanceller")
+  jamIncidentReports   JamIncidentReport[]
+  jamRestrictions      JamOrganizingRestriction[]
   opportunities        Opportunity[]
   applications         Application[]
   collaborationsProposed Collaboration[] @relation("CollaborationProposer")
@@ -2354,6 +2356,8 @@ model Opportunity {
   @@index([venueId, startsAt])
   /// Découverte volontaire sur place (D81) : sessions expirantes.
   discoverySessions JamDiscoverySession[]
+  /// Dossier d'incident « la jam n'a pas lieu » (#91b), un au plus.
+  incident          JamIncident?
 
   @@unique([seriesId, startsAt])
   @@map("opportunities")
@@ -2870,6 +2874,12 @@ enum NotificationType {
   PROJECT_JOINED
   /// Jam annulée, scène ouverte arrêtée (#91).
   JAM_CANCELLED
+  /// À l'organisateur : un problème est signalé sur sa jam (#91b), sans dire par qui.
+  JAM_REPORTED
+  /// Aux autres inscrit·es : avertissement neutre, non accusatoire (#91b).
+  JAM_ALERT
+  /// Le problème signalé a été examiné (#91b).
+  JAM_INCIDENT_CLOSED
 }
 
 /// Notification dans l'app (cloche). Le texte est composé à l'affichage
@@ -4676,4 +4686,89 @@ model JamDiscoverySession {
   @@index([opportunityId, expiresAt])
   @@index([expiresAt])
   @@map("jam_discovery_sessions")
+}
+
+// ─── JAMS SIGNALÉES ET RESTRICTION D'ORGANISER (#91b) ───────────────────────
+// Un·e participant·e inscrit·e avant le début signale, depuis le terrain, que
+// la jam n'a pas lieu. Un dossier par jam, un signalement par personne. Le
+// nombre de signalements priorise, il ne sanctionne jamais. Seule la
+// modération confirme un manquement ; la restriction ne touche que
+// l'organisation de jams.
+
+enum JamIncidentStatus {
+  OPEN
+  /// Classé : jam tenue, souci de bonne foi, signalement infondé.
+  DISMISSED
+  /// Manquement confirmé et imputable à l'organisateur.
+  CONFIRMED
+}
+
+enum JamIncidentReason {
+  /// Aucune jam à cette adresse.
+  NO_JAM
+  /// Le lieu ne savait rien de la jam.
+  VENUE_UNAWARE
+  /// Le lieu était fermé.
+  VENUE_CLOSED
+  OTHER
+}
+
+model JamIncident {
+  id                   String              @id @default(cuid())
+  opportunityId        String              @unique
+  opportunity          Opportunity         @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  status               JamIncidentStatus   @default(OPEN)
+  /// Réponse de l'organisateur (texte brut), vue de la modération.
+  organizerResponse    String?
+  organizerRespondedAt DateTime?
+  decidedAt            DateTime?
+  decidedByUserId      String?
+  decisionNote         String?
+  createdAt            DateTime            @default(now())
+  reports              JamIncidentReport[]
+  restrictions         JamOrganizingRestriction[]
+
+  @@index([status, createdAt])
+  @@map("jam_incidents")
+}
+
+/// Un signalement par personne et par dossier : le renvoyer le met à jour.
+/// L'identité du signalant n'est montrée qu'à la modération.
+model JamIncidentReport {
+  incidentId  String
+  incident    JamIncident       @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  reporterId  String
+  reporter    Actor             @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reason      JamIncidentReason
+  /// Déclaration « je me suis rendu·e sur place » (jamais prouvée par un GPS).
+  wentThere   Boolean
+  details     String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@id([incidentId, reporterId])
+  @@index([reporterId])
+  @@map("jam_incident_reports")
+}
+
+/// Interdiction ciblée d'organiser des jams, décidée par la modération.
+/// Ne touche pas `Person.organizesJams` (préférence volontaire) ni les autres
+/// usages. `until` nul : indéfinie. Levée tracée, avec un recours éventuel.
+model JamOrganizingRestriction {
+  id              String       @id @default(cuid())
+  actorId         String
+  actor           Actor        @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  incidentId      String?
+  incident        JamIncident? @relation(fields: [incidentId], references: [id], onDelete: SetNull)
+  reason          String
+  until           DateTime?
+  createdByUserId String
+  liftedAt        DateTime?
+  liftedByUserId  String?
+  /// Recours ou motif de la levée.
+  liftNote        String?
+  createdAt       DateTime     @default(now())
+
+  @@index([actorId, liftedAt])
+  @@map("jam_organizing_restrictions")
 }

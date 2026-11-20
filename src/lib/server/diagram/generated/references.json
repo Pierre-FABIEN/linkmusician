@@ -71,6 +71,7 @@
 		"e2e/linkmusician/groupes.spec.ts": true,
 		"e2e/linkmusician/inge-son.spec.ts": true,
 		"e2e/linkmusician/inscription-transverse.spec.ts": true,
+		"e2e/linkmusician/jam-signalee.spec.ts": true,
 		"e2e/linkmusician/jams.spec.ts": true,
 		"e2e/linkmusician/lieu-fiche.spec.ts": true,
 		"e2e/linkmusician/lieu-photos.spec.ts": true,
@@ -141,6 +142,7 @@
 		"src/lib/server/jam/afterJamMinors.integration.test.ts": true,
 		"src/lib/server/jam/cancel.integration.test.ts": true,
 		"src/lib/server/jam/crossed.integration.test.ts": true,
+		"src/lib/server/jam/incidents.integration.test.ts": true,
 		"src/lib/server/jam/presence.integration.test.ts": true,
 		"src/lib/server/jam/series.integration.test.ts": true,
 		"src/lib/server/jam/venueHosts.integration.test.ts": true,
@@ -212,6 +214,7 @@
 		"src/routes/(app)/jam/mes-jams/+page.server.ts": true,
 		"src/routes/(app)/jams/[id]/+page.server.ts": true,
 		"src/routes/(app)/jams/[id]/presents/+page.server.ts": true,
+		"src/routes/(app)/jams/[id]/signaler/+page.server.ts": true,
 		"src/routes/(app)/jams/nouvelle/+page.server.ts": true,
 		"src/routes/(app)/jouer/[mode]/+page.server.ts": true,
 		"src/routes/(app)/jouer/+page.server.ts": true,
@@ -303,6 +306,7 @@
 		"src/routes/ecole/[token]/+page.server.ts": true,
 		"src/routes/medias/[id]/+page.server.ts": true,
 		"src/routes/moderation/+page.server.ts": true,
+		"src/routes/moderation/jams/+page.server.ts": true,
 		"src/routes/notifications/desinscription/+page.server.ts": true,
 		"src/routes/qui-es-tu/+page.server.ts": true,
 		"src/routes/sitemap.xml/+server.ts": true
@@ -318,6 +322,7 @@
 		"server/actors/trackStep": true,
 		"server/actors/visibility": true,
 		"server/agencies/service": true,
+		"server/audit-log": true,
 		"server/bands/service": true,
 		"server/bands/service.createBand": true,
 		"server/blocking/service": true,
@@ -344,6 +349,7 @@
 		"server/jam/afterJam": true,
 		"server/jam/availability": true,
 		"server/jam/cancel": true,
+		"server/jam/incidents": true,
 		"server/jam/log": true,
 		"server/jam/publicJams": true,
 		"server/jam/series": true,
@@ -489,7 +495,10 @@
 		"JamAttendance",
 		"JamDiscoverySession",
 		"JamEndorsement",
+		"JamIncident",
+		"JamIncidentReport",
 		"JamInvite",
+		"JamOrganizingRestriction",
 		"JamSeries",
 		"JamSpot",
 		"LoginEvent",
@@ -802,5 +811,5 @@
 			"label": "Acceptée (20/11/2026), demandée par le fondateur"
 		}
 	},
-	"code": { "triggers": 390, "inventoried": 303, "outOfScope": 87, "missing": [] }
+	"code": { "triggers": 394, "inventoried": 307, "outOfScope": 87, "missing": [] }
 }

@@ -47,7 +47,20 @@
 			</p>
 		{/if}
 
-		{#if data.venues.length === 0}
+		{#if data.restricted}
+			<!-- #91b : interdiction d'organiser décidée par la modération. -->
+			<section class="lm-alert space-y-2 p-4" role="status">
+				<p class="font-semibold">
+					La modération t’a retiré la possibilité d’organiser des jams{data.restricted.until
+						? ` jusqu’au ${new Date(data.restricted.until).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' })}`
+						: ''}.
+				</p>
+				<p class="text-sm">
+					Tu peux toujours venir aux jams, écrire et jouer. Pour contester cette décision,
+					écris-nous depuis la page <a href="/contact" class="font-semibold underline">Contact</a>.
+				</p>
+			</section>
+		{:else if data.venues.length === 0}
 			<p class="rounded-md border p-3 text-sm">
 				Aucun lieu de l’annuaire autour de toi.
 				<a href="/lieux/nouveau" class="font-semibold underline">Ajoute d’abord le lieu</a>.

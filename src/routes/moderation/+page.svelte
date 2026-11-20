@@ -25,7 +25,11 @@
 		<div class="mx-auto max-w-3xl space-y-10">
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<h1 class="lm-title lm-title--sm">Modération</h1>
-				<a href="/moderation/journal" class="lm-btn" data-variant="ghost">Journal des décisions</a>
+				<div class="flex flex-wrap gap-2">
+					<a href="/moderation/jams" class="lm-btn" data-variant="ghost">Jams signalées</a>
+					<a href="/moderation/journal" class="lm-btn" data-variant="ghost">Journal des décisions</a
+					>
+				</div>
 			</div>
 
 			<section class="space-y-4" aria-labelledby="orgs-title">

@@ -3,13 +3,13 @@
 > **Fichier généré** par `npm run diagram:sync`. Les chiffres viennent de
 > l’inventaire réel ; ils mesurent la documentation, pas la qualité du code.
 
-**Total** : 323 processus, 306 implémentés, 14 documentés par un diagramme, 14 aux références toutes vérifiées. **7 diagrammes**.
+**Total** : 327 processus, 310 implémentés, 14 documentés par un diagramme, 14 aux références toutes vérifiées. **7 diagrammes**.
 
 | Domaine                  | Inventoriés | Implémentés | Testés | Conçus ou prévus | Documentés | Références vérifiées | Diagrammes |
 | ------------------------ | ----------: | ----------: | -----: | ---------------: | ---------: | -------------------: | ---------: |
 | Identités et inscription |          30 |          27 |     27 |                3 |     0 / 27 |                0 / 0 |          0 |
 | Rencontre                |          11 |          11 |     11 |                0 |     1 / 11 |                1 / 1 |          0 |
-| Jams                     |          17 |          17 |     17 |                0 |     0 / 17 |                0 / 0 |          0 |
+| Jams                     |          19 |          19 |     19 |                0 |     0 / 19 |                0 / 0 |          0 |
 | Groupes                  |          21 |          21 |     20 |                0 |     3 / 21 |                3 / 3 |          0 |
 | Projets                  |          20 |          18 |     18 |                2 |     5 / 18 |                5 / 5 |          3 |
 | Besoins                  |           9 |           7 |      7 |                2 |      3 / 7 |                3 / 3 |          3 |
@@ -21,7 +21,7 @@
 | Scène                    |          30 |          26 |     25 |                4 |     0 / 26 |                0 / 0 |          0 |
 | Métiers pros             |          36 |          33 |     33 |                3 |     0 / 33 |                0 / 0 |          0 |
 | Carrière et progression  |          25 |          24 |     24 |                1 |     0 / 24 |                0 / 0 |          0 |
-| Sécurité et RGPD         |          61 |          60 |     57 |                1 |     0 / 60 |                0 / 0 |          0 |
+| Sécurité et RGPD         |          63 |          62 |     59 |                1 |     0 / 62 |                0 / 0 |          0 |
 | Processus transversaux   |          16 |          16 |     13 |                0 |     0 / 16 |                0 / 0 |          1 |
 
 ## Diagrammes
@@ -38,12 +38,12 @@
 
 ## Contrôles
 
-- **Processus implémentés sans diagramme détaillé** : 292
+- **Processus implémentés sans diagramme détaillé** : 296
 - **Diagrammes sans source .drawio lisible** : 0
 - **Références inexistantes (fichier, service, entité, décision)** : 0
 - **Acteurs sans parcours ni couloir** : 18
 - **Relations entre diagrammes manquantes ou asymétriques** : 0
-- **Processus implémentés sans cas d’erreur documenté** : 277
+- **Processus implémentés sans cas d’erreur documenté** : 281
 - **Transitions sans permission documentée** : 0
 - **Déclarés testés sans référence de test** : 0
 - **Liés à une décision encore proposée** : 2
