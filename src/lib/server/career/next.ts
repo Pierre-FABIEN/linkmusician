@@ -12,7 +12,7 @@
  *   propositions d'accompagnement sans blocage, candidatures, contacts ;
  * - rang 3 : étapes prises en charge sur un morceau que je gère
  *   (`manageableOwnerWhere`, comme `applyWorkStep`), idées récentes ;
- * - rang 4 : `workNetworkFacts` (réseau réel `MusicalTie`, `nextProductionNeed`,
+ * - rang 4 : `workNetworkFacts` (carnet volontaire `SavedContact`, D82, `nextProductionNeed`,
  *   places libres), limité aux morceaux que je gère ;
  * - rang 5 : épreuves à portée de la carte N2, objectif fourni par l'appelant.
  *
@@ -209,7 +209,7 @@ export async function nextFactsFor(
 			workId: w.id,
 			title: w.title,
 			need: w.need,
-			// Nommer seulement des adultes du réseau réel, visibles, hors équipe (§8.8).
+			// Nommer seulement des adultes du carnet, visibles, hors équipe (§8.8).
 			pros: adultOnly(w.pros),
 			openRoles: w.openRoles.map((r) => ({
 				instrument: r.instrument,

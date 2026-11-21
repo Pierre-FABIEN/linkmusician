@@ -139,7 +139,7 @@ describe.skipIf(!enabled)(
 					}
 				}
 			});
-			await db.musicalTie.create({ data: { ownerId: ids.pisteur, contactId: ids.lea } });
+			await db.savedContact.create({ data: { ownerId: ids.pisteur, contactId: ids.lea } });
 			// Une jam à venir : Léa est dans la formation.
 			const guitar = await db.instrument.findFirstOrThrow({ where: { active: true } });
 			const nextStart = new Date(NOW.getTime() + 24 * HOUR);
@@ -202,9 +202,13 @@ describe.skipIf(!enabled)(
 			expect((await myNetwork(ids.pisteur, NOW))[0]).toMatchObject({ jamsTogether: 0 });
 			// Une présence commune ne prouve plus qu'on a joué ensemble.
 			expect(await playedTogether(ids.pisteur, ids.lea)).toBe(false);
-			await expect(keepInTouch(ids.pisteur, `${PREFIX}malik`, NOW)).rejects.toMatchObject({
-				message: 'Ton réseau musical, ce sont les gens avec qui tu as vraiment joué.'
+			// Garder le contact ne dépend plus d'une présence (D82) : il ne la teste donc pas.
+			await expect(keepInTouch(ids.pisteur, `${PREFIX}malik`, NOW)).resolves.toMatchObject({
+				displayName: 'Presence malik'
 			});
+			expect(
+				(await myNetwork(ids.pisteur, NOW)).find((n) => n.handle === `${PREFIX}malik`)
+			).toMatchObject({ jamsTogether: 0 });
 		});
 
 		it('la formation et les compteurs d’une jam à venir ne nomment ni ne comptent personne', async () => {

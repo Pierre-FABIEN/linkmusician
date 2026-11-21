@@ -141,8 +141,8 @@
 							>
 								<p class="lm-tile__kicker">
 									{person.jamsTogether > 0
-										? `${person.jamsTogether} jam${person.jamsTogether > 1 ? 's' : ''} ensemble`
-										: 'dans ton réseau'}
+										? `${person.jamsTogether} ${person.jamsTogether > 1 ? 'mêmes jams déclarées' : 'même jam déclarée'}`
+										: 'dans tes contacts'}
 								</p>
 								<div class="space-y-1">
 									<h3 class="lm-tile__title">{person.displayName}</h3>

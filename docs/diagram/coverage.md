@@ -3,12 +3,12 @@
 > **Fichier généré** par `npm run diagram:sync`. Les chiffres viennent de
 > l’inventaire réel ; ils mesurent la documentation, pas la qualité du code.
 
-**Total** : 327 processus, 310 implémentés, 14 documentés par un diagramme, 14 aux références toutes vérifiées. **7 diagrammes**.
+**Total** : 329 processus, 312 implémentés, 14 documentés par un diagramme, 14 aux références toutes vérifiées. **7 diagrammes**.
 
 | Domaine                  | Inventoriés | Implémentés | Testés | Conçus ou prévus | Documentés | Références vérifiées | Diagrammes |
 | ------------------------ | ----------: | ----------: | -----: | ---------------: | ---------: | -------------------: | ---------: |
 | Identités et inscription |          30 |          27 |     27 |                3 |     0 / 27 |                0 / 0 |          0 |
-| Rencontre                |          11 |          11 |     11 |                0 |     1 / 11 |                1 / 1 |          0 |
+| Rencontre                |          13 |          13 |     13 |                0 |     1 / 13 |                1 / 1 |          0 |
 | Jams                     |          19 |          19 |     19 |                0 |     0 / 19 |                0 / 0 |          0 |
 | Groupes                  |          21 |          21 |     20 |                0 |     3 / 21 |                3 / 3 |          0 |
 | Projets                  |          20 |          18 |     18 |                2 |     5 / 18 |                5 / 5 |          3 |
@@ -38,12 +38,12 @@
 
 ## Contrôles
 
-- **Processus implémentés sans diagramme détaillé** : 296
+- **Processus implémentés sans diagramme détaillé** : 298
 - **Diagrammes sans source .drawio lisible** : 0
 - **Références inexistantes (fichier, service, entité, décision)** : 0
 - **Acteurs sans parcours ni couloir** : 18
 - **Relations entre diagrammes manquantes ou asymétriques** : 0
-- **Processus implémentés sans cas d’erreur documenté** : 281
+- **Processus implémentés sans cas d’erreur documenté** : 283
 - **Transitions sans permission documentée** : 0
 - **Déclarés testés sans référence de test** : 0
 - **Liés à une décision encore proposée** : 2

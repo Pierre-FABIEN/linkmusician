@@ -152,7 +152,7 @@ describe.skipIf(!enabled)('confidentialité des activités (schéma e2e)', { tim
 			]
 		});
 		// Le pisteur garde Léa dans son carnet et lui parle : rien ne s'ouvre.
-		await db.musicalTie.create({ data: { ownerId: ids.pisteur, contactId: ids.lea } });
+		await db.savedContact.create({ data: { ownerId: ids.pisteur, contactId: ids.lea } });
 		await db.conversation.create({
 			data: {
 				pairKey: pairKey(ids.pisteur, ids.lea),
@@ -182,7 +182,9 @@ describe.skipIf(!enabled)('confidentialité des activités (schéma e2e)', { tim
 		await expect(
 			endorse(pastJam, ids.pisteur, { to: handle('lea'), quality: 'GROOVE' }, NOW)
 		).rejects.toMatchObject({ status: 404, message: 'Personne inconnue.' });
-		await expect(keepInTouch(ids.pisteur, handle('lea'), NOW)).rejects.toThrow(/vraiment joué/);
+		// Enregistrer Léa réussit sans rien révéler de ses jams (D82).
+		await keepInTouch(ids.pisteur, handle('lea'), NOW);
+		expect(await sees('pisteur', 'lea')).toBe(false);
 	});
 
 	it('une autorisation seule ne suffit pas : il faut aussi choisir ce partage', async () => {

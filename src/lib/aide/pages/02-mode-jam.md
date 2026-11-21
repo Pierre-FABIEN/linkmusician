@@ -207,8 +207,9 @@ Dès le début de la jam et pendant **7 jours** après (le plus simple :
    jam. Ce n’est pas proposé avant 18 ans.
 4. Laisse une **appréciation** à quelqu’un que tu vois dans la liste : une
    qualité (**bon groove**, **à l’écoute**, **belle impro**, **fiable**) ou
-   son instrument. Puis **Garder le contact**, pour lui écrire par l’app,
-   **sans échanger ton numéro**.
+   son instrument. Puis **Garder le contact** l’ajoute à ton carnet privé,
+   sans lui écrire ni le prévenir. Tu peux lui envoyer séparément une demande
+   de conversation, **sans échanger ton numéro**.
 
 Tu as croisé quelqu’un que tu ne vois pas dans la liste ? Retrouve son profil
 dans **Découvrir** et envoie-lui une demande de conversation. Et pour la

@@ -201,10 +201,10 @@ describe.skipIf(!enabled)('recherche de musicien·nes (schéma e2e)', () => {
 	});
 
 	it('son réseau musical remonte en tête (P2-16), jamais l’XP', async () => {
-		await db.musicalTie.create({ data: { ownerId: ids.moi, contactId: ids.montauban } });
+		await db.savedContact.create({ data: { ownerId: ids.moi, contactId: ids.montauban } });
 		expect(await search('rayon=50')).toEqual(['montauban', 'blagnac', 'muret']);
 		expect(await search('rayon=50&instrument=batterie')).toEqual(['blagnac', 'muret']);
-		await db.musicalTie.deleteMany({ where: { ownerId: ids.moi } });
+		await db.savedContact.deleteMany({ where: { ownerId: ids.moi } });
 	});
 
 	it('réputation : départage dans une même tranche, sans franchir les tranches (P2-08, D33)', async () => {

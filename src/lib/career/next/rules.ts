@@ -403,10 +403,10 @@ function needs(f: NextFacts): Candidate[] {
 					.join(',')}`
 			};
 			if (w.pros.length > 0) {
-				// Seulement des personnes du réseau réel (« vous avez joué ensemble »), §8.8.
+				// Seulement des personnes de son carnet (D82) : enregistrées, sans rien affirmer de plus.
 				out.push({
 					...base,
-					why: `${namesOf(w.pros)}, ${prosPhrase(w.pros)} de ton réseau : vous avez déjà joué ensemble.`,
+					why: `${namesOf(w.pros)}, ${prosPhrase(w.pros)} de tes contacts : tu peux lui écrire.`,
 					href: `/@${w.pros[0].handle}`,
 					cta: `Voir le profil de ${firstName(w.pros[0])}`
 				});

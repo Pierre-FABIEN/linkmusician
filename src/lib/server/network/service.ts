@@ -1,12 +1,15 @@
 /**
- * Réseau musical (P2-16) : les gens avec qui l'on a vraiment joué et que
- * l'on garde (« Garder le contact »). On garde quelqu'un avec qui l'on a une
- * collaboration confirmée, ou croisé à une jam **dont on voit la présence**
- * (partage consenti, découverte sur place, D81). `playedTogether` ne compte
- * jamais les jams : déclarée librement, une présence ne prouve rien.
+ * Carnet de contacts (D82, #99 ; ex-« réseau musical » P2-16) : les acteurs
+ * que l'on enregistre volontairement (`SavedContact`), depuis un profil,
+ * Découvrir ou une jam. Sans prérequis, sans notification, sans réciprocité,
+ * et sans aucun droit : ni d'écrire, ni d'inviter, ni de voir ses jams (D81).
+ * `MusicalTie` n'est plus écrit (repris dans le carnet).
  *
- * Le réseau remonte en tête des recherches et des suggestions
- * d'invitation. Il n'a rien à voir avec l'XP, et reste privé.
+ * `playedTogether` dit si deux personnes ont **vraiment** joué ensemble :
+ * une collaboration confirmée, jamais une jam (déclarée librement).
+ *
+ * Le carnet fait remonter ses contacts en tête de ses propres recherches et
+ * suggestions : privé, sans effet pour l'autre. Jamais l'XP.
  */
 import { prisma } from '#lib/server';
 import { publicActorWhere } from '#lib/server/actors/visibility';
@@ -35,46 +38,20 @@ export async function playedTogether(a: string, b: string): Promise<boolean> {
 }
 
 /**
- * Une jam où les deux ont dit « J'y étais », et où la présence du contact est
- * visible pour moi (partage consenti ou découverte sur place, D81). Sans
- * cela, réussir à garder le contact révélerait une présence.
+ * Enregistrer un acteur visible (personne ou structure) dans son carnet.
+ * Idempotent, sans notification. Personne d'invisible n'est révélé : même
+ * réponse pour un identifiant inconnu, masqué ou bloqué.
  */
-async function sharedVisibleJam(ownerId: string, contactId: string, now: Date) {
-	const jams = await prisma.jamAttendance.findMany({
-		where: {
-			actorId: contactId,
-			attendedAt: { not: null },
-			opportunity: { attendances: { some: { actorId: ownerId, attendedAt: { not: null } } } }
-		},
-		orderBy: { createdAt: 'desc' },
-		take: 5,
-		select: { opportunityId: true }
-	});
-	for (const j of jams) {
-		const visible = await visibleOwnerIds(ownerId, [contactId], {
-			scope: 'past',
-			jamId: j.opportunityId,
-			now
-		});
-		if (visible.has(contactId)) return true;
-	}
-	return false;
-}
-
-/** « Garder le contact » : ajoute la personne à son réseau musical. */
-export async function keepInTouch(ownerId: string, handle: string, now = new Date()) {
+export async function saveContact(ownerId: string, handle: string, now = new Date()) {
 	const contact = await prisma.actor.findFirst({
-		where: { handle, person: { isNot: null }, ...publicActorWhere(now, ownerId) },
+		where: {
+			handle: handle.trim().replace(/^@/, '').toLowerCase(),
+			...publicActorWhere(now, ownerId)
+		},
 		select: { id: true, displayName: true }
 	});
-	if (!contact) throw new NetworkError('Personne inconnue.', 404);
-	if (
-		!(await playedTogether(ownerId, contact.id)) &&
-		!(await sharedVisibleJam(ownerId, contact.id, now))
-	) {
-		throw new NetworkError('Ton réseau musical, ce sont les gens avec qui tu as vraiment joué.');
-	}
-	await prisma.musicalTie.upsert({
+	if (!contact || contact.id === ownerId) throw new NetworkError('Personne inconnue.', 404);
+	await prisma.savedContact.upsert({
 		where: { ownerId_contactId: { ownerId, contactId: contact.id } },
 		create: { ownerId, contactId: contact.id },
 		update: {}
@@ -82,23 +59,44 @@ export async function keepInTouch(ownerId: string, handle: string, now = new Dat
 	return contact;
 }
 
-export async function leaveNetwork(ownerId: string, handle: string) {
-	await prisma.musicalTie.deleteMany({ where: { ownerId, contact: { handle } } });
+/** « Garder le contact » après une jam : même chose qu'enregistrer (D82). */
+export const keepInTouch = saveContact;
+
+/** Retirer du carnet : sans notification ; possible même si le profil n'est plus visible. */
+export async function removeContact(ownerId: string, handle: string) {
+	await prisma.savedContact.deleteMany({
+		where: { ownerId, contact: { handle: handle.trim().replace(/^@/, '').toLowerCase() } }
+	});
+}
+export const leaveNetwork = removeContact;
+
+/** L'acteur de cet identifiant est-il dans mon carnet ? (profil, sans rien révéler d'autre) */
+export async function isSavedHandle(ownerId: string, handle: string) {
+	return (
+		(await prisma.savedContact.count({
+			where: { ownerId, contact: { handle: handle.trim().replace(/^@/, '').toLowerCase() } }
+		})) > 0
+	);
 }
 
-/** Identifiants des personnes de son réseau (pour marquer les cartes). */
+/** Est-il dans mon carnet ? */
+export async function isSaved(ownerId: string, contactId: string) {
+	return (await prisma.savedContact.count({ where: { ownerId, contactId } })) > 0;
+}
+
+/** Identifiants de son carnet (pour marquer les cartes). */
 export async function networkIdsOf(ownerId: string): Promise<Set<string>> {
-	const ties = await prisma.musicalTie.findMany({
+	const saved = await prisma.savedContact.findMany({
 		where: { ownerId },
 		select: { contactId: true }
 	});
-	return new Set(ties.map((t) => t.contactId));
+	return new Set(saved.map((t) => t.contactId));
 }
 
-/** Son réseau musical : visible, avec instruments et jams partagées. */
+/** Son carnet, côté Rencontre : visible, avec instruments et mêmes jams déclarées (D81). */
 export async function myNetwork(ownerId: string, now = new Date()) {
-	const ties = await prisma.musicalTie.findMany({
-		where: { ownerId, contact: publicActorWhere(now, ownerId) },
+	const ties = await prisma.savedContact.findMany({
+		where: { ownerId, contact: { ...publicActorWhere(now, ownerId), person: { isNot: null } } },
 		orderBy: { createdAt: 'desc' },
 		select: {
 			createdAt: true,
@@ -154,7 +152,7 @@ export async function myNetwork(ownerId: string, now = new Date()) {
 export async function inviteSuggestions(actorId: string, now = new Date()): Promise<string[]> {
 	const visible = publicActorWhere(now, actorId);
 	const [ties, others] = await Promise.all([
-		prisma.musicalTie.findMany({
+		prisma.savedContact.findMany({
 			where: { ownerId: actorId, contact: visible },
 			orderBy: { createdAt: 'desc' },
 			take: 50,

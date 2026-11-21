@@ -945,7 +945,7 @@ export async function inviteCandidates(bandId: string, personId: string, now = n
 	});
 	const exclude = [personId, ...taken.map((t) => t.personId)];
 	const [ties, conversations] = await Promise.all([
-		prisma.musicalTie.findMany({
+		prisma.savedContact.findMany({
 			where: { ownerId: personId, contactId: { notIn: exclude } },
 			orderBy: { createdAt: 'desc' },
 			take: 12,

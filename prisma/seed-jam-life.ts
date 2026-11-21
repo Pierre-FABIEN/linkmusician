@@ -405,7 +405,7 @@ export async function seedJamLife(
 	];
 	let discussions = 0;
 	for (const [owner, name] of groups) {
-		const ties = await prisma.musicalTie.findMany({
+		const ties = await prisma.savedContact.findMany({
 			where: { ownerId: P(owner) },
 			select: { contactId: true }
 		});

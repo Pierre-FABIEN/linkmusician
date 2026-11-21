@@ -282,7 +282,7 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 		domain: 'rencontre',
 		actors: ['musicien'],
 		services: ['server/jam/log', 'server/network/service'],
-		entities: ['MusicalTie', 'JamAttendance'],
+		entities: ['SavedContact', 'JamAttendance'],
 		tests: e2e('jams'),
 		actions: { leave: 'Retirer une jam de son carnet' }
 	},
@@ -291,9 +291,9 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 		domain: 'rencontre',
 		actors: ['membre'],
 		services: ['server/contacts/service', 'server/discussions/service'],
-		entities: ['ContactGroup', 'ContactGroupMember', 'GroupDiscussion'],
+		entities: ['SavedContact', 'ContactGroup', 'ContactGroupMember', 'GroupDiscussion'],
 		tests: [...e2e('contacts', 'discussions'), ...it('contacts/service.integration.test.ts')],
-		decisions: ['D45', 'D46'],
+		decisions: ['D45', 'D46', 'D82'],
 		actions: {
 			createGroup: 'Créer un groupe de contacts',
 			renameGroup: 'Renommer un groupe de contacts',
@@ -368,7 +368,7 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 		domain: 'jams',
 		actors: ['musicien'],
 		services: ['server/jam/afterJam', 'server/endorsements/service'],
-		entities: ['JamAttendance', 'JamEndorsement', 'MusicalTie', 'DomainEvent'],
+		entities: ['JamAttendance', 'JamEndorsement', 'SavedContact', 'DomainEvent'],
 		tests: [
 			...e2e('jams'),
 			...it(
@@ -385,7 +385,7 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 				title: 'Apprécier une personne croisée (seule source d’XP de la jam)',
 				domain: 'carriere'
 			},
-			keep: 'Garder une personne dans son carnet (collaboration, ou présence visible)',
+			keep: 'Ajouter une personne croisée à son carnet (D82)',
 			discover: 'Me rendre visible pour rencontrer des musicien·nes ici (réciproque, expirant)',
 			hide: 'Ne plus être visible sur place'
 		}
@@ -1227,6 +1227,24 @@ export const ROUTE_GROUPS: RouteGroup[] = [
 			join: { title: 'Demander à rejoindre un groupe depuis sa page', domain: 'groupes' },
 			contestMilestone: { title: 'Contester une étape publique', domain: 'carriere' },
 			block: { title: 'Bloquer depuis un profil', domain: 'securite' },
+			saveContact: {
+				title: 'Ajouter à mes contacts, sans écrire ni prévenir (D82)',
+				domain: 'rencontre',
+				services: ['server/network/service'],
+				entities: ['SavedContact'],
+				decisions: ['D82'],
+				issues: [99],
+				tests: [...e2e('carnet'), ...it('network/carnet.integration.test.ts')]
+			},
+			unsaveContact: {
+				title: 'Retirer de mes contacts',
+				domain: 'rencontre',
+				services: ['server/network/service'],
+				entities: ['SavedContact'],
+				decisions: ['D82'],
+				issues: [99],
+				tests: [...e2e('carnet'), ...it('network/carnet.integration.test.ts')]
+			},
 			shareJams: { title: 'Autoriser la personne à voir mes jams (D81)', domain: 'securite' },
 			unshareJams: { title: 'Retirer l’autorisation de voir mes jams', domain: 'securite' },
 			hideJams: { title: 'Masquer mes jams à la personne (D81)', domain: 'securite' },

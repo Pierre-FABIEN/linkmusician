@@ -95,6 +95,19 @@ relation préalable.
 Profils/Collab. Rencontre valide au minimum les fonctions dont il dépend, sans
 fermer ces tickets.
 
+**État (21/11/2026) : RV-02a, carnet volontaire.** Le sous-lot #99
+introduit `SavedContact` ([D82](../decisions/D82-carnet-volontaire.md)) : ajout
+et retrait depuis les profils publics (personnes et structures), reprise des
+anciens liens et groupes, carnet indépendant des conversations, invitations
+et présentations protégées par une conversation acceptée, libellés de jams
+déclarées corrigés. Les protections des mineur·es ne sont plus contournables
+par l'ajout au carnet dans les suggestions et le premier résultat.
+
+**Suite RV-02b :** élargir Découvrir à tous les acteurs publics (l'écran
+actuel reste une recherche de personnes), puis compléter l'organisation et
+la navigation des trois espaces. #99 reste donc partielle ; #26 et #27
+restent ouvertes. Vérifications et limites : [bilan RV-02a](rv-02a-carnet.md).
+
 ### RV-03 — Jam complète
 
 | Issue | Travail attendu                                                                               |

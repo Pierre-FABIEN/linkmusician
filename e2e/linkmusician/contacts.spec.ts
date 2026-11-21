@@ -29,8 +29,8 @@ test.describe('LinkMusician — contacts', () => {
 				instrument: ['batterie', 4]
 			});
 			created.push(malik);
-			// « Garder le contact » après une jam (P2-16, e2e jams).
-			await db.musicalTie.create({ data: { ownerId: me.actorId, contactId: malik.actorId } });
+			// Carnet (D82) : Malik enregistré, sans conversation (parcours couvert par carnet.spec.ts).
+			await db.savedContact.create({ data: { ownerId: me.actorId, contactId: malik.actorId } });
 
 			await test.step('1. Messages → Contacts : Malik est dans mon carnet', async () => {
 				await page.goto('/messages');
@@ -42,7 +42,7 @@ test.describe('LinkMusician — contacts', () => {
 				await expect(page).toHaveURL(/\/messages\/contacts$/);
 				const carnet = page.getByRole('list', { name: 'Mon carnet' });
 				await expect(carnet).toContainText(malik.displayName);
-				await expect(carnet).toContainText('Vous avez joué ensemble');
+				await expect(carnet).toContainText('Dans ton carnet');
 				await expect(
 					carnet.getByRole('link', { name: `Écrire à ${malik.displayName}` })
 				).toHaveAttribute('href', `/messages/nouveau?a=${malik.handle}`);

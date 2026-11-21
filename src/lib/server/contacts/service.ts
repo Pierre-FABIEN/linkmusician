@@ -2,12 +2,15 @@
  * Contacts (P3-16b, D45, D46), seul point d'écriture de `ContactGroup` et
  * `ContactGroupMember`. Règles pures : `#lib/contacts/rules`.
  *
- * - Les **contacts** d'une personne : son carnet (`MusicalTie`, « Garder le
- *   contact » après avoir joué ensemble) et les personnes avec qui elle a
- *   une conversation ouverte des deux côtés. Jamais un profil masqué,
- *   suspendu ou séparé par un blocage (`publicActorWhere`).
- * - Pour chacun : comment on s'est rencontrés (jams, collaborations) et les
- *   projets partagés (groupes, morceaux crédités des deux côtés).
+ * - Les **contacts** d'une personne : son **carnet** (`SavedContact`, D82),
+ *   rempli volontairement, sans prérequis ni notification. Une conversation
+ *   n'y ajoute personne. Jamais un profil masqué, suspendu ou séparé par un
+ *   blocage (`publicActorWhere`), sans rien révéler de lui.
+ * - Le carnet ne donne aucun droit. Inviter dans une discussion de groupe
+ *   exige en plus une conversation acceptée (`isReachableContact`).
+ * - Pour chacun : ce qui est réellement établi (collaborations confirmées,
+ *   même jam déclarée si sa présence m'est visible, D81) et les projets
+ *   partagés (groupes, morceaux crédités des deux côtés).
  * - Les **groupes de contacts** sont privés et ne contiennent que des
  *   contacts. Ils ouvriront une discussion de groupe (P3-16c).
  */
@@ -33,10 +36,10 @@ export class ContactError extends Error {
 
 const present = { attendedAt: { not: null } } as const;
 
-/** Identifiants des contacts (carnet et conversations ouvertes). */
+/** Identifiants du carnet, et la conversation ouverte avec chacun s'il y en a une. */
 async function contactIdsOf(ownerId: string, now: Date) {
-	const [ties, conversations] = await Promise.all([
-		prisma.musicalTie.findMany({
+	const [saved, conversations] = await Promise.all([
+		prisma.savedContact.findMany({
 			where: { ownerId, contact: publicActorWhere(now, ownerId) },
 			select: { contactId: true }
 		}),
@@ -48,22 +51,23 @@ async function contactIdsOf(ownerId: string, now: Date) {
 			select: { id: true, participants: { select: { actorId: true } } }
 		})
 	]);
-	const carnet = new Set(ties.map((t) => t.contactId));
+	const ids = new Set(saved.map((t) => t.contactId));
 	const conversationWith = new Map<string, string>();
 	for (const c of conversations) {
 		for (const p of c.participants)
-			if (p.actorId !== ownerId) conversationWith.set(p.actorId, c.id);
+			if (p.actorId !== ownerId && ids.has(p.actorId)) conversationWith.set(p.actorId, c.id);
 	}
-	// Les conversations : seulement des profils visibles.
-	const others = [...conversationWith.keys()].filter((id) => !carnet.has(id));
-	const visible = others.length
-		? await prisma.actor.findMany({
-				where: { id: { in: others }, kind: 'PERSON', ...publicActorWhere(now, ownerId) },
-				select: { id: true }
-			})
-		: [];
-	const ids = new Set([...carnet, ...visible.map((v) => v.id)]);
-	return { ids, carnet, conversationWith };
+	return { ids, carnet: ids, conversationWith };
+}
+
+/**
+ * Contact joignable dans un groupe : dans mon carnet **et** avec une
+ * conversation acceptée des deux côtés (D82). Le carnet seul ne permet pas
+ * d'inviter un·e inconnu·e : la demande de premier message passe d'abord.
+ */
+export async function isReachableContact(ownerId: string, contactId: string, now = new Date()) {
+	const { ids, conversationWith } = await contactIdsOf(ownerId, now);
+	return ids.has(contactId) && conversationWith.has(contactId);
 }
 
 /** Les identifiants de mes contacts (U3 : personnes connues à inviter dans un projet). */
@@ -86,6 +90,7 @@ export async function myContacts(ownerId: string, now = new Date()) {
 			where: { id: { in: list } },
 			select: {
 				id: true,
+				kind: true,
 				handle: true,
 				displayName: true,
 				person: {
@@ -189,6 +194,8 @@ export async function myContacts(ownerId: string, now = new Date()) {
 				id: a.id,
 				handle: a.handle,
 				displayName: a.displayName,
+				/** Une structure (groupe, lieu, organisation) aussi peut être enregistrée. */
+				isPerson: a.kind === 'PERSON',
 				instruments: a.person?.instruments.map((i) => i.instrument.name) ?? [],
 				inCarnet,
 				howWeMet: howWeMet({
@@ -256,7 +263,7 @@ export async function addToContactGroup(
 		select: { id: true, displayName: true }
 	});
 	if (!contact || !(await isContact(ownerId, contact.id, now))) {
-		throw new ContactError('On ne met dans un groupe que ses contacts.');
+		throw new ContactError('On ne met dans un groupe que des personnes de son carnet.');
 	}
 	if (group._count.members >= MAX_GROUP_MEMBERS) {
 		throw new ContactError(`${MAX_GROUP_MEMBERS} personnes au plus par groupe.`);

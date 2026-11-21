@@ -185,12 +185,12 @@ describe.skipIf(!enabled)('choix des prochaines actions (schéma e2e)', { timeou
 		await db.soundEngineerProfile.create({
 			data: { personId: ids.ines, specialties: ['MIXING'] }
 		});
-		await db.musicalTie.create({ data: { ownerId: ids.moi, contactId: ids.ines } });
+		await db.savedContact.create({ data: { ownerId: ids.moi, contactId: ids.ines } });
 		try {
 			const out = await nextActionsFor(reader('moi'), ALL);
 			expect(out.map((s) => s.key)).toContain(aube);
 		} finally {
-			await db.musicalTie.deleteMany({ where: { ownerId: ids.moi } });
+			await db.savedContact.deleteMany({ where: { ownerId: ids.moi } });
 			await db.soundEngineerProfile.deleteMany({ where: { personId: ids.ines } });
 		}
 		// Sans ce fait, le report s'applique de nouveau.

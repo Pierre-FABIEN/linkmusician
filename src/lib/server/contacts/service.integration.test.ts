@@ -95,7 +95,7 @@ describe.skipIf(!enabled)('contacts (schéma e2e)', { timeout: 90_000 }, () => {
 			).id;
 		}
 		// Malik : gardé après avoir joué, et dans le même groupe que Léa.
-		await db.musicalTie.create({ data: { ownerId: ids.lea, contactId: ids.malik } });
+		await db.savedContact.create({ data: { ownerId: ids.lea, contactId: ids.malik } });
 		const band = await bands.createBand(ids.lea, { name: 'Contacts Test Band', title: null });
 		await bands.inviteToBand(band.id, ids.lea, { handle: PREFIX + 'malik', title: null });
 		const invite = await db.membership.findFirstOrThrow({
@@ -108,6 +108,9 @@ describe.skipIf(!enabled)('contacts (schéma e2e)', { timeout: 90_000 }, () => {
 		await conversation('lea', 'neo', 'REQUEST');
 		await conversation('lea', 'ivy', 'ACCEPTED');
 		await db.block.create({ data: { blockerActorId: ids.ivy, blockedActorId: ids.lea } });
+		// Carnet (D82) : Léa enregistre Sam ; une conversation seule n'y ajoute personne.
+		await db.savedContact.create({ data: { ownerId: ids.lea, contactId: ids.sam } });
+		await db.savedContact.create({ data: { ownerId: ids.lea, contactId: ids.ivy } });
 	}, 90_000);
 
 	afterAll(async () => {
@@ -115,17 +118,19 @@ describe.skipIf(!enabled)('contacts (schéma e2e)', { timeout: 90_000 }, () => {
 		await db.$disconnect();
 	});
 
-	it('le carnet : gardé·es et conversations ouvertes, jamais une demande sans réponse ni un blocage', async () => {
+	it('le carnet : les seuls enregistrés, jamais une conversation seule ni un blocage (D82)', async () => {
 		const list = await contacts.myContacts(ids.lea);
 		expect(list.map((c) => c.handle)).toEqual([PREFIX + 'malik', PREFIX + 'sam']);
 		expect(list[0]).toMatchObject({
 			inCarnet: true,
-			howWeMet: 'Vous avez joué ensemble',
+			howWeMet: 'Dans ton carnet',
 			bands: [{ name: 'Contacts Test Band' }],
 			conversationId: null
 		});
-		expect(list[1]).toMatchObject({ inCarnet: false, howWeMet: 'Vous vous écrivez' });
+		// Sam : enregistré et en conversation ; le lien de conversation est donné.
+		expect(list[1]).toMatchObject({ inCarnet: true, howWeMet: 'Dans ton carnet' });
 		expect(list[1].conversationId).toBeTruthy();
+		// Ivy est enregistrée mais l'a bloquée : invisible, sans rien révéler.
 		expect(await contacts.isContact(ids.lea, ids.neo)).toBe(false);
 		expect(await contacts.isContact(ids.lea, ids.ivy)).toBe(false);
 	});
@@ -137,7 +142,7 @@ describe.skipIf(!enabled)('contacts (schéma e2e)', { timeout: 90_000 }, () => {
 		await contacts.addToContactGroup(ids.lea, group.id, PREFIX + 'sam');
 		await contacts.addToContactGroup(ids.lea, group.id, PREFIX + 'sam'); // sans doublon
 		await expect(contacts.addToContactGroup(ids.lea, group.id, PREFIX + 'neo')).rejects.toThrow(
-			/ses contacts/
+			/de son carnet/
 		);
 		await expect(contacts.addToContactGroup(ids.sam, group.id, PREFIX + 'lea')).rejects.toThrow(
 			/n’existe plus/
@@ -163,12 +168,25 @@ describe.skipIf(!enabled)('contacts (schéma e2e)', { timeout: 90_000 }, () => {
 
 	it('RGPD : groupes exportés ; à l’anonymisation, ses groupes et sa place chez les autres disparaissent', async () => {
 		const exported = await exportPersonData(users.lea);
+		expect(exported?.carnet_de_contacts).toEqual(
+			expect.arrayContaining([{ nom: 'Contacts Test malik', le: expect.any(Date) }])
+		);
 		expect(exported?.groupes_de_contacts).toMatchObject([
 			{ nom: 'Projet funk-rock', membres: ['Contacts Test malik'] }
 		]);
 		await db.$transaction(await personAnonymizationOps(users.malik));
 		expect((await contacts.myContactGroups(ids.lea))[0].members).toEqual([]);
+		expect(
+			await db.savedContact.count({
+				where: { OR: [{ ownerId: ids.malik }, { contactId: ids.malik }] }
+			})
+		).toBe(0);
 		await db.$transaction(await personAnonymizationOps(users.lea));
 		expect(await db.contactGroup.count({ where: { ownerId: ids.lea } })).toBe(0);
+		expect(
+			await db.savedContact.count({
+				where: { OR: [{ ownerId: ids.lea }, { contactId: ids.lea }] }
+			})
+		).toBe(0);
 	});
 });

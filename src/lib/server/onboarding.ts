@@ -82,8 +82,9 @@ export const DEFAULT_RADIUS_KM = 25;
  * ville, de la plus proche à la plus lointaine, avec les garde-fous des
  * suggestions (`discovery/suggestions`) : profil public (ni masqué, ni
  * supprimé, ni suspendu), aucun blocage entre les deux, et **D5** : un·e
- * mineur·e n'est montré·e à un adulte que s'il ou elle est dans son réseau
- * (une date de naissance inconnue vaut mineur·e). Défaut trouvé en ONB-14.
+ * mineur·e n'est jamais montré·e à un adulte (une date de naissance inconnue
+ * vaut mineur·e). Depuis D82, le carnet se remplit librement : il ne peut donc
+ * plus faire réapparaître un·e mineur·e. Défaut trouvé en ONB-14.
  * La distance ne sort que par tranche, jamais en mètres (DASH-20a).
  */
 export async function nearbyMusicians(actorId: string, radiusKm: number, limit = 12) {
@@ -102,14 +103,7 @@ export async function nearbyMusicians(actorId: string, radiusKm: number, limit =
 			actorId: { in: ids },
 			onboardedAt: { not: null },
 			actor: publicActorWhere(now, actorId),
-			...(viewerIsMinor
-				? {}
-				: {
-						OR: [
-							{ birthDate: { lte: cutoff } },
-							{ actor: { networkOf: { some: { ownerId: actorId } } } }
-						]
-					})
+			...(viewerIsMinor ? {} : { birthDate: { lte: cutoff } })
 		},
 		select: {
 			actorId: true,

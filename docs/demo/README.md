@@ -605,3 +605,11 @@ est un recrutement (une phrase le dit, Q100). Avec `nora-prod`, qui
 coordonne : **Proposer un besoin** ; sa proposition reste « Proposé »
 jusqu'à la décision de Malik. Avec `ines-chant`, participante : seulement les
 besoins ouverts et pourvus, aucun bouton d'ajout.
+
+## Carnet volontaire (RV-02a, D82)
+
+`zoe-violon` a enregistré `samir-son` sans lui écrire : ouvrir
+`/messages/contacts`, puis son profil. L'ajout est privé, sans notification,
+sans réciprocité et sans droit sur ses activités. **Écrire** reste un geste
+séparé, soumis à la demande de premier message. Retirer du carnet ne ferme
+aucune conversation. Les anciens contacts de jam restent dans le carnet.

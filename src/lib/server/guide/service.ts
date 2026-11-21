@@ -19,7 +19,7 @@ export async function tipContext(actorId: string): Promise<TipContext> {
 			}),
 			prisma.jamEndorsement.count({ where: { fromActorId: actorId, revokedAt: null } }),
 			prisma.collabEndorsement.count({ where: { fromActorId: actorId, revokedAt: null } }),
-			prisma.musicalTie.count({ where: { ownerId: actorId } }),
+			prisma.savedContact.count({ where: { ownerId: actorId } }),
 			prisma.media.count({ where: { actorId, status: 'PUBLISHED' } }),
 			prisma.opportunity.count({ where: { issuerActorId: actorId } })
 		]);

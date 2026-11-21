@@ -4,8 +4,8 @@
  *
  * - Qui présente : palier musicien Pilier local ou Référence (lu dans les
  *   faits, `getMusicianTier`), jamais l'XP.
- * - Qui est présenté : deux personnes de son réseau musical (`MusicalTie`),
- *   visibles, majeures (D5 : un·e mineur·e n'est jamais présenté·e à un·e
+ * - Qui est présenté : deux personnes de son carnet (`SavedContact`, D82),
+ *   avec une conversation acceptée des deux côtés, visibles, majeures (D5 : un·e mineur·e n'est jamais présenté·e à un·e
  *   adulte inconnu·e), sans blocage entre elles, qui n'ont pas encore joué
  *   ensemble.
  * - Effet : une notification à chacune (désactivable), rien d'autre. La
@@ -47,12 +47,25 @@ export async function canIntroduce(personId: string) {
 	return canSponsor(reached);
 }
 
-/** Personnes de son réseau que l'on peut présenter : visibles et majeures. */
+/**
+ * Personnes que l'on peut présenter : dans son carnet, visibles, majeures,
+ * et avec qui l'on a une conversation acceptée (D82). Enregistrer quelqu'un
+ * ne suffit pas à le présenter à d'autres.
+ */
 export async function introducibleContacts(personId: string, now = new Date()) {
-	const ties = await prisma.musicalTie.findMany({
+	const ties = await prisma.savedContact.findMany({
 		where: {
 			ownerId: personId,
-			contact: { ...publicActorWhere(now, personId), person: { isNot: null } }
+			contact: {
+				...publicActorWhere(now, personId),
+				person: { isNot: null },
+				conversationParticipants: {
+					some: {
+						state: 'ACCEPTED',
+						conversation: { participants: { some: { actorId: personId, state: 'ACCEPTED' } } }
+					}
+				}
+			}
 		},
 		orderBy: { contact: { displayName: 'asc' } },
 		select: {

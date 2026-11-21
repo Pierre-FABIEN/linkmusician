@@ -518,8 +518,8 @@ export async function exportPersonData(userId: string) {
 				opportunity: { select: { title: true } }
 			}
 		}),
-		// Réseau musical (P2-16) : les personnes gardées.
-		prisma.musicalTie.findMany({
+		// Carnet de contacts (D82) ; il reprend l'ancien réseau musical (P2-16).
+		prisma.savedContact.findMany({
 			where: { ownerId: person.actorId },
 			orderBy: { createdAt: 'asc' },
 			select: { createdAt: true, contact: { select: { displayName: true } } }
@@ -1000,7 +1000,7 @@ export async function exportPersonData(userId: string) {
 				jusqu_a: d.expiresAt
 			}))
 		},
-		reseau_musical: networkTies.map((t) => ({ nom: t.contact.displayName, le: t.createdAt })),
+		carnet_de_contacts: networkTies.map((t) => ({ nom: t.contact.displayName, le: t.createdAt })),
 		appreciations_donnees: endorsementsGiven.map((e) => ({
 			jam: e.opportunity.title,
 			a: e.to.displayName,
@@ -1529,8 +1529,11 @@ export async function personAnonymizationOps(
 			where: { requestedById: person.actorId },
 			data: { requestedById: null, proofUrl: null }
 		}),
-		// Réseau musical (P2-16) : supprimé, dans les deux sens.
+		// Réseau musical (P2-16) et carnet (D82) : supprimés, dans les deux sens.
 		prisma.musicalTie.deleteMany({
+			where: { OR: [{ ownerId: person.actorId }, { contactId: person.actorId }] }
+		}),
+		prisma.savedContact.deleteMany({
 			where: { OR: [{ ownerId: person.actorId }, { contactId: person.actorId }] }
 		}),
 		prisma.opportunity.updateMany({

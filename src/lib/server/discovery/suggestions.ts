@@ -5,8 +5,8 @@
  * Candidat·es : une requête PostGIS autour de ma commune, avec les mêmes
  * garde-fous que la recherche (profils publics, ni blocage ni suspension),
  * sans les personnes écartées (« Pas intéressé·e »). **Un·e mineur·e n'est
- * jamais suggéré·e à un adulte qui ne la connaît pas** (D5) : seulement si
- * elle est dans son réseau musical. Puis le calcul pur
+ * jamais suggéré·e à un adulte** (D5) ; le carnet, rempli librement depuis
+ * D82, ne la fait pas réapparaître. Puis le calcul pur
  * `#lib/discovery/compatibility` ordonne. **Jamais l'XP ni le palier.**
  * La distance exacte ne sort jamais : seulement sa tranche.
  *
@@ -103,7 +103,7 @@ export async function suggestMusicians(
 		SELECT r."actorId", r.meters, r."inNetwork" FROM (
 			SELECT a.id AS "actorId", public.ST_Distance(me.point, other.point)::float8 AS meters,
 				EXISTS (
-					SELECT 1 FROM ${t('musical_ties')} mt
+					SELECT 1 FROM ${t('saved_contacts')} mt
 					WHERE mt."ownerId" = ${viewerId} AND mt."contactId" = a.id) AS "inNetwork",
 				p."birthDate" AS "birthDate"
 			FROM ${t('actor_locations')} me
@@ -128,7 +128,7 @@ export async function suggestMusicians(
 					SELECT 1 FROM ${t('suggestion_dismissals')} sd
 					WHERE sd."ownerId" = ${viewerId} AND sd."actorId" = a.id)
 		) r
-		WHERE ${viewerIsMinor} OR r."inNetwork" OR (r."birthDate" IS NOT NULL AND r."birthDate" <= ${cutoff})
+		WHERE ${viewerIsMinor} OR (r."birthDate" IS NOT NULL AND r."birthDate" <= ${cutoff})
 		ORDER BY r.meters ASC, r."actorId" ASC
 		LIMIT ${CANDIDATES}`;
 	if (rows.length === 0) return [];

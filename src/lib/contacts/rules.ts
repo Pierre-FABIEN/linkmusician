@@ -2,8 +2,9 @@
  * Contacts (P3-16b, D45, D46) : règles pures, partagées par le serveur et
  * le navigateur.
  *
- * - Un **contact**, c'est quelqu'un de son carnet (« Garder le contact »
- *   après avoir joué ensemble) ou avec qui l'on a une conversation ouverte.
+ * - Un **contact**, c'est un acteur enregistré volontairement dans son carnet
+ *   (D82) : sans prérequis, sans notification, sans droit. Une conversation
+ *   n'y ajoute personne.
  * - Un **groupe de contacts** (« Projet funk ») est privé : un projet
  *   potentiel, qui ouvrira une discussion de groupe (P3-16c). Il ne contient
  *   que des contacts.
@@ -35,24 +36,33 @@ export const groupNameSchema = z
 		message: `Le nom tient en ${MAX_GROUP_NAME} caractères.`
 	});
 
-/** Comment on s'est rencontrés, en une phrase courte. */
+/**
+ * Ce qui est établi entre nous, en une phrase courte (D82). « Joué
+ * ensemble » seulement pour une collaboration confirmée ; une jam où les deux
+ * ont dit « J'y étais » est une **déclaration**, dite comme telle, et n'est
+ * comptée que si la présence de l'autre m'est visible (D81).
+ */
 export function howWeMet(input: {
 	jamsTogether: number;
 	collaborations: number;
 	inCarnet: boolean;
 }): string {
 	const parts: string[] = [];
-	if (input.jamsTogether > 0) {
-		parts.push(
-			input.jamsTogether === 1 ? 'Une jam ensemble' : `${input.jamsTogether} jams ensemble`
-		);
-	}
 	if (input.collaborations > 0) {
 		parts.push(
-			input.collaborations === 1 ? 'une collaboration' : `${input.collaborations} collaborations`
+			input.collaborations === 1
+				? 'une collaboration confirmée'
+				: `${input.collaborations} collaborations confirmées`
 		);
 	}
-	if (parts.length === 0) return input.inCarnet ? 'Vous avez joué ensemble' : 'Vous vous écrivez';
+	if (input.jamsTogether > 0) {
+		parts.push(
+			input.jamsTogether === 1
+				? 'une même jam déclarée'
+				: `${input.jamsTogether} mêmes jams déclarées`
+		);
+	}
+	if (parts.length === 0) return input.inCarnet ? 'Dans ton carnet' : 'Vous vous écrivez';
 	const sentence = parts.join(' et ');
 	return sentence.charAt(0).toUpperCase() + sentence.slice(1);
 }

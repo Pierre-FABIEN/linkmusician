@@ -38,15 +38,17 @@
 				<BookUser class="mx-auto size-6 text-primary" aria-hidden="true" />
 				<p class="font-semibold">Ton carnet est encore vide.</p>
 				<p class="text-sm text-muted-foreground">
-					Va à une jam, même sans connaître personne. Après, touche « Garder le contact » sur les
-					gens avec qui tu as joué : tu les retrouveras ici, et tu pourras leur écrire sans échanger
-					ton numéro.
+					Sur le profil de quelqu’un, touche « Ajouter à mes contacts » : tu le ou la retrouves ici,
+					sans lui avoir écrit et sans qu’il ou elle soit prévenu·e.
 				</p>
-				<a href="/jam" class="inline-block pt-1 font-semibold underline">Trouver une jam</a>
+				<a href="/decouvrir" class="inline-block pt-1 font-semibold underline"
+					>Découvrir des musicien·nes et des structures</a
+				>
 			</div>
 		{:else}
 			<p class="text-sm text-muted-foreground">
-				Les gens avec qui tu as joué ou échangé. Écris-leur ici, sans échanger ton numéro.
+				Les personnes et structures que tu as enregistrées. Ton carnet est privé : personne n’est
+				prévenu, et il ne donne aucun accès. Écrire passe toujours par une demande de conversation.
 			</p>
 		{/if}
 

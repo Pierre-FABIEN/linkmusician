@@ -7,14 +7,16 @@
  *   personne du groupe qui peut l'être reçoit une **invitation** et ne voit
  *   rien avant de l'avoir acceptée. Les autres sont écartées sans bruit
  *   (mineur·e, blocage : la raison n'est jamais dite).
- * - Seul l'auteur invite, et seulement ses contacts (`isContact`).
+ * - Seul l'auteur invite, et seulement des personnes de son carnet avec qui
+ * il a une conversation acceptée (`isReachableContact`, D82) : enregistrer
+ * un·e inconnu·e ne suffit pas à l'inviter.
  * - Pas de « Rejoindre » si un blocage existe avec une personne présente.
  * - Messages en texte brut (mêmes règles que la messagerie à deux).
  */
 import { prisma } from '#lib/server';
 import { qualifiedTable } from '#lib/server/db-schema';
 import { isIndexable } from '#lib/actors/visibility';
-import { isContact } from '#lib/server/contacts/service';
+import { isReachableContact } from '#lib/server/contacts/service';
 import { notify } from '#lib/server/notifications/service';
 import { MESSAGE_ERRORS, checkMessage, preview } from '#lib/messaging/rules';
 import {
@@ -93,7 +95,7 @@ async function checkInvite(
 	now: Date
 ) {
 	const [contact, adult, blocked] = await Promise.all([
-		isContact(inviterId, inviteeId, now),
+		isReachableContact(inviterId, inviteeId, now),
 		isAdult(inviteeId, now),
 		blockedWithAny(inviterId, [inviteeId])
 	]);

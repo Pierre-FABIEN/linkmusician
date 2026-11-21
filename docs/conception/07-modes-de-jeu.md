@@ -319,8 +319,8 @@ deviennent les équipes de demain.
 
 Règles (P4-13a) : l'entrée « Un coup de pouce » n'apparaît dans l'espace
 qu'après **21 jours** sans progrès ; elle mène à un écran de trois idées
-au plus, chacune tirée du **réseau réel** (personnes gardées après avoir
-joué ensemble, à moins de 50 km) ou des jams de la semaine. Aucune
+au plus, chacune tirée du **carnet volontaire** (`SavedContact`, D82,
+personnes visibles à moins de 50 km) ou des jams de la semaine. Aucune
 notification, aucune durée d'absence affichée, jamais l'XP ni le palier
 dans le choix.
 
@@ -333,7 +333,8 @@ le succès _Passeur_ (02 §9). On progresse aussi en faisant progresser
 les autres.
 
 Règles (P4-13b) : présenter, c'est choisir deux personnes **majeures de
-son réseau musical** qui n'ont **pas encore joué ensemble**, sans
+son carnet** avec une conversation acceptée des deux côtés (D82),
+qui n'ont **pas encore joué ensemble**, sans
 blocage entre elles, avec un mot facultatif ; chacune reçoit une
 notification avec le profil de l'autre. Dix présentations par mois au
 plus. Le succès _Passeur_ arrive à la première collaboration terminée
@@ -418,8 +419,11 @@ anime la scène ouverte d'un bar (D27). Les situations courantes :
    laisser une **appréciation** aux autres présents (« bon groove »,
    « à l'écoute », « belle impro », un instrument) et de choisir :
    - **« Rejouer ensemble »** : une nouvelle jam préremplie ;
-   - **« Garder le contact »** : la personne rejoint son **réseau
-     musical** (les gens avec qui l'on a vraiment joué).
+   - **« Garder le contact »** : la personne rejoint son **carnet privé**
+     (`SavedContact`, D82), sans prérequis, sans notification ni réciprocité.
+     L'ajout ne crée aucune conversation et ne donne aucun droit ; on peut
+     aussi enregistrer une personne ou une structure depuis son profil.
+     Une même jam déclarée ne prouve jamais que l'on a joué ensemble.
 
 ### 6.2 Ce que le mode jam rapporte
 
@@ -515,8 +519,8 @@ ne fait rien perdre. Concrètement :
   [docs/guide](../guide/README.md)).
 - Le profil propose des **musicien·nes compatibles** : mêmes styles,
   niveau déclaré proche, instruments complémentaires, près de chez soi,
-  le réseau musical d'abord. Jamais trié par l'XP. Un·e mineur·e n'est
-  jamais suggéré·e à un adulte inconnu (fait en P2-18, voir
+  le carnet de contacts d'abord. Jamais trié par l'XP. Un·e mineur·e n'est
+  jamais suggéré·e à un adulte, même dans son carnet (D82) (fait en P2-18, voir
   [docs/recherche](../recherche/README.md#suggestions-de-musiciennes-p2-18)).
 - **Ne pas confondre compatibilité et admissibilité** : un niveau proche
   aide à classer les suggestions, mais ne doit pas empêcher une personne

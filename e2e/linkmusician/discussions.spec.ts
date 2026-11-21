@@ -38,10 +38,22 @@ test.describe('LinkMusician — discussions de groupe', () => {
 				});
 			const me = await person(account.email);
 			const malik = await person(malikAccount.email);
-			// « Garder le contact » après la jam (P2-16) et groupe de contacts (P3-16b,
-			// parcours couvert par contacts.spec.ts).
+			// Carnet (D82) et groupe de contacts (P3-16b, parcours couvert par
+			// contacts.spec.ts). Inviter en groupe exige une conversation acceptée.
 			for (const contactId of [malik.actorId, zoe.actorId]) {
-				await db.musicalTie.create({ data: { ownerId: me.actorId, contactId } });
+				await db.savedContact.create({ data: { ownerId: me.actorId, contactId } });
+				await db.conversation.create({
+					data: {
+						pairKey: [me.actorId, contactId].sort().join(':'),
+						initiatorId: me.actorId,
+						participants: {
+							create: [
+								{ actorId: me.actorId, state: 'ACCEPTED' },
+								{ actorId: contactId, state: 'ACCEPTED' }
+							]
+						}
+					}
+				});
 			}
 			await db.contactGroup.create({
 				data: {

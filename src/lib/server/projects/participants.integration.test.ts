@@ -887,7 +887,7 @@ describe.skipIf(!enabled)(
 			const blocked = await person('u3-bloque');
 			const stranger = await person('u3-inconnu');
 			for (const id of [contact, minorContact, blocked])
-				await db.musicalTie.create({ data: { ownerId: b.owner, contactId: id } });
+				await db.savedContact.create({ data: { ownerId: b.owner, contactId: id } });
 			await blockActor(blocked, b.owner);
 			const p = await projects.createProject(b.owner, { ...ep('Projet U3'), owner: b.id });
 

@@ -39,7 +39,7 @@ test.describe('LinkMusician — coups de pouce', () => {
 				instrument: ['chant', 3]
 			});
 			created.push(lea);
-			await db.musicalTie.create({ data: { ownerId: me.actorId, contactId: lea.actorId } });
+			await db.savedContact.create({ data: { ownerId: me.actorId, contactId: lea.actorId } });
 			await db.domainEvent.deleteMany({ where: { actorIds: { has: me.actorId } } });
 			await db.actor.update({
 				where: { id: me.actorId },

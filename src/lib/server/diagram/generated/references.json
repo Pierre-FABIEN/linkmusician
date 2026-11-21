@@ -51,6 +51,7 @@
 		"e2e/linkmusician/booker.spec.ts": true,
 		"e2e/linkmusician/candidature-deleguee.spec.ts": true,
 		"e2e/linkmusician/candidatures.spec.ts": true,
+		"e2e/linkmusician/carnet.spec.ts": true,
 		"e2e/linkmusician/carriere.spec.ts": true,
 		"e2e/linkmusician/celebrations.spec.ts": true,
 		"e2e/linkmusician/collaborations-morceau.spec.ts": true,
@@ -151,6 +152,7 @@
 		"src/lib/server/media/service.integration.test.ts": true,
 		"src/lib/server/milestones/service.integration.test.ts": true,
 		"src/lib/server/moderation/service.integration.test.ts": true,
+		"src/lib/server/network/carnet.integration.test.ts": true,
 		"src/lib/server/onboarding-assistant.integration.test.ts": true,
 		"src/lib/server/onboarding.integration.test.ts": true,
 		"src/lib/server/opportunities/delegated.integration.test.ts": true,
@@ -555,6 +557,7 @@
 		"ReturnRequest",
 		"Review",
 		"Sanction",
+		"SavedContact",
 		"SavedPaymentMethod",
 		"SchoolInvite",
 		"SchoolProfile",
@@ -809,7 +812,13 @@
 			"title": "Activités privées par défaut, présence personnelle",
 			"status": "ACCEPTED",
 			"label": "Acceptée (20/11/2026), demandée par le fondateur"
+		},
+		"D82": {
+			"id": "D82",
+			"title": "Carnet volontaire, distinct des conversations",
+			"status": "ACCEPTED",
+			"label": "Acceptée (21/11/2026), décision produit #99"
 		}
 	},
-	"code": { "triggers": 394, "inventoried": 307, "outOfScope": 87, "missing": [] }
+	"code": { "triggers": 396, "inventoried": 309, "outOfScope": 87, "missing": [] }
 }

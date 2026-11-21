@@ -43,14 +43,29 @@ test.describe('LinkMusician — parrainage', () => {
 				person(leaAccount.email),
 				person(joAccount.email)
 			]);
-			// Paul est Pilier local ; Léa et Jo sont dans son réseau (gardés après une jam).
+			// Paul est Pilier local ; Léa et Jo sont dans son carnet, et il leur parle
+			// (présenter exige une conversation acceptée, D82).
 			await makeLocalPillar(paul.actorId);
-			await db.musicalTie.createMany({
+			await db.savedContact.createMany({
 				data: [
 					{ ownerId: paul.actorId, contactId: lea.actorId },
 					{ ownerId: paul.actorId, contactId: jo.actorId }
 				]
 			});
+			for (const contactId of [lea.actorId, jo.actorId]) {
+				await db.conversation.create({
+					data: {
+						pairKey: [paul.actorId, contactId].sort().join(':'),
+						initiatorId: paul.actorId,
+						participants: {
+							create: [
+								{ actorId: paul.actorId, state: 'ACCEPTED' },
+								{ actorId: contactId, state: 'ACCEPTED' }
+							]
+						}
+					}
+				});
+			}
 			const passeur = () =>
 				db.actorAchievement.count({ where: { actorId: paul.actorId, achievementId: 'passeur' } });
 
@@ -101,7 +116,12 @@ test.describe('LinkMusician — parrainage', () => {
 				await leaPage.getByLabel('Type').selectOption('REHEARSAL');
 				await leaPage.getByLabel('Titre').fill('Première répète');
 				await leaPage.getByRole('button', { name: 'Proposer' }).click();
-				await expect(leaPage.getByText('Première répète').first()).toBeVisible();
+				// Le journal replié contient aussi le titre ; vérifier la carte visible.
+				await expect(
+					leaPage
+						.getByRole('list', { name: 'Collaborations', exact: true })
+						.getByText('Première répète', { exact: false })
+				).toBeVisible();
 
 				await joPage.goto(`/messages/${conversation.id}`);
 				await waitForAppReady(joPage);

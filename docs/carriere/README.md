@@ -201,7 +201,7 @@ src/lib/server/career`, e2e `carriere.spec.ts` (création, scène à
   | 2    | `applications.review`, `contact.respond`   | compteurs des priorités ; contact : adultes seulement                              |
   | 3    | `work.step`                                | étape ouverte prise en charge, morceau que je gère (`manageableOwnerWhere`)        |
   | 3    | `crea.demo`, `crea.compose`                | idée que je gère, modifiée depuis moins de 30 jours                                |
-  | 4    | `prod.mix`                                 | `nextProductionNeed` ; pros du réseau réel (`MusicalTie`), adultes, hors équipe    |
+  | 4    | `prod.mix`                                 | `nextProductionNeed` ; pros du carnet (`SavedContact`, D82), adultes, hors équipe  |
   | 4/5  | `prod.record`                              | idem ; rang 4 si l'ambition est « Enregistrer » ou « Devenir pro », sinon rang 5   |
   | 4    | `team.fill_role`                           | places libres ; réseau proche, sinon rien si une annonce ouverte recrute déjà      |
   | 5    | `trial.within_reach`                       | épreuves à portée de la carte N2                                                   |

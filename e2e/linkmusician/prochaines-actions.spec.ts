@@ -66,7 +66,7 @@ test.describe('LinkMusician — prochaines actions', () => {
 			await db.soundEngineerProfile.create({
 				data: { personId: ines.actorId, specialties: ['RECORDING', 'MIXING'] }
 			});
-			await db.musicalTie.create({ data: { ownerId: me.actorId, contactId: ines.actorId } });
+			await db.savedContact.create({ data: { ownerId: me.actorId, contactId: ines.actorId } });
 			const conversation = await db.conversation.create({
 				data: {
 					pairKey: [me.actorId, ines.actorId].sort().join(':'),

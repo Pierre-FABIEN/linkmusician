@@ -296,7 +296,8 @@ export async function appreciate(
 }
 
 export async function keep(ctx: Ctx, owner: string, contact: string, at: Date) {
-	await ctx.prisma.musicalTie.upsert({
+	// Carnet de contacts (D82).
+	await ctx.prisma.savedContact.upsert({
 		where: { ownerId_contactId: { ownerId: owner, contactId: contact } },
 		create: { ownerId: owner, contactId: contact, createdAt: at },
 		update: {}
@@ -601,6 +602,10 @@ export async function seedScenarios(
 	const ctx = await demoContext(prisma, commune, me, demoHandles);
 	const P = (h: string) => id(ctx, h);
 	const play = (h: string) => ctx.plays.get(h) || 'chant';
+
+	// D82 : Zoé enregistre Samir sans conversation ni collaboration préalable.
+	// Ajouter au carnet ne crée aucun autre lien et ne prévient personne.
+	await keep(ctx, P('zoe-violon'), P('samir-son'), ago(1, 12));
 
 	// DASH-05m : scénario fictif dédié et rejouable, sans convertir les crédits existants.
 	const creditDemoWork = 'demo-manual-credit-history';

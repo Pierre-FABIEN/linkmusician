@@ -109,11 +109,21 @@ describe.skipIf(!enabled)('suggestions de musicien·nes (schéma e2e)', () => {
 		expect(JSON.stringify(first)).not.toMatch(/meters|"\d{4,}\.|xp|trust/i);
 	});
 
-	it('un·e mineur·e n’est jamais suggéré·e à un adulte inconnu, seulement dans son réseau', async () => {
+	it('un·e mineur·e n’est jamais suggéré·e à un adulte, même dans son carnet', async () => {
 		expect(await suggest()).not.toContain('mineure');
-		await db.musicalTie.create({ data: { ownerId: ids.moi, contactId: ids.mineure } });
-		expect((await suggest())[0]).toBe('mineure'); // le réseau d'abord
-		await db.musicalTie.deleteMany({ where: { ownerId: ids.moi } });
+		await db.savedContact.create({ data: { ownerId: ids.moi, contactId: ids.mineure } });
+		expect(await suggest()).not.toContain('mineure'); // D82 : aucun droit donné par le carnet
+		const minor = await db.person.update({
+			where: { actorId: ids.mineure },
+			data: { birthDate: null },
+			select: { actorId: true }
+		});
+		expect(await suggest()).not.toContain('mineure'); // âge inconnu : même protection
+		await db.person.update({
+			where: { actorId: minor.actorId },
+			data: { birthDate: new Date(Date.now() - 17 * YEAR) }
+		});
+		await db.savedContact.deleteMany({ where: { ownerId: ids.moi } });
 	});
 
 	it('l’XP ne change pas l’ordre', async () => {

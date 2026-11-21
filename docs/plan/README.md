@@ -1,6 +1,6 @@
 # Plan d'exécution — pilotage du projet
 
-> **Prochain chantier (consigné le 20/11/2026) :** [clôture de Rencontre V1](./rencontre-v1.md), sept lots RV-01 à RV-07 regroupant les tickets Rencontre du backlog. **RV-01 livré** (commits locaux, à pousser) : audit #100, présence personnelle #92, confidentialité des activités (D81, [conception 23](../conception/23-confidentialite-activites.md)), annulation et jams signalées #91, gains de jam #93. Prochains lots, en parallèle : RV-02 (#99), RV-03 (#103, avec #94 à #97), RV-04 (#102).
+> **Prochain chantier (consigné le 20/11/2026) :** [clôture de Rencontre V1](./rencontre-v1.md), sept lots RV-01 à RV-07 regroupant les tickets Rencontre du backlog. **RV-01 livré** (commits locaux, à pousser) : audit #100, présence personnelle #92, confidentialité des activités (D81, [conception 23](../conception/23-confidentialite-activites.md)), annulation et jams signalées #91, gains de jam #93. RV-02a : carnet volontaire (D82), voir le [bilan](rv-02a-carnet.md). Suite : RV-02b (Découvrir tous les acteurs publics), RV-03 (#103, avec #94 à #97), RV-04 (#102).
 
 > **⭐ Favoris — priorité pilote Toulouse (20/11/2026) :** [sécurisation des jams et liberté de contact (#91–#100)](./backlog-ordonne-2026-11-18.md#-favoris--sécurisation-jam-et-liberté-de-contact-20-novembre-2026). Les tickets sont **ouverts, à implémenter et à tester** ; voir la matrice de dépendances et le séquencement dans le backlog actif. La section historique ci-dessous ne vaut pas preuve de livraison.
 
@@ -81,6 +81,10 @@ déborde est **coupé** (P5-05a, P5-05b) plutôt que prolongé.
 Statuts : ⬜ à faire · 🟡 en cours · ✅ fait · ⏸ bloqué · ✂️ découpé.
 Étapes A à F : voir [fin-du-projet.md §1](./fin-du-projet.md#1-où-on-en-est).
 Un lot terminé reste dans le tableau avec ✅ jusqu'à la fin de son étape.
+
+| Lot actuel                 | État                 | Preuves et suite                                                                 |
+| -------------------------- | -------------------- | -------------------------------------------------------------------------------- |
+| RV-02a — Carnet volontaire | ✅ local, non poussé | D82, #99 partielle ; [bilan et vérifications](rv-02a-carnet.md). Suite : RV-02b. |
 
 **Issues GitHub au 17/11/2026 : 24 fermées sur 56 (42,9 %), 32 ouvertes.**
 [Bilan des issues et des commits](bilan-issues-2026-11-17.md) : quatre clôtures

@@ -93,7 +93,7 @@ test.describe('LinkMusician — équipe d’un projet (U3)', () => {
 				}
 			});
 			bandId = band.id;
-			await db.musicalTie.create({ data: { ownerId: lea.actorId, contactId: producer.actorId } });
+			await db.savedContact.create({ data: { ownerId: lea.actorId, contactId: producer.actorId } });
 			const project = await db.project.create({
 				data: { ownerId: band.id, name: 'EP Lumière', kind: 'EP', description: 'Secret du groupe' }
 			});

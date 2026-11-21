@@ -10,6 +10,12 @@ import { publicCareerSheet } from '#lib/server/career/sheet';
 import { fileReport, ModerationError } from '#lib/server/moderation/service';
 import { blockActor, BlockingError } from '#lib/server/blocking/service';
 import {
+	NetworkError,
+	isSavedHandle,
+	removeContact,
+	saveContact
+} from '#lib/server/network/service';
+import {
 	PrivacyError,
 	excludeFromActivities,
 	grantActivityAccess,
@@ -69,6 +75,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 						suggestions: [],
 						isOwner: false,
 						signedIn: Boolean(viewer?.onboardedAt),
+						/** Carnet de contacts (D82). */
+						saved: viewer?.onboardedAt ? await isSavedHandle(viewer.actorId, handle) : false,
 						canReport: Boolean(viewer)
 					};
 				}
@@ -93,6 +101,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 				suggestions: [],
 				isOwner: false,
 				signedIn: Boolean(viewer?.onboardedAt),
+				/** Carnet de contacts (D82). */
+				saved: viewer?.onboardedAt ? await isSavedHandle(viewer.actorId, handle) : false,
 				canReport: Boolean(viewer)
 			};
 		}
@@ -110,6 +120,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			suggestions: [],
 			isOwner: false,
 			signedIn: Boolean(viewer?.onboardedAt),
+			/** Carnet de contacts (D82). */
+			saved: viewer?.onboardedAt ? await isSavedHandle(viewer.actorId, handle) : false,
 			canReport: Boolean(viewer),
 			representHref: representHref(handle)
 		};
@@ -155,6 +167,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		trackSheets,
 		careerSheet,
 		signedIn: Boolean(viewer?.onboardedAt),
+		/** Carnet de contacts (D82). */
+		saved: viewer?.onboardedAt ? await isSavedHandle(viewer.actorId, handle) : false,
 		suggestions,
 		isOwner,
 		canReport: Boolean(viewer) && !isOwner,
@@ -184,7 +198,36 @@ async function privacyAttempt(fn: () => Promise<unknown>, message: string) {
 	}
 }
 
+async function contactAttempt(fn: () => Promise<unknown>, message: string) {
+	try {
+		await fn();
+		return { message };
+	} catch (err) {
+		if (err instanceof NetworkError) return fail(err.status, { error: err.message });
+		throw err;
+	}
+}
+
 export const actions: Actions = {
+	/** Ajouter à mes contacts (D82) : sans écrire, sans prévenir, sans droit. */
+	saveContact: async ({ params, locals }) => {
+		if (!locals.user) return fail(401, { error: 'Connecte-toi d’abord.' });
+		const me = await getPersonByUserId(locals.user.id);
+		if (!me?.onboardedAt) return fail(403, { error: 'Complète ton profil d’abord.' });
+		return contactAttempt(
+			() => saveContact(me.actorId, params.handle),
+			'Ajouté à tes contacts. Personne n’est prévenu.'
+		);
+	},
+	unsaveContact: async ({ params, locals }) => {
+		if (!locals.user) return fail(401, { error: 'Connecte-toi d’abord.' });
+		const me = await getPersonByUserId(locals.user.id);
+		if (!me) return fail(403, { error: 'Complète ton profil d’abord.' });
+		return contactAttempt(
+			() => removeContact(me.actorId, params.handle),
+			'Retiré de tes contacts.'
+		);
+	},
 	/** Autoriser la personne à voir mes jams, selon mon partage (D81). */
 	shareJams: async ({ params, locals }) => {
 		const pair = await privacyPair(locals, params.handle);

@@ -1463,6 +1463,9 @@ model Actor {
   endorsementsReceived   JamEndorsement[]       @relation("EndorsementTo")
   networkTies            MusicalTie[]           @relation("TieOwner")
   networkOf              MusicalTie[]           @relation("TieContact")
+  // Carnet de contacts volontaire (D82, #99).
+  savedContacts          SavedContact[]         @relation("SavedContactOwner")
+  savedBy                SavedContact[]         @relation("SavedContactTarget")
   collaborationAppreciationActs CollaborationAppreciationAct[]
   collabEndorsementsGiven    CollabEndorsement[] @relation("CollabEndorsementFrom")
   collabEndorsementsReceived CollabEndorsement[] @relation("CollabEndorsementTo")
@@ -2746,6 +2749,8 @@ model JamEndorsement {
 /// (« Garder le contact »). Lien à sens unique, visible de son seul
 /// propriétaire ; il fait remonter la personne en tête des recherches et
 /// des invitations. Jamais l'XP.
+/// **Plus écrit depuis D82** (21/11/2026) : repris dans `SavedContact`, gardé
+/// pour l'historique, sans être supprimé.
 model MusicalTie {
   ownerId   String
   owner     Actor    @relation("TieOwner", fields: [ownerId], references: [id], onDelete: Cascade)
@@ -4771,4 +4776,22 @@ model JamOrganizingRestriction {
 
   @@index([actorId, liftedAt])
   @@map("jam_organizing_restrictions")
+}
+
+// ─── CARNET DE CONTACTS VOLONTAIRE (D82, #99) ───────────────────────────────
+
+/// « J'ai enregistré cet acteur » : unilatéral, privé, sans notification ni
+/// réciprocité, sans prérequis. Ne donne aucun droit (ni d'écrire, ni
+/// d'inviter, ni de voir ses activités, D81). Le carnet, c'est cette table.
+model SavedContact {
+  ownerId   String
+  owner     Actor    @relation("SavedContactOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  contactId String
+  contact   Actor    @relation("SavedContactTarget", fields: [contactId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([ownerId, contactId])
+  @@index([contactId])
+  @@index([ownerId, createdAt])
+  @@map("saved_contacts")
 }

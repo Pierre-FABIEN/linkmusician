@@ -91,17 +91,16 @@
 
 		<section class="space-y-3" aria-labelledby="network-title">
 			<h2 id="network-title" class="flex items-center gap-2 text-xl font-bold">
-				<Users class="size-5" aria-hidden="true" /> Mes contacts de jam
+				<Users class="size-5" aria-hidden="true" /> Mes contacts
 			</h2>
 			<p class="text-sm text-muted-foreground">
-				Les gens avec qui tu as vraiment joué et que tu as gardé·es. Écris-leur quand tu veux, sans
-				échanger ton numéro ; ils remontent en premier quand tu cherches quelqu’un. Personne d’autre
-				ne voit cette liste.
+				Les personnes que tu as enregistrées. Elles remontent en premier quand tu cherches quelqu’un
+				; personne d’autre ne voit cette liste, et personne n’est prévenu.
 				<a href="/messages/contacts" class="font-semibold underline">Tous mes contacts</a>
 			</p>
 			{#if data.network.length === 0}
 				<p class="lm-tile lm-tile--flow p-4 text-sm text-muted-foreground">
-					Après une jam, touche « Garder le contact » sur les personnes avec qui tu veux rejouer.
+					Sur un profil, ou après une jam, touche « Ajouter à mes contacts ».
 				</p>
 			{:else}
 				<ul class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -111,7 +110,7 @@
 								<a href="/@{n.handle}" class="font-semibold underline">{n.displayName}</a>
 								<span class="block text-sm text-muted-foreground"
 									>{n.instruments.join(' · ') || 'Instrument non précisé'}{n.jamsTogether > 0
-										? ` · ${plural(n.jamsTogether, 'jam ensemble', 'jams ensemble')}`
+										? ` · ${plural(n.jamsTogether, 'même jam déclarée', 'mêmes jams déclarées')}`
 										: ''}</span
 								>
 							</span>

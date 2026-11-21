@@ -80,22 +80,25 @@ describe.skipIf(!enabled)('discussions de groupe (schéma e2e)', { timeout: 90_0
 				})
 			).id;
 		}
-		// Contacts de Léa : Malik, Zoé (mineure), Ivy (carnet) ; Sam (conversation).
-		for (const c of ['malik', 'zoe', 'ivy']) {
-			await db.musicalTie.create({ data: { ownerId: ids.lea, contactId: ids[c] } });
+		// Carnet de Léa (D82) : Malik, Zoé (mineure), Ivy, Sam, avec qui elle parle ;
+		// Néo, enregistré sans conversation : on ne l'invite pas pour autant.
+		for (const c of ['malik', 'zoe', 'ivy', 'sam', 'neo']) {
+			await db.savedContact.create({ data: { ownerId: ids.lea, contactId: ids[c] } });
 		}
-		await db.conversation.create({
-			data: {
-				pairKey: pairKey(ids.lea, ids.sam),
-				initiatorId: ids.lea,
-				participants: {
-					create: [
-						{ actorId: ids.lea, state: 'ACCEPTED' },
-						{ actorId: ids.sam, state: 'ACCEPTED' }
-					]
+		for (const c of ['malik', 'zoe', 'ivy', 'sam']) {
+			await db.conversation.create({
+				data: {
+					pairKey: pairKey(ids.lea, ids[c]),
+					initiatorId: ids.lea,
+					participants: {
+						create: [
+							{ actorId: ids.lea, state: 'ACCEPTED' },
+							{ actorId: ids[c], state: 'ACCEPTED' }
+						]
+					}
 				}
-			}
-		});
+			});
+		}
 		// Malik a bloqué Ivy (rien entre Ivy et Léa).
 		await db.block.create({ data: { blockerActorId: ids.malik, blockedActorId: ids.ivy } });
 		const group = await db.contactGroup.create({

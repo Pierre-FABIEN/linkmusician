@@ -127,9 +127,22 @@ describe.skipIf(!enabled)('parrainage et Passeur (schéma e2e)', { timeout: 60_0
 			ids[key] = actor.id;
 		}
 		pillars.add(ids.parrain);
-		// Réseau du parrain : Léa, Jo, la mineure et « autre » ; pas l'inconnu.
+		// Carnet du parrain : Léa, Jo, la mineure et « autre », avec qui il parle ;
+		// pas l'inconnu. Présenter exige une conversation acceptée (D82).
 		for (const key of ['lea', 'jo', 'mino', 'autre']) {
-			await db.musicalTie.create({ data: { ownerId: ids.parrain, contactId: ids[key] } });
+			await db.savedContact.create({ data: { ownerId: ids.parrain, contactId: ids[key] } });
+			await db.conversation.create({
+				data: {
+					pairKey: [ids.parrain, ids[key]].sort().join(':'),
+					initiatorId: ids.parrain,
+					participants: {
+						create: [
+							{ actorId: ids.parrain, state: 'ACCEPTED' },
+							{ actorId: ids[key], state: 'ACCEPTED' }
+						]
+					}
+				}
+			});
 		}
 	}, 120_000);
 

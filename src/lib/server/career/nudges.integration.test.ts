@@ -92,7 +92,7 @@ describe.skipIf(!enabled)('coups de pouce (schéma e2e)', () => {
 			data: { personId: ids.sam, specialties: ['RECORDING', 'MIXING'] }
 		});
 		for (const spec of PEOPLE.filter((p) => p.tie)) {
-			await db.musicalTie.create({ data: { ownerId: ids.moi, contactId: ids[spec.key] } });
+			await db.savedContact.create({ data: { ownerId: ids.moi, contactId: ids[spec.key] } });
 		}
 		const chant = await db.instrument.findUniqueOrThrow({ where: { slug: 'chant' } });
 		await db.work.create({

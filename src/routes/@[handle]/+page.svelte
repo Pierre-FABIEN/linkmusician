@@ -15,6 +15,7 @@
 	import CareerSheetCard from '#lib/components/linkmusician/CareerSheetCard.svelte';
 	import { enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
+	import SaveContactButton from '#lib/components/linkmusician/contacts/SaveContactButton.svelte';
 	import SEO from '#lib/components/SEO.svelte';
 	import StructuredData from '#lib/components/StructuredData.svelte';
 	import * as Card from '#shadcn/card';
@@ -171,18 +172,36 @@
 		memberShell={Boolean(data.memberShell)}
 		representHref={data.representHref ?? null}
 	/>
+	{#if data.signedIn}
+		<!-- LINKMUSICIAN: carnet de contacts (D82), aussi pour une structure. -->
+		<div class="mx-auto max-w-5xl space-y-1 px-4 pb-16">
+			<SaveContactButton saved={data.saved} name={data.band.displayName} />
+		</div>
+	{/if}
 {:else if data.studio}
 	<StudioPublic
 		studio={data.studio}
 		canReport={data.canReport}
 		memberShell={Boolean(data.memberShell)}
 	/>
+	{#if data.signedIn}
+		<!-- LINKMUSICIAN: carnet de contacts (D82), aussi pour une structure. -->
+		<div class="mx-auto max-w-5xl space-y-1 px-4 pb-16">
+			<SaveContactButton saved={data.saved} name={data.studio.name} />
+		</div>
+	{/if}
 {:else if data.promoterOrg}
 	<PromoterOrgPublic
 		org={data.promoterOrg}
 		canReport={data.canReport}
 		memberShell={Boolean(data.memberShell)}
 	/>
+	{#if data.signedIn}
+		<!-- LINKMUSICIAN: carnet de contacts (D82), aussi pour une structure. -->
+		<div class="mx-auto max-w-5xl space-y-1 px-4 pb-16">
+			<SaveContactButton saved={data.saved} name={data.promoterOrg.name} />
+		</div>
+	{/if}
 {:else}
 	<SEO
 		title="{p.displayName} (@{p.handle})"
@@ -242,9 +261,14 @@
 							</div>
 							{#if p.bio}<p class="whitespace-pre-line leading-relaxed">{p.bio}</p>{/if}
 							{#if data.canReport}
-								<a href="/messages/nouveau?a={p.handle}" class="lm-btn gap-2">
-									<MessageCircle class="size-4" aria-hidden="true" /> Écrire à {p.displayName}
-								</a>
+								<div class="flex flex-wrap items-center gap-2">
+									<a href="/messages/nouveau?a={p.handle}" class="lm-btn gap-2">
+										<MessageCircle class="size-4" aria-hidden="true" /> Écrire à {p.displayName}
+									</a>
+									{#if data.signedIn}
+										<SaveContactButton saved={data.saved} name={p.displayName} />
+									{/if}
+								</div>
 							{:else if !data.isOwner}
 								<a href="/auth/login" class="inline-block text-sm underline"
 									>Connecte-toi pour écrire à {p.displayName}</a
@@ -339,7 +363,7 @@
 						<Card.Content class="space-y-3 text-sm">
 							{#if p.confirmed.appreciations.length > 0}
 								<div class="space-y-2">
-									<p class="font-medium">Apprécié·e après avoir joué ensemble</p>
+									<p class="font-medium">Apprécié·e après une jam ou une collaboration</p>
 									<ul class="flex flex-wrap gap-2" aria-label="Appréciations reçues">
 										{#each p.confirmed.appreciations as a (a.label)}
 											<li class="rounded-full border px-3 py-1">

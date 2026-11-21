@@ -380,7 +380,7 @@ horizontalement ou choisir par leur nom :
   mention **Reprendre**. Une présentation en trois écrans s'ouvre la
   première fois ; ensuite, tu accèdes directement au mode.
 - **jam** : jusqu'à deux jams proches à venir et des personnes de ton
-  réseau musical. Ouvre une jam pour voir les places et t'inscrire, ou un
+  carnet de contacts. Ouvre une jam pour voir les places et t'inscrire, ou un
   profil pour reprendre contact. Sans jam disponible, un lien permet de
   consulter l'agenda ; sans ville renseignée, complète d'abord ta commune.
 - **actualité** : les annonces récentes autour de toi et un accès à

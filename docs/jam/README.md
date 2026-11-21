@@ -396,17 +396,18 @@ La disponibilité figure dans l'export et est effacée à l'anonymisation.
   style, ce que l'on jouait, les personnes croisées et leurs instruments,
   les appréciations reçues. Résumé : jams, personnes rencontrées,
   instruments croisés, styles, communes (`logStats`, testé).
-- **Réseau musical** (`MusicalTie`, privé, à sens unique) : « Garder le
-  contact » sur « Qui était là ? » ajoute une personne, **seulement si
-  l'on a vraiment joué ensemble** (présence commune à une jam, ou
-  collaboration confirmée : `playedTogether`). On le voit et on le
-  retire depuis le carnet.
-- **Effets** : la recherche (`/decouvrir`) trie le réseau en premier,
-  puis par distance, avec un badge « Dans ton réseau » (jamais l'XP) ;
-  les suggestions d'invitation à une jam proposent le réseau d'abord
-  (`inviteSuggestions`).
-- **RGPD** : réseau dans l'export (`reseau_musical`), supprimé dans les
-  deux sens à l'anonymisation.
+- **Carnet de contacts** (`SavedContact`, D82, privé, à sens unique) :
+  « Garder le contact » sur « Qui était là ? » enregistre une personne sans
+  prérequis. On peut aussi enregistrer une personne ou une structure depuis
+  son profil. Une conversation n'ajoute personne et retirer ne la ferme pas.
+  `playedTogether` ne compte que les collaborations confirmées ; les jams
+  communes visibles sont présentées comme des déclarations (D81).
+- **Effets** : la recherche (`/decouvrir`) et les suggestions d'invitation
+  classent le carnet en premier, sans lui donner aucun droit : blocages,
+  refus, règles des mineur·es et confidentialité restent applicables.
+- **RGPD** : carnet dans l'export (`carnet_de_contacts`), supprimé dans les
+  deux sens à l'anonymisation. Les anciens `MusicalTie` sont conservés en
+  base mais ne sont plus écrits ; la migration les reprend dans le carnet.
 - **Code** : `#lib/jam/log`, `#server/jam/log` (`jamLog`),
   `#server/network/service`. Tests : intégration de la recherche (le
   réseau en tête), e2e `jams.spec.ts` (étape 6).

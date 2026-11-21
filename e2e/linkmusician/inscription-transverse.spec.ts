@@ -480,12 +480,13 @@ test.describe('LinkMusician — inscription multirôle (ONB-14)', () => {
 			await expect(page.getByText(minor.displayName)).toHaveCount(0);
 			await expect(page.getByText(hidden.displayName)).toHaveCount(0);
 
-			// Dans son réseau musical, la mineure redevient visible (comme les suggestions).
+			// D82 : le carnet se remplit librement ; il ne fait donc jamais réapparaître
+			// une mineure auprès d'un adulte.
 			const viewer = await personOf(account.email);
-			await db.musicalTie.create({ data: { ownerId: viewer.actorId, contactId: minor.actorId } });
+			await db.savedContact.create({ data: { ownerId: viewer.actorId, contactId: minor.actorId } });
 			await page.reload();
 			await waitForAppReady(page);
-			await expect(page.getByText(minor.displayName)).toBeVisible();
+			await expect(page.getByText(minor.displayName)).toHaveCount(0);
 		} finally {
 			await deleteMusicians([adult, minor, hidden]);
 		}

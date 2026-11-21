@@ -185,20 +185,21 @@ Dans une conversation ouverte, après avoir joué ensemble, touche
 
 ## 4. Tes contacts {#contacts}
 
-Dans **Messages**, l’onglet **Contacts** rassemble :
+Dans **Messages**, l’onglet **Contacts** contient ton carnet privé.
+Depuis un profil, touche **Ajouter à mes contacts** ; après une jam,
+**Garder le contact** fait la même chose. Tu peux enregistrer une personne
+ou une structure sans avoir joué ensemble et sans lui écrire. Personne
+n’est prévenu et l’ajout n’est pas réciproque.
 
-- les gens avec qui tu as **vraiment joué** (une collaboration
-  confirmée) et que tu as gardés : touche **Garder le contact** ;
-- les personnes avec qui tu as une **conversation ouverte**.
+Pour chacun, tu vois vos collaborations confirmées, vos mêmes jams déclarées
+si leur présence t’est visible, et vos projets en commun. **Écrire** ouvre
+la conversation existante ou une demande de premier message, avec les mêmes
+règles que pour toute autre personne.
 
-Pour chacun, tu vois comment vous vous êtes rencontrés (« 3 jams
-ensemble »), vos projets en commun (un groupe, des morceaux), et un bouton
-**Écrire**. Pas besoin d’échanger vos numéros : tout passe par l’app.
-
-**Retirer de mon carnet** enlève une personne que tu avais gardée après
-avoir joué ensemble. Cela ne bloque pas son compte et ne supprime pas une
-conversation ouverte : elle peut donc rester dans la liste des contacts
-au titre de cette conversation.
+Une conversation n’ajoute personne au carnet. **Retirer de mon carnet**
+enlève l’entrée sans bloquer la personne ni supprimer la conversation.
+Le carnet ne donne aucun accès aux jams de l’autre et ne contourne ni un
+refus, ni un blocage, ni les protections des mineur·es.
 
 ### Les groupes de contacts
 
@@ -224,7 +225,9 @@ Pour parler à tout le groupe d’un coup (une date de répète, un morceau à
 travailler) :
 
 1. Sous ton groupe de contacts, touche **Ouvrir une discussion**.
-2. Chaque personne du groupe reçoit une **invitation**. Elle ne voit rien
+2. Les personnes du carnet avec qui tu as déjà une conversation acceptée
+   peuvent recevoir une **invitation**. Enregistrer quelqu’un ne suffit pas.
+   La personne invitée ne voit rien
    de la discussion tant qu’elle ne l’a pas rejointe, et choisit
    **Rejoindre** ou **Non merci** (personne n’est prévenu).
 3. Si tu as créé la discussion, tu peux inviter d’autres contacts depuis **Qui est là**.

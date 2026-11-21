@@ -28,7 +28,7 @@ Lus dans l'URL (partageable), validés par `src/lib/search/filters.ts`
 
 - **Profils publics seulement** : ni anonymisé, ni masqué, ni suspendu, et
   onboarding terminé (mêmes règles que `publicActorWhere`, écrites en SQL).
-- **Tri** (D33) : son réseau musical d'abord (P2-16), puis la tranche de
+- **Tri** (D33) : son carnet de contacts d'abord (D82) (P2-16), puis la tranche de
   distance affichée, puis, dans une même tranche, la réputation (score
   interne de P2-08), enfin la distance et l'identifiant. Jamais l'XP. Le
   score reste dans la sous-requête SQL : il n'est jamais sélectionné ni
@@ -72,9 +72,8 @@ Lus dans l'URL (partageable), validés par `src/lib/search/filters.ts`
   un rayon de 50 km autour de ma commune, les 200 plus proches, avec les
   garde-fous de la recherche (profils publics, onboarding fini, ni blocage
   ni suspension), sans les personnes écartées. **Un·e mineur·e n'est jamais
-  suggéré·e à un adulte qui ne la connaît pas** (D5) : seulement si elle est
-  dans son réseau musical. Une date de naissance inconnue vaut la règle des
-  adultes.
+  suggéré·e à un adulte**, même enregistré·e dans son carnet (D82). Une date de naissance inconnue suit la protection des
+  mineur·es pour la personne suggérée, et la règle adulte pour le lecteur.
 - **Compatibilité** (`src/lib/discovery/compatibility.ts`, pur) : genres en
   commun (+2 chacun, +1 pour un genre voisin, 3 au plus), instrument
   complémentaire (+2 : un autre rôle que les miens parmi voix, harmonie,
@@ -82,7 +81,7 @@ Lus dans l'URL (partageable), validés par `src/lib/search/filters.ts`
   instrument principal (+2 au même niveau, +1 à un cran, −1 à trois crans
   ou plus). Sans genre proche ni instrument complémentaire : pas de
   suggestion.
-- **Ordre** : réseau musical d'abord, puis compatibilité, puis tranche de
+- **Ordre** : carnet de contacts d'abord, puis compatibilité, puis tranche de
   distance, puis distance. **Jamais l'XP ni le palier** (test : un million
   d'XP et TL3 ne changent rien). Seule la tranche de distance sort.
 - **Chaque carte dit pourquoi** (« Rock en commun · batterie · niveau

@@ -32,8 +32,8 @@ Les écrans dépendent des métiers (ONB-02, D57) : voir
 - **Premier résultat** : requête simple (`nearbyMusicians`, rayon de la
   personne ou 25 km), avec les garde-fous des suggestions (ONB-14) :
   personnes inscrites au profil public (ni masqué, ni supprimé, ni
-  suspendu), aucun blocage, et D5 : un·e mineur·e n'est montré·e à un
-  adulte que dans son réseau musical (date inconnue : traitée en mineur·e).
+  suspendu), aucun blocage, et D5 : un·e mineur·e n'est jamais suggéré·e à un
+  adulte, même enregistré·e dans son carnet (D82 ; date inconnue : traitée en mineur·e).
   La recherche complète arrive en P2-01. État vide honnête : « tu es parmi
   les premiers ».
 - L'XP arrive en chemin (`onProfileChanged` à chaque écran qui touche au

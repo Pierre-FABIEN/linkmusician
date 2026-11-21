@@ -43,9 +43,12 @@ git status, docs/diagram/README.md et docs/diagram/coverage.md.
 
 ## Prochain chantier
 
-**Clôture de Rencontre V1** ([rencontre-v1.md](rencontre-v1.md)), consignée le
-20/11/2026, pas encore commencée. Démarrage : ordonner les sept lots dans
-GitHub (#73), puis RV-01 par l'audit de #100.
+**Clôture de Rencontre V1** ([rencontre-v1.md](rencontre-v1.md)). RV-01 est
+livré. RV-02a ajoute le carnet volontaire (D82, #99 partielle) ; lire le
+[bilan du sous-lot](rv-02a-carnet.md) pour les vérifications et les limites.
+Prochaine tranche RV-02b : Découvrir tous les acteurs publics, puis
+l'organisation des trois espaces. RV-03 et RV-04 restent à traiter.
+Ne pas pousser automatiquement les commits locaux.
 
 ## Décisions et suites
 

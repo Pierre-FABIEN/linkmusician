@@ -109,7 +109,7 @@ describe.skipIf(!enabled)('prochaines actions (schéma e2e)', { timeout: 120_000
 				data: { personId: ids[k], specialties: ['RECORDING', 'MIXING'] }
 			});
 		for (const k of ['ines', 'mineur'])
-			await db.musicalTie.create({ data: { ownerId: ids.moi, contactId: ids[k] } });
+			await db.savedContact.create({ data: { ownerId: ids.moi, contactId: ids[k] } });
 		await db.block.create({ data: { blockerActorId: ids.bloque, blockedActorId: ids.moi } });
 
 		// Rang 1 : Inès a confirmé la prise de son, elle attend la mienne.

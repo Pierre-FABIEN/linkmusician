@@ -261,7 +261,8 @@ Ce sont des propositions facultatives, sans pénalité si tu ne les suis pas.
 Au palier musical **Pilier local** ou **Référence**, ouvre
 [Parrainer](/espace/parrainage) :
 
-1. Choisis deux personnes différentes de ton réseau musical.
+1. Choisis deux personnes différentes de ton carnet avec qui tu as déjà
+   une conversation acceptée des deux côtés.
 2. Ajoute, si tu veux, un mot expliquant pourquoi elles pourraient jouer ensemble.
 3. Touche **Les présenter**. Chacune reçoit une notification avec le
    profil de l'autre ; elles choisissent librement de se contacter.

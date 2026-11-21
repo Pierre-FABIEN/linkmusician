@@ -1,9 +1,9 @@
 /**
- * Coups de pouce (P4-13a, conception 07 §4.7) : lit le réseau **réel** de la
+ * Coups de pouce (P4-13a, conception 07 §4.7) : lit le carnet volontaire de la
  * personne et le passe au choix pur `#lib/career/nudges`.
  *
- * - Réseau : son réseau musical (`MusicalTie`, des gens avec qui elle a
- *   vraiment joué), visibles pour elle (ni blocage, ni compte masqué ou
+ * - Réseau : son carnet (`SavedContact`, D82), des personnes enregistrées,
+ *   visibles pour elle (ni blocage, ni compte masqué ou
  *   suspendu).
  * - Places libres : rôles d'instrument à pourvoir sur ses morceaux, et les
  *   personnes de son réseau à moins de 50 km qui déclarent cet instrument
@@ -70,7 +70,7 @@ async function lastProgressAt(personId: string) {
 }
 
 /**
- * Le réseau réel et les morceaux de l'équipe, avec leurs besoins (lecture
+ * Le carnet volontaire et les morceaux de l'équipe, avec leurs besoins (lecture
  * commune aux coups de pouce et aux prochaines actions, N3). Rien n'est
  * filtré par la gestion du morceau : l'appelant décide qui peut agir.
  */
@@ -83,7 +83,7 @@ export async function workNetworkFacts(
 	// Lecture à plat d'abord : Prisma lancerait sinon une requête par relation,
 	// même sans aucune ligne (compte neuf). Les détails ne partent que s'il y en a.
 	const [ties, rows] = await Promise.all([
-		prisma.musicalTie.findMany({
+		prisma.savedContact.findMany({
 			where: { ownerId: personId, contact: { ...visible, person: { isNot: null } } },
 			select: { contactId: true }
 		}),

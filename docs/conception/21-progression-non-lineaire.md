@@ -284,8 +284,8 @@ cause du lot **N1** (§15).
 | Actions prioritaires  | `src/lib/linkmusician/priorityActions.ts:29`, `server/space/priorities.ts` | Collaborations à valider, candidatures, demandes de contact, prochaine date | Bonne base des rangs 1–2 ; l'agenda mêle jams et collaborations ; ordre fixe par métier                                                                                |
 
 **Ce qui fonctionne** : tous sont des règles pures, testées, sans XP dans
-le tri ; les coups de pouce ne nomment que des personnes du **réseau
-musical réel** (`MusicalTie`), visibles, proches, hors équipe du morceau ;
+le tri ; les coups de pouce ne nomment que des personnes du **carnet
+volontaire** (`SavedContact`, D82), visibles, proches, hors équipe du morceau ;
 rien n'est notifié.
 
 **Dépendance linéaire** : `nextProductionNeed`
@@ -753,7 +753,7 @@ existants :
 | `needs`         | Besoins réels : rôle sans personne, étape sans responsable, plateau à pourvoir       | `WorkRole` libres, `nextProductionNeed`, annonces          |
 | `realisations`  | Réalisations du lecteur et de l'objet (§6.3)                                         | N1                                                         |
 | `orientation`   | Ambition personnelle ; type du projet ; branches « pas pour moi »                    | `Person.ambition` ; `Project.type` (P2) ; N4               |
-| `network`       | Personnes du réseau réel, visibles, proches, avec leurs spécialités                  | `MusicalTie`, `findActorsNear` (coups de pouce)            |
+| `network`       | Personnes du réseau réel, visibles, proches, avec leurs spécialités                  | `SavedContact`, `findActorsNear` (coups de pouce)          |
 | `opportunities` | Annonces ouvertes compatibles, visibles                                              | `Opportunity`, matching #27                                |
 | `dismissed`     | Suggestions différées ou masquées                                                    | N4 (aucune persistance avant)                              |
 
@@ -931,10 +931,10 @@ groupées si elles portent sur les mêmes titres.
 [Proposé, conforme à la conception 20 P12 et aux coups de pouce existants]
 
 - **Jamais sans besoin exprimé ou calculé** sur un objet du lecteur.
-- **Nommer** une personne seulement si elle est dans le **réseau réel**
-  du lecteur (`MusicalTie` : on a déjà joué ensemble), visible, non
-  bloquée, avec la spécialité correspondante ; la phrase dit pourquoi
-  (« vous avez joué ensemble »).
+- **Nommer** une personne seulement si elle est dans le **carnet**
+  du lecteur (`SavedContact`, D82), visible, non bloquée, avec la spécialité
+  correspondante ; la phrase dit pourquoi (« dans ton carnet »), sans
+  prétendre que les deux ont joué ensemble.
 - **Sinon**, la suggestion mène à une **recherche filtrée** (métier,
   spécialité, zone arrondie), dont l'ordre reste celui de la recherche
   (jamais l'XP).
@@ -1434,7 +1434,7 @@ deux cents concerts.
 | Suggestion qui révèle un projet ou un morceau privé   | Candidates construites **après** le filtre de lecture ; titre et compte calculés sur le visible ; pas de compte de masqués                     | —                                                                                 | Intégration : lecteur sans partage, aucune clé ni titre ; snapshot du texte                               |
 | Action après révocation d'un mandat ou d'une capacité | Droit relu à l'écriture sous verrou (I12, D71) ; suggestions jamais mises en cache avec les droits                                             | —                                                                                 | Intégration à barrière : révocation entre affichage et POST → refus sans effet partiel                    |
 | Recommandations inadaptées aux mineur·es              | Filtre d'âge dans la projection serveur (§8.3, point 4)                                                                                        | —                                                                                 | Unitaire : profil mineur, aucune suggestion `prod.find_pro` hors réseau, `scene.slot` solo                |
-| Professionnel·le nommé·e sans justification           | Nom seulement depuis `MusicalTie` visible ; sinon recherche                                                                                    | —                                                                                 | Unitaire : aucune personne hors réseau dans `subject`                                                     |
+| Professionnel·le nommé·e sans justification           | Nom seulement depuis `SavedContact` visible ; sinon recherche                                                                                  | —                                                                                 | Unitaire : aucune personne hors réseau dans `subject`                                                     |
 | Client qui forge un rang ou une clé                   | Le client n'envoie que « plus tard / pas pour moi » sur une clé ; le serveur vérifie que la clé fait partie des suggestions calculées pour lui | Clé bornée, périmètre relu                                                        | Intégration : POST de clé inventée → refus                                                                |
 | Suggestion utilisée comme spam d'invitations          | Une suggestion ouvre un écran ; les quotas d'invitation existants s'appliquent                                                                 | —                                                                                 | E2E : aucun message envoyé sans geste                                                                     |
 | Calculs coûteux sur les tableaux de bord              | Voir §13                                                                                                                                       | —                                                                                 | Test de nombre de requêtes par chargement (budget)                                                        |

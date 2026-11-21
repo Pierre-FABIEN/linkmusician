@@ -10,14 +10,16 @@ describe('groupes de contacts', () => {
 });
 
 describe('comment on s’est rencontrés', () => {
+	// D82 : « joué ensemble » seulement pour une collaboration confirmée ;
+	// une jam commune est une déclaration, dite comme telle.
 	it.each([
-		[{ jamsTogether: 1, collaborations: 0, inCarnet: true }, 'Une jam ensemble'],
+		[{ jamsTogether: 1, collaborations: 0, inCarnet: true }, 'Une même jam déclarée'],
 		[
 			{ jamsTogether: 3, collaborations: 1, inCarnet: true },
-			'3 jams ensemble et une collaboration'
+			'Une collaboration confirmée et 3 mêmes jams déclarées'
 		],
-		[{ jamsTogether: 0, collaborations: 2, inCarnet: true }, '2 collaborations'],
-		[{ jamsTogether: 0, collaborations: 0, inCarnet: true }, 'Vous avez joué ensemble'],
+		[{ jamsTogether: 0, collaborations: 2, inCarnet: true }, '2 collaborations confirmées'],
+		[{ jamsTogether: 0, collaborations: 0, inCarnet: true }, 'Dans ton carnet'],
 		[{ jamsTogether: 0, collaborations: 0, inCarnet: false }, 'Vous vous écrivez']
 	])('%o → %s', (input, expected) => {
 		expect(howWeMet(input)).toBe(expected);

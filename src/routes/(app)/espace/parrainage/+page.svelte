@@ -52,8 +52,10 @@
 				<h2 id="presenter" class="text-xl font-bold">Présenter deux personnes</h2>
 				{#if data.contacts.length < 2}
 					<p class="text-sm text-muted-foreground">
-						Il te faut au moins deux personnes dans ton réseau musical : garde le contact avec les
-						gens avec qui tu joues, depuis <a href="/jam/carnet" class="underline">ton carnet</a>.
+						Il te faut au moins deux personnes majeures dans <a
+							href="/messages/contacts"
+							class="underline">ton carnet</a
+						>, avec qui tu as une conversation acceptée des deux côtés.
 					</p>
 				{:else}
 					{#if form?.error}

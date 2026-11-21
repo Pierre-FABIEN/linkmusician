@@ -148,7 +148,7 @@ export async function searchMusicianIds(
 		SELECT r."actorId", r.meters, r."inNetwork" FROM (
 			SELECT a.id AS "actorId", public.ST_Distance(me.point, other.point)::float8 AS meters,
 				EXISTS (
-					SELECT 1 FROM ${t('musical_ties')} mt
+					SELECT 1 FROM ${t('saved_contacts')} mt
 					WHERE mt."ownerId" = ${searcherId} AND mt."contactId" = a.id) AS "inNetwork",
 				COALESCE(rs."internalScore", 0) AS rank_score
 			FROM ${t('actor_locations')} me

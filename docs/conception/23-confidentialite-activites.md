@@ -77,8 +77,8 @@ Une exclusion ou un blocage l'emporte toujours sur un partage.
 | `ActivityVisibilityExclusion`  | « Masquer mes activités à cette personne », privée, sans notification                                                                       | `@@unique([ownerId, excludedId])`, index `excludedId`                                 |
 | `JamDiscoverySession`          | Visibilité sur place, pour une jam, jusqu'à une échéance                                                                                    | `@@unique([opportunityId, actorId])`, `expiresAt`, index `(opportunityId, expiresAt)` |
 
-`MusicalTie` et `JamAttendance` restent inchangés : le carnet n'ouvre aucun
-accès. Les quatre tables sont couvertes par l'export RGPD et effacées à
+Le carnet volontaire (`SavedContact`, D82, successeur de `MusicalTie`) n'ouvre
+aucun accès aux activités. `JamAttendance` reste distinct du carnet de contacts. Les quatre tables sont couvertes par l'export RGPD et effacées à
 l'anonymisation.
 
 ### 2.4 Besoins réels des organisateurs (moindre privilège)

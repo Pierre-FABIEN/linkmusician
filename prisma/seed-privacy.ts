@@ -41,7 +41,7 @@ export async function seedPrivacy(
 			create: { actorId: malik, past: 'SELECTED', future: 'PRIVATE' },
 			update: { past: 'SELECTED' }
 		});
-		const ties = await prisma.musicalTie.findMany({
+		const ties = await prisma.savedContact.findMany({
 			where: { ownerId: malik },
 			take: 6,
 			select: { contactId: true }
